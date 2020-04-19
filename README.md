@@ -38,7 +38,7 @@ Since IntraMine is for intranet use only, opportunities arise to simplify some t
 ## Metablather
 All original work is covered under an UNLICENSE. On the off chance that you see something you like, use it.
 
-If you spot a bug above the minor cosmetic level, please send an email about it to KLB@intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
+If you spot a bug above the minor cosmetic level, please send an email about it to klb7@intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
 
 ## Warning
 IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, gosh think twice.
