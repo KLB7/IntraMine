@@ -1,0 +1,159 @@
+Search
+======
+2019-10-23 14_30_47-Full Text Search.png
+
+The Search service provides an interface for Elasticsearch, to carry out searches and show search results.
+
+This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.
+
+Main back-end Perl files
+-------------------
+ - intramine_search.pl: the main file. It delivers the Search HTML page, and calls Elasticsearch to do searches, sending hit results back to the Search page.
+ - elasticsearcher.pm uses the "Search::Elasticsearch" module to carry out test searches, and formats hit results, complete with autolinks.
+
+Main front-end JavaScript files
+--------------------------
+ - intramine_search.js is the main front-end file. It displays the search form and hit results. And it sends an XMLHttpRequest() back to intramine_search.pl to get the contents of the search form, and do a search.
+ - jqueryFileTree.js, together with some jquery files, provides the directory picker for the search form.
+
+Search configuration
+--------------------
+Well there's only one value to adjust really, and that's
+ES_NUMHITS					100
+in data/intramine_config.txt. "ES_NUMHITS" determines the maximum number of hits shown in search results. The default is 100, and after some experimenting, that should be treated as a maximum. Any lower number won't affect search speed.
+
+You could also adjust
+ELASTICSEARCH_MAXFILESIZE_KB	700
+which determines the maximum file size in kilobytes that Elasticsearch will index. Again, some experimenting suggests treating 700 as the largest permitted file size, or perhaps 800. Anything larger will bog down any searches that hit the larger files. In practice not many files are larger than 700 KB, and they are mostly precompiled headers or massive lists of unicode symbols or other files that you wouldn't want indexed anyway.
+
+Searching
+===================
+2019-10-04 12_55_28-Full Text Search.png
+
+Put your text to find in the "Search for" field, and a document will match if all the words are found in the document, at any position. If you check "Match Exact Phrase" then the exact phrase will be matched.
+
+Searches are not cAse senSitive.
+
+Search is word oriented, meaning that most non-word symbols will be ignored when searching. However, you can include .$~%@: since they make up part of some full names in code, for example:
+ - SomeClass::MethodName
+ - SomeClass::~SomeClass
+ - $perlvar
+ - %perlhash
+ - @perlarray
+ - class.method (or class.func etc)
+
+Both file contents and file name are searched, and for scoring purposes a slight preference is given to matches in the file name.
+
+2019-11-23 17_55_38-Full Text Search.png
+You can use the "Directory" picker (three dots on a green background) to limit your search to a particular directory. Beside it, the "Subdirectories too" box is checked by default, because searching all subdirectories with IntraMine is not slower than searching just the top directory.
+
+2019-11-23 17_56_28-Full Text Search.png
+The "Language" dropdown menu allows picking specific file extensions, grouped by language. The commonest suspects (plain text, Perl, C/C++ etc) are listed first, followed by an alphabetical list of less common languages. There are 226 extensions, grouped into 136 languages.
+
+2019-11-23 17_59_26-Full Text Search.png
+Use the "Sort by" dropdown to sort results in the usual ways. The default is "Score", which lists best results first as determined by Elasticsearch.
+
+When you hit the "Search" button you'll be shown links to up to 100 matching documents, with a bit of context surrounding the first hit in each document.
+2019-10-14 15_37_06-Full Text Search.png
+
+If you click on a "regular" link in the Search hit results, IntraMine's Viewer will display the file in a new browser tab. Your search words (or phrase) will be highlighted - and there's a Show/Hide Initial Hits button at the top of the view.
+
+If you click on the pencil icon (edit1.png) that follows a regular link, the file will open in an editor. This can be IntraMine's simple editor or the editor of your choice. See "Editing documents.txt" for the how-to.
+
+If a word or function or class name that you're searching for isn't common, you'll find there's no need to limit the search by directory or language.
+
+Searches are very fast, except for pathological cases (such as searching for "main" in Qt and other folders, which will turn up more than 10,000 hits but still struggle back to you with the best matches quickly, 1.3 seconds on my 2 GHz PC).
+2019-10-14 15_46_53-Full Text Search.png
+
+Some Search limitations
+=======================
+ - as mentioned, IntraMine's Elasticsearch-based search is always case insensitive.
+ - operators are not indexed. For example you can't search for "++$hitCounter" exactly, and in fact you'll get better results if you search for just "$hitCounter".
+ - the Viewer always renders HTML views rather than showing the raw HTML/CSS/JavaScript source, so such things as JavaScript variables can be searched for, but hits will not be highlighted in the view that results from clicking on a link in the Search hit results.
+ - text (.txt) files are processed by Gloss before display. This means that searches which include words that Gloss will remove (mainly "TABLE" at the beginning of a line) will not be highlighted properly in resulting views.
+ - if "Match Exact Phrase" is selected, the phrase will be matched only if all words occur on the same line.
+ - there is no regular-expression mode.
+
+Under the hood
+==============
+Load sequence
+-------------
+2019-11-26 14_17_30-Document1 - Word.png
+1. Browser receives request for Search page, eg 'http://localhost:81/Search'
+2. Request is received by swarmserver.pm#MainLoop(). A "bare" request with nothing following "/Search" is interpreted as "/Search/?req=main", which invokes the %RequestAction handler SearchPage(). This is registered in intramine_search.pl around line 76 as "$RequestAction{'req|main'} = \&SearchPage;"
+3. intramine_search.pl#SearchPage() responds to the browser request with an HTML "skeleton" of the Search page, including links for all needed CSS and JavaScript files
+4. When page loading is complete, intramine_search.js#loadPageContent() sends a "/Search/?req=frm" request using XMLHttpRequest(). This is picked up by swarmserver.pm#MainLoop() and triggers a call to SearchForm() which returns the contents of the search form.
+
+Search sequence
+---------------
+2019-11-26 14_21_45-Document1 - Word.png
+1. User clicks the "Search" button on the Search page
+2. intramine_search.js#searchSubmit() sends an XMLHttpRequest containing "req=results"
+3. swarmserver.pm#HandleDefaultPageAction() calls the handler for "req=results", which has been set in intramine_search.pl with "$RequestAction{'req|results'} = \&SearchResults;". Details supplied with the request, such as "findthis=search for these words" are placed in the $formH hash reference supplied as an argument to SearchResults(), as eg $formH{'findthis'} = "search for these words".
+4. intramine_search.pl#SearchResults() pulls the search request details out of its "$formH" hash reference and calls $ElasticSearcher->GetSearchResults(...), where $ElasticSearcher is an instance of elasticsearcher (see elasticsearcher.pm).
+5. elasticsearcher.pm#GetSearchResults() uses Search::Elasticsearch to do the search, and returns hits after formatting a bit with FormatHitResults()
+6. elasticsearcher.pm#FormatHitResults() puts links on the hit result file paths, and returns HTML with time stamp, file size etc for each hit.
+7. intramine_search.js#searchSubmit() has been waiting patiently, and on receiving the response from GetSearchResults it puts them in the web page, as the entire contents of the "scrollAdjustedHeight" div.
+
+Directory filter
+----------------
+The directory picker for Search is essentially the same as the one used for the Files page (see Files.txt). This version doesn't have links on file names, although it will show previews of images because I was too lazy to take that out.
+
+Language filter
+---------------
+The Search form's Language drop down presents 226 extensions groups into a bit over 100 languages, with commonest languages first.
+
+The Language dropdown is filled in by intramine_search.pl#SearchForm() in response to a "req=frm" request from intramine_search.js#loadPageContent() when the Search page has loaded.
+
+On intramine_search.js#searchSubmit(), the names of all selected languages are sent with the search request, ending up in the $formH hash by the time we enter SearchResults(). Each selected language is present in the $formH hash as the language name with "EXT_" prepended, eg $formH{"EXT_Perl"}: if the language hasn't been selected, it won't be in the $formH hash. SearchResults() calls GetWantedExtensions() to compare the values in $formH with the full list in ext.pm, and it returns a list of selected file extensions corresponding to the languages selected, together with a bool telling if all languages have been selected.
+
+ext.pm, has a few subroutines but is basically a big hash of Language names and their corresponding extensions.
+
+Elasticsearch index structure
+-----------------------------
+elasticsearch_bulk_indexer.pm#AddDocumentToIndex() adds the contents of a file to the Elasticsearch index. This is mostly straightforward, but there are a couple of "enhancements".
+
+Special word characters
+~~~~~~~~~~~~~~~~~~~~~~~~
+Our index is word-oriented, thanks to using the "analysis-ice" tokenizer, but it's nice to be able to search for code names, which can include special characters. So the characters '$', '~', '%', and '@' are converted to English-like short strings ('%' is converted to '__PC_' for example). That way, the symbols are included with text that follows them as a single word in the index, for example "%hash" is stored as "__PC_hash". If you search for "%hash" it's first converted to "__PC_hash" as the term to search for, and then converted back to "%hash" in the search results display. Periods are also encoded, where they are jammed between two words (eg "class.data").
+
+Fast folder searches
+~~~~~~~~~~~~~~~~~~~~
+We want to be able to limit searches to just one folder, and optionally all subfolders of that folder, without having to check what the parent and grandparent etc folders are for each file in the index.
+
+The solution in IntraMine is to have the index track all partial paths leading up to the file being indexed in separate "folder1", "folder2", "folder3" etc fields up to "folder32", where the number is a count of the slashes in the path leading to the file being indexed, starting at the leftmost slash. See elasticsearch_bulk_indexer.pm#GetPartialPathsForFullPath()).
+
+As an example, let's pretend your index has entries for these two (fictitious) files:
+TABLE folderN entries for "C:/Go/src/entity.go"
+Partial path		Slash count		Index field		Field value
+C:/					1				folder1			C:/
+C:/Go/				2				folder2			C:/Go/
+C:/Go/src/			3				folder3			C:/Go/src/
+C:/Go/src/			3				allfolders		C:/Go/src/
+					4..32			folder4..32		empty string
+TABLE folderN entries for "C:/Go/src/template/doc.go"
+Partial path		Slash count		Index field		Field value
+C:/					1				folder1			C:/
+C:/Go/				2				folder2			C:/Go/
+C:/Go/src/			3				folder3			C:/Go/src/
+C:/Go/src/template/	4				folder4			C:/Go/src/template/
+C:/Go/src/template/	4				allfolders		C:/Go/src/template/
+					5..32			folder5..32		empty string
+
+Suppose you use the Search form's Directory picker to select "C:/Go/src/", and check "Subdirectories too": to limit the search, we count the number of slashes in the limiting top directory("C:/Go/src/" has three slashes) and set up the search to require a match for "C:/Go/src/" in the folder3 index field. You'll notice both example files above have "C:/Go/src/" in the folder3 field, so they will both match, even though "doc.go" is down one level lower than "entity.go". This approach avoids looking at any file that doesn't have "C:/Go/src/" in its folder3 field by using a "filter" field in the search: in elasticsearch.pm#GetWordHits(), "$folderSearchFilterName" will be set to "folder3" and the array of wanted values for that field will contain "C:/Go/src/" as its only entry.
+
+When searching "C:/Go/src/" but not its subfolders, the search is done on the "allfolders" field, and so the second file above longer matches.
+
+If you look at elasticsearch_bulk_indexer.pm#MakeElasticsearchIndexEntry() you'll see that in addition to folder1..folder32 index fields there are folderExt1..folderExt32 fields. These have the same values as the folder1.folder32 fields, but with the file's extension appended. For example, for the entity.go index entry with folder3 = "C:/Go/src/" there would also be a folderExt3 = "C:/Go/src/go" entry. These fields combine partial path and extension in a single entry, which simplifies searches that involve filtering on both directory and extension at the same time. You can see them used in elasticsearcher.pm#GetWordHits(), specifically case 4 which covers searching when both specific extensions and a specific directory are selected.
+
+Elasticsearch queries
+---------------------
+You can find the constructed Elasticsearch queries in elasticsearcher.pm#GetWordHits() and elasticsearcher.pm#GetPhraseHits(), the latter handling "Match Exact Phrase" searches. Some preparation before searching is done in the sub that calls them, elasticsearcher.pm#GetSearchResults().
+
+The queries in GetWordHits() and GetPhraseHits() were hard won, based on Elasticsearch documentation, Search::Elasticsearch docs, and a few web examples, not one of them appropriate out of the box for the text searches wanted. I think it took me about 100 tries to get something working, maybe it was only 70. Such constructs as body=>query=>bool=>must=>multi_match=>query=>"the actual query" are right at my limit, and I hope to repeat the experience only once more in my life when a new version of Search::Elasticsearch is released for Elasticsearch v7.
+
+My rambling points are: if you want to write your own Elasticsearch queries involving text searches then the examples in IntraMine might help you get started; and if you want to tweak the existing queries, - well, I wish you all the patience in the world.
+
+---
+contents.txt
+---

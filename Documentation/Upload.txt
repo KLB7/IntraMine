@@ -1,0 +1,26 @@
+Upload
+========
+Main file: intramine_uploader.pl.
+
+This server uploads files to the IntraMine PC from anywhere on your LAN. It can overwrite any file on your IntraMine PC that's not read-only, and so should only be used if your LAN is secure and "matters of internal security" will not be an issue.
+
+To upload a file
+================
+1. Click on "Choose File" and select your file
+2. Type in a specific directory on your IntraMine PC in the "Server Directory:" box, or else the "C:/temp/" directory will be used
+3. Click Upload and the file will be copied to your IntraMine PC.
+4. If the file already exists, you will be asked if you want to overwrite it.
+
+2019-12-03 17_45_57-Upload a File.png
+
+Configuration
+=============
+If you don't want to use C:/temp/ as your default upload directory, you can change it in data/intramine_config.txt. Look for
+---
+DEFAULT_UPLOAD_DIR	:/temp/
+---
+around line 107. "C:" will be used as the drive letter.
+
+---
+contents.txt
+---

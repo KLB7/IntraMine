@@ -1,0 +1,3 @@
+# Format: key<tabs>value, lines starting with # are ignored
+# DBX example database. Used by intramine_db_example.pl.
+DBEGPATH	data/dbeg.db

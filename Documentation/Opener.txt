@@ -1,0 +1,18 @@
+Opener
+=======
+
+intramine_open_with.pl is the main file for the Opener service. The Opener is only invoked when you set up IntraMine to use your preferred editor for editing files. It's not needed if you configure IntraMine to use its own Editor server, or if you turn off editing in the config. See "Editor.txt" and especially "Editing documents.txt" for configuration details.
+
+The Opener is a "second level" server with no user interface. Here's a typical example of how it's called:
+1. While turning file mentions into links, intramine_linker.pl#GetTextFileRep() puts in an edit link for each source and text file containing "onclick=editOpen(this.href)', wrapped around the image of a pencil.
+2. A click on the pencil triggers viewerLinks.js#editOpen().
+3. If you have configured IntraMine to use your preferred editor, editOpen() calls editWithPreferredApp(), which in turn eventually forwards the request to the Opener, including the file path to open. Schematically, the request is
+ -- http://host:ip/Opener/?req=open&clientipaddress=123.123.123.1&file=path_to_file
+4.The Opener has just one registered %RequestAction, "$RequestAction{'req|open'} = \&OpenTheFile;" and that's called in response to the request.
+5. intramine_open_with.pl#OpenTheFile() in turn calls RemoteOpenFile() or LocalOpenFile(), depending on whether the request came from another PC or from the IntraMine PC itself.
+5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the instance of IntraMine-Remote.ps1 that's running on the remote PC. See "Editing documents.txt" for details on getting that up and running. IntraMine-Remote.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.
+5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "unicode" characters in the file path.
+
+---
+contents.txt
+---

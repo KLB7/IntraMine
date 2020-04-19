@@ -1,0 +1,61 @@
+Configuring IntraMine
+=====================
+
+Basic configuration
+===================
+Most of IntraMine's configuration options are discussed where they naturally come up. And all of the values in data/intramine_config.txt, IntraMine's main configuration file, are described in that file where they are defined. If you sadly suffer from "compelled to read the entire manual" syndrome, as I do, then you might want to skim through data/intramine_config.txt to see what's available.
+
+Here we'll mostly go the other way, with a guide to finding config values to make specific things happen. And a brief chat about adding your own configuration values if you're writing your own IntraMine service.
+
+TABLE IntraMine configuration
+To configure					See
+Port numbers					A note on port numbers.txt
+Start/stop services				"Using IntraMine.txt#Supplied services"
+Search options					"Search.txt#Search configuration"
+File Watcher initial config		"Installing File Watcher.txt#Configure the service a bit"
+Directories to index			Configuring folders to index and monitor.txt
+Editing							Editing documents.txt
+Viewer							"Viewer.txt#Viewer configuration"
+Opening PDF and docx files		"Viewer.txt#PDF and docx viewers"
+Gloss standalone HTML			"gloss2html.pl for standalone Gloss files.txt#Full image display versus image hovers", see also intramine_config.txt#243
+Testing							"Testing with IntraMine.txt#Installing ChromeDriver", "Testing with IntraMine.txt#Configuring IntraMine to run your test file"
+
+Configuration value files
+=========================
+IntraMine's configuration values can be found (within your IntraMine folder) in
+TABLE IntraMine configuration value files
+File						In brief
+data/intramine_config.txt	port numbers, file and folder names etc
+data/serverlist.txt			services to run: Perl program name, how many of each, etc
+data/search_directories.txt	directories to index/monitor with Elasticsearch
+
+Per-service configuration
+========================
+Each IntraMine service (including ones you might write) can have its own specific configuration file. To create such a file for a new service you're writing:
+ - note the Short name you've assigned to the service, eg "DBX". The master list of Short names is in data/serverlist.txt
+ - create a file in IntraMine's data/ folder called "SHORT_config.txt", where "SHORT" is the short name of the service, eg DBX_config.txt
+ - put your config values in there using the format Key <one or more tabs> value, eg 
+DBEGPATH	data/dbeg.db
+ - the config values will be loaded for your service when you call SSInitialize() near the top of your program.
+ - you can retrieve values using the subs in intramine_config.pm (these will be available if you put "use swarmserver;" near the top of your program).
+ 
+TABLE How to retrieve configuration values using subs in intramine_config.pm
+To retrieve					Call		Eg
+A string					CVal()		my $mainPort = CVal('INTRAMINE_MAIN_PORT');
+A full path from partial	FullDirectoryPath()	my $dbPath = FullDirectoryPath('DBEGPATH');
+
+intramine_config.pm#FullDirectoryPath() expects the named partial path to go from the top of your IntraMine folder, wherever it is, down to the file you want. For example, consider the 
+DBEGPATH	data/dbeg.db
+entry in DBX_config.txt. My IntraMine folder is at C:/perlprogs/mine/. Calling
+my $dbPath = FullDirectoryPath('DBEGPATH');
+results in $dbPath == 'C:/perlprogs/mine/' . 'data/dbeg.db';
+ie $dbPath == 'C:/perlprogs/mine/data/dbeg.db';
+
+intramine_config.pm#CVal() retrieves the string associated with a name, for example intramine_config.txt has
+TOTAL_SWARM_PORTS_TO_MONITOR	48
+by default, so
+CVal('TOTAL_SWARM_PORTS_TO_MONITOR') will return '48'. And Perl nicely treats strings as numbers with only the need for an occasional "plus zero" (see intramine_main.pl#AddAllListeners() for an example).
+
+---
+contents.txt
+---

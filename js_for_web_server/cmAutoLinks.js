@@ -1,0 +1,983 @@
+// cmAutoLinks.js: insert links automatically in CodeMirror for local and web files,
+// and mentions of headers in the document. Links are done on demand, when new lines
+// are scrolled into view.
+// Handle clicks on links, too.
+// See intramine_file_viewer_cm.pl#CmLinks(), which is called in response to a req=cmLinks
+// request. See requestLinkMarkupWithPort() below, which also adds links to internal headers.
+
+// Track lines that have been looked at, by line number.
+let lineSeen = {};
+let linkOrLineNumForText = new Map();
+
+// On "load" or "scroll" add links to visible text. Links can be to a web page, a local file
+// (with special handling for local images), or a mention of some heading in the table of contents.
+// Header mentions are done here in JS, for the others we call back to Perl.
+// We avoid doing the same line more than once, since views are read-only so the links don't change.
+function addAutoLinks() {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return;
+		}
+
+	let cm = myCodeMirror;
+
+	// Get the visible text, as one big string with '\n' between lines.
+	let rect = cm.getWrapperElement().getBoundingClientRect();
+	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
+	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
+
+	if (!allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum))
+		{
+		let visibleText = cm.doc.getRange({
+			line : firstVisibleLineNum,
+			ch : 0
+		}, {
+			line : lastVisibleLineNum
+		});
+
+		// TODO trim lines already seen, from start and end of visibleText.
+
+		// Mark up local file, image, and web links in visible text.
+		// console.log('Calling requestLinkMarkup');
+		requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
+		}
+}
+
+// Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
+function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum) {
+	let request = new XMLHttpRequest();
+	//let theRequest = 'http://' + mainIP + ':' + theMainPort + '/Viewer/?req=portNumber';
+	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
+	request.open('get', theRequest, true);
+	
+	request.onload =
+			function() {
+				if (request.status >= 200 && request.status < 400)
+					{
+					// Success?
+					let resp = request.responseText;
+					if (isNaN(resp))
+						{
+						let e1 = document.getElementById(errorID);
+						e1.innerHTML = 'Error, server said ' + resp + '!';
+						}
+					else
+						{
+						requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, resp);
+						}
+					}
+				else
+					{
+					// We reached our target server, but it returned an error
+					let e1 = document.getElementById(errorID);
+					e1.innerHTML =
+							'Error, server reached but it could not handle request for port number!';
+					}
+			};
+	
+	request.onerror = function() {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	};
+	
+	request.send();
+}
+
+// Add link markup to view for newly exposed lines. Remember the lines have been marked up.
+function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
+	let request = new XMLHttpRequest();
+	let remoteValue = (weAreRemote)? '1': '0';
+	let allowEditValue = (allowEditing)? '1': '0';
+	let useAppValue = (useAppForEditing)? '1': '0';
+	
+	request.open('get', 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
+			+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
+			+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
+			+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
+			+ lastVisibleLineNum);
+
+	request.onload =
+			function() {
+				if (request.status >= 200 && request.status < 400)
+					{
+					let resp = request.responseText;
+					if (resp != 'nope')
+						{
+						let jsonResult = JSON.parse(resp);
+
+						for (let ind = 0; ind < jsonResult.arr.length; ++ind)
+							{
+							let markupArrEntry = jsonResult.arr[ind];
+							let len = markupArrEntry["textToMarkUp"].length;
+
+							if (!(markupArrEntry["lineNumInText"] in lineSeen))
+								{
+								addLinkMarkup(cm, markupArrEntry["lineNumInText"],
+										markupArrEntry["columnInText"], len,
+										markupArrEntry["linkPath"], markupArrEntry["linkType"],
+										markupArrEntry["textToMarkUp"]);
+								// Add position of last char to mark, for checking agains jsonResults below.
+								markupArrEntry["lastColumnInText"] =
+										markupArrEntry["columnInText"] + len;
+								}
+							else
+								{
+								markupArrEntry["lineNumInText"] = -1; // meaning already seen, skip for internal mentions
+								}
+							}
+						// Mark up mentions of Table of Contents entries, avoiding other links.
+						markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+								lastVisibleLineNum, jsonResult);
+						}
+					else
+						{
+						// Maybe there are some TOC mentions, in spite of no file/image/web links.
+						let jsonResult = {};
+						jsonResult.arr = [];
+						markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+								lastVisibleLineNum, jsonResult);
+						}
+
+					// Avoid visiting the same lines twice, we're dealing with a read-only file view.
+					rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
+					}
+				else
+					{
+					// We reached server but it returned an error. Bummer, no links.
+					// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
+					}
+			};
+
+	request.onerror = function() {
+		// There was a connection error of some sort. Double bummer, no links.
+		console.log('requestLinkMarkupWithPort connection error!');
+	};
+
+	request.send();
+}
+
+// iPad, add poke-a-link handlers. NOT USED.
+function addTouchHandlersForLinkMarkup(className) {
+	let linkElems = document.getElementsByClassName(className);
+	for (let i = 0; i < linkElems.length; ++i)
+		{
+		let el = linkElems[i];
+		el.addEventListener("touchstart", handleFileLinkClicks);
+		el.addEventListener("touchend", handleFileLinkMouseUp);
+		}
+}
+
+function addClickHandlersForLinkMarkup(className) {
+	let linkElems = document.getElementsByClassName(className);
+	for (let i = 0; i < linkElems.length; ++i)
+		{
+		let el = linkElems[i];
+		el.addEventListener("mousedown", handleFileLinkClicks);
+		}
+}
+
+// Mark up mentions of headings (typically functions and classes) within our document.
+function markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum,
+		jsonResult) {
+	let myLines = visibleText.split("\n");
+	let numLines = lastVisibleLineNum - firstVisibleLineNum + 1;
+	let actualLineNumber = firstVisibleLineNum;
+	for (let ind = 0; ind < numLines; ++ind)
+		{
+		if (!(actualLineNumber in lineSeen))
+			{
+			markUpInternalHeadersOnOneLine(cm, myLines[ind], actualLineNumber, jsonResult);
+			}
+		++actualLineNumber;
+		}
+}
+
+// See cmTocAnchors.js#getLineNumberForTocEntries() for the filling of lineNumberHasToc etc.
+function markUpInternalHeadersOnOneLine(cm, lineText, lineNum, jsonResult) {
+	// Avoid lines that already have a TOC entry.
+	let tocLineNum = lineNum + 1;
+	if (tocLineNum in lineNumberHasToc)
+		{
+		return;
+		}
+
+	// Search for and look at tokens.
+	let regex = /([$_~A-Za-z0-9]+)/g;
+	let currentResult = {};
+	while ((currentResult = regex.exec(lineText)))
+		{
+		let tok = currentResult[1];
+		let pos = currentResult.index;
+
+		let tokForMethod = tok + "()";
+		let haveTocEntry =
+				((tok in lineNumberForTocEntry) || (tokForMethod in lineNumberForTocEntry));
+
+		if (haveTocEntry)
+			{
+			let charEnd = pos + tok.length;
+			// If file and internal link text overlap, file wins.
+			if (!tokenOverlapsExistingMarkup(lineNum, pos, charEnd, jsonResult))
+				{
+				let nextCharPos = pos + tok.length;
+				let nextChar = (nextCharPos < lineText.length) ? lineText.charAt(nextCharPos) : '';
+				let preferFn = (nextChar === "(");
+				let tocLineNum = 0;
+				if (preferFn && (tokForMethod in lineNumberForTocEntry))
+					{
+					tocLineNum = lineNumberForTocEntry[tokForMethod];
+					}
+				else
+					{
+					tocLineNum =
+							(tok in lineNumberForTocEntry) ? lineNumberForTocEntry[tok]
+									: lineNumberForTocEntry[tokForMethod];
+					}
+
+				addInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum);
+				}
+			}
+		}
+}
+
+// Return true if range for potential markup overlaps at all with existing markup for
+// a file, image, or web link.
+function tokenOverlapsExistingMarkup(lineNum, firstCharPos, lastCharPos, jsonResult) {
+	let result = false;
+
+	for (let ind = 0; ind < jsonResult.arr.length; ++ind)
+		{
+		let markupArrEntry = jsonResult.arr[ind];
+		if (markupArrEntry["lineNumInText"] == lineNum)
+			{
+			// Check overlap: either firstCharPos or lastCharPos between
+			// markupArrEntry["columnInText"] and markupArrEntry["lastColumnInText"]
+			if (firstCharPos >= markupArrEntry["columnInText"]
+					&& firstCharPos <= markupArrEntry["lastColumnInText"])
+				{
+				result = true;
+				}
+			else if (lastCharPos >= markupArrEntry["columnInText"]
+					&& lastCharPos <= markupArrEntry["lastColumnInText"])
+				{
+				result = true;
+				}
+			// else no overlap.
+			}
+		}
+
+	return (result);
+}
+
+// Add <span onclick=goToAnchor(...)> markup around mentions of table of contents items.
+function addMobileInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum) {
+	let nameOfCSSclass = 'cmInternalLink';
+	let displayedTok = tok;
+	let charEndAddition = 0;
+	let displayedPos = pos;
+	
+	// Shorten link overlay to expose first and last char. Or two at each end if enough text.
+	// That way, if text is highlighted the highlight will show through at the start and end.
+	// Out for the moment.
+	if (0)
+		{
+		if (displayedTok.length >= 4)
+			{
+			displayedTok = displayedTok.substring(1);
+			displayedTok = displayedTok.substring(0, displayedTok.length - 1);
+			displayedPos += 1;
+			charEndAddition += 1;
+			}
+		if (displayedTok.length >= 6)
+			{
+			displayedTok = displayedTok.substring(1);
+			displayedTok = displayedTok.substring(0, displayedTok.length - 1);
+			displayedPos += 1;
+			charEndAddition += 1;
+			}
+		}
+
+	let ank = document.createElement("span");
+	let ankText = document.createTextNode(displayedTok);
+	ank.appendChild(ankText);
+	ank.setAttribute("class", nameOfCSSclass);
+	let gotoJS = 'goToAnchor("' + tok + '", ' + tocLineNum + ');';
+	ank.setAttribute("onclick", gotoJS);
+	let charEnd = pos + displayedTok.length + charEndAddition;
+
+	myCodeMirror.doc.markText({
+		line : lineNum,
+		ch : displayedPos
+	}, {
+		line : lineNum,
+		ch : charEnd
+	}, {
+		className : nameOfCSSclass,
+		replacedWith : ank
+	});
+}
+
+// Add <span onclick=goToAnchor(...)> markup around mentions of table of contents items.
+function addInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum) {
+	if (onMobile)
+		{
+		addMobileInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum);
+		return;
+		}
+	let nameOfCSSclass = "cmInternalLink";
+	let charEnd = pos + tok.length
+	myCodeMirror.doc.markText({
+		line : lineNum,
+		ch : pos
+	}, {
+		line : lineNum,
+		ch : charEnd
+	}, {
+		className : nameOfCSSclass
+	});
+	// Track link for later use.
+	linkOrLineNumForText.set(tok, tocLineNum);
+}
+
+// Add <a> links for local files, images, and web pages.
+function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
+	let nameOfCSSclass = "cmAutoLink";
+
+	if (linkType === "image")
+		{
+		nameOfCSSclass = "cmAutoLinkImg";
+		}
+	else if (linkType === "web")
+		{
+		nameOfCSSclass = "cmAutoLinkNoEdit";
+		}
+
+	let charEnd = chStart + len;
+
+	if (onMobile)
+		{
+		let useASpan = false;
+		if (nameOfCSSclass === "cmAutoLink" || nameOfCSSclass === "cmAutoLinkImg")
+			{
+			// cmAutoLink and cmAutoLinkImg classes have :before/:after css showing
+			// images. Those images are imbedded in the markText "ank" overlays for mobile, so we
+			// use different class names to avoid duplicated pencils (edit) and birds (image).
+			if (nameOfCSSclass === "cmAutoLink")
+				{
+				nameOfCSSclass = 'cmAutoLinkMobile';
+				}
+			else if (nameOfCSSclass === "cmAutoLinkImg")
+				{
+				nameOfCSSclass = 'cmAutoLinkImgMobile';
+				}
+			let hrefMatch = /href\=\"([^"]+)\"/.exec(rep);
+			if (hrefMatch !== null)
+				{
+				let href = hrefMatch[1];
+				let hrefMatch2 = /href\=(.+)$/.exec(href);
+				if (hrefMatch2 !== null)
+					{
+					let href2 = hrefMatch2[1];
+					href2 = href2.replace(/\%25/g, "%");
+					let indexOfHash = -1;
+					if ((indexOfHash = href2.indexOf('#')) > 0)
+						{
+						let pathBeforeHash = href2.substring(0, indexOfHash);
+						let pathAfterHash = href2.substring(indexOfHash + 1);
+						pathBeforeHash = encodeURIComponent(pathBeforeHash);
+						pathAfterHash = encodeURI(pathAfterHash);
+						href2 = pathBeforeHash + '#' + pathAfterHash;
+						}
+					else
+						{
+						href2 = encodeURIComponent(href2);
+						}
+
+					let href2Enc = href2;
+
+					href2 = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
+					rep = rep.replace(/href\=\"([^"]+)\"/, 'href="' + href2 + '"');
+					}
+				}
+
+			useASpan = true;
+			}
+
+		let ank =
+				useASpan ? createSpanElementFromHTML(rep, nameOfCSSclass)
+						: createElementFromHTML(rep);
+		myCodeMirror.doc.markText({
+			line : lineNum,
+			ch : chStart
+		}, {
+			line : lineNum,
+			ch : charEnd
+		}, {
+			className : nameOfCSSclass,
+			replacedWith : ank
+		});
+		}
+	else
+		{
+		myCodeMirror.doc.markText({
+			line : lineNum,
+			ch : chStart
+		}, {
+			line : lineNum,
+			ch : charEnd
+		}, {
+			className : nameOfCSSclass
+		});
+		}
+
+	// Track link for later use.
+	linkOrLineNumForText.set(markerText, rep);
+}
+
+// For a touch or click, return link type and associated CodeMirror class for the link.
+// File (non-image), image, web, and internal header links have different handling.
+function typeAndClass(target, checkForIMG) {
+	let linkType = '';
+	let className = '';
+
+	if (hasClass(target, "cmAutoLink"))
+		{
+		linkType = "file";
+		className = "cmAutoLink";
+		}
+	else if (hasClass(target, "cmAutoLinkMobile"))
+		{
+		linkType = "file";
+		className = "cmAutoLinkMobile";
+		}
+	else if (hasClass(target, "cmAutoLinkImg"))
+		{
+		linkType = "image";
+		className = "cmAutoLinkImg";
+		}
+	else if (hasClass(target, "cmAutoLinkImgMobile"))
+		{
+		linkType = "image";
+		className = "cmAutoLinkImgMobile";
+		}
+	else if (hasClass(target, "cmAutoLinkNoEdit"))
+		{
+		linkType = "web";
+		className = "cmAutoLinkNoEdit";
+		}
+	else if (hasClass(target, "cmInternalLink"))
+		{
+		linkType = "internal";
+		className = "cmInternalLink";
+		}
+	else if (checkForIMG && target.nodeName === "IMG") // A click on a "hover" image on mobile device.
+		{
+		linkType = "file";
+		className = "cmAutoLink";
+		}
+	return {theType: linkType, theClass: className};
+}
+
+// For the iPad, handle touch events. If a link is being fired, try to preserve
+// user's text selection, if any.
+function cmHandleTouch(cm, evt) {
+	let target = evt.target;
+	let targetName = target.nodeName;
+	if (target.nodeName === "A")
+		{
+		let targetParent = target.parentNode;
+		if (targetParent !== null
+				&& (hasClass(targetParent, "cmAutoLink") || hasClass(targetParent,
+						"cmAutoLinkMobile")))
+			{
+			target = targetParent;
+			}
+		}
+	else if (target.nodeName === "IMG")
+		{
+		let targetParent = target.parentNode;
+		if (targetParent !== null)
+			{
+			if (targetParent !== null
+					&& (hasClass(targetParent, "cmAutoLink") || hasClass(targetParent,
+							"cmAutoLinkMobile")))
+				{
+				target = targetParent;
+				}
+			else
+				{
+				let targetGrandParent = targetParent.parentNode;
+				if (targetGrandParent !== null
+						&& (hasClass(targetGrandParent, "cmAutoLink") || hasClass(
+								targetGrandParent, "cmAutoLinkMobile")))
+					{
+					target = targetGrandParent;
+					}
+				}
+			}
+		}
+	
+	let typeClass = typeAndClass(target, true); // true == check for IMG
+	let linkType = typeClass.theType;
+	let className = typeClass.theClass;
+	let forEdit = false;
+
+	if (linkType !== "")
+		{
+		// Note anchor (ie link) clicks, in an attempt to suppress highlighting changes for clicks in TOC.
+		anchorClicked = true;
+		// Restore user selection, so highlighting doesn't change when link is clicked.
+		// if (cmCursorStartPos.line > 0 && !(onMobile && linkType === "internal"))
+		if (cmCursorStartPos.line >= 0)
+			{
+			myCodeMirror.setSelection(cmCursorStartPos, cmCursorEndPos, {
+				scroll : false
+			});
+			}
+		}
+}
+
+// iPad, restore user selection, so highlighting doesn't change when link is clicked.
+function cmMobileHandleImgTouch(evt) {
+	anchorClicked = true;
+	
+	// if (cmCursorStartPos.line > 0 && !(onMobile && linkType === "internal"))
+	if (cmCursorStartPos.line >= 0)
+		{
+		setTimeout(function() {
+			myCodeMirror.setSelection(cmCursorStartPos, cmCursorEndPos, {
+				scroll : false
+			});
+		}, 800);
+		// myCodeMirror.setSelection(cmCursorStartPos, cmCursorEndPos, {scroll: false});
+		}
+}
+
+// If a link was clicked, immediately fire it off, first restoring user selection so that
+// highlighting doesn't change. If not a link, no worries, nothing needed here. But see
+// handleFileLinkMouseUp just below where user selection is saved when click is not over link.
+function handleFileLinkClicks(evt) {
+	let target = evt.target;
+	let typeClass = typeAndClass(target, false); // false == don't check for IMG
+	let linkType = typeClass.theType;
+	let className = typeClass.theClass;
+	let forEdit = false;
+
+	if (linkType !== "")
+		{
+		// If click is within 15 of right edge, it is in the edit "pencil" image.
+		if (linkType === "file")
+			{
+			let pencilLeft = target.offsetLeft + target.offsetWidth - 15;
+			if (evt.offsetX >= pencilLeft)
+				{
+				forEdit = true;
+				}
+			}
+
+		// Note anchor clicks, in an attempt to suppress highlighting changes for clicks in TOC.
+		anchorClicked = true;
+		// Restore user selection, so highlighting doesn't change when link is clicked.
+		if (cmCursorStartPos.line >= 0)
+			{
+			myCodeMirror.setSelection(cmCursorStartPos, cmCursorEndPos, {
+				scroll : false
+			});
+			}
+
+		// Off we go, not waiting for the mouse up.
+		fireOneLink(target, linkType, className, forEdit);
+		}
+}
+
+// Get current selection if a link was not clicked.
+function handleFileLinkMouseUp(evt) {
+	let target = evt.target;
+	let typeClass = typeAndClass(target, false); // false == don't check for IMG
+	let linkType = typeClass.theType;
+	//let className = typeClass.theClass;
+	
+	if (linkType === "" && !goingToAnchor)
+		{
+		// If nothing selected, expand selection to any word under the cursor.
+		expandEmptySelectionToWord();
+		// Get current selection (for restoration later if a link is clicked).
+		let startPos = myCodeMirror.doc.getCursor("anchor");
+		cmCursorStartPos = startPos;
+		cmCursorEndPos = myCodeMirror.doc.getCursor("head");
+		}
+	
+	// Reset goingToAnchor - it was used here to avoid setting the selection if goingToAnchor,
+	// because goToAnchor() will restore the selection after jumping to the anchor.
+	goingToAnchor = false;
+}
+
+// Expand selection to any word under the cursor.
+function expandEmptySelectionToWord() {
+	let selText = myCodeMirror.doc.getSelection();
+	if (selText !== '')
+		{
+		return;
+		}
+	let startPos = myCodeMirror.doc.getCursor("anchor");
+	let lineText = myCodeMirror.doc.getLine(startPos.line);
+	if (lineText === '')
+		{
+		return;
+		}
+	
+	// Expand selection to left.
+	let charAtPos = lineText.charAt(startPos.ch); // char just to right of insertion pt
+	let chartAtStart = lineText.charAt(0);
+	let nextAfterStart = lineText.charAt(1);
+	let charBefore = lineText.charAt(startPos.ch-1);
+	
+	let idx = startPos.ch;
+	let lookRightOnly = (idx == 0 || isW(lineText.charAt(idx-1)));
+	let lookLeftOnly = (idx >= lineText.length || isW(lineText.charAt(idx))); // isW.js
+	let newStartPos = startPos.ch;
+	if (!lookRightOnly)
+		{
+		--idx;
+		while (idx >= 0 && !isW(lineText.charAt(idx)))
+			{
+			--idx;
+			}
+		newStartPos = idx+1;
+		}
+	
+	// Expand selection to right.
+	let newEndPos = startPos.ch;
+	if (!lookLeftOnly)
+		{
+		idx = newEndPos;
+		while (idx < lineText.length && !isW(lineText.charAt(idx)))
+			{
+			++idx;
+			}
+		newEndPos = idx;
+		}
+
+	// Update CM to select the word.
+	if (newStartPos !== startPos || newEndPos !== startPos)
+		{
+		if (newStartPos < 0)
+			{
+			newStartPos = 0;
+			}
+		if (newEndPos > lineText.length)
+			{
+			newEndPos = lineText.length;
+			}
+		let anchor = {line: startPos.line, ch: newStartPos};
+		let head = {line: startPos.line, ch: newEndPos};
+		myCodeMirror.setSelection(anchor, head, {
+			scroll : false
+		});
+		}
+	
+}
+
+// For a click in text, scroll closest corresponding Table of Contents item that's at or
+// above the clicking line into view.
+function synchTableOfContents(evt) {
+	let startPos = 0;
+	let inContent = inCodeMirrorText(evt);
+	if (inContent)
+		{
+		startPos = myCodeMirror.doc.getCursor("anchor").line;
+		}
+	else
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		startPos = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
+		}
+	
+	scrollTocEntryIntoView(startPos + 1, inContent, false);
+}
+
+function inCodeMirrorText(evt) {
+	let result = true;
+	let target = evt.target;
+	
+	if ( hasClass(target, "CodeMirror-vscrollbar")
+	  || hasClass(target, "CodeMirror-hscrollbar") )
+		{
+		result = false;
+		}
+
+	
+	return(result);
+	}
+
+// Dispatch of link handling, based on link type (file (non-image), image, web, internal link).
+function fireOneLink(target, linkType, className, forEdit) {
+	let targetText = target.textContent;
+	if (targetText === "")
+		{
+		return;
+		}
+	// Look ahead and behind for siblings with class "cmAutoLink".
+	let sib = target.nextSibling;
+	while (sib !== null)
+		{
+		if (hasClass(sib, className))
+			{
+			targetText = targetText + sib.textContent;
+			sib = sib.nextSibling;
+			}
+		else
+			{
+			break;
+			}
+		}
+	sib = target.previousSibling;
+	while (sib !== null)
+		{
+		if (hasClass(sib, className))
+			{
+			targetText = sib.textContent + targetText;
+			sib = sib.previousSibling;
+			}
+		else
+			{
+			break;
+			}
+		}
+
+	// <a href="http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/data/swarmserver.txt" target
+	// ="_blank">swarmserver.txt</a>... - file
+	// <a href='http://www.qt.io/licensing/' target='_blank'>http://www.qt.io/licensing/</a> - web
+	// <a href='http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/images_for_web_server/ser
+	// ver-128x128 60.png' target='_blank' onmouseover=... - image
+
+	let linkPath = linkOrLineNumForText.get(targetText);
+
+	if (typeof linkPath !== 'undefined')
+		{
+		if (linkType === "file")
+			{
+			fireOneFileLink(linkPath, forEdit);
+			}
+		else if (linkType === "image")
+			{
+			fireOneImageLink(linkPath, className);
+			}
+		else if (linkType === "web")
+			{
+			fireOneWebLink(linkPath);
+			}
+		else if (linkType === "internal")
+			{
+			fireOneInternalLink(targetText, linkPath);
+			}
+		}
+}
+
+// <a href="http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/data/swarmserver.txt"
+// target="_blank">swarmserver.txt</a>... - file
+// Link can be for view only or for editing. Dispatch accordingly to other JS functions.
+function fireOneFileLink(linkPath, forEdit) {
+	// Encode the linkPath
+	let hrefMatch = /href\=\"([^"]+)\"/.exec(linkPath);
+	if (hrefMatch !== null)
+		{
+		let href = hrefMatch[1];
+		let hrefMatch2 = /href\=(.+)$/.exec(href);
+		if (hrefMatch2 !== null)
+			{
+			let href2 = hrefMatch2[1];
+			let indexOfHash = -1;
+			if ((indexOfHash = href2.indexOf('#')) > 0)
+				{
+				let pathBeforeHash = href2.substring(0, indexOfHash);
+				let pathAfterHash = href2.substring(indexOfHash + 1);
+				pathBeforeHash = encodeURIComponent(pathBeforeHash);
+				pathAfterHash = encodeURI(pathAfterHash);
+				href2 = pathBeforeHash + '#' + pathAfterHash;
+				}
+			else
+				{
+				href2 = encodeURIComponent(href2);
+				}
+
+			let href2Enc = href2;
+
+			if (forEdit)
+				{
+				if (allowEditing)
+					{
+					if (useAppForEditing)
+						{
+						editWithPreferredApp(href2Enc);
+						}
+					else
+						{
+						editWithIntraMine(href2Enc);
+						}
+					}
+				// else maintenance error, shouldn't get here if editing is not wanted
+				}
+			else
+				{
+				let hrefEnc = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
+				//window.open(hrefEnc, "_blank");
+				// Replace the "81" with a good Viewer port, call window.open().
+				fireOneViewerLink(hrefEnc)
+				}
+			}
+		}
+}
+
+//Replace the "81" with a good Viewer port, call window.open().
+function fireOneViewerLink(href) {
+	openView(href);
+}
+
+//Open image in a new browser tab.
+// <a href='http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/images_for_web_server/ser
+// ver-128x128 60.png' target='_blank' onmouseover=... - image
+function fireOneImageLink(linkPath, className) {
+	let hrefMatch = /href\=\"([^']+)\"/.exec(linkPath);
+	if (hrefMatch !== null)
+		{
+		let href = hrefMatch[1];
+		let hrefMatch2 = /href\=(.+)$/.exec(href);
+		if (hrefMatch2 !== null)
+			{
+			let href2 = hrefMatch2[1];
+			href2 = href2.replace(/\%25/g, "%");
+			let href2Enc = encodeURIComponent(href2);
+			let hrefEnc = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
+			window.open(hrefEnc, "_blank");
+			}
+		}
+
+}
+
+// Open a web link in a new tab.
+// <a href='http://www.qt.io/licensing/' target='_blank'>http://www.qt.io/licensing/</a> - web
+function fireOneWebLink(linkPath) {
+	let hrefMatch = /href\=\'([^']+)\'/.exec(linkPath);
+	if (hrefMatch !== null)
+		{
+		let hrefProper = hrefMatch[1];
+		window.open(hrefProper, "_blank");
+		}
+}
+
+// Scroll to a header in the same file.
+function fireOneInternalLink(targetText, lineNum) {
+	goToAnchor(targetText, lineNum); // cmTocAnchors.js#goToAnchor().
+}
+
+// Show popup if image if we're over class "cmAutoLinkImg".
+function handleMouseOver(e) {
+	let className = "cmAutoLinkImg";
+	let target = e.target;
+	if (hasClass(target, className))
+		{
+		let targetText = target.textContent;
+		if (targetText === "")
+			{
+			return;
+			}
+		// Look ahead and behind for siblings with class "cmAutoLinkImg".
+		let sib = target.nextSibling;
+		while (sib !== null)
+			{
+			if (hasClass(sib, className))
+				{
+				targetText = targetText + sib.textContent;
+				sib = sib.nextSibling;
+				}
+			else
+				{
+				break;
+				}
+			}
+		sib = target.previousSibling;
+		while (sib !== null)
+			{
+			if (hasClass(sib, className))
+				{
+				targetText = sib.textContent + targetText;
+				sib = sib.previousSibling;
+				}
+			else
+				{
+				break;
+				}
+			}
+
+		let linkPath = linkOrLineNumForText.get(targetText);
+		if (typeof linkPath !== 'undefined')
+			{
+			showHoverImage(e, target, linkPath);
+			}
+		}
+}
+
+// Look in linkPath for
+// "showhint('<img src=&quot;http://192.168.1.132:81/c:/perlprogs/mine/images_for_web_server/ser
+// ver-128x128 60.png&quot;>', this, event, '500px', true);"
+// Call showhint() to pop up a (possibly reduced) view of the image.
+function showHoverImage(e, target, linkPath) {
+	// Pull args for showhint() and call it.
+	let showHintMatch =
+			/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
+					.exec(linkPath);
+	if (showHintMatch !== null)
+		{
+		let img = showHintMatch[1];
+		let thismatch = showHintMatch[2];
+		let evyMatch = showHintMatch[3];
+		let widthMatch = showHintMatch[4];
+		let isImgMatch = showHintMatch[5];
+
+		img = img.replace(/&quot;/g, '"');
+		
+		showhint(img, target, e, widthMatch, true); // tooltip.js#showhint()
+		}
+}
+
+function createElementFromHTML(htmlString) {
+	let div = document.createElement('div');
+	div.innerHTML = htmlString.trim();
+
+	// Change this to div.childNodes to support multiple top-level nodes
+	return div.firstChild; // or div.firstElementChild?
+}
+
+function createSpanElementFromHTML(htmlString, spanClassName) {
+	let div = document.createElement('div');
+	htmlString = "<span class='" + spanClassName + "'>" + htmlString.trim();
+	+"</span>";
+	div.innerHTML = htmlString;
+
+	// Change this to div.childNodes to support multiple top-level nodes
+	return div.firstChild; // or div.firstElementChild?
+}
+
+// Links are inserted only when lines become visible, and we want to avoid doing
+// the same line twice, so we track all line numbers when inserting links.
+function rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum) {
+	for (let lineNumber = firstVisibleLineNum; lineNumber <= lastVisibleLineNum; ++lineNumber)
+		{
+		lineSeen[lineNumber] = 1;
+		}
+}
+
+function allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum) {
+	for (let lineNum = firstVisibleLineNum; lineNum <= lastVisibleLineNum; ++lineNum)
+		{
+		if (!(lineNum in lineSeen))
+			{
+			return (false);
+			}
+		}
+
+	return (true);
+}

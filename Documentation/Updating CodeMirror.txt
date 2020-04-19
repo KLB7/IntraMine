@@ -1,0 +1,41 @@
+Updating CodeMirror
+===================
+
+IntraMine ships with a copy of CodeMirror (version 5.43.0), so it's not necessary to install it. The copy you have should be fine. However, if you want to update IntraMine's copy some day, read on. Otherwise, if you're installing stuff you can continue with "Installing universal ctags.txt".
+
+A small iPad problem
+====================
+NOTE you will lose hit markers in the scroll area for source file views on an iPad if you update CodeMirror. If you don't use an iPad to get at IntraMine, then nothing should be lost.
+
+id you do want to use an iPad, there is a hack that should get the scroll area markers back after updating CodeMirror. Look in codemirror-master\addon\scroll\annotatescrollbar.js in your IntraMine folder, around line 87, for
+---
+    var lastLine = cm.lastLine()
+    if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
+---
+If you spot that, then in between those two lines add five lines as shown below, ending up with:
+---
+    var lastLine = cm.lastLine()
+	// HORRIBLE TEMPORARY HACK!
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		cm.display.barWidth = 17;
+		}
+    if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
+---
+I have enquired of the CodeMirror community for a better way of doing this, see https://discuss.codemirror.net/t/scrollbar-annotations-on-ipad/1963. But no one has posted a better way, alas.
+
+How to update IntraMine's copy of CodeMirror
+============================================
+1. Stop IntraMine if it's running.
+2. Head to https://github.com/codemirror/codemirror
+3. Under the white-on-green "Clone or download" dropdown, select "Download ZIP". (2019-09-11 13_48_49-GitHub - codemirror_CodeMirror_ In-browser code editor.png) and your download will start.
+4. The resulting zip will be called "Codemirror...something.zip". Unzip it to a folder.
+5. Inside it you will find a subfolder, currently named "CodeMirror-master". Look in your IntraMine folder at the top and you will find a same-named "CodeMirror-master" subfolder. Rename your IntraMine version to "xCodeMirror-master" so you can revert if things don't go well. Then copy your new "CodeMirror-master" subfolder into your IntraMine folder.
+6. To verify you have the right folder, look inside CodeMirror-master and you should see something very much like this: 2019-09-11 13_51_31-C__perlprogs_mine_CodeMirror-master.png.
+7. Restart IntraMine, and check out some views of files that use CodeMirror. IntraMine uses CodeMirror for most views, including go, C, C++, and JavaScript (but not .txt or Perl). To bring up a view, click on any source file link under IntraMine's Files tab, or in the file hits after doing a Search (not the little "pencil" icons edit1.png, those are for editing).
+
+Next: Installing universal ctags.txt
+
+---
+contents.txt
+---

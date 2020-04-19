@@ -1,0 +1,106 @@
+gloss2html.pl for standalone Gloss files
+======================
+
+gloss2html.pl will convert text files written using Gloss syntax into HTML files that have no dependencies. So you can email them or slap them up as static pages on a web site. For all about Gloss, see Gloss.txt.
+
+You can convert a whole folder at once or a single file.
+
+If you've arrived at this file by clicking the big golden question4-44.png in IntraMine's navigation bar then you're seeing IntraMine's Viewer version, which applies Gloss processing on the fly. To see the standalone version, open the .html version of this file in the Documentation folder using a browser.
+
+Running gloss2html.pl
+=======================
+There are two command line arguments you can supply to gloss2html.pl
+
+ - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to provide links to the images, and have the images pop up when the cursor stops over an image link
+ - the path to a file or folder (required). The path can be to a single text file, or to a folder holding several text files and optionally images. More below.
+ 
+Examples (as always, adjust the path to gloss2html.pl, and substitute your own document paths):
+---
+perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
+---
+will convert all text files in "Documentation" to standalone HTML files. Images can be at the top level of "Documentation" or in a "Documentation/images" subfolder.
+
+---
+perl C:\perlprogs\mine\gloss2html.pl "C:\projects\project51\docs\Read Me First.txt"
+---
+will convert "Read Me First.txt" to standalone HTML. If there are images mentioned in the text file they will be looked for in the "docs" folder or in "docs/images". Glossary entries from any docs\glossary.txt file will also be put in as popups on the corresponding text.
+
+---
+perl -i C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
+or
+perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -inline
+---
+Including "-i" or "-inline" on the command line will result in all images being fully shown in the text, rather than having a link to the image with a popup view of it when the cursor stops over the link.
+
+Full image display versus image hovers
+======================================
+The default for how gloss2html.pl treats images is determined by "GLOSS_SHOW_IMAGES" in data/intramine_config.txt around line 247.
+GLOSS_SHOW_IMAGES	0
+means images will have links, but a view of the image will appear if the cursor pauses over the link.
+GLOSS_SHOW_IMAGES	1
+will "inline" the images, so they will be fully shown in the flow of the document.
+
+The default is 0 (popup, not inlined).
+
+Including "-i" or "-inline" on the command line when running gloss2html.pl will override the GLOSS_SHOW_IMAGES value and force it to 1 for the run.
+
+If you're not sure whether or not to "inline" the images - try both, gloss2html.pl is fairly quick.
+
+Adding links to other files
+===========================
+Since we're dealing with standalone files that could end up anywhere, only links to text and HTML files in the same folder as the one being converted are supported. Images can be in the same folder at either the top level or in an images/ subfolder, but they aren't linked: instead, the images are incorporated into the resulting HTML document.
+
+As an example, many of IntraMine's help docs in the Documentation folder contain links to other files, such as contents.txt.
+
+When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
+ 
+Adding a table of contents file
+==========================
+If you have a folder of several documents to convert, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with a old-fashioned look:
+ - name your table of contents file "contents.txt"
+ - put the word CONTENTS at the top of a file on a line by itself. This is case sensitive.
+
+Then add the names of other files in the same folder that you want listed in your table of contents. No quotes are needed, and you can have section headings if you want. Take a look at  IntraMine's /Documentation/contents.txt table of contents file and you'll see how to do it at a glance.
+
+If you'd prefer your table of contents file to be plain (no old paper background, no artistic flourish, more modern fonts) then the simplest way is to not put "CONTENTS" on the first line - use "Contents" for example. Or you can call the file something else, such as "index.txt". Or open data/intramine_config.txt and set INDEX_GETS_SPECIAL_TREATMENT around line 235 to 0 if you don't want "special" treatment for any table of contents files ever.
+ 
+
+Adding a glossary
+=================
+To provide popup glossary entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being converted from text to HTML.
+
+All converted files will have glossary popups wherever glossary terms are used, with a dotted underline under each term. The first mention in a document will have a slightly stronger underline, and if the term is used more than once in a paragraph only the first instance will be underlined. Where a term has synonyms, only the relevant instance will be shown at the top of the popup, with a list of synonyms added at the bottom.
+
+The **glossary file format** is:
+---
+term{, synonym}* COLON definition
+or
+term being defined, an optional synonym, perhaps other synonyms: definition
+---
+
+The "term being defined" and any of its optional synonyms can have up to four words each, and can include hyphens or simple apostrophes "'" If there are synonyms or alternate spellings, you can separate them with commas, as in
+---
+Autolinks, automatic links: briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files....
+---
+
+A term's definition can have several paragraphs, and in fact continues until another paragraph containing a colon ":" is encountered. Very long definitions might end up being clipped, since they have to fit in the browser window when popped up.
+
+You can have a preamble above the definitions at the start of the file, as long as it doesn't contain a colon ":".
+
+The definitions don't have to be in any order.
+
+Sometimes a picture works better. If you'd rather show an image than plod through a thousand-word equivalent, put the name of the image in place of the "definition", enclosed in double quotes.
+
+The image should be in the folder being converted, or in an /Images/ subfolder there. It can also be in your IMAGES_DIR, which is IntraMine's images_for_web_server/ folder by default, or in your COMMON_IMAGES_DIR, which is C:/common/images/ by default. Those paths are in data/intramine_config.txt around line 38 if you want to change them.
+
+IntraMine's glossary.txt has an example,
+---
+Navigation bar: "topnav.png".
+---
+where topnav.png is in IntraMine's Documentation/images folder.
+
+For a full example of a glossary file, see Documentation/glossary.txt.
+
+===
+contents.txt
+===

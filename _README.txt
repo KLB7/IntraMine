@@ -1,0 +1,1 @@
+See Documentation/contents.html to get started. You can open it with any browser. Have fun!

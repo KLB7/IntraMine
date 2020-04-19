@@ -1,0 +1,109 @@
+IntraMine initial install
+=========================
+
+There are a few steps to getting IntraMine up and running, but the first steps as described below consist of putting your IntraMine folder somewhere appropriate, installing Strawberry Perl, and installing some modules for Strawberry Perl that IntraMine needs.
+
+Moving and renaming your IntraMine folder
+=========================================
+So far I can safely deduce that you've downloaded a zip file for IntraMine, and unzipped it somewhere. Inside the unzipped folder you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like. For example, my "IntraMine" folder is called "mine" for short, and is at C:\perlprogs\mine.
+
+IMPORTANT Make your own data folder
+===========================
+---
+Don't miss this step!
+---
+If you're installing IntraMine at a location for the **first time**:
+1. In your IntraMine folder, locate the '_copy_and_rename_to_data' folder.
+2. Make a copy of it at the same level (select, Copy, Paste).
+3. Rename the copy to 'data'.
+
+This new data/ folder is your own copy of IntraMine's configuration data. The .gitignore file at the top of the IntraMine folder contains
+---
+data/
+---
+which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update, or adding noise to a pull request.
+
+
+
+Installing Strawberry Perl
+==========================
+Head off to
+---
+http://strawberryperl.com/
+---
+and download "Strawberry Perl 5.30.0.1 (64bit)", an msi installer, from the rather pink link under "Recommended version:".
+Strawberry30.png
+
+If you see a later version, that's probably ok. There's a very small chance that a module needed by IntraMine won't be available under a later version: if you're not willing to gamble, click on the pink "All releases" link lower on the page under "More downloads:", and select the 64-bit msi download for version 5.30.0.1.
+2019-09-10 12_43_47-Strawberry Perl for Windows.png
+
+After downloading, run the msi file to install Strawberry Perl.
+
+Verifying Strawberry Perl is installed
+======================================
+Open a command prompt, and type the usual
+---
+perl -v
+----
+If Strawberry Perl has been installed, you'll see some version info. If not, well I don't know what to tell you, it should have worked. Talk to a friend, try again!
+
+Now you'll want to grab a few modules.
+
+Installing additional Strawberry Perl modules
+=============================================
+Installing modules for Strawberry Perl is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts, I had no luck with it.
+
+Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a command prompt and press Enter:
+---
+cpan Search::Elasticsearch
+cpan Date::Business
+cpan ExportAbove
+cpan Win32API::File::Time
+cpan Math::SimpleHisto::XS
+cpan File::ReadBackwards
+cpan IO::Socket::Timeout
+cpan HTML::CalendarMonthSimple
+cpan Syntax::Highlight::Perl::Improved
+cpan Text::MultiMarkdown
+cpan Win32::RunAsAdmin
+cpan Text::Unidecode
+cpan Selenium::Remote::Driver
+---
+
+Note the "cpan Search::Elasticsearch" install might freeze near the end: give it a couple of minutes, and if nothing happens hit CTRL-C. We'll check it's ok in a minute.
+
+And "cpan IO::Socket::Timeout" does a lot of timeout tests during the install, so it can take a while, five minutes or so.
+
+Optional modules
+=================
+IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See "Other Perl programs.txt#extract_method.pl" for more.
+
+If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a command prompt:
+---
+cpan Tk::BrowseEntry
+---
+
+Verifying module installation
+=============================
+If you ran into any problems or confusions during the module installation, or if you like certainty, run "verify_module_installation.pl" (found in your IntraMine folder). If modules are missing it will let you know, otherwise it will just say "Done."
+
+[
+To run a Perl program, using "verify_module_installation.pl" as an example:
+1. Open a console (command prompt) window
+2. Determine the path to the program, eg "C:\perlprogs\mine\verify_module_installation.pl" (yours will differ)
+3. At the command prompt, enter
+---
+perl "C:\perlprogs\mine\verify_module_installation.pl"
+---
+Again, use your own path there in the last step, and quotes around the path can be left off if there are no spaces in it.
+]
+
+Or you could wait until it's naturally time to start up IntraMine, at the end of installation, and you'll see complaints about any missing modules then.
+
+The fix for a missing module is as simple as you might guess, if "X::Y" is missing then run "cpan X::Y" at a command prompt.
+
+Next: Installing Elasticsearch.txt
+
+---
+contents.txt
+---

@@ -1,0 +1,81 @@
+Other Perl programs
+===================
+These are non-server scripts included with IntraMine, all at the top level. For the Gloss to standalone HTML program see "gloss2html.pl for standalone Gloss files.txt"
+
+codemirror_extensions.pl
+-------------------------
+Pulls a list of languages and corresponding file extensions that CodeMirror supports, from /CodeMirror-master/mode/meta.js. Output is in the form of hash entries, to /temp/cm_extensions.txt. There are some extensions that CodeMirror doesn't currently support, such as ".bat", so for a full list of extensions some have to be added by hand. The full current list can be found in libs/ext.pm.
+
+colour2gray.pl
+---------------
+(sic) flattens an #RGB color to its grayscale equivalent. Use it as
+perl path/colour2gray.pl "infile.txt" > "outfile.txt": it will convert all colors of the form "#rrggbb" such as "#f2e3d2" to grayscale such as "#e5e5e5" within infile.txt, and write infile.txt with the changes to outfile.txt. You can run it on a CSS file to produce a version with just grayscale colors.
+
+echo1.pl
+------------
+Prints its command line arguments.
+
+es_bigfile_lister.pl
+--------------------
+Goes through the directories listed in data/search_directories.txt and lists all large files. The large size limit is taken from 'ELASTICSEARCH_MAXFILESIZE_KB' in data/intramine_config.txt, which determines the maximum file size in KB that IntraMine will ask Elasticsearch to index. A number above 800 risks slowing down searches. This prog lets you see which files will be skipped at a given maximum file size. Results are written to 'temp_large_file_dump.txt' in your File Watcher service directory (default C:\fwws\).
+
+extract_method.pl
+------------------
+Copy some Perl code to your clipboard, run this program, and the code will be packaged up as a subroutine complete with example call and put on the clipboard ready for pasting. Along the way, extract_method.pl will show a dialog letting you pick whether each undeclared variable should be passed by value or reference, or ignored (it it's global).
+
+Note this program requires installing Tk plus a bit beforehand, by running
+cpan Tk::BrowseEntry
+at a command prompt.
+
+To add extract_method.pl to Eclipse:
+ - Run->External Tools->External Tools Configurations...
+ - New configuration
+  -- Name: Extract Method
+  -- Location: C:\Strawberry\perl\bin\perl.exe (adjust path if needed)
+  -- Arguments: C:\perlprogs\mine\extract_method.pl (adjust path if needed)
+ - Apply
+ - Close
+ - Run->External Tools->Organize Favorites
+  -- Add...
+  - Select "Extract Method" and OK
+  - OK again.
+
+To test that:
+ - select some Perl
+ - Copy
+ - Run->External Tools->Extract Method
+ - fine tune your params in the resulting dialog
+ - OK
+ - Paste results somewhere and take a look.
+
+extract_method.pl can be added to other editors of course, each one has its own approach though so I'll leave that to you to explore.
+
+intramine_all_stop.pl
+---------------------
+Stops all IntraMine servers including Main and Cmd. It's more easily called by running bats/STOP_INTRAMINE.bat.
+
+intramine_stop.pl
+--------------------
+Stops all IntraMine servers, except any running "Persistent" server such as Cmd. This isn't really needed, you can safely ignore it.
+
+list_missing_Perl_modules.pl
+-----------------------------
+This is intended for use under ActivePerl. It tries to note missing modules  for a Perl program or all programs in a folder, and cooks up "ppm install" lines for any missing modules. It works by asking Perl to do a syntax check on each file, and then checks for "Can't locate (module name)" messages. extract_method.pl above does much the same thing, but it pays attention to messages about undefined variables.
+
+To verify that IntraMine has all its modules, use verify_module_installation.pl (see below) instead of this program.
+
+make_filewatcher_config.pl
+---------------------------
+This is described in "Installing File Watcher.txt".
+
+max_folder_depth.pl
+--------------------
+Finds the deepest subfolder in Elasticsearch indexed folders. I needed this when deciding how many index fields to put in IntraMine's index of the "folderN" sort, where N is an integer from 1 up to just past maximum folder depth. This is described in "Search.txt#Fast folder searches".
+
+verify_module_installation.pl
+-----------------------------
+Verifies that IntraMine has all its needed Strawberry Perl modules, as described in "IntraMine initial install.txt#	Verifying module installation".
+
+---
+contents.txt
+---

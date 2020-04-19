@@ -1,0 +1,116 @@
+/*events.css: for the Events server. */
+
+.allcalendars h3 {
+		padding: 1px 0.33em;
+}
+.allcalendars p {
+	margin: 0 0 2px 0;
+	padding: 2px 2px 2px 2px;
+}
+.allcalendars table {
+	width: 100%;
+	page-break-inside:avoid;
+}
+table.navarrows {
+    margin-left:25%; 
+    margin-right:25%;
+    width: 50%;
+    text-align: center; /* needed for centering the anchors in the tds */
+    margin-top: 0;
+    padding-top: 0;
+  }
+table.navarrows td {
+  align: center;
+  margin-top: 0;
+  padding-top: 0;
+} 
+
+.allcalendars td, .allcalendars th {
+	vertical-align:top;
+		
+}
+.allcalendars th {
+	/*color: #CCE;*/
+	background-color: #9c9;
+}
+.allcalendars a img {
+    border:0;
+}
+.navholder {
+	position: relative;
+	/*text-align: center;*/
+}
+.editevents {
+/*	position: absolute;
+	top: 4em;
+	left: 1em; */
+}
+.calendar13, .calendar24 {
+	border: 1px solid black;
+	width: 49%;
+}
+.calendar13 {
+	width:49%;
+	float:left;
+}
+.calendar24 {
+	width:49%;
+	float:right;
+}
+.spacer {
+	font-size: .5em;
+	height: 1.5em;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	page-break-after:always;
+}
+.tinyspacernobreak {
+	font-size: .1em;
+	height: .15em;
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+.holiday {
+	background-color: #DDDDDD; /*#99ff99;*/
+	font-size: .75em;
+}
+.deadline {
+	background-color: #FFDCA8; /*light orange #FFDCA8;*/
+	font-size: .75em;
+}
+.pastdeadline {
+	background-color: #FFC46B; /*darker orange #FFC46B;*/
+	font-size: .75em;
+}
+.meeting {
+	background-color: #A8F6FF;
+	font-size: .75em;
+}
+.note {
+	background-color: #F6FFA8;
+	font-size: .75em;
+}
+.hastip {
+	position: relative;
+	left: 0;
+	top: 0;
+}
+.tipmarker {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	text_align: left;
+}
+.tipmarkeractual {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	text_align: left;
+}
+@page {
+    margin: 0.5cm;
+}

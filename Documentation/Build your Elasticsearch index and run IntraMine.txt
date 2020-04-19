@@ -1,0 +1,55 @@
+Build your Elasticsearch index and run IntraMine
+================================================
+
+What's left? Decide which folders to index with Elasticsearch and monitor for changes, and then run one batch file to build the index, start the File Watcher service and start IntraMine.
+
+If you later want to change the directories you're indexing, see 
+"Using IntraMine.txt#Adding files to indexed folders".
+
+Configure folders to monitor
+=============================
+This is a **vitally important step**, so a bit of bold here to make sure your eyes don't skip.
+
+As mentioned, we need to list directories and drives that Elasticsearch will index and the File Watcher service will monitor. These are held in IntraMine's data/search_directories.txt config file. Kindly divert for a moment to
+---
+=> "Configuring folders to index and monitor.txt"
+---
+to set up your initial list of directories and drives. Come on back when you're done.
+
+Done? Ok, you've told IntraMine which folders and drives you want to monitor and index, and IntraMine will use that list when you build your Elasticsearch index soon. And the batch file "IM_INIT_INDEX.bat" that builds the index will also call "make_filewatcher_config.pl" to create a configuration file for the File Watcher service, using the directories you've listed for monitoring in data/search_directories.txt.
+
+Index and run
+==============
+This is easy enough, but building your initial file index will probably take a while.
+
+1. By now you should have entered the directories and drives in data/search_directories.txt that you want to be indexed by Elasticsearch and monitored by File Watcher. That's described in "Configuring folders to index and monitor.txt". Please do that now if you haven't yet.
+2. (NOTE you need use **Run as administrator** for this) Run **bats/IM_INIT_INDEX.bat** as found in your IntraMine folder, in a command (or "console") window. This will ask Elasticsearch to index all files in the directories you've specified, and also create a configuration file for File Watcher so it will monitor directories, as you've spelled out in data/search_directories.txt, and stop/start the File Watcher service. Then it will start IntraMine.
+3. Go away for a bit. The initial build will take perhaps one hour per 250,000 files, and after it gets going you'll see how many files are being indexed. I don't do a lot of varied development, but I still have 300,000 source and text files kicking around. Mainly Qt.
+4. IntraMine will start up when the indexing is complete.
+5. You can stop or start IntraMine by running bats/STOP_INTRAMINE.bat or bats/START_INTRAMINE.bat. More about starting and stopping in "Using IntraMine.txt".
+
+When IntraMine is running, it will keep your index up to date in near real time. For a single file edit, the lag is five seconds. If you add a hundred files, the lag will be slightly longer. If you plan on adding **thousands** of files at once, you should stop IntraMine beforehand and then selectively re-index as described in "Using IntraMine.txt#Adding files to indexed folders".
+
+Visit IntraMine
+===============
+Point your browser to http://127.0.0.1:81/Search  - use your own main port number if you changed it from 81, and if you're not on your IntraMine box, substitute its LAN IP address for 127.0.0.1 in the URI above.
+
+A couple of quick tests
+========================
+Go to the Search page (see just above) and do a search for something you know should be indexed. Are you seeing reasonable results?
+
+Bring up the Status page by clicking on "Status" in the top navigation bar. Make a small change to a source or text file that's being indexed. You should see the Watcher's status light flash after about five seconds.
+
+Stop and start
+==============
+To **stop IntraMine**, double-click on **bats\STOP_INTRAMINE.bat**. Try not to use CTRL-C, it will rudely stop all servers. STOP_INTRAMINE.bat sends a polite request to all servers, and they will wrap up whatever they're doing before quitting.
+
+And later you can **re-start IntraMine** by double-clicking **bats\START_INTRAMINE.bat** as found in your IntraMine folder.
+
+Do come back to the docs and read "Using IntraMine.txt" at least, when the initial thrill wears off:)
+
+Next: Using IntraMine.txt.
+
+---
+contents.txt
+---

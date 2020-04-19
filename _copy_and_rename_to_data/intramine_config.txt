@@ -1,0 +1,270 @@
+# IntraMine main configuration file.
+# Format: key<tabs>value, lines starting with # are ignored
+#
+# Main and swarm server ports.
+# Main port, for running intramine_main.pl. If the default 81 is in use,
+# try 8080 or 8081.
+INTRAMINE_MAIN_PORT	81
+# IntraMine reserves a range of ports to monitor starting at the first swarm server port, a 
+# total of 48 + 1 by default (including the ones in use).
+# If any ports in the range 43124 through 43172 are known to be busy on your PC, set a 
+# different starting port number for the microservices. However, it's highly
+# unlikely that those port numbers are in use.
+# (Note the first port is reserved for use by the remote PowerShell service(s)
+# needed if remote opening of files on the IntraMine box is wanted.)
+INTRAMINE_FIRST_SWARM_SERVER_PORT	43124
+# Intramine monitors extra ports above those in use, to avoid
+# later bookmark/favorite failure if a port is no longer in use.
+TOTAL_SWARM_PORTS_TO_MONITOR	48
+#
+# Default drive letter. This should be the letter for the drive holding your IntraMine folder.
+DRIVELETTER	C
+# Batch file names, to start/stop IntraMine and foldermonitor.ps1.
+INTRAMINE_MAIN_BATCH_FILE		bats/START_INTRAMINE.bat
+FOLDERMONITOR_VBS_FILE			bats/foldermonitor.vbs
+FOLDERMONITOR_BATCH_FILE		bats/foldermonitor.bat
+FOLDERMONITOR_PS1_FILE			bats/foldermonitor.ps1
+FOLDERMONITOR_FOLDERLISTPATH	data/foldermonitorlist.txt
+#
+# Base name for files tracking old names for renamed folders.
+# Actual files will be named oldnew1.txt, oldnew2.txt...
+FOLDERMONITOR_OLDNEWBASEPATH	C:/fwws/oldnew
+# Number of files tracking old names for renamed folders.
+FOLDERMONITOR_NUMOLDNEWMAX		10
+# Signal sent by foldermonitor.ps1 on file or folder change.
+FOLDERMONITOR_CHANGE_SIGNAL		/?signal=FILESYSTEMCHANGE&name=Watcher
+#
+# Standard directories.
+IMAGES_DIR			images_for_web_server/
+# COMMON_IMAGES_DIR is not included with IntraMine
+# - make it if you want to use it.
+COMMON_IMAGES_DIR	C:/common/images/
+CSS_DIR				css_for_web_server/
+JS_DIR				js_for_web_server/
+FONT_DIR			fonts_for_web_server/
+HELP_DIR			Documentation/
+#JSEDITOR_DIR		js_for_web_server/src-min-noconflict/
+JSEDITOR_DIR		CodeMirror-master/
+#JSEDITOR_DIR		tinymce/
+TEST_PROGRAM_DIR	test_programs/
+LogDir				logs/IntraMine/
+#
+# Standard files.
+SERVERLISTPATH		data/serverlist.txt
+TESTSERVERLISTPATH	data/serverlist_for_testing.txt
+#
+# Obsolete "password" string.
+FULL_ACCESS_STR	
+# Some mime types.
+gif		image/gif
+jpg		image/jpeg
+jpeg	image/jpeg
+png		image/png
+ico		image/x-icon
+jpe		image/jpeg
+jfif	image/jpeg
+css		text/css
+js		application/javascript
+htm		text/html
+html	text/html
+ttf		application/font-sfnt
+txt		text/plain
+#
+# Search dialog: do you want "Subdirectories too" initially selected?
+# The answer is typically "no" in for example notepad++, because searching
+# subdirectories can take a very long time. But IntraMine searches aren't
+# slower if subdirs are searched, so the default is "yes" (1). Value 0 or 1.
+SEARCH_SUBDIRS_BY_DEFAULT	1
+#
+# Elasticsearch configuration.
+# List of directories for Elasticsearch to index.
+ELASTICSEARCHDIRECTORIESPATH	data/search_directories.txt
+#
+# Max file size for Es indexing. Over 800 KB causes a real slowdown.
+# Going over 700 KB can hit an ES limit on field size of one million characters,
+# due to substituting ' __P_ ' for \n, so best not to increase the 700 KB default.
+ELASTICSEARCH_MAXFILESIZE_KB	700
+#
+# The Elasticsearch index is broken into "shards," 5 is good up to 500,000 files, at least.
+# Increase shard count (and re-index) if search is slow or problematic. But note the most likely
+# cause of slow searches is indexing many hundreds of large (over ~600 KB) files.
+ELASTICSEARCH_NUMSHARDS		5
+# Replicas for Es must be on other PCs. Default is no replicas.
+ELASTICSEARCH_NUMREPLICAS	0
+ES_INDEXNAME				intramine
+# Number of hits to show in Search page results. Keep <= 100 for best results.
+ES_NUMHITS					100
+# Elasticsearch index type. This will go away with ES 7.
+ES_TEXTTYPE					text
+# Index files that lack a file extension? Preferably not.
+ES_INDEX_NO_EXTENSION		0
+#
+# Time and description of items for the "Events" server.
+EVENTSTEXTPATH		data/Events.txt
+# Budget for the "Cash" server.
+CASHFLOWTEXTPATH	data/Cash_events.txt
+# ToDo server, todo items.
+TODODATAPATH		data/ToDo.txt
+# Upload server, default upload directory.
+DEFAULT_UPLOAD_DIR	:/temp/
+BACKUP_DIR			.bkp/
+#
+# Full paths to all indexed files.
+FULL_PATH_LIST_NAME			fullpaths.out
+# File counts, and complete list of files skipped because
+# they exceeded ELASTICSEARCH_MAXFILESIZE_KB
+FILESIZE_BIN_NAME			filesizes.out
+# File Watcher directories and file names.
+FILEWATCHERDIRECTORY		C:/fwws/
+FILEWATCHER_LOG				fwatcher.log
+FWTIMESTAMPFILE				fw_timestamp.log
+FWCURRENTCHANGESFILE		cud.log
+FWWS_CONFIG					C:/fwws/fwatcher.xml
+FWWS_ENTRY_TEMPLATE			data/fwws_config_template.txt
+FOLDRMONITOR_ENTRY_TEMPLATE	data/fmonitor_config_template.txt
+# Test file with words, for testing Elasticsearch indexing. See elastic_indexer.pl
+ES_INDEX_TEST_FILE_NAME		elasticsearch_index_test.txt
+ES_INDEX_TEST_FILE_NAME_2	link_test.cpp
+#
+# Batch files to start and stop the File Watcher service:
+FILEWATCHER_START_SERVICE	bats/start_filewatcher_service.bat
+FILEWATCHER_STOP_SERVICE	bats/stop_filewatcher_service.bat
+#
+# For File Watcher, the local start and end times for when
+# path consolidation is allowed. Default 3 AM to 5 AM.
+# Allow a window of at least two hours.
+FILEWATCHER_CONSOLIDATION_START_HOUR	3
+FILEWATCHER_CONSOLIDATION_END_HOUR		5
+#
+# ctags needs to make temp files
+CTAGS_DIR	C:/ctags-2020-01-28_3f4203d2-x64
+# Auto generated table of contents for a directory, DISABLED.
+TOCFILENAME	---toc---.txt
+#
+# Status server, how many changed files, how often to refresh.
+STATUS_FILEDISPLAY_LIMIT		100
+STATUS_REFRESH_MILLISECONDS		30000
+# Some HTML element names needed by Status server.
+PAGE_SERVER_STATUS_TABLE		tablePageServerStatus
+BACKGROUND_SERVER_STATUS_TABLE	tableBackgroundServerStatus
+STATUS_BUTTON_HOLDER_CLASS		statusButtonHolder
+PORT_STATUS_HOLDER_CLASS		portHolder
+#
+# Server-Sent Events background server short name.
+ACTIVITY_MONITOR_SHORT_NAME	SSE
+#
+# Local editing and LOCAL_OPENER_APP
+# If editing on the IntraMine box isn't wanted at all, set this to 0:
+ALLOW_LOCAL_EDITING	1
+# == 0 to use IntraMine's Editor service, == 1 to use LOCAL_OPENER_APP:
+USE_APP_FOR_EDITING	0
+# Set this to one of the OPENER_ names just below, so IntraMine knows which one to use.
+LOCAL_OPENER_APP	OPENER_NOTEPADPP
+# A short list of apps that can be used to open files for editing
+# if you are working directly on the IntraMine box. Default is notepad++.
+# See intramine_open_with.pl around line 54.
+# Check the path, update it here if yours is different.
+# Set LOCAL_OPENER_APP to one of the entries below, after checking the path.
+OPENER_NOTEPADPP		%ProgramFiles(x86)%/Notepad++/notepad++.exe
+OPENER_NOTETAB			%ProgramFiles(x86)%/NoteTab Light/NoteTab.exe
+OPENER_ECLIPSE			C:/javascript-2018-12/eclipse/eclipse.exe
+OPENER_KOMODO			%ProgramFiles(x86)%/ActiveState Komodo Edit 9/komodo.exe
+OPENER_VISUALSTUDIOCODE	%LOCALAPPDATA%/Programs/Microsoft VS Code/Code.exe
+OPENER_ATOM				%LOCALAPPDATA%/atom/atom.exe
+#
+# For local editing only, apps for pdf and docx files.
+# Check the paths, they might need updating for your system.
+LOCAL_OPENER_PDF		%ProgramFiles(x86)%/Foxit Software/Foxit Reader/FoxitReader.exe
+LOCAL_OPENER_WORD_DOCX	%ProgramFiles%/Microsoft Office 15/root/office15/winword.exe
+#
+# Remote editing and REMOTE_OPENER_APP
+# If remote editing isn't wanted at all, set this to 0:
+ALLOW_REMOTE_EDITING	1
+# == 0 to use IntraMine's Editor service, == 1 to use REMOTE_OPENER_APP.
+USE_APP_FOR_REMOTE_EDITING	0
+# Set this to one of the REMOTE_OPENER_ names just below, so IntraMine knows which one to use.
+REMOTE_OPENER_APP	REMOTE_OPENER_ECLIPSE
+# App to use if you want to open files remotely, instead of using IntraMine's
+# rather plain Opener service (intramine_open_with.pl). Note 'remote_open.ps1'
+# must be running on the remote PC for this to work.
+# See TODO for details on setup.
+# Check the path, update it here if yours is different. Note the path is the same
+# for any remote PC (not the IntraMine PC, which is specified separately above)
+# and since there is just one path, all remote PCs that want to use an app
+# for editing must use the same app at the same path.
+# Set REMOTE_OPENER_APP to one of the entries below, after checking the path.
+# Your path will almost certainly be different from the paths below.
+# You only need to update the path for the one you'll be using
+# NOTE in particular replace "username" with your actual user name.
+REMOTE_OPENER_ECLIPSE	C:\eclipse\eclipse\eclipse.exe
+REMOTE_OPENER_NOTEPADPP	C:/Program Files (x86)/Notepad++/notepad++.exe
+REMOTE_OPENER_NOTETAB	C:/Program Files (x86)/NoteTab Light/NoteTab.exe
+REMOTE_OPENER_KOMODO	C:/Program Files (x86)/ActiveState Komodo Edit 9/komodo.exe
+REMOTE_OPENER_VISUALSTUDIOCODE	C:/Users/username/AppData/Local/Programs/Microsoft VS Code/Code.exe
+REMOTE_OPENER_ATOM		C:/Users/username/AppData/Local/atom/atom.exe
+
+#
+# Mappings for use by remote PCs when using an editing app to access files on
+# the IntraMine host PC.
+# Enter the \\host-name\\share-name corresponding to the indexed directory
+# on your IntraMine box that you want to share. Eg if you are indexing
+# C:/Qt and have shared it on the IntraMine PC with host-name DESKTOP-D4KOMRV
+# as wsqt, then enter "C:/Qt	\\DESKTOP-D4KOMRV\wsqt" just below.
+# (https://www.lifewire.com/unc-universal-naming-convention-818230)
+# IMPORTANT: key entries on the left should match exactly with entries
+# in data/search_directories.txt.
+# Three examples, commented out:
+#C:/perlprogs	\\DESKTOP-D4KOMRV\wsperlprogs
+#C:/Personal		\\DESKTOP-D4KOMRV\wspersonal
+#C:/Qt			\\DESKTOP-D4KOMRV\wsqt
+#
+# If a server anticipates being out of server for a bit due to maintenance,
+# put an entry for the Server|event here, with one space between entries.
+# See handling for 'signal=folderrenamed' in intramine_linker.pl#HandleBroadcastRequest()
+# and note that 'signal=backinservice' should be sent when done.
+MAINTENANCE_SERVER_EVENTS	Linker|folderrenamed MainTest|testMaintenance Other|signalName
+#
+# Search, Viewer, Files servers need to know the names of the
+# Viewer, Opener, and Editor servers. And Files needs to know the Linker Short name.
+VIEWERSHORTNAME	Viewer
+OPENERSHORTNAME	Opener
+EDITORSHORTNAME	Editor
+LINKERSHORTNAME	Linker
+#
+# For HTML docs generated by gloss2html.pl from .txt documents.
+# If a document is named "contents.txt" and the first text in the document is
+# "Contents", give it some special CSS to look more like a proper
+# table of contents. Set INDEX_GETS_SPECIAL_TREATMENT to 0 if you don't want this.
+INDEX_GETS_SPECIAL_TREATMENT				1
+SPECIAL_INDEX_NAME						contents.txt
+SPECIAL_INDEX_NAME_HTML					contents.html
+SPECIAL_INDEX_EARLY_TEXT_MUST_CONTAIN	CONTENTS
+SPECIAL_INDEX_FONT						Baskerville BT
+SPECIAL_INDEX_FLOURISH					flourish2.png
+SPECIAL_INDEX_FLOURISH_HEIGHT			100
+SPECIAL_INDEX_BACKGROUND				Coffee-Paper-Texture4.jpg
+
+# GLOSS_SHOW_IMAGES: 1 means inline all images, 0 means show the image if
+# the cursor pauses over the image name. This can be overridden with
+# -i or -inline on the command line to set GLOSS_SHOW_IMAGES to 1.
+GLOSS_SHOW_IMAGES	0
+# SUPPRESS_IMAGE_LINKS: should popup or inlined images have a link to the
+# original image file? If you're not going to send the original images/
+# subfolder along with the standalone files, then there should not be
+# any links, so set this to 1. If the images/ subfolder will always be
+# there for people, set it to 0 and they will be able to click on an
+# image name to view the image in a new browser tab.
+SUPPRESS_IMAGE_LINKS	1
+# Also just for Gloss standalone HTML views generated by gloss2html.pl.
+# Entries are loaded from the glossary file, and links inserted in all generated
+# Gloss HTML views for the glossary entries.
+GLOSSARY_FILE_NAME	glossary.txt
+
+# For testing. These should be updated to your own paths if you want
+# to do server testing. See "Testing.txt" for details.
+# Wherever you installed "chromedriver.exe": note it's a full path.
+CHROME_DRIVER_PATH	P:/temp/chromedriver_win32/chromedriver.exe
+# The service used for some of Main testing. This is fired up when
+# the Count for Main is set to 1 in serverlist_for_testing.txt.
+INTRAMINE_TEST_SERVICE	intramine_test_main.pl
+INTRAMINE_TEST_NAME	MainTest

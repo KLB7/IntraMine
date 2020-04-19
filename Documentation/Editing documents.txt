@@ -1,0 +1,141 @@
+Editing documents
+=================
+
+As presented in Search hits and IntraMine's views of documents, most links to source and text files have a little pencil icon (edit1.png) beside them. That's what you click to open the document in either IntraMine's Editor or the editor of your choice. If you disable editing, you won't see the little pencils.
+
+Options
+========
+You can choose to:
+1. Not allow editing
+2. Use IntraMine's simple Editor
+3. Use your preferred editing app (Eclipse, Visual Studio, notepad++ etc)
+And you can make your choice separately for editing while working directly on your IntraMine box, versus using a different (remote) PC. However, all remote PCs must use the same choice, including the same path to the editing app if you pick one (eg C:/Program Files (x86)/Notepad++/notepad++.exe).
+
+These options are set by 'ALLOW_LOCAL_EDITING' and entries following it in data/intramine_config.txt, around line 154, as you'll see below.
+
+Editing on your IntraMine PC
+============================
+To change how editing is handled when you're working on the same PC where IntraMine is installed, open data/intramine_config.txt and scroll down to about line 156, where you'll see 'ALLOW_LOCAL_EDITING' followed by configuration entries (format key <tabs> value) that control "local" editing.
+
+TABLE Local editing configuration
+Item                     	Description
+ALLOW_LOCAL_EDITING		If you want any sort of local editing, set this to 1. Otherwise, 0 disables all local editing.
+USE_APP_FOR_EDITING		0 means use IntraMine's built-in simple Editor service, 1 means you will use the application specified in 'LOCAL_OPENER_APP'
+LOCAL_OPENER_APP		Set this to one of the keys that follow immediately: 'OPENER_NOTEPADPP' to use notepad++ (which is the default), 'OPENER_ECLIPSE' to use Eclipse, etc.
+OPENER_NOTEPADPP etc	Names for specific editors: the value is the path to the editor. You can make up your own entry here and use it. For example you could put OPENER_WHIZBANG followed by one or more tabs and the full path to the Whizbang editor. To use it as your default editor, set USE_APP_FOR_EDITING to 1 and set LOCAL_OPENER_APP to OPENER_WHIZBANG.
+
+**IMPORTANT** if you choose to use your own preferred editor, check and update the path for it in data/intramine_config.txt. My own path next to OPENER_ECLIPSE for example is C:/javascript-2018-12/eclipse/eclipse.exe, but your path for Eclipse is quite likely different. You only need to update the path for the specific editor that you want to use.
+
+Some of the supplied paths have "username" as a placeholder, if you need one of those then replace "username" with your real user name. Atom is an example, with default config path
+C:/Users/username/AppData/Local/atom/atom.exe
+- if your user name is "john27" then change the path to
+C:/Users/john27/AppData/Local/atom/atom.exe.
+
+Remote editing
+==============
+If you're not working right on the same PC where IntraMine is installed, you are "remote." Configuration settings are similar to local editing, but some extra steps are required if you want to use your own choice of editing app for remote editing - see "Remote editing with your preferred app" below.
+
+Here are the configuration settings that govern remote editing, around line 174 in data/intramine_config.txt:
+TABLE
+Item                        		Description
+ALLOW_REMOTE_EDITING		Set to 1 if you want to allow any sort of remote editing, 0 to disable.
+USE_APP_FOR_REMOTE_EDITING	means use IntraMine's built-in simple Editor service, 1 means you will use the application specified in 'REMOTE_OPENER_APP' - but see the following section if you set it to 1.
+REMOTE_OPENER_APP			Set this to one of the keys that follow immediately, REMOTE_OPENER_ECLIPSE etc.
+REMOTE_OPENER_ECLIPSE etc	These are names for specific editors, enter one of them as the value for REMOTE_OPENER_APP if you have set USE_APP_FOR_REMOTE_EDITING to 1. You can make up your own entry if your wanted editor isn't on the list. For example to use C:/apps/whizbang/whiz.exe as your preferred remote editor make a new entry in data/intramine_config.txt consisting of "WHIZBANG<one or more tabs>C:/apps/whizbang/whiz.exe" and set the value of REMOTE_OPENER_APP to WHIZBANG. Again, see the following section if you want to use your preferred app for remote editing.
+
+**IMPORTANT** if you choose to use your own preferred editor, check and update the path for it in data/intramine_config.txt. This should be the path on the remote PC, not the path on your IntraMine PC. And because you can set only one path, if you have more than one remote PC then the path to the preferred editor needs to be the same on all of them in order for remote editing to work on all of them.
+
+Remote editing with your preferred app
+======================================
+So you're on a remote PC and IntraMine is all configured to use say REMOTE_OPENER_ECLIPSE for remote editing, and you've updated the path for REMOTE_OPENER_ECLIPSE to agree with the path to Eclipse on your remote PC - anything else? Yes, a few little things:
+
+On your IntraMine box
+~~~~~~~~~~~~~~~~~~~~~
+1. First, open bats/IntraMine-Remote.ps1 and check the port number on the "$BINDING" line around line 64, "43124" by default.
+Make it the same as
+"INTRAMINE_FIRST_SWARM_SERVER_PORT" in IntraMine's data/intramine_config.txt file around line 15. Save that, it will be your "master" for copying to other PC's.
+2. In data/intramine_config.txt, set ALLOW_REMOTE_EDITING, USE_APP_FOR_REMOTE_EDITING, and REMOTE_OPENER_APP as described above.
+ If any remote PC doesn't have the editor in the specified place, then IntraMine's Editor service will be used instead, if it's running.
+3. IntraMine needs to know how to come up with a path to a file on the IntraMine box, from the perspective of a remote PC. Near the bottom of intramine_config.txt around line 205 you'll find "Mappings for use by remote PCs". For best results any directory you share in order to allow remote editing should also be entered in your list of directories to index, in data/search_directories.txt and should match exactly.
+ To make an entry for eg "P:\Qt" where the "P:" drive is attached to your IntraMine PC:
+3.1 first, share the folder on your IntraMine box as eg "devQt", under an account that your remote PC can use; note the host name for your IntraMine box (see "Device name" under Settings -> System -> About);
+3.2 make an entry in intramine_config.txt for the share, eg
+ P:Qt	\\host-name\devQt
+
+On each remote PC
+~~~~~~~~~~~~~~~~~
+1. Connect to all the shares that you established above for remote editing and
+enter your credentials for them if needed.
+2. Save this script to your remote PC. I'll use "C:\PS\IntraMine-Remote.ps1" below.
+3. Right-click on your remote "C:\PS\IntraMine-Remote.ps1" and select "Unblock" if you see it.
+4. Configure a firewall exception to allow access to the chosen port:
+ at a cmd prompt on the remote PC, started with "Run as administrator", enter:
+ netsh advfirewall firewall add rule name="IntraMine-Remote" dir=in action=allow protocol=TCP localport=43124
+ (The name is arbitrary, localport should again be the same as in "$BINDING".)
+ If you no longer want this server later, you can remove the firewall rule by name with, e.g.:
+ netsh advfirewall firewall delete rule name="IntraMine-Remote"
+5. Start your remote editor using "Run as administrator" (see the shouting above).
+6. Start PowerShell with administrative rights ("Run as administrator") on the remote PC. Type or paste
+ Set-ExecutionPolicy Bypass
+ and press Enter, then
+ C:\PS\IntraMine-Remote.ps1
+ and press Enter.
+7. To stop the server, on the remote PC use http://localhost:43124/?app=quit
+ (where of course the 43124 number should agree with "INTRAMINE_FIRST_SWARM_SERVER_PORT").
+
+Start your remote editor using "Run as administrator" before starting this script. The simplest way to do that is make a shortcut to your editor, then right-click for Properties and under the Shortcut tab
+click "Advanced..." and select "Run as administrator". Both your editor and this script must be started via "Run as administrator" or this just won't work.
+
+A remote edit example
+---------------------
+Let's set things up so that when using a remote PC a click on an edit "pencil" icon opens the file using a specific editing app on the remote PC. Note the file being edited stays on the IntraMine PC. I'll try to make this complete, no assumptions.
+TABLE Specific details for the example
+What				Example value
+IntraMine edit port		43124 ("INTRAMINE_FIRST_SWARM_SERVER_PORT" in intramine_config.txt)
+IntraMine PC name		WORKSTATION1
+Remote PC name			REMOTE1
+IntraMine PC user/pwd				Gabriel/1234M$M
+Preferred editor (on remote)	REMOTE_OPENER_ATOM
+Default value of REMOTE_OPENER_ATOM		C:/Users/username/AppData/Local/atom/atom.exe
+Name of user logged in on remote PC		Gab2
+Updated value of REMOTE_OPENER_ATOM		C:/Users/Gab2/AppData/Local/atom/atom.exe
+Folder on IntraMine PC		P:\Projects
+Drive for mapping on remote		Q
+
+Preliminaries:
+ - an Admin account named "Gabriel" with password "1234M$M" has been set up on the IntraMine PC, using Settings -> Accounts -> Family & other users -> Other users -> Add someone else to this PC. This is distinct from the "Gab2" account mentioned below, which is the account used to log in to the remote PC. We don't care what account name you have used to log in to your IntraMine PC.
+ - IntraMine has been installed, and a first index built, with P:\Projects as one of the indexed folders.
+
+1. On your IntraMine PC, share the folder of interest (at a command prompt, with Run as administrator):
+ net share wsprojects=P:\Projects
+2. On your remote PC, use the shared folder (again type this at a command prompt, started by Run as administrator):
+ net use Q: \\WORKSTATION1\wsprojects /user:Gabriel 1234M$M /persistent:Yes
+ or
+ START /wait net use Q: \\WORKSTATION1\wsprojects /user:Gabriel 1234M$M /persistent:Yes
+ to wait until the mapping is complete.
+3. In intramine_config.txt around line 174, set:
+3.1 ALLOW_REMOTE_EDITING	1
+3.2 USE_APP_FOR_REMOTE_EDITING	1
+3.3 REMOTE_OPENER_APP	REMOTE_OPENER_ATOM
+3.4 REMOTE_OPENER_ATOM	C:/Users/Gab2/AppData/Local/atom/atom.exe
+ (note "Gab2", the name of the user on the remote PC, has been substituted for "username").
+4. Open IntraMine's open bats/IntraMine-Remote.ps1, verify that "$BINDING" on line 64 has 43124.
+4.1 Copy IntraMine-Remote.ps1 to your remote PC. You can save it anywhere, let's assume you save it to "C:\PS\IntraMine-Remote.ps1".
+4.2 Right-click on your remote "C:\PS\IntraMine-Remote.ps1" and select "Unblock" if you see it.
+4.3 At a cmd prompt on the remote PC, started with "Run as administrator", enter:
+ netsh advfirewall firewall add rule name="IntraMine-Remote" dir=in action=allow protocol=TCP localport=43124
+5. Start Atom using "Run as administrator". One simple way to do that is to make a shortcut to the editor and put in on your desktop, then under Properties -> Shortcut -> Advanced select "Run as administrator" - that way you won't forget.
+6. Start PowerShell with administrative rights ("Run as administrator") on the remote PC. Type or paste
+ Set-ExecutionPolicy Bypass
+ and press Enter, then
+ C:\PS\IntraMine-Remote.ps1
+ and press Enter.
+7. Now, on the remote PC, bring up a link to any file in the P:\Projects folder, using IntraMine's Search or File page. Click on the yellow pencil edit icon the the right of the file name, and the file should open in Atom.
+
+iPad editing
+============
+The iPad is "special" of course (isn't it always) and only no editing or use of IntraMine's simple Editor is possible. For starters, I don't even know how I would specify an app to use on the iPad. So set ALLOW_REMOTE_EDITING to 1 if you want to allow remote editing, including the iPad, and the iPad will always use IntraMine's Editor if so. The contorted English there reflects my feelings about the iPad.
+
+---
+contents.html
+---

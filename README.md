@@ -1,0 +1,60 @@
+# IntraMine
+IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
+
+An attempt has been made to address the following problems:
+
+ - Perl for Windows lacks an easy approach to multiprocessing
+ - autolinking for locally accessible files is very limited in all editors
+ - images are too hard to use in source and text files - so they aren't.
+ - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for.
+
+I had some notions, so I set out to do a demo to address those issues. My insidious plot is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time (years, actually) polishing it up to the point where I hope you find it pleasant and useful.
+
+## What's in the box
+ - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with no-load index updates in five seconds.
+ - a truly nice Viewer to see your search hits in context
+ - autolinks on everything in all file views, mostly with no extra typing (1)
+ - Gloss, a superautomatic minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
+ - image hovers, so images actually become useful. Pause your mouse over the image name and the image pops up. Works in source and text files, zero extra typing required.
+ - for Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks and JavaScript. IntraMine's main "round robin redirect" service won't be a bottleneck.
+ - use IntraMine's autolinking approach etc for your own IDE, all original work is covered under an UNLICENSE.
+
+## Requirements
+ - Windows 10.
+ - Strawberry Perl 5 version 30 or later (install instructions are included).
+ - 3-4 GB of RAM for IntraMine (including Elasticsearch)
+ - your source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected.
+
+For more see [the documentation](http://intramine.info), where among other things you'll find complete installation instructions.
+
+## What's different about an intranet
+Since IntraMine is for intranet use only, opportunities arise to simplify some things, and enhance others:
+
+ - IntraMine doesn't do full the full microservices thing. In particular, all IntraMine services for a single instance need to run on the same PC (you can have multiple instances of IntraMine though, running on different PCs). And adding/stopping/starting services is not automatic, though it can be done on the fly.
+ - IntraMine's interprocess communications aren't quite fully RESTful. The one big omission is that there's no HATEOAS mechanism. But it's the intranet, so if the fellow superstar next to you writes a new IntraMine service, you can just lean over and ask "Got an API for that?"
+ - autolinking can be made near perfect, armed with the list of all full paths for files of interest that IntraMine will maintain for you, and the concepts of "the closest one to my context" and "only needed parts of the path".
+ - images can be easy to use, and become first class citizens.
+
+## Metablather
+All original work is covered under an UNLICENSE. On the off chance that you see something you like, use it.
+
+If you spot a bug above the minor cosmetic level, please send an email about it to KLB@intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
+
+## Warning
+IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, gosh think twice.
+
+## How to get started
+Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
+
+1. Here are some examples from my PC that turn into links under IntraMine's Viewer.
+
+ - IntraMine Dec 18 2019.txt (no quotes needed. There's a second copy of this file in a backup folder, but it's farther away from where I'm mentioning the file, and closer is preferred.)
+ - "IntraMine Dec 18 2019.txt#Partial path simplification" (a link directly to a header in a text file, needing two quotes and a hash tag)
+ - qremoteobjectnode.cpp (this Qt file is on my P: drive, but the name is unique so no partial path is needed)
+ - quickcontrols2/qquickstyle.h (Qt often has two or more versions of the same file. In this case, adding one directory name to the path makes it unique among all known file paths. Directory names need not be in order or consecutive.)
+ - https://google.com
+ - the mention of any heading within a text file becomes a link if place in double quotes. Eg "Partial path simplification" within IntraMine Dec 18 2019.txt
+ - in source files, any mention of a function or class defined in the same file becomes a link
+ - in Perl files, "use module" gets two links to the module, locally and on metacpan
+
+ 

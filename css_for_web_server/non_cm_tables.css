@@ -1,0 +1,298 @@
+/* non_cm_tables.css: for non-CodeMirror table display by the Viewer service. */
+
+table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+table, tr, td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+td.vam {
+	vertical-align: middle;
+}
+
+td:nth-child(1) {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 4em; /* enough for 99999 one hopes */
+}
+
+th {
+	text-align: left;
+}
+
+/* Avoid copy of line numbers in the first column.
+<td n='$lineNum'></td>
+*/
+td:first-child:after, th:first-child:after {
+    content: attr(n);
+}
+
+
+h1, h2, h3, h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+.outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+.outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+.ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 4.2em;
+	}
+
+.ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.2em;
+	}
+
+.ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 2.3em;
+	}
+
+.ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.3em;
+	}
+
+.ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.7em;
+	padding-left: 4.6em;
+	}
+
+.ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.6em;
+	}
+
+.ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.6em;
+	padding-left: 4.9em;
+}
+
+.ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.9em;
+	}
+
+.ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -3.2em;
+	padding-left: 5.6em;
+}
+
+.ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 5.6em;
+	}
+
+
+/* Data tables in text */
+.bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+.bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+.bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+.bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+.bordered td:first-child, .bordered th:first-child {
+    border-left: none;
+    border-top: none;
+    background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+}
+
+.bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+.bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+.bordered td:not(:first-child), .bordered th:not(:first-child) {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.bordered td.centered_cell, .bordered th.centered_cell {
+	text-align: center;
+}
+
+.bordered td.left_cell, .bordered th.left_cell {
+	text-align: left;
+}
+
+.bordered td.right_cell, .bordered th.right_cell {
+	text-align: right;
+}
+
+.shrunkrow {
+	height: 3pt;
+	}
+	
+.reallyshrunkrow {
+	background: #888;
+}
+
+.reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+.codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}

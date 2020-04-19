@@ -1,0 +1,29 @@
+Other services
+==============
+All of IntraMines' supplied services are listed in data/serverlist.txt. To see what one of the other services does, change its Count entry there to 1 and restart IntraMine. Alas, you will probably not find hidden treasure.
+
+Days
+==========
+intramine_daysserver.pl and days.js, together with some jQuery, combine to show monthly calendars where you can click on start and end dates to see how many days there are between dates, both calendar and business days. The back end Perl just loads the web page, and after that it's all JavaScript to display the calendars and do the calculations.
+
+Holidays aren't calculated, they're listed in days.js. If you want different official holidays, wade in there and put in the ones you want, good for an afternoon's entertainment I expect.
+
+Events
+==========
+intramine_eventsserver.pl
+A simple calendar that shows upcoming events. There's a link to the text file where you can enter events.
+
+intramine_eventsserver.pl has much of its JavaScript embedded in the Perl, and uses the rather clunky swarmserver.pm#GetStandardPageLoader() to finish loading its web page. Not recommended as a code example.
+
+Cash
+==========
+intramine_cashserver.pl
+A sort of budget/cash flow widget, with a link to the data file where you can enter your cash flow "events" (income, expenses, asset purchases). You get full monthly cash flow numbers out as far as you want, and a graph showing yearly results.
+
+intramine_cashserver.pl also uses swarmserver.pm#GetStandardPageLoader() to finish loading its web page, and honestly I couldn't be bothered to refactor that away. It works, and let's face it, there are better ways out there to track your money.
+
+Under the hood, the Cash server uses google.charts to show the bar graph (see intramine_cashserver.pl#CalcAndLoadJavaScript()) but aside from that there's not much excitement.
+
+---
+contents.txt
+---

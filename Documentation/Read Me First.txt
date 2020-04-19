@@ -1,0 +1,56 @@
+Read Me First
+=============
+*If you're seeing plain text, open Documentation/Read Me First.html with a browser. Hover images are bracketed by tiny yellow hummingbirds.*
+
+What's in the box
+=================
+IntraMine is an intranet server suite for Strawbery Perl Windows developers. Anyone can install it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
+
+You get:
+ - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with index updates in five seconds
+ - a truly nice Viewer to see your search hits in context
+ - autolinks on everything in all file views, mostly with no extra typing
+ - Gloss, a superautomatic minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
+ - image hovers, so images actually become useful. Pause your mouse over the image name and the image pops up. Works in source and text files, zero extra typing required.
+ - for Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need, concentrating on your callbacks and Javascript.
+ - steal IntraMine's autolink etc for your own IDE, all original work is covered under an UNLICENSE.
+
+Requirements
+============
+ - Windows 10.
+ - Strawberry Perl 5 version 30 or later (install instructions are included).
+ - 3-4 GB of RAM for IntraMine (including Elasticsearch)
+ - your source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected.
+
+Some details
+===============
+IntraMine is a suite of Perl-based services, designed for intranet use on a Windows PC. Out of the box, it provides services that allow sub-second searches on half a million source and text files, with five-second index updates. Nineteen services are included, with two "starter" services to build on when you want to add your own services to your intranet.
+
+There is of course a main service, but it doesn't serve as a conduit for all Ethernet traffic. Instead, it redirects to the appropriate service, which then handles all subsequent traffic on its own. Each service responds directly to the client browser. As a result, the main service is never a bottleneck for communications. Special care is taken to avoid breaking user bookmarks/favorites when services are added or removed.
+
+Services under IntraMine must run on the same PC and there is no provision for automatic stop/start of services; but we're on an intranet here, so these are not necessarily stoppers. If you want to stop, start, or add a server on the fly, you can do that on the Status page. And you can have several instances of IntraMine running on different PCs.
+
+In fact, if there are several developers on your team, and they each have their own clone of source files to work with, then a single central instance of IntraMine wouldn't be ideal, since IntraMine can only do real-time updating of its search index for locally attached storage. In this case it's better for each developer to have a separate instance of IntraMine running, and then search results and autolinks will be up to date within seconds of any change.
+
+How to write your own IntraMine service:
+ - use swarmserver.pm;
+ - initialize four variables
+ - set up callbacks to handle requests to your server
+ - call MainLoop().
+ - and then the "good bits": fill in the callbacks to do what you want, and add any JavaScript that you might need on the front end.
+ - Writing your own IntraMine server.txt has all the details.
+An entry in data/serverlist.txt will then bring your service up, as many instances as you want.
+IntraMine handles basic communications, allowing you to focus on writing your callback handlers and JavaScript for your service. Signals between services, and Server-Sent Events are supported. You can stop start or add instances on the Status page.
+
+IntraMine has no HATEOAS mechanism for exposing the complete API of a service. But since we're on an intranet, if someone introduces a new IntraMine service and you want the API, you can just ask them for it. You can use the REST approach if you want (see DBX.txt for an example), but it's not mandatory.
+
+
+2020-02-27 22_40_46-Status.png
+
+Next
+=====
+To install IntraMine, open "contents.html" in the Documentation/ folder and run through the "INSTALLATION" section.
+
+---
+contents.txt
+---

@@ -1,0 +1,653 @@
+/* main.css: the place where failure to plan goes to die. */
+
+h1 {
+	font-size: 1.5em;
+}
+
+.shimclear {
+	height: 6px;
+	float: none;
+}
+
+#help {display:none;}
+
+/* ipadfix out overflow: hidden; in width: 100%*/
+html, body {
+    overflow: hidden;
+	height: 100%;
+   /* width: 100%*/
+}
+
+body {
+	background: #fafafa;
+	font: normal .8em/1.5em Arial, Helvetica, sans-serif;
+	min-width: 800px;
+	margin-left: 1%;
+	margin-right: 0.5%;
+	margin-top: 0;
+	margin-bottom: 0;
+	/* Experimental, trying to get word breaks on iPad Pro */
+	/* Doesn't help: overflow-wrap: break-word; */
+	/* Works, but breaks on everything: word-break: break-all; */
+}
+
+/* ipadfix adding a wrapper around entire body */
+#bodywrapper {
+	position: fixed; height:100%; width:100%; top:0; left:0;
+}
+
+#pageContent {
+	height: 100%;
+}
+
+a {
+text-decoration: none;
+}
+
+a:link {
+color: Black;
+border-bottom: 1px solid #AAA;
+}
+
+a:visited {
+color: #333;
+border-bottom: 1px solid #AAA;
+}
+
+a:hover {
+color: #333;
+border-bottom: 1px solid #333;
+}
+
+/* File tree displays, suppress underlines on links. */
+UL.jqueryFileTree A {
+	border-bottom: none;
+}
+
+/* ipadfix adding wrapper around fixed top part */
+#fixed_header {
+	position: absolute; top:0; left:0; width:100%; height: 200px; z-index:10;
+	}
+
+#nav {
+	position: relative;
+	display: block;
+	margin: 0;
+	margin-top: 8px;
+	padding: 7px 6px 0;
+	line-height: 100%;
+	border-radius: .4em;
+
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+
+	/*background: -webkit-gradient(linear, left top, left bottom, from(#a9a9a9), to(#7a7a7a));*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#999999), to(#333333));
+
+	border: solid 1px #6d6d6d;
+	min-width:770px;
+}
+#nav li {
+	margin: 0 5px;
+	padding: 0 0 8px;
+	float: left;
+	position: relative;
+	list-style: none;
+}
+/* main level link */
+#nav a {
+	font-weight: bold;
+	color: #e7e5e5;
+	text-decoration: none;
+	border-bottom: none;
+	display: block;
+	padding:  8px 15px;
+	margin: 0;
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+}
+/* main level link hover */
+#nav .current a, #nav li:hover > a {
+	background: -webkit-gradient(linear, left top, left bottom, from(#ebebeb), to(#a1a1a1)); /* for webkit browsers */
+	border-top: solid 1px #f8f8f8;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	-moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+#nav li:hover > a {
+	color: #444;
+}
+
+#nav .current a, #nav .current:hover > a {
+	color: #008000; /*#31540c*/
+}
+
+/* sub levels link hover */
+#nav ul li:hover a, #nav li:hover li a {
+	background: none;
+	border: none;
+	color: #666;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+#nav ul a:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(#04acec), to(#0186ba)) !important; /* for webkit browsers */
+
+	color: #fff !important;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+/* level 2 list */
+#nav ul {
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cfcfcf)); /* for webkit browsers */
+
+	display: none;
+	margin: 0;
+	padding: 0;
+	width: 185px;
+	position: absolute;
+	top: 35px;
+	left: 0;
+	border: solid 1px #b4b4b4;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+/* dropdown */
+#nav li:hover > ul {
+	display: block;
+}
+#nav ul li {
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+#nav ul a {
+	font-weight: normal;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, .9);
+}
+/* level 3+ list */
+#nav ul ul {
+	left: 181px;
+	top: -3px;
+}
+/* rounded corners for first and last child */
+#nav ul li:first-child > a {
+	-webkit-border-top-left-radius: 9px;
+	-moz-border-radius-topleft: 9px;
+	-webkit-border-top-right-radius: 9px;
+	-moz-border-radius-topright: 9px;
+}
+#nav ul li:last-child > a {
+	-webkit-border-bottom-left-radius: 9px;
+	-moz-border-radius-bottomleft: 9px;
+	-webkit-border-bottom-right-radius: 9px;
+	-moz-border-radius-bottomright: 9px;
+}
+/* clearfix */
+#nav:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+#nav {
+	display: inline-block;
+}
+html[xmlns] #nav {
+	display: block;
+}
+* html #nav {
+	height: 1%;
+}
+#spinnerParent {
+	position: relative;
+	display: inline-block;
+	width: 43.4px;
+	height: 36px;
+	margin: 0;
+	padding: 0;
+}
+#spinner {
+	position: absolute;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	top: -4px;
+	cursor: pointer;
+}
+
+#details tr {
+	margin: 0;
+	padding: 0;
+}
+#details td {
+	margin: 0;
+	font-size: 1.0em;
+	padding: 0;
+}
+
+#details caption {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.yebal, .openingbal {
+	font-weight: bold;
+	background-color: #CCCCCC;
+}
+.yebalneg {
+	font-weight: bold;
+	background-color: #FFCCCC;
+}
+.monthlybal {
+	background-color: #EEEEEE;
+}
+.monthlybalneg {
+	/*font-weight: bold;*/
+	background-color: #FFAAAA;
+}
+
+.unsupported {
+	color: #aaaaaa;
+}
+
+/* Scroll support */
+
+/* Transition to new names for scroll support NOTE some classes are now ids */
+#headingAboveContents { /* Replaces #searchWhat */
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+/* ipadfix */
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
+	/* ipadfix in */
+	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
+	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
+	
+	/* ipadfix out
+	position: absolute;
+	top: 200px;
+	*/
+	
+	height: 60%;
+}
+
+#scrollContentsList { /* Replaces CLASS .jumplist */
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	font-family: helvetica, arial, sans-serif;
+	font-size: 1.2em;
+	line-height: 1.3em;
+	margin-top: 20px;
+}
+
+#scrollContentsList a {
+	text-decoration: none;
+	/*font-size: 1.1em;*/
+}
+
+#scrollContentsList li, #scrollContentsList ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#scrollContentsList li {
+	margin-bottom: 6px;
+}
+
+#scrollContentsList a:hover {
+	color: blue;
+	cursor: pointer;
+}
+
+#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
+	float: left;
+	width: 75.5%;
+	overflow: auto;
+	-moz-tab-size: 4;
+	tab-size: 4;
+/*	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollText {
+	float: left;
+	width: 100%;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	/*overflow: auto;*/
+/* height 100% does not play well with ace editor.
+	height: 100%;
+	padding: 4px;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+	display: inline;
+}
+
+#scrollContentsList .h1 {
+	font-size: 1.3em;
+}
+
+#scrollContentsList .h2 {
+	font-size: 1.1em;
+}
+
+/* section marker */
+#scrollContentsList .h2 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\00A7  " */
+	padding-left: 0;
+	color: #667766;
+}
+
+
+#scrollContentsList .h3 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\25B0  " */
+	padding-left: 8px;
+	color: #889988;
+}
+
+#scrollContentsList .h3 {
+	font-size: 1.0em;
+	font-style: italic;
+	font-variant: normal;
+}
+
+#scrollContentsList .h4 a:before {
+	font-size: 0.4em;
+	content: "\25B0  "; /* "\25B0\25B0  " */
+	padding-left: 24px;
+	color: #889988;
+}
+
+#scrollContentsList .h4 {
+	font-size: .9em;
+}
+
+#details {
+	height: 100%;
+}
+
+/* A bit of formatting for text. */
+.Comment_Normal {color: #004221;}
+.Comment_POD {color: #004221;}
+.Directive {color: #000000;}
+.Label {color: #000000;}
+.Quote {color: #8A0808;}
+.String {color: #8A0808;}
+.Subroutine {color: #000000;}
+.Variable_Scalar {color: #0101DF;}
+.Variable_Array {color: #0101DF;}
+.Variable_Hash {color: #0101DF;}
+.Variable_Typeglob {color: #0101DF;}
+/*.Whitespace {color: #000000;}*/
+.Character {color: #000000;}
+.Keyword {color: #A020F0;}
+.Builtin_Function {color: #000000;}
+.Builtin_Operator {color: #000000;}
+.Operator {color: #000000;}
+.Bareword {color: #000000;}
+.Package {color: #000000;}
+.Number {color: #000000;}
+.Symbol {color: #000000;}
+.CodeTerm {color: #000000;  font-weight: bold;}
+.DATA {color: #000000;}
+
+/* OLDER SCROLL SUPPORT, still valid but not for use with ace editor displays */
+#searchresults, #cmdresults {
+	height: 60%;
+}
+#jumpsandtext {
+	height: 85%;
+	font-family: monospace;
+	font-size: 1.2em;
+}
+
+.jumplist {
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+}
+
+.jumplist a {
+	text-decoration: none;
+	font-size: 1.1em;
+	line-height: 1.2em;
+}
+
+.jumplist li, .jumplist ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jumplist li {
+	margin-bottom: 6px;
+}
+
+.jumplist .h2 a:before {
+	font-size: 1.2em;
+	content: "\25B0";
+}
+
+.jumplist .h3 a:before {
+	font-size: 1.2em;
+	content: "\25B0\25B0";
+}
+
+.jumplist a:hover {
+	color: blue;
+}
+
+.theTextWithJumpList {
+	float: left;
+	width: 75%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+#theTextWithoutJumpList {
+	float: left;
+	width: 98%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+.theText {
+	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;
+	
+	float: none;
+	width: 100%;
+}
+
+#searchWhat {
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+.line_number {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+	display: inline-block;
+}
+a.embedded_image {
+	text-decoration: none;
+}
+
+.notabene {
+	color: Crimson;
+	font-size: 0.9em;
+}
+
+.textSymbol {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.1em;
+}
+
+.textSymbolSmall {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.0em;
+}
+
+/* A "line break" for long URLs */
+.noshow {
+	display: inline-block;
+	width: 0px;
+}
+
+/* Up down left right triangles for navigation. */
+.arrow-left {
+	display: inline-block;
+	width: 0; 
+	height: 0;
+	margin-left: 16px;
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent; 
+	border-right:16px solid #6aa436;
+	position: relative;
+	top: 10px;
+}
+
+.arrow-up {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+ 	border-bottom: 16px solid #6aa436;
+	position: relative;
+	top: -14px;
+	left: 8px;
+}
+
+.arrow-down {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+	border-top: 16px solid #6aa436;
+	position: relative;
+	top: 18px;
+	left: -24px;
+}
+
+.arrow-right {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent;
+	border-left: 16px solid #6aa436;
+	position: relative;
+	top: 10px;
+	left: -16px;
+}
+
+.img-arrow-left {
+	display: inline;
+	margin-left: 16px;
+	position: relative;
+	top: 10px;
+}
+
+.img-arrow-up {
+	display: inline;
+	position: relative;
+	top: -24px;
+	left: 0;
+}
+
+.img-arrow-down {
+	display: inline;
+	position: relative;
+	top: 40px;
+	left: -68px;
+}
+
+.img-arrow-right {
+	display: inline;
+	position: relative;
+	top: 10px;
+	left: -64px;
+}
+
+#viewEditTitle {
+	margin-right: 12px;
+}
+
+/* For the Status page main status tables. */
+#tablePageServerStatus th {
+	cursor: pointer;
+}
+
+#tableBackgroundServerStatus th {
+	cursor: pointer;
+}
+
+.divAlignCenter {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#editor_error {
+	display: inline-block;
+	font-size: 0.5em;
+}
+
+/* For the "edit" pencil image, a bit of space on the left. */
+.edit_img {
+	display: inline-block;
+	margin-left: 6px;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+#theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.theTextWithJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.jumplist {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollText {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollTextRightOfContents {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollContentsList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+}

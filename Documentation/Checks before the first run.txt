@@ -1,0 +1,52 @@
+Checks before the first run
+===========================
+
+Services
+========
+In the IntraMine folder, data/serverlist.txt lists the services that will run when IntraMine starts. The first column on the line for a service holds the "count" of how many instances of the service to start, and a zero means don't start any.
+
+To run a service, set the first "count" field for it to 1 or more. To stop it from running, set the "count" field to 0. Changes take effect the next time you start IntraMine. Typically Viewer and Linker are the only supplied services that want a count greater than 1. Services marked "BACKGROUND" are limited to single instances, so the count for those can only be 0 or 1.
+
+See "Using IntraMine.txt#Supplied services" for an overview of the 17 services that you can run out of the box.
+
+As shipped, data/serverlist.txt enables services shown with a non-zero Count in the first column:
+#Count	Page name		Short name	Program						Option
+1	Search				Search		intramine_search.pl
+2	Search				Viewer		intramine_viewer.pl
+2	Search				Linker		intramine_linker.pl
+1	Search				Opener		intramine_open_with.pl
+1	Search				Editor		intramine_editor.pl
+1	Files				Files		intramine_filetree.pl
+0	Upload				Upload		intramine_uploader.pl
+0	Days				Days		intramine_daysserver.pl
+0	Events				Events		intramine_eventsserver.pl
+0	Cash				Cash		intramine_cashserver.pl
+1	ToDo				ToDo		intramine_todolist.pl
+0	Cmd					Cmd			intramine_commandserver.pl	PERSISTENT
+1	Status				Status		intramine_status.pl
+1	DBX					DBX			intramine_db_example.pl
+1	Bp					Bp			intramine_boilerplate.pl
+1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
+1	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND
+
+Two instances of Viewer and Linker will be run by default. Two of the Viewer, because it's small and used to open all file views. And two of the Linker, even though it's typically larger, because the Linker can go out of service for maintenance if a folder is renamed: if that happens, the two Linker instances will take turns doing maintenance to avoid a service dropout.
+
+Port numbers
+============
+Check to see if port 81 is free: if not, open data/intramine_config.txt and change 'INTRAMINE_MAIN_PORT' near the top to a free port. Leave the swarm server start of range ('INTRAMINE_FIRST_SWARM_SERVER_PORT') at 43124, it's fine.
+
+---
+If you're concerned that there might be a port conflict at any point, please see "A note on port numbers.txt".
+---
+
+Looking ahead
+=============
+Later, you might want to decide how IntraMine should handle requests to edit a source or text file: using its built-in simple editor, or using an application that you specify. See "Configuring IntraMine.txt#Editing" for that.
+
+But for now, you're ready to create your first Elasticsearch index, and then run IntraMine.
+
+Next: Build your Elasticsearch index and run IntraMine.txt
+
+---
+contents.txt
+---

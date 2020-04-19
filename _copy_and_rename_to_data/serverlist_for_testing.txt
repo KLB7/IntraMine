@@ -1,0 +1,23 @@
+# Servers to start and test, used when IntraMine is started with "-t" for testing.
+# A zero Count means the server will not be testing. Set Count to 1 to test a server.
+# The entry for Main controls whether Main will run a self-test, but Main always runs,
+# and in fact it runs all the other tests - see intramine_main.pl#RunAllTests().
+#Count	Page name		Short name	Program						Option
+1	Main				Main		intramine_main.pl
+0	Search				Search		intramine_search.pl
+0	Search				Viewer		intramine_viewer.pl
+0	Search				Linker		intramine_linker.pl
+0	Search				Opener		intramine_open_with.pl
+0	Search				Editor		intramine_editor.pl
+0	Files				Files		intramine_filetree.pl
+0	Upload				Upload		intramine_uploader.pl
+0	Days				Days		intramine_daysserver.pl
+0	Events				Events		intramine_eventsserver.pl
+0	Cash				Cash		intramine_cashserver.pl
+0	ToDo				ToDo		intramine_todolist.pl
+0	Cmd					Cmd			intramine_commandserver.pl	PERSISTENT
+0	Status				Status		intramine_status.pl
+0	DBX					DBX			intramine_db_example.pl
+0	Bp					Bp			intramine_boilerplate.pl
+0	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
+0	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND

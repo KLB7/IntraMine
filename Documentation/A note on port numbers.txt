@@ -1,0 +1,34 @@
+A note on port numbers
+======================
+IntraMine's suite of servers needs a main port for the round-robin redirect server ("Main"), and a range of ports for the actual services provided, as listed in data/serverlist.txt. There are three entries for those in data/intramine_config.txt:
+---
+INTRAMINE_MAIN_PORT	81
+INTRAMINE_FIRST_SWARM_SERVER_PORT	43124
+TOTAL_SWARM_PORTS_TO_MONITOR	48
+---
+If port 81 is already in use on your IntraMine box, you should change the 'INTRAMINE_MAIN_PORT' entry. Port 80 will probably be in use too if 81 is, so you could try 8080 or 8081.
+
+'INTRAMINE_FIRST_SWARM_SERVER_PORT' is the first of a range of 48 consecutive port numbers that IntraMine will use for its (non-Main) services. As best I can tell those ports are not used by any other app or service.
+
+If you want to verify that IntraMine's wanted port numbers aren't in use, at a command prompt run
+---
+netstat -ano
+---
+and look for port numbers in the range 43124..43172. If you don't see any, you should be fine using the default 43124.
+
+If, against all odds, some *are* in use, scroll through the netstat results and pick out a range of at least 48 port numbers that aren't in use. 40000 to 50000 is a good place to look. And change the 'INTRAMINE_FIRST_SWARM_SERVER_PORT' number to match.
+
+To see if a port number or range is registered for any use, take a look at eg
+https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
+
+43124..43172, the default for IntraMine, is free as of October 2019.
+
+Worth reading if you're bored
+=============================
+You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's Main server listens to currently unused ports.
+
+If you're a glutton for details, see near the top of intramine_main.pl#MainLoop(), where 'TOTAL_SWARM_PORTS_TO_MONITOR' is used.
+
+---
+contents.txt
+---

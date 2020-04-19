@@ -1,0 +1,4 @@
+DateYYYYMMDD <tab> event type (deadline meeting note) <tab> displayed text {optional <tab> tooltip comment} - NOTE use single tab between fields.
+20191024	deadline	Deadline name	Additional info for the deadline.
+20191021	meeting	Meetup Name	Additional info for the meeting.
+20191022	note	This is a note	Additional info for the note.

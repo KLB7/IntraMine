@@ -1,0 +1,226 @@
+/* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
+
+#scrollTextRightOfContents {
+	/*height: 100%;*/
+	padding-right: 0;
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	position: absolute;
+	top: 0; left: 24%; right: 0; bottom: 0;
+
+	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
+	
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollText { /* Replaces #theTextWithoutJumpList */
+	/*height: 100%;*/
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollTextRightOfContents img, #scrollText img{
+	max-width: 100%;
+}
+
+/* TOC shrink/expand element */
+#tocShrinkExpand {
+	position: absolute;
+	display: inline-block;
+	cursor: pointer;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+.marker-highlight {
+	background-color: lightgreen
+}
+
+.scroll-hilite {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: green;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+.initial-hits-highlight {
+	background-color: #ffcccc;
+}
+
+.initial-scroll-hl {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+div#indicator {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    opacity: .5;
+    width: 2px;
+    height: 20px;
+    background-color: #888;
+    border: none;
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+div#indicatorPC {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    /*opacity: .5;*/
+    width: 9px;
+    height: 20px;
+    background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
+    border: 1px solid gray; /*none;*/
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+/* Some special treatment for index.html files that hold a table of contents.
+See intramine_fileviewer_cm.pl#GetPrettyText(). */
+#specialScrollTextRightOfContents {
+	padding-right: 0;
+	position: absolute;
+	top: 0; left: 2%; right: 0; bottom: 0;
+	overflow: auto;
+	/*background-image: url("Coffee-Paper-Texture4.jpg");*/
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+}
+
+#toc-line {
+	font: normal 28px "Baskerville BT", serif;
+}
+
+#special-index-wrapper {
+	padding-top: 20px;
+	height: 100%;
+	font: normal 24px "Baskerville BT", serif;
+	/*background-color: #E8E3C5;*/
+}
+
+#special-index-wrapper th {
+	text-align: center;
+}
+
+#special-index-wrapper td:not(:first-child) {
+	padding-left: 80px;
+}
+
+#special-index-wrapper td:nth-child(1) {
+	/*background-color: #E8E3C5;*/
+	background: transparent;
+}
+
+#special-index-wrapper a {
+	text-decoration: none;
+}
+
+#special-index-wrapper a:link {
+	color: Black;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:visited {
+	color: #333;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:hover {
+	color: #333;
+	border-bottom: 1px solid #333;
+	background-color: #ECF6CE;
+}
+
+/* Glossary links, for glossary popups shown in standalone Gloss HTML files. */
+.glossary:link {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:visited {
+	border-bottom: 1px dotted #666;
+}
+
+/* Second and subsequent glossary tooltips in Gloss HTML standalone files, suppress underline. */
+.term-seen:link {
+	border-bottom: 1px dotted #CCC;
+}
+
+.term-seen:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.term-seen:visited {
+	border-bottom: 1px dotted #CCC;
+}
+
+/* Table of Contents highlight for current item. */
+.tocitup {
+	background-color: lightgreen;
+}
+
+/* Gloss standalone HTML, alignment for "inlined" images. */
+.valigntop {
+	vertical-align: top;
+}
+and the entry name in a span with
+.inlinespan {
+	display:inline-block;
+}
+
+#bottomShim {
+	margin: 0;
+	height: 3px;
+	}
+
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}

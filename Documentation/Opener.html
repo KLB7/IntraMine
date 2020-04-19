@@ -1,0 +1,4487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-touch-fullscreen" content="yes" />
+<meta name="google" content="notranslate">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Opener</title>
+<style>
+/* main.css: the place where failure to plan goes to die. */
+
+h1 {
+	font-size: 1.5em;
+}
+
+.shimclear {
+	height: 6px;
+	float: none;
+}
+
+#help {display:none;}
+
+/* ipadfix out overflow: hidden; in width: 100%*/
+html, body {
+    overflow: hidden;
+	height: 100%;
+   /* width: 100%*/
+}
+
+body {
+	background: #fafafa;
+	font: normal .8em/1.5em Arial, Helvetica, sans-serif;
+	min-width: 800px;
+	margin-left: 1%;
+	margin-right: 0.5%;
+	margin-top: 0;
+	margin-bottom: 0;
+	/* Experimental, trying to get word breaks on iPad Pro */
+	/* Doesn't help: overflow-wrap: break-word; */
+	/* Works, but breaks on everything: word-break: break-all; */
+}
+
+/* ipadfix adding a wrapper around entire body */
+#bodywrapper {
+	position: fixed; height:100%; width:100%; top:0; left:0;
+}
+
+#pageContent {
+	height: 100%;
+}
+
+a {
+text-decoration: none;
+}
+
+a:link {
+color: Black;
+border-bottom: 1px solid #AAA;
+}
+
+a:visited {
+color: #333;
+border-bottom: 1px solid #AAA;
+}
+
+a:hover {
+color: #333;
+border-bottom: 1px solid #333;
+}
+
+/* File tree displays, suppress underlines on links. */
+UL.jqueryFileTree A {
+	border-bottom: none;
+}
+
+/* ipadfix adding wrapper around fixed top part */
+#fixed_header {
+	position: absolute; top:0; left:0; width:100%; height: 200px; z-index:10;
+	}
+
+#nav {
+	position: relative;
+	display: block;
+	margin: 0;
+	margin-top: 8px;
+	padding: 7px 6px 0;
+	line-height: 100%;
+	border-radius: .4em;
+
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+
+	/*background: -webkit-gradient(linear, left top, left bottom, from(#a9a9a9), to(#7a7a7a));*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#999999), to(#333333));
+
+	border: solid 1px #6d6d6d;
+	min-width:770px;
+}
+#nav li {
+	margin: 0 5px;
+	padding: 0 0 8px;
+	float: left;
+	position: relative;
+	list-style: none;
+}
+/* main level link */
+#nav a {
+	font-weight: bold;
+	color: #e7e5e5;
+	text-decoration: none;
+	border-bottom: none;
+	display: block;
+	padding:  8px 15px;
+	margin: 0;
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+}
+/* main level link hover */
+#nav .current a, #nav li:hover > a {
+	background: -webkit-gradient(linear, left top, left bottom, from(#ebebeb), to(#a1a1a1)); /* for webkit browsers */
+	border-top: solid 1px #f8f8f8;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	-moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+#nav li:hover > a {
+	color: #444;
+}
+
+#nav .current a, #nav .current:hover > a {
+	color: #008000; /*#31540c*/
+}
+
+/* sub levels link hover */
+#nav ul li:hover a, #nav li:hover li a {
+	background: none;
+	border: none;
+	color: #666;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+#nav ul a:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(#04acec), to(#0186ba)) !important; /* for webkit browsers */
+
+	color: #fff !important;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+/* level 2 list */
+#nav ul {
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cfcfcf)); /* for webkit browsers */
+
+	display: none;
+	margin: 0;
+	padding: 0;
+	width: 185px;
+	position: absolute;
+	top: 35px;
+	left: 0;
+	border: solid 1px #b4b4b4;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+/* dropdown */
+#nav li:hover > ul {
+	display: block;
+}
+#nav ul li {
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+#nav ul a {
+	font-weight: normal;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, .9);
+}
+/* level 3+ list */
+#nav ul ul {
+	left: 181px;
+	top: -3px;
+}
+/* rounded corners for first and last child */
+#nav ul li:first-child > a {
+	-webkit-border-top-left-radius: 9px;
+	-moz-border-radius-topleft: 9px;
+	-webkit-border-top-right-radius: 9px;
+	-moz-border-radius-topright: 9px;
+}
+#nav ul li:last-child > a {
+	-webkit-border-bottom-left-radius: 9px;
+	-moz-border-radius-bottomleft: 9px;
+	-webkit-border-bottom-right-radius: 9px;
+	-moz-border-radius-bottomright: 9px;
+}
+/* clearfix */
+#nav:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+#nav {
+	display: inline-block;
+}
+html[xmlns] #nav {
+	display: block;
+}
+* html #nav {
+	height: 1%;
+}
+#spinnerParent {
+	position: relative;
+	display: inline-block;
+	width: 43.4px;
+	height: 36px;
+	margin: 0;
+	padding: 0;
+}
+#spinner {
+	position: absolute;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	top: -4px;
+	cursor: pointer;
+}
+
+#details tr {
+	margin: 0;
+	padding: 0;
+}
+#details td {
+	margin: 0;
+	font-size: 1.0em;
+	padding: 0;
+}
+
+#details caption {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.yebal, .openingbal {
+	font-weight: bold;
+	background-color: #CCCCCC;
+}
+.yebalneg {
+	font-weight: bold;
+	background-color: #FFCCCC;
+}
+.monthlybal {
+	background-color: #EEEEEE;
+}
+.monthlybalneg {
+	/*font-weight: bold;*/
+	background-color: #FFAAAA;
+}
+
+.unsupported {
+	color: #aaaaaa;
+}
+
+/* Scroll support */
+
+/* Transition to new names for scroll support NOTE some classes are now ids */
+#headingAboveContents { /* Replaces #searchWhat */
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+/* ipadfix */
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
+	/* ipadfix in */
+	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
+	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
+	
+	/* ipadfix out
+	position: absolute;
+	top: 200px;
+	*/
+	
+	height: 60%;
+}
+
+#scrollContentsList { /* Replaces CLASS .jumplist */
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	font-family: helvetica, arial, sans-serif;
+	font-size: 1.2em;
+	line-height: 1.3em;
+	margin-top: 20px;
+}
+
+#scrollContentsList a {
+	text-decoration: none;
+	/*font-size: 1.1em;*/
+}
+
+#scrollContentsList li, #scrollContentsList ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#scrollContentsList li {
+	margin-bottom: 6px;
+}
+
+#scrollContentsList a:hover {
+	color: blue;
+	cursor: pointer;
+}
+
+#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
+	float: left;
+	width: 75.5%;
+	overflow: auto;
+	-moz-tab-size: 4;
+	tab-size: 4;
+/*	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollText {
+	float: left;
+	width: 100%;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	/*overflow: auto;*/
+/* height 100% does not play well with ace editor.
+	height: 100%;
+	padding: 4px;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+	display: inline;
+}
+
+#scrollContentsList .h1 {
+	font-size: 1.3em;
+}
+
+#scrollContentsList .h2 {
+	font-size: 1.1em;
+}
+
+/* section marker */
+#scrollContentsList .h2 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\00A7  " */
+	padding-left: 0;
+	color: #667766;
+}
+
+
+#scrollContentsList .h3 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\25B0  " */
+	padding-left: 8px;
+	color: #889988;
+}
+
+#scrollContentsList .h3 {
+	font-size: 1.0em;
+	font-style: italic;
+	font-variant: normal;
+}
+
+#scrollContentsList .h4 a:before {
+	font-size: 0.4em;
+	content: "\25B0  "; /* "\25B0\25B0  " */
+	padding-left: 24px;
+	color: #889988;
+}
+
+#scrollContentsList .h4 {
+	font-size: .9em;
+}
+
+#details {
+	height: 100%;
+}
+
+/* A bit of formatting for text. */
+.Comment_Normal {color: #004221;}
+.Comment_POD {color: #004221;}
+.Directive {color: #000000;}
+.Label {color: #000000;}
+.Quote {color: #8A0808;}
+.String {color: #8A0808;}
+.Subroutine {color: #000000;}
+.Variable_Scalar {color: #0101DF;}
+.Variable_Array {color: #0101DF;}
+.Variable_Hash {color: #0101DF;}
+.Variable_Typeglob {color: #0101DF;}
+/*.Whitespace {color: #000000;}*/
+.Character {color: #000000;}
+.Keyword {color: #A020F0;}
+.Builtin_Function {color: #000000;}
+.Builtin_Operator {color: #000000;}
+.Operator {color: #000000;}
+.Bareword {color: #000000;}
+.Package {color: #000000;}
+.Number {color: #000000;}
+.Symbol {color: #000000;}
+.CodeTerm {color: #000000;  font-weight: bold;}
+.DATA {color: #000000;}
+
+/* OLDER SCROLL SUPPORT, still valid but not for use with ace editor displays */
+#searchresults, #cmdresults {
+	height: 60%;
+}
+#jumpsandtext {
+	height: 85%;
+	font-family: monospace;
+	font-size: 1.2em;
+}
+
+.jumplist {
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+}
+
+.jumplist a {
+	text-decoration: none;
+	font-size: 1.1em;
+	line-height: 1.2em;
+}
+
+.jumplist li, .jumplist ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jumplist li {
+	margin-bottom: 6px;
+}
+
+.jumplist .h2 a:before {
+	font-size: 1.2em;
+	content: "\25B0";
+}
+
+.jumplist .h3 a:before {
+	font-size: 1.2em;
+	content: "\25B0\25B0";
+}
+
+.jumplist a:hover {
+	color: blue;
+}
+
+.theTextWithJumpList {
+	float: left;
+	width: 75%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+#theTextWithoutJumpList {
+	float: left;
+	width: 98%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+.theText {
+	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;
+	
+	float: none;
+	width: 100%;
+}
+
+#searchWhat {
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+.line_number {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+	display: inline-block;
+}
+a.embedded_image {
+	text-decoration: none;
+}
+
+.notabene {
+	color: Crimson;
+	font-size: 0.9em;
+}
+
+.textSymbol {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.1em;
+}
+
+.textSymbolSmall {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.0em;
+}
+
+/* A "line break" for long URLs */
+.noshow {
+	display: inline-block;
+	width: 0px;
+}
+
+/* Up down left right triangles for navigation. */
+.arrow-left {
+	display: inline-block;
+	width: 0; 
+	height: 0;
+	margin-left: 16px;
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent; 
+	border-right:16px solid #6aa436;
+	position: relative;
+	top: 10px;
+}
+
+.arrow-up {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+ 	border-bottom: 16px solid #6aa436;
+	position: relative;
+	top: -14px;
+	left: 8px;
+}
+
+.arrow-down {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+	border-top: 16px solid #6aa436;
+	position: relative;
+	top: 18px;
+	left: -24px;
+}
+
+.arrow-right {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent;
+	border-left: 16px solid #6aa436;
+	position: relative;
+	top: 10px;
+	left: -16px;
+}
+
+.img-arrow-left {
+	display: inline;
+	margin-left: 16px;
+	position: relative;
+	top: 10px;
+}
+
+.img-arrow-up {
+	display: inline;
+	position: relative;
+	top: -24px;
+	left: 0;
+}
+
+.img-arrow-down {
+	display: inline;
+	position: relative;
+	top: 40px;
+	left: -68px;
+}
+
+.img-arrow-right {
+	display: inline;
+	position: relative;
+	top: 10px;
+	left: -64px;
+}
+
+#viewEditTitle {
+	margin-right: 12px;
+}
+
+/* For the Status page main status tables. */
+#tablePageServerStatus th {
+	cursor: pointer;
+}
+
+#tableBackgroundServerStatus th {
+	cursor: pointer;
+}
+
+.divAlignCenter {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#editor_error {
+	display: inline-block;
+	font-size: 0.5em;
+}
+
+/* For the "edit" pencil image, a bit of space on the left. */
+.edit_img {
+	display: inline-block;
+	margin-left: 6px;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+#theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.theTextWithJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.jumplist {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollText {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollTextRightOfContents {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollContentsList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+}
+</style>
+<style>
+/* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
+
+#scrollTextRightOfContents {
+	/*height: 100%;*/
+	padding-right: 0;
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	position: absolute;
+	top: 0; left: 24%; right: 0; bottom: 0;
+
+	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
+	
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollText { /* Replaces #theTextWithoutJumpList */
+	/*height: 100%;*/
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollTextRightOfContents img, #scrollText img{
+	max-width: 100%;
+}
+
+/* TOC shrink/expand element */
+#tocShrinkExpand {
+	position: absolute;
+	display: inline-block;
+	cursor: pointer;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+.marker-highlight {
+	background-color: lightgreen
+}
+
+.scroll-hilite {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: green;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+.initial-hits-highlight {
+	background-color: #ffcccc;
+}
+
+.initial-scroll-hl {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+div#indicator {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    opacity: .5;
+    width: 2px;
+    height: 20px;
+    background-color: #888;
+    border: none;
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+div#indicatorPC {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    /*opacity: .5;*/
+    width: 9px;
+    height: 20px;
+    background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
+    border: 1px solid gray; /*none;*/
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+/* Some special treatment for index.html files that hold a table of contents.
+See intramine_fileviewer_cm.pl#GetPrettyText(). */
+#specialScrollTextRightOfContents {
+	padding-right: 0;
+	position: absolute;
+	top: 0; left: 2%; right: 0; bottom: 0;
+	overflow: auto;
+	/*background-image: url("Coffee-Paper-Texture4.jpg");*/
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+}
+
+#toc-line {
+	font: normal 28px "Baskerville BT", serif;
+}
+
+#special-index-wrapper {
+	padding-top: 20px;
+	height: 100%;
+	font: normal 24px "Baskerville BT", serif;
+	/*background-color: #E8E3C5;*/
+}
+
+#special-index-wrapper th {
+	text-align: center;
+}
+
+#special-index-wrapper td:not(:first-child) {
+	padding-left: 80px;
+}
+
+#special-index-wrapper td:nth-child(1) {
+	/*background-color: #E8E3C5;*/
+	background: transparent;
+}
+
+#special-index-wrapper a {
+	text-decoration: none;
+}
+
+#special-index-wrapper a:link {
+	color: Black;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:visited {
+	color: #333;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:hover {
+	color: #333;
+	border-bottom: 1px solid #333;
+	background-color: #ECF6CE;
+}
+
+/* Glossary links, for glossary popups shown in standalone Gloss HTML files. */
+.glossary:link {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:visited {
+	border-bottom: 1px dotted #666;
+}
+
+/* Second and subsequent glossary tooltips in Gloss HTML standalone files, suppress underline. */
+.term-seen:link {
+	border-bottom: 1px dotted #CCC;
+}
+
+.term-seen:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.term-seen:visited {
+	border-bottom: 1px dotted #CCC;
+}
+
+/* Table of Contents highlight for current item. */
+.tocitup {
+	background-color: lightgreen;
+}
+
+/* Gloss standalone HTML, alignment for "inlined" images. */
+.valigntop {
+	vertical-align: top;
+}
+and the entry name in a span with
+.inlinespan {
+	display:inline-block;
+}
+
+#bottomShim {
+	margin: 0;
+	height: 3px;
+	}
+
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}
+
+</style>
+<style>
+/* non_cm_tables.css: for non-CodeMirror table display by the Viewer service. */
+
+table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+table, tr, td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+td.vam {
+	vertical-align: middle;
+}
+
+td:nth-child(1) {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 4em; /* enough for 99999 one hopes */
+}
+
+th {
+	text-align: left;
+}
+
+/* Avoid copy of line numbers in the first column.
+<td n='$lineNum'></td>
+*/
+td:first-child:after, th:first-child:after {
+    content: attr(n);
+}
+
+
+h1, h2, h3, h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+.outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+.outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+.ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 4.2em;
+	}
+
+.ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.2em;
+	}
+
+.ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 2.3em;
+	}
+
+.ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.3em;
+	}
+
+.ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.7em;
+	padding-left: 4.6em;
+	}
+
+.ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.6em;
+	}
+
+.ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.6em;
+	padding-left: 4.9em;
+}
+
+.ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.9em;
+	}
+
+.ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -3.2em;
+	padding-left: 5.6em;
+}
+
+.ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 5.6em;
+	}
+
+
+/* Data tables in text */
+.bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+.bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+.bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+.bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+.bordered td:first-child, .bordered th:first-child {
+    border-left: none;
+    border-top: none;
+    background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+}
+
+.bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+.bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+.bordered td:not(:first-child), .bordered th:not(:first-child) {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.bordered td.centered_cell, .bordered th.centered_cell {
+	text-align: center;
+}
+
+.bordered td.left_cell, .bordered th.left_cell {
+	text-align: left;
+}
+
+.bordered td.right_cell, .bordered th.right_cell {
+	text-align: right;
+}
+
+.shrunkrow {
+	height: 3pt;
+	}
+	
+.reallyshrunkrow {
+	background: #888;
+}
+
+.reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+.codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+</style>
+<style>
+/* tooltip.css: for popup hints and images, see also tooltip.js. */
+
+#hintbox{ /*CSS for pop up hint box */
+position:absolute;
+top: 0;
+background-color: lightyellow;
+width: 150px; /*Default width of hint.*/ 
+padding: 3px;
+border:1px solid black;
+font:normal 11px Verdana;
+line-height:18px;
+z-index:100;
+border-right: 3px solid black;
+border-bottom: 3px solid black;
+visibility: hidden;
+}
+
+.hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
+font-weight: bold;
+color: navy;
+margin: 3px 8px;
+}
+.plainhintanchor { /* looks like ordinary text */
+	text-decoration: none;
+	font-family: arial, helvetica, sans-serif; font-size:100%;
+	color: black;
+}
+.hintanchor:hover {
+    border-top-style: hidden;
+}
+.plainhintanchor:hover {
+    border-top-style: hidden;
+}
+.invisiblehintanchor:hover {
+	border-top-style: hidden;
+}
+</style>
+</head>
+<body>
+<!-- added for touch scrolling, an indicator -->
+<div id="indicator"></div>
+<hr id="rule_above_editor" />
+<div id='scrollAdjustedHeight'>
+<div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
+<ul>
+<li class='h1' im-text-ln='1'><a href='#Opener'>Opener</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Opener">Opener</h1></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R3'><td n='3'></td><td></td></tr>
+<tr id='R4'><td n='4'></td><td>intramine_open_with.pl is the main file for the Opener service. The Opener is only invoked when you set up IntraMine to use your preferred editor for editing files. It's not needed if you configure IntraMine to use its own Editor server, or if you turn off editing in the config. See <a href="./Editor.html" target="_blank">"Editor.txt"</a> and especially <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a> for configuration details.</td></tr>
+<tr id='R5'><td n='5'></td><td></td></tr>
+<tr id='R6'><td n='6'></td><td>The Opener is a "<a class='glossary' href="#" onmouseover="showhint('<p>Second level: a second level service is called by a top level service to fulfill a specific need, such as viewing or editing a file. It has no entry in the navigation bar.</p><p>The number of instances of a second level service to run is set by its &quot;Count&quot; field in data/serverlist.txt.</p>', this, event, '500px', false);">second level</a>" server with no user interface. Here's a typical example of how it's called:</td></tr>
+<tr id='R7'><td n='7'></td><td><p class="ol-1">1. While turning file mentions into links, intramine_linker.pl#GetTextFileRep() puts in an edit link for each source and text file containing "onclick=editOpen(this.href)', wrapped around the image of a pencil.</p></td></tr>
+<tr id='R8'><td n='8'></td><td><p class="ol-1">2. A click on the pencil triggers viewerLinks.js#editOpen().</p></td></tr>
+<tr id='R9'><td n='9'></td><td><p class="ol-1">3. If you have configured IntraMine to use your preferred editor, editOpen() calls editWithPreferredApp(), which in turn eventually forwards the request to the Opener, including the file path to open. Schematically, the request is</p></td></tr>
+<tr id='R10'><td n='10'></td><td><p class="outdent-unordered-sub">&#9702; <a href='http://host:ip/Opener/?req=open&amp;clientipaddress=123.123.123.1&amp;file=path_to_file' target='_blank'>http://host:ip/Opener/?req=open&amp;clientipaddress=123.123.123.1&amp;file=path_to_file</a></p></td></tr>
+<tr id='R11'><td n='11'></td><td>4.The Opener has just one registered %RequestAction, "$RequestAction{'req|open'} = \&amp;OpenTheFile;" and that's called in response to the request.</td></tr>
+<tr id='R12'><td n='12'></td><td><p class="ol-1">5. intramine_open_with.pl#OpenTheFile() in turn calls RemoteOpenFile() or LocalOpenFile(), depending on whether the request came from another PC or from the IntraMine PC itself.</p></td></tr>
+<tr id='R13'><td n='13'></td><td><p class="ol-1-1">5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the instance of IntraMine-Remote.ps1 that's running on the remote PC. See <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a> for details on getting that up and running. IntraMine-Remote.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.</p></td></tr>
+<tr id='R14'><td n='14'></td><td><p class="ol-1-1">5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "unicode" characters in the file path.</p></td></tr>
+<tr id='R15'><td n='15'></td><td></td></tr>
+<tr id='R16'><td n='16'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R17'><td n='17'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R18'><td n='18'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr></table><p id='bottomShim'></p></div></div>
+<script>
+let thePath = 'C:/perlprogs/IntraMine/Documentation/Opener.txt';
+let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/Opener.txt';
+let usingCM = false;
+let cmTextHolderName = 'scrollTextRightOfContents';
+let specialTextHolderName = 'specialScrollTextRightOfContents';
+let theMainPort = '99999';
+let mainIP = '99999';
+let ourServerPort = '99999';
+let peeraddress = '99999';	// ip address of client
+let weAreRemote = false;
+let errorID = "editor_error";
+let highlightItems = [];
+let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFLMAABSzATFtOXUAAAQZSURBVFhH1ZZfTFtVHMd/91/L7VY6/hVG4xgymWUIY5ENkq0jy4wGN3EjMmpI9mCcb0s0PvnnzfiyZCb6YqI+mJCUoRkmc7onXeYSBcxWZkfDMjYR6Ua7Au0dXLn33Hs8pz3BdC1QQpvUT/+l39/J70/POb/+ONggTX1SrQkwBEg/FBgAhcmborEX7CBKvxgAJ4L9+n0mZwXPPrPC/bpwQLTDb3I5NJtWkJi8aagv6rOI+KYxmJwVWRfg9krdWyv4n1s9zU7BSjZuiRlyAfFFfbZ6mpw0Bo3FLOuSVQF7vNK7jh384BHPS/KBbT1MzT3tJb3Q4Tkq01g0JpPXZM0Cmk+DSBx9Xu6Wzr3Q3sXvsrWBai4wa+5ZMmJQbzsIR9uO8WXPiudobJoDM2dk1UvsPgnFgiwNulrkF9t2dUKJ6EroGlbh4vUvITZleEDgYglxsxjY4agRrnUffBMkrighRdE0DN+9AiG/eoU0jJ7VGkbGAnb3WZ6yivj7mlZHU7PrMMicg1kAdFLA9ftDoEYxU3KDXMbBodpuEDkrU8iOkN2+FboKU6PKrWXEHZvo16aZaYW0Ahp6xX0WO3eprq20uq5kH3FoYZYkmDz+MR+vfMslRbydJJSakm4uw+T8Dbg3PB/SFHx8fADdYKYEKasbeqTjshN8dfsrtlTZaomyoS6bNzCYMLs4CZOj0UU1DN7xQf0SM/1XAGldZ4td3PmalhLBLpUztbBQtAhM+RcMZQa/Pe7TP6Ma19EBQni7eL60XjhbWW8DiU9eokJFN1WYvaPC3ITxqfMheodr8IpDlXvFV+0uPu38FSr0Hioz5Fj50Xc8xjCmxck7fZKz9n940VxpzjR34VHAvErO/rS2CJ1bKnmBK/BNwCT/Wb+hK3+ZZ0hH+kSgYiRg3ty2kx9R58yurVW8lUuohYepA4RGkaJG4MTtAfQt1VJ+78ZT4l6xmLtcvV+oFuXC2gqkYgiNGCEUxy8HLiA/k9NvbaPXsoMvwpe3Py80Wh2FUcRyDMOD343Ass51PvlvnDHDei84LKJ0sapFOGJzpi9ZiuC8jBK2igyxwhge3jR+0pB+8o4P0mavVX/inafBYtOlryr2CH2OmtRl4T+MvAxzzudSL19sCkPkttG/JOlv/Pk1aExOYdUCGJz7lPhR6TPCe2W7yVjBVtMC4ve0svFvYC6pbI6G16C0+GlLdKUAsrnRCRPP3zU+Jp3mw6SSmfWGHRy8gN6fmzTOkNaFaAvLN6xNIhLzLZL8B1RKWjKT1bQW9KEv4jO4KzSMHtNWli8SbXIEKfEQfoXGZPKaZD1uBgf0H8jFPfz3r+iBoTIxhyDik/pWH+GOoE//kcnrsqF5mc7i+gLXvhjGY7wAOdsL6ot0mzHq+8l5f20A/gW9of8+fiHTAwAAAABJRU5ErkJggg==';
+let selectedTocId = 'tocitup';
+//let weAreStandalone = true;
+</script>
+<script type="text/javascript">
+	// Call fn when ready.
+	function ready(fn) {
+	  if (document.readyState != 'loading'){
+	    fn();
+	  } else {
+	    document.addEventListener('DOMContentLoaded', fn);
+	  }
+	}
+
+	function getRandomInt(min, max) {
+  		return Math.floor(Math.random() * (max - min + 1) + min);
+		}
+</script>
+<script type="text/javascript">
+/**
+ * debounce.js: //debounce() is (ultimately) from http://underscorejs.org/#debounce.
+ */
+
+let JD = {};
+
+JD.debounce = function(func, wait, immediate) {
+	let timeout;
+	return function() {
+		let context = this, args = arguments;
+		let later = function() {
+			timeout = null;
+			if (!immediate)
+				{
+				func.apply(context, args);
+				}
+		};
+		let callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait || 200);
+		if (callNow)
+			{
+			func.apply(context, args);
+			}
+	};
+};
+
+</script>
+<script type="text/javascript">
+// tooltip.js: show a "tooltip" with text or an image, the main call is showhint().
+/**********************************************************************************************
+ * Show Hint script- (c) Dynamic Drive (www.dynamicdrive.com) 
+ * This notice MUST stay intact for legal use 
+ * Visit http://www.dynamicdrive.com/ for this script and 100s more.
+ **********************************************************************************************/
+// (Significantly modified from the original 2018-19 for use with IntraMine.)
+// IntraMine use, see eg showhint() calls in
+// intramine_file_viewer_cm.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+
+let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
+let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
+let overAnchorTimer = null;
+let shMainPort = 0; // See setMainPort() just below.
+let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
+let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
+
+function setMainPort() {
+	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
+	}
+
+window.addEventListener("load", setMainPort);
+
+
+function hasClass(el, className) {
+	if (el === null || el.nodeName === "#TEXT" || el.nodeName === "#text")
+		{
+		return false;
+		}
+	if (el.classList)
+		return el.classList.contains(className)
+	else
+		return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+}
+
+function addClass(el, className) {
+	if (el !== null)
+		{
+		if (el.classList)
+			el.classList.add(className)
+		else if (!hasClass(el, className))
+			el.className += " " + className
+		}
+}
+
+function removeClass(el, className) {
+	if (el !== null)
+		{
+		if (el.classList)
+			el.classList.remove(className)
+		else if (hasClass(el, className))
+			{
+			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+			el.className = el.className.replace(reg, ' ')
+			}
+		}
+}
+
+
+// Helper function to get an element's exact position
+function getPosition(el) {
+	"use strict";
+	let rect = el.getBoundingClientRect();
+	let yPos = rect.top;
+	let xPos = rect.left;
+	let xScrollTOTAL = 0;
+	let yScrollTOTAL = 0;
+
+	while (el)
+		{
+		if (el.tagName === "BODY")
+			{
+			// deal with browser quirks with body/window/document and page scroll
+			let xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+			let yScroll = el.scrollTop || document.documentElement.scrollTop;
+			xScrollTOTAL += xScroll;
+			yScrollTOTAL += yScroll;
+			}
+		else
+			{
+			// for all other non-BODY elements
+			xScrollTOTAL += el.scrollLeft;
+			yScrollTOTAL += el.scrollTop;
+			}
+
+		el = el.offsetParent;
+		}
+	return {
+		x : xPos,
+		y : yPos,
+		sx : xScrollTOTAL,
+		sy : yScrollTOTAL
+	};
+}
+
+let ie = document.all;
+let ns6 = document.getElementById && !document.all;
+
+let dropmenuobj = {};
+let loadParams = {};
+
+function positionAndShowHint() {
+	"use strict";
+	let menucontents = loadParams.menucontents;
+	let x = loadParams.x;
+	let y = loadParams.y;
+	let tipwidth = loadParams.tipwidth;
+	let isAnImage = loadParams.isAnImage;
+	let gap = 10; // gap between cursor and tip
+	let windowHeight = window.innerHeight - gap;
+	let windowWidth = window.innerWidth - gap;
+	let hintWidth = 450;
+	let hintHeight = dropmenuobj.offsetHeight;
+	if (isAnImage)
+		{
+		hintWidth = loadParams.theImage.width;
+		hintHeight = loadParams.theImage.height;
+		}
+	else
+		{
+		if (tipwidth !== "")
+			{
+			hintWidth = parseInt(tipwidth, 10);
+			}
+		}
+
+	// Calculate tip all four ways, pick the way that produces least shrinkage.
+	// Preference order below, above, right, left.
+	let ds = bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight);
+	let bestDirection = ds.bestDirection;
+	let scaleFactor = ds.scaleFactor;
+	
+	// For now, just scale images. Text tips are usually small enough.
+	if (isAnImage)
+		{
+		if (scaleFactor < 1.0)
+			{
+			let finalScaleFactor = scaleFactor * 0.95;; //temp[bestDirection] * 0.95;
+			hintWidth = Math.floor(hintWidth * finalScaleFactor);
+			hintHeight = Math.floor(hintHeight * finalScaleFactor);
+			}
+		}
+
+	// Position tip (and scale if image).
+	// Try to keep tip close to mouse x,y position.
+	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
+	dropmenuobj.style.top = tl.top;
+	dropmenuobj.style.left = tl.left;
+	
+	if (isAnImage)
+		{
+		menucontents =
+				menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight
+						+ "'>";
+		}
+
+	dropmenuobj.innerHTML = menucontents;
+
+	// Set width and height for an image. For text, set the desired width and let it flow.
+	// dropmenuobj.style.width = hintWidth + "px";
+	if (isAnImage)
+		{
+		dropmenuobj.style.height = hintHeight + "px";
+		dropmenuobj.style.width = hintWidth + "px";
+		}
+	else
+		{
+		dropmenuobj.style.height = '';
+		}
+
+	dropmenuobj.style.visibility = "visible";
+
+}
+
+//Calculate tip all four ways, pick the way that produces least shrinkage.
+//Preference order: below, above, right, left.
+function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
+	// Below:
+	let heightAvailable = windowHeight - y;
+	let widthAvailable = windowWidth;
+	let belowScaleFactor = heightAvailable / hintHeight;
+	if (belowScaleFactor > widthAvailable / hintWidth)
+		{
+		belowScaleFactor = widthAvailable / hintWidth;
+		}
+	// Above:
+	heightAvailable = y;
+	let aboveScaleFactor = heightAvailable / hintHeight;
+	if (aboveScaleFactor > widthAvailable / hintWidth)
+		{
+		aboveScaleFactor = widthAvailable / hintWidth;
+		}
+	// Right:
+	heightAvailable = windowHeight;
+	widthAvailable = windowWidth - x;
+	let rightScaleFactor = heightAvailable / hintHeight;
+	if (rightScaleFactor > widthAvailable / hintWidth)
+		{
+		rightScaleFactor = widthAvailable / hintWidth;
+		}
+	// Left:
+	widthAvailable = x;
+	let leftScaleFactor = heightAvailable / hintHeight;
+	if (leftScaleFactor > widthAvailable / hintWidth)
+		{
+		leftScaleFactor = widthAvailable / hintWidth;
+		}
+	
+	// Largest scaleFactor wins, preferring in order below, above, right, left where
+	// there's a tie or values are above 1.0.
+	let temp = [];
+	temp[0] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
+	temp[1] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
+	temp[2] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
+	temp[3] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
+	// bestDirection:
+	// 0 == show hint below cursor x,y
+	// 1 == show hint above
+	// 2 == show hint to right of cursor
+	// 3 == show hint to left of cursor
+	let bestDirection = -1;
+	let i = 0;
+	for (i = temp.length - 1; i >= 0; i -= 1)
+		{
+		if (temp[i] >= 1.0)
+			{
+			bestDirection = i;
+			}
+		}
+	
+	if (bestDirection < 0) // all temp[] are < 1.0
+		{
+		let curValue = temp[0];
+		bestDirection = 0;
+		for (i = 1; i < temp.length; i++)
+			{
+			if (temp[i] > curValue)
+				{
+				curValue = temp[i];
+				bestDirection = i;
+				}
+			}
+		}
+
+	let ds = {};
+	ds.bestDirection = bestDirection;
+	ds.scaleFactor = temp[bestDirection];
+	return(ds);
+}
+
+// Position tip (and scale if image).
+// Try to keep tip close to mouse x,y position.
+function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap) {
+	let left = 0;
+	let top = 0;
+	
+	if (bestDirection === 0) // below
+		{
+		top = y + gap + "px";
+		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
+		left = (left < 0) ? "0" : left + "px";
+		}
+	else if (bestDirection === 1) // above
+		{
+		if (y - hintHeight - gap >= 0)
+			{
+			top = y - hintHeight - gap + "px";
+			}
+		else
+			{
+			top = "0";
+			}
+		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
+		left = (left < 0) ? "0" : left + "px";
+		}
+	else if (bestDirection === 2) // right
+		{
+		left = x + gap + "px";
+		let top =
+				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
+						- gap;
+		top = (top < 0) ? "0" : top + "px";
+		}
+	else
+		// if (bestDirection === 3) // left
+		{
+		if (x - hintWidth - gap >= 0)
+			{
+			left = x - hintWidth - gap + "px";
+			}
+		else
+			{
+			dropmenuobj.style.left = "0";
+			}
+		let top =
+				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
+						- gap;
+		top = (top < 0) ? "0" : top + "px";
+		}
+
+	let topLeft = {};
+	topLeft.top = top;
+	topLeft.left = left;
+
+	return(topLeft);
+}
+
+function showhint(menucontents, obj, e, tipwidth, isAnImage) {
+	"use strict";
+	
+	setTimeout(function() {
+	showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage);
+	}, 100);
+}
+
+// Special handling for some images: if menucontents looks like
+//<img src="http://192.168.1.132:81/Viewer/imagefile.png">
+// then we take what's in the "81" position as IntraMine's Main port, and what's in
+// the "Viewer" spot as a Short name. Then call back to the Main port requesting a free
+// port for the Short name, and replace the "81" in menucontents with the free port number.
+// Also strip out the Short name, it was needed only to tell Main which server we wanted.
+// For other img src values, just pass them along to showhinAfterDelay unchanged.
+// (The fancy footwork with the port is an attempt to get the port number of a service that is
+// running and not under maintenance. This allows showhint to show the image if there are two
+// or more instances of a service running, even if one is doing maintenance.)
+function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+	if (isAnImage)
+		{
+		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			}
+		if (arrayMatch !== null)
+			{
+			let image_url = arrayMatch[1];
+			let urlMatch = /^http\:\/\/([0-9\.]+)\:(\d+)\/([A-Za-z_]+)\/(.+?)$/.exec(image_url);
+			if (urlMatch !== null)
+				{
+				let ip = urlMatch[1];
+				let port = urlMatch[2];
+				let shortName = urlMatch[3];
+				let path = urlMatch[4];
+				
+				if (port === shMainPort) // request good port number from shMainPort
+					{
+					// However, if we're on an iPad (shOnMobile), try to use our current server's
+					// port rather than asking Main to supply a fresh one - Apple really doesn't
+					// like any hanky panky with the port number.
+					if (shOnMobile && port === shMainPort && shOurServerPort !== 0)
+						{
+						let rePort = new RegExp(port);
+						menucontents = menucontents.replace(rePort, shOurServerPort);
+						let reName = new RegExp(shortName + "\/");
+						menucontents = menucontents.replace(reName, "");
+						showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+						}
+					else
+						{
+						let request = new XMLHttpRequest();
+						let theRequest = 'http://' + ip + ':' + port + '/' +
+											shortName + '/?req=portNumber';
+						request.open('get', theRequest, true);
+						
+						request.onload =
+								function() {
+									if (request.status >= 200 && request.status < 400)
+										{
+										// Success?
+										let resp = request.responseText; // port number for shortName
+										if (!isNaN(resp))
+											{
+											// Replace port with resp in menucontents. And remove
+											// server short name.
+											let rePort = new RegExp(port);
+											menucontents = menucontents.replace(rePort, resp);
+											let reName = new RegExp(shortName + "\/");
+											menucontents = menucontents.replace(reName, "");
+											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+											}
+										}
+								};
+						
+						request.send();
+						}
+					}
+				else // use supplied port as-is
+					{
+					showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+					}
+				}
+			else
+				{
+				showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+				}
+			}
+		else
+			{
+			showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+			}
+		}
+	else
+		{
+		showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+		}
+	}
+
+function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
+	"use strict";
+	
+	let image_url = "";
+	if (isAnImage)
+		{
+		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(menucontents);
+			}
+		if (arrayMatch !== null)
+			{
+			image_url = arrayMatch[1];
+			}
+		}
+
+	dropmenuobj = document.getElementById("hintbox");
+	dropmenuobj.innerHTML = menucontents;
+	
+	if (overAnchorTimer !== null)
+		{
+		window.clearTimeout(overAnchorTimer);
+		overAnchorTimer = null;
+		}
+
+	if (document.getElementById("hintbox"))
+		{
+		if (!hasClass(obj, hitAnchorClassName))
+			{
+			addClass(obj, hitAnchorClassName);
+			}
+		addClass(obj, anchorClassName);
+
+		// Check if mouse is still over element (which must have
+		// class hintanchor or plainhintanchor)
+		let stillOver = mouseStillOverTipOwner(obj);
+
+		if (!stillOver)
+			{
+			dropmenuobj.style.visibility = "hidden";
+			dropmenuobj.style.left = "-500px";
+			removeClass(obj, anchorClassName);
+			return;
+			}
+
+		dropmenuobj.style.left = "-500px";
+		dropmenuobj.style.top = "-500px";
+		if (tipwidth === "")
+			{
+			tipwidth = "300px";
+			}
+		dropmenuobj.widthobj = dropmenuobj.style;
+		if (dropmenuobj.innerHTML.indexOf('<img') == 0)
+			{
+			dropmenuobj.style.backgroundColor = 'lightyellow';
+			dropmenuobj.style.border = 'thin dotted black';
+			}
+		dropmenuobj.style.width = tipwidth;
+		if (!isAnImage)
+			{
+			// Reset height to 'auto'.
+			dropmenuobj.style.height = '';
+			}
+
+		loadParams.menucontents = menucontents;
+		loadParams.x = e.clientX;
+		loadParams.y = e.clientY;
+		loadParams.tipwidth = tipwidth;
+		loadParams.isAnImage = isAnImage;
+		
+		if (image_url !== "")
+			{
+			let my_image = new Image();
+			my_image.onload = function() {
+				positionAndShowHint();
+			};
+			my_image.src = image_url;
+			loadParams.theImage = my_image;
+			}
+		else
+			{
+			positionAndShowHint();
+			}
+
+		obj.onmouseout = hidetip;
+
+		if (typeof window.ontouchstart === 'undefined')
+			{
+			overAnchorTimer = window.setTimeout(function() {
+				hideTipIfMouseHasLeft(obj);
+			}, 1000);
+			}
+		}
+}
+
+function hideTipIfMouseHasLeft(obj) {
+	if (mouseStillOverTipOwner(obj))
+		{
+		overAnchorTimer = window.setTimeout(function() {
+			hideTipIfMouseHasLeft(obj);
+		}, 1000);
+		}
+	else
+		{
+		hidetip();
+		removeClass(obj, anchorClassName);
+		}
+}
+
+function mouseStillOverTipOwner(obj) {
+	let stillOver = false;
+
+	let anks = document.getElementsByClassName(anchorClassName);
+	if (anks.length > 0)
+		{
+		let el = anks[0];
+		let c = window.getComputedStyle(el).getPropertyValue('border-top-style');
+		stillOver = (c === 'hidden') ? true : false;
+		}
+	return (stillOver);
+}
+
+function hidetip(e) {
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+	let anks = document.getElementsByClassName(anchorClassName);
+	if (anks.length > 0)
+		{
+		for (i = anks.length - 1; i >= 0; --i)
+			{
+			removeClass(anks[i], anchorClassName);
+			}
+		}
+}
+
+function touchhidetip(e) {
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+}
+
+function createhintbox() {
+	let divblock = document.createElement("div");
+	divblock.setAttribute("id", "hintbox");
+	document.body.appendChild(divblock);
+
+	dropmenuobj = document.getElementById("hintbox");
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+	
+	if (shOnMobile)
+		{
+		dropmenuobj.addEventListener("touchstart", function(e) {touchhidetip();});
+		}
+}
+
+// For remote iPad "debugging" since remotedebug_ios_webkit_adapter has stopped working.
+// For Viewer, errorID element is up near the top of the window.
+function writeMessageToWindow(str) {
+	let errorElem = document.getElementById(errorID);
+	if (errorElem !== null)
+		{
+		errorElem.innerHTML = "<p>" + str + "</p>";
+		}
+}
+
+if (window.addEventListener)
+	window.addEventListener("load", createhintbox, false);
+else if (window.attachEvent)
+	window.attachEvent("onload", createhintbox);
+else if (document.getElementById)
+	window.onload = createhintbox;
+
+</script>
+<script type="text/javascript">
+
+// Whitespace (or punctuation) checker. Copied from somewhere, and it works.
+function isW(s) {
+	return /[ \t\uFFE5\^\+=`~<>{}\[\]|\u3000-\u303F!-#%-\x2A,-/:;\x3F@\x5B-\x5D\x7B}\u00A1\u00A7\u00AB\u00B6\u00B7\u00BB\u00BF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E3B\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]+/.test(s);
+	
+	
+// return /[ \f\n\r\t\v\u00A0\u2028\u2029]/.test(s);
+}
+
+</script>
+<script type="text/javascript">
+/*!***************************************************
+* mark.js v9.0.0
+* https://markjs.io/
+* Copyright (c) 2014–2018, Julian Kühnel
+* Released under the MIT license https://git.io/vwTVl
+*****************************************************/
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Mark=t()}(this,function(){"use strict";function e(t){return(e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(t)}function t(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function r(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}function o(){return(o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var r in n)Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r])}return e}).apply(this,arguments)}var i=
+/* */
+function(){function e(n){var r=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:[],i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:5e3;t(this,e),this.ctx=n,this.iframes=r,this.exclude=o,this.iframesTimeout=i}return r(e,[{key:"getContexts",value:function(){var e=[];return(void 0!==this.ctx&&this.ctx?NodeList.prototype.isPrototypeOf(this.ctx)?Array.prototype.slice.call(this.ctx):Array.isArray(this.ctx)?this.ctx:"string"==typeof this.ctx?Array.prototype.slice.call(document.querySelectorAll(this.ctx)):[this.ctx]:[]).forEach(function(t){var n=e.filter(function(e){return e.contains(t)}).length>0;-1!==e.indexOf(t)||n||e.push(t)}),e}},{key:"getIframeContents",value:function(e,t){var n,r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:function(){};try{var o=e.contentWindow;if(n=o.document,!o||!n)throw new Error("iframe inaccessible")}catch(e){r()}n&&t(n)}},{key:"isIframeBlank",value:function(e){var t="about:blank",n=e.getAttribute("src").trim();return e.contentWindow.location.href===t&&n!==t&&n}},{key:"observeIframeLoad",value:function(e,t,n){var r=this,o=!1,i=null,a=function a(){if(!o){o=!0,clearTimeout(i);try{r.isIframeBlank(e)||(e.removeEventListener("load",a),r.getIframeContents(e,t,n))}catch(e){n()}}};e.addEventListener("load",a),i=setTimeout(a,this.iframesTimeout)}},{key:"onIframeReady",value:function(e,t,n){try{"complete"===e.contentWindow.document.readyState?this.isIframeBlank(e)?this.observeIframeLoad(e,t,n):this.getIframeContents(e,t,n):this.observeIframeLoad(e,t,n)}catch(e){n()}}},{key:"waitForIframes",value:function(e,t){var n=this,r=0;this.forEachIframe(e,function(){return!0},function(e){r++,n.waitForIframes(e.querySelector("html"),function(){--r||t()})},function(e){e||t()})}},{key:"forEachIframe",value:function(t,n,r){var o=this,i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},a=t.querySelectorAll("iframe"),s=a.length,c=0;a=Array.prototype.slice.call(a);var u=function(){--s<=0&&i(c)};s||u(),a.forEach(function(t){e.matches(t,o.exclude)?u():o.onIframeReady(t,function(e){n(t)&&(c++,r(e)),u()},u)})}},{key:"createIterator",value:function(e,t,n){return document.createNodeIterator(e,t,n,!1)}},{key:"createInstanceOnIframe",value:function(t){return new e(t.querySelector("html"),this.iframes)}},{key:"compareNodeIframe",value:function(e,t,n){if(e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING){if(null===t)return!0;if(t.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)return!0}return!1}},{key:"getIteratorNode",value:function(e){var t=e.previousNode();return{prevNode:t,node:null===t?e.nextNode():e.nextNode()&&e.nextNode()}}},{key:"checkIframeFilter",value:function(e,t,n,r){var o=!1,i=!1;return r.forEach(function(e,t){e.val===n&&(o=t,i=e.handled)}),this.compareNodeIframe(e,t,n)?(!1!==o||i?!1===o||i||(r[o].handled=!0):r.push({val:n,handled:!0}),!0):(!1===o&&r.push({val:n,handled:!1}),!1)}},{key:"handleOpenIframes",value:function(e,t,n,r){var o=this;e.forEach(function(e){e.handled||o.getIframeContents(e.val,function(e){o.createInstanceOnIframe(e).forEachNode(t,n,r)})})}},{key:"iterateThroughNodes",value:function(e,t,n,r,o){for(var i,a,s,c=this,u=this.createIterator(t,e,r),l=[],h=[];s=void 0,s=c.getIteratorNode(u),a=s.prevNode,i=s.node;)this.iframes&&this.forEachIframe(t,function(e){return c.checkIframeFilter(i,a,e,l)},function(t){c.createInstanceOnIframe(t).forEachNode(e,function(e){return h.push(e)},r)}),h.push(i);h.forEach(function(e){n(e)}),this.iframes&&this.handleOpenIframes(l,e,n,r),o()}},{key:"forEachNode",value:function(e,t,n){var r=this,o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},i=this.getContexts(),a=i.length;a||o(),i.forEach(function(i){var s=function(){r.iterateThroughNodes(e,i,t,n,function(){--a<=0&&o()})};r.iframes?r.waitForIframes(i,s):s()})}}],[{key:"matches",value:function(e,t){var n="string"==typeof t?[t]:t,r=e.matches||e.matchesSelector||e.msMatchesSelector||e.mozMatchesSelector||e.oMatchesSelector||e.webkitMatchesSelector;if(r){var o=!1;return n.every(function(t){return!r.call(e,t)||(o=!0,!1)}),o}return!1}}]),e}(),a=
+/* */
+function(){function e(n){t(this,e),this.opt=o({},{diacritics:!0,synonyms:{},accuracy:"partially",caseSensitive:!1,ignoreJoiners:!1,ignorePunctuation:[],wildcards:"disabled"},n)}return r(e,[{key:"create",value:function(e){return"disabled"!==this.opt.wildcards&&(e=this.setupWildcardsRegExp(e)),e=this.escapeStr(e),Object.keys(this.opt.synonyms).length&&(e=this.createSynonymsRegExp(e)),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),this.opt.diacritics&&(e=this.createDiacriticsRegExp(e)),e=this.createMergedBlanksRegExp(e),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.createJoinersRegExp(e)),"disabled"!==this.opt.wildcards&&(e=this.createWildcardsRegExp(e)),e=this.createAccuracyRegExp(e),new RegExp(e,"gm".concat(this.opt.caseSensitive?"":"i"))}},{key:"sortByLength",value:function(e){return e.sort(function(e,t){return e.length===t.length?e>t?1:-1:t.length-e.length})}},{key:"escapeStr",value:function(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}},{key:"createSynonymsRegExp",value:function(e){var t=this,n=this.opt.synonyms,r=this.opt.caseSensitive?"":"i",o=this.opt.ignoreJoiners||this.opt.ignorePunctuation.length?"\0":"";for(var i in n)if(n.hasOwnProperty(i)){var a=Array.isArray(n[i])?n[i]:[n[i]];a.unshift(i),(a=this.sortByLength(a).map(function(e){return"disabled"!==t.opt.wildcards&&(e=t.setupWildcardsRegExp(e)),e=t.escapeStr(e)}).filter(function(e){return""!==e})).length>1&&(e=e.replace(new RegExp("(".concat(a.map(function(e){return t.escapeStr(e)}).join("|"),")"),"gm".concat(r)),o+"(".concat(a.map(function(e){return t.processSynonyms(e)}).join("|"),")")+o))}return e}},{key:"processSynonyms",value:function(e){return(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),e}},{key:"setupWildcardsRegExp",value:function(e){return(e=e.replace(/(?:\\)*\?/g,function(e){return"\\"===e.charAt(0)?"?":""})).replace(/(?:\\)*\*/g,function(e){return"\\"===e.charAt(0)?"*":""})}},{key:"createWildcardsRegExp",value:function(e){var t="withSpaces"===this.opt.wildcards;return e.replace(/\u0001/g,t?"[\\S\\s]?":"\\S?").replace(/\u0002/g,t?"[\\S\\s]*?":"\\S*")}},{key:"setupIgnoreJoinersRegExp",value:function(e){return e.replace(/[^(|)\\]/g,function(e,t,n){var r=n.charAt(t+1);return/[(|)\\]/.test(r)||""===r?e:e+"\0"})}},{key:"createJoinersRegExp",value:function(e){var t=[],n=this.opt.ignorePunctuation;return Array.isArray(n)&&n.length&&t.push(this.escapeStr(n.join(""))),this.opt.ignoreJoiners&&t.push("\\u00ad\\u200b\\u200c\\u200d"),t.length?e.split(/\u0000+/).join("[".concat(t.join(""),"]*")):e}},{key:"createDiacriticsRegExp",value:function(e){var t=this.opt.caseSensitive?"":"i",n=this.opt.caseSensitive?["aàáảãạăằắẳẵặâầấẩẫậäåāą","AÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćč","CÇĆČ","dđď","DĐĎ","eèéẻẽẹêềếểễệëěēę","EÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïī","IÌÍỈĨỊÎÏĪ","lł","LŁ","nñňń","NÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøō","OÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rř","RŘ","sšśșş","SŠŚȘŞ","tťțţ","TŤȚŢ","uùúủũụưừứửữựûüůū","UÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿ","YÝỲỶỸỴŸ","zžżź","ZŽŻŹ"]:["aàáảãạăằắẳẵặâầấẩẫậäåāąAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćčCÇĆČ","dđďDĐĎ","eèéẻẽẹêềếểễệëěēęEÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïīIÌÍỈĨỊÎÏĪ","lłLŁ","nñňńNÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøōOÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rřRŘ","sšśșşSŠŚȘŞ","tťțţTŤȚŢ","uùúủũụưừứửữựûüůūUÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿYÝỲỶỸỴŸ","zžżźZŽŻŹ"],r=[];return e.split("").forEach(function(o){n.every(function(n){if(-1!==n.indexOf(o)){if(r.indexOf(n)>-1)return!1;e=e.replace(new RegExp("[".concat(n,"]"),"gm".concat(t)),"[".concat(n,"]")),r.push(n)}return!0})}),e}},{key:"createMergedBlanksRegExp",value:function(e){return e.replace(/[\s]+/gim,"[\\s]+")}},{key:"createAccuracyRegExp",value:function(e){var t=this,n=this.opt.accuracy,r="string"==typeof n?n:n.value,o="string"==typeof n?[]:n.limiters,i="";switch(o.forEach(function(e){i+="|".concat(t.escapeStr(e))}),r){case"partially":default:return"()(".concat(e,")");case"complementary":return i="\\s"+(i||this.escapeStr("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~¡¿")),"()([^".concat(i,"]*").concat(e,"[^").concat(i,"]*)");case"exactly":return"(^|\\s".concat(i,")(").concat(e,")(?=$|\\s").concat(i,")")}}}]),e}(),s=
+/* */
+function(){function n(e){t(this,n),this.ctx=e,this.ie=!1;var r=window.navigator.userAgent;(r.indexOf("MSIE")>-1||r.indexOf("Trident")>-1)&&(this.ie=!0)}return r(n,[{key:"log",value:function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"debug",r=this.opt.log;this.opt.debug&&"object"===e(r)&&"function"==typeof r[n]&&r[n]("mark.js: ".concat(t))}},{key:"getSeparatedKeywords",value:function(e){var t=this,n=[];return e.forEach(function(e){t.opt.separateWordSearch?e.split(" ").forEach(function(e){e.trim()&&-1===n.indexOf(e)&&n.push(e)}):e.trim()&&-1===n.indexOf(e)&&n.push(e)}),{keywords:n.sort(function(e,t){return t.length-e.length}),length:n.length}}},{key:"isNumeric",value:function(e){return Number(parseFloat(e))==e}},{key:"checkRanges",value:function(e){var t=this;if(!Array.isArray(e)||"[object Object]"!==Object.prototype.toString.call(e[0]))return this.log("markRanges() will only accept an array of objects"),this.opt.noMatch(e),[];var n=[],r=0;return e.sort(function(e,t){return e.start-t.start}).forEach(function(e){var o=t.callNoMatchOnInvalidRanges(e,r),i=o.start,a=o.end;o.valid&&(e.start=i,e.length=a-i,n.push(e),r=a)}),n}},{key:"callNoMatchOnInvalidRanges",value:function(e,t){var n,r,o=!1;return e&&void 0!==e.start?(r=(n=parseInt(e.start,10))+parseInt(e.length,10),this.isNumeric(e.start)&&this.isNumeric(e.length)&&r-t>0&&r-n>0?o=!0:(this.log("Ignoring invalid or overlapping range: "+"".concat(JSON.stringify(e))),this.opt.noMatch(e))):(this.log("Ignoring invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)),{start:n,end:r,valid:o}}},{key:"checkWhitespaceRanges",value:function(e,t,n){var r,o=!0,i=n.length,a=t-i,s=parseInt(e.start,10)-a;return(r=(s=s>i?i:s)+parseInt(e.length,10))>i&&(r=i,this.log("End range automatically set to the max value of ".concat(i))),s<0||r-s<0||s>i||r>i?(o=!1,this.log("Invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)):""===n.substring(s,r).replace(/\s+/g,"")&&(o=!1,this.log("Skipping whitespace only range: "+JSON.stringify(e)),this.opt.noMatch(e)),{start:s,end:r,valid:o}}},{key:"getTextNodes",value:function(e){var t=this,n="",r=[];this.iterator.forEachNode(NodeFilter.SHOW_TEXT,function(e){r.push({start:n.length,end:(n+=e.textContent).length,node:e})},function(e){return t.matchesExclude(e.parentNode)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},function(){e({value:n,nodes:r})})}},{key:"matchesExclude",value:function(e){return i.matches(e,this.opt.exclude.concat(["script","style","title","head","html"]))}},{key:"wrapRangeInTextNode",value:function(e,t,n){var r=this.opt.element?this.opt.element:"mark",o=e.splitText(t),i=o.splitText(n-t),a=document.createElement(r);return a.setAttribute("data-markjs","true"),this.opt.className&&a.setAttribute("class",this.opt.className),a.textContent=o.textContent,o.parentNode.replaceChild(a,o),i}},{key:"wrapRangeInMappedTextNode",value:function(e,t,n,r,o){var i=this;e.nodes.every(function(a,s){var c=e.nodes[s+1];if(void 0===c||c.start>t){if(!r(a.node))return!1;var u=t-a.start,l=(n>a.end?a.end:n)-a.start,h=e.value.substr(0,a.start),f=e.value.substr(l+a.start);if(a.node=i.wrapRangeInTextNode(a.node,u,l),e.value=h+f,e.nodes.forEach(function(t,n){n>=s&&(e.nodes[n].start>0&&n!==s&&(e.nodes[n].start-=l),e.nodes[n].end-=l)}),n-=l,o(a.node.previousSibling,a.start),!(n>a.end))return!1;t=a.end}return!0})}},{key:"wrapGroups",value:function(e,t,n,r){return r((e=this.wrapRangeInTextNode(e,t,t+n)).previousSibling),e}},{key:"separateGroups",value:function(e,t,n,r,o){for(var i=t.length,a=1;a<i;a++){var s=e.textContent.indexOf(t[a]);t[a]&&s>-1&&r(t[a],e)&&(e=this.wrapGroups(e,s,t[a].length,o))}return e}},{key:"wrapMatches",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){t.nodes.forEach(function(t){var o;for(t=t.node;null!==(o=e.exec(t.textContent))&&""!==o[a];){if(i.opt.separateGroups)t=i.separateGroups(t,o,a,n,r);else{if(!n(o[a],t))continue;var s=o.index;if(0!==a)for(var c=1;c<a;c++)s+=o[c].length;t=i.wrapGroups(t,s,o[a].length,r)}e.lastIndex=0}}),o()})}},{key:"wrapMatchesAcrossElements",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){for(var s;null!==(s=e.exec(t.value))&&""!==s[a];){var c=s.index;if(0!==a)for(var u=1;u<a;u++)c+=s[u].length;var l=c+s[a].length;i.wrapRangeInMappedTextNode(t,c,l,function(e){return n(s[a],e)},function(t,n){e.lastIndex=n,r(t)})}o()})}},{key:"wrapRangeFromIndex",value:function(e,t,n,r){var o=this;this.getTextNodes(function(i){var a=i.value.length;e.forEach(function(e,r){var s=o.checkWhitespaceRanges(e,a,i.value),c=s.start,u=s.end;s.valid&&o.wrapRangeInMappedTextNode(i,c,u,function(n){return t(n,e,i.value.substring(c,u),r)},function(t){n(t,e)})}),r()})}},{key:"unwrapMatches",value:function(e){for(var t=e.parentNode,n=document.createDocumentFragment();e.firstChild;)n.appendChild(e.removeChild(e.firstChild));t.replaceChild(n,e),this.ie?this.normalizeTextNode(t):t.normalize()}},{key:"normalizeTextNode",value:function(e){if(e){if(3===e.nodeType)for(;e.nextSibling&&3===e.nextSibling.nodeType;)e.nodeValue+=e.nextSibling.nodeValue,e.parentNode.removeChild(e.nextSibling);else this.normalizeTextNode(e.firstChild);this.normalizeTextNode(e.nextSibling)}}},{key:"markRegExp",value:function(e,t){var n=this;this.opt=t,this.log('Searching with expression "'.concat(e,'"'));var r=0,o="wrapMatches";this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),this[o](e,this.opt.ignoreGroups,function(e,t){return n.opt.filter(t,e,r)},function(e){r++,n.opt.each(e)},function(){0===r&&n.opt.noMatch(e),n.opt.done(r)})}},{key:"mark",value:function(e,t){var n=this;this.opt=t;var r=0,o="wrapMatches",i=this.getSeparatedKeywords("string"==typeof e?[e]:e),s=i.keywords,c=i.length;this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),0===c?this.opt.done(r):function e(t){var i=new a(n.opt).create(t),u=0;n.log('Searching with expression "'.concat(i,'"')),n[o](i,1,function(e,o){return n.opt.filter(o,t,r,u)},function(e){u++,r++,n.opt.each(e)},function(){0===u&&n.opt.noMatch(t),s[c-1]===t?n.opt.done(r):e(s[s.indexOf(t)+1])})}(s[0])}},{key:"markRanges",value:function(e,t){var n=this;this.opt=t;var r=0,o=this.checkRanges(e);o&&o.length?(this.log("Starting to mark with the following ranges: "+JSON.stringify(o)),this.wrapRangeFromIndex(o,function(e,t,r,o){return n.opt.filter(e,t,r,o)},function(e,t){r++,n.opt.each(e,t)},function(){n.opt.done(r)})):this.opt.done(r)}},{key:"unmark",value:function(e){var t=this;this.opt=e;var n=this.opt.element?this.opt.element:"*";n+="[data-markjs]",this.opt.className&&(n+=".".concat(this.opt.className)),this.log('Removal selector "'.concat(n,'"')),this.iterator.forEachNode(NodeFilter.SHOW_ELEMENT,function(e){t.unwrapMatches(e)},function(e){var r=i.matches(e,n),o=t.matchesExclude(e);return!r||o?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},this.opt.done)}},{key:"opt",set:function(e){this._opt=o({},{element:"",className:"",exclude:[],iframes:!1,iframesTimeout:5e3,separateWordSearch:!0,acrossElements:!1,ignoreGroups:0,each:function(){},noMatch:function(){},filter:function(){return!0},done:function(){},debug:!1,log:window.console},e)},get:function(){return this._opt}},{key:"iterator",get:function(){return new i(this.ctx,this.opt.iframes,this.opt.exclude,this.opt.iframesTimeout)}}]),n}();return function(e){var t=this,n=new s(e);return this.mark=function(e,r){return n.mark(e,r),t},this.markRegExp=function(e,r){return n.markRegExp(e,r),t},this.markRanges=function(e,r){return n.markRanges(e,r),t},this.unmark=function(e){return n.unmark(e),t},this}});
+
+</script>
+<script type="text/javascript">
+// wordAtInsertionPt.js
+// See https://stackoverflow.com/questions/2444430/how-to-get-a-word-under-cursor-using-javascript 
+// soln by Drakes https://stackoverflow.com/users/1938889/drakes
+// (Modified from the original.)
+// In IntraMine, getFullWord() is called by viewerStart.js#expandSelectionToWordIfPossible(),
+// the goal being to select a whole word with one click when in a non-Editable view of a file.
+
+// Get the full word the cursor is over regardless of span breaks
+function getFullWord(event) {
+let i, begin, end, range, textNode, offset;
+
+// Internet Explorer
+if (document.body.createTextRange) {
+   try {
+	 range = document.body.createTextRange();
+	 range.moveToPoint(event.clientX, event.clientY);
+	 range.select();
+	 range = getTextRangeBoundaryPosition(range, true);
+  
+	 textNode = range.node;
+	 offset = range.offset;
+   } catch(e) {
+   return(document.createRange()); // Sigh, IE
+   }
+}
+
+// Firefox, Safari
+// REF: https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
+else if (document.caretPositionFromPoint) {
+  range = document.caretPositionFromPoint(event.clientX, event.clientY);
+  if (range !== null)
+	  {
+	  textNode = range.offsetNode;
+	  offset = range.offset;
+	  }
+  else
+	  {
+	  return(document.createRange());
+	  }
+
+  // Chrome
+  // REF: https://developer.mozilla.org/en-US/docs/Web/API/document/caretRangeFromPoint
+} else if (document.caretRangeFromPoint) {
+  range = document.caretRangeFromPoint(event.clientX, event.clientY);
+  if (range !== null)
+	  {
+	  textNode = range.startContainer;
+	  offset = range.startOffset;
+	  }
+  else
+	  {
+	  return(document.createRange());
+	  }
+}
+
+// Only act on text nodes
+if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+	return(document.createRange());
+}
+
+let data = textNode.textContent;
+
+// Sometimes the offset can be at the 'length' of the data.
+// It might be a bug with this 'experimental' feature - 
+// compensate for this below
+if (offset >= data.length) {
+  offset = data.length - 1;
+}
+
+// Scan behind the current character until whitespace or punct is found, or beginning
+i = begin = end = offset;
+// Don't scan behind if we're at the end of a line and last char is not a word char.
+let blockedAtLineEnd = ( offset === data.length - 1 && isW(data[offset]) );
+if (!blockedAtLineEnd)
+	{
+	while ( previousCharIsAWordChar(data, i - 1) ) {
+	  //while (i > 0 && !isW(data[i - 1])) {
+	  i--;
+	  }
+	}
+begin = i;
+
+// Scan ahead of the current character until whitespace or punct is found, or end
+// unless char at offset is not a word char.
+i = offset;
+let offsetIsWordChar = nextCharIsAWordChar(data, offset);
+if (nextCharIsAWordChar(data, i))
+	{
+	while ( nextCharIsAWordChar(data, i + 1) ) {
+	//while (i < data.length - 1 && !isW(data[i + 1])) {
+	  i++;
+	}
+	}
+end = i;
+
+// This is our temporary word
+let word = data.substring(begin, end + 1);
+
+// If at a node boundary, cross over and see what 
+// the next word is and check if this should be added to our temp word
+if (end === data.length - 1 || begin === 0) {
+
+  let nextNode = getNextNode(textNode);
+  let prevNode = getPrevNode(textNode);
+
+  // Get the next node text
+  if (end == data.length - 1 && nextNode) {
+  let nextText = nextNode.textContent;
+
+	// Add the letters from the next text block until a whitespace or punct, or end
+	i = 0;
+	while ( nextCharIsAWordChar(nextText, i) ) {
+	  word += nextText[i++];
+	}
+
+  } else if (begin === 0 && prevNode) {
+	// Get the previous node text
+  let prevText = prevNode.textContent;
+
+	// Add the letters from the next text block until a whitespace or punct, or end
+	i = prevText.length - 1;
+	while ( previousCharIsAWordChar(prevText, i) ) {
+	  word = prevText[i--] + word;
+	}
+  }
+}
+
+// Sometimes a bad last char is tacked on?
+if (word.length)
+	{
+	word = remove_linebreaks(word);
+//	if (isW(word[ word.length - 1]))
+//		{
+//		word = word.substring(0, word.length - 1);
+//		}
+	}
+
+// Return the word, and its start and end offsets. Kill selection of '.' or other non-word
+// if click happened past end of line and the line ends in non-word char such as '.'.
+if (blockedAtLineEnd)
+	{
+	word = '';
+	begin = end;
+	}
+else
+	{
+	if (offsetIsWordChar)
+		{
+		++end;
+		}
+	}
+
+let obj = {
+		theWord: word,
+		theBegin: begin,
+		theEnd: end
+		};
+
+return(obj);
+
+//return word;
+} // getFullWord()
+
+
+// Helper functions
+
+function remove_linebreaks(str ) { 
+return str.replace( /[\r\n]+/gm, "" ); 
+} 
+
+// Looking in the forward direction, either char is not white or punctuation,
+// or it is an apostrophe or hyphen and the following char is not white or punctuation.
+function nextCharIsAWordChar(theText, i) {
+	let result = ( i < theText.length 
+		&& (!isW(theText[i])
+		  || ((theText[i] === "'" || theText[i] === "-") && (i+1) < theText.length && !isW(theText[i+1])))
+		  );
+	return(result);
+	}
+
+// Looking in reverse, either char is not white or punctuation,
+// or it is an apostrophe or hyphen and the previous char is not white or punctuation.
+function previousCharIsAWordChar(theText, i) {
+	let result = ( i >= 0 
+		&& (!isW(theText[i])
+		  || ((theText[i] === "'" || theText[i] === "-") && i > 0 && !isW(theText[i-1])))
+		  );
+	return(result);
+	}
+
+
+// Barrier nodes are BR, DIV, P, PRE, TD, TR, ... 
+function isBarrierNode(node) {
+return node ? /^(BR|DIV|P|PRE|TD|TR|TABLE)$/i.test(node.nodeName) : true;
+}
+
+// Try to find the next adjacent node
+function getNextNode(node) {
+let n = null;
+// Does this node have a sibling?
+if (node.nextSibling) {
+n = node.nextSibling;
+
+// Doe this node's container have a sibling?
+} else if (node.parentNode && node.parentNode.nextSibling) {
+n = node.parentNode.nextSibling;
+}
+return isBarrierNode(n) ? null : n;
+}
+
+// Try to find the prev adjacent node
+function getPrevNode(node) {
+var n = null;
+
+// Does this node have a sibling?
+if (node.previousSibling) {
+n = node.previousSibling;
+
+// Doe this node's container have a sibling?
+} else if (node.parentNode && node.parentNode.previousSibling) {
+n = node.parentNode.previousSibling;
+}
+return isBarrierNode(n) ? null : n;
+}
+
+// REF: http://stackoverflow.com/questions/3127369/how-to-get-selected-textnode-in-contenteditable-div-in-ie
+function getChildIndex(node) {
+var i = 0;
+while( (node = node.previousSibling) ) {
+i++;
+}
+return i;
+}
+
+// All this code just to make this work with IE, OTL
+// REF: http://stackoverflow.com/questions/3127369/how-to-get-selected-textnode-in-contenteditable-div-in-ie
+function getTextRangeBoundaryPosition(textRange, isStart) {
+var workingRange = textRange.duplicate();
+workingRange.collapse(isStart);
+var containerElement = workingRange.parentElement();
+var workingNode = document.createElement("span");
+var comparison, workingComparisonType = isStart ?
+"StartToStart" : "StartToEnd";
+
+var boundaryPosition, boundaryNode;
+
+// Move the working range through the container's children, starting at
+// the end and working backwards, until the working range reaches or goes
+// past the boundary we're interested in
+do {
+containerElement.insertBefore(workingNode, workingNode.previousSibling);
+workingRange.moveToElementText(workingNode);
+} while ( (comparison = workingRange.compareEndPoints(
+workingComparisonType, textRange)) > 0 && workingNode.previousSibling);
+
+// We've now reached or gone past the boundary of the text range we're
+// interested in so have identified the node we want
+boundaryNode = workingNode.nextSibling;
+if (comparison == -1 && boundaryNode) {
+// This must be a data node (text, comment, cdata) since we've overshot.
+// The working range is collapsed at the start of the node containing
+// the text range's boundary, so we move the end of the working range
+// to the boundary point and measure the length of its text to get
+// the boundary's offset within the node
+workingRange.setEndPoint(isStart ? "EndToStart" : "EndToEnd", textRange);
+
+boundaryPosition = {
+  node: boundaryNode,
+  offset: workingRange.text.length
+};
+} else {
+// We've hit the boundary exactly, so this must be an element
+boundaryPosition = {
+  node: containerElement,
+  offset: getChildIndex(workingNode)
+};
+}
+
+// Clean up
+workingNode.parentNode.removeChild(workingNode);
+
+return boundaryPosition;
+}
+
+</script>
+<script type="text/javascript">
+// LightRange.js - A simple and lightweight selection, range and caret information library in native JavaScript, with an additional selection save & restore system. - https://github.com/n457/LightRange.js
+// Version 2.2.0
+// MIT License - Copyright (c) 2015 Bertrand Vignaud-Lerouge / n457 - https://github.com/n457
+var LightRange=function(){};
+LightRange.prototype.getSelectionInfo=function(){var a={};if(window.getSelection){var b=window.getSelection(),e=document.body.scrollTop,f=document.body.scrollLeft;if(0<b.rangeCount){var d=b.getRangeAt(0).cloneRange(),c=d.getBoundingClientRect();0===c.height&&(c=d.getClientRects()[0]);c&&(a.width=c.width,a.height=c.height,a.xStart=c.left+f,a.yStart=c.top+e);a.text=b.toString();a.charStart=d.startOffset;a.charEnd=d.endOffset;d.collapse(!1);if(c=d.getClientRects()[0])a.xEnd=c.left+f,a.yEnd=c.top+e}}else if(document.selection)b=
+document.selection.createRange(),e=document.documentElement.scrollTop,f=document.documentElement.scrollLeft,a.width=b.boundingWidth,a.height=b.boundingHeight,a.xStart=b.boundingLeft+f,a.yStart=b.boundingTop+e,a.text=b.text,b.collapse(!1),a.xEnd=b.boundingLeft+f,a.yEnd=b.boundingTop+e;else return null;a.text?(a.characters=a.text.replace(/\s/g,"").length,a.charactersAll=a.text.replace(/[\n\r]/g,"").length):(a.characters=0,a.charactersAll=0);return a};
+LightRange.prototype.saveSelection=function(){if(window.getSelection){var a=window.getSelection();if(a.getRangeAt&&a.rangeCount)return a.getRangeAt(0)}else return document.selection&&document.selection.createRange?document.selection.createRange():null};LightRange.prototype.restoreSelection=function(a){if(a){if(window.getSelection){var b=window.getSelection();b.removeAllRanges();b.addRange(a)}else if(document.selection&&a.select)a.select();else return null;return a}};var lightrange=new LightRange;
+
+</script>
+<script type="text/javascript">
+/* glossstubs.js: stubs for functions that gloss2html.pl doesn't need.
+*/
+
+function addAutoLinks() {
+}
+
+</script>
+<script type="text/javascript">
+// viewerStart.js: used for non-CodeMirror views in intramine_file_viewer_cm.pl.
+// Manage layout changes on resize, jump to an anchor
+// Put highlight hits in text and on scrollbar.
+// Show/hide any initial search hits provided in highlightitems.
+// Preserve user selection when marking, by remembering selection range, removing selected
+// text before marking, then restoring text and selection range after marking (patent not pending).
+
+let markerMainElement = document.getElementById(cmTextHolderName);
+if (markerMainElement === null)
+	{
+	markerMainElement = document.getElementById("scrollText");
+	}
+if (markerMainElement === null)
+	{
+	markerMainElement = document.getElementById(specialTextHolderName);
+	}
+
+let tocMainElement = document.getElementById("scrollContentsList");
+
+let onMobile = false; // Set below, true if we have touch events.
+if (typeof window.ontouchstart !== 'undefined')
+	{
+	onMobile = true;
+	}
+
+window.addEventListener("load", reJumpAndHighlight);
+window.addEventListener("resize", JD.debounce(doResize, 100));
+
+//let doingStandalone = false;
+//if (typeof weAreStandalone !== 'undefined')
+//	{
+//	doingStandalone = weAreStandalone;
+//	}
+
+// Adjust some element heights so scrolling works properly.
+function doResize() {
+	let rule = document.getElementById("rule_above_editor");
+	let pos = getPosition(rule);
+	let rect = rule.getBoundingClientRect();
+	let ruleHeight = rect.height;
+
+	let windowHeight = window.innerHeight;
+	let elHeight = windowHeight - pos.y - ruleHeight - 8;
+	let newHeightPC = (elHeight / windowHeight) * 100;
+	let el = document.getElementById("scrollAdjustedHeight");
+	el.style.height = newHeightPC + "%";
+
+	if (tocMainElement !== null)
+		{
+		let tocMarginTop =
+				parseInt(window.getComputedStyle(tocMainElement).getPropertyValue('margin-top'));
+		let tocHeight = elHeight - tocMarginTop;
+		if (onMobile)
+			{
+			tocHeight -= 20;
+			}
+		else
+			{
+			tocHeight -= 16;
+			}
+		let newTocHeightPC = (tocHeight / elHeight) * 100;
+		tocMainElement.style.height = newTocHeightPC + "%";
+		}
+
+	if (initialSearchHitsAreShowing)
+		{
+		removeInitialHighlights();
+		highlightInitialItems();
+		}
+
+	if (!onMobile)
+		{
+		scrollIndicator();
+		}
+	else
+		{
+		scrollMobileIndicator(); // if mobile
+		}
+	
+	updateToggleBigMoveLimit();
+}
+
+// On "load", scroll any location.hash position into view, and put highlights on any
+// words that formed part of a search that produced this file as a hit.
+// See intramine_file_viewer_cm.pl#InitialHighlightItems().
+function reJumpAndHighlight() {
+	reJump();
+	updateToggleBigMoveLimit();
+	updateTogglePositions();
+	highlightInitialItems();
+	addAutoLinks();
+}
+
+// Set top of nav to zero, fixes an iPad scroll problem where nav goes off the top.
+function resetTopNavPosition() {
+	let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+	if (nav !== null)
+		{
+		nav.parentNode.scrollTop = 0;
+		}
+}
+
+// Scroll element into view, based on ID named in location.hash.
+function reJump() {
+	let h = location.hash;
+	if (h.length > 1)
+		{
+		// strip leading '#'
+		h = h.replace(/^#/, '');
+		
+		if (isNaN(h))
+			{
+			let el = getElementForHash(h);
+			
+			if (el !== null)
+				{
+				el.scrollIntoView();
+				resetTopNavPosition();
+				if (!onMobile)
+					{
+					scrollIndicator();
+					}
+				else
+					{
+					scrollMobileIndicator(); // if mobile
+					}
+				}
+			}
+		else
+			{
+			reJumpToLineNumber(h);
+			}
+		}
+}
+
+// Progressively shorten 'h' word by word as necessary until an anchor id is found. If the
+// remaining part of 'h' is a number, though, jump to that line. If an anchor id is found,
+// return the corresponding element in the html text.
+//
+// This "shortening" approach is needed because 'h' may be too long, if it was part of a link
+// in a text file where the link was not quoted: when making the link, we didn't know where
+// the hash stopped, and just grabbed a hundred or so characters after the '#'.
+// [See intramine_file_viewer_cm.pl#RememberTextOrImageFileMention().]
+function getElementForHash(h) {
+	let hCopy = h;
+	hCopy = hCopy.replace(/ /g, '_');
+	hCopy = hCopy.replace(/\%20/g, '_');
+	hCopy = hCopy.replace(/\(\)$/, '');
+	let el = document.getElementById(hCopy);
+	
+	while(el === null && h.length > 0)
+		{
+		let lastIndexOfSpace = h.lastIndexOf(" ");
+		let lastIndexOfPct = h.lastIndexOf("%");
+		let trimIndex = (lastIndexOfSpace > lastIndexOfPct) ? lastIndexOfSpace: lastIndexOfPct;
+		if (trimIndex > 0)
+			{
+			h = h.substring(0, trimIndex);
+			let hCopy = h;
+			hCopy = hCopy.replace(/ /g, '_');
+			hCopy = hCopy.replace(/\%20/g, '_');
+			el = document.getElementById(hCopy);
+			if (el === null)
+				{
+				if (!isNaN(hCopy))
+					{
+					reJumpToLineNumber(hCopy);
+					break;
+					}
+				}
+			}
+		else
+			{
+			break;
+			}
+		}
+	
+	return(el);
+}
+
+// Scroll a line into view, based on line number.
+function reJumpToLineNumber(h) {
+	let lineNum = parseInt(h, 10) - 1;
+	if (lineNum <= 0)
+		{
+		lineNum = 0;
+		}
+	// Look for row number lineNum.
+	let rows = markerMainElement.getElementsByTagName('tr');
+	if (lineNum < rows.length)
+		{
+		let el = rows[lineNum];
+		if (el !== null)
+			{
+			el.scrollIntoView();
+			resetTopNavPosition();
+			if (!onMobile)
+				{
+				scrollIndicator();
+				}
+			else
+				{
+				scrollMobileIndicator(); // if mobile
+				}
+			}
+		}
+}
+
+// Adust the top of "id" (the main text holder) so scrolling will work properly etc.
+function setTextViewPosition(rule_id, id) {
+	let el = document.getElementById(id);
+	if (el === null)
+		{
+		return;
+		}
+	let rule = document.getElementById(rule_id);
+	let pos = getPosition(rule);
+	let rect = rule.getBoundingClientRect();
+	let ruleHeight = rect.height;
+	let yPos = pos.y + ruleHeight + 8;
+	el.style.top = yPos + "px";
+}
+
+// Position the main text-holding element.
+function positionViewItems() {
+	let viewElement = document.getElementById(cmTextHolderName);
+	if (viewElement !== null)
+		{
+		setTextViewPosition("rule_above_editor", cmTextHolderName);
+		}
+	else
+		{
+		viewElement = document.getElementById(specialTextHolderName);
+		if (viewElement !== null)
+			{
+			setTextViewPosition("rule_above_editor", specialTextHolderName);
+			}
+		}
+	doResize();
+}
+
+function finishStartup() {
+	hideIt("search-button");
+	hideIt("small-tip");
+	positionViewItems();
+	reJump();
+}
+
+function createElementFromHTML(htmlString) {
+	let div = document.createElement('div');
+	div.innerHTML = htmlString.trim();
+
+	// Change this to div.childNodes to support multiple top-level nodes
+	return div.firstChild; // or div.firstElementChild?
+}
+
+function hideIt(id) {
+	let el = document.getElementById(id);
+	if (el !== null)
+		{
+		el.style.display = 'none';
+		}
+}
+
+// Set up for highlighting text, with marks in scrollbar, keeping user's selection
+// or expanding it to a word. mark.js (mark.min.js) does the actual marking.
+// Marks are used for both the initial highlight items and a user text selection.
+let markerInstance = null;
+let mouseEvt;
+
+let textMarkerClass = "marker-highlight";
+let scrollMarkerClass = "scroll-hilite";
+let initialHitsTextMarkersClass = "initial-hits-highlight";
+let initialHitsScrollMarkerClass = "initial-scroll-hl";
+let toggleHitsButtonID = "sihits";
+let initialSearchHitsAreShowing = false;
+let currentTextForHighlighting = '';
+let justUpdateScrollbar = false;
+
+
+// Selection management: on a single click, expand to a word. If selection is on one row,
+// the <td> holding it is removed before marking, and then restored, complete with selection.
+// Done because marking the current selection will collapse it to an insertion point.
+let theSelection = {};
+theSelection.selectionIsTooBig = false;
+theSelection.isDoubleClick = false;
+theSelection.userDragged = false;
+//For LightRange.min.js range representing text selection.
+theSelection.ltRange = null;
+theSelection.currentSelectionElem = null; // Hide/show this element when marking
+theSelection.currentSelPreviousSibling = null; // The target for re-insertion of currentSelectionElem
+theSelection.selChildren = []; // Contents of TD containing current selection
+theSelection.startNodeIndexes = [];
+theSelection.startNodeOffset = 0;
+theSelection.endNodeIndexes = [];
+theSelection.endNodeOffset = 0;
+theSelection.topStartNode = null;
+theSelection.topEndNode = null;
+
+let linkClicked = false;
+let hintboxClicked = false;
+let cmCursorPos = {
+	line : -1,
+	ch : -1
+};
+
+// mark.js mark/unmark options, "done" is fired at the end of the mark/unmark. Normally
+// one calls unmark, with unmarkOptions "done" calling the mark function.
+let markerOptions = {
+	// "element": "span",
+	"className" : textMarkerClass,
+	"separateWordSearch" : false,
+	"acrossElements" : true,
+	"done" : function(counter) {
+		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+	}
+};
+let markerOptionsInitialHits = {
+	// "element": "span",
+	"className" : initialHitsTextMarkersClass,
+	"separateWordSearch" : false,
+	"acrossElements" : true,
+	"done" : function(counter) {
+		markHitsInScrollbar(initialHitsTextMarkersClass, initialHitsScrollMarkerClass);
+	}
+};
+
+let unmarkOptions = {
+	// "element": "span",
+	"className" : textMarkerClass,
+	"done" : function() {
+		removeAllScrollbarHighlights(scrollMarkerClass);
+		markCurrentSelection();
+	}
+};
+let unmarkOptionsInitialHits = {
+	// "element": "span",
+	"className" : initialHitsTextMarkersClass,
+	"done" : function() {
+		removeAllScrollbarHighlights(initialHitsScrollMarkerClass);
+	}
+};
+
+if (markerMainElement !== null)
+	{
+	markerInstance = new Mark(markerMainElement);
+	}
+
+// After a click, update markers in text and scroll corresponding TOC element into view.
+function delayedUpdateMarkersAndTOC(evt) {
+	setTimeout(function() {
+		updateMarkers(evt);
+	}, 1000);
+	
+	scrollTocEntryIntoView(evt, false);
+}
+
+// Highlight user's selection, unless it was a click on a link or in the scrollbar, or the
+// first click in a double-click, or there's too much text selected to be worth higlighting.
+function updateMarkers(evt) {
+	if (linkClicked)
+		{
+		return;
+		}
+	if (theSelection.isDoubleClick)
+		{
+		theSelection.isDoubleClick = false;
+		return;
+		}
+	if (markerMainElement === null || evtIsInScrollbar(evt))
+		{
+		return;
+		}
+
+	// No marking if selection is "too big" (spreads over more than on line).
+	theSelection.selectionIsTooBig = selectionIsTooBig();
+	
+	if (!justUpdateScrollbar && currentSelectionTouchesLink())
+		{
+		return;
+		}
+
+	mouseEvt = evt;
+	
+	theSelection.userDragged = false;
+
+	// full highlight, selection, and scrollbar marking
+	if (!justUpdateScrollbar && !theSelection.selectionIsTooBig) 
+		{
+		storeSelection();
+		// Get current text to highlight, or set theSelection.selectionTooBig = true.
+		// Also set current text to "" if it's fewer than three characters, meaning remove
+		// all markers and don't mark anything new or change the selection (this is a way to
+		// clear markers).
+		currentTextForHighlighting = getCurrentTextForMarkup();
+		
+		hideSelectionRow(); // Don't mark up row where text is selected
+		
+		markerInstance.unmark(unmarkOptions);
+		}
+	else if (justUpdateScrollbar)
+		{
+		removeAllScrollbarHighlights(scrollMarkerClass);
+		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+		}
+	justUpdateScrollbar = false;
+}
+
+//See intramine_file_viewer_cm.pl#InitialHighlightItems().
+function highlightInitialItems() {
+	if (markerMainElement !== null && highlightItems.length > 0)
+		{
+		for (let i = 0; i < highlightItems.length; ++i)
+			{
+			markerInstance.mark(highlightItems[i], markerOptionsInitialHits);
+			}
+		initialSearchHitsAreShowing = true;
+		let toggleButton = document.getElementById(toggleHitsButtonID);
+		if (toggleButton !== null)
+			{
+			toggleButton.value = "Hide Initial Hits";
+			}
+		}
+}
+
+//function decodeSpecialWordCharacters() {
+//	if (markerMainElement !== null && highlightItems.length > 0)
+//		{
+//		for (let i = 0; i < highlightItems.length; ++i)
+//			{
+//			highlightItems[i] = highlightItems[i].replace(/ *__D_ */g, ".");
+//			highlightItems[i] = highlightItems[i].replace(/__DS_([A-Za-z])/g, "\$$1");
+//			highlightItems[i] = highlightItems[i].replace(/__PC_([A-Za-z])/g, "\%$1");
+//			highlightItems[i] = highlightItems[i].replace(/__AT_([A-Za-z])/g, "\@$1");
+//			}
+//		}
+//}
+
+function removeInitialHighlights() {
+	if (markerMainElement !== null && highlightItems.length > 0)
+		{
+		for (let i = 0; i < highlightItems.length; ++i)
+			{
+			markerInstance.unmark(unmarkOptionsInitialHits);
+			}
+		initialSearchHitsAreShowing = false;
+		let toggleButton = document.getElementById(toggleHitsButtonID);
+		if (toggleButton !== null)
+			{
+			toggleButton.value = "Show Initial Hits";
+			}
+		}
+}
+
+function toggleInitialSearchHits() {
+	if (initialSearchHitsAreShowing)
+		{
+		removeInitialHighlights();
+		}
+	else
+		{
+		highlightInitialItems();
+		}
+}
+
+function noteWasDoubleClick(evt) {
+	let nons = '';
+	theSelection.isDoubleClick = true;
+}
+
+function updateScrollbarMarkers() {
+	justUpdateScrollbar = true;
+	updateMarkers(null);
+}
+
+// This is called by mark.js after an unmark, see unmarkOptions above.
+function markCurrentSelection() {
+
+	if (currentTextForHighlighting !== "")
+		{
+		markerInstance.mark(currentTextForHighlighting, markerOptions);
+		}
+	
+	showSelectionRow(); // Restore visibiliy of element containing current user selecton.
+	
+	showStoredSelections();
+
+	theSelection.userDragged = false;
+}
+
+function getCurrentTextForMarkup() {
+	let result = getSelectionText();
+
+	return (result);
+}
+
+// Get text for marking, unless it's too big to be worth marking. This is a bit of a gamble,
+// but a "too big" selection usually means the user is just intending to copy some text,
+// not see other instances of it in the same file.
+function getSelectionText() {
+	let text = "";
+	
+	theSelection.userDragged = false;
+	
+	if (window.getSelection)
+		{
+		let currSelection = window.getSelection();
+		if (!theSelection.selectionTooBig)
+			{
+			text = currSelection.toString();
+			if (text !== '')
+				{
+				theSelection.userDragged = true;
+				}
+			}
+		else
+			{
+			theSelection.userDragged = true;
+			}
+		}
+
+	
+	if (!theSelection.selectionTooBig && !theSelection.userDragged)
+		{
+		// Empty selection: expand to nearest word.
+		if (text === '')
+			{
+			//text = expandSelectionToWordIfPossible();
+			let wordObj = expandSelectionToWordIfPossible();
+			text = wordObj.theWord;
+			if (typeof text === 'undefined')
+				{
+				text = '';
+				}
+			if (text !== '')
+				{
+				let beginOffset = wordObj.theBegin;
+				let endOffset = wordObj.theEnd;
+				// Re-capture the selection for later restoration.
+				if (typeof theSelection.ltRange !== 'undefined')
+					{
+					let startContainer = theSelection.ltRange.startContainer;
+					theSelection.ltRange.setStart(startContainer, beginOffset);
+					theSelection.ltRange.setEnd(startContainer, endOffset);
+					}
+				}
+			}
+
+		// If it's a single word with a single trailing space, trim any trailing space.
+		if (text !== '')
+			{
+			let numSpaces = (text.match(/\s/g) || []).length;
+			if (numSpaces === 1)
+				{
+				let lastChar = text.substring(text.length - 1);
+				if (lastChar === " " || lastChar === "\t")
+					{
+					text = text.substring(0, text.length - 1);
+					}
+				}
+			}
+
+		}
+
+	// Avoid highlighting just one or two characters.
+	if (text.length <= 2)
+		{
+		text = "";
+		}
+
+	return text;
+}
+
+
+// "Too big" means selected text spreads across two or more lines.
+// Revision, this affects the actual current selection so stop doing it.
+function selectionIsTooBig() {
+	let selectionTooBig = false;
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.commonAncestorContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem === null)
+			{
+			selectionTooBig = true;
+			}
+		}
+
+	return (selectionTooBig);
+}
+
+function currentSelectionTouchesLink() {
+	let result = false;
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let nodes = getNodesInRange(currRange);
+		for (let i = 0; i < nodes.length; ++i)
+			{
+			if (nodes[i].nodeName === "A")
+				{
+				result = true;
+				break;
+				}
+			}
+		}
+	
+	return(result);
+}
+
+function getNextNode(node) {
+    if (node.firstChild)
+        return node.firstChild;
+    while (node)
+    {
+        if (node.nextSibling)
+            return node.nextSibling;
+        node = node.parentNode;
+    }
+}
+
+function getNodesInRange(range) {
+    var start = range.startContainer;
+    var end = range.endContainer;
+    var commonAncestor = range.commonAncestorContainer;
+    var nodes = [];
+    var node;
+
+    // walk parent nodes from start to common ancestor
+    for (node = start.parentNode; node; node = node.parentNode)
+    {
+        nodes.push(node);
+        if (node == commonAncestor)
+            break;
+    }
+    nodes.reverse();
+
+    // walk children and siblings from start until end is found
+    for (node = start; node; node = getNextNode(node))
+    {
+        nodes.push(node);
+        if (node == end)
+            break;
+    }
+
+    return nodes;
+}
+
+function expandSelectionToWordIfPossible() {
+	return (getFullWord(mouseEvt)); // see wordAtInsertionPt.js
+
+}
+
+// Add handlers for marker updating etc.
+if (markerMainElement !== null)
+	{
+	markerMainElement.addEventListener("click", delayedUpdateMarkersAndTOC);
+	markerMainElement.addEventListener("dblclick", noteWasDoubleClick);
+	window.addEventListener("resize", updateScrollbarMarkers);
+
+	markerMainElement.addEventListener("mouseup", resetTopNavPosition);
+	if (tocMainElement !== null)
+		{
+		tocMainElement.addEventListener("mouseup", resetTopNavPosition);
+		}
+	}
+
+// Show/hide highlight markers on scroll bar.
+
+function removeAllScrollbarHighlights(mClass) {
+	removeElementsByClass(mClass);
+}
+
+function removeElementsByClass(className) {
+	let elements = document.getElementsByClassName(className);
+	while (elements.length > 0)
+		{
+		elements[0].parentNode.removeChild(elements[0]);
+		}
+}
+
+// Put little rectangles in the scrollbar region, placed vertically in proportion to
+// where the selected text occurrences happen in the document.
+function markHitsInScrollbar(textClassName, scrollHitClassName) {	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let mainScrollY = markerMainElement.scrollTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	// let usableTextHeight = textViewableHeight - 2*arrowHeight;
+
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				//arrowHeight = Math.round(widthDifference) + 1;
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	// indicatorHeight: ideal height of the thumb. In practice the actual thumb height
+	// needs to be a minimum of about 18 pixels.
+	////let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
+
+	let elements = document.getElementsByClassName(textClassName);
+	for (let i = 0; i < elements.length; ++i)
+		{
+		let hitElement = elements[i];
+		let elementBoundRect = hitElement.getBoundingClientRect();
+		let textHitY = elementBoundRect.top;
+		let positionInDoc = mainScrollY + textHitY - yTop;
+		let positionRatio = positionInDoc / mainScrolllHeight;
+		let relativeMarkerPos = positionRatio * usableTextHeight;
+		let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+
+		let mk = document.createElement("mark");
+		mk.setAttribute("class", scrollHitClassName);
+		mk.style.top = absMarkerPos + "px";
+		markerMainElement.appendChild(mk);
+		}
+}
+
+function evtIsInScrollbar(evt) {
+	let result = false;
+	if (evt !== null)
+		{
+		if (evt.offsetX >= markerMainElement.clientWidth
+				|| evt.offsetY >= markerMainElement.clientHeight)
+			{
+			// Mouse down over scroll element
+			result = true;
+			}
+		}
+	return (result);
+}
+
+// Remember the element that starts the selection.
+function storeSelection() {
+	theSelection.ltRange = lightrange.saveSelection();
+}
+
+// Look at siblings of startElement, advance until element does not contain a <mark> subelement.
+function showStoredSelections() {
+	lightrange.restoreSelection(theSelection.ltRange);
+}
+
+function saveSelection() {
+	if (window.getSelection) {
+	    var sel = window.getSelection();
+	    if (sel.getRangeAt && sel.rangeCount) {
+	        return sel.getRangeAt(0);
+	    }
+	} else if (document.selection && document.selection.createRange) {
+	    return document.selection.createRange();
+	}
+return null;
+}
+
+// Set theSelection.currentSelectionElem to TD holding selection, 
+// and clone and remove the TD - only if not "too big".
+function hideSelectionRow() {
+	theSelection.currentSelectionElem = null;
+	theSelection.currentSelPreviousSibling = null;
+	if (theSelection.selectionIsTooBig)
+		{
+		return;
+		}
+
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.commonAncestorContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem === null)
+			{
+			selectionTooBig = true;
+			}
+		else
+			{
+			theSelection.currentSelectionElem = tdElem;
+			theSelection.currentSelPreviousSibling = theSelection.currentSelectionElem.previousSibling;
+			}
+		}
+
+	if (theSelection.currentSelectionElem !== null)
+		{
+		let currSelTD = theSelection.currentSelectionElem;
+		let i = 0;
+		theSelection.selChildren = [];
+		
+		findRangeTopContainers();
+		
+		let tdChildNodes = currSelTD.childNodes;
+		for  (let j = 0; j < tdChildNodes.length; ++j)
+			{
+			
+			if (tdChildNodes[j] === theSelection.topStartNode)
+				{
+				recordStartSelIndexes(j, tdChildNodes[j]);
+				}
+
+			if (tdChildNodes[j] === theSelection.topEndNode)
+				{
+				recordEndSelIndexes(j, tdChildNodes[j]);
+				}
+			}
+		
+		
+		while (theSelection.currentSelectionElem.firstChild)
+			{
+			theSelection.selChildren[i++] = theSelection.currentSelectionElem.firstChild.cloneNode(true);
+			theSelection.currentSelectionElem.removeChild(theSelection.currentSelectionElem.firstChild);
+			}
+		}
+	}
+
+function findRangeTopContainers() {
+	let topStartNode = theSelection.ltRange.startContainer;
+	while (topStartNode !== null && topStartNode.parentNode !== null && topStartNode.parentNode.nodeName !== "TD")
+		{
+		topStartNode = topStartNode.parentNode;
+		}
+	
+	let topEndNode = theSelection.ltRange.endContainer;
+	while (topEndNode !== null && topEndNode.parentNode !== null && topEndNode.parentNode.nodeName !== "TD")
+		{
+		topEndNode = topEndNode.parentNode;
+		}
+	
+	theSelection.topStartNode = topStartNode;
+	theSelection.topEndNode = topEndNode;
+}
+
+function recordStartSelIndexes(topIdx, topNode) {
+	theSelection.startNodeIndexes = [];
+	let topStartNode = theSelection.ltRange.startContainer;
+	
+	while (topStartNode !== null && topStartNode !== topNode
+			&& topStartNode.parentNode.nodeName !== "TD")
+		{
+		// Figure out where we are in list of parent's children
+		let parentNode = topStartNode.parentNode;
+		let kids = parentNode.childNodes;
+		for (let i = 0; i < kids.length; ++i)
+			{
+			if (kids[i] === topStartNode)
+				{
+				theSelection.startNodeIndexes.unshift(i);
+				}
+			}
+		topStartNode = topStartNode.parentNode;
+		}
+	theSelection.startNodeIndexes.unshift(topIdx);
+	theSelection.startNodeOffset = theSelection.ltRange.startOffset;
+}
+
+function recordEndSelIndexes(topIdx, topNode) {
+	theSelection.endNodeIndexes = [];
+	let topStartNode = theSelection.ltRange.startContainer;
+	
+	while (topStartNode !== null && topStartNode !== topNode
+			&& topStartNode.parentNode.nodeName !== "TD")
+		{
+		// Figure out where we are in list of parent's children
+		let parentNode = topStartNode.parentNode;
+		let kids = parentNode.childNodes;
+		for (let i = 0; i < kids.length; ++i)
+			{
+			if (kids[i] === topStartNode)
+				{
+				theSelection.endNodeIndexes.unshift(i);
+				}
+			}
+		topStartNode = topStartNode.parentNode;
+		}
+	theSelection.endNodeIndexes.unshift(topIdx);
+	theSelection.endNodeOffset = theSelection.ltRange.endOffset;
+}
+
+// Restore display of any TD element holding the current selection.
+function showSelectionRow() {
+	if (theSelection.currentSelectionElem !== null && theSelection.selChildren.length)
+		{
+		for (let i = 0; i < theSelection.selChildren.length; ++i)
+			{
+			theSelection.currentSelectionElem.appendChild(theSelection.selChildren[i]);
+			
+			
+			if (i === theSelection.startNodeIdx)
+				{
+				let node = theSelection.currentSelectionElem.lastChild;
+				theSelection.ltRange.setStart(node, theSelection.startNodeOffset);
+				}
+			if (i === theSelection.endNodeIdx)
+				{
+				let node = theSelection.currentSelectionElem.lastChild;
+				theSelection.ltRange.setEnd(node, theSelection.endNodeOffset);
+				}
+			}
+		
+		restoreRangeStartsAndEnds();
+		}
+}
+
+function restoreRangeStartsAndEnds() {
+	let topNode = theSelection.currentSelectionElem;
+	
+	let drillDownNode = topNode;
+	for (let i = 0; i < theSelection.startNodeIndexes.length; ++i)
+		{
+		drillDownNode = drillDownNode.childNodes[theSelection.startNodeIndexes[i]];
+		}
+	theSelection.ltRange.setStart(drillDownNode, theSelection.startNodeOffset);
+	
+	drillDownNode = topNode;
+	for (let i = 0; i < theSelection.endNodeIndexes.length; ++i)
+		{
+		drillDownNode = drillDownNode.childNodes[theSelection.endNodeIndexes[i]];
+		}
+	theSelection.ltRange.setEnd(drillDownNode, theSelection.endNodeOffset);
+}
+
+// Skip along through childNodes until we hit a MARK and accumulated offset is
+// >= targetOffset.
+// Returns MARK node or null in [0], accumulated textLength in [1].
+function markToSelect(node, textLength, targetOffset, markerNode) {
+	if (markerNode !== null)
+		{
+		return ([ markerNode, textLength ]);
+		}
+	let lengthSoFar = textLength;
+	let tagName = node.nodeName;
+	if (tagName === "MARK")
+		{
+		let markLength = node.textContent.length;
+		if (lengthSoFar + markLength >= targetOffset)
+			{
+			return ([ node, lengthSoFar + markLength ]);
+			}
+		}
+
+	// Still here, go deeper.
+	let numChildren = node.childNodes.length;
+	if (numChildren == 0)
+		{
+		lengthSoFar += node.textContent.length;
+		}
+	else
+		{
+		for (let i = 0; i < node.childNodes.length; ++i)
+			{
+			let markNodeToSelectArray =
+					markToSelect(node.childNodes[i], lengthSoFar, targetOffset, markerNode);
+			lengthSoFar = markNodeToSelectArray[1];
+			if (markNodeToSelectArray[0] !== null)
+				{
+				markerNode = markNodeToSelectArray[0];
+				break;
+				}
+			}
+		}
+
+	return ([ markerNode, lengthSoFar ]);
+}
+
+// Link clicked means don't update markers for user's text selection.
+function notelinkClicked(evt) {
+	if (hintboxClicked)
+		{
+		hintboxClicked = false;
+		return;
+		}
+	linkClicked = false;
+
+	let target = evt.target || null;
+	// Click might be on an "edit" pencil (edit1.png), move up to parent.
+	if (target !== null && target.nodeName === "IMG")
+		{
+		target = target.parentNode;
+		}
+	if (target !== null && target.nodeName === "A")
+		{
+		linkClicked = true;
+		}
+	else
+		{
+		if (typeof target.id !== 'undefined')
+			{
+			if (target.id === "hintbox")
+				{
+				linkClicked = true;
+				}
+			}
+		}
+}
+
+// The "hint" box shows a possibly reduced view of an image in text views. On an iPad,
+// it's clickable. If clicked, we treat it as a click on a link and don't change the
+// marked text.
+function noteHintboxClicked() {
+	hintboxClicked = true;
+	linkClicked = true;
+}
+
+let addHintTimer; // onMobile, to keep trying addHintboxListener() until it succeeds.
+
+function addHintboxListener() {
+	let tooltipElement = document.getElementById("hintbox");
+	if (tooltipElement !== null)
+		{
+		tooltipElement.addEventListener("touchstart", noteHintboxClicked);
+		clearInterval(addHintTimer);
+		}
+}
+
+if (onMobile)
+	{
+	addHintTimer = setInterval(addHintboxListener, 200);
+	}
+
+document.addEventListener("mousedown", notelinkClicked);
+
+ready(finishStartup);
+
+</script>
+<script type="text/javascript">
+// showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element
+// at top of the Table Of Contents. The TOC isn't shrunk away to nothing, a bit is left
+// visible (which reminds one that it's there, and makes the design easier:).
+// TODO this is a bit fragile, scrollContentsList and scrollTextRightOfContents are hard-coded.
+// However, any ambitious person who changes those has bought the rights to full maintenance.
+// This is used in the Viewer (intramine_file_viewer_cm.pl) where a view has a table of contents,
+// and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
+
+// Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
+function toggleTOC(toggleElem) {
+	// Avoid spurious highlighting after TOC toggle causes redraw.
+	if (document.activeElement !== null)
+		{
+		document.activeElement.blur();
+		}
+
+	let elementToAdjust = document.getElementById('scrollContentsList');
+	let textElement = document.getElementById('scrollTextRightOfContents');
+	let divContainer = elementToAdjust.parentElement;
+	if (elementToAdjust !== null && textElement !== null)
+		{
+		let theTopPos = firstVisibleLineNumber(textElement);
+		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
+		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
+		let widthTOC = parseInt(widthStrTOC, 10);
+		let widthParent = parseInt(widthStrParent, 10);
+		let oldTocWidthPC = 100 * widthTOC / widthParent;
+		let shrinkIt = (oldTocWidthPC < 10) ? false : true;
+		let newWidthTOCPC, newWidthTextPC, newTextLeftPC;
+		if (shrinkIt)
+			{
+			newWidthTOCPC = 5;
+			newWidthTextPC = 93.5;
+			newTextLeftPC = 6;
+			}
+		else
+			{
+			newWidthTOCPC = 23;
+			newWidthTextPC = 75.5;
+			newTextLeftPC = 24;
+			}
+		elementToAdjust.style.width = newWidthTOCPC + "%";
+		textElement.style.width = newWidthTextPC + "%";
+		textElement.style.left = newTextLeftPC + "%";
+		restoreTopPosition(textElement, theTopPos);
+
+		// Especially for CodeMirror, force a recalc.
+		window.dispatchEvent(new Event('resize'));
+
+		// Redo initial scrollbar markers
+		if (initialSearchHitsAreShowing)
+			{
+			removeInitialHighlights();
+			highlightInitialItems();
+			}
+
+		}
+
+	return (false);
+}
+
+function addTocToggle(idToggle) {
+	let scrollContentsElement = document.getElementById('scrollContentsList');
+	if (scrollContentsElement !== null)
+		{
+		// Add in the shrink/expand element at top of Table Of Contents.
+		let toggleElem;
+		if (b64ToggleImage !== '')
+			{
+			toggleElem = createElementFromHTML("<img src=\"data:image/png;base64,"
+						+ b64ToggleImage + "\" id='" + idToggle + "'>");
+			}
+		else
+			{
+			toggleElem = createElementFromHTML("<img src='707788g4.png' id='" + idToggle + "'>");
+			}
+		// scrollContentsElement.insertBefore(toggleElem, elementToAdjust.childNodes[0]);
+		document.body.insertBefore(toggleElem, document.body.firstChild);
+		toggleElem.addEventListener('click', function() {
+			toggleTOC(toggleElem);
+		});
+
+		// Default position is absolute relative to the page. We want to set the top so that it
+		// nestles down in the Table of Contents at the top, where 20px of margin has been
+		// left for it. Top should be just below the horizontal rule that divides upper part
+		// of page from content proper.
+		let rule = document.getElementById("rule_above_editor");
+		let pos = getPosition(rule);
+		let toggleTop = pos.y + 4;
+
+		toggleElem.style.top = toggleTop + "px";
+		}
+}
+
+// Get line number of first visible line in text.
+// For non-codemirror, look for table row with bounding rect top that is
+// >= elem bounding rect top. On that row, <td n="(\d+)" gives the line number.
+function firstVisibleLineNumber(elem) {
+	let topPos = 0;
+	let undefCounter = 0;
+
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
+		topPos = firstVisibleLineNum;
+		}
+	else
+		{
+		topPos = quickGetPosition(elem, true);
+		}
+
+	return (topPos);
+}
+
+// For non-CodeMirror files, the text of the document is in one or more consecutive <table>s.
+// - find first table whose top is too far, look at the one before that - or if top
+// is dead on, use that one.
+// - check every 100th or 10th entry for element that is too far or dead on
+// - if checked 100, now check every 10th starting from the "100" row just found
+// - step through from there to find the exact number, skipping shrunk rows that have no number.
+// "elem" is the main text holder, having tables as direct children (at least one).
+function quickGetPosition(elem, getTop) {
+	if (elem === null)
+		{
+		return;
+		}
+	let topPos = 0;
+	let undefCounter = 0;
+	let enclosingRect = elem.getBoundingClientRect();
+	let enclosingRectTopOrBot = (getTop) ? enclosingRect.top : enclosingRect.bottom;
+	
+	let kids = null;
+	for (; undefCounter < 100; ++undefCounter)
+		{
+		if (typeof(elem.children) !== 'undefined')
+			{
+			kids = elem.children;
+			break;
+			}
+		}
+	
+	if (typeof(elem.children) === 'undefined')
+		{
+		//console.log("ERROR could not get children!");
+		return(0);
+		}
+	
+	let done = false;
+	
+	// If "kids" doesn't have a table, try going down one more level - this is needed
+	// with "index.txt" for example, which has a "special-index-wrapper" holding its one table
+	if (!elementHasTableAsChild(kids))
+		{
+		kids = elem.children[0].children;
+		}
+	
+	// - find first table whose BOTTOM is past the top or bottom of the view.
+	let table = wantedTableForPosition(kids, enclosingRectTopOrBot, getTop);
+	
+	if (table !== null)
+		{
+		let tableBody = getTableBody(table);
+		
+		if (tableBody !== null)
+			{
+			let rowNum = getRowCandidateAbovePosition(table, 100, 10, enclosingRectTopOrBot);
+			topPos = rowTopPosition(table, rowNum, 10, enclosingRectTopOrBot);
+			}
+		}
+	
+	return (topPos);
+}
+
+function getTableBody(table) {
+	let tableBody = null;
+	
+	if (table !== null)
+		{
+		let tableKids = table.children; // there should be only one TBODY
+		for (let m = 0; m < tableKids.length; ++m)
+			{
+			if (tableKids[m].nodeName === "TBODY")
+				{
+				tableBody = tableKids[m];
+				break;
+				}
+			}
+		}
+	
+	return(tableBody);
+}
+
+//Look at last row bottom in each table body, return current table if its bottom is
+// at or past enclosingRectTopOrBot.
+// // Sometimes rounding errors get in the way, hence the "Math.ceil()"
+function wantedTableForPosition(topChildren, enclosingRectTopOrBot, getTop) {
+	let wantedTable = null;
+	
+	
+	//enclosingRectTopOrBot -= 1;
+	
+	for (let i = 0; i < topChildren.length; ++i)
+		{
+		if (!getTop)
+			{
+			//console.log("Checking table " + i);
+			}
+		
+		let tagName = topChildren[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			let tableBody = getTableBody(topChildren[i]);
+			
+			if (tableBody !== null)
+				{
+				let rows = tableBody.children;
+				if (rows.length > 0)
+					{
+					let rowToCheck = rows.length - 1;
+					let bounding = rows[rowToCheck].getBoundingClientRect();
+					let bottomCeiling = Math.ceil(bounding.bottom);
+					
+					if (!getTop)
+						{
+						//console.log("Checking table " + i + " row " + rowToCheck + " bottom " + bottomCeiling + " of " + rows.length + " against " + enclosingRectTopOrBot);
+						}
+					
+					if (bottomCeiling >= enclosingRectTopOrBot) // too far, or just far enough
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			} // if (tagName === "TABLE")
+		}
+		
+	if (wantedTable === null)
+		{
+		if (!getTop)
+			{
+			//console.log("Did NOT find bottom!");
+			}
+		
+		if (topChildren.length > 0)
+			{
+			if (getTop)
+				{
+				for (let i = 0; i < topChildren.length; ++i)
+					{
+					let tagName = topChildren[i].nodeName;
+					if (tagName === "TABLE")
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			else // bottom
+				{
+				for (let i = topChildren.length - 1; i >= 0; --i)
+					{
+					let tagName = topChildren[i].nodeName;
+					if (tagName === "TABLE")
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			}
+		else
+			{
+			console.log("ERROR no tables in document!");
+			}
+		}
+	
+	return(wantedTable);
+}
+
+function elementHasTableAsChild(topChildren) {
+	let result = false;
+	
+	for (let i = 0; i < topChildren.length; ++i)
+		{
+		let tagName = topChildren[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			result = true;
+			break;
+			}
+		}
+	
+	return(result);
+}
+
+// We are looking for a row with bottom above or at enclosingRectTopOrBot.
+// 
+// Starting at table bottom, look upwards rowInc at a time for the row bottom
+// that is <= enclosingRectTopOrBot. If none found, the default 0 is returned.
+// There are two passes, crude (100 row jumps) and fine (10 row jumps).
+function getRowCandidateAbovePosition(table, majorInc, minorInc, enclosingRectTopOrBot) {
+	let wantedRow = 0;
+	let lastRowCheckedInFirstPass = 0;
+	let tableBody = getTableBody(table);
+	
+	if (tableBody !== null)
+		{
+		let rows = tableBody.children;
+		let rowToCheck = rows.length - 1;
+		
+		// Look backwards in big jumps, from end of table.
+		while (rowToCheck >= wantedRow)
+			{
+			let bounding = rows[rowToCheck].getBoundingClientRect();
+			if (bounding.bottom <= enclosingRectTopOrBot)
+				{
+				wantedRow = rowToCheck;
+				break;
+				}
+			else
+				{
+				rowToCheck -= majorInc;
+				}
+			}
+		
+		// Look backwards in small jumps, from wantedRow just found plus majorInc.
+		rowToCheck = wantedRow + majorInc;
+		if (rowToCheck > rows.length - 1)
+			{
+			rowToCheck = rows.length - 1;
+			}
+		while (rowToCheck >= wantedRow)
+			{
+			let bounding = rows[rowToCheck].getBoundingClientRect();
+			if (bounding.bottom <= enclosingRectTopOrBot)
+				{
+				wantedRow = rowToCheck;
+				break;
+				}
+			else
+				{
+				rowToCheck -= minorInc;
+				}
+			}
+		}
+	
+	return(wantedRow);
+}
+
+// startRow should have a bottom that is <= enclosingRectTopOrBot, and not be too far
+// above one that's >. Look down from startRow for a row with bottom >= enclosingRectTopOrBot.
+// Try to adjust down slightly from that to a row with TOP >= enclosingRectTopOrBot.
+// On a complete fail, which can happen when scrolling to bottom of document, take
+// the last line number in the table. What can I say, it works.
+function rowTopPosition(table, startRow, minorInc, enclosingRectTopOrBot) {
+	let topPos = 0;
+	let tableBody = getTableBody(table);
+	
+	enclosingRectTopOrBot = Math.ceil(enclosingRectTopOrBot);
+	
+	if (tableBody !== null)
+		{
+		let foundIt = false;
+		let rows = tableBody.children;
+		let lastToCheck = startRow + minorInc + 1;
+		if (lastToCheck > rows.length)
+			{
+			lastToCheck = rows.length;
+			}
+		
+		for (let j = startRow; j < lastToCheck; ++j)
+			{
+			let bounding = rows[j].getBoundingClientRect();
+			let bottomCeiling = Math.ceil(bounding.bottom);
+			if (bottomCeiling >= enclosingRectTopOrBot) // too far, or just far enough
+				{
+				let lastToCheck_K =  j + 3;
+				if (lastToCheck_K > rows.length)
+					{
+					lastToCheck_K = rows.length;
+					}
+				for (let k = j; k < lastToCheck_K; ++k)
+					{
+					let bounding_K = rows[k].getBoundingClientRect();
+					let bottomCeiling_K = Math.ceil(bounding_K.bottom);
+					if (bottomCeiling_K > enclosingRectTopOrBot)
+						{
+						let contents = rows[k].innerHTML;
+						let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+						if (lineNumMatch !== null)
+							{
+							topPos = parseInt(lineNumMatch[1], 10);
+							foundIt = true;
+							break;
+							}
+						}
+					}
+				
+				// For the very last line, it's possible that the bottom of the last row
+				// won't be visible (perhaps by only a pixel or so) or that it's a shrunk
+				// row with no line number. If so, look up starting at row j for a row
+				// with visible top and a line number.
+				if (!foundIt)
+					{
+					for (let k = j; k < lastToCheck_K; ++k)
+						{
+						let bounding_K = rows[k].getBoundingClientRect();
+						if (bounding_K.top >= enclosingRectTopOrBot)
+							{
+							let contents = rows[k].innerHTML;
+							let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+							if (lineNumMatch !== null)
+								{
+								topPos = parseInt(lineNumMatch[1], 10);
+								foundIt = true;
+								break;
+								}
+							}
+						}
+					}
+				
+				break;
+				}
+			}
+		
+		if (!foundIt)
+			{
+			// Find last row with a line number.
+			let k = rows.length - 1;
+			while (k >= 0)
+				{
+				let contents = rows[k].innerHTML;
+				let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+				if (lineNumMatch !== null)
+					{
+					topPos = parseInt(lineNumMatch[1], 10);
+					foundIt = true;
+					break;
+					}
+				--k;
+				}
+			}
+		} // if (tableBody !== null)
+	
+	return (topPos);
+}
+
+function lastVisibleLineNumber(elem) {
+	let bottomPos = 0;
+	let undefCounter = 0;
+	
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
+		bottomPos = lastVisibleLineNum;
+		}
+	else
+		{
+		bottomPos = quickGetPosition(elem, false);
+		}
+
+	return (bottomPos);
+}
+
+// Not used.
+// Mainly for Non-CodeMirror, calculate an average line height in pixels.
+function getAverageLineHeight(elem) {
+	let averageHeight = 14; // Use an arbitrary but not horrible default.
+	if (usingCM)
+		{
+		averageHeight = myCodeMirror.defaultTextHeight();
+		}
+	else
+		{
+		let enclosingRect = elem.getBoundingClientRect();
+		let visiblePixels = enclosingRect.bottom - enclosingRect.top;
+		let firstVisibleLineNum = firstVisibleLineNum(elem);
+		let lastVisibleLineNum = lastVisibleLineNumber(elem);
+		let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
+		if (numVisibleLines > 0 && visiblePixels > 0)
+			{
+			averageHeight = visiblePixels / numVisibleLines;
+			}
+		}
+	
+	return(averageHeight);
+}
+
+// Calc a rough value for nonCM, based on average line height in pixels.
+function getNumVisibleLines(elem) {
+	let numVisibleLines = 0;
+	
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
+		numVisibleLines = lastVisibleLineNum - firstVisibleLineNum + 1;
+		}
+	else
+		{
+		let enclosingRect = elem.getBoundingClientRect();
+		let enclosingRectTop = enclosingRect.top;
+		let enclosingRectBottom = enclosingRect.bottom;
+		let numVisiblePixels = enclosingRectBottom - enclosingRectTop;
+		
+		}
+	return(numVisibleLines);
+}
+
+function restoreTopPosition(elem, topPos) {
+	if (usingCM)
+		{
+		jumpToLine(topPos + 2, false);
+		}
+	else
+		{
+		restoreTopPositionNonCM(elem, topPos);
+		}
+}
+
+// Find <tr> in elem with <td n="topPos"..., scroll it into view.
+function restoreTopPositionNonCM(elem, topPos) {
+	let children = elem.children;
+	let done = false;
+
+	for (let i = 0; i < children.length; ++i)
+		{
+		let tagName = children[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			let tableBody = children[i].children;
+			for (let k = 0; k < tableBody.length; ++k)
+				{
+				let tableChildren = tableBody[k].children;
+				for (let j = 0; j < tableChildren.length; ++j)
+					{
+					let contents = tableChildren[j].innerHTML;
+					let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+					if (lineNumMatch !== null)
+						{
+						let currentLine = lineNumMatch[1];
+						if (currentLine == topPos)
+							{
+							tableChildren[j].scrollIntoView();
+							// Set top of nav to zero, fixes an iPad scroll problem where nav
+							// goes off the top.
+							let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+							if (nav !== null)
+								{
+								nav.parentNode.scrollTop = 0;
+								}
+							done = true;
+							break;
+							}
+						}
+					}
+				if (done)
+					{
+					break;
+					}
+				}
+			}
+		if (done)
+			{
+			break;
+			}
+		}
+}
+
+window.addEventListener("load", function() {
+	addTocToggle('tocShrinkExpand');
+});
+
+</script>
+<script type="text/javascript">
+/**
+ * indicator.js: Mainly a scroll indicator for PCs and iPads in non-codemirror views (text, perl etc).
+ */
+
+// 'indicator is for mobile', 'indicatorPC' is for a regular Windows box.
+let indicatorElem = onMobile ? document.getElementById('indicator') : document.getElementById('indicatorPC');
+let otherIndicatorElem = onMobile ? document.getElementById('indicatorPC') : document.getElementById('indicator');
+//let indicatorElem = document.getElementById('indicator');
+let indicatorM = 0; // for mobile and non-mobile
+let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
+let lazyMobileScroll = JD.debounce(scrollMobileIndicator, 500);
+let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
+
+let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
+let lazyScroll = JD.debounce(scrollIndicator, 500);
+let arrowHeight = 18; // Needed for PC only.
+
+otherIndicatorElem.style.display = 'none';
+
+
+if (onMobile) // iPad only supported for now....
+	{
+	//console.log("WE ARE MOBILE.");
+	window.addEventListener("load", lazySetUpMobileIndicator);
+	window.addEventListener("resize", lazySetUpMobileIndicator);
+	markerMainElement.addEventListener("scroll", scrollMobileIndicator);
+	markerMainElement.addEventListener("touchend", lazyResetTopNavPosition);
+
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement !== null)
+		{
+		tocElement.addEventListener("touchend", lazyMobileScroll);
+		tocElement.addEventListener("touchend", lazyResetTopNavPosition);
+		}
+	}
+else
+	{
+	window.addEventListener("load", lazySetUpIndicator);
+	window.addEventListener("resize", lazySetUpIndicator);
+	
+	markerMainElement.addEventListener("scroll", scrollIndicator);
+	window.addEventListener("load", addHideIndicatorScrollListener);
+	
+	hideIt("search-button");
+	hideIt("small-tip");
+	hideIt("undo-button");
+	hideIt("redo-button");
+	}
+
+// Mobile, mainly set indicatorM. "M" as in y = Mx + b.
+function setUpMobileIndicator() {
+	if (!onMobile)
+		{
+		return;
+		}
+
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+
+	if (mainScrolllHeight > textViewableHeight)
+		{
+		let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
+		indicatorM =
+				(textViewableHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+
+		if (indicatorHeight < 2.0)
+			{
+			indicatorHeight = 2.0;
+			}
+		indicatorElem.style.height = indicatorHeight + "px";
+		}
+
+	lazyMobileScroll();
+}
+
+// Non-mobile, mainly set indicatorM. "M" as in y = Mx + b.
+function setUpIndicator() {
+	if (onMobile)
+		{
+		return;
+		}
+	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	if (mainScrolllHeight > usableTextHeight)
+		{
+		let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
+		
+		// Show the indicator only if thumb is too small to reflect actual page size.
+		if (indicatorHeight <= 20)
+			{
+			indicatorM =
+					(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+	
+			if (indicatorHeight < 2.0)
+				{
+				indicatorHeight = 2.0;
+				}
+			indicatorElem.style.height = indicatorHeight + "px";
+			}
+		else
+			{
+			indicatorM = 0;
+			}
+		}
+	else
+		{
+		indicatorM = 0;
+		}
+
+	lazyScroll();
+	
+	setTimeout(function() {
+				hideIndicator();
+			}, 1000);
+}
+
+// Mobile, set indicatorElem.top
+function scrollMobileIndicator() {
+	if (!onMobile)
+		{
+		return;
+		}
+
+	if (indicatorM > 0)
+		{
+		let mainScrollY = markerMainElement.scrollTop;
+		let rect = markerMainElement.getBoundingClientRect();
+		let yTop = rect.top;
+		let newThumbTop = indicatorM * mainScrollY + yTop;
+		indicatorElem.style.top = newThumbTop + "px";
+		}
+}
+
+// Non-mobile, set indicatorElem.top
+function scrollIndicator() {
+	if (onMobile)
+		{
+		return;
+		}
+
+	if (indicatorM > 0)
+		{
+		indicatorElem.style.display = 'block';
+		
+		let mainScrollY = markerMainElement.scrollTop;
+		let rect = markerMainElement.getBoundingClientRect();
+		let yTop = rect.top;
+		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
+		indicatorElem.style.top = newThumbTop + "px";
+		}
+}
+
+// Add a scroll listener that hides the 'indicatorPC' box after a few seconds.
+let isScrollingIndicator = null;
+function addHideIndicatorScrollListener() {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function() {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( isScrollingIndicator );
+	
+			// Set a timeout to run after scrolling ends
+			isScrollingIndicator = setTimeout(function() {
+				// Run the callback
+				hideIndicator();
+			}, 3000);
+			});
+		}
+}
+
+function hideIndicator() {
+	indicatorElem.style.display = 'none';
+}
+
+</script>
+<script type="text/javascript">
+// toggle.js: toggle between two positions in a document.
+// Track "proximal" (current) and "distal" (previous) positions
+// in response to all changes in scrolled position.
+// If it's a small move, update the proximal position.
+// If it's a big move, call the new position proximal, and the old
+// proximal becomes distal.
+// Toggle: scroll distal into view, and switch proximal with distal.
+
+let proximalLineNumber = 1;	// "here"
+let distalLineNumber = 1;	// "there"
+let bigMoveLineLimit = 100; // Big move vs small move
+
+function toggle() {
+	//console.log("Toggle click");
+	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	let tempNum = proximalLineNumber;
+	proximalLineNumber = distalLineNumber;
+	distalLineNumber = tempNum;
+	let el = document.getElementById(cmTextHolderName);
+	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
+	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function updateTogglePositions() {
+	let el = document.getElementById(cmTextHolderName);
+	let myStartLine = firstVisibleLineNumber(el);
+	//console.log("update myStartLine " + myStartLine);
+	if (myStartLine < 1)
+		{
+		myStartLine = 1;
+		}
+	//console.log("update here " + proximalLineNumber);
+	let linesScrolled = proximalLineNumber - myStartLine;
+	//console.log("update lines scrolled: " + linesScrolled);
+	if (linesScrolled < 0)
+		{
+		linesScrolled = -linesScrolled;
+		}
+	if (linesScrolled <= bigMoveLineLimit)
+		{
+		//console.log("small move, here " + proximalLineNumber + ", there " + distalLineNumber + " before update");
+		proximalLineNumber = myStartLine;
+		//console.log(" here is " + proximalLineNumber + " after update.)");
+		}
+	else
+		{
+		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalLineNumber = proximalLineNumber;
+		proximalLineNumber = myStartLine;
+		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
+		}
+	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Borrowed from
+//https://gomakethings.com/detecting-when-a-visitor-has-stopped-scrolling-with-vanilla-javascript/
+let isScrolling = null;
+function addToggleScrollListener() {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function() {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( isScrolling );
+	
+			// Set a timeout to run after scrolling ends
+			isScrolling = setTimeout(function() {
+				// Run the callback
+				updateTogglePositions();
+			}, 66);
+			});
+		}
+}
+
+// Set the number of lines that counts as a "big move"
+// (meaning a real change of position, not just an adjustment
+// of current position).
+// Called by viewerStart.js#doResize() and on load by
+// viewerStart.js#reJumpAndHighlight().
+function updateToggleBigMoveLimit() {
+	let el = document.getElementById(cmTextHolderName);
+	let firstVisibleLineNum = firstVisibleLineNumber(el);
+	let lastVisibleLineNum = lastVisibleLineNumber(el);
+	
+	// Problem, sometimes lastVisibleLineNumber() can return 0.
+	if (lastVisibleLineNum === 0)
+		{
+		lastVisibleLineNum = lastVisibleLineNumber(el);
+		if (lastVisibleLineNum === 0)
+			{
+			//console.log("EARLY EXIT in updateToggleBigMoveLimit!");
+			return;
+			}
+		}
+	
+	let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
+	if (numVisibleLines <= 10)
+		{
+		bigMoveLineLimit = 20;
+		//console.log("TINY WINDOW!");
+		}
+	else
+		{
+		bigMoveLineLimit = numVisibleLines + 10;
+		}
+	
+	//console.log("First vis: " + firstVisibleLineNum);
+	//console.log("LAST vis: " + lastVisibleLineNum);
+	//console.log("Big move limit: " + bigMoveLineLimit);
+}
+
+window.addEventListener("load", addToggleScrollListener);
+
+
+</script>
+<script type="text/javascript">
+/**
+ * scrollTOC.js: when a heading is clicked in text, scroll corresponding Table of Contents
+ * entry into view. Non-CodeMirror files only. See cmScrollTOC.js for CodeMirror handling.
+ */
+
+// Scroll the Table of Contents:
+// if click was in text content, to heading at or just before line clicked.
+// if scrolling, to heading at or just after first visible line.
+function scrollTocEntryIntoView(evt, weAreScrolling) {
+	let tocElem = null;
+
+	if (!weAreScrolling)
+		{
+		let lineNum = lineNumberforAnchor();
+		if (lineNum >= 0)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+		else
+			{
+			// Treat as for scrolling.
+			weAreScrolling = true;
+			}
+		}
+	
+	if (weAreScrolling)
+		{
+		let el = document.getElementById(cmTextHolderName);
+		let limitLineNum = lastVisibleLineNumber(el) + 1;
+		let lineNum = firstVisibleLineNumber(el);
+		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+		if (tocElem === null)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+		}
+		
+	if (tocElem !== null)
+		{
+		tocElem.scrollIntoView({block: 'center'});
+		updateTocHighlight(tocElem);
+		}
+}
+
+
+// Get text line number for current selection anchor, or -1.
+function lineNumberforAnchor() {
+	let currSelection = window.getSelection();
+	if (currSelection === null)
+		{
+		return(-1);
+		}
+	
+	let lineNum = -1;
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.startContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem !== null)
+			{
+			let previousElem = tdElem.previousSibling;
+			if (previousElem !== null)
+				{
+				let tdLineNum = previousElem.getAttribute("n");
+				if (tdLineNum !== null)
+					{
+					lineNum = tdLineNum;
+					}
+				}
+			}
+		}
+	
+	return (lineNum);
+}
+
+// Return TOC element that is at or closest above the text line number.
+// Called for mouse/touch in actual text content.
+// Typical non-CodeMirror TOC entry:
+// <li class="h2" im-text-ln="123">
+function getTocElemForLineNumber(lineNum) {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocElem = null;
+	let previousTocElem = null;
+	let previousTocElemLineNum = 0;
+	let lowestNumberedElem = null;
+	let lowestNumberedElemNumber = 0;
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		let li = tocEntries[i];
+		let tocLineNum = parseInt(li.getAttribute("im-text-ln"), 10); // IntraMine line number of heading in main text
+		if (!isNaN(tocLineNum) && tocLineNum <= lineNum)
+			{
+			if (tocLineNum == lineNum)
+				{
+				tocElem = tocEntries[i];
+				break;
+				}
+			else if (previousTocElemLineNum <  tocLineNum)
+				{
+				previousTocElemLineNum = tocLineNum;
+				previousTocElem = tocEntries[i];
+				}
+			
+			if (lowestNumberedElemNumber == 0 || lowestNumberedElemNumber > tocLineNum)
+				{
+				lowestNumberedElemNumber = tocLineNum;
+				lowestNumberedElem = tocEntries[i];
+				}
+			}
+		}
+	
+	if (tocElem === null && previousTocElem !== null)
+		{
+		tocElem = previousTocElem;
+		}
+	else if (tocElem === null && lowestNumberedElem !== null)
+		{
+		tocElem = lowestNumberedElem;
+		}
+	
+	return(tocElem);
+}
+
+// Return TOC element that is at or closest *below* the text line number.
+// Called after a scroll. Element must be before the visible bottom of the page,
+// otherwise we should be looking upwards from the top of page for the heading
+// that applies to the current position.
+function getTocElemAfterLineNumber(lineNum, limitLineNum) {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocElem = null;
+	let nextTocElem = null;
+	let nextTocElemLineNum = 999999;
+	let lastTocElem = null;
+	let lastTocElemLineNum = 0;
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		let li = tocEntries[i];
+		let tocLineNum = parseInt(li.getAttribute("im-text-ln"), 10); // IntraMine line number of heading in main text
+		if (!isNaN(tocLineNum) && tocLineNum >= lineNum && tocLineNum <= limitLineNum)
+			{
+			if (tocLineNum == lineNum)
+				{
+				tocElem = tocEntries[i];
+				break;
+				}
+			else if (nextTocElemLineNum >  tocLineNum)
+				{
+				nextTocElemLineNum = tocLineNum;
+				nextTocElem = tocEntries[i];
+				}
+			
+			if (lastTocElemLineNum < tocLineNum)
+				{
+				lastTocElemLineNum = tocLineNum;
+				lastTocElem = tocEntries[i];
+				}
+			}
+		}
+
+	
+	if (tocElem === null && nextTocElem !== null)
+		{
+		tocElem = nextTocElem;
+		}
+	else if (tocElem === null && lastTocElem !== null)
+		{
+		tocElem = lastTocElem;
+		}
+	
+	return(tocElem);
+}
+
+let scrollingForToc = null;
+function addTocScrollListener(evt) {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function(evt) {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( scrollingForToc );
+	
+			// Set a timeout to run after scrolling ends
+			scrollingForToc = setTimeout(function() {
+				// Run the callback.
+				scrollTocEntryIntoView(evt, true);
+			}, 66);
+			});
+		}
+}
+
+// Not used.
+function addTocAndToggleListeners(evt) {
+	let el = document.getElementById(cmTextHolderName);
+	el.addEventListener("scroll", function(evt) {
+		// Clear our timeout throughout the scroll
+		window.clearTimeout( scrollingForToc );
+	
+		// Set a timeout to run after scrolling ends
+		scrollingForToc = setTimeout(function() {
+			// Run the callbacks.
+			scrollTocEntryIntoView(evt, true);
+			updateTogglePositions();
+		}, 66);
+	});
+}
+
+function updateTocHighlight(elem) {
+	if (elem === null)
+		{
+		return;
+		}
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		if (hasClass(tocEntries[i], selectedTocId))
+			{
+			removeClass(tocEntries[i], selectedTocId);
+			}
+		}
+	
+	addClass(elem, selectedTocId);
+}
+
+window.addEventListener("load", addTocScrollListener);
+//window.addEventListener("load", addTocAndToggleListeners);
+
+
+</script>
+</body></html>

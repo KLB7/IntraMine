@@ -1,0 +1,65 @@
+/* uploader.css: for the IntraMine Upload service upload dialog. */
+
+input[type="file"] {
+    display: none;
+}
+
+form table {
+	width: 100%;
+}
+
+.custom-file-upload {
+   background: #6aa436;
+   background: -webkit-gradient(linear, left top, left bottom, from(#8dc059), to(#6aa436));
+   background: -webkit-linear-gradient(top, #8dc059, #6aa436);
+   background: -moz-linear-gradient(top, #8dc059, #6aa436);
+   background: -ms-linear-gradient(top, #8dc059, #6aa436);
+   background: -o-linear-gradient(top, #8dc059, #6aa436);
+   background-image: -ms-linear-gradient(top, #8dc059 0%, #6aa436 100%);
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
+   border-radius: 4px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #addc7e 0 1px 0;
+   color: #000000; /* 31540c */
+   font-family: helvetica, serif;
+   padding: 8.5px 18px;
+   cursor: pointer;
+}
+
+.custom-file-upload:hover, .custom-file-upload:active {
+   text-shadow: #31540c 0 1px 0;
+   background: #6aa436;
+   background: -webkit-gradient(linear, left top, left bottom, from(#8dc059), to(#6aa436));
+   background: -webkit-linear-gradient(top, #8dc059, #6aa436);
+   background: -moz-linear-gradient(top, #8dc059, #6aa436);
+   background: -ms-linear-gradient(top, #8dc059, #6aa436);
+   background: -o-linear-gradient(top, #8dc059, #6aa436);
+   background-image: -ms-linear-gradient(top, #8dc059 0%, #6aa436 100%);
+   color: #fff;
+}
+
+.form_row td {
+	padding-top: 2px;
+	padding-bottom: 6px;	
+}
+
+#submit_paragraph {
+	text-align: right;
+}
+
+.title_right {
+	text-align: right;
+}
+
+#file-upload-value {
+	display: inline-block;
+	width: 400px;
+	background: #e8e8e8;
+}
+
+#other-field-id {
+		width: 400px;
+}

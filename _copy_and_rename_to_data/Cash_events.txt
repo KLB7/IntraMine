@@ -1,0 +1,38 @@
+# Cash flow, with details and a summary graph.
+
+# Cash events file fields: any line starting with ^\s*# is a comment line, ignored.
+# Fields are tab-separated (<t> below in the description).
+# Events:
+# OPENING<t>amount<t>YYYYMM<t>(Description, ignored)				# Opening balance and month to start
+# UNTIL<t>YYYYMM<t>(Description, ignored)						# Ending month, inclusive
+# INCOME_ANNUAL<t>amount<t>YYYYMM<t>YYYYMM<t>Description			# Amount, start year and month, end year and month, applied once per year inclusive
+# INCOME_MONTHLY<t>amount<t>YYYYMM<t>YYYYMM<t>Description			# Amount, start and end year/month, applied monthly inclusive
+# EXPENSE_ANNUAL<t>amount<t>YYYYMM<t>YYYYMM<t>Description			# Like INCOME_ANNUAL, except amount is deducted
+# EXPENSE_MONTHLY<t>amount<t>YYYYMM YYYYMM<t>Description			# Like INCOME_MONTHLY, except amount is deducted
+# ASSET<t>amount<t>YYYYMM<t>Description							# One-shot expense, in the year/month specified
+
+# There are no explicit twice-a-year or quarterly events, but you can do those with two or four ANNUAL events.
+# It's ok if the range of dates for an annual or monthly item is wider
+# than the OPENING/UNTIL range - events outside that range will be ignored.
+
+######################################
+# REPLACE THE EXAMPLE EVENTS BELOW WITH YOUR OWN.
+######################################
+
+OPENING	5000	202002	YYYYMM opening balance
+UNTIL	202512	YYYYMM last month
+
+# Income
+INCOME_MONTHLY	2000	202002	202201	Salary
+INCOME_MONTHLY	2200	202202	202512	Salary after a raise
+INCOME_ANNUAL	300	202012	202512	Christmas bonus
+
+# Expenses
+EXPENSE_MONTHLY	500	202002	202512	Rent
+EXPENSE_MONTHLY	1000	202002	202512	Other Monthly (food etc)
+EXPENSE_ANNUAL 100	202010	202510	Nature subscription
+
+# Asset Purchases, and major expenses
+ASSET	1500	202106	New iPad
+ASSET	3000	202306	New TV
+

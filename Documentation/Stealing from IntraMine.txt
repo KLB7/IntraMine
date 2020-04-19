@@ -1,0 +1,168 @@
+Stealing from IntraMine
+=======================
+(If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)
+
+Those autolinks
+===============
+First, a definition: a "partial path" to a file consists of the file name and zero or more folders in the path, not necessarily complete or in order. For example, partial paths for "C:Project51\src\main.cpp" are:
+ - main.cpp
+ - Project51\main.cpp
+ - C:\main.cpp
+ - src\main.cpp
+ - Project51\src\main.cpp
+ - C:\Project51\src\main.cpp
+Whether or not a partial path is ambiguous is determined by comparison with full paths to all the files you've instructed Elasticsearch to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the partial path).
+
+Here are the needed parts for autolinking:
+1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"
+2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.
+2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg
+ $AllIntKeysForFileName{"main.cpp"} = "27|12347|766" (the integers there stand for unique full paths kept in a separate hash, eg $FullPathForInteger{27} = 'C:\Projects\Project51\src\main.cpp')
+3. Code to detect a partial path mentioned in a source or text file, and determine the full path that best satisfies the partial path given the context in which the mention is made.
+4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.
+
+Here's how IntraMine implements those.
+
+1. a complete list of full paths to all indexed files
+-----------------------------------------------------
+A list of full paths is essential for automatic linking and image hovers. IntraMine piggybacks path collection on Elasticsearch indexing, banking on the likelihood that files of interest for searching will also be the ones of interest for autolinking. Folders for indexing are listed in data/search_directories.txt, and any files indexed from those folders will also have their full paths collected.
+
+This happens in elastic_indexer.pl:
+ - win_wide_filepaths.pm#DeepFindFileWide() is called on each folder to collect a list of all files, in %rawPathList
+ - reverse_filepath.pm#AddIncrementalNewPaths(\%rawPathList) adds all full paths to a hash in memory
+ - reverse_filepath.pm#ConsolidateFullPathLists() writes the list to a file, by default C:\fwws\fullpaths.out. (This file is kept in \fwws\ because that isn't a folder you will index, and so changes to fullpaths.out won't trigger File Watcher to announce a file change.)
+ 
+intramine_filewatcher.pl (the FILEWATCHER server) calls reverse_filepath.pm#InitDirectoryFinder() to load fullpaths.out as a hash of all full paths with InitFullPathList(), and build the paths for file names list by calling BuildPartialPathList(), described next.
+
+2. Full paths for all partial paths
+-----------------------------------
+What we're after in the "paths for file names list" is a list of all full paths that match a particular file name, for example the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However the lists of full paths for each partial path can be quite long, for example the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like
+$AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
+where
+$FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.
+
+When InitDirectoryFinder() finishes, full paths for partial paths can be retrieved with reverse_filepaths.pm#FullPathInContextNS(), more on that next.
+
+3. Code to detect a partial path
+--------------------------------
+IntraMine's Linker, as called by the Viewer, emplaces autolinks on demand, when new lines of text become visible. You'll find an overview in "Viewer.txt#Autolinks" and "Linker.txt#Calling the Linker".
+
+We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.
+AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.
+
+EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest partial path that represents a valid file mention.
+
+For a path to be "valid" it needs to be either a full path or a partial path that's a good match for an indexed path. Expansion of link text being checked to the longest compatible partial path is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it's a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.
+
+reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on FullPathFromPartialOrFullPath(), which does the real work.
+
+In reverse_filepaths.pm#FullPathFromPartialOrFullPath() the work of collecting full paths finally pays off. FullPathFromPartialOrFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
+1. Is $partialPath (pp) a full path? Return  it.
+2. Does pp match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+3. Does pp match fully on the right with a full path, ignoring context? Return first one found.
+4. Do pp folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+5. Do pp folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
+If all of the above checks fail, return ''.
+Note where the supplied $partialPath is ambiguous, the wrong path can be returned.
+
+Full path for partial path example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As an example of that, suppose FullPathFromPartialOrFullPath() is passed
+ - $partialPath: "src\main.cpp"
+ - $contextDir: "C:\Projects\Project51\docs\" (because the mention of the partial path is in a file in that docs directory)
+with the possible full paths for "src\main.cpp" being
+TABLE full paths for "src\main.cpp"
+Arbitrarily assigned integer	Full path
+27								C:\Projects\Project51\src\main.cpp
+12347							C:\Projects\Project999\src\main.cpp
+766								C:\Projects\Project999\test\main.cpp
+2013							P:\MoreProjects\Project27\source\main.cpp
+
+The corresponding hash entry is
+$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".
+
+FullPathFromPartialOrFullPath() looks at the file name in the passed-in partial path, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
+$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013"
+
+For each integer in the entry:
+ - grab the corresponding full path from %FullPathForInteger, eg $FullPathForInteger{766} = 'C:\Projects\Project999\test\main.cpp'
+ - does the full path overlap completely on the right with the passed-in partial path? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.
+ - for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:
+TABLE Leftmost overlap of full paths with context directory
+Full path							Context dir					left overlap
+C:\Projects\Project51\src\main.cpp	C:\Projects\Project51\docs\	22
+C:\Projects\Project999\src\main.cpp	C:\Projects\Project51\docs\	19
+And the first one there is the clear winner.
+
+Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".
+
+Another partial path example, without help from context
+~~~~~~~~~~~~~~~~~~~~~~~~
+Suppose the same circumstances as the example above, but with
+ - $partialPath: "Project27\main.cpp"
+Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied partial path it counts as a full match.
+
+4. a way of keeping the full paths list and partial paths list up to date
+-------------------------------------------------------------------------
+The practicality of autolinking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:
+ - the 3rd party File Watcher service that you installed ages ago monitors directories and writes a summary of changes to a log file. IntraMine's Watcher checks the log file for changes every 30 seconds, and calls IndexChangedFiles() if the log has changed.
+ - data/foldermonitor.ps1 is started by IntraMine's Watcher (intramine_filewatcher.pl), and rather than writing changes to a log when they happen it instead sends an immediate signal to IntraMine's Watcher, of the form "http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE". When the Watcher receives that signal it also calls IndexChangedFiles().
+
+The File Watcher service log documents a near-complete list of all changes, but doesn't send out any signals when changes happen. The foldermonitor.ps1 script provides nearly immediate notification when changes happen, but provides no details (except for folder renames, details saved to a separate small text file). Notifications are delayed for a second and consolidated, to avoid sending a flurry of signals when several files change in a short interval.
+
+To finish off, IndexChangedFiles()broadcasts a signal "signal=filechange" to all other running IntraMine servers if any file system changes are detected. IntraMine's Linker is listening for this, and updates its "paths for file names list". The signal is delayed by a couple of seconds before sending, to allow multiple changes to accumulate - if they do, only one "filechange" signal is sent.
+
+Folder renames
+~~~~~~~~~~~~~~
+Updating for most file system changes is very fast, and typically changed documents will show their updated contents in searches after five seconds. The exception is renaming a folder, which potentially affects all entries in the Linker's hash of full paths for file names. Any key could contain a folder that's been renamed.
+
+IntraMine's approach to handling this is to completely rebuild the Linker's hash of full paths for file names. This can take several seconds, and for that period the Linker will be out of service.
+
+To partially compensate, IntraMine's Main server will direct Linkers to do their maintenance in sequence if at least two Linkers are running. That way, at least one Linker will remain responsive at all times. Search IntraMine's stuff for "MAINTENANCE_SERVER_EVENTS" to see the details.
+
+If you're doing your own autolinks, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.
+
+Text from Perl to JavaScript and back
+=====================================
+IntraMine's Editor has an example of sending arbitrary text from Perl to JavaScript and back again. Here's a summary of the essential steps, in intramine_editor.pl and editor.js.
+
+Edit load summary
+-----------------
+Sequence: Disk -> Perl -> JS -> CodeMirror
+Perl (intramine_editor.pl#LoadTheFile())
+~~~~~
+$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+(see also win_wide_filepaths.pm#ReadTextFileDecodedWide())
+
+JavaScript (editor.js#loadFileIntoCodeMirror())
+~~~~~
+let theText = decodeURIComponent(request.responseText);
+cm.setValue(theText);
+
+Edit save summary
+-----------------
+Sequence: CodeMirror -> JS -> Perl -> disk
+JavaScript (see editor.js#saveFile())
+~~~~~
+let contents = myCodeMirror.getValue();
+contents = contents.replace(/%/g, "%25");
+contents = encodeURIComponent(contents);
+contents = encodeURIComponent(contents); // sic
+request.send(... + '&contents=' + contents);
+
+Perl (see intramine_editor.pl#Save())
+~~~~~
+my $contents = $formH->{'contents'};
+$contents = encode_utf8($contents);
+$contents = uri_unescape($contents);
+... WriteBinFileWide($filepath, $contents) ...
+
+UTF16 in Windows file paths
+===========================
+win_wide_filepaths.pm has subs to deal with most aspects of file and folder handling under Windows (read, write, list dir etc), in a way that handles UTF16 folder and file names properly. Most of the subs there mention an example of use in IntraMine. It does seem that almost everyone avoids "non ASCII" characters in folder and file names under Windows, but it's nice to be able to accept them. The subs in win_wide_filepaths.pm are mostly wrappers that call Win32API::File functions, after converting supplied file or folder paths to "UTF-16LE".
+
+If you wanted to port IntraMine to the Linux world, you might start by creating Linux equivalents for all of the subs in win_wide_filepaths.pm, and that would put you well along the path. Pun? What pun?
+
+---
+contents.txt
+---

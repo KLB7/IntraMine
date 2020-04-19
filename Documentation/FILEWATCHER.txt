@@ -1,0 +1,41 @@
+FILEWATCHER
+============
+FILEWATCHER is a "background" server that listens for file system changes and sends off notifications when changes happen.
+
+Main files
+===========
+Main Perl file: intramine_filewatcher.pl
+Main JavaScript file: well none, actually. This "background" server does not display a web page, and does all its work in Perl.
+
+How it works
+============
+FILEWATCHER detects file system changes in two ways:
+ - check the File Watcher service log for anything new
+ - launch a PowerShell script (foldermonitor.ps1) that monitors file system changes, and respond to any "signal=FILESYSTEMCHANGE" messages from it.
+
+On detecting a file system change, FILEWATCHER
+ - loads details of the changes from the File Watcher service log
+ - uses the details to ask Elasticsearch to index affected files
+ - saves a list of any new file paths
+ - broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the Viewer, which updates its full and partial path lists for autolinking
+ - broadcasts 'signal=filechange' to all IntraMine servers: the Status server in particular will respond by reloading its displayed list of recent file changes.
+
+File consolidation
+==================
+FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes just a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.
+
+Configuring file consolidation
+------------------------------
+You'll find this in data/intramine_config.txt around line 131:
+---
+# For File Watcher, the local start and end times for when
+# path consolidation is allowed. Default 3 AM to 5 AM.
+# Allow a window of at least two hours.
+FILEWATCHER_CONSOLIDATION_START_HOUR	3
+FILEWATCHER_CONSOLIDATION_END_HOUR		5
+---
+Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation typically takes just a couple of seconds.
+
+---
+contents.txt
+---

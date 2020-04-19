@@ -1,0 +1,16 @@
+Bp
+=====
+2020-03-11 14_34_38-Example IntraMine Server.png
+
+This is the "Boiler plate" example server. The point isn't to do something interesting, but rather to give you a template from which you can write your own IntraMine servers. It shows a server-generated view of some data, but has no controls. For a more interesting example with create/read/update/delete of some data, please see "DBX.txt".
+
+Bp shows a static view of the arguments that ThePage() receives in its $formH hash when it is called to display a web page.
+
+Main Perl file: intramine_boilerplate.pl
+Main JavaScript file:  boilerplateDemo.js
+
+For a guide to writing your own IntraMine server, please see "Writing your own IntraMine server.txt", and apologies if you came here expecting that.
+
+---
+contents.txt
+---

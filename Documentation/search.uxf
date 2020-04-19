@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>10</x>
+      <y>60</y>
+      <w>860</w>
+      <h>400</h>
+    </coordinates>
+    <panel_attributes>title=Search
+desc=User clicks the Search button,\nonclick calls intramine_search.js#searchSubmit()
+autoTick=true
+obj=javaScript\nintramine_search.js~a
+obj=Perl\nswarmserver.pm~b 
+obj=Perl\nintramine_search.pl~c 
+obj=elasticsearcher~d
+a-&gt;b : XMLHttpRequest\nreq=results
+b-&gt;c : HandleDefaultPageAction\n-&gt; SearchResults()
+c-&gt;d : GetSearchResults()
+d-&gt;a : HTML search results
+
+
+
+
+bg=light_gray
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>10</x>
+      <y>490</y>
+      <w>710</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Note..
+In intramine_search.pl near the top:
+ $RequestAction{'req|results'} = \&amp;SearchResults;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

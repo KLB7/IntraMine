@@ -1,0 +1,22 @@
+Cmd
+=====
+Main Perl file: intramine_commandserver.pl.
+Main JavaScript file: cmdServer.js.
+
+The Cmd server is possibly the most dangerous server ever written, so don't use it. Unless you think of such a good use for it that you can't resist. It allows you to run arbitrary scripts and programs by clicking one button, really without any restriction except possibly programs requiring "Run as administrator", and even then you can probably think of a way to do that.
+
+If you want to add a command, type it into intramine_commandserver.pl#Commands(), following the brief description there, and make sure you really want to do this.
+
+So are there any good uses for the Cmd server? I can't think of any. It's there mainly as a coding example. Maybe you can steal parts from it. I won't describe the Cmd server in detail, but here's the one part that might be of interest.
+
+Call a script and monitor its output until done
+-----------------------------------------------
+1. It starts with a click on the button for a program or script to run. This triggers cmdServer.js#runTheCommand()
+2. runTheCommand sends a "req=open" request back to the Cmd server, which is received by intramine_commandserver.pl#RunTheCommand()
+3. RunTheCommand() uses Win32::Process::Create() to start the script or program
+4. Back on the JavaScript front end, runTheCommand() sets a timeout to call monitorCmdOutUntilDone(), which in turn regularly sends "req=monitor" requests to the back end.
+5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose, see intramine_commandserver.pl#RunTheCommand().
+
+---
+contents.txt
+---

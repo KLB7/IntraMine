@@ -1,0 +1,52 @@
+CONTENTS
+
+Read Me First.txt
+
+*INSTALLING AND RUNNING INTRAMINE*
+IntraMine initial install.txt
+Installing Elasticsearch.txt
+Installing File Watcher.txt
+Updating CodeMirror.txt
+Installing universal ctags.txt
+Checks before the first run.txt
+Build your Elasticsearch index and run IntraMine.txt
+
+*INTRAMINE BASICS*
+Using IntraMine.txt
+Configuring IntraMine.txt
+Editing documents.txt
+Gloss.txt
+gloss2html.pl for standalone Gloss files.txt
+
+*SUPPLIED SERVICES*
+IntraMine Main.txt
+Search.txt
+Viewer.txt
+Linker.txt
+Opener.txt
+Editor.txt
+Upload.txt
+Files.txt
+Status.txt
+Cmd.txt
+ToDo.txt
+Bp.txt
+DBX.txt
+FILEWATCHER.txt
+SSE.txt
+Other services.txt
+
+Other Perl programs.txt
+
+*ONWARDS*
+Writing your own IntraMine server.txt
+Stealing from IntraMine.txt
+
+*DETAILS*
+Configuring folders to index and monitor.txt
+A note on port numbers.txt
+Elasticsearch with replicas.txt
+IntraMine on the iPad.txt
+Testing with IntraMine.txt
+
+glossary.txt

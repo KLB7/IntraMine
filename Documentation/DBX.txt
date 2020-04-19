@@ -1,0 +1,11 @@
+DBX
+=====
+2019-12-22 18_52_10-Example of DB access.png
+
+This is an example server, meant to serve as an example for writing your own IntraMine server. It manages a simple database, with CRUD.
+
+For a fairly full guide to writing your own IntraMine server, which includes a discussion of DBX, please switch over to "Writing your own IntraMine server.txt".
+
+---
+contents.txt
+---

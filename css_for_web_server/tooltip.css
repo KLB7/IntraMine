@@ -1,0 +1,36 @@
+/* tooltip.css: for popup hints and images, see also tooltip.js. */
+
+#hintbox{ /*CSS for pop up hint box */
+position:absolute;
+top: 0;
+background-color: lightyellow;
+width: 150px; /*Default width of hint.*/ 
+padding: 3px;
+border:1px solid black;
+font:normal 11px Verdana;
+line-height:18px;
+z-index:100;
+border-right: 3px solid black;
+border-bottom: 3px solid black;
+visibility: hidden;
+}
+
+.hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
+font-weight: bold;
+color: navy;
+margin: 3px 8px;
+}
+.plainhintanchor { /* looks like ordinary text */
+	text-decoration: none;
+	font-family: arial, helvetica, sans-serif; font-size:100%;
+	color: black;
+}
+.hintanchor:hover {
+    border-top-style: hidden;
+}
+.plainhintanchor:hover {
+    border-top-style: hidden;
+}
+.invisiblehintanchor:hover {
+	border-top-style: hidden;
+}

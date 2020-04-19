@@ -1,0 +1,31 @@
+SSE
+======
+SSE is a background service that serves as IntraMine's registration and distribution center for Server-Sent Events.
+
+Perl main files:
+ - intramine_SSE.pl
+ - swarmserver.pm
+
+SSE generates no HTML views and has no JavaScript. It just remembers all web pages that have registered to receive Server-Sent Events, keeps sockets open for them, and handles broadcasting the events as they happen.
+
+A typical Server-Sent Event sequence
+====================================
+Here's the sequence for the ToDo page. What users see is that if anyone changes the ToDo page, all other views of the page refresh in a fraction of a second.
+
+When someone changes the ToDo items, Sever-Sent Events are used to notify all open browser views of the ToDo page that something has changed, and the pages respond by asking for a refresh from the ToDo server.
+
+1. New browser view of ToDo: todoEvents.js#getSSEPortAndRequestEvents() registers a request to receive "todochanged" events from SSE, and if that succeeds then todoEvents.js#requestSSE() adds an event listener for "todochanged" events.
+2. swarmserver.pm#Respond() notices that it has received an SSE registration request, sets aside a socket for use by the client, and SendInitialSSEResponseToOneClient() reports back to the ToDo client that all is fine.
+3. User changes the ToDo page (Save or drag).
+4. todoGetPutData.js#putData() sends ToDo page data to intramine_SSE.pl#PutData() on the back end for saving.
+5. PutData() calls swarmserver.pm#BroadcastSSE("todochanged"). We're still in the ToDo server at this point.
+6. BroadcastSSE() calls RequestBroadcast() of "todochanged" message to SSE
+7. The swarmserver.pm#RequestBroadcast() being called is the one associated with the ToDo server, and is doesn't know how to reach other servers. So it sends the message back to the Main server (intramine_main.pl), which does know how to reach all other IntraMine servers.
+8. #intramine_main.plBroadcastSignal() sends the "todochanged" signal to the SSE server (Main knows the port numbers associated with all Short names such as SSE).
+9. intramine_SSE.pl#HandleBroadcastRequest() receives the request, and calls swarmserver.pm#SendEventToClients().
+10. SendEventToClients(), associated here with the SSE server, sends out the event message to all clients that have registered with it.
+11. The event listener added in step 1 receives the "todochanged" event, and calls todoGetPutData.js#getToDoData(), which refreshes the browser view of the ToDo data. This happens for all ToDo views, since they have all registered to receive Server-Sent Events.
+
+---
+contents.txt
+---

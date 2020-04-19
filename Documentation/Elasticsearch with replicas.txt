@@ -1,0 +1,72 @@
+Elasticsearch with replicas
+===========================
+
+Why would you do this?
+======================
+If you run a second instance of Elasticsearch on another computer and tie it in to your main one where IntraMine is running, you will have a backup of your IntraMine index and potentially faster searching. Having said that, I tried it and wasn't able to push searching hard enough that the second instance of Elasticsearch helped any. But if you like the idea, here's how to set up a "replica node" for Elasticsearch. Generalizing to two or more replica nodes is I hope obvious after you've done one of them.
+
+Use static local IP addresses
+=========================
+If you haven't already, assign static local (LAN) IP addresses to both PCs. You know what I mean, I'm talking local IP addresses such as 192.168.1.22 or 10.0.0.90 addresses, reserved for local area network use, as opposed to a public IP address used for the world wide web. That's something you might well have done before, but if not, google "router set static local IP address" or "router local static leases" or check your router's manual. If you have installed dd-wrt on your router you can find the details on adding static LAN leases at https://wiki.dd-wrt.com/wiki/index.php/Static_DHCP.
+
+Install a second Elasticsearch
+==============================
+Install Elasticsearch on the second PC, in the same way you originally installed it on the PC that's running IntraMine.
+
+Some names and numbers
+======================
+I'll be calling the PC that's running Elasticsearch and IntraMine your "Main" PC, and the one where the new instance of Elasticsearch is installed will be your "Replica" PC. And I'll use actual IP numbers in the examples, be sure to change them to your numbers.
+For the Main PC: 192.168.1.132
+For the Replica PC: 192.168.1.128
+
+Main PC config changes
+======================
+Locate /config/elasticsearch.yml in your Elasticsearch folder. Save a copy somewhere, so you can restore it if something goes wrong. Add the following three lines to the bottom of the file:
+---
+network.host: ["192.168.1.132", _local_]
+http.port: 9200
+discovery.zen.ping.unicast.hosts: "192.168.1.128"
+---
+Save and close your Main elasticsearch.yml file.
+
+Replica PC config changes
+=========================
+Locate /config/elasticsearch.yml in your Elasticsearch folder on your Replica PC, make a backup copy, and add the following four lines to the bottom of the file:
+---
+network.host: ["192.168.1.128", _local_]
+http.port: 9200
+discovery.zen.ping.unicast.hosts: "192.168.1.132"
+node.master: false
+---
+Save and close your Replica elasticsearch.yml file.
+
+Restart Elasticsearch
+=====================
+On both Main and Replica, stop and start Elasticsearch by running
+C:\elasticsearch-6.7.0\bin\elasticsearch-service.bat manager
+in a cmd window (change the path to match your system) and clicking the Stop and Start buttons at the bottom of the General tab.
+
+Rebuild your index
+==================
+This is perhaps optional, but why not get off to a clean start just to be safe? Rebuild your Elasticsearch IntraMine index by running elastic_stop_INIT_rebuild_start.bat, located in your IntraMine /bats/ folder. This will take an hour or two but I think the peace of mind is worth it.
+
+Verify the replica is ok
+========================
+After the re-indexing, open up an IntraMine Search page, typically at http://localhost:81/Search. In the top right of the search dialog where it shows the number of documents indexed, the background color behind the text will be green if all went well. If you turn off the Replica PC, then the background color will be light yellow due to the replica node not being available.
+
+On your main PC, go to
+http://localhost:9200/intramine/_stats/?pretty
+and you should see
+"failed" : 0
+near the top if all went well.
+
+I want to go back to one node
+=============================
+Stop and remove the Elasticsearch service on your Replica, using elasticsearch-service.bat manager as decribed above, then delete the Elasticsearch folder there. Revert the elasticsearch.yml file on your Main computer, using the backup copy you made. And then stop and start Elasticsearch on your Main PC.
+
+You might want to also re-index, but if IntraMine Search looks ok then there's no need to.
+
+---
+contents.txt
+---
+

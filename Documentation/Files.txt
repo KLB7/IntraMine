@@ -1,0 +1,30 @@
+Files
+=====
+The Files service presents a directory browser for your IntraMine PC, with links to open or edit source and text files, and "image hovers".
+
+Main back-end file: intramine_filetree.pl.
+Main front-end file: files.js.
+
+This is mostly a standard two-panel directory view, though with popup image previews when you stop your cursor over an image file name, as mentioned. All source and text files have links: clicking on the file name opens the file in IntraMine's Viewer, and clicking on the pencil icon just after the file name opens the file in an editor.
+
+*The Files page*
+2019-12-03 18_09_20-Local Files.png
+
+There is one addition at the top of the page though, a text area with "Open" next to it: you can enter a file name here and open the file by hitting Open, and if it's the name of an indexed file that's unique you don't need to enter a partial path. Picking an indexed file at random on my system for example, "152_flake_check.pl" is uniquely named, so that's all I need to type in order to open it. If the file name isn't unique, you'll need to enter enough of a path to distinguish it from other files with the same name. The rules here are the same as for autolinking, as explained in Gloss.txt, except that there is no "context" directory to determine which file is closest. If the wanted file isn't in an indexed location, you'll need to enter the full path.
+2019-12-03 18_05_02-Local Files.png
+
+Under the hood
+==============
+This is a JavaScript-heavy server, and most of the work is done by jqueryFileTree.js (http://www.abeautifulsite.net/jquery-file-tree/) which in turn uses jQuery.
+
+Directory retrieval sequence
+----------------------------
+intramine_filetree.pl responds to a "dir" request with a list of files and subfolders in a folder, via intramine_filetree.pl#GetDirsAndFiles(). The sequence is:
+1. A folder name is clicked on in the view, prompting jqueryFileTree.js to issue a POST (jqueryFileTree.js#67) that is handled by intramine_filetree.pl#GetDirsAndFiles().
+2. GetDirsAndFiles() uses win_wide_filepaths.pm#FindFileWide() to build a list of files an subfolders in the $formH->{'dir'} directory. Text and image files are linked.
+2.1 Image files receive "image hover" links, so pausing the cursor over an image link produces a preview.
+2.2 Source and text files receive regular links and optionally a little pencil icon that's a link to the configured editor.
+
+---
+contents.txt
+---

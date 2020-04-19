@@ -1,0 +1,84 @@
+/** statusEvents.js: initiate and handle Server-Sent Events to monitor IntraMine.
+ * Used by intramine_status.pl. See also status.js.
+ */
+
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+	}
+
+// statusId, a more or less unique identifier for this client.
+let statusId = String(getRandomInt(1, 65000));
+statusId += String(getRandomInt(1, 65000));
+
+console.log("Client Status ID: |" + statusId + "|");
+
+let source;
+let sourceURL;
+
+// Ask Main for the port number for the SSEONE server, and set up Server-Side Events listening.
+// (Called at the bottom here).
+function getSSEPortAndRequestEvents() {
+	let request = new XMLHttpRequest();
+	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' +
+						sseServerShortName + '/?req=portNumber';
+	request.open('get', theRequest, true);
+	
+	request.onload =
+			function() {
+				if (request.status >= 200 && request.status < 400)
+					{
+					// Success?
+					let resp = request.responseText;
+					if (isNaN(resp))
+						{
+						let e1 = document.getElementById(errorID);
+						e1.innerHTML = 'Error, server said ' + resp + '!';
+						}
+					else
+						{
+						requestSSE(resp);
+						}
+					}
+				else
+					{
+					// We reached our target server, but it returned an error
+					let e1 = document.getElementById(errorID);
+					e1.innerHTML =
+							'Error, server reached but it could not handle request for port number!';
+					}
+			};
+	
+	request.onerror = function() {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	};
+	
+	request.send();
+}
+
+// Start SSE listening, for "activity" events. These make the Status page server LEDs flash
+// with a call to status.js#showActivity().
+// Well ok they aren't "real" LEDs, but they sort of look like it....
+function requestSSE(ssePort) {
+	sourceURL = "http://" + theHost + ":" + ssePort + "/" + sseServerShortName +
+					"/IMCHAT/?statusid=" + statusId;
+	source = new EventSource(sourceURL);
+	
+	console.log("Requesting evtsrc with |" + sourceURL + "|");
+	
+	
+	source.addEventListener("activity", function(event) {
+		showActivity(event.data);
+		if (event.id == "CLOSE") {
+			source.close(); 
+		}
+		
+	}, false);
+	
+	source.onerror = function() {
+		console.log("SSE error received");
+	}
+}
+
+window.addEventListener("load", getSSEPortAndRequestEvents);

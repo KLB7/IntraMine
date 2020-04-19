@@ -1,0 +1,4511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-touch-fullscreen" content="yes" />
+<meta name="google" content="notranslate">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Bp</title>
+<style>
+/* main.css: the place where failure to plan goes to die. */
+
+h1 {
+	font-size: 1.5em;
+}
+
+.shimclear {
+	height: 6px;
+	float: none;
+}
+
+#help {display:none;}
+
+/* ipadfix out overflow: hidden; in width: 100%*/
+html, body {
+    overflow: hidden;
+	height: 100%;
+   /* width: 100%*/
+}
+
+body {
+	background: #fafafa;
+	font: normal .8em/1.5em Arial, Helvetica, sans-serif;
+	min-width: 800px;
+	margin-left: 1%;
+	margin-right: 0.5%;
+	margin-top: 0;
+	margin-bottom: 0;
+	/* Experimental, trying to get word breaks on iPad Pro */
+	/* Doesn't help: overflow-wrap: break-word; */
+	/* Works, but breaks on everything: word-break: break-all; */
+}
+
+/* ipadfix adding a wrapper around entire body */
+#bodywrapper {
+	position: fixed; height:100%; width:100%; top:0; left:0;
+}
+
+#pageContent {
+	height: 100%;
+}
+
+a {
+text-decoration: none;
+}
+
+a:link {
+color: Black;
+border-bottom: 1px solid #AAA;
+}
+
+a:visited {
+color: #333;
+border-bottom: 1px solid #AAA;
+}
+
+a:hover {
+color: #333;
+border-bottom: 1px solid #333;
+}
+
+/* File tree displays, suppress underlines on links. */
+UL.jqueryFileTree A {
+	border-bottom: none;
+}
+
+/* ipadfix adding wrapper around fixed top part */
+#fixed_header {
+	position: absolute; top:0; left:0; width:100%; height: 200px; z-index:10;
+	}
+
+#nav {
+	position: relative;
+	display: block;
+	margin: 0;
+	margin-top: 8px;
+	padding: 7px 6px 0;
+	line-height: 100%;
+	border-radius: .4em;
+
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+
+	/*background: -webkit-gradient(linear, left top, left bottom, from(#a9a9a9), to(#7a7a7a));*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#999999), to(#333333));
+
+	border: solid 1px #6d6d6d;
+	min-width:770px;
+}
+#nav li {
+	margin: 0 5px;
+	padding: 0 0 8px;
+	float: left;
+	position: relative;
+	list-style: none;
+}
+/* main level link */
+#nav a {
+	font-weight: bold;
+	color: #e7e5e5;
+	text-decoration: none;
+	border-bottom: none;
+	display: block;
+	padding:  8px 15px;
+	margin: 0;
+	-webkit-border-radius: .4em;
+	-moz-border-radius: .4em;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+}
+/* main level link hover */
+#nav .current a, #nav li:hover > a {
+	background: -webkit-gradient(linear, left top, left bottom, from(#ebebeb), to(#a1a1a1)); /* for webkit browsers */
+	border-top: solid 1px #f8f8f8;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	-moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+#nav li:hover > a {
+	color: #444;
+}
+
+#nav .current a, #nav .current:hover > a {
+	color: #008000; /*#31540c*/
+}
+
+/* sub levels link hover */
+#nav ul li:hover a, #nav li:hover li a {
+	background: none;
+	border: none;
+	color: #666;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+}
+#nav ul a:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(#04acec), to(#0186ba)) !important; /* for webkit browsers */
+
+	color: #fff !important;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+/* level 2 list */
+#nav ul {
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cfcfcf)); /* for webkit browsers */
+
+	display: none;
+	margin: 0;
+	padding: 0;
+	width: 185px;
+	position: absolute;
+	top: 35px;
+	left: 0;
+	border: solid 1px #b4b4b4;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+/* dropdown */
+#nav li:hover > ul {
+	display: block;
+}
+#nav ul li {
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+#nav ul a {
+	font-weight: normal;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, .9);
+}
+/* level 3+ list */
+#nav ul ul {
+	left: 181px;
+	top: -3px;
+}
+/* rounded corners for first and last child */
+#nav ul li:first-child > a {
+	-webkit-border-top-left-radius: 9px;
+	-moz-border-radius-topleft: 9px;
+	-webkit-border-top-right-radius: 9px;
+	-moz-border-radius-topright: 9px;
+}
+#nav ul li:last-child > a {
+	-webkit-border-bottom-left-radius: 9px;
+	-moz-border-radius-bottomleft: 9px;
+	-webkit-border-bottom-right-radius: 9px;
+	-moz-border-radius-bottomright: 9px;
+}
+/* clearfix */
+#nav:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+#nav {
+	display: inline-block;
+}
+html[xmlns] #nav {
+	display: block;
+}
+* html #nav {
+	height: 1%;
+}
+#spinnerParent {
+	position: relative;
+	display: inline-block;
+	width: 43.4px;
+	height: 36px;
+	margin: 0;
+	padding: 0;
+}
+#spinner {
+	position: absolute;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	top: -4px;
+	cursor: pointer;
+}
+
+#details tr {
+	margin: 0;
+	padding: 0;
+}
+#details td {
+	margin: 0;
+	font-size: 1.0em;
+	padding: 0;
+}
+
+#details caption {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.yebal, .openingbal {
+	font-weight: bold;
+	background-color: #CCCCCC;
+}
+.yebalneg {
+	font-weight: bold;
+	background-color: #FFCCCC;
+}
+.monthlybal {
+	background-color: #EEEEEE;
+}
+.monthlybalneg {
+	/*font-weight: bold;*/
+	background-color: #FFAAAA;
+}
+
+.unsupported {
+	color: #aaaaaa;
+}
+
+/* Scroll support */
+
+/* Transition to new names for scroll support NOTE some classes are now ids */
+#headingAboveContents { /* Replaces #searchWhat */
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+/* ipadfix */
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
+	/* ipadfix in */
+	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
+	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
+	
+	/* ipadfix out
+	position: absolute;
+	top: 200px;
+	*/
+	
+	height: 60%;
+}
+
+#scrollContentsList { /* Replaces CLASS .jumplist */
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	font-family: helvetica, arial, sans-serif;
+	font-size: 1.2em;
+	line-height: 1.3em;
+	margin-top: 20px;
+}
+
+#scrollContentsList a {
+	text-decoration: none;
+	/*font-size: 1.1em;*/
+}
+
+#scrollContentsList li, #scrollContentsList ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#scrollContentsList li {
+	margin-bottom: 6px;
+}
+
+#scrollContentsList a:hover {
+	color: blue;
+	cursor: pointer;
+}
+
+#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
+	float: left;
+	width: 75.5%;
+	overflow: auto;
+	-moz-tab-size: 4;
+	tab-size: 4;
+/*	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollText {
+	float: left;
+	width: 100%;
+	-moz-tab-size: 4;
+	tab-size: 4;
+	/*overflow: auto;*/
+/* height 100% does not play well with ace editor.
+	height: 100%;
+	padding: 4px;
+	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+*/
+}
+
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+	display: inline;
+}
+
+#scrollContentsList .h1 {
+	font-size: 1.3em;
+}
+
+#scrollContentsList .h2 {
+	font-size: 1.1em;
+}
+
+/* section marker */
+#scrollContentsList .h2 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\00A7  " */
+	padding-left: 0;
+	color: #667766;
+}
+
+
+#scrollContentsList .h3 a:before {
+	font-size: 0.6em;
+	content: "\25B0  "; /* "\25B0  " */
+	padding-left: 8px;
+	color: #889988;
+}
+
+#scrollContentsList .h3 {
+	font-size: 1.0em;
+	font-style: italic;
+	font-variant: normal;
+}
+
+#scrollContentsList .h4 a:before {
+	font-size: 0.4em;
+	content: "\25B0  "; /* "\25B0\25B0  " */
+	padding-left: 24px;
+	color: #889988;
+}
+
+#scrollContentsList .h4 {
+	font-size: .9em;
+}
+
+#details {
+	height: 100%;
+}
+
+/* A bit of formatting for text. */
+.Comment_Normal {color: #004221;}
+.Comment_POD {color: #004221;}
+.Directive {color: #000000;}
+.Label {color: #000000;}
+.Quote {color: #8A0808;}
+.String {color: #8A0808;}
+.Subroutine {color: #000000;}
+.Variable_Scalar {color: #0101DF;}
+.Variable_Array {color: #0101DF;}
+.Variable_Hash {color: #0101DF;}
+.Variable_Typeglob {color: #0101DF;}
+/*.Whitespace {color: #000000;}*/
+.Character {color: #000000;}
+.Keyword {color: #A020F0;}
+.Builtin_Function {color: #000000;}
+.Builtin_Operator {color: #000000;}
+.Operator {color: #000000;}
+.Bareword {color: #000000;}
+.Package {color: #000000;}
+.Number {color: #000000;}
+.Symbol {color: #000000;}
+.CodeTerm {color: #000000;  font-weight: bold;}
+.DATA {color: #000000;}
+
+/* OLDER SCROLL SUPPORT, still valid but not for use with ace editor displays */
+#searchresults, #cmdresults {
+	height: 60%;
+}
+#jumpsandtext {
+	height: 85%;
+	font-family: monospace;
+	font-size: 1.2em;
+}
+
+.jumplist {
+	float: left;
+	width: 23%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+}
+
+.jumplist a {
+	text-decoration: none;
+	font-size: 1.1em;
+	line-height: 1.2em;
+}
+
+.jumplist li, .jumplist ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jumplist li {
+	margin-bottom: 6px;
+}
+
+.jumplist .h2 a:before {
+	font-size: 1.2em;
+	content: "\25B0";
+}
+
+.jumplist .h3 a:before {
+	font-size: 1.2em;
+	content: "\25B0\25B0";
+}
+
+.jumplist a:hover {
+	color: blue;
+}
+
+.theTextWithJumpList {
+	float: left;
+	width: 75%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	padding-right: 0;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+#theTextWithoutJumpList {
+	float: left;
+	width: 98%;
+	overflow: auto;
+	height: 100%;
+	padding: 4px;
+	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;*/
+}
+
+.theText {
+	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	font-size: 9pt;
+	line-height: 12pt;
+	
+	float: none;
+	width: 100%;
+}
+
+#searchWhat {
+	margin-top: 10px;
+	font-size: 1.2em;
+}
+
+.line_number {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+	display: inline-block;
+}
+a.embedded_image {
+	text-decoration: none;
+}
+
+.notabene {
+	color: Crimson;
+	font-size: 0.9em;
+}
+
+.textSymbol {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.1em;
+}
+
+.textSymbolSmall {
+	font-family: "Segoe UI Symbol", monospace;
+	font-size: 1.0em;
+}
+
+/* A "line break" for long URLs */
+.noshow {
+	display: inline-block;
+	width: 0px;
+}
+
+/* Up down left right triangles for navigation. */
+.arrow-left {
+	display: inline-block;
+	width: 0; 
+	height: 0;
+	margin-left: 16px;
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent; 
+	border-right:16px solid #6aa436;
+	position: relative;
+	top: 10px;
+}
+
+.arrow-up {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+ 	border-bottom: 16px solid #6aa436;
+	position: relative;
+	top: -14px;
+	left: 8px;
+}
+
+.arrow-down {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-left: 16px solid transparent;
+	border-right: 16px solid transparent;
+	border-top: 16px solid #6aa436;
+	position: relative;
+	top: 18px;
+	left: -24px;
+}
+
+.arrow-right {
+	display: inline-block;
+	width: 0; 
+	height: 0; 
+	border-top: 16px solid transparent;
+	border-bottom: 16px solid transparent;
+	border-left: 16px solid #6aa436;
+	position: relative;
+	top: 10px;
+	left: -16px;
+}
+
+.img-arrow-left {
+	display: inline;
+	margin-left: 16px;
+	position: relative;
+	top: 10px;
+}
+
+.img-arrow-up {
+	display: inline;
+	position: relative;
+	top: -24px;
+	left: 0;
+}
+
+.img-arrow-down {
+	display: inline;
+	position: relative;
+	top: 40px;
+	left: -68px;
+}
+
+.img-arrow-right {
+	display: inline;
+	position: relative;
+	top: 10px;
+	left: -64px;
+}
+
+#viewEditTitle {
+	margin-right: 12px;
+}
+
+/* For the Status page main status tables. */
+#tablePageServerStatus th {
+	cursor: pointer;
+}
+
+#tableBackgroundServerStatus th {
+	cursor: pointer;
+}
+
+.divAlignCenter {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#editor_error {
+	display: inline-block;
+	font-size: 0.5em;
+}
+
+/* For the "edit" pencil image, a bit of space on the left. */
+.edit_img {
+	display: inline-block;
+	margin-left: 6px;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+#theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.theTextWithJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+.jumplist {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollText {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollTextRightOfContents {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+#scrollContentsList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
+}
+</style>
+<style>
+/* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
+
+#scrollTextRightOfContents {
+	/*height: 100%;*/
+	padding-right: 0;
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	position: absolute;
+	top: 0; left: 24%; right: 0; bottom: 0;
+
+	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
+	
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollText { /* Replaces #theTextWithoutJumpList */
+	/*height: 100%;*/
+	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
+#scrollTextRightOfContents img, #scrollText img{
+	max-width: 100%;
+}
+
+/* TOC shrink/expand element */
+#tocShrinkExpand {
+	position: absolute;
+	display: inline-block;
+	cursor: pointer;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+.marker-highlight {
+	background-color: lightgreen
+}
+
+.scroll-hilite {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: green;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+.initial-hits-highlight {
+	background-color: #ffcccc;
+}
+
+.initial-scroll-hl {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+div#indicator {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    opacity: .5;
+    width: 2px;
+    height: 20px;
+    background-color: #888;
+    border: none;
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+div#indicatorPC {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.75%;
+    /*opacity: .5;*/
+    width: 9px;
+    height: 20px;
+    background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
+    border: 1px solid gray; /*none;*/
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
+/* Some special treatment for index.html files that hold a table of contents.
+See intramine_fileviewer_cm.pl#GetPrettyText(). */
+#specialScrollTextRightOfContents {
+	padding-right: 0;
+	position: absolute;
+	top: 0; left: 2%; right: 0; bottom: 0;
+	overflow: auto;
+	/*background-image: url("Coffee-Paper-Texture4.jpg");*/
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+}
+
+#toc-line {
+	font: normal 28px "Baskerville BT", serif;
+}
+
+#special-index-wrapper {
+	padding-top: 20px;
+	height: 100%;
+	font: normal 24px "Baskerville BT", serif;
+	/*background-color: #E8E3C5;*/
+}
+
+#special-index-wrapper th {
+	text-align: center;
+}
+
+#special-index-wrapper td:not(:first-child) {
+	padding-left: 80px;
+}
+
+#special-index-wrapper td:nth-child(1) {
+	/*background-color: #E8E3C5;*/
+	background: transparent;
+}
+
+#special-index-wrapper a {
+	text-decoration: none;
+}
+
+#special-index-wrapper a:link {
+	color: Black;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:visited {
+	color: #333;
+	border-bottom: 1px solid #CCC;
+}
+
+#special-index-wrapper a:hover {
+	color: #333;
+	border-bottom: 1px solid #333;
+	background-color: #ECF6CE;
+}
+
+/* Glossary links, for glossary popups shown in standalone Gloss HTML files. */
+.glossary:link {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.glossary:link:visited {
+	border-bottom: 1px dotted #666;
+}
+
+/* Second and subsequent glossary tooltips in Gloss HTML standalone files, suppress underline. */
+.term-seen:link {
+	border-bottom: 1px dotted #CCC;
+}
+
+.term-seen:hover {
+	border-bottom: 1px dotted #666;
+}
+
+.term-seen:visited {
+	border-bottom: 1px dotted #CCC;
+}
+
+/* Table of Contents highlight for current item. */
+.tocitup {
+	background-color: lightgreen;
+}
+
+/* Gloss standalone HTML, alignment for "inlined" images. */
+.valigntop {
+	vertical-align: top;
+}
+and the entry name in a span with
+.inlinespan {
+	display:inline-block;
+}
+
+#bottomShim {
+	margin: 0;
+	height: 3px;
+	}
+
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}
+
+</style>
+<style>
+/* non_cm_tables.css: for non-CodeMirror table display by the Viewer service. */
+
+table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+table, tr, td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+td.vam {
+	vertical-align: middle;
+}
+
+td:nth-child(1) {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 4em; /* enough for 99999 one hopes */
+}
+
+th {
+	text-align: left;
+}
+
+/* Avoid copy of line numbers in the first column.
+<td n='$lineNum'></td>
+*/
+td:first-child:after, th:first-child:after {
+    content: attr(n);
+}
+
+
+h1, h2, h3, h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+.outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+.outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+.ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+.ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+.ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 4.2em;
+	}
+
+.ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.2em;
+	}
+
+.ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.3em;
+	padding-left: 2.3em;
+	}
+
+.ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.3em;
+	}
+
+.ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.7em;
+	padding-left: 4.6em;
+	}
+
+.ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.6em;
+	}
+
+.ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.6em;
+	padding-left: 4.9em;
+}
+
+.ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.9em;
+	}
+
+.ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -3.2em;
+	padding-left: 5.6em;
+}
+
+.ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 5.6em;
+	}
+
+
+/* Data tables in text */
+.bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+.bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+.bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+.bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+.bordered td:first-child, .bordered th:first-child {
+    border-left: none;
+    border-top: none;
+    background-color: #F8F8F8;
+	color: #808080;
+	text-align: right;
+	min-width: 3em;
+}
+
+.bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+.bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+.bordered td:not(:first-child), .bordered th:not(:first-child) {
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.bordered td.centered_cell, .bordered th.centered_cell {
+	text-align: center;
+}
+
+.bordered td.left_cell, .bordered th.left_cell {
+	text-align: left;
+}
+
+.bordered td.right_cell, .bordered th.right_cell {
+	text-align: right;
+}
+
+.shrunkrow {
+	height: 3pt;
+	}
+	
+.reallyshrunkrow {
+	background: #888;
+}
+
+.reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+.codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+</style>
+<style>
+/* tooltip.css: for popup hints and images, see also tooltip.js. */
+
+#hintbox{ /*CSS for pop up hint box */
+position:absolute;
+top: 0;
+background-color: lightyellow;
+width: 150px; /*Default width of hint.*/ 
+padding: 3px;
+border:1px solid black;
+font:normal 11px Verdana;
+line-height:18px;
+z-index:100;
+border-right: 3px solid black;
+border-bottom: 3px solid black;
+visibility: hidden;
+}
+
+.hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
+font-weight: bold;
+color: navy;
+margin: 3px 8px;
+}
+.plainhintanchor { /* looks like ordinary text */
+	text-decoration: none;
+	font-family: arial, helvetica, sans-serif; font-size:100%;
+	color: black;
+}
+.hintanchor:hover {
+    border-top-style: hidden;
+}
+.plainhintanchor:hover {
+    border-top-style: hidden;
+}
+.invisiblehintanchor:hover {
+	border-top-style: hidden;
+}
+</style>
+</head>
+<body>
+<!-- added for touch scrolling, an indicator -->
+<div id="indicator"></div>
+<hr id="rule_above_editor" />
+<div id='scrollAdjustedHeight'>
+<div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
+<ul>
+<li class='h1' im-text-ln='1'><a href='#Bp'>Bp</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Bp">Bp</h1></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R3'><td n='3'></td><td><span href='./C:/perlprogs/IntraMine/Documentation/images/2020-03-11 14_34_38-Example IntraMine Server.png' onmouseOver="showhint('<img src=&quot;data:image/png;base64,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JFB3oO7Y8ToUbTfJFe3q6iqpE1xxxRVXXJd63bdv32233Xbrrbd25Er+tHg74fXUk/Z983O/cuPv/b2N8/72x0//ry476X9q748rrn28QtF2k1zR0kONOOqoo1yFQN2BugN1B+oO1B0z1AeDwU033XSzoBViR+pUIX/UN1chpq2vHT048Zh//Sv/+//6z37xn/zSL/6T337Nv3Pt89hE3YG6owt1KNpukivaNwTo6eZrqAdQd6DuQN2BumPa+pFHHnnVVVd98YtfvPHGG3f8Sp6QP96z+eIiyJRjHjuoO1B3dKoORdtNckX7egAAAMvniCOOOPPMM//oj/7oC1/4wo5fyRPyx3sGAGgFirab5Ir2da973eGHH44rrrjiiuuyr4cddtjv/u7vXr/TkA/kSYufuOKKq71C0XaTXNG6/2sOrrjiiiuu23B9zWtec8opp3zgAx/47Gc/O9peaEaal2Z3/0O1dj9xxRVXvULRdpNc0dKjDQAAwLbx6le/+pWvfOWvC7+2XbjpaF6a3fsBAJgMKNpukitaeroBAADYTv7tzuE9AABMDBRtN8kV7ate9arf+q3fwhVXXHHFFVdcccW1vELRdpNc0f7mb/7mK1/5SlxxxRVXXHHFFVdcyysUbTfJFe1vAAAAAACABkgsfe9734Oi7RqJor3ooote8YpX/GsAAAAAAFBAMonE0ve///0XXngBirZTJIr2yiuvPPzww3/t137tV3/1V3HFFVdcccUVV1xxtVeSSSSWfvCDH7z44otQtJ0iUbRf//rXL7zwQvojyL/8l//yX/2rf4UrrrjiiiuuuOKKq7v++q//OskkEkvPPvvsSy+99LOf/czrJ9ABEkX71FNP3XDDDbRahx12GK3crwAAAAAA7HlIFJE0IoFEMonE0vPPP//yyy/jBW2nSBTtX/7lX37/+9+/8847r7jiiosuuuh8AAAAAIA9D4kikkYkkEgmkVh66aWXfvrTn3rxBLpBomh/8pOf0DrRHz4effTRe++99xvf+MafAAAAAADsYUgOkSgiaUQCiWQSiSX8Bm0HSRQtrRD9seP5559/9tlnf/CDH9AfRL4nfBcAAAAAYI/hVBDJIRJFJI1IIJFMgpztJomipRX66U9/+vLLL9OCvfjiiy+88AItHgAAAADAnoXkEIkikkYkkEgmQc52k0TRErROxM9+9jP6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&quot;  />', this, event, '500px', true);"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAAAd0SU1FB9kKDwIHIwWU3GsAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5l
+dCA0LjEuNWRHWFIAAAI8SURBVDhPbZJrSNNhFMZ/q4lp5cwuSK6LZX5IbaWFKISSFtmFvoSXUSjS
+tLKkSAoCgwqxLL+UUsYi+2CoqTmslqQtU4uUDCGFLLykGfMvpsuVmrjev040th8ceHk4z8M5hxeZ
+7m+4tdZwaMNaVNOCndIsVB1lZFZlk7zOh0V22Tnj477HWoyKvtyTVG30xk9IClMJSvNL9J/eu9q+
+NLtOVWZTYMxjvzGHyKILhN1OJ/haEgGJ0XhS0BC+9O9E2Md3VUi30hhI3kOjegWB9XkEWE1Yeiqx
+DdZgq8imS7cX/VZfLm7fREaQL2ma9aSolxPExJ97Owet/v0Nj5HyMpBOHWQgJoS6Zj2GiXpscrUX
+Y/VYwm4xoYuoBfNKIQpGhioSh0fXmOvLRchppMs6hjLjGf7+hMnZkKKrNIpW+V5zxvm0tN1N7+xa
+2Wl8QN8NHf2pMfTnn8EyVjcTMPYG2yUtX2+mUN1QTIXF7JlzLl0dKKxzYSGaZaqoSHaEbiFms5rD
+ft5om+7QMTvFh4dMno/lZ1YS0ov7DAyPqMxxCatShVWeygE5WdFaQvDv1/ySAwafMxmhoSk+AvOV
+o0iGAqTezy59cbGLo+z9jth6UPQayJcDrK+YykykRcih0RoKxUrmZ3qk6qc0enniM+NwwtsifCy1
+/Bg1MXX9BO3ubuwT8kJ3FN7iPxSW5tK9K5w0oSmnDc5oe8SRrjKsZ7XUKpVECGl+s5f/auQ1/vvV
+Dhw/wDYPNxLEUx7X6eEcgX8MB93QHHZJTQAAAABJRU5ErkJggg==
+" width='17' height='12'  />2020-03-11 14_34_38-Example IntraMine Server.png<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAAAd0SU1FB9kKDwIIFtS/BIcAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5l
+dCA0LjEuNWRHWFIAAAI1SURBVDhPlZFfSFNhGMafbdSESmLIwkFNN7DozxEnDJYlLPojDgPLmUGI
+JVpJRRlTYUGYLhixmgktukk2oX8Ysgt1E8Vm0MqLabKLZOC02qFzcNuFbcuGp2/HMzC0i37w8PE9
+vO/zvS8f/kUFhdyh+2j+8hZmZwe2CTbPscPYFfLBEJiDlDcaKyCzNOLgk1sofdUG3cgD6IfsqPLa
+8HIukLManNzK0V7YuAWISLlIo4LG0Qrf7Kg4nEgV1vAhSjlKilW4XFyAaxo1TCVq3LlxGk7PQ3xn
+RsF9dYNbHkfMZUa+SoGyqwbMPm0FExgHk07rfe7pE/yU/AtE4nWSUmrUhQaQWJkEl9GIFc4qLaZv
+VoN91g72gxtsNEmFV1IOLanfQDYw321DIBsSeoHfbUbEOpsQJZOwH4fBJhJFkXj0jZHvEhA5eovK
+lhal9rE+DFouwmNpQDjlWwtJToDruoTYFQPonhZEPP34Nh9WhqZmHE1CP4+k8+6ebiYi/TH4GMy9
+erAmI+IzLqSz0wxb4S+Q49wBJc7qKJw6fhKl+7SyXKGfR9R+e0f9YlBMv34E1nwebO0R0HoKU3Ev
+VjMhyxNgvHYoMrWCNiLbif3vxxAc6AXbUQu6/BAcxNZZWxBMvQP3i6wWcsFEvM0DBKQXqtHdb8F8
+TTl6yD2PSLI9B2fIjywkSdCSB5/9z/HXCpsh36uAnpzrC7dIJKjsasaniBs//X04Kvj/TebbC3fn
+oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
+" width='17' height='12'  /></span></td></tr>
+<tr id='R4'><td n='4'></td><td></td></tr>
+<tr id='R5'><td n='5'></td><td>This is the "Boiler plate" example server. The point isn't to do something interesting, but rather to give you a template from which you can write your own IntraMine servers. It shows a server-generated view of some data, but has no controls. For a more interesting example with create/read/update/delete of some data, please see <a href="./DBX.html" target="_blank">"DBX.txt"</a>.</td></tr>
+<tr id='R6'><td n='6'></td><td></td></tr>
+<tr id='R7'><td n='7'></td><td>Bp shows a static view of the arguments that ThePage() receives in its $formH hash when it is called to display a web page.</td></tr>
+<tr id='R8'><td n='8'></td><td></td></tr>
+<tr id='R9'><td n='9'></td><td>Main Perl file: intramine_boilerplate.pl</td></tr>
+<tr id='R10'><td n='10'></td><td>Main JavaScript file:  boilerplateDemo.js</td></tr>
+<tr id='R11'><td n='11'></td><td></td></tr>
+<tr id='R12'><td n='12'></td><td>For a guide to writing your own IntraMine server, please see <a href="./Writing your own IntraMine server.html" target="_blank">"Writing your own IntraMine server.txt"</a>, and apologies if you came here expecting that.</td></tr>
+<tr id='R13'><td n='13'></td><td></td></tr>
+<tr id='R14'><td n='14'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R15'><td n='15'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R16'><td n='16'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr></table><p id='bottomShim'></p></div></div>
+<script>
+let thePath = 'C:/perlprogs/IntraMine/Documentation/Bp.txt';
+let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/Bp.txt';
+let usingCM = false;
+let cmTextHolderName = 'scrollTextRightOfContents';
+let specialTextHolderName = 'specialScrollTextRightOfContents';
+let theMainPort = '99999';
+let mainIP = '99999';
+let ourServerPort = '99999';
+let peeraddress = '99999';	// ip address of client
+let weAreRemote = false;
+let errorID = "editor_error";
+let highlightItems = [];
+let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFLMAABSzATFtOXUAAAQZSURBVFhH1ZZfTFtVHMd/91/L7VY6/hVG4xgymWUIY5ENkq0jy4wGN3EjMmpI9mCcb0s0PvnnzfiyZCb6YqI+mJCUoRkmc7onXeYSBcxWZkfDMjYR6Ua7Au0dXLn33Hs8pz3BdC1QQpvUT/+l39/J70/POb/+ONggTX1SrQkwBEg/FBgAhcmborEX7CBKvxgAJ4L9+n0mZwXPPrPC/bpwQLTDb3I5NJtWkJi8aagv6rOI+KYxmJwVWRfg9krdWyv4n1s9zU7BSjZuiRlyAfFFfbZ6mpw0Bo3FLOuSVQF7vNK7jh384BHPS/KBbT1MzT3tJb3Q4Tkq01g0JpPXZM0Cmk+DSBx9Xu6Wzr3Q3sXvsrWBai4wa+5ZMmJQbzsIR9uO8WXPiudobJoDM2dk1UvsPgnFgiwNulrkF9t2dUKJ6EroGlbh4vUvITZleEDgYglxsxjY4agRrnUffBMkrighRdE0DN+9AiG/eoU0jJ7VGkbGAnb3WZ6yivj7mlZHU7PrMMicg1kAdFLA9ftDoEYxU3KDXMbBodpuEDkrU8iOkN2+FboKU6PKrWXEHZvo16aZaYW0Ahp6xX0WO3eprq20uq5kH3FoYZYkmDz+MR+vfMslRbydJJSakm4uw+T8Dbg3PB/SFHx8fADdYKYEKasbeqTjshN8dfsrtlTZaomyoS6bNzCYMLs4CZOj0UU1DN7xQf0SM/1XAGldZ4td3PmalhLBLpUztbBQtAhM+RcMZQa/Pe7TP6Ma19EBQni7eL60XjhbWW8DiU9eokJFN1WYvaPC3ITxqfMheodr8IpDlXvFV+0uPu38FSr0Hioz5Fj50Xc8xjCmxck7fZKz9n940VxpzjR34VHAvErO/rS2CJ1bKnmBK/BNwCT/Wb+hK3+ZZ0hH+kSgYiRg3ty2kx9R58yurVW8lUuohYepA4RGkaJG4MTtAfQt1VJ+78ZT4l6xmLtcvV+oFuXC2gqkYgiNGCEUxy8HLiA/k9NvbaPXsoMvwpe3Py80Wh2FUcRyDMOD343Ass51PvlvnDHDei84LKJ0sapFOGJzpi9ZiuC8jBK2igyxwhge3jR+0pB+8o4P0mavVX/inafBYtOlryr2CH2OmtRl4T+MvAxzzudSL19sCkPkttG/JOlv/Pk1aExOYdUCGJz7lPhR6TPCe2W7yVjBVtMC4ve0svFvYC6pbI6G16C0+GlLdKUAsrnRCRPP3zU+Jp3mw6SSmfWGHRy8gN6fmzTOkNaFaAvLN6xNIhLzLZL8B1RKWjKT1bQW9KEv4jO4KzSMHtNWli8SbXIEKfEQfoXGZPKaZD1uBgf0H8jFPfz3r+iBoTIxhyDik/pWH+GOoE//kcnrsqF5mc7i+gLXvhjGY7wAOdsL6ot0mzHq+8l5f20A/gW9of8+fiHTAwAAAABJRU5ErkJggg==';
+let selectedTocId = 'tocitup';
+//let weAreStandalone = true;
+</script>
+<script type="text/javascript">
+	// Call fn when ready.
+	function ready(fn) {
+	  if (document.readyState != 'loading'){
+	    fn();
+	  } else {
+	    document.addEventListener('DOMContentLoaded', fn);
+	  }
+	}
+
+	function getRandomInt(min, max) {
+  		return Math.floor(Math.random() * (max - min + 1) + min);
+		}
+</script>
+<script type="text/javascript">
+/**
+ * debounce.js: //debounce() is (ultimately) from http://underscorejs.org/#debounce.
+ */
+
+let JD = {};
+
+JD.debounce = function(func, wait, immediate) {
+	let timeout;
+	return function() {
+		let context = this, args = arguments;
+		let later = function() {
+			timeout = null;
+			if (!immediate)
+				{
+				func.apply(context, args);
+				}
+		};
+		let callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait || 200);
+		if (callNow)
+			{
+			func.apply(context, args);
+			}
+	};
+};
+
+</script>
+<script type="text/javascript">
+// tooltip.js: show a "tooltip" with text or an image, the main call is showhint().
+/**********************************************************************************************
+ * Show Hint script- (c) Dynamic Drive (www.dynamicdrive.com) 
+ * This notice MUST stay intact for legal use 
+ * Visit http://www.dynamicdrive.com/ for this script and 100s more.
+ **********************************************************************************************/
+// (Significantly modified from the original 2018-19 for use with IntraMine.)
+// IntraMine use, see eg showhint() calls in
+// intramine_file_viewer_cm.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+
+let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
+let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
+let overAnchorTimer = null;
+let shMainPort = 0; // See setMainPort() just below.
+let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
+let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
+
+function setMainPort() {
+	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
+	}
+
+window.addEventListener("load", setMainPort);
+
+
+function hasClass(el, className) {
+	if (el === null || el.nodeName === "#TEXT" || el.nodeName === "#text")
+		{
+		return false;
+		}
+	if (el.classList)
+		return el.classList.contains(className)
+	else
+		return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+}
+
+function addClass(el, className) {
+	if (el !== null)
+		{
+		if (el.classList)
+			el.classList.add(className)
+		else if (!hasClass(el, className))
+			el.className += " " + className
+		}
+}
+
+function removeClass(el, className) {
+	if (el !== null)
+		{
+		if (el.classList)
+			el.classList.remove(className)
+		else if (hasClass(el, className))
+			{
+			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+			el.className = el.className.replace(reg, ' ')
+			}
+		}
+}
+
+
+// Helper function to get an element's exact position
+function getPosition(el) {
+	"use strict";
+	let rect = el.getBoundingClientRect();
+	let yPos = rect.top;
+	let xPos = rect.left;
+	let xScrollTOTAL = 0;
+	let yScrollTOTAL = 0;
+
+	while (el)
+		{
+		if (el.tagName === "BODY")
+			{
+			// deal with browser quirks with body/window/document and page scroll
+			let xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+			let yScroll = el.scrollTop || document.documentElement.scrollTop;
+			xScrollTOTAL += xScroll;
+			yScrollTOTAL += yScroll;
+			}
+		else
+			{
+			// for all other non-BODY elements
+			xScrollTOTAL += el.scrollLeft;
+			yScrollTOTAL += el.scrollTop;
+			}
+
+		el = el.offsetParent;
+		}
+	return {
+		x : xPos,
+		y : yPos,
+		sx : xScrollTOTAL,
+		sy : yScrollTOTAL
+	};
+}
+
+let ie = document.all;
+let ns6 = document.getElementById && !document.all;
+
+let dropmenuobj = {};
+let loadParams = {};
+
+function positionAndShowHint() {
+	"use strict";
+	let menucontents = loadParams.menucontents;
+	let x = loadParams.x;
+	let y = loadParams.y;
+	let tipwidth = loadParams.tipwidth;
+	let isAnImage = loadParams.isAnImage;
+	let gap = 10; // gap between cursor and tip
+	let windowHeight = window.innerHeight - gap;
+	let windowWidth = window.innerWidth - gap;
+	let hintWidth = 450;
+	let hintHeight = dropmenuobj.offsetHeight;
+	if (isAnImage)
+		{
+		hintWidth = loadParams.theImage.width;
+		hintHeight = loadParams.theImage.height;
+		}
+	else
+		{
+		if (tipwidth !== "")
+			{
+			hintWidth = parseInt(tipwidth, 10);
+			}
+		}
+
+	// Calculate tip all four ways, pick the way that produces least shrinkage.
+	// Preference order below, above, right, left.
+	let ds = bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight);
+	let bestDirection = ds.bestDirection;
+	let scaleFactor = ds.scaleFactor;
+	
+	// For now, just scale images. Text tips are usually small enough.
+	if (isAnImage)
+		{
+		if (scaleFactor < 1.0)
+			{
+			let finalScaleFactor = scaleFactor * 0.95;; //temp[bestDirection] * 0.95;
+			hintWidth = Math.floor(hintWidth * finalScaleFactor);
+			hintHeight = Math.floor(hintHeight * finalScaleFactor);
+			}
+		}
+
+	// Position tip (and scale if image).
+	// Try to keep tip close to mouse x,y position.
+	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
+	dropmenuobj.style.top = tl.top;
+	dropmenuobj.style.left = tl.left;
+	
+	if (isAnImage)
+		{
+		menucontents =
+				menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight
+						+ "'>";
+		}
+
+	dropmenuobj.innerHTML = menucontents;
+
+	// Set width and height for an image. For text, set the desired width and let it flow.
+	// dropmenuobj.style.width = hintWidth + "px";
+	if (isAnImage)
+		{
+		dropmenuobj.style.height = hintHeight + "px";
+		dropmenuobj.style.width = hintWidth + "px";
+		}
+	else
+		{
+		dropmenuobj.style.height = '';
+		}
+
+	dropmenuobj.style.visibility = "visible";
+
+}
+
+//Calculate tip all four ways, pick the way that produces least shrinkage.
+//Preference order: below, above, right, left.
+function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
+	// Below:
+	let heightAvailable = windowHeight - y;
+	let widthAvailable = windowWidth;
+	let belowScaleFactor = heightAvailable / hintHeight;
+	if (belowScaleFactor > widthAvailable / hintWidth)
+		{
+		belowScaleFactor = widthAvailable / hintWidth;
+		}
+	// Above:
+	heightAvailable = y;
+	let aboveScaleFactor = heightAvailable / hintHeight;
+	if (aboveScaleFactor > widthAvailable / hintWidth)
+		{
+		aboveScaleFactor = widthAvailable / hintWidth;
+		}
+	// Right:
+	heightAvailable = windowHeight;
+	widthAvailable = windowWidth - x;
+	let rightScaleFactor = heightAvailable / hintHeight;
+	if (rightScaleFactor > widthAvailable / hintWidth)
+		{
+		rightScaleFactor = widthAvailable / hintWidth;
+		}
+	// Left:
+	widthAvailable = x;
+	let leftScaleFactor = heightAvailable / hintHeight;
+	if (leftScaleFactor > widthAvailable / hintWidth)
+		{
+		leftScaleFactor = widthAvailable / hintWidth;
+		}
+	
+	// Largest scaleFactor wins, preferring in order below, above, right, left where
+	// there's a tie or values are above 1.0.
+	let temp = [];
+	temp[0] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
+	temp[1] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
+	temp[2] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
+	temp[3] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
+	// bestDirection:
+	// 0 == show hint below cursor x,y
+	// 1 == show hint above
+	// 2 == show hint to right of cursor
+	// 3 == show hint to left of cursor
+	let bestDirection = -1;
+	let i = 0;
+	for (i = temp.length - 1; i >= 0; i -= 1)
+		{
+		if (temp[i] >= 1.0)
+			{
+			bestDirection = i;
+			}
+		}
+	
+	if (bestDirection < 0) // all temp[] are < 1.0
+		{
+		let curValue = temp[0];
+		bestDirection = 0;
+		for (i = 1; i < temp.length; i++)
+			{
+			if (temp[i] > curValue)
+				{
+				curValue = temp[i];
+				bestDirection = i;
+				}
+			}
+		}
+
+	let ds = {};
+	ds.bestDirection = bestDirection;
+	ds.scaleFactor = temp[bestDirection];
+	return(ds);
+}
+
+// Position tip (and scale if image).
+// Try to keep tip close to mouse x,y position.
+function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap) {
+	let left = 0;
+	let top = 0;
+	
+	if (bestDirection === 0) // below
+		{
+		top = y + gap + "px";
+		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
+		left = (left < 0) ? "0" : left + "px";
+		}
+	else if (bestDirection === 1) // above
+		{
+		if (y - hintHeight - gap >= 0)
+			{
+			top = y - hintHeight - gap + "px";
+			}
+		else
+			{
+			top = "0";
+			}
+		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
+		left = (left < 0) ? "0" : left + "px";
+		}
+	else if (bestDirection === 2) // right
+		{
+		left = x + gap + "px";
+		let top =
+				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
+						- gap;
+		top = (top < 0) ? "0" : top + "px";
+		}
+	else
+		// if (bestDirection === 3) // left
+		{
+		if (x - hintWidth - gap >= 0)
+			{
+			left = x - hintWidth - gap + "px";
+			}
+		else
+			{
+			dropmenuobj.style.left = "0";
+			}
+		let top =
+				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
+						- gap;
+		top = (top < 0) ? "0" : top + "px";
+		}
+
+	let topLeft = {};
+	topLeft.top = top;
+	topLeft.left = left;
+
+	return(topLeft);
+}
+
+function showhint(menucontents, obj, e, tipwidth, isAnImage) {
+	"use strict";
+	
+	setTimeout(function() {
+	showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage);
+	}, 100);
+}
+
+// Special handling for some images: if menucontents looks like
+//<img src="http://192.168.1.132:81/Viewer/imagefile.png">
+// then we take what's in the "81" position as IntraMine's Main port, and what's in
+// the "Viewer" spot as a Short name. Then call back to the Main port requesting a free
+// port for the Short name, and replace the "81" in menucontents with the free port number.
+// Also strip out the Short name, it was needed only to tell Main which server we wanted.
+// For other img src values, just pass them along to showhinAfterDelay unchanged.
+// (The fancy footwork with the port is an attempt to get the port number of a service that is
+// running and not under maintenance. This allows showhint to show the image if there are two
+// or more instances of a service running, even if one is doing maintenance.)
+function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+	if (isAnImage)
+		{
+		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			}
+		if (arrayMatch !== null)
+			{
+			let image_url = arrayMatch[1];
+			let urlMatch = /^http\:\/\/([0-9\.]+)\:(\d+)\/([A-Za-z_]+)\/(.+?)$/.exec(image_url);
+			if (urlMatch !== null)
+				{
+				let ip = urlMatch[1];
+				let port = urlMatch[2];
+				let shortName = urlMatch[3];
+				let path = urlMatch[4];
+				
+				if (port === shMainPort) // request good port number from shMainPort
+					{
+					// However, if we're on an iPad (shOnMobile), try to use our current server's
+					// port rather than asking Main to supply a fresh one - Apple really doesn't
+					// like any hanky panky with the port number.
+					if (shOnMobile && port === shMainPort && shOurServerPort !== 0)
+						{
+						let rePort = new RegExp(port);
+						menucontents = menucontents.replace(rePort, shOurServerPort);
+						let reName = new RegExp(shortName + "\/");
+						menucontents = menucontents.replace(reName, "");
+						showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+						}
+					else
+						{
+						let request = new XMLHttpRequest();
+						let theRequest = 'http://' + ip + ':' + port + '/' +
+											shortName + '/?req=portNumber';
+						request.open('get', theRequest, true);
+						
+						request.onload =
+								function() {
+									if (request.status >= 200 && request.status < 400)
+										{
+										// Success?
+										let resp = request.responseText; // port number for shortName
+										if (!isNaN(resp))
+											{
+											// Replace port with resp in menucontents. And remove
+											// server short name.
+											let rePort = new RegExp(port);
+											menucontents = menucontents.replace(rePort, resp);
+											let reName = new RegExp(shortName + "\/");
+											menucontents = menucontents.replace(reName, "");
+											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+											}
+										}
+								};
+						
+						request.send();
+						}
+					}
+				else // use supplied port as-is
+					{
+					showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+					}
+				}
+			else
+				{
+				showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+				}
+			}
+		else
+			{
+			showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+			}
+		}
+	else
+		{
+		showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+		}
+	}
+
+function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
+	"use strict";
+	
+	let image_url = "";
+	if (isAnImage)
+		{
+		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			}
+		if (arrayMatch === null)
+			{
+			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(menucontents);
+			}
+		if (arrayMatch !== null)
+			{
+			image_url = arrayMatch[1];
+			}
+		}
+
+	dropmenuobj = document.getElementById("hintbox");
+	dropmenuobj.innerHTML = menucontents;
+	
+	if (overAnchorTimer !== null)
+		{
+		window.clearTimeout(overAnchorTimer);
+		overAnchorTimer = null;
+		}
+
+	if (document.getElementById("hintbox"))
+		{
+		if (!hasClass(obj, hitAnchorClassName))
+			{
+			addClass(obj, hitAnchorClassName);
+			}
+		addClass(obj, anchorClassName);
+
+		// Check if mouse is still over element (which must have
+		// class hintanchor or plainhintanchor)
+		let stillOver = mouseStillOverTipOwner(obj);
+
+		if (!stillOver)
+			{
+			dropmenuobj.style.visibility = "hidden";
+			dropmenuobj.style.left = "-500px";
+			removeClass(obj, anchorClassName);
+			return;
+			}
+
+		dropmenuobj.style.left = "-500px";
+		dropmenuobj.style.top = "-500px";
+		if (tipwidth === "")
+			{
+			tipwidth = "300px";
+			}
+		dropmenuobj.widthobj = dropmenuobj.style;
+		if (dropmenuobj.innerHTML.indexOf('<img') == 0)
+			{
+			dropmenuobj.style.backgroundColor = 'lightyellow';
+			dropmenuobj.style.border = 'thin dotted black';
+			}
+		dropmenuobj.style.width = tipwidth;
+		if (!isAnImage)
+			{
+			// Reset height to 'auto'.
+			dropmenuobj.style.height = '';
+			}
+
+		loadParams.menucontents = menucontents;
+		loadParams.x = e.clientX;
+		loadParams.y = e.clientY;
+		loadParams.tipwidth = tipwidth;
+		loadParams.isAnImage = isAnImage;
+		
+		if (image_url !== "")
+			{
+			let my_image = new Image();
+			my_image.onload = function() {
+				positionAndShowHint();
+			};
+			my_image.src = image_url;
+			loadParams.theImage = my_image;
+			}
+		else
+			{
+			positionAndShowHint();
+			}
+
+		obj.onmouseout = hidetip;
+
+		if (typeof window.ontouchstart === 'undefined')
+			{
+			overAnchorTimer = window.setTimeout(function() {
+				hideTipIfMouseHasLeft(obj);
+			}, 1000);
+			}
+		}
+}
+
+function hideTipIfMouseHasLeft(obj) {
+	if (mouseStillOverTipOwner(obj))
+		{
+		overAnchorTimer = window.setTimeout(function() {
+			hideTipIfMouseHasLeft(obj);
+		}, 1000);
+		}
+	else
+		{
+		hidetip();
+		removeClass(obj, anchorClassName);
+		}
+}
+
+function mouseStillOverTipOwner(obj) {
+	let stillOver = false;
+
+	let anks = document.getElementsByClassName(anchorClassName);
+	if (anks.length > 0)
+		{
+		let el = anks[0];
+		let c = window.getComputedStyle(el).getPropertyValue('border-top-style');
+		stillOver = (c === 'hidden') ? true : false;
+		}
+	return (stillOver);
+}
+
+function hidetip(e) {
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+	let anks = document.getElementsByClassName(anchorClassName);
+	if (anks.length > 0)
+		{
+		for (i = anks.length - 1; i >= 0; --i)
+			{
+			removeClass(anks[i], anchorClassName);
+			}
+		}
+}
+
+function touchhidetip(e) {
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+}
+
+function createhintbox() {
+	let divblock = document.createElement("div");
+	divblock.setAttribute("id", "hintbox");
+	document.body.appendChild(divblock);
+
+	dropmenuobj = document.getElementById("hintbox");
+	dropmenuobj.style.visibility = "hidden";
+	dropmenuobj.style.left = "-500px";
+	
+	if (shOnMobile)
+		{
+		dropmenuobj.addEventListener("touchstart", function(e) {touchhidetip();});
+		}
+}
+
+// For remote iPad "debugging" since remotedebug_ios_webkit_adapter has stopped working.
+// For Viewer, errorID element is up near the top of the window.
+function writeMessageToWindow(str) {
+	let errorElem = document.getElementById(errorID);
+	if (errorElem !== null)
+		{
+		errorElem.innerHTML = "<p>" + str + "</p>";
+		}
+}
+
+if (window.addEventListener)
+	window.addEventListener("load", createhintbox, false);
+else if (window.attachEvent)
+	window.attachEvent("onload", createhintbox);
+else if (document.getElementById)
+	window.onload = createhintbox;
+
+</script>
+<script type="text/javascript">
+
+// Whitespace (or punctuation) checker. Copied from somewhere, and it works.
+function isW(s) {
+	return /[ \t\uFFE5\^\+=`~<>{}\[\]|\u3000-\u303F!-#%-\x2A,-/:;\x3F@\x5B-\x5D\x7B}\u00A1\u00A7\u00AB\u00B6\u00B7\u00BB\u00BF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E3B\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]+/.test(s);
+	
+	
+// return /[ \f\n\r\t\v\u00A0\u2028\u2029]/.test(s);
+}
+
+</script>
+<script type="text/javascript">
+/*!***************************************************
+* mark.js v9.0.0
+* https://markjs.io/
+* Copyright (c) 2014–2018, Julian Kühnel
+* Released under the MIT license https://git.io/vwTVl
+*****************************************************/
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Mark=t()}(this,function(){"use strict";function e(t){return(e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(t)}function t(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function r(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}function o(){return(o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var r in n)Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r])}return e}).apply(this,arguments)}var i=
+/* */
+function(){function e(n){var r=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:[],i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:5e3;t(this,e),this.ctx=n,this.iframes=r,this.exclude=o,this.iframesTimeout=i}return r(e,[{key:"getContexts",value:function(){var e=[];return(void 0!==this.ctx&&this.ctx?NodeList.prototype.isPrototypeOf(this.ctx)?Array.prototype.slice.call(this.ctx):Array.isArray(this.ctx)?this.ctx:"string"==typeof this.ctx?Array.prototype.slice.call(document.querySelectorAll(this.ctx)):[this.ctx]:[]).forEach(function(t){var n=e.filter(function(e){return e.contains(t)}).length>0;-1!==e.indexOf(t)||n||e.push(t)}),e}},{key:"getIframeContents",value:function(e,t){var n,r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:function(){};try{var o=e.contentWindow;if(n=o.document,!o||!n)throw new Error("iframe inaccessible")}catch(e){r()}n&&t(n)}},{key:"isIframeBlank",value:function(e){var t="about:blank",n=e.getAttribute("src").trim();return e.contentWindow.location.href===t&&n!==t&&n}},{key:"observeIframeLoad",value:function(e,t,n){var r=this,o=!1,i=null,a=function a(){if(!o){o=!0,clearTimeout(i);try{r.isIframeBlank(e)||(e.removeEventListener("load",a),r.getIframeContents(e,t,n))}catch(e){n()}}};e.addEventListener("load",a),i=setTimeout(a,this.iframesTimeout)}},{key:"onIframeReady",value:function(e,t,n){try{"complete"===e.contentWindow.document.readyState?this.isIframeBlank(e)?this.observeIframeLoad(e,t,n):this.getIframeContents(e,t,n):this.observeIframeLoad(e,t,n)}catch(e){n()}}},{key:"waitForIframes",value:function(e,t){var n=this,r=0;this.forEachIframe(e,function(){return!0},function(e){r++,n.waitForIframes(e.querySelector("html"),function(){--r||t()})},function(e){e||t()})}},{key:"forEachIframe",value:function(t,n,r){var o=this,i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},a=t.querySelectorAll("iframe"),s=a.length,c=0;a=Array.prototype.slice.call(a);var u=function(){--s<=0&&i(c)};s||u(),a.forEach(function(t){e.matches(t,o.exclude)?u():o.onIframeReady(t,function(e){n(t)&&(c++,r(e)),u()},u)})}},{key:"createIterator",value:function(e,t,n){return document.createNodeIterator(e,t,n,!1)}},{key:"createInstanceOnIframe",value:function(t){return new e(t.querySelector("html"),this.iframes)}},{key:"compareNodeIframe",value:function(e,t,n){if(e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING){if(null===t)return!0;if(t.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)return!0}return!1}},{key:"getIteratorNode",value:function(e){var t=e.previousNode();return{prevNode:t,node:null===t?e.nextNode():e.nextNode()&&e.nextNode()}}},{key:"checkIframeFilter",value:function(e,t,n,r){var o=!1,i=!1;return r.forEach(function(e,t){e.val===n&&(o=t,i=e.handled)}),this.compareNodeIframe(e,t,n)?(!1!==o||i?!1===o||i||(r[o].handled=!0):r.push({val:n,handled:!0}),!0):(!1===o&&r.push({val:n,handled:!1}),!1)}},{key:"handleOpenIframes",value:function(e,t,n,r){var o=this;e.forEach(function(e){e.handled||o.getIframeContents(e.val,function(e){o.createInstanceOnIframe(e).forEachNode(t,n,r)})})}},{key:"iterateThroughNodes",value:function(e,t,n,r,o){for(var i,a,s,c=this,u=this.createIterator(t,e,r),l=[],h=[];s=void 0,s=c.getIteratorNode(u),a=s.prevNode,i=s.node;)this.iframes&&this.forEachIframe(t,function(e){return c.checkIframeFilter(i,a,e,l)},function(t){c.createInstanceOnIframe(t).forEachNode(e,function(e){return h.push(e)},r)}),h.push(i);h.forEach(function(e){n(e)}),this.iframes&&this.handleOpenIframes(l,e,n,r),o()}},{key:"forEachNode",value:function(e,t,n){var r=this,o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},i=this.getContexts(),a=i.length;a||o(),i.forEach(function(i){var s=function(){r.iterateThroughNodes(e,i,t,n,function(){--a<=0&&o()})};r.iframes?r.waitForIframes(i,s):s()})}}],[{key:"matches",value:function(e,t){var n="string"==typeof t?[t]:t,r=e.matches||e.matchesSelector||e.msMatchesSelector||e.mozMatchesSelector||e.oMatchesSelector||e.webkitMatchesSelector;if(r){var o=!1;return n.every(function(t){return!r.call(e,t)||(o=!0,!1)}),o}return!1}}]),e}(),a=
+/* */
+function(){function e(n){t(this,e),this.opt=o({},{diacritics:!0,synonyms:{},accuracy:"partially",caseSensitive:!1,ignoreJoiners:!1,ignorePunctuation:[],wildcards:"disabled"},n)}return r(e,[{key:"create",value:function(e){return"disabled"!==this.opt.wildcards&&(e=this.setupWildcardsRegExp(e)),e=this.escapeStr(e),Object.keys(this.opt.synonyms).length&&(e=this.createSynonymsRegExp(e)),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),this.opt.diacritics&&(e=this.createDiacriticsRegExp(e)),e=this.createMergedBlanksRegExp(e),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.createJoinersRegExp(e)),"disabled"!==this.opt.wildcards&&(e=this.createWildcardsRegExp(e)),e=this.createAccuracyRegExp(e),new RegExp(e,"gm".concat(this.opt.caseSensitive?"":"i"))}},{key:"sortByLength",value:function(e){return e.sort(function(e,t){return e.length===t.length?e>t?1:-1:t.length-e.length})}},{key:"escapeStr",value:function(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}},{key:"createSynonymsRegExp",value:function(e){var t=this,n=this.opt.synonyms,r=this.opt.caseSensitive?"":"i",o=this.opt.ignoreJoiners||this.opt.ignorePunctuation.length?"\0":"";for(var i in n)if(n.hasOwnProperty(i)){var a=Array.isArray(n[i])?n[i]:[n[i]];a.unshift(i),(a=this.sortByLength(a).map(function(e){return"disabled"!==t.opt.wildcards&&(e=t.setupWildcardsRegExp(e)),e=t.escapeStr(e)}).filter(function(e){return""!==e})).length>1&&(e=e.replace(new RegExp("(".concat(a.map(function(e){return t.escapeStr(e)}).join("|"),")"),"gm".concat(r)),o+"(".concat(a.map(function(e){return t.processSynonyms(e)}).join("|"),")")+o))}return e}},{key:"processSynonyms",value:function(e){return(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),e}},{key:"setupWildcardsRegExp",value:function(e){return(e=e.replace(/(?:\\)*\?/g,function(e){return"\\"===e.charAt(0)?"?":""})).replace(/(?:\\)*\*/g,function(e){return"\\"===e.charAt(0)?"*":""})}},{key:"createWildcardsRegExp",value:function(e){var t="withSpaces"===this.opt.wildcards;return e.replace(/\u0001/g,t?"[\\S\\s]?":"\\S?").replace(/\u0002/g,t?"[\\S\\s]*?":"\\S*")}},{key:"setupIgnoreJoinersRegExp",value:function(e){return e.replace(/[^(|)\\]/g,function(e,t,n){var r=n.charAt(t+1);return/[(|)\\]/.test(r)||""===r?e:e+"\0"})}},{key:"createJoinersRegExp",value:function(e){var t=[],n=this.opt.ignorePunctuation;return Array.isArray(n)&&n.length&&t.push(this.escapeStr(n.join(""))),this.opt.ignoreJoiners&&t.push("\\u00ad\\u200b\\u200c\\u200d"),t.length?e.split(/\u0000+/).join("[".concat(t.join(""),"]*")):e}},{key:"createDiacriticsRegExp",value:function(e){var t=this.opt.caseSensitive?"":"i",n=this.opt.caseSensitive?["aàáảãạăằắẳẵặâầấẩẫậäåāą","AÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćč","CÇĆČ","dđď","DĐĎ","eèéẻẽẹêềếểễệëěēę","EÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïī","IÌÍỈĨỊÎÏĪ","lł","LŁ","nñňń","NÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøō","OÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rř","RŘ","sšśșş","SŠŚȘŞ","tťțţ","TŤȚŢ","uùúủũụưừứửữựûüůū","UÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿ","YÝỲỶỸỴŸ","zžżź","ZŽŻŹ"]:["aàáảãạăằắẳẵặâầấẩẫậäåāąAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćčCÇĆČ","dđďDĐĎ","eèéẻẽẹêềếểễệëěēęEÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïīIÌÍỈĨỊÎÏĪ","lłLŁ","nñňńNÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøōOÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rřRŘ","sšśșşSŠŚȘŞ","tťțţTŤȚŢ","uùúủũụưừứửữựûüůūUÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿYÝỲỶỸỴŸ","zžżźZŽŻŹ"],r=[];return e.split("").forEach(function(o){n.every(function(n){if(-1!==n.indexOf(o)){if(r.indexOf(n)>-1)return!1;e=e.replace(new RegExp("[".concat(n,"]"),"gm".concat(t)),"[".concat(n,"]")),r.push(n)}return!0})}),e}},{key:"createMergedBlanksRegExp",value:function(e){return e.replace(/[\s]+/gim,"[\\s]+")}},{key:"createAccuracyRegExp",value:function(e){var t=this,n=this.opt.accuracy,r="string"==typeof n?n:n.value,o="string"==typeof n?[]:n.limiters,i="";switch(o.forEach(function(e){i+="|".concat(t.escapeStr(e))}),r){case"partially":default:return"()(".concat(e,")");case"complementary":return i="\\s"+(i||this.escapeStr("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~¡¿")),"()([^".concat(i,"]*").concat(e,"[^").concat(i,"]*)");case"exactly":return"(^|\\s".concat(i,")(").concat(e,")(?=$|\\s").concat(i,")")}}}]),e}(),s=
+/* */
+function(){function n(e){t(this,n),this.ctx=e,this.ie=!1;var r=window.navigator.userAgent;(r.indexOf("MSIE")>-1||r.indexOf("Trident")>-1)&&(this.ie=!0)}return r(n,[{key:"log",value:function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"debug",r=this.opt.log;this.opt.debug&&"object"===e(r)&&"function"==typeof r[n]&&r[n]("mark.js: ".concat(t))}},{key:"getSeparatedKeywords",value:function(e){var t=this,n=[];return e.forEach(function(e){t.opt.separateWordSearch?e.split(" ").forEach(function(e){e.trim()&&-1===n.indexOf(e)&&n.push(e)}):e.trim()&&-1===n.indexOf(e)&&n.push(e)}),{keywords:n.sort(function(e,t){return t.length-e.length}),length:n.length}}},{key:"isNumeric",value:function(e){return Number(parseFloat(e))==e}},{key:"checkRanges",value:function(e){var t=this;if(!Array.isArray(e)||"[object Object]"!==Object.prototype.toString.call(e[0]))return this.log("markRanges() will only accept an array of objects"),this.opt.noMatch(e),[];var n=[],r=0;return e.sort(function(e,t){return e.start-t.start}).forEach(function(e){var o=t.callNoMatchOnInvalidRanges(e,r),i=o.start,a=o.end;o.valid&&(e.start=i,e.length=a-i,n.push(e),r=a)}),n}},{key:"callNoMatchOnInvalidRanges",value:function(e,t){var n,r,o=!1;return e&&void 0!==e.start?(r=(n=parseInt(e.start,10))+parseInt(e.length,10),this.isNumeric(e.start)&&this.isNumeric(e.length)&&r-t>0&&r-n>0?o=!0:(this.log("Ignoring invalid or overlapping range: "+"".concat(JSON.stringify(e))),this.opt.noMatch(e))):(this.log("Ignoring invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)),{start:n,end:r,valid:o}}},{key:"checkWhitespaceRanges",value:function(e,t,n){var r,o=!0,i=n.length,a=t-i,s=parseInt(e.start,10)-a;return(r=(s=s>i?i:s)+parseInt(e.length,10))>i&&(r=i,this.log("End range automatically set to the max value of ".concat(i))),s<0||r-s<0||s>i||r>i?(o=!1,this.log("Invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)):""===n.substring(s,r).replace(/\s+/g,"")&&(o=!1,this.log("Skipping whitespace only range: "+JSON.stringify(e)),this.opt.noMatch(e)),{start:s,end:r,valid:o}}},{key:"getTextNodes",value:function(e){var t=this,n="",r=[];this.iterator.forEachNode(NodeFilter.SHOW_TEXT,function(e){r.push({start:n.length,end:(n+=e.textContent).length,node:e})},function(e){return t.matchesExclude(e.parentNode)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},function(){e({value:n,nodes:r})})}},{key:"matchesExclude",value:function(e){return i.matches(e,this.opt.exclude.concat(["script","style","title","head","html"]))}},{key:"wrapRangeInTextNode",value:function(e,t,n){var r=this.opt.element?this.opt.element:"mark",o=e.splitText(t),i=o.splitText(n-t),a=document.createElement(r);return a.setAttribute("data-markjs","true"),this.opt.className&&a.setAttribute("class",this.opt.className),a.textContent=o.textContent,o.parentNode.replaceChild(a,o),i}},{key:"wrapRangeInMappedTextNode",value:function(e,t,n,r,o){var i=this;e.nodes.every(function(a,s){var c=e.nodes[s+1];if(void 0===c||c.start>t){if(!r(a.node))return!1;var u=t-a.start,l=(n>a.end?a.end:n)-a.start,h=e.value.substr(0,a.start),f=e.value.substr(l+a.start);if(a.node=i.wrapRangeInTextNode(a.node,u,l),e.value=h+f,e.nodes.forEach(function(t,n){n>=s&&(e.nodes[n].start>0&&n!==s&&(e.nodes[n].start-=l),e.nodes[n].end-=l)}),n-=l,o(a.node.previousSibling,a.start),!(n>a.end))return!1;t=a.end}return!0})}},{key:"wrapGroups",value:function(e,t,n,r){return r((e=this.wrapRangeInTextNode(e,t,t+n)).previousSibling),e}},{key:"separateGroups",value:function(e,t,n,r,o){for(var i=t.length,a=1;a<i;a++){var s=e.textContent.indexOf(t[a]);t[a]&&s>-1&&r(t[a],e)&&(e=this.wrapGroups(e,s,t[a].length,o))}return e}},{key:"wrapMatches",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){t.nodes.forEach(function(t){var o;for(t=t.node;null!==(o=e.exec(t.textContent))&&""!==o[a];){if(i.opt.separateGroups)t=i.separateGroups(t,o,a,n,r);else{if(!n(o[a],t))continue;var s=o.index;if(0!==a)for(var c=1;c<a;c++)s+=o[c].length;t=i.wrapGroups(t,s,o[a].length,r)}e.lastIndex=0}}),o()})}},{key:"wrapMatchesAcrossElements",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){for(var s;null!==(s=e.exec(t.value))&&""!==s[a];){var c=s.index;if(0!==a)for(var u=1;u<a;u++)c+=s[u].length;var l=c+s[a].length;i.wrapRangeInMappedTextNode(t,c,l,function(e){return n(s[a],e)},function(t,n){e.lastIndex=n,r(t)})}o()})}},{key:"wrapRangeFromIndex",value:function(e,t,n,r){var o=this;this.getTextNodes(function(i){var a=i.value.length;e.forEach(function(e,r){var s=o.checkWhitespaceRanges(e,a,i.value),c=s.start,u=s.end;s.valid&&o.wrapRangeInMappedTextNode(i,c,u,function(n){return t(n,e,i.value.substring(c,u),r)},function(t){n(t,e)})}),r()})}},{key:"unwrapMatches",value:function(e){for(var t=e.parentNode,n=document.createDocumentFragment();e.firstChild;)n.appendChild(e.removeChild(e.firstChild));t.replaceChild(n,e),this.ie?this.normalizeTextNode(t):t.normalize()}},{key:"normalizeTextNode",value:function(e){if(e){if(3===e.nodeType)for(;e.nextSibling&&3===e.nextSibling.nodeType;)e.nodeValue+=e.nextSibling.nodeValue,e.parentNode.removeChild(e.nextSibling);else this.normalizeTextNode(e.firstChild);this.normalizeTextNode(e.nextSibling)}}},{key:"markRegExp",value:function(e,t){var n=this;this.opt=t,this.log('Searching with expression "'.concat(e,'"'));var r=0,o="wrapMatches";this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),this[o](e,this.opt.ignoreGroups,function(e,t){return n.opt.filter(t,e,r)},function(e){r++,n.opt.each(e)},function(){0===r&&n.opt.noMatch(e),n.opt.done(r)})}},{key:"mark",value:function(e,t){var n=this;this.opt=t;var r=0,o="wrapMatches",i=this.getSeparatedKeywords("string"==typeof e?[e]:e),s=i.keywords,c=i.length;this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),0===c?this.opt.done(r):function e(t){var i=new a(n.opt).create(t),u=0;n.log('Searching with expression "'.concat(i,'"')),n[o](i,1,function(e,o){return n.opt.filter(o,t,r,u)},function(e){u++,r++,n.opt.each(e)},function(){0===u&&n.opt.noMatch(t),s[c-1]===t?n.opt.done(r):e(s[s.indexOf(t)+1])})}(s[0])}},{key:"markRanges",value:function(e,t){var n=this;this.opt=t;var r=0,o=this.checkRanges(e);o&&o.length?(this.log("Starting to mark with the following ranges: "+JSON.stringify(o)),this.wrapRangeFromIndex(o,function(e,t,r,o){return n.opt.filter(e,t,r,o)},function(e,t){r++,n.opt.each(e,t)},function(){n.opt.done(r)})):this.opt.done(r)}},{key:"unmark",value:function(e){var t=this;this.opt=e;var n=this.opt.element?this.opt.element:"*";n+="[data-markjs]",this.opt.className&&(n+=".".concat(this.opt.className)),this.log('Removal selector "'.concat(n,'"')),this.iterator.forEachNode(NodeFilter.SHOW_ELEMENT,function(e){t.unwrapMatches(e)},function(e){var r=i.matches(e,n),o=t.matchesExclude(e);return!r||o?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},this.opt.done)}},{key:"opt",set:function(e){this._opt=o({},{element:"",className:"",exclude:[],iframes:!1,iframesTimeout:5e3,separateWordSearch:!0,acrossElements:!1,ignoreGroups:0,each:function(){},noMatch:function(){},filter:function(){return!0},done:function(){},debug:!1,log:window.console},e)},get:function(){return this._opt}},{key:"iterator",get:function(){return new i(this.ctx,this.opt.iframes,this.opt.exclude,this.opt.iframesTimeout)}}]),n}();return function(e){var t=this,n=new s(e);return this.mark=function(e,r){return n.mark(e,r),t},this.markRegExp=function(e,r){return n.markRegExp(e,r),t},this.markRanges=function(e,r){return n.markRanges(e,r),t},this.unmark=function(e){return n.unmark(e),t},this}});
+
+</script>
+<script type="text/javascript">
+// wordAtInsertionPt.js
+// See https://stackoverflow.com/questions/2444430/how-to-get-a-word-under-cursor-using-javascript 
+// soln by Drakes https://stackoverflow.com/users/1938889/drakes
+// (Modified from the original.)
+// In IntraMine, getFullWord() is called by viewerStart.js#expandSelectionToWordIfPossible(),
+// the goal being to select a whole word with one click when in a non-Editable view of a file.
+
+// Get the full word the cursor is over regardless of span breaks
+function getFullWord(event) {
+let i, begin, end, range, textNode, offset;
+
+// Internet Explorer
+if (document.body.createTextRange) {
+   try {
+	 range = document.body.createTextRange();
+	 range.moveToPoint(event.clientX, event.clientY);
+	 range.select();
+	 range = getTextRangeBoundaryPosition(range, true);
+  
+	 textNode = range.node;
+	 offset = range.offset;
+   } catch(e) {
+   return(document.createRange()); // Sigh, IE
+   }
+}
+
+// Firefox, Safari
+// REF: https://developer.mozilla.org/en-US/docs/Web/API/Document/caretPositionFromPoint
+else if (document.caretPositionFromPoint) {
+  range = document.caretPositionFromPoint(event.clientX, event.clientY);
+  if (range !== null)
+	  {
+	  textNode = range.offsetNode;
+	  offset = range.offset;
+	  }
+  else
+	  {
+	  return(document.createRange());
+	  }
+
+  // Chrome
+  // REF: https://developer.mozilla.org/en-US/docs/Web/API/document/caretRangeFromPoint
+} else if (document.caretRangeFromPoint) {
+  range = document.caretRangeFromPoint(event.clientX, event.clientY);
+  if (range !== null)
+	  {
+	  textNode = range.startContainer;
+	  offset = range.startOffset;
+	  }
+  else
+	  {
+	  return(document.createRange());
+	  }
+}
+
+// Only act on text nodes
+if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+	return(document.createRange());
+}
+
+let data = textNode.textContent;
+
+// Sometimes the offset can be at the 'length' of the data.
+// It might be a bug with this 'experimental' feature - 
+// compensate for this below
+if (offset >= data.length) {
+  offset = data.length - 1;
+}
+
+// Scan behind the current character until whitespace or punct is found, or beginning
+i = begin = end = offset;
+// Don't scan behind if we're at the end of a line and last char is not a word char.
+let blockedAtLineEnd = ( offset === data.length - 1 && isW(data[offset]) );
+if (!blockedAtLineEnd)
+	{
+	while ( previousCharIsAWordChar(data, i - 1) ) {
+	  //while (i > 0 && !isW(data[i - 1])) {
+	  i--;
+	  }
+	}
+begin = i;
+
+// Scan ahead of the current character until whitespace or punct is found, or end
+// unless char at offset is not a word char.
+i = offset;
+let offsetIsWordChar = nextCharIsAWordChar(data, offset);
+if (nextCharIsAWordChar(data, i))
+	{
+	while ( nextCharIsAWordChar(data, i + 1) ) {
+	//while (i < data.length - 1 && !isW(data[i + 1])) {
+	  i++;
+	}
+	}
+end = i;
+
+// This is our temporary word
+let word = data.substring(begin, end + 1);
+
+// If at a node boundary, cross over and see what 
+// the next word is and check if this should be added to our temp word
+if (end === data.length - 1 || begin === 0) {
+
+  let nextNode = getNextNode(textNode);
+  let prevNode = getPrevNode(textNode);
+
+  // Get the next node text
+  if (end == data.length - 1 && nextNode) {
+  let nextText = nextNode.textContent;
+
+	// Add the letters from the next text block until a whitespace or punct, or end
+	i = 0;
+	while ( nextCharIsAWordChar(nextText, i) ) {
+	  word += nextText[i++];
+	}
+
+  } else if (begin === 0 && prevNode) {
+	// Get the previous node text
+  let prevText = prevNode.textContent;
+
+	// Add the letters from the next text block until a whitespace or punct, or end
+	i = prevText.length - 1;
+	while ( previousCharIsAWordChar(prevText, i) ) {
+	  word = prevText[i--] + word;
+	}
+  }
+}
+
+// Sometimes a bad last char is tacked on?
+if (word.length)
+	{
+	word = remove_linebreaks(word);
+//	if (isW(word[ word.length - 1]))
+//		{
+//		word = word.substring(0, word.length - 1);
+//		}
+	}
+
+// Return the word, and its start and end offsets. Kill selection of '.' or other non-word
+// if click happened past end of line and the line ends in non-word char such as '.'.
+if (blockedAtLineEnd)
+	{
+	word = '';
+	begin = end;
+	}
+else
+	{
+	if (offsetIsWordChar)
+		{
+		++end;
+		}
+	}
+
+let obj = {
+		theWord: word,
+		theBegin: begin,
+		theEnd: end
+		};
+
+return(obj);
+
+//return word;
+} // getFullWord()
+
+
+// Helper functions
+
+function remove_linebreaks(str ) { 
+return str.replace( /[\r\n]+/gm, "" ); 
+} 
+
+// Looking in the forward direction, either char is not white or punctuation,
+// or it is an apostrophe or hyphen and the following char is not white or punctuation.
+function nextCharIsAWordChar(theText, i) {
+	let result = ( i < theText.length 
+		&& (!isW(theText[i])
+		  || ((theText[i] === "'" || theText[i] === "-") && (i+1) < theText.length && !isW(theText[i+1])))
+		  );
+	return(result);
+	}
+
+// Looking in reverse, either char is not white or punctuation,
+// or it is an apostrophe or hyphen and the previous char is not white or punctuation.
+function previousCharIsAWordChar(theText, i) {
+	let result = ( i >= 0 
+		&& (!isW(theText[i])
+		  || ((theText[i] === "'" || theText[i] === "-") && i > 0 && !isW(theText[i-1])))
+		  );
+	return(result);
+	}
+
+
+// Barrier nodes are BR, DIV, P, PRE, TD, TR, ... 
+function isBarrierNode(node) {
+return node ? /^(BR|DIV|P|PRE|TD|TR|TABLE)$/i.test(node.nodeName) : true;
+}
+
+// Try to find the next adjacent node
+function getNextNode(node) {
+let n = null;
+// Does this node have a sibling?
+if (node.nextSibling) {
+n = node.nextSibling;
+
+// Doe this node's container have a sibling?
+} else if (node.parentNode && node.parentNode.nextSibling) {
+n = node.parentNode.nextSibling;
+}
+return isBarrierNode(n) ? null : n;
+}
+
+// Try to find the prev adjacent node
+function getPrevNode(node) {
+var n = null;
+
+// Does this node have a sibling?
+if (node.previousSibling) {
+n = node.previousSibling;
+
+// Doe this node's container have a sibling?
+} else if (node.parentNode && node.parentNode.previousSibling) {
+n = node.parentNode.previousSibling;
+}
+return isBarrierNode(n) ? null : n;
+}
+
+// REF: http://stackoverflow.com/questions/3127369/how-to-get-selected-textnode-in-contenteditable-div-in-ie
+function getChildIndex(node) {
+var i = 0;
+while( (node = node.previousSibling) ) {
+i++;
+}
+return i;
+}
+
+// All this code just to make this work with IE, OTL
+// REF: http://stackoverflow.com/questions/3127369/how-to-get-selected-textnode-in-contenteditable-div-in-ie
+function getTextRangeBoundaryPosition(textRange, isStart) {
+var workingRange = textRange.duplicate();
+workingRange.collapse(isStart);
+var containerElement = workingRange.parentElement();
+var workingNode = document.createElement("span");
+var comparison, workingComparisonType = isStart ?
+"StartToStart" : "StartToEnd";
+
+var boundaryPosition, boundaryNode;
+
+// Move the working range through the container's children, starting at
+// the end and working backwards, until the working range reaches or goes
+// past the boundary we're interested in
+do {
+containerElement.insertBefore(workingNode, workingNode.previousSibling);
+workingRange.moveToElementText(workingNode);
+} while ( (comparison = workingRange.compareEndPoints(
+workingComparisonType, textRange)) > 0 && workingNode.previousSibling);
+
+// We've now reached or gone past the boundary of the text range we're
+// interested in so have identified the node we want
+boundaryNode = workingNode.nextSibling;
+if (comparison == -1 && boundaryNode) {
+// This must be a data node (text, comment, cdata) since we've overshot.
+// The working range is collapsed at the start of the node containing
+// the text range's boundary, so we move the end of the working range
+// to the boundary point and measure the length of its text to get
+// the boundary's offset within the node
+workingRange.setEndPoint(isStart ? "EndToStart" : "EndToEnd", textRange);
+
+boundaryPosition = {
+  node: boundaryNode,
+  offset: workingRange.text.length
+};
+} else {
+// We've hit the boundary exactly, so this must be an element
+boundaryPosition = {
+  node: containerElement,
+  offset: getChildIndex(workingNode)
+};
+}
+
+// Clean up
+workingNode.parentNode.removeChild(workingNode);
+
+return boundaryPosition;
+}
+
+</script>
+<script type="text/javascript">
+// LightRange.js - A simple and lightweight selection, range and caret information library in native JavaScript, with an additional selection save & restore system. - https://github.com/n457/LightRange.js
+// Version 2.2.0
+// MIT License - Copyright (c) 2015 Bertrand Vignaud-Lerouge / n457 - https://github.com/n457
+var LightRange=function(){};
+LightRange.prototype.getSelectionInfo=function(){var a={};if(window.getSelection){var b=window.getSelection(),e=document.body.scrollTop,f=document.body.scrollLeft;if(0<b.rangeCount){var d=b.getRangeAt(0).cloneRange(),c=d.getBoundingClientRect();0===c.height&&(c=d.getClientRects()[0]);c&&(a.width=c.width,a.height=c.height,a.xStart=c.left+f,a.yStart=c.top+e);a.text=b.toString();a.charStart=d.startOffset;a.charEnd=d.endOffset;d.collapse(!1);if(c=d.getClientRects()[0])a.xEnd=c.left+f,a.yEnd=c.top+e}}else if(document.selection)b=
+document.selection.createRange(),e=document.documentElement.scrollTop,f=document.documentElement.scrollLeft,a.width=b.boundingWidth,a.height=b.boundingHeight,a.xStart=b.boundingLeft+f,a.yStart=b.boundingTop+e,a.text=b.text,b.collapse(!1),a.xEnd=b.boundingLeft+f,a.yEnd=b.boundingTop+e;else return null;a.text?(a.characters=a.text.replace(/\s/g,"").length,a.charactersAll=a.text.replace(/[\n\r]/g,"").length):(a.characters=0,a.charactersAll=0);return a};
+LightRange.prototype.saveSelection=function(){if(window.getSelection){var a=window.getSelection();if(a.getRangeAt&&a.rangeCount)return a.getRangeAt(0)}else return document.selection&&document.selection.createRange?document.selection.createRange():null};LightRange.prototype.restoreSelection=function(a){if(a){if(window.getSelection){var b=window.getSelection();b.removeAllRanges();b.addRange(a)}else if(document.selection&&a.select)a.select();else return null;return a}};var lightrange=new LightRange;
+
+</script>
+<script type="text/javascript">
+/* glossstubs.js: stubs for functions that gloss2html.pl doesn't need.
+*/
+
+function addAutoLinks() {
+}
+
+</script>
+<script type="text/javascript">
+// viewerStart.js: used for non-CodeMirror views in intramine_file_viewer_cm.pl.
+// Manage layout changes on resize, jump to an anchor
+// Put highlight hits in text and on scrollbar.
+// Show/hide any initial search hits provided in highlightitems.
+// Preserve user selection when marking, by remembering selection range, removing selected
+// text before marking, then restoring text and selection range after marking (patent not pending).
+
+let markerMainElement = document.getElementById(cmTextHolderName);
+if (markerMainElement === null)
+	{
+	markerMainElement = document.getElementById("scrollText");
+	}
+if (markerMainElement === null)
+	{
+	markerMainElement = document.getElementById(specialTextHolderName);
+	}
+
+let tocMainElement = document.getElementById("scrollContentsList");
+
+let onMobile = false; // Set below, true if we have touch events.
+if (typeof window.ontouchstart !== 'undefined')
+	{
+	onMobile = true;
+	}
+
+window.addEventListener("load", reJumpAndHighlight);
+window.addEventListener("resize", JD.debounce(doResize, 100));
+
+//let doingStandalone = false;
+//if (typeof weAreStandalone !== 'undefined')
+//	{
+//	doingStandalone = weAreStandalone;
+//	}
+
+// Adjust some element heights so scrolling works properly.
+function doResize() {
+	let rule = document.getElementById("rule_above_editor");
+	let pos = getPosition(rule);
+	let rect = rule.getBoundingClientRect();
+	let ruleHeight = rect.height;
+
+	let windowHeight = window.innerHeight;
+	let elHeight = windowHeight - pos.y - ruleHeight - 8;
+	let newHeightPC = (elHeight / windowHeight) * 100;
+	let el = document.getElementById("scrollAdjustedHeight");
+	el.style.height = newHeightPC + "%";
+
+	if (tocMainElement !== null)
+		{
+		let tocMarginTop =
+				parseInt(window.getComputedStyle(tocMainElement).getPropertyValue('margin-top'));
+		let tocHeight = elHeight - tocMarginTop;
+		if (onMobile)
+			{
+			tocHeight -= 20;
+			}
+		else
+			{
+			tocHeight -= 16;
+			}
+		let newTocHeightPC = (tocHeight / elHeight) * 100;
+		tocMainElement.style.height = newTocHeightPC + "%";
+		}
+
+	if (initialSearchHitsAreShowing)
+		{
+		removeInitialHighlights();
+		highlightInitialItems();
+		}
+
+	if (!onMobile)
+		{
+		scrollIndicator();
+		}
+	else
+		{
+		scrollMobileIndicator(); // if mobile
+		}
+	
+	updateToggleBigMoveLimit();
+}
+
+// On "load", scroll any location.hash position into view, and put highlights on any
+// words that formed part of a search that produced this file as a hit.
+// See intramine_file_viewer_cm.pl#InitialHighlightItems().
+function reJumpAndHighlight() {
+	reJump();
+	updateToggleBigMoveLimit();
+	updateTogglePositions();
+	highlightInitialItems();
+	addAutoLinks();
+}
+
+// Set top of nav to zero, fixes an iPad scroll problem where nav goes off the top.
+function resetTopNavPosition() {
+	let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+	if (nav !== null)
+		{
+		nav.parentNode.scrollTop = 0;
+		}
+}
+
+// Scroll element into view, based on ID named in location.hash.
+function reJump() {
+	let h = location.hash;
+	if (h.length > 1)
+		{
+		// strip leading '#'
+		h = h.replace(/^#/, '');
+		
+		if (isNaN(h))
+			{
+			let el = getElementForHash(h);
+			
+			if (el !== null)
+				{
+				el.scrollIntoView();
+				resetTopNavPosition();
+				if (!onMobile)
+					{
+					scrollIndicator();
+					}
+				else
+					{
+					scrollMobileIndicator(); // if mobile
+					}
+				}
+			}
+		else
+			{
+			reJumpToLineNumber(h);
+			}
+		}
+}
+
+// Progressively shorten 'h' word by word as necessary until an anchor id is found. If the
+// remaining part of 'h' is a number, though, jump to that line. If an anchor id is found,
+// return the corresponding element in the html text.
+//
+// This "shortening" approach is needed because 'h' may be too long, if it was part of a link
+// in a text file where the link was not quoted: when making the link, we didn't know where
+// the hash stopped, and just grabbed a hundred or so characters after the '#'.
+// [See intramine_file_viewer_cm.pl#RememberTextOrImageFileMention().]
+function getElementForHash(h) {
+	let hCopy = h;
+	hCopy = hCopy.replace(/ /g, '_');
+	hCopy = hCopy.replace(/\%20/g, '_');
+	hCopy = hCopy.replace(/\(\)$/, '');
+	let el = document.getElementById(hCopy);
+	
+	while(el === null && h.length > 0)
+		{
+		let lastIndexOfSpace = h.lastIndexOf(" ");
+		let lastIndexOfPct = h.lastIndexOf("%");
+		let trimIndex = (lastIndexOfSpace > lastIndexOfPct) ? lastIndexOfSpace: lastIndexOfPct;
+		if (trimIndex > 0)
+			{
+			h = h.substring(0, trimIndex);
+			let hCopy = h;
+			hCopy = hCopy.replace(/ /g, '_');
+			hCopy = hCopy.replace(/\%20/g, '_');
+			el = document.getElementById(hCopy);
+			if (el === null)
+				{
+				if (!isNaN(hCopy))
+					{
+					reJumpToLineNumber(hCopy);
+					break;
+					}
+				}
+			}
+		else
+			{
+			break;
+			}
+		}
+	
+	return(el);
+}
+
+// Scroll a line into view, based on line number.
+function reJumpToLineNumber(h) {
+	let lineNum = parseInt(h, 10) - 1;
+	if (lineNum <= 0)
+		{
+		lineNum = 0;
+		}
+	// Look for row number lineNum.
+	let rows = markerMainElement.getElementsByTagName('tr');
+	if (lineNum < rows.length)
+		{
+		let el = rows[lineNum];
+		if (el !== null)
+			{
+			el.scrollIntoView();
+			resetTopNavPosition();
+			if (!onMobile)
+				{
+				scrollIndicator();
+				}
+			else
+				{
+				scrollMobileIndicator(); // if mobile
+				}
+			}
+		}
+}
+
+// Adust the top of "id" (the main text holder) so scrolling will work properly etc.
+function setTextViewPosition(rule_id, id) {
+	let el = document.getElementById(id);
+	if (el === null)
+		{
+		return;
+		}
+	let rule = document.getElementById(rule_id);
+	let pos = getPosition(rule);
+	let rect = rule.getBoundingClientRect();
+	let ruleHeight = rect.height;
+	let yPos = pos.y + ruleHeight + 8;
+	el.style.top = yPos + "px";
+}
+
+// Position the main text-holding element.
+function positionViewItems() {
+	let viewElement = document.getElementById(cmTextHolderName);
+	if (viewElement !== null)
+		{
+		setTextViewPosition("rule_above_editor", cmTextHolderName);
+		}
+	else
+		{
+		viewElement = document.getElementById(specialTextHolderName);
+		if (viewElement !== null)
+			{
+			setTextViewPosition("rule_above_editor", specialTextHolderName);
+			}
+		}
+	doResize();
+}
+
+function finishStartup() {
+	hideIt("search-button");
+	hideIt("small-tip");
+	positionViewItems();
+	reJump();
+}
+
+function createElementFromHTML(htmlString) {
+	let div = document.createElement('div');
+	div.innerHTML = htmlString.trim();
+
+	// Change this to div.childNodes to support multiple top-level nodes
+	return div.firstChild; // or div.firstElementChild?
+}
+
+function hideIt(id) {
+	let el = document.getElementById(id);
+	if (el !== null)
+		{
+		el.style.display = 'none';
+		}
+}
+
+// Set up for highlighting text, with marks in scrollbar, keeping user's selection
+// or expanding it to a word. mark.js (mark.min.js) does the actual marking.
+// Marks are used for both the initial highlight items and a user text selection.
+let markerInstance = null;
+let mouseEvt;
+
+let textMarkerClass = "marker-highlight";
+let scrollMarkerClass = "scroll-hilite";
+let initialHitsTextMarkersClass = "initial-hits-highlight";
+let initialHitsScrollMarkerClass = "initial-scroll-hl";
+let toggleHitsButtonID = "sihits";
+let initialSearchHitsAreShowing = false;
+let currentTextForHighlighting = '';
+let justUpdateScrollbar = false;
+
+
+// Selection management: on a single click, expand to a word. If selection is on one row,
+// the <td> holding it is removed before marking, and then restored, complete with selection.
+// Done because marking the current selection will collapse it to an insertion point.
+let theSelection = {};
+theSelection.selectionIsTooBig = false;
+theSelection.isDoubleClick = false;
+theSelection.userDragged = false;
+//For LightRange.min.js range representing text selection.
+theSelection.ltRange = null;
+theSelection.currentSelectionElem = null; // Hide/show this element when marking
+theSelection.currentSelPreviousSibling = null; // The target for re-insertion of currentSelectionElem
+theSelection.selChildren = []; // Contents of TD containing current selection
+theSelection.startNodeIndexes = [];
+theSelection.startNodeOffset = 0;
+theSelection.endNodeIndexes = [];
+theSelection.endNodeOffset = 0;
+theSelection.topStartNode = null;
+theSelection.topEndNode = null;
+
+let linkClicked = false;
+let hintboxClicked = false;
+let cmCursorPos = {
+	line : -1,
+	ch : -1
+};
+
+// mark.js mark/unmark options, "done" is fired at the end of the mark/unmark. Normally
+// one calls unmark, with unmarkOptions "done" calling the mark function.
+let markerOptions = {
+	// "element": "span",
+	"className" : textMarkerClass,
+	"separateWordSearch" : false,
+	"acrossElements" : true,
+	"done" : function(counter) {
+		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+	}
+};
+let markerOptionsInitialHits = {
+	// "element": "span",
+	"className" : initialHitsTextMarkersClass,
+	"separateWordSearch" : false,
+	"acrossElements" : true,
+	"done" : function(counter) {
+		markHitsInScrollbar(initialHitsTextMarkersClass, initialHitsScrollMarkerClass);
+	}
+};
+
+let unmarkOptions = {
+	// "element": "span",
+	"className" : textMarkerClass,
+	"done" : function() {
+		removeAllScrollbarHighlights(scrollMarkerClass);
+		markCurrentSelection();
+	}
+};
+let unmarkOptionsInitialHits = {
+	// "element": "span",
+	"className" : initialHitsTextMarkersClass,
+	"done" : function() {
+		removeAllScrollbarHighlights(initialHitsScrollMarkerClass);
+	}
+};
+
+if (markerMainElement !== null)
+	{
+	markerInstance = new Mark(markerMainElement);
+	}
+
+// After a click, update markers in text and scroll corresponding TOC element into view.
+function delayedUpdateMarkersAndTOC(evt) {
+	setTimeout(function() {
+		updateMarkers(evt);
+	}, 1000);
+	
+	scrollTocEntryIntoView(evt, false);
+}
+
+// Highlight user's selection, unless it was a click on a link or in the scrollbar, or the
+// first click in a double-click, or there's too much text selected to be worth higlighting.
+function updateMarkers(evt) {
+	if (linkClicked)
+		{
+		return;
+		}
+	if (theSelection.isDoubleClick)
+		{
+		theSelection.isDoubleClick = false;
+		return;
+		}
+	if (markerMainElement === null || evtIsInScrollbar(evt))
+		{
+		return;
+		}
+
+	// No marking if selection is "too big" (spreads over more than on line).
+	theSelection.selectionIsTooBig = selectionIsTooBig();
+	
+	if (!justUpdateScrollbar && currentSelectionTouchesLink())
+		{
+		return;
+		}
+
+	mouseEvt = evt;
+	
+	theSelection.userDragged = false;
+
+	// full highlight, selection, and scrollbar marking
+	if (!justUpdateScrollbar && !theSelection.selectionIsTooBig) 
+		{
+		storeSelection();
+		// Get current text to highlight, or set theSelection.selectionTooBig = true.
+		// Also set current text to "" if it's fewer than three characters, meaning remove
+		// all markers and don't mark anything new or change the selection (this is a way to
+		// clear markers).
+		currentTextForHighlighting = getCurrentTextForMarkup();
+		
+		hideSelectionRow(); // Don't mark up row where text is selected
+		
+		markerInstance.unmark(unmarkOptions);
+		}
+	else if (justUpdateScrollbar)
+		{
+		removeAllScrollbarHighlights(scrollMarkerClass);
+		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+		}
+	justUpdateScrollbar = false;
+}
+
+//See intramine_file_viewer_cm.pl#InitialHighlightItems().
+function highlightInitialItems() {
+	if (markerMainElement !== null && highlightItems.length > 0)
+		{
+		for (let i = 0; i < highlightItems.length; ++i)
+			{
+			markerInstance.mark(highlightItems[i], markerOptionsInitialHits);
+			}
+		initialSearchHitsAreShowing = true;
+		let toggleButton = document.getElementById(toggleHitsButtonID);
+		if (toggleButton !== null)
+			{
+			toggleButton.value = "Hide Initial Hits";
+			}
+		}
+}
+
+//function decodeSpecialWordCharacters() {
+//	if (markerMainElement !== null && highlightItems.length > 0)
+//		{
+//		for (let i = 0; i < highlightItems.length; ++i)
+//			{
+//			highlightItems[i] = highlightItems[i].replace(/ *__D_ */g, ".");
+//			highlightItems[i] = highlightItems[i].replace(/__DS_([A-Za-z])/g, "\$$1");
+//			highlightItems[i] = highlightItems[i].replace(/__PC_([A-Za-z])/g, "\%$1");
+//			highlightItems[i] = highlightItems[i].replace(/__AT_([A-Za-z])/g, "\@$1");
+//			}
+//		}
+//}
+
+function removeInitialHighlights() {
+	if (markerMainElement !== null && highlightItems.length > 0)
+		{
+		for (let i = 0; i < highlightItems.length; ++i)
+			{
+			markerInstance.unmark(unmarkOptionsInitialHits);
+			}
+		initialSearchHitsAreShowing = false;
+		let toggleButton = document.getElementById(toggleHitsButtonID);
+		if (toggleButton !== null)
+			{
+			toggleButton.value = "Show Initial Hits";
+			}
+		}
+}
+
+function toggleInitialSearchHits() {
+	if (initialSearchHitsAreShowing)
+		{
+		removeInitialHighlights();
+		}
+	else
+		{
+		highlightInitialItems();
+		}
+}
+
+function noteWasDoubleClick(evt) {
+	let nons = '';
+	theSelection.isDoubleClick = true;
+}
+
+function updateScrollbarMarkers() {
+	justUpdateScrollbar = true;
+	updateMarkers(null);
+}
+
+// This is called by mark.js after an unmark, see unmarkOptions above.
+function markCurrentSelection() {
+
+	if (currentTextForHighlighting !== "")
+		{
+		markerInstance.mark(currentTextForHighlighting, markerOptions);
+		}
+	
+	showSelectionRow(); // Restore visibiliy of element containing current user selecton.
+	
+	showStoredSelections();
+
+	theSelection.userDragged = false;
+}
+
+function getCurrentTextForMarkup() {
+	let result = getSelectionText();
+
+	return (result);
+}
+
+// Get text for marking, unless it's too big to be worth marking. This is a bit of a gamble,
+// but a "too big" selection usually means the user is just intending to copy some text,
+// not see other instances of it in the same file.
+function getSelectionText() {
+	let text = "";
+	
+	theSelection.userDragged = false;
+	
+	if (window.getSelection)
+		{
+		let currSelection = window.getSelection();
+		if (!theSelection.selectionTooBig)
+			{
+			text = currSelection.toString();
+			if (text !== '')
+				{
+				theSelection.userDragged = true;
+				}
+			}
+		else
+			{
+			theSelection.userDragged = true;
+			}
+		}
+
+	
+	if (!theSelection.selectionTooBig && !theSelection.userDragged)
+		{
+		// Empty selection: expand to nearest word.
+		if (text === '')
+			{
+			//text = expandSelectionToWordIfPossible();
+			let wordObj = expandSelectionToWordIfPossible();
+			text = wordObj.theWord;
+			if (typeof text === 'undefined')
+				{
+				text = '';
+				}
+			if (text !== '')
+				{
+				let beginOffset = wordObj.theBegin;
+				let endOffset = wordObj.theEnd;
+				// Re-capture the selection for later restoration.
+				if (typeof theSelection.ltRange !== 'undefined')
+					{
+					let startContainer = theSelection.ltRange.startContainer;
+					theSelection.ltRange.setStart(startContainer, beginOffset);
+					theSelection.ltRange.setEnd(startContainer, endOffset);
+					}
+				}
+			}
+
+		// If it's a single word with a single trailing space, trim any trailing space.
+		if (text !== '')
+			{
+			let numSpaces = (text.match(/\s/g) || []).length;
+			if (numSpaces === 1)
+				{
+				let lastChar = text.substring(text.length - 1);
+				if (lastChar === " " || lastChar === "\t")
+					{
+					text = text.substring(0, text.length - 1);
+					}
+				}
+			}
+
+		}
+
+	// Avoid highlighting just one or two characters.
+	if (text.length <= 2)
+		{
+		text = "";
+		}
+
+	return text;
+}
+
+
+// "Too big" means selected text spreads across two or more lines.
+// Revision, this affects the actual current selection so stop doing it.
+function selectionIsTooBig() {
+	let selectionTooBig = false;
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.commonAncestorContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem === null)
+			{
+			selectionTooBig = true;
+			}
+		}
+
+	return (selectionTooBig);
+}
+
+function currentSelectionTouchesLink() {
+	let result = false;
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let nodes = getNodesInRange(currRange);
+		for (let i = 0; i < nodes.length; ++i)
+			{
+			if (nodes[i].nodeName === "A")
+				{
+				result = true;
+				break;
+				}
+			}
+		}
+	
+	return(result);
+}
+
+function getNextNode(node) {
+    if (node.firstChild)
+        return node.firstChild;
+    while (node)
+    {
+        if (node.nextSibling)
+            return node.nextSibling;
+        node = node.parentNode;
+    }
+}
+
+function getNodesInRange(range) {
+    var start = range.startContainer;
+    var end = range.endContainer;
+    var commonAncestor = range.commonAncestorContainer;
+    var nodes = [];
+    var node;
+
+    // walk parent nodes from start to common ancestor
+    for (node = start.parentNode; node; node = node.parentNode)
+    {
+        nodes.push(node);
+        if (node == commonAncestor)
+            break;
+    }
+    nodes.reverse();
+
+    // walk children and siblings from start until end is found
+    for (node = start; node; node = getNextNode(node))
+    {
+        nodes.push(node);
+        if (node == end)
+            break;
+    }
+
+    return nodes;
+}
+
+function expandSelectionToWordIfPossible() {
+	return (getFullWord(mouseEvt)); // see wordAtInsertionPt.js
+
+}
+
+// Add handlers for marker updating etc.
+if (markerMainElement !== null)
+	{
+	markerMainElement.addEventListener("click", delayedUpdateMarkersAndTOC);
+	markerMainElement.addEventListener("dblclick", noteWasDoubleClick);
+	window.addEventListener("resize", updateScrollbarMarkers);
+
+	markerMainElement.addEventListener("mouseup", resetTopNavPosition);
+	if (tocMainElement !== null)
+		{
+		tocMainElement.addEventListener("mouseup", resetTopNavPosition);
+		}
+	}
+
+// Show/hide highlight markers on scroll bar.
+
+function removeAllScrollbarHighlights(mClass) {
+	removeElementsByClass(mClass);
+}
+
+function removeElementsByClass(className) {
+	let elements = document.getElementsByClassName(className);
+	while (elements.length > 0)
+		{
+		elements[0].parentNode.removeChild(elements[0]);
+		}
+}
+
+// Put little rectangles in the scrollbar region, placed vertically in proportion to
+// where the selected text occurrences happen in the document.
+function markHitsInScrollbar(textClassName, scrollHitClassName) {	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let mainScrollY = markerMainElement.scrollTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	// let usableTextHeight = textViewableHeight - 2*arrowHeight;
+
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				//arrowHeight = Math.round(widthDifference) + 1;
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	// indicatorHeight: ideal height of the thumb. In practice the actual thumb height
+	// needs to be a minimum of about 18 pixels.
+	////let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
+
+	let elements = document.getElementsByClassName(textClassName);
+	for (let i = 0; i < elements.length; ++i)
+		{
+		let hitElement = elements[i];
+		let elementBoundRect = hitElement.getBoundingClientRect();
+		let textHitY = elementBoundRect.top;
+		let positionInDoc = mainScrollY + textHitY - yTop;
+		let positionRatio = positionInDoc / mainScrolllHeight;
+		let relativeMarkerPos = positionRatio * usableTextHeight;
+		let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+
+		let mk = document.createElement("mark");
+		mk.setAttribute("class", scrollHitClassName);
+		mk.style.top = absMarkerPos + "px";
+		markerMainElement.appendChild(mk);
+		}
+}
+
+function evtIsInScrollbar(evt) {
+	let result = false;
+	if (evt !== null)
+		{
+		if (evt.offsetX >= markerMainElement.clientWidth
+				|| evt.offsetY >= markerMainElement.clientHeight)
+			{
+			// Mouse down over scroll element
+			result = true;
+			}
+		}
+	return (result);
+}
+
+// Remember the element that starts the selection.
+function storeSelection() {
+	theSelection.ltRange = lightrange.saveSelection();
+}
+
+// Look at siblings of startElement, advance until element does not contain a <mark> subelement.
+function showStoredSelections() {
+	lightrange.restoreSelection(theSelection.ltRange);
+}
+
+function saveSelection() {
+	if (window.getSelection) {
+	    var sel = window.getSelection();
+	    if (sel.getRangeAt && sel.rangeCount) {
+	        return sel.getRangeAt(0);
+	    }
+	} else if (document.selection && document.selection.createRange) {
+	    return document.selection.createRange();
+	}
+return null;
+}
+
+// Set theSelection.currentSelectionElem to TD holding selection, 
+// and clone and remove the TD - only if not "too big".
+function hideSelectionRow() {
+	theSelection.currentSelectionElem = null;
+	theSelection.currentSelPreviousSibling = null;
+	if (theSelection.selectionIsTooBig)
+		{
+		return;
+		}
+
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.commonAncestorContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem === null)
+			{
+			selectionTooBig = true;
+			}
+		else
+			{
+			theSelection.currentSelectionElem = tdElem;
+			theSelection.currentSelPreviousSibling = theSelection.currentSelectionElem.previousSibling;
+			}
+		}
+
+	if (theSelection.currentSelectionElem !== null)
+		{
+		let currSelTD = theSelection.currentSelectionElem;
+		let i = 0;
+		theSelection.selChildren = [];
+		
+		findRangeTopContainers();
+		
+		let tdChildNodes = currSelTD.childNodes;
+		for  (let j = 0; j < tdChildNodes.length; ++j)
+			{
+			
+			if (tdChildNodes[j] === theSelection.topStartNode)
+				{
+				recordStartSelIndexes(j, tdChildNodes[j]);
+				}
+
+			if (tdChildNodes[j] === theSelection.topEndNode)
+				{
+				recordEndSelIndexes(j, tdChildNodes[j]);
+				}
+			}
+		
+		
+		while (theSelection.currentSelectionElem.firstChild)
+			{
+			theSelection.selChildren[i++] = theSelection.currentSelectionElem.firstChild.cloneNode(true);
+			theSelection.currentSelectionElem.removeChild(theSelection.currentSelectionElem.firstChild);
+			}
+		}
+	}
+
+function findRangeTopContainers() {
+	let topStartNode = theSelection.ltRange.startContainer;
+	while (topStartNode !== null && topStartNode.parentNode !== null && topStartNode.parentNode.nodeName !== "TD")
+		{
+		topStartNode = topStartNode.parentNode;
+		}
+	
+	let topEndNode = theSelection.ltRange.endContainer;
+	while (topEndNode !== null && topEndNode.parentNode !== null && topEndNode.parentNode.nodeName !== "TD")
+		{
+		topEndNode = topEndNode.parentNode;
+		}
+	
+	theSelection.topStartNode = topStartNode;
+	theSelection.topEndNode = topEndNode;
+}
+
+function recordStartSelIndexes(topIdx, topNode) {
+	theSelection.startNodeIndexes = [];
+	let topStartNode = theSelection.ltRange.startContainer;
+	
+	while (topStartNode !== null && topStartNode !== topNode
+			&& topStartNode.parentNode.nodeName !== "TD")
+		{
+		// Figure out where we are in list of parent's children
+		let parentNode = topStartNode.parentNode;
+		let kids = parentNode.childNodes;
+		for (let i = 0; i < kids.length; ++i)
+			{
+			if (kids[i] === topStartNode)
+				{
+				theSelection.startNodeIndexes.unshift(i);
+				}
+			}
+		topStartNode = topStartNode.parentNode;
+		}
+	theSelection.startNodeIndexes.unshift(topIdx);
+	theSelection.startNodeOffset = theSelection.ltRange.startOffset;
+}
+
+function recordEndSelIndexes(topIdx, topNode) {
+	theSelection.endNodeIndexes = [];
+	let topStartNode = theSelection.ltRange.startContainer;
+	
+	while (topStartNode !== null && topStartNode !== topNode
+			&& topStartNode.parentNode.nodeName !== "TD")
+		{
+		// Figure out where we are in list of parent's children
+		let parentNode = topStartNode.parentNode;
+		let kids = parentNode.childNodes;
+		for (let i = 0; i < kids.length; ++i)
+			{
+			if (kids[i] === topStartNode)
+				{
+				theSelection.endNodeIndexes.unshift(i);
+				}
+			}
+		topStartNode = topStartNode.parentNode;
+		}
+	theSelection.endNodeIndexes.unshift(topIdx);
+	theSelection.endNodeOffset = theSelection.ltRange.endOffset;
+}
+
+// Restore display of any TD element holding the current selection.
+function showSelectionRow() {
+	if (theSelection.currentSelectionElem !== null && theSelection.selChildren.length)
+		{
+		for (let i = 0; i < theSelection.selChildren.length; ++i)
+			{
+			theSelection.currentSelectionElem.appendChild(theSelection.selChildren[i]);
+			
+			
+			if (i === theSelection.startNodeIdx)
+				{
+				let node = theSelection.currentSelectionElem.lastChild;
+				theSelection.ltRange.setStart(node, theSelection.startNodeOffset);
+				}
+			if (i === theSelection.endNodeIdx)
+				{
+				let node = theSelection.currentSelectionElem.lastChild;
+				theSelection.ltRange.setEnd(node, theSelection.endNodeOffset);
+				}
+			}
+		
+		restoreRangeStartsAndEnds();
+		}
+}
+
+function restoreRangeStartsAndEnds() {
+	let topNode = theSelection.currentSelectionElem;
+	
+	let drillDownNode = topNode;
+	for (let i = 0; i < theSelection.startNodeIndexes.length; ++i)
+		{
+		drillDownNode = drillDownNode.childNodes[theSelection.startNodeIndexes[i]];
+		}
+	theSelection.ltRange.setStart(drillDownNode, theSelection.startNodeOffset);
+	
+	drillDownNode = topNode;
+	for (let i = 0; i < theSelection.endNodeIndexes.length; ++i)
+		{
+		drillDownNode = drillDownNode.childNodes[theSelection.endNodeIndexes[i]];
+		}
+	theSelection.ltRange.setEnd(drillDownNode, theSelection.endNodeOffset);
+}
+
+// Skip along through childNodes until we hit a MARK and accumulated offset is
+// >= targetOffset.
+// Returns MARK node or null in [0], accumulated textLength in [1].
+function markToSelect(node, textLength, targetOffset, markerNode) {
+	if (markerNode !== null)
+		{
+		return ([ markerNode, textLength ]);
+		}
+	let lengthSoFar = textLength;
+	let tagName = node.nodeName;
+	if (tagName === "MARK")
+		{
+		let markLength = node.textContent.length;
+		if (lengthSoFar + markLength >= targetOffset)
+			{
+			return ([ node, lengthSoFar + markLength ]);
+			}
+		}
+
+	// Still here, go deeper.
+	let numChildren = node.childNodes.length;
+	if (numChildren == 0)
+		{
+		lengthSoFar += node.textContent.length;
+		}
+	else
+		{
+		for (let i = 0; i < node.childNodes.length; ++i)
+			{
+			let markNodeToSelectArray =
+					markToSelect(node.childNodes[i], lengthSoFar, targetOffset, markerNode);
+			lengthSoFar = markNodeToSelectArray[1];
+			if (markNodeToSelectArray[0] !== null)
+				{
+				markerNode = markNodeToSelectArray[0];
+				break;
+				}
+			}
+		}
+
+	return ([ markerNode, lengthSoFar ]);
+}
+
+// Link clicked means don't update markers for user's text selection.
+function notelinkClicked(evt) {
+	if (hintboxClicked)
+		{
+		hintboxClicked = false;
+		return;
+		}
+	linkClicked = false;
+
+	let target = evt.target || null;
+	// Click might be on an "edit" pencil (edit1.png), move up to parent.
+	if (target !== null && target.nodeName === "IMG")
+		{
+		target = target.parentNode;
+		}
+	if (target !== null && target.nodeName === "A")
+		{
+		linkClicked = true;
+		}
+	else
+		{
+		if (typeof target.id !== 'undefined')
+			{
+			if (target.id === "hintbox")
+				{
+				linkClicked = true;
+				}
+			}
+		}
+}
+
+// The "hint" box shows a possibly reduced view of an image in text views. On an iPad,
+// it's clickable. If clicked, we treat it as a click on a link and don't change the
+// marked text.
+function noteHintboxClicked() {
+	hintboxClicked = true;
+	linkClicked = true;
+}
+
+let addHintTimer; // onMobile, to keep trying addHintboxListener() until it succeeds.
+
+function addHintboxListener() {
+	let tooltipElement = document.getElementById("hintbox");
+	if (tooltipElement !== null)
+		{
+		tooltipElement.addEventListener("touchstart", noteHintboxClicked);
+		clearInterval(addHintTimer);
+		}
+}
+
+if (onMobile)
+	{
+	addHintTimer = setInterval(addHintboxListener, 200);
+	}
+
+document.addEventListener("mousedown", notelinkClicked);
+
+ready(finishStartup);
+
+</script>
+<script type="text/javascript">
+// showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element
+// at top of the Table Of Contents. The TOC isn't shrunk away to nothing, a bit is left
+// visible (which reminds one that it's there, and makes the design easier:).
+// TODO this is a bit fragile, scrollContentsList and scrollTextRightOfContents are hard-coded.
+// However, any ambitious person who changes those has bought the rights to full maintenance.
+// This is used in the Viewer (intramine_file_viewer_cm.pl) where a view has a table of contents,
+// and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
+
+// Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
+function toggleTOC(toggleElem) {
+	// Avoid spurious highlighting after TOC toggle causes redraw.
+	if (document.activeElement !== null)
+		{
+		document.activeElement.blur();
+		}
+
+	let elementToAdjust = document.getElementById('scrollContentsList');
+	let textElement = document.getElementById('scrollTextRightOfContents');
+	let divContainer = elementToAdjust.parentElement;
+	if (elementToAdjust !== null && textElement !== null)
+		{
+		let theTopPos = firstVisibleLineNumber(textElement);
+		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
+		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
+		let widthTOC = parseInt(widthStrTOC, 10);
+		let widthParent = parseInt(widthStrParent, 10);
+		let oldTocWidthPC = 100 * widthTOC / widthParent;
+		let shrinkIt = (oldTocWidthPC < 10) ? false : true;
+		let newWidthTOCPC, newWidthTextPC, newTextLeftPC;
+		if (shrinkIt)
+			{
+			newWidthTOCPC = 5;
+			newWidthTextPC = 93.5;
+			newTextLeftPC = 6;
+			}
+		else
+			{
+			newWidthTOCPC = 23;
+			newWidthTextPC = 75.5;
+			newTextLeftPC = 24;
+			}
+		elementToAdjust.style.width = newWidthTOCPC + "%";
+		textElement.style.width = newWidthTextPC + "%";
+		textElement.style.left = newTextLeftPC + "%";
+		restoreTopPosition(textElement, theTopPos);
+
+		// Especially for CodeMirror, force a recalc.
+		window.dispatchEvent(new Event('resize'));
+
+		// Redo initial scrollbar markers
+		if (initialSearchHitsAreShowing)
+			{
+			removeInitialHighlights();
+			highlightInitialItems();
+			}
+
+		}
+
+	return (false);
+}
+
+function addTocToggle(idToggle) {
+	let scrollContentsElement = document.getElementById('scrollContentsList');
+	if (scrollContentsElement !== null)
+		{
+		// Add in the shrink/expand element at top of Table Of Contents.
+		let toggleElem;
+		if (b64ToggleImage !== '')
+			{
+			toggleElem = createElementFromHTML("<img src=\"data:image/png;base64,"
+						+ b64ToggleImage + "\" id='" + idToggle + "'>");
+			}
+		else
+			{
+			toggleElem = createElementFromHTML("<img src='707788g4.png' id='" + idToggle + "'>");
+			}
+		// scrollContentsElement.insertBefore(toggleElem, elementToAdjust.childNodes[0]);
+		document.body.insertBefore(toggleElem, document.body.firstChild);
+		toggleElem.addEventListener('click', function() {
+			toggleTOC(toggleElem);
+		});
+
+		// Default position is absolute relative to the page. We want to set the top so that it
+		// nestles down in the Table of Contents at the top, where 20px of margin has been
+		// left for it. Top should be just below the horizontal rule that divides upper part
+		// of page from content proper.
+		let rule = document.getElementById("rule_above_editor");
+		let pos = getPosition(rule);
+		let toggleTop = pos.y + 4;
+
+		toggleElem.style.top = toggleTop + "px";
+		}
+}
+
+// Get line number of first visible line in text.
+// For non-codemirror, look for table row with bounding rect top that is
+// >= elem bounding rect top. On that row, <td n="(\d+)" gives the line number.
+function firstVisibleLineNumber(elem) {
+	let topPos = 0;
+	let undefCounter = 0;
+
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
+		topPos = firstVisibleLineNum;
+		}
+	else
+		{
+		topPos = quickGetPosition(elem, true);
+		}
+
+	return (topPos);
+}
+
+// For non-CodeMirror files, the text of the document is in one or more consecutive <table>s.
+// - find first table whose top is too far, look at the one before that - or if top
+// is dead on, use that one.
+// - check every 100th or 10th entry for element that is too far or dead on
+// - if checked 100, now check every 10th starting from the "100" row just found
+// - step through from there to find the exact number, skipping shrunk rows that have no number.
+// "elem" is the main text holder, having tables as direct children (at least one).
+function quickGetPosition(elem, getTop) {
+	if (elem === null)
+		{
+		return;
+		}
+	let topPos = 0;
+	let undefCounter = 0;
+	let enclosingRect = elem.getBoundingClientRect();
+	let enclosingRectTopOrBot = (getTop) ? enclosingRect.top : enclosingRect.bottom;
+	
+	let kids = null;
+	for (; undefCounter < 100; ++undefCounter)
+		{
+		if (typeof(elem.children) !== 'undefined')
+			{
+			kids = elem.children;
+			break;
+			}
+		}
+	
+	if (typeof(elem.children) === 'undefined')
+		{
+		//console.log("ERROR could not get children!");
+		return(0);
+		}
+	
+	let done = false;
+	
+	// If "kids" doesn't have a table, try going down one more level - this is needed
+	// with "index.txt" for example, which has a "special-index-wrapper" holding its one table
+	if (!elementHasTableAsChild(kids))
+		{
+		kids = elem.children[0].children;
+		}
+	
+	// - find first table whose BOTTOM is past the top or bottom of the view.
+	let table = wantedTableForPosition(kids, enclosingRectTopOrBot, getTop);
+	
+	if (table !== null)
+		{
+		let tableBody = getTableBody(table);
+		
+		if (tableBody !== null)
+			{
+			let rowNum = getRowCandidateAbovePosition(table, 100, 10, enclosingRectTopOrBot);
+			topPos = rowTopPosition(table, rowNum, 10, enclosingRectTopOrBot);
+			}
+		}
+	
+	return (topPos);
+}
+
+function getTableBody(table) {
+	let tableBody = null;
+	
+	if (table !== null)
+		{
+		let tableKids = table.children; // there should be only one TBODY
+		for (let m = 0; m < tableKids.length; ++m)
+			{
+			if (tableKids[m].nodeName === "TBODY")
+				{
+				tableBody = tableKids[m];
+				break;
+				}
+			}
+		}
+	
+	return(tableBody);
+}
+
+//Look at last row bottom in each table body, return current table if its bottom is
+// at or past enclosingRectTopOrBot.
+// // Sometimes rounding errors get in the way, hence the "Math.ceil()"
+function wantedTableForPosition(topChildren, enclosingRectTopOrBot, getTop) {
+	let wantedTable = null;
+	
+	
+	//enclosingRectTopOrBot -= 1;
+	
+	for (let i = 0; i < topChildren.length; ++i)
+		{
+		if (!getTop)
+			{
+			//console.log("Checking table " + i);
+			}
+		
+		let tagName = topChildren[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			let tableBody = getTableBody(topChildren[i]);
+			
+			if (tableBody !== null)
+				{
+				let rows = tableBody.children;
+				if (rows.length > 0)
+					{
+					let rowToCheck = rows.length - 1;
+					let bounding = rows[rowToCheck].getBoundingClientRect();
+					let bottomCeiling = Math.ceil(bounding.bottom);
+					
+					if (!getTop)
+						{
+						//console.log("Checking table " + i + " row " + rowToCheck + " bottom " + bottomCeiling + " of " + rows.length + " against " + enclosingRectTopOrBot);
+						}
+					
+					if (bottomCeiling >= enclosingRectTopOrBot) // too far, or just far enough
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			} // if (tagName === "TABLE")
+		}
+		
+	if (wantedTable === null)
+		{
+		if (!getTop)
+			{
+			//console.log("Did NOT find bottom!");
+			}
+		
+		if (topChildren.length > 0)
+			{
+			if (getTop)
+				{
+				for (let i = 0; i < topChildren.length; ++i)
+					{
+					let tagName = topChildren[i].nodeName;
+					if (tagName === "TABLE")
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			else // bottom
+				{
+				for (let i = topChildren.length - 1; i >= 0; --i)
+					{
+					let tagName = topChildren[i].nodeName;
+					if (tagName === "TABLE")
+						{
+						wantedTable = topChildren[i];
+						break;
+						}
+					}
+				}
+			}
+		else
+			{
+			console.log("ERROR no tables in document!");
+			}
+		}
+	
+	return(wantedTable);
+}
+
+function elementHasTableAsChild(topChildren) {
+	let result = false;
+	
+	for (let i = 0; i < topChildren.length; ++i)
+		{
+		let tagName = topChildren[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			result = true;
+			break;
+			}
+		}
+	
+	return(result);
+}
+
+// We are looking for a row with bottom above or at enclosingRectTopOrBot.
+// 
+// Starting at table bottom, look upwards rowInc at a time for the row bottom
+// that is <= enclosingRectTopOrBot. If none found, the default 0 is returned.
+// There are two passes, crude (100 row jumps) and fine (10 row jumps).
+function getRowCandidateAbovePosition(table, majorInc, minorInc, enclosingRectTopOrBot) {
+	let wantedRow = 0;
+	let lastRowCheckedInFirstPass = 0;
+	let tableBody = getTableBody(table);
+	
+	if (tableBody !== null)
+		{
+		let rows = tableBody.children;
+		let rowToCheck = rows.length - 1;
+		
+		// Look backwards in big jumps, from end of table.
+		while (rowToCheck >= wantedRow)
+			{
+			let bounding = rows[rowToCheck].getBoundingClientRect();
+			if (bounding.bottom <= enclosingRectTopOrBot)
+				{
+				wantedRow = rowToCheck;
+				break;
+				}
+			else
+				{
+				rowToCheck -= majorInc;
+				}
+			}
+		
+		// Look backwards in small jumps, from wantedRow just found plus majorInc.
+		rowToCheck = wantedRow + majorInc;
+		if (rowToCheck > rows.length - 1)
+			{
+			rowToCheck = rows.length - 1;
+			}
+		while (rowToCheck >= wantedRow)
+			{
+			let bounding = rows[rowToCheck].getBoundingClientRect();
+			if (bounding.bottom <= enclosingRectTopOrBot)
+				{
+				wantedRow = rowToCheck;
+				break;
+				}
+			else
+				{
+				rowToCheck -= minorInc;
+				}
+			}
+		}
+	
+	return(wantedRow);
+}
+
+// startRow should have a bottom that is <= enclosingRectTopOrBot, and not be too far
+// above one that's >. Look down from startRow for a row with bottom >= enclosingRectTopOrBot.
+// Try to adjust down slightly from that to a row with TOP >= enclosingRectTopOrBot.
+// On a complete fail, which can happen when scrolling to bottom of document, take
+// the last line number in the table. What can I say, it works.
+function rowTopPosition(table, startRow, minorInc, enclosingRectTopOrBot) {
+	let topPos = 0;
+	let tableBody = getTableBody(table);
+	
+	enclosingRectTopOrBot = Math.ceil(enclosingRectTopOrBot);
+	
+	if (tableBody !== null)
+		{
+		let foundIt = false;
+		let rows = tableBody.children;
+		let lastToCheck = startRow + minorInc + 1;
+		if (lastToCheck > rows.length)
+			{
+			lastToCheck = rows.length;
+			}
+		
+		for (let j = startRow; j < lastToCheck; ++j)
+			{
+			let bounding = rows[j].getBoundingClientRect();
+			let bottomCeiling = Math.ceil(bounding.bottom);
+			if (bottomCeiling >= enclosingRectTopOrBot) // too far, or just far enough
+				{
+				let lastToCheck_K =  j + 3;
+				if (lastToCheck_K > rows.length)
+					{
+					lastToCheck_K = rows.length;
+					}
+				for (let k = j; k < lastToCheck_K; ++k)
+					{
+					let bounding_K = rows[k].getBoundingClientRect();
+					let bottomCeiling_K = Math.ceil(bounding_K.bottom);
+					if (bottomCeiling_K > enclosingRectTopOrBot)
+						{
+						let contents = rows[k].innerHTML;
+						let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+						if (lineNumMatch !== null)
+							{
+							topPos = parseInt(lineNumMatch[1], 10);
+							foundIt = true;
+							break;
+							}
+						}
+					}
+				
+				// For the very last line, it's possible that the bottom of the last row
+				// won't be visible (perhaps by only a pixel or so) or that it's a shrunk
+				// row with no line number. If so, look up starting at row j for a row
+				// with visible top and a line number.
+				if (!foundIt)
+					{
+					for (let k = j; k < lastToCheck_K; ++k)
+						{
+						let bounding_K = rows[k].getBoundingClientRect();
+						if (bounding_K.top >= enclosingRectTopOrBot)
+							{
+							let contents = rows[k].innerHTML;
+							let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+							if (lineNumMatch !== null)
+								{
+								topPos = parseInt(lineNumMatch[1], 10);
+								foundIt = true;
+								break;
+								}
+							}
+						}
+					}
+				
+				break;
+				}
+			}
+		
+		if (!foundIt)
+			{
+			// Find last row with a line number.
+			let k = rows.length - 1;
+			while (k >= 0)
+				{
+				let contents = rows[k].innerHTML;
+				let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+				if (lineNumMatch !== null)
+					{
+					topPos = parseInt(lineNumMatch[1], 10);
+					foundIt = true;
+					break;
+					}
+				--k;
+				}
+			}
+		} // if (tableBody !== null)
+	
+	return (topPos);
+}
+
+function lastVisibleLineNumber(elem) {
+	let bottomPos = 0;
+	let undefCounter = 0;
+	
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
+		bottomPos = lastVisibleLineNum;
+		}
+	else
+		{
+		bottomPos = quickGetPosition(elem, false);
+		}
+
+	return (bottomPos);
+}
+
+// Not used.
+// Mainly for Non-CodeMirror, calculate an average line height in pixels.
+function getAverageLineHeight(elem) {
+	let averageHeight = 14; // Use an arbitrary but not horrible default.
+	if (usingCM)
+		{
+		averageHeight = myCodeMirror.defaultTextHeight();
+		}
+	else
+		{
+		let enclosingRect = elem.getBoundingClientRect();
+		let visiblePixels = enclosingRect.bottom - enclosingRect.top;
+		let firstVisibleLineNum = firstVisibleLineNum(elem);
+		let lastVisibleLineNum = lastVisibleLineNumber(elem);
+		let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
+		if (numVisibleLines > 0 && visiblePixels > 0)
+			{
+			averageHeight = visiblePixels / numVisibleLines;
+			}
+		}
+	
+	return(averageHeight);
+}
+
+// Calc a rough value for nonCM, based on average line height in pixels.
+function getNumVisibleLines(elem) {
+	let numVisibleLines = 0;
+	
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
+		numVisibleLines = lastVisibleLineNum - firstVisibleLineNum + 1;
+		}
+	else
+		{
+		let enclosingRect = elem.getBoundingClientRect();
+		let enclosingRectTop = enclosingRect.top;
+		let enclosingRectBottom = enclosingRect.bottom;
+		let numVisiblePixels = enclosingRectBottom - enclosingRectTop;
+		
+		}
+	return(numVisibleLines);
+}
+
+function restoreTopPosition(elem, topPos) {
+	if (usingCM)
+		{
+		jumpToLine(topPos + 2, false);
+		}
+	else
+		{
+		restoreTopPositionNonCM(elem, topPos);
+		}
+}
+
+// Find <tr> in elem with <td n="topPos"..., scroll it into view.
+function restoreTopPositionNonCM(elem, topPos) {
+	let children = elem.children;
+	let done = false;
+
+	for (let i = 0; i < children.length; ++i)
+		{
+		let tagName = children[i].nodeName;
+		if (tagName === "TABLE")
+			{
+			let tableBody = children[i].children;
+			for (let k = 0; k < tableBody.length; ++k)
+				{
+				let tableChildren = tableBody[k].children;
+				for (let j = 0; j < tableChildren.length; ++j)
+					{
+					let contents = tableChildren[j].innerHTML;
+					let lineNumMatch = /^<td n="(\d+)/.exec(contents);
+					if (lineNumMatch !== null)
+						{
+						let currentLine = lineNumMatch[1];
+						if (currentLine == topPos)
+							{
+							tableChildren[j].scrollIntoView();
+							// Set top of nav to zero, fixes an iPad scroll problem where nav
+							// goes off the top.
+							let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+							if (nav !== null)
+								{
+								nav.parentNode.scrollTop = 0;
+								}
+							done = true;
+							break;
+							}
+						}
+					}
+				if (done)
+					{
+					break;
+					}
+				}
+			}
+		if (done)
+			{
+			break;
+			}
+		}
+}
+
+window.addEventListener("load", function() {
+	addTocToggle('tocShrinkExpand');
+});
+
+</script>
+<script type="text/javascript">
+/**
+ * indicator.js: Mainly a scroll indicator for PCs and iPads in non-codemirror views (text, perl etc).
+ */
+
+// 'indicator is for mobile', 'indicatorPC' is for a regular Windows box.
+let indicatorElem = onMobile ? document.getElementById('indicator') : document.getElementById('indicatorPC');
+let otherIndicatorElem = onMobile ? document.getElementById('indicatorPC') : document.getElementById('indicator');
+//let indicatorElem = document.getElementById('indicator');
+let indicatorM = 0; // for mobile and non-mobile
+let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
+let lazyMobileScroll = JD.debounce(scrollMobileIndicator, 500);
+let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
+
+let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
+let lazyScroll = JD.debounce(scrollIndicator, 500);
+let arrowHeight = 18; // Needed for PC only.
+
+otherIndicatorElem.style.display = 'none';
+
+
+if (onMobile) // iPad only supported for now....
+	{
+	//console.log("WE ARE MOBILE.");
+	window.addEventListener("load", lazySetUpMobileIndicator);
+	window.addEventListener("resize", lazySetUpMobileIndicator);
+	markerMainElement.addEventListener("scroll", scrollMobileIndicator);
+	markerMainElement.addEventListener("touchend", lazyResetTopNavPosition);
+
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement !== null)
+		{
+		tocElement.addEventListener("touchend", lazyMobileScroll);
+		tocElement.addEventListener("touchend", lazyResetTopNavPosition);
+		}
+	}
+else
+	{
+	window.addEventListener("load", lazySetUpIndicator);
+	window.addEventListener("resize", lazySetUpIndicator);
+	
+	markerMainElement.addEventListener("scroll", scrollIndicator);
+	window.addEventListener("load", addHideIndicatorScrollListener);
+	
+	hideIt("search-button");
+	hideIt("small-tip");
+	hideIt("undo-button");
+	hideIt("redo-button");
+	}
+
+// Mobile, mainly set indicatorM. "M" as in y = Mx + b.
+function setUpMobileIndicator() {
+	if (!onMobile)
+		{
+		return;
+		}
+
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+
+	if (mainScrolllHeight > textViewableHeight)
+		{
+		let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
+		indicatorM =
+				(textViewableHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+
+		if (indicatorHeight < 2.0)
+			{
+			indicatorHeight = 2.0;
+			}
+		indicatorElem.style.height = indicatorHeight + "px";
+		}
+
+	lazyMobileScroll();
+}
+
+// Non-mobile, mainly set indicatorM. "M" as in y = Mx + b.
+function setUpIndicator() {
+	if (onMobile)
+		{
+		return;
+		}
+	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	if (mainScrolllHeight > usableTextHeight)
+		{
+		let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
+		
+		// Show the indicator only if thumb is too small to reflect actual page size.
+		if (indicatorHeight <= 20)
+			{
+			indicatorM =
+					(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+	
+			if (indicatorHeight < 2.0)
+				{
+				indicatorHeight = 2.0;
+				}
+			indicatorElem.style.height = indicatorHeight + "px";
+			}
+		else
+			{
+			indicatorM = 0;
+			}
+		}
+	else
+		{
+		indicatorM = 0;
+		}
+
+	lazyScroll();
+	
+	setTimeout(function() {
+				hideIndicator();
+			}, 1000);
+}
+
+// Mobile, set indicatorElem.top
+function scrollMobileIndicator() {
+	if (!onMobile)
+		{
+		return;
+		}
+
+	if (indicatorM > 0)
+		{
+		let mainScrollY = markerMainElement.scrollTop;
+		let rect = markerMainElement.getBoundingClientRect();
+		let yTop = rect.top;
+		let newThumbTop = indicatorM * mainScrollY + yTop;
+		indicatorElem.style.top = newThumbTop + "px";
+		}
+}
+
+// Non-mobile, set indicatorElem.top
+function scrollIndicator() {
+	if (onMobile)
+		{
+		return;
+		}
+
+	if (indicatorM > 0)
+		{
+		indicatorElem.style.display = 'block';
+		
+		let mainScrollY = markerMainElement.scrollTop;
+		let rect = markerMainElement.getBoundingClientRect();
+		let yTop = rect.top;
+		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
+		indicatorElem.style.top = newThumbTop + "px";
+		}
+}
+
+// Add a scroll listener that hides the 'indicatorPC' box after a few seconds.
+let isScrollingIndicator = null;
+function addHideIndicatorScrollListener() {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function() {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( isScrollingIndicator );
+	
+			// Set a timeout to run after scrolling ends
+			isScrollingIndicator = setTimeout(function() {
+				// Run the callback
+				hideIndicator();
+			}, 3000);
+			});
+		}
+}
+
+function hideIndicator() {
+	indicatorElem.style.display = 'none';
+}
+
+</script>
+<script type="text/javascript">
+// toggle.js: toggle between two positions in a document.
+// Track "proximal" (current) and "distal" (previous) positions
+// in response to all changes in scrolled position.
+// If it's a small move, update the proximal position.
+// If it's a big move, call the new position proximal, and the old
+// proximal becomes distal.
+// Toggle: scroll distal into view, and switch proximal with distal.
+
+let proximalLineNumber = 1;	// "here"
+let distalLineNumber = 1;	// "there"
+let bigMoveLineLimit = 100; // Big move vs small move
+
+function toggle() {
+	//console.log("Toggle click");
+	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	let tempNum = proximalLineNumber;
+	proximalLineNumber = distalLineNumber;
+	distalLineNumber = tempNum;
+	let el = document.getElementById(cmTextHolderName);
+	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
+	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function updateTogglePositions() {
+	let el = document.getElementById(cmTextHolderName);
+	let myStartLine = firstVisibleLineNumber(el);
+	//console.log("update myStartLine " + myStartLine);
+	if (myStartLine < 1)
+		{
+		myStartLine = 1;
+		}
+	//console.log("update here " + proximalLineNumber);
+	let linesScrolled = proximalLineNumber - myStartLine;
+	//console.log("update lines scrolled: " + linesScrolled);
+	if (linesScrolled < 0)
+		{
+		linesScrolled = -linesScrolled;
+		}
+	if (linesScrolled <= bigMoveLineLimit)
+		{
+		//console.log("small move, here " + proximalLineNumber + ", there " + distalLineNumber + " before update");
+		proximalLineNumber = myStartLine;
+		//console.log(" here is " + proximalLineNumber + " after update.)");
+		}
+	else
+		{
+		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalLineNumber = proximalLineNumber;
+		proximalLineNumber = myStartLine;
+		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
+		}
+	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Borrowed from
+//https://gomakethings.com/detecting-when-a-visitor-has-stopped-scrolling-with-vanilla-javascript/
+let isScrolling = null;
+function addToggleScrollListener() {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function() {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( isScrolling );
+	
+			// Set a timeout to run after scrolling ends
+			isScrolling = setTimeout(function() {
+				// Run the callback
+				updateTogglePositions();
+			}, 66);
+			});
+		}
+}
+
+// Set the number of lines that counts as a "big move"
+// (meaning a real change of position, not just an adjustment
+// of current position).
+// Called by viewerStart.js#doResize() and on load by
+// viewerStart.js#reJumpAndHighlight().
+function updateToggleBigMoveLimit() {
+	let el = document.getElementById(cmTextHolderName);
+	let firstVisibleLineNum = firstVisibleLineNumber(el);
+	let lastVisibleLineNum = lastVisibleLineNumber(el);
+	
+	// Problem, sometimes lastVisibleLineNumber() can return 0.
+	if (lastVisibleLineNum === 0)
+		{
+		lastVisibleLineNum = lastVisibleLineNumber(el);
+		if (lastVisibleLineNum === 0)
+			{
+			//console.log("EARLY EXIT in updateToggleBigMoveLimit!");
+			return;
+			}
+		}
+	
+	let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
+	if (numVisibleLines <= 10)
+		{
+		bigMoveLineLimit = 20;
+		//console.log("TINY WINDOW!");
+		}
+	else
+		{
+		bigMoveLineLimit = numVisibleLines + 10;
+		}
+	
+	//console.log("First vis: " + firstVisibleLineNum);
+	//console.log("LAST vis: " + lastVisibleLineNum);
+	//console.log("Big move limit: " + bigMoveLineLimit);
+}
+
+window.addEventListener("load", addToggleScrollListener);
+
+
+</script>
+<script type="text/javascript">
+/**
+ * scrollTOC.js: when a heading is clicked in text, scroll corresponding Table of Contents
+ * entry into view. Non-CodeMirror files only. See cmScrollTOC.js for CodeMirror handling.
+ */
+
+// Scroll the Table of Contents:
+// if click was in text content, to heading at or just before line clicked.
+// if scrolling, to heading at or just after first visible line.
+function scrollTocEntryIntoView(evt, weAreScrolling) {
+	let tocElem = null;
+
+	if (!weAreScrolling)
+		{
+		let lineNum = lineNumberforAnchor();
+		if (lineNum >= 0)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+		else
+			{
+			// Treat as for scrolling.
+			weAreScrolling = true;
+			}
+		}
+	
+	if (weAreScrolling)
+		{
+		let el = document.getElementById(cmTextHolderName);
+		let limitLineNum = lastVisibleLineNumber(el) + 1;
+		let lineNum = firstVisibleLineNumber(el);
+		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+		if (tocElem === null)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+		}
+		
+	if (tocElem !== null)
+		{
+		tocElem.scrollIntoView({block: 'center'});
+		updateTocHighlight(tocElem);
+		}
+}
+
+
+// Get text line number for current selection anchor, or -1.
+function lineNumberforAnchor() {
+	let currSelection = window.getSelection();
+	if (currSelection === null)
+		{
+		return(-1);
+		}
+	
+	let lineNum = -1;
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount > 0)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.startContainer;
+		let tdElem = commonA;
+		
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			tdElem = tdElem.parentNode;
+			}
+		if (tdElem !== null)
+			{
+			let previousElem = tdElem.previousSibling;
+			if (previousElem !== null)
+				{
+				let tdLineNum = previousElem.getAttribute("n");
+				if (tdLineNum !== null)
+					{
+					lineNum = tdLineNum;
+					}
+				}
+			}
+		}
+	
+	return (lineNum);
+}
+
+// Return TOC element that is at or closest above the text line number.
+// Called for mouse/touch in actual text content.
+// Typical non-CodeMirror TOC entry:
+// <li class="h2" im-text-ln="123">
+function getTocElemForLineNumber(lineNum) {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocElem = null;
+	let previousTocElem = null;
+	let previousTocElemLineNum = 0;
+	let lowestNumberedElem = null;
+	let lowestNumberedElemNumber = 0;
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		let li = tocEntries[i];
+		let tocLineNum = parseInt(li.getAttribute("im-text-ln"), 10); // IntraMine line number of heading in main text
+		if (!isNaN(tocLineNum) && tocLineNum <= lineNum)
+			{
+			if (tocLineNum == lineNum)
+				{
+				tocElem = tocEntries[i];
+				break;
+				}
+			else if (previousTocElemLineNum <  tocLineNum)
+				{
+				previousTocElemLineNum = tocLineNum;
+				previousTocElem = tocEntries[i];
+				}
+			
+			if (lowestNumberedElemNumber == 0 || lowestNumberedElemNumber > tocLineNum)
+				{
+				lowestNumberedElemNumber = tocLineNum;
+				lowestNumberedElem = tocEntries[i];
+				}
+			}
+		}
+	
+	if (tocElem === null && previousTocElem !== null)
+		{
+		tocElem = previousTocElem;
+		}
+	else if (tocElem === null && lowestNumberedElem !== null)
+		{
+		tocElem = lowestNumberedElem;
+		}
+	
+	return(tocElem);
+}
+
+// Return TOC element that is at or closest *below* the text line number.
+// Called after a scroll. Element must be before the visible bottom of the page,
+// otherwise we should be looking upwards from the top of page for the heading
+// that applies to the current position.
+function getTocElemAfterLineNumber(lineNum, limitLineNum) {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocElem = null;
+	let nextTocElem = null;
+	let nextTocElemLineNum = 999999;
+	let lastTocElem = null;
+	let lastTocElemLineNum = 0;
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		let li = tocEntries[i];
+		let tocLineNum = parseInt(li.getAttribute("im-text-ln"), 10); // IntraMine line number of heading in main text
+		if (!isNaN(tocLineNum) && tocLineNum >= lineNum && tocLineNum <= limitLineNum)
+			{
+			if (tocLineNum == lineNum)
+				{
+				tocElem = tocEntries[i];
+				break;
+				}
+			else if (nextTocElemLineNum >  tocLineNum)
+				{
+				nextTocElemLineNum = tocLineNum;
+				nextTocElem = tocEntries[i];
+				}
+			
+			if (lastTocElemLineNum < tocLineNum)
+				{
+				lastTocElemLineNum = tocLineNum;
+				lastTocElem = tocEntries[i];
+				}
+			}
+		}
+
+	
+	if (tocElem === null && nextTocElem !== null)
+		{
+		tocElem = nextTocElem;
+		}
+	else if (tocElem === null && lastTocElem !== null)
+		{
+		tocElem = lastTocElem;
+		}
+	
+	return(tocElem);
+}
+
+let scrollingForToc = null;
+function addTocScrollListener(evt) {
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		el.addEventListener("scroll", function(evt) {
+			// Clear our timeout throughout the scroll
+			window.clearTimeout( scrollingForToc );
+	
+			// Set a timeout to run after scrolling ends
+			scrollingForToc = setTimeout(function() {
+				// Run the callback.
+				scrollTocEntryIntoView(evt, true);
+			}, 66);
+			});
+		}
+}
+
+// Not used.
+function addTocAndToggleListeners(evt) {
+	let el = document.getElementById(cmTextHolderName);
+	el.addEventListener("scroll", function(evt) {
+		// Clear our timeout throughout the scroll
+		window.clearTimeout( scrollingForToc );
+	
+		// Set a timeout to run after scrolling ends
+		scrollingForToc = setTimeout(function() {
+			// Run the callbacks.
+			scrollTocEntryIntoView(evt, true);
+			updateTogglePositions();
+		}, 66);
+	});
+}
+
+function updateTocHighlight(elem) {
+	if (elem === null)
+		{
+		return;
+		}
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(null);
+		}
+	
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		if (hasClass(tocEntries[i], selectedTocId))
+			{
+			removeClass(tocEntries[i], selectedTocId);
+			}
+		}
+	
+	addClass(elem, selectedTocId);
+}
+
+window.addEventListener("load", addTocScrollListener);
+//window.addEventListener("load", addTocAndToggleListeners);
+
+
+</script>
+</body></html>

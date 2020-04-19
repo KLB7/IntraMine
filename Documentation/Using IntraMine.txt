@@ -1,0 +1,104 @@
+Using IntraMine
+===============
+
+Start and stop IntraMine
+========================
+You can **start IntraMine** by double-clicking bats\START_INTRAMINE.bat as found in your IntraMine folder. (Note you don't need to use "Run as administrator" to start or stop IntraMine.) You might want to put a shortcut to that on your desktop.
+
+To **stop IntraMine**, double-click on bats\STOP_INTRAMINE.bat. This is the best way, because each server will finish whatever it might be busy with before quitting. And for this one as well you might want to put a shortcut on your desktop.
+
+I've shortened the names for my own shortcuts to "IM START" and "IM STOP".
+
+For normal use, let IntraMine run 24/7.
+
+Visit IntraMine with your browser
+=================================
+Go to http://localhost:81/Search (use your main port number, if you decided not to use 81. Or you can go to some other running page such as "ToDo" or "Status", just substitute that for "Search" in the URL.
+
+To visit IntraMine from a different PC, substitute the LAN IP of your IntraMine PC for "localhost". (Run "ipconfig /all" to discover the Local IP address of a PC. And this is the best example of telling you things you already know, as I predicted in "Read Me First.txt".)
+
+The Navigation Bar
+==================
+IntraMine puts a top navigation bar on each page, listing top-level page services. A service is top-level if its Page name and Short name are the same, and it's not a BACKGROUND service (see the table just below).
+
+2019-10-04 12_51_51-Full Text Search.png.
+
+All enabled top-level servers will be listed in the navigation bar, in the order that they appear in data/serverlist.txt.
+
+On the far right end of the navigation bar is a question mark that brings up IntraMine help when clicked. You probably knew that, since this file is part of the help.
+
+Supplied services
+=================
+Here are the servers supplied with IntraMine. You'll find the master list used by IntraMine in data/serverlist.txt in your IntraMine folder. The individual services are described in their own files, as listed in the "SUPPLIED SERVICES" section of contents.txt.
+
+TABLE All services, with default Count value
+Count	Page name			Short name	Program						Option	Docs
+1		Search				Search		intramine_search.pl			 Search.txt
+2		Search				Viewer		intramine_viewer.pl	 		Viewer.txt
+2		Search				Linker		intramine_linker.pl	 		Linker.txt
+1		Search				Opener		intramine_open_with.pl	 	Opener.txt
+1		Search				Editor		intramine_editor.pl			 Editor.txt
+1		Files				Files		intramine_filetree.pl	 	Files.txt
+0		Upload				Upload		intramine_uploader.pl	 	Upload.txt
+0		Days				Days		intramine_daysserver.pl	 	Other services.txt
+0		Events				Events		intramine_eventsserver.pl	 	Other services.txt
+0		Cash				Cash		intramine_cashserver.pl	 	Other services.txt
+1		ToDo				ToDo		intramine_todolist.pl	 	ToDo.txt
+0		Cmd					Cmd			intramine_commandserver.pl	PERSISTENT	Cmd.txt
+1		Status				Status		intramine_status.pl	 	Status.txt
+1		DBX					DBX			intramine_db_example.pl	 	DBX.txt
+1		Bp					Bp			intramine_boilerplate.pl	 	Bp.txt
+1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
+1		SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND	SSE.txt
+
+The "Count" field controls how many of each server to start.
+
+To disable a server, set its "Count" field to 0 in data/serverlist.
+
+To start, stop, restart or add a non-persistent instance of a running server on the fly, use the Status page.
+
+A minimal set for search/view/edit
+==================================
+By default, the Count for both Linker and Viewer services is set to 2. The Viewer is small, so it doesn't matter much, but the Linker does take a bit of memory, needing about 400 MB for every 300,000 files. So if you find you're low on memory, you can free up a bit by setting the Linker Count to 1. The one main drawback of doing so is that the Linker will go out of service for a few seconds if you rename a folder. With two running, the Linkers take turns for maintenance and there is no service interruption.
+
+If you just want to search, view, and edit source and text files, you can disable the ToDo, DBX, and Bp servers. You can also disable the Editor server if you want, or use your own preferred editing app in place of IntraMine's built-in editor, as described in "Editing documents.txt".
+
+Ramping up for many users
+=========================
+The only services supplied with IntraMine that might experience heavy load are the Linker and Viewer. If you have many users and people notice that it's taking a long time to open or scroll through file views, the cure is to increase the Count field for both the Linker and Viewer in data/serverlist, and of course restart IntraMine.
+
+The Viewer has minor memory needs (under 40 MB), but each Linker needs about 400 MB for every 300,000 files. If people report slow file loading times, that means you could use another Viewer. If links don't fill in immediately when scrolling through a document, that means you could use another Linker. As usual, you can increase the number of Viewer or Linker services running by bumping up the Count field in data/intramine_config.txt.
+
+Indexing additional folders
+=================================
+You can add one or more folders for indexing and monitoring without having to completely rebuild your Elasticsearch index. To do that:
+1. Open data/search_directories.txt.
+2. Change all of the "Index" entries to 0.
+3. Add the new directory paths, and set "Index" for them to 1.
+4. Leave the existing "Monitor" entries as-is, and for the new entries set "Monitor" to 1 if the path is on locally attached storage and you want to pick up on file changes, set to 0 if the path is on NAS or you're not interested in re-indexing files there that change.
+5. Save search_directories.txt, and run **bats/IM_ADD_INDEX.bat**. This will stop IntraMine, add files in the new folders to your Elasticsearch index, and restart IntraMine. Along the way it will also stop the File Watcher service, rebuild its XML config file that tells it which folders to monitor, and restart the File Watcher service.
+6. Against the day when you might want to completely rebuild your Elasticsearch index, this would be a good time to revisit data/search_directories.txt and change all the altered "Index" entries back to 1.
+
+Adding files to indexed folders
+===============================
+If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by Elasticsearch and is being monitored for changes, this can swamp IntraMine's Watcher with changes to the point where it will lose track, and not index the newly added files.
+
+To avoid swamping IntraMine's Watcher, stop IntraMine with bats/STOP_INTRAMINE.bat before adding the thousands of files. Then, to have IntraMine index the newly added files, you have two options. Either:
+ - treat the folder where you've added files as an "additional folder", and follow the steps just above for adding a folder to be indexed, pretending that the folder you just added files to is an "additional" folder. This will re-index older files in the folder as well as indexing newly added files, but that's harmless.
+ - or completely re-index all files by running bats/IM_INIT_INDEX.bat. This will take a fair bit longer probably, but involves less fussing: in particular there's no need to change data/search_directories.txt.
+
+Having warned about adding too many files at once to an indexed folder, I should add that IntraMine's theoretical "swamp limit" should be on the order of 40,000 files. But I haven't tested it. I *have* tested adding about 4,000 files to an indexed folder while IntraMine was running, and everything was fine.
+
+If IntraMine's Watcher goes DEAD, this typically means it's very very busy indexing newly added files. Give it a while, and it will probably recover (worst case about an hour). If it does recover, no file additions or changes will have been skipped. If it doesn't, your best recourse in this case is to blow away your current Elasticsearch index and full paths list and rebuild them, by running bats/IM_INIT_INDEX.bat (Run as administrator, see "Build your Elasticsearch index and run IntraMine.txt#Index and run").
+
+More to explore
+===============
+**Gloss**. If you like the idea of using some sort of markdown for your internal documents, but want something with very little overhead and unforgettable syntax that goes the extra mile, take a look at "Gloss.txt".
+
+Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style text documents to single-file completely standalone HTML. You get all of Gloss's standard features, plus the option of inlining images rather than having them pop up on a hover, and glossary popup support for "technical terms". You should find they look good enough for in-house documentation, and even for Help files on the web. 
+
+**Write your own IntraMine server**. IntraMine takes care of basic issues such as HTTP communications, so you're free to write the interesting parts. See "Writing your own IntraMine server.txt".
+
+---
+contents.txt
+---

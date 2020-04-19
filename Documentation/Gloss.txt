@@ -1,0 +1,414 @@
+Gloss
+=====
+---
+NOTE:
+ - to see how Gloss renders markup, please view the .html version of this file in IntraMine's Documentation/ folder, or open the .txt version using IntraMine, either directly or after clicking on the '?' in the navigation bar.
+ - to see the source for this file, open Documentation/Gloss.txt in a text editor.
+ - "tricks" such as zero width spaces, fat asterisks ✱, and images are used to avoid Gloss processing below, so you can see the original text followed by how Gloss renders it.
+---
+
+Overview
+========
+Gloss is a markdown variant that concentrates on two things: minimal, memorable markdown that looks good in the source text; and automatic linking to files on your intranet.
+
+Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: just the plain file name without any directories or drive or quotes or brackets, or any other adornments.
+
+IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl - 
+
+Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use, as opposed to publishing to the world. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
+
+Since IntraMine is a bit of a tech demo, Gloss processing is fully applied to all .txt files by the Viewer. A subset (including table of contents, automatic linking, and image hovers) is also applied to source files. And gloss2html.pl generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.
+
+I sense you want some bullet points. Gloss does
+ - "Links": autolinking to local and NAS source and text files, the web, internal headings, images, and links that jump directly to places in other documents (functions, classes, text file headings). Overhead per link: at most two double quotes, and a hash tag '#' between a file name and a heading in the file. File links are context aware, minimizing the need to provide a partial path. Autolinking is applied to all source and text files by the Viewer.
+ - an automatically generated "Table of Contents" down the left side, with links to headings, functions, and classes etc.
+ - "Headings": h1 h2 h3, done with underlining using at least five ========, ------------, ~~~~~~~~~~~~.
+ - "Tables": write "TABLE", put headers on the next line, data on following lines, and separate cells with one or more tabs: the table ends when a line has no tabs. More below, but that's basically it.
+ - "Lists", "Emphasis" (**bold** and *italic*).
+ - highlighting of any word or short phrase you select, in the text and down the scrollbar.
+ - "image hovers": any mention of an image becomes a link to the image, and stopping your cursor over the link will pop up an instant view of the image. If you haven't been using images in your source and text files, it's because you didn't have image hovers.
+
+How to
+======
+
+Table of Contents
+-----------------
+Gloss generates a Table of Contents (TOC) automatically for:
+ - headings in text files (see just below)
+ - function, method, class, and struct definitions in source files.
+ 
+The Table of Contents is done alphabetically in source files, and in order of occurrence in text files.
+
+The selected item in the TOC updates automatically to synchronize with the position you're viewing in a document as you scroll.
+
+A little green double-headed arrow doohickey 707788g4.png up top lets you collapse/expand the TOC.
+
+Headings
+-------
+To mark a line as a heading, underline it with **five or more** of the same character: equals (=) for top level, hyphen (-) for next level, and tilde (~) for the lowest level.
+TABLE Heading underline characters
+Underline with		To get
+=====				h1
+-----				h2
+~~~~~				h3
+
+Examples:
+
+Top level heading
+​=================
+produces
+2019-09-18 13_30_26-Gloss.txt.png
+
+Next level heading
+​------------------
+produces
+2019-09-18 13_31_17-Gloss.txt.png
+
+Lowest level heading
+​~~~~~~~~~~~~~~~~~~~~
+produces
+2019-09-18 13_31_52-Gloss.txt.png
+
+
+Horizontal rules
+----------------
+Put **three or four** equals signs '=' or hyphens'-'or tildes '~' at the beginning of a line, and nothing else, to produce a horizontal rule. A rule done with "===" will be slightly more noticeable than one done with "---" or "~~~".
+
+Since IntraMine uses a monospaced font for text display, horizontal rules can help code examples stand out.
+
+Example:
+​---
+#special-index-wrapper th {
+	text-align: center;
+}
+​---
+produces
+---
+#special-index-wrapper th {
+	text-align: center;
+}
+---
+
+Links
+-----
+When a source or text file is viewed with IntraMine, file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used.
+
+Linking to other files
+~~~~~~~~~~~~~~~~~~~~~~
+Let's get the novel parts of this out of the way first, and see how IntraMine decides which file to link to, when you have more than one file with the same name. 
+
+This works more easily with a few definitions up front:
+ - the "source" file is the file holding the link.
+ - the file you want to link to is the "target".
+ - the "context" for the link is the location on disk of the source file.
+ - the "distance" from one file to another is measured by the leftmost overlap of their paths. For example, C:/project51/docs/notes.txt and C:/project51/src/main.cpp have "C:/project51/" as their overlap.
+For example, if you're reading "C:/Projects/project51/docs/notes.txt", and in it you see "main.cpp": then "notes.txt" is the source, "main.cpp" is the target, and "C:/Projects/project51/docs/" is the context. As a variation, the target you see might be "project999/src/main.cpp" (which might or might not be on the C: drive).
+
+Basically, IntraMine decides which file is meant as the target the same way you would, if you memorized the names and locations of all files on your system. It picks the closest one that's compatible with any partial or full path you provide, preferring ones that are closed to your context.
+
+So if you see "main.cpp" in "C:/Projects/project51/docs/notes.txt", and the main.cpp closest to that file is "C:/Projects/project51/src/main.cpp", then that's where the link on "main.cpp" will take you. If, in the same project, you also had temp/main.cpp and archived/main.cpp, then you would want to use "src/main.cpp" to signal which of the closest ones you want. IntraMine interprets that as "go to the closest main.cpp that's in a /src/ subfolder"
+
+If instead you wanted to link to the main.cpp in a different project, you would need to provide enough of a partial path, eg project999/src/main.cpp.
+
+But, there's no need to include a rightmost-complete partial path. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp).
+
+Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed (see Build your Elasticsearch index and run IntraMine.txt). You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
+
+TABLE Link examples
+Target (file to link to)		Source (where you're typing)			What to put as the link
+main.cpp in P:/project51/src	P:/project51/docs/notes.txt				main.cpp
+main.cpp in P:/project999/src	P:/project51/docs/notes.txt				project999/src/main.cpp
+main.cpp in P:/project51/src	P:/project999/docs/notes.txt			project51/src/main.cpp
+main.cpp in P:/project51/src	a file on some other drive				project51/src/main.cpp
+Of course, it you have several copies of the project51 folder floating around, you'll need more of the path in the mention, and in that case you're better off using the whole path (eg P:/project51/src/main.cpp)
+
+IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/src/main.cpp. Maybe some day....
+
+Linking to headings in other files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By "heading" I mean a heading in a text file, or a function or class in a source file, to keep things short.
+
+To link to a heading in a source or text file, put a hash "#" between the file name and heading, and put the whole mention in "double quotes".
+
+Some examples: these are IntraMine files, so if you've indexed your IntraMine folder and you're viewing this with IntraMine's Viewer then all of the below examples will be real links. If you're viewing this with IntraMine's Help, only the first one will be a link.
+"Linker.txt#Calling the Linker"
+"intramine_viewer.pl#GetPrettyTextContents()"
+"autoLinks.js#addAutoLinks()"
+
+If you click on a link to a heading, the file will open in a new tab and you'll be scrolled to the heading.
+
+Linking to headings in the same file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Again "heading" here means heading in a text file, or a function or class in a source file.
+
+In a text file:
+To link to a heading in the same text (.txt)file, put it in "double quotes".
+
+In a source file:
+The links to functions and classes within the same file will just happen on their own. No quotes are needed in either source or comments.
+
+As an example, "Images" will be a link to the section following this one. When you start using IntraMine you'll see same-file links to functions and classes in your source files.
+
+Web links
+~~~~~~~~~
+Web links are full auto, with no need to type double quotes or anything extra. Any text starting with http:// or https:// will become a link. Such as http://google.com.
+
+Perl Module links
+~~~~~~~~~~~~
+Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file viewing. So in Perl files if you "use" a module, you'll get a link to the corresponding file on your system. If you installed the module using cpan (or cpanm etc) you'll also get a link to metacpan.org for the modules. And if it's a module you wrote and are storing locally, there will also be a "pencil" icon link to open the file for editing.
+2019-11-19 12_14_06-gloss2html.pl.png
+
+On-demand linking
+~~~~~~~~~~~
+Context aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking: lines of text are processed only when they become visible, and only once.
+
+Images
+------
+Image file names are given special treatment. In addition to a link to the image, you get a view of the image in your browser window if you pause the mouse cursor over the image file name. Here's an example for you to hover your cursor over:
+no quotes ImagePlacement.png, or with quotes "ImagePlacement.png".
+The double quotes aren't necessary, though double quotes do help the file mention stand out in the original text.
+
+You can put images in any indexed folder, and their file names will be linked wherever they are mentioned.
+
+If you have two different images with the same file name, you can add a bit of the path leading up to the image in order to tell Gloss which image you mean by providing some context. For example, if you wanted the /project51/images/ version of an image called interface.png, in general you could put project51/images/interface.png or just project51/interface.png as the mention. That would pin down which image to show, unless of course you have another /project51/ folder somewhere - in that rare case, you'd need more of the path to tell Gloss which is which. If the mention is in a file that's inside the project51 folder, then just interface.png should do the job. This is the same as for source and text file links.
+
+As implemented in IntraMine's Viewer, Gloss will also look for images in a specific default directory if no partial path is given and the image isn't found in an indexed location. This is the directory specified by "COMMON_IMAGES_DIR" in IntraMine's data/intramine_config.txt file. The default path is C:\common\images\, and you can change it if you want. If you don't want to put images in a default directory, you certainly don't have to. It's handy though if you use a screen capture app such as Greenshot, where you can set it up to take a screen shot, give it a default name, save the image in a default location, and put the file path on your clipboard.
+
+Tables
+------
+Simple tables
+~~~~~~~~~~~~~
+Here's a simple Gloss table:
+​TABLE CodeMirror linkType and class
+linkType		Class
+file			cmAutoLink
+image			cmAutoLinkImg
+web				cmAutoLinkNoEdit
+(internal)		cmInternalLink
+which displays as
+TABLE CodeMirror linkType and class
+linkType		Class
+file			cmAutoLink
+image			cmAutoLinkImg
+web				cmAutoLinkNoEdit
+(internal)		cmInternalLink
+
+**To make a simple table**:
+ - put "TABLE" at the beginning of a line, optionally followed by a space and a caption
+ - on the next line, put column headers separated by one or more tabs
+ - on the following lines put the data, again with columns separated by one or more tabs
+ - the table ends when there's a line with no tabs.
+
+If you want a blank cell, put a space. No toothpicks |, no pavement _, you don't even have to use enough tabs to make it all line up in the original text (but I know that you will).
+
+Can you forget that? I'll bet you can't.
+
+Cell span and alignment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can have fancier tables if you want, but of course at the price of having to know and type a bit more.
+
+Put <N> at the beginning of cell contents to indicate how many columns the text should span, where N is an integer. This isn't needed for the rightmost cell, it will take however many columns are remaining to the right.
+
+Put <L>, <R>, or <C> at the beginning of a cell to indicate left, right, or center alignment. Cell text is aligned left by default, except for text spanning multiple cells, which is center-aligned by default.
+
+To combine span and alignment, put the alignment and then span in the '<>' at the beginning of the cell's contents, eg <R3> for a three-column span, with text aligned right.
+
+​TABLE Column span demo
+One Hdr		Two Hdr		Three Hdr		Four Hdr		Five Hdr
+d11	<3>d12 3 cells										d15
+d21		d22				d23				d24				d25
+d31		d32		<L>d33 3 cells left
+d41		d42		d43			d44							d45
+<R3>d51 3 cells right					d54				d55
+
+TABLE Column span demo
+One Hdr		Two Hdr		Three Hdr		Four Hdr		Five Hdr
+d11	<3>d12 3 cells										d15
+d21		d22				d23				d24				d25
+d31		d32		<L>d33 3 cells left
+d41		d42		d43			d44							d45
+<R3>d51 3 cells right					d54				d55
+
+​TABLE Cell alignment
+ 	 								Temperature Range in Kelvin
+Class				Description		<R>Low		<R>High
+<C>O				blue			<R>30,000	<R>♾️?
+<C>B				blue white		<R>10,000	<R>30,000
+<C>A				white			<R>7,500	<R>10,000
+<C>F				yellow white	<R>6,000	<R>7,500
+<C>G				yellow			<R>5,200	<R>6,000
+<C>K				light orange	<R>3,700	<R>5,200
+<C>M				orange red		<R>2,400	<R>3,700
+
+TABLE Cell alignment
+ 	 								Temperature Range in Kelvin
+Class				Description		<R>Low		<R>High
+<C>O				blue			<R>30,000	<R>♾️?
+<C>B				blue white		<R>10,000	<R>30,000
+<C>A				white			<R>7,500	<R>10,000
+<C>F				yellow white	<R>6,000	<R>7,500
+<C>G				yellow			<R>5,200	<R>6,000
+<C>K				light orange	<R>3,700	<R>5,200
+<C>M				orange red		<R>2,400	<R>3,700
+
+Gloss vs Markdown tables
+~~~~~~~~~~~~~~~~~~~~~~~
+Here's a simple Markdown style table, just straight HTML:
+~~~
+<table>
+    <th>
+        <td>First header</td><td>Second</td><td>Third</td>
+    </th>
+    <tr>
+        <td>Entry one</td><td>Another entry</td><td>Last entry on first row</td>
+    </tr>
+    <tr>
+        <td>Second data row first cell</td><td>row 2 cell 2</td><td>Last entry in table</td>
+    </tr>
+</table>
+~~~
+And here's the equivalent Gloss table:
+​​TABLE
+First header				Second			Third
+Entry one					Another entry	Last entry on first row
+Second data row first cell	row 2 cell 2	Last entry in table
+
+which produces
+TABLE
+First header				Second			Third
+Entry one					Another entry	Last entry on first row
+Second data row first cell	row 2 cell 2	Last entry in table
+
+The HTML version needs 268 characters, and many of them are special. The Gloss table needs 151 characters, of which only five ("TABLE") are at all special.
+
+Gloss vs MultiMarkdown tables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Here's a MultiMarkdown table, from
+http://fletcher.github.io/MultiMarkdown-5/tables.html
+---
+|             |          Grouping           ||
+First Header  | Second Header | Third Header |
+ ------------ | :-----------: | -----------: |
+Content       |          ✱Long Cell✱        ||
+Content       |   ✱✱Cell✱✱    |         Cell |
+
+New section   |     More      |         Data |
+And more      | With an escaped '\|'         ||  
+[Prototype table]
+---
+(2019-03-23 20_28_28-Tables.png)
+
+Here's the same table in Gloss, as closely as possible:
+​TABLE Prototype table
+ 				Grouping
+First Header	<C>Second Header	<R>Third Header
+Content			✱Long Cell✱
+Content			<C>✱✱Cell✱✱			<R>Cell
+	
+New section		<C>More				<R>Data
+And more		With an escaped '|'
+
+TABLE Prototype table
+ 				Grouping
+First Header	<C>Second Header	<R>Third Header
+Content			*Long Cell*
+Content			<C>**Cell**			<R>Cell
+	
+New section		<C>More				<R>Data
+And more		With an escaped '|'
+
+MultiMarkdown needs 310 characters, versus 206 for Gloss.
+
+Wider columns
+~~~~~~~~~~~~~
+IntraMine's tables rely on the browser to sort out column widths, but sometimes a column can end up being too narrow, especially if the browser window isn't very wide. To force a column to be wider, add spaces or non-breaking spaces at the end of the heading for the column. Regular spaces seem to do the trick too sometimes, but not always.
+
+To type a non-breaking space on a Windows box, hold down the ALT key and type 0160. The numbers 0160 must be typed on the **numeric keypad** for this to work. My record for remembering that is, I think, about five years.
+
+Lists
+-----
+You can have unordered (bulleted) or ordered (numbered) lists.
+
+Unordered lists
+~~~~~~~~~~~~~~
+ - two levels are supported
+- an unordered list item begins flush left with a '-', '+', or '*'.
+ - optionally you can put one or more spaces at the beginning of the line.
+   -- if you put two or more of '-', '+', or '*', eg '--' or '+++', you'll get a second-level entry. To make it prettier in the original text, you can insert spaces at the beginning of the line.
+   A top-level or second-level item can continue in following paragraphs. To have the following paragraphs count as part of an item, begin each with one or more tabs or spaces. The leading spaces or tabs will be suppressed in the HTML display.
+     ---++** Another second-level item, with excessive spaces.
+
+Ordered lists
+~~~~~~~~~~~~
+An ordered list entry consists of a number and period, or a number period and number, followed by at least one space. There can be spaces or tabs before the first number, but nothing else.
+
+Ordered lists are auto-numbered, provided the following guidelines are followed:
+1. Two levels, major (2.) and minor (2.4) are supported. Each major entry increments the major number.
+  An item can have more than one paragraph, **provided each subsequent paragraph starts with one or more spaces or tabs**, and there are no intervening blank lines. The leading spaces or tabs will be suppressed in the HTML display.
+2. If the first major entry in a list starts with a number, that number is used as the starting number for the list. Minor levels are always numbered starting at 1.
+2.1 A blank line or regular paragraph that doesn't begin with a space or tab ends the current list and resets numbering.
+2.2 Any continuation paragraph in the same item will have its leading spaces or tabs suppressed.
+ Here is a second paragraph for item 2.2.
+   And here is a third paragraph, with more leading spaces in the original. Blathering on to make it wrap, blathering on to make it wrap, blathering on to make it wrap.
+3. '#' can be used as a placeholder, but it's not recommended because if you want to refer to a numbered entry you have to know the number. In practice, careful numbering by hand is more useful.
+4. If you use two levels, there should be a major level entry starting off each top-level item, such as the "1." "2." "3." entries in 1., 1.1, 1.2, 2., 2.1, 3., 3.1. Without the major items, the major number will not increment.
+
+An ordered list example (a bit messed up in the source to show auto-numbering at work):
+3. The first major item, with starting number set to 3.
+3.1 A minor item under 3.
+3.3 Another minor item, incorrectly numbered as 3.3 in the source (corrected to 3.2)
+#.# Several minor items, carelessly numbered in the source as "#.#" (this will be 3.3)
+#.# Several minor items, carelessly numbered in the source as "#.#" (this will be 3.4)
+#.# Several minor items, carelessly numbered in the source as "#.#" (this will be 3.5)
+4. The second major item, correctly numbered in source as 4.
+6. Oops, the source has "6." instead of "5." - this will display as 5.
+6.1 A minor item, 5.1 (source has 6.1)
+6.3 A minor items, 5.2 (source has 6.3)
+7.1 Another minor item. This becomes item 5.3 even though it's "7.1" in the source.
+
+The source for the above example:
+"2019-10-18 14_03_27-C__perlprogs_mine_Documentation_Gloss.txt - Notepad++.png"
+
+Emphasis
+--------
+Put single asterisks (*) before and after text to mark it as italic. Put two asterisks (**) both before and after text to mark it as bold. You get <em> for italic and <strong> for bold, which I hope is what you expected.
+
+This could use a small example. So I'm going to cheat in the original text and use a Unicode heavy asterisk, which Gloss won't convert. The second instance of the example line uses regular asterisks.
+Gloss does ✱italic emphasis✱ and ✱✱bold emphasis✱✱ like this.
+Gloss does *italic emphasis* and **bold emphasis** like this.
+
+Special characters
+------------------
+Gloss makes certain words and strings stand out a bit. With slight exceptions for "=>", and "NOTE" they are emphasized wherever they occur. Here's the list:
+TODO
+REMINDER
+REMINDERS
+NOTE ( if followed by a non-word character)
+BUG
+BUGS
+=> (that's "=>", either at the start of a line or preceded by space)
+IDEA!
+FIXED
+DONE
+WTF
+:) (type a colon ":" followed by a right parenthesis ")", as you already guessed)
+
+Not wanted on the voyage
+========================
+Markdown is aimed at a variety of audiences. Here are some features that documents for intranet use don't really need, for a variety of reasons.
+
+TABLE Gloss doesn't do these
+Item                  				Why
+# H1, ##H2, ###H3	In the source, the emphasis is the opposite of what's wanted, with H3 being more prominent than H1. Gloss uses underlining instead.
+~~strikethrough~~	I have never needed that, have you?
+Definition list		Gloss provides a glossary for standalone Gloss files, as generated by gloss2html.pl. A definition is available wherever a term is used, by stopping the cursor over the term.
+Heading ID			Gloss links headings automatically: put the heading mentions in double quotes, for example "Overview".
+Footnotes			Something for grander documents.
+Code				Gloss lets you to set off code with horizontal rules (--- or ===), which is typically all that's needed.
+Alt text for images	Gloss pops up a view of the image when you put your cursor over the image name. If alt text is needed, you can type it before or after the image name.
+Titles for links	Honestly, who would bother for an intranet document.
+Blockquote			Put it in quotes and italicize the author, good enough for most uses.
+Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
+---
+contents.html
+---

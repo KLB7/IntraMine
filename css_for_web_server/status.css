@@ -1,0 +1,7 @@
+/* status.css: for the Status server, intramine_status.pl.
+See also flashing LEDs.css.
+*/
+
+#statusSummarytable td.right_cell, #statusSummarytable th.right_cell {
+	text-align: right;
+}

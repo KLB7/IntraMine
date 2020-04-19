@@ -1,0 +1,6 @@
+/* cm_small_tip.css: used by intramine_viewer.pl for _MESSAGE__ display. */
+
+#small-tip {
+	font-size: .8em;
+	font-weight: normal;
+}

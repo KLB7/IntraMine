@@ -1,0 +1,44 @@
+ToDo
+=====
+2020-03-11 14_09_25-To Do.png
+
+The ToDo server provides a simple Kanban-style todo list, with just enough features to make it useful. Most of it is done in JavaScript.
+
+Main Perl file:
+intramine_todolist.pl
+
+Main JavaScript files:
+todo.js
+todoEvents.js
+todoGetPutData.js
+jquery.min.js
+
+ToDo features
+=============
+Use the "Add/Edit a Task" area to enter the title, description, and date for a new task. Description and date are optional. Drag an existing task back here to edit it.
+
+All tasks can be dragged around, both between lists and within one list. As you start dragging a task a "Drag Here to Delete" box will appear over on the right: drop a task there to delete it.
+
+Simple enough, right? If you enthusiastically add a large number of tasks then the view will scroll, but it's best not to have so many tasks that scrolling is needed.
+
+I wrote very little of this on the JavaScript side, and so I'll leave it to you to go through todo.js if you want an understanding of the basic ToDo list.
+
+However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoEvents.js, which implements Server-Sent Events so that all open ToDo browser tabs can signal a change has happened, and respond to a change by refreshing the view, as outlined below.
+
+Server-Sent Events for Todo changes
+===================================
+1. User saves a ToDo item, or drags a ToDo item around.
+2. todo.js calls todoGetPutData.js#putData() to save the changes
+3. putData() calls intramine_todolist.pl#PutData() to write the changed ToDo data to disk
+4. PutData() also calls swarmserver.pm#BroadcastSSE('todochanged'...) when it's done
+5. BroadcastSSE() sends a request to the Server-Sent Events server, SSE (intramine_SSE.pl)
+6. intramine_SSE.pl#HandleBroadcastRequest() is called in response to its only %RequestAction, $RequestAction{'signal'} = \&HandleBroadcastRequest;
+7. HandleBroadcastRequest() requests an SSE broadcast by calling swarmserver.pm#SendEventToClients()
+8. Previously when any ToDo browser page was opened it registered to receive Server-Sent Events, with todEvents.js#getSSEPortAndRequestEvents(). That set up a socket on which the page can receive messages
+9. So SendEventToClients() broadcasts the message out to all clients (browser pages) that have registered to receive Server-Sent Events
+10. The ToDo page's SSE listener, previously set up in getSSEPortAndRequestEvents(), responds to the 'todochanged' message by calling todoGetPutData.js#getToDoData()
+11. getToDoData() calls back to intramine_todolist.pl#GetData() with an XMLHttpRequest containing "req=getData", and refreshes the displayed ToDo page.
+
+---
+contents.txt
+---

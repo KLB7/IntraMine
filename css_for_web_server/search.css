@@ -1,0 +1,136 @@
+/* search.css: for the Search service. Search service directory picker etc. */
+
+#searchdirectory {
+	width:360px;
+}
+
+#annoyingdotcontainer {
+	position: relative;
+	display: inline-block;
+	width: 48px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	padding-left: 12px;
+	padding-left: 12px;
+}
+#dotdotdot {
+	border: 1px solid #447314;
+	background: #8dc059;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+	position: absolute;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	left: 4px;
+	top: 6px;
+}
+
+#dirpickerMainContainer {
+	display: none;
+	position:absolute;
+	top: 100px;
+	left: 100px;
+	background: #eeeeee;
+	width: 600px;
+	border: 1px solid #447314;
+	text-shadow: #addc7e 0 1px 0;
+	z-index: 100;
+}
+
+#dirpicker {
+	position: relative;
+	border: 1px solid #bababa;
+}
+
+#pickerDisplayedDirectory {
+	display: inline-block;
+	border: 1px solid #bababa;
+	width: 450px;
+}
+
+#directoryPickerTitle {
+	font-size: 1.2em;
+	text-align: center;
+	background: #285B42;
+	color: #ffffff;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 4px;
+}
+
+#pickerDisplayDiv {
+	height: 20px;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+
+#fileTreeLeft {
+	/*float: left;
+	width: 48%;*/
+	height: 100%;	
+}
+
+#scrollDriveListLeft {
+	overflow: auto;
+	height: 80%;
+	margin-left:15px;
+	padding-left:10px;
+}
+
+#driveSelectorLeft {
+	
+}
+
+/* Smaller buttons for OK/Cancel.*/
+#okCancelHolder {
+	display: flex;
+	justify-content: flex-end;
+}
+
+#dirOkButton, #dirCancelButton {
+	border: 1px solid #447314;
+	background: #8dc059;
+	text-shadow: #addc7e 0 1px 0;
+	color: #000000;
+	font-family: helvetica, serif;
+	font-size: 12px;
+	text-decoration: none;
+	/*font-weight: bold;*/
+	vertical-align: middle;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+   margin-top: 6px;
+   margin-left: 12px;
+   margin-right: 12px;
+}
+
+#dirOkButton:hover, #dirCancelButton:hover {
+	color: #fff;
+	cursor: pointer;
+}
+
+#dirOkButton:active, #dirCancelButton:active {
+	 color: #fff;
+}
+
+#dirOkButton:disabled, #dirCancelButton:disabled {
+	color: #000000;
+	opacity: 0.4;
+	cursor: default;
+}
+
+/* Search results fields. */
+.resultPath {
+	display: block;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+UL.jqueryFileTree {line-height: 2.2em;}
+#scrollDriveListLeft {overflow-y: scroll; -webkit-overflow-scrolling: touch; font: normal 1.2em/1.875em Arial, Helvetica, sans-serif; vertical-align: middle;}
+}

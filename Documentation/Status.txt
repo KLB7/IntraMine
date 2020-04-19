@@ -1,0 +1,35 @@
+Status
+=======
+2020-02-27 22_40_46-Status.png
+The Status server shows the status of all IntraMine servers, and has buttons to stop and start servers as well as an "Add" button if you need one more of a particular server. It should more accurately be called "Status and Control" I suppose, but status checking happens much more often than starting and stopping, and top-level names need to be short in order to fit in the top navigation bar.
+
+There are also lists of New/Changes and Deleted files at the bottom.
+
+Only servers listed in data/serverlist.txt can be started, stopped, or added. "Background servers" are listed, but can't be started, stopped, or added. If you want more than one of a server, but without a top navigation entry, the trick is to assign it the same Page name as a top level server (such as "Search" or even "Status") and then a separate unique Short name in its listing in data/serverlist.txt. And of course don't put "BACKGROUND" at the end of the entry. Then you can stop and start and add all you like.
+
+The Status page refreshes every 30 seconds, but during startup it refreshes once a second so you can tell more accurately when everything's started.
+
+The server "lights" under the Status column will flash when a server is handling a request, but the duration of the flashing doesn't mean anything: an action could take a millisecond or a minute to handle, and in both cases the light will flash for a couple of seconds. To see a flash, if you're using IntraMine for its Search capabilities, change a source or text file that's in an indexed location and you'll see the "Watcher" server light up, roughly five seconds after the save. At that point the change will be indexed and will show up in search results.
+
+Under the hood
+===============
+Server status updates sequence
+------------------------------
+In accordance with proper separation of duties and all that, the Status server doesn't know beans about which servers are running, let alone whether they're alive or not. That's handled by IntraMine's Main server (main file intramine_main.pl). Server status updates are done in conjunction with a refresh of the "New / Changed Files" and "Deleted Files" lists, pulled from the Main server and the Status server respectively. It all starts with a timer going off and calling status.js#refreshStatus():
+1. status.js#refreshServerStatus() calls refreshStatus() through a timer, with refresh interval set by STATUS_REFRESH_MILLISECONDS in data/intramine_config.txt.
+2. status.js#refreshStatus() issues a "req=filestatus" to the Status server via XMLHttpRequest, and awaits response.
+3. intramine_status.pl has set up a handler for that request when starting,
+$RequestAction{'req|filestatus'} = \&FileStatusHTML;
+and so intramine_status.pl#FileStatusHTML() is called. (As usual, the callback is detected and triggered in swarmserver.pm, see swarmserver.pm#HandleRequestAction().)
+4. FileStatusHTML() returns lists of changed/new and deleted files. These lists are periodically updated by ReloadChangedDeletedFilesList() from a file that is updated by intramine_filewatcher.pl#SaveChangedFilesList().
+5. status.js#refreshStatus() receives and displays the file list, and then calls status.js#refreshServerStatus()
+6. refreshServerStatus() issues an XMLHttpRequest to the Main server (not the Status server), "req=serverstatus"
+7. intramine_main.pl#SetUpRequestActionHandlers() has set up a handler for that,
+$RequestAction{'req|serverstatus'} = \&ServerStatus;
+and so intramine_main.pl#ServerStatus() is called in response to the "req=filestatus" request
+8. intramine_main.pl#ServerStatus() creates HTML summary tables for Page servers and Background servers, and throws in some summary status lines at the top. That's all sent back to status.js#refreshServerStatus()...
+9. ...which puts the received HTML on the Status page, and then adds in properly maintained Start/Stop/Restart buttons for all of the Page servers by calling addStartStopRefreshButtons().
+
+---
+contents.txt
+---

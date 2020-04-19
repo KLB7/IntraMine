@@ -1,0 +1,43 @@
+IntraMine overview
+===================
+
+*Pause your cursor over a link between the yellow hummingbirds to preview the image.*
+2020-02-17 15_57_58-Status.png
+
+IntraMine is a bit of a grab-bag tech demo. It's mainly aimed at Perl developers using Strawberry Perl on a Windows box. Nevertheless, if something below catches your interest, give IntraMine a try - you don't have to know Perl to use IntraMine's search power or markdown variant "Gloss", for example. Though if you want to write your own services to run under IntraMine, it's best if you have at least some small experience with Perl and JavaScript.
+
+Some things you can do with IntraMine
+==================
+ - Search half a million source and text files and get results in one second, commonly with no need to restrict by language or folder. Powered by Elasticsearch.
+2019-10-14 15_46_53-Full Text Search.png
+
+ - Write your own intranet services in Perl, with the common tedious bits handled for you. Two starter services have the code to get you started.
+2020-02-18 12_43_13-Example of DB access.png
+
+ - Switch to IntraMine's markdown variant *Gloss* for simple unforgettable markdown that can handle all your development and in-house needs. Want a table? Put "TABLE" at the start of a line, headers on the next line, then data, with cells separated by one or more tabs; the table ends when there's a line with no tabs.
+2020-02-18 13_27_44-Gloss.png
+
+ - Gloss gives you context-aware automatic links of every sort, including direct links to headings, methods, classes, and line numbers in other files.
+2020-02-18 13_50_22-Gloss.txt.png
+
+Some details in a more relaxed voice
+=====================================
+IntraMine is a suite of Perl-based services, designed for intranet use only. Out of the box, it provides services that allow sub-second searches on half a million source and text files, with five-second index updates. Nineteen services are provided, including two "starter" services to build on when you want to add your own services to your intranet.
+
+There is of course a "main" service, but it doesn't serve as a conduit for all Ethernet traffic. Instead, it redirects to the appropriate service, which then handles all subsequent traffic on its own. Each service will respond directly to the client browser. As a result, the main service is never a bottleneck for communications. Special care is taken to avoid breaking user bookmarks/favorites when services are added or removed.
+
+Services under IntraMine must run on the same PC and there is no provision for automatic stop/start of services. But we're on an intranet here, so these are not necessarily stoppers. If you want to stop, start, or add a server on the fly, you can do that on the Status page. And you can have several instances of IntraMine running on different PCs.
+
+If there are several developers on your team, and they each have their own clone of source files to work with, then a single central instance of IntraMine wouldn't be ideal, since IntraMine can only do real-time updating of its search index for locally attached storage. So in this case it's better for each developer to have a separate instance of IntraMine running, and everything (search results and autolinks especially) will be right up to date at all times.
+
+How to write your own IntraMine service:
+ - use swarmserver.pm;
+ - initialize four variables
+ - set up callbacks to handle requests to your server
+ - call MainLoop().
+An entry in data/serverlist.txt will then bring your service up, as many instances as you want.
+IntraMine handles basic communications, allowing you to focus on writing your callback handlers and JavaScript for your service. Signals between services, and Server-Sent Events are nicely supported. And if appropriate, you can stop start or add instances on the Status page.
+
+IntraMine has no HATEOAS mechanism for exposing the complete API of a service. But since we're on an intranet, if someone introduces a new IntraMine service and you want the API, you can just ask them for it. You can use the REST approach if you want (see DBX.txt for an example), but it's not mandatory.
+
+Here are two things that have bugged me for a long time: 

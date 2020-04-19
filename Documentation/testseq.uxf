@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>20</x>
+      <y>40</y>
+      <w>760</w>
+      <h>490</h>
+    </coordinates>
+    <panel_attributes>title=Initial Search page load
+desc=On receiving http://localhost:81/Search/?req=main\n('req=main' is the default)
+autoTick=true
+obj=Browser~a
+obj=Perl\nswarmserver.pm~b 
+obj=Perl\nintramine_search.pl~c 
+obj=JavaScript\nintramine_search.js~d
+a-&gt;b : default req=main
+b-&gt;c : SearchPage()
+c-&gt;a : HTML "skeleton"
+a-&gt;d: loaded
+d-&gt;b : XMLHttpRequest req=frm
+b-&gt; c: SearchForm()
+c-&gt;d : HTML for search form
+d-&gt;a : HTML for search put on page
+
+
+
+
+
+bg=light_gray</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>20</x>
+      <y>550</y>
+      <w>710</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Note..
+In intramine_search.pl near the top:
+ $RequestAction{'req|main'} = \&amp;SearchPage;
+ $RequestAction{'req|frm'} = \&amp;SearchForm;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

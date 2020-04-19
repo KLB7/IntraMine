@@ -1,0 +1,11 @@
+Location				Index	Monitor
+# See Documentation/Configuring folders to index and monitor.txt for the how-to.
+# Lines that start with '#' are commented out.
+# Add folders here for IntraMine to index and/or monitor.
+# The following line includes the IntraMine folder for indexing and monitoring.
+_INTRAMINE_				1		1
+# Some example folders, commented out. Feel free to delete them.
+#C:/Projects				1		1
+#P:/Qt					1		1
+#C:/Go					1		1
+#H:						1		0

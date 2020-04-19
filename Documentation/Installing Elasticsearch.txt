@@ -1,0 +1,114 @@
+Installing Elasticsearch
+========================
+
+IntraMine uses Elasticsearch to index source and text files. Elasticsearch is Java based, so you'll need a Java SDK installed first. Then we'll go through installing Elasticsearch proper, tweaking the config a bit, and finally running the Elasticsearch service. Later, we'll go through actually indexing your source and text files, in Build your Elasticsearch index and run IntraMine.txt.
+
+Java SDK installation
+=====================
+First, a Java SDK is needed. Not just the JRE version, mind, the whole SDK. At this time (September 2019) I'm recommending you download the most recent version of Java SE 8, which is Java SE 8u221 as I write this, but if you see a later version on the download page mentioned next, grab it. I'm using 192, but as far as I can tell 221 just included some bug fixes.
+
+For a recent version of the Java SDK, go to
+https://www.oracle.com/java/technologies/javase-jsp-downloads.html
+and as mentioned, select the most recent stable Java SE 8 release "Java SE 8u221" or later.
+
+On the resulting page, scroll down to the most recent "Java SE Development Kit" for Windows x64, which I currently see at the bottom of the first table on the page, ending up with jdk-8uNNN-windows-x64.exe (where the "NNN" will be the current version, 221 or better).
+
+Run it to install Java to C:\Program Files\Java, eg C:\Program Files\Java\jdk1.8.0_192 (or 221 or whatever you found).
+
+In Windows Environment (system) variables, add or set the variable JAVA_HOME to your downloaded Java JDK location, eg "C:\Program Files\Java\jdk1.8.0_192" or "C:\Program Files\Java\jdk1.8.0_221".
+
+[ To get to system variables: Control Panel -> System -> Advanced system settings -> Environment Variables.
+Or
+Settings -> System -> About -> System Info (at top right) -> Advanced system settings -> Environment Variables.
+]
+
+Elasticsearch installation
+==========================
+Getting Elasticsearch
+----------------------
+Currently I'm recommending version 6.8.0. That's the highest version I've tried, aside from 7.1.1 which is too new. We are waiting for the admirable Clinton Gormley to produce a new version of Search::Elasticsearch, which will be compatible with ES version 7.
+
+When Elasticsearch 7 is supported I'll update this page.
+
+To download Elasticsearch version 6.8.0, head to
+https://www.elastic.co/downloads/past-releases#elasticsearch
+and click on "Elasticsearch 6.8.0". On the resulting page, click on "WINDOWS" near the top left to start your download. You'll be downloading a file called "elasticsearch-6.8.0.zip".
+
+Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with the same name as the top folder, then that's the one to copy, rather than the top folder.
+
+Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-6.8.0". And just to be sure, verify that you see "bin", "config", and "lib" folders at the top level in that folder.
+
+If you can't put the "elasticsearch-6.8.0" at the top of your C: drive, you can still do this, but note where you have placed your Elasticsearch folder and substitute your location for "C:\elasticsearch-6.8.0" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.
+
+If you already have Elasticsearch
+---------------------------------
+Be aware that there will almost certainly be *breaking changes if you upgrade Elasticsearch*, so this is not a decision to be taken lightly. Much better if you install IntraMine and Elasticsearch on a different Windows PC where Elasticsearch is not already installed.
+
+Nevertheless, if you're already running an older version of Elasticsearch and do want to upgrade, first stop and remove the Elasticsearch service with, for example,
+C:\elasticsearch-N.N.N\bin\elasticsearch-service.bat stop
+C:\elasticsearch-N.N.N\bin\elasticsearch-service.bat remove
+(where N.N.N is the old Elasticsearch version number, eg 2.3.3).
+
+If there are configuration changes you need to make to Elasticsearch, go into your new Elasticsearch folder and open /config/elasticsearch.yml. NO CHANGES are needed for use with IntraMine.
+
+Add the needed tokenizer
+------------------------
+At a command prompt run
+---
+C:\elasticsearch-6.8.0\bin\elasticsearch-plugin.bat install analysis-icu
+---
+to install the needed special tokenizer (it helps with unicode).
+
+Install and start Elasticsearch
+-------------------------------
+Install and start Elasticsearch at a command prompt with
+---
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat install
+---
+followed by
+---
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat start
+---
+
+Then run
+---
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat manager
+---
+and under the General tab in the resulting dialog window set the "Startup type" to "Automatic", Apply and OK.
+
+Verify
+------
+To verify things went well, go to
+http://localhost:9200/_cluster/health/?pretty
+and you should see "status" : "green" near the top of the result.
+
+Elasticsearch service management
+========================
+Here are some simple commands to manage Elasticsearch, again using the "6.8.0" version as an example:
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat install
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat start
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat stop
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat remove
+C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat manager
+("manager" is mainly useful for setting the startup type to Automatic.)
+
+To check in on Elasticsearch:
+http://localhost:9200/_cluster/health/?pretty
+gives a simple overview.
+
+Once you have built an index for IntraMine, you can check it with
+http://localhost:9200/intramine/_stats/?pretty
+
+http://localhost:9200/_cat/health?v
+will give you a one-line summary of Elasticsearch health.
+
+Onwards
+========
+Elasticsearch is now ready for use. Just a few more steps (including building your first Elasticsearch index) and then you can fire up IntraMine.
+
+Next: "Installing File Watcher.txt"
+
+
+---
+contents.txt
+---

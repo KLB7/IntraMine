@@ -1,0 +1,13 @@
+data/
+.bkp/
+docs/
+etags/
+logs/
+notes/
+obsolete/
+older_versions/
+programs_do_not_ship/
+temp/
+test/
+backup.pl
+opendns_monitor.pl

@@ -1,0 +1,74 @@
+  <config>
+    <daemonName>_NAME_</daemonName>
+    <startDaemon>true</startDaemon>
+    <displayFileSystemChange>true</displayFileSystemChange>
+    <logFileSystemChange>true</logFileSystemChange>
+    <logFileSystemSearchError>false</logFileSystemSearchError>
+    <displayFileSystemSearchError>false</displayFileSystemSearchError>
+    <logFileSystemSearchProgress>false</logFileSystemSearchProgress>
+    <displayFileSystemSearchProgress>false</displayFileSystemSearchProgress>
+    <path>_PATH_NO_TS_</path>
+    <filter>*</filter>
+    <generateFileSystemEventsAtStartup>false</generateFileSystemEventsAtStartup>
+    <generatedEventFileNameRegularExpressionFilter />
+    <changedRegularExpressionFilter />
+    <createdRegularExpressionFilter />
+    <deletedRegularExpressionFilter />
+    <renamedRegularExpressionFilter />
+    <includeSubdirectories>true</includeSubdirectories>
+    <internalBufferSize>8192</internalBufferSize>
+    <subscribeToBufferErrorEvent>true</subscribeToBufferErrorEvent>
+    <subscribeToChangedEvent>true</subscribeToChangedEvent>
+    <subscribeToCreatedEvent>true</subscribeToCreatedEvent>
+    <subscribeToDeletedEvent>true</subscribeToDeletedEvent>
+    <subscribeToRenamedEvent>true</subscribeToRenamedEvent>
+    <notifyAttribute>false</notifyAttribute>
+    <notifyCreationTime>false</notifyCreationTime>
+    <notifyDirectoryName>true</notifyDirectoryName>
+    <notifyFileName>true</notifyFileName>
+    <notifyLastAccess>false</notifyLastAccess>
+    <notifyLastWrite>true</notifyLastWrite>
+    <notifySecurity>false</notifySecurity>
+    <notifySize>false</notifySize>
+    <startProcess>false</startProcess>
+    <logProcessStart>true</logProcessStart>
+    <logProcessEnd>true</logProcessEnd>
+    <processFileName />
+    <processArguments />
+    <processUseFileNameAsArgument>false</processUseFileNameAsArgument>
+    <processArgumentsFileNameEscapeString />
+    <processUseOldFileNameAsArgument>false</processUseOldFileNameAsArgument>
+    <processArgumentsOldFileNameEscapeString />
+    <processUseChangeTypeAsArgument>false</processUseChangeTypeAsArgument>
+    <processArgumentsChangeTypeEscapeString />
+    <processVerb />
+    <processWorkingDirectory />
+    <processUseShellExecute>false</processUseShellExecute>
+    <processCreateNoWindow>false</processCreateNoWindow>
+    <processWindowStyle>Normal</processWindowStyle>
+    <processSynchronizedExecution>false</processSynchronizedExecution>
+    <processMaxWaitTime>-1</processMaxWaitTime>
+    <processRedirectStandardError>false</processRedirectStandardError>
+    <processRedirectStandardOutput>false</processRedirectStandardOutput>
+    <processLoadUserProfile>false</processLoadUserProfile>
+    <processDomain />
+    <processUserName />
+    <processPassword />
+    <processBatchSize>0</processBatchSize>
+    <processFileMustExist>false</processFileMustExist>
+    <processDelay>0</processDelay>
+    <processLockFile>false</processLockFile>
+    <processLockFileLastWriteDelay>0</processLockFileLastWriteDelay>
+    <processLockFileRetries>0</processLockFileRetries>
+    <processLockFileRetriesQueueLimit>0</processLockFileRetriesQueueLimit>
+    <callService>false</callService>
+    <streamFile>false</streamFile>
+    <tryRenameFile>false</tryRenameFile>
+    <tryRenameFileRetries>0</tryRenameFileRetries>
+    <filteredMode>false</filteredMode>
+    <filteredModeFilterTimeout>60</filteredModeFilterTimeout>
+    <pollDirectory>true</pollDirectory>
+    <directoryPollInterval>10</directoryPollInterval>
+    <recycleFileWatcher>true</recycleFileWatcher>
+    <recycleInterval>60</recycleInterval>
+  </config>

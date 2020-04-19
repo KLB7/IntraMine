@@ -1,0 +1,31 @@
+Editor
+========
+This is IntraMine's built-in editor, with intramine_editor.pl on the back end, and editor.js on the front.
+
+To configure editing with IntraMine, see "Editing documents.txt".
+
+The Editor is a bare-bones editor, with syntax highlighting and the ability to Save. You can also Undo with CTRL-Z, Redo with SHIFT-CTRL-Z, and Find with CTRL-F. It's useful for making small edits such as correcting a typo or adding a comment.
+
+Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top.
+
+*Some pencil links in a read-only View, and a green "Edit" button at the top.*
+2019-12-03 16_38_08-intramine_file_viewer_cm.pl.png
+
+*An Editor view. The "Save" button is enabled because I typed that "x" on line 13.*
+2019-12-03 16_42_48-intramine_file_viewer_cm.pl.png
+
+Under the hood
+==============
+File load sequence
+------------------
+1. An Edit link or button is clicked, triggering a call to viewerLinks.js#editOpen() (this could be in a read-only view, or Search hits, or under Files).
+2. If data/intramine_config.txt values have been set to use IntraMine's Editor, editOpen() calls viewerLinks.js#editWithIntraMine() which opens a new browser tab that invokes the Editor, schematically
+ -- http://host:port/Editor/?href=path to file
+3. "$RequestAction{'href'} = \&FullFile;" near the top of intramine_editor.pl registers FullFile() as the handler for any "href=..." request. This is detected by swarmserver.pm#MainLoop() as usual, which issues a call to FullFile(). The file path is in its $formH->{'href'} argument
+4. FullFile() returns the basic HTML for the page and includes editor.js and CodeMirror files.
+5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.
+6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax hilighting etc) from then on.
+
+---
+contents.txt
+---

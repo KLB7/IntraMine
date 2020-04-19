@@ -1,0 +1,132 @@
+Writing your own IntraMine server
+=================================
+
+Example servers to build on
+===========================
+There are two example servers you can start from, to write your own server from scratch:
+ - intramine_boilerplate.pl: as simple as you can get, it just serves up one static page. Take a look at this one first, so you'll know what "boilerplate" code to include at the top of your server.
+ - intramine_db_example.pl: a simple database example, using Perl's standard DBM::Deep package to put a few entries in a table and display them. ("DBM::Deep - A pure perl multi-level hash/array DBM that supports transactions")
+
+And of course you have the dozen or so other servers provided with IntraMine to steal from. Here are the most promising candidates to build on:
+ - intramine_todolist.pl manages a Kanban-style ToDo list. It's fairly small, and relies on JavaScript to do most of the work. todoGetPutData.js (with todo.js) shows how to go from JSON data in a disk file to a web page and back again using XMLHttpRequest().
+ - intramine_uploader.pl, also fairly small, implements uploading a file to the box where IntraMine is running. Its associated JavaScript file uploader.js shows how to do a POST request to IntraMine using XMLHttpRequest().
+ 
+Getting started on your own server
+==================================
+First, decide which of three different kinds of server it will be, and pick a name for it:
+ - do you want your server to have an entry in the top navigation bar, and produce a web page when your user clicks on its entry there? That's a top level Page server. In its data/serverlist.txt entry, the Page name and Short name should be the same and unique.
+ - will it be called by some user action in a top level server? That's a "second level" server. In serverlist, the Page name should be the name of the top level server it's associated with, and its Short name should be different from that, and unique.
+ - will it just lurk behind the scenes as a single instance? That's a BACKGROUND server. In serverlist.txt, its Page name and Short name should be different and unique, with "BACKGROUND" appended in the Option column.
+
+Here are example entries from data/serverlist.txt for supplied servers:
+Top level Page server, showing the Search form and search hits:
+1	Search				Search		intramine_search.pl
+A second level server for Search, used to display read-only file views:
+1	Search				Viewer		intramine_viewer.pl
+A background server, monitoring file system changes:
+1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
+
+You'll probably find it easiest to use the following standard locations when saving files for your new server:
+TABLE Standard file locations
+Type					Location
+Main Perl file			at the top level of your IntraMine folder
+Supporting .pm modules	libs/
+CSS						css_for_web_server/
+JavaScript				js_for_web_server/
+images					images_for_web_server/
+fonts					fonts_for_web_server/
+
+
+The DBX example server
+----------------------
+2019-12-22 18_52_10-Example of DB access.png
+
+Let's walk through the DBX server, which is a small example of a top level server. It has an entry in the top navigation bar, and a page it generates when you click on its name in the bar. The page shows a form for entering fruit names, and a rating for each fruit, followed by a table showing all fruit ratings. There is a small db holding the fruit names and ratings behind the scenes. Buttons are there to add/update or delete a fruit, so full CRUD.
+
+The entry for it in data/serverlist.txt is
+---
+1	DBX					DBX			intramine_db_example.pl
+---
+indicating that it's a top level server (Page name and Short name agree, and it's not marked as "BACKGROUND").
+
+The main back-end file is **intramine_db_example.pl**.  Open that now in an editor, and let's take a look.
+
+TABLE intramine_db_example.pl (DBX) lines
+Location		Whazzup
+54..76		This is standard "boilerplate" that you can copy to your new server (except for the "use DBM::Deep" which is just there for the example's little database)."use swarmserver" brings in the swarmserver.pm module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc). "use common" brings in some subs that you might find useful, take a look at libs/common.pm to see for yourself.
+60			"use common" has some subs that you might find useful, take a look at libs/common.pm to see for yourself.
+61		"use swarmserver" brings in the **swarmserver.pm** module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).
+65..69		SSInitialize() in swarmserver.pm loads configuration values, including any specifically for your server. To pull in configuration values for your server, add a file to the data/ folder whose name is the Short name of your server followed by "_config.txt". The format is Key<tabs>Value. The DBX server has its own config file, called DBX_config.txt. SSInitialize() also sets variables holding your server's Page name, Short name, IntraMine's Main port, and the listening port for the current (DBX) server.
+71..76		This sets up server feedback, which can be just a print to the console window, or to a file, or both. Set $kLOGMESSAGES to 1 to log all Output() calls. The log file will be in logs/IntraMine/, with Short name, port, and date in the name, eg ".../logs/IntraMine/DBX 43133 2019-12-31-15-02.txt" 
+80..101		Specific to the example server, these lines just set up our little fruit database, you won't need them in your server.
+113..116	The **%RequestAction** hash keys hold strings that swarmserver.pm will look for when requests come in, and the values hold addresses of subroutines to call in response. %RequestAction has its own description below.
+116		"$RequestAction{'/test/'} = \&SelfTest;" says this server can run tests. See "Testing" below.
+124		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.
+150..248		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
+212	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page had loaded.
+213	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
+214	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
+245		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
+250..290		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
+
+%RequestAction and subroutine arguments
+-----------------------------------
+Your server should set up a %RequestActon hash to set up the correspondence between requests received and subroutines to generate responses.
+
+As a typical entry, DBX on line 113 has
+$RequestAction{'req|main'} = \&OurPage;
+This is triggered by a request such as
+http:/localhost:port/DBX/?req=main
+
+Note a pipe '|' is used rather than '=' when declaring a parameter-based "this=that" action.
+
+To set up a "RESTful" action for an entry point name, put '/' before and after the name. DBX has an API entry point named "fruit", and the corresponding %RequestAction is
+$RequestAction{"/fruit/"} = \&HandleFruitRequest;
+
+OurPage() in DBX is a typical action, declared as
+---
+sub OurPage {
+	my ($obj, $formH, $peeraddress) = @_;
+---
+and returning an HTML web page.
+
+Actions such as OurPage() all have the same three parameters:
+1. $obj: the raw HTTP request. For DBX "req=main" it would be "/DBX/?req=main"
+2. $formH: all "this=that" parameters in the HTTP request, such as $formH->{'req'} = "main".
+3. $peeraddress: IntraMine's LAN IP address (eg 192.168.1.132).
+
+"$formH" also holds the method used for the request in $formH->{'METHOD'}. Values can be 'get', 'post', or 'delete'.
+
+For an example involving $formH->{'METHOD'} see DBX's intramine_db_example.pl#HandleFruitRequest(), which handles get, post, and delete requests for the fruit database.
+
+For an example involving more concrete parameters than "this=that", see 
+
+Adding a serverlist entry to run your new server
+====================================================
+Open data/serverlist.txt and add an entry there for your new server. For example:
+For a top level server that has an entry in the top navigation bar;
+1	NewServer	NewServer	newserver.pl
+For a "second level" server that is called by a top level server;
+1	NewServer	NewServerMovies	ns_movies.pl
+For a background server;
+1	NEWSERVER	NEWSERVER	newserver.pl	BACKGROUND
+
+If you plan on having tests for your new server, add the same entry to data/serverlist_for_testing.txt. Set the Count field there to 1 if you want to test your new server when you run bats/TEST_INTRAMINE.txt, and 0 otherwise.
+
+Your own configuration file
+===========================
+Each server can have its own configuration file, consisting of key/value pairs separated by one or more tabs. The configuration file's name should be the Short name of the server followed by "_config.txt". And it should be saved in IntraMine's data/ folder.
+
+For example, the DBX server has its own config file, data/DBX_config.txt.
+
+The Short name is entered as the third entry on the server's line in data/serverlist.txt (and also data/serverlist_for_testing.txt if you have tests for the server). For example, the entry in serverlist.txt for IntraMine's Editor is
+1	Search				Editor		intramine_editor.pl
+and the Short name for it is "Editor".
+
+Testing
+=======
+Please see "Testing.txt" for details on how to take advantage of IntraMine's approach to testing your own servers and supporting modules. For modules it's just a standard approach (use "Test::More" and "prove"). For servers there's a bit more help, to put up web pages and check what they contain.
+
+---
+contents.txt
+---

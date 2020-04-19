@@ -1,0 +1,46 @@
+/* twocolumns.css: two columns of file trees, for the Files IntraMine service. */
+
+#fileTreeLeft {
+	float: left;
+	width: 70%;
+	height: 100%;	
+}
+
+#fileTreeRight {
+	float: left;
+	width: 28%;
+	height: 100%;		
+}
+
+#scrollDriveListLeft {
+	overflow: auto;
+	height: 100%;
+	margin-left:15px;
+	padding-left:10px;
+}
+
+#scrollDriveListRight {
+	overflow: auto;
+	height: 100%;
+	margin-left:15px;
+	padding-left:10px;
+}
+
+#driveSelectorLeft {
+	
+}
+
+#driveSelectorRight {
+	
+}
+
+#tocShrinkExpand {
+	cursor: pointer;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+UL.jqueryFileTree {line-height: 2.2em;}
+#scrollDriveListLeft {overflow-y: scroll; -webkit-overflow-scrolling: touch; font: normal 1.2em/1.875em Arial, Helvetica, sans-serif; vertical-align: middle;}
+#scrollDriveListRight {overflow-y: scroll; -webkit-overflow-scrolling: touch; font: normal 1.2em/1.875em Arial, Helvetica, sans-serif; vertical-align: middle;}
+}

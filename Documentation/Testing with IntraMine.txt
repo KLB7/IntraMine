@@ -1,0 +1,142 @@
+Testing with IntraMine
+===========
+IntraMine provides a bit of basic help that you can take advantage of for testing your own IntraMine services, and also demonstrates testing supporting modules in a bog-standard way. Or you can use your own preferred approach, of course. If you're not interested in writing your own IntraMine services, feel free to skip this.
+
+Testing modules
+===============
+IntraMine uses the standard combination of "Test::More" and "prove" to run module tests. "ok()" and "is()" are often enough to do the job. Below you'll find suggestions for where to save your test file, how to access the module you're testing, examples, etc - read through it once and you should be in good shape to do some module tests.
+
+Writing your module test program
+----------------------
+Put your module test file in IntraMine's t/ folder, and give it the standard ".t" extension. You can otherwise call it whatever you like. You could try IntraMine's approach, if testing "novel.pm" then call the test file "test_novel.t" or "test_novel2.t" for a second one.
+
+To use modules from IntraMine's libs/ folder, put this near the top of your test program:
+---
+use Path::Tiny qw(path);
+use lib path($0)->absolute->parent(2)->child('libs')->stringify;
+---
+That gives you access to the libs/folder, and you can include a module such as "common.pm" with
+use common;
+
+IntraMine has several examples of module-level testing, in its t/ folder.
+
+For a nice example, see t/test_win_wide_filepaths.t, the tests for lib/win_wide_filepaths.pm. You can copy the top part to start your test file:
+---
+use strict;
+use warnings;
+use Test::More;
+use Path::Tiny qw(path);
+use lib path($0)->absolute->parent(2)->child('libs')->stringify;
+#use common; # Include the module you're testing here.
+---
+
+At the bottom of your file, if you don't want to bother counting up your tests put
+---
+done_testing();
+---
+so that Test::More will know all the tests have run.
+
+If you're newish to Test::More, take a look at
+https://perlmaven.com/moving-over-to-test-more
+by Gabor Szabo.
+
+Running your test file
+----------------------
+Use "prove" to run your tests. Each test file for IntraMine in its /t/ folder has a run line near the top, such as
+---
+prove "C:\perlprogs\mine\t\test_win_wide_filepaths.t"
+---
+
+To run all tests for IntraMine add a "-r" switch and pass the t/ folder path, as in
+---
+prove -r "C:\perlprogs\mine\t"
+---
+
+As always, modify the path to match your setup.
+
+Testing servers
+===============
+Remember doing "cpan Selenium::Remote::Driver" way back when you installed IntraMine? That's to help with testing full services. IntraMine uses Selenium and "ChromeDriver" to open web pages with Chrome and read back the HTML from the pages. If you want to test services, you'll need to install ChromeDriver, which is easy, and you'll be all set for testing.
+
+Installing ChromeDriver
+-----------------------
+1. First, get Google Chrome.
+2. Check your Chrome version, with Help->About Google Chrome. It's probably above 80.
+3. Head to https://sites.google.com/a/chromium.org/chromedriver/downloads
+4. Under Current Releases, click on the link that matches your Chrome version.
+5. Download the "win" zip (named "chromedriver_win32.zip" at the moment), and extract it somewhere.
+6. The extracted "chromedriver_win32" folder just contains "chromedriver.exe", and no installation is needed.
+7. Move the folder somewhere more permanent or memorable, if you want.
+8. Open data/intramine_config.txt, and update the entry for "CHROME_DRIVER_PATH" near the bottom.
+
+Note if service testing stops working in the future, try updating your version of ChromeDriver. There seems to be a different version of ChromeDriver for each new major release of Chrome.
+
+Writing your test file
+----------------------
+You'll probably want to read through the Selenium::Remote::Driver documentation at some point, but IntraMine provides libs/intramine_test.pm to help you get going: it contains some subs to intialize testing, start the Chrome driver, load a page, and report back how testing went. It's simplest to call Selenium directly to retrieve specific aspects of a loaded page, for example $driver->get_body() retrieves all of the text from the body of a page.
+
+Let's take a look now at test_programs/test_DBX.pl for a simple example. Here's a walkthrough:
+TABLE test_DBX.pl
+Location	What's that
+31		Brings in intramine_test.pm for talking to Selenium and ChromeDriver
+38			intramine_test.pm#InitTesting() grabs some standard arguments from the command line that called us, and loads IntraMine configuration values, from data/intramine_config.txt and also any values that are specific to the server being tested, based on its Short name. For DBX, data/DBX_config.txt is also loaded.
+42		"my @errors;" is important, and your test program should have this array. If an error is encountered, push a string describing the error onto your @errors array. There are several examples of that in test_DBX.pl.
+45			"my $driver = StartBrowserDriver();" starts up Selenium, and ChromeDriver
+48			"GetStandarURL($driver);" loads the "standard" page for a service, which is the address and port of the service with the Short name tacked on. For DBX, it's "http://192.168.1.132:43125/DBX/", and in general it's "http://$ServerAddress:$SwarmServerPort/$ShortName/". To load some other URL you could use GetURL($driver, $url) or more directly use "$driver->get($url);".
+52		WaitForPageToLoad() waits until the page has loaded into Chrome.
+58..192		Calls to Selenium subs through the $driver retrieve various parts of the loaded page from Chrome. If you want to retrieve the entire page, you have a choice between $driver->get_page_source() which retrieves the "raw" HTML source for the page, and $driver->get_body() which retrieves the text of the body. There are also subs for retrieving elements, sending keystrokes to an element, clicking on an element, finding child elements etc as provided by Selenium: see https://metacpan.org/pod/Selenium::Remote::Driver for details.
+196		"$driver->shutdown_binary;" should be called at the end to shut down the ChromeDriver, which also closes the web page that was opened.
+200	"ReportDoneTesting(\@errors)" sends back error details or "ok" to the Main server, which reports them in its console window. If @errors is empty, that means all was "ok".
+
+Adding a test action
+--------------------
+In the main Perl file for the service you want to test, add this %RequestAction:
+---
+$RequestAction{'/test/'} = \&SelfTest;
+---
+"SelfTest()" is defined in swarmserver.pm, and will call your new server's test program (eg test_programs/test_novel.pl) when you run bats/TEST_INTRAMINE.bat.
+
+Configuring IntraMine to run your test file
+-------------------------------------------
+IntraMine has two master server lists, one for regular runs and one for testing. For testing, make an entry in **data/serverlist_for_testing.txt** for your new server, with a positive "Count" field.
+For a top-level Page server, make the Page and Short names the same:
+---
+1	Novel					Novel			novel.pl
+---
+For a second level server, use a unique Short name together with the Page name of a top level server. For example, "NovelData", that responds to request from a top-level page called "Novel":
+---
+1	Novel					NovelData			novel_data.pl
+---
+For a background server, make the Page and Short names the same and add a tab and "BACKGROUND":
+---
+1	Novel					Novel			novel_lurker.pl	BACKGROUND
+---
+That's all the configuration needed for testing the new server. To remove "Novel" from testing later, set its first "Count" field to 0.
+
+Testing checklist
+-----------------
+ - Chrome and chromedriver.exe installed
+ - you have "$RequestAction{'/test/'} = \&SelfTest;" in your server program
+ - data/intramine_config.txt has an entry for CHROME_DRIVER_PATH
+ - you've written your test program and dropped it in test_programs/
+ - there's an entry for your server in data/serverlist_for_testing.txt
+ - IntraMine isn't already running.
+
+Running your test file
+----------------------
+Tests are run by starting up IntraMine in test mode, by passing a "-t" flag to intramine_main.pl. And the simplest way to do that is to run **bats/TEST_INTRAMINE.bat**. 
+
+When tests have completed you'll see a summary of results (ok or error messages). Press any key to finish.
+
+Testing IntraMine's included servers
+====================================
+1. Install Chrome and chromedriver.exe, and make an entry in data/intramine_config.txt for CHROME_DRIVER_PATH (see "Install a couple things" above).
+2. Open data/serverlist_for_testing.txt, and set the "Count" fields to 1 for each server you want to test. You can test as many at once as you like, though things might get a bit busy.
+3. Note data/serverlist_for_testing.txt has a special entry for "Main". Set the Count for Main to 1 if you want IntraMine's Main server (intramine_main.pl) to run some self tests.
+4. Set Count entries to 0 for any of your own servers that you have added, to avoid confusion. Well, you don't have to do that, but it should help.
+5. Make sure IntraMine isn't running.
+6. Run bats/TEST_INTRAMINE.bat.
+
+---
+contents.txt
+---

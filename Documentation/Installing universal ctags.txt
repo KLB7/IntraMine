@@ -1,0 +1,24 @@
+Installing universal ctags.txt
+==============================
+IntraMine uses ctags to identify functions and classes etc in source files, in order to make entries for those in the file's table of contents.
+
+Here's how to install universal ctags.
+
+1. Visit https://github.com/universal-ctags/ctags-win32/releases
+2. Click on the big blue name of the version you want, typically the latest version right at the top of the list on that page (eg ctags0.png).
+3. Click on the link to the zip file for the x64 non-debug version (eg the second entry in ctags1.png).
+4. Unzip, to get a folder named something like "ctags-2019-01-18_5a2b65f8-x64". Inside, you should see "docs" and "license" etc subfolders at the top level.
+5. Move or copy that folder to a place on your local storage, not buried too deeply. I put mine at "C:\ctags-2019-01-18_5a2b65f8-x64".
+6. Looking in your IntraMine folder, open data/intramine_config.txt and update the entry for CTAGS_DIR. roughly around line 138,
+---
+CTAGS_DIR	C:/ctags-2019-01-18_5a2b65f8-x64
+---
+with the location of your own ctags folder.
+
+If you're updating ctags rather than doing the initial install, you'll need to restart IntraMine in order for the changes to take effect. 
+
+Next: Checks before the first run.txt
+
+---
+contents.txt
+---
