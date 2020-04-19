@@ -13,7 +13,7 @@ I had some notions, so I set out to do a demo to address those issues. My insidi
 ## What's in the box
  - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with no-load index updates in five seconds.
  - a truly nice Viewer to see your search hits in context
- - autolinks on everything in all file views, mostly with no extra typing (1)
+ - autolinks on everything in all file views, mostly with no extra typing
  - Gloss, a superautomatic minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
  - image hovers, so images actually become useful. Pause your mouse over the image name and the image pops up. Works in source and text files, zero extra typing required.
  - for Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks and JavaScript. IntraMine's main "round robin redirect" service won't be a bottleneck.
@@ -45,16 +45,5 @@ IntraMine is for use only on a intranet, and provides absolutely no security on 
 
 ## How to get started
 Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
-
-1. Here are some examples from my PC that turn into links under IntraMine's Viewer.
-
- - IntraMine Dec 18 2019.txt (no quotes needed. There's a second copy of this file in a backup folder, but it's farther away from where I'm mentioning the file, and closer is preferred.)
- - "IntraMine Dec 18 2019.txt#Partial path simplification" (a link directly to a header in a text file, needing two quotes and a hash tag)
- - qremoteobjectnode.cpp (this Qt file is on my P: drive, but the name is unique so no partial path is needed)
- - quickcontrols2/qquickstyle.h (Qt often has two or more versions of the same file. In this case, adding one directory name to the path makes it unique among all known file paths. Directory names need not be in order or consecutive.)
- - https://google.com
- - the mention of any heading within a text file becomes a link if place in double quotes. Eg "Partial path simplification" within IntraMine Dec 18 2019.txt
- - in source files, any mention of a function or class defined in the same file becomes a link
- - in Perl files, "use module" gets two links to the module, locally and on metacpan
 
  
