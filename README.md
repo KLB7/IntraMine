@@ -25,7 +25,7 @@ I had some notions, so I set out to do a demo to address those issues. My insidi
  - 3-4 GB of RAM for IntraMine (including Elasticsearch)
  - your source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected.
 
-For more see [the documentation](http://intramine.info), where among other things you'll find complete installation instructions.
+For more see <a href="https://intramine.info" target="_blank">the documentation</a> [the documentation](http://intramine.info), where among other things you'll find complete installation instructions.
 
 ## What's different about an intranet
 Since IntraMine is for intranet use only, opportunities arise to simplify some things, and enhance others:
