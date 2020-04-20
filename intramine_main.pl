@@ -143,6 +143,9 @@ if ($kLOGMESSAGES)
 	$OutputLog = new LogFile($LogPath);
 	$OutputLog->Echo($kDISPLAYMESSAGES);
 	}
+
+CheckNeededFoldersExist();
+
 Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 
 # Special handling for 'PERSISTENT' pages: at present only the 'Cmd' page is marked as
@@ -190,6 +193,16 @@ sub Output {
 	if ($kDISPLAYMESSAGES)
 		{
 		print("MAIN: $text");
+		}
+	}
+
+# Not all needed folders are shipped with IntraMine, the logs/ folder in particular is missing.
+sub CheckNeededFoldersExist {
+	my $logDir = FullDirectoryPath('LogDir');
+	my $tempDir = $LogDir . 'temp/';
+	if (!MakeAllDirsWide($tempDir))
+		{
+		print("Error (will continue), could not make |$tempDir|\n");
 		}
 	}
 
