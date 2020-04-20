@@ -61,6 +61,16 @@ If you haven't used Perl before on the PC where you just installed Strawberry Pe
  - pick Properties
  - if needed, change "Opens with:" to "Perl interpreter".
 
+Punch a hole in your firewall
+=============================
+It's best to allow Perl through the firewall now, rather than waiting for a prompt later - sometimes the prompt can be tardy.
+
+1. Bring up Settings, and search for firewall
+2. Select "Allow an app through Windows Firewall"
+3. Click "Change settings"
+4. Select "Allow another app..."
+5. Browse to C:\strawberry\perl\bin\perl.exe and add it.
+
 Now you'll want to grab a few modules.
 
 Installing additional Strawberry Perl modules
