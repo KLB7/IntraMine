@@ -453,7 +453,7 @@ sub GetLogChanges {
 				my $cmp = DateTime->compare_ignore_floating($lastDT, $dt);
 				if ($cmp > 0)
 					{
-					print("File Watcher log trouble, \$LastTimeStampChecked '$LastTimeStampChecked' not seen!\n");
+					Output("File Watcher log trouble, \$LastTimeStampChecked '$LastTimeStampChecked' not seen!\n");
 					$wentPastLastTime = 1;
 					last;
 					}
