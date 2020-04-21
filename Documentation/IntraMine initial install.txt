@@ -77,7 +77,9 @@ Installing additional Strawberry Perl modules
 =============================================
 Installing modules for Strawberry Perl is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts, I had no luck with it.
 
-Note the "cpan Search::Elasticsearch" install might freeze near the end: give it a couple of minutes, and if nothing happens hit CTRL-C. We'll check it's ok in a minute.
+Note the "cpan Search::Elasticsearch" install might freeze near the end, during final tests: if it stalls for more than a few minutes on 
+t/Server_PreFork.t ........ 1/5
+or something similar, hit CTRL-C / Enter to get out. We'll check it's ok in a minute.
 
 And "cpan IO::Socket::Timeout" does a lot of timeout tests during the install, so it can take a while, five minutes or so.
 
@@ -85,7 +87,7 @@ When you see
 ---
 C:\STRAWB~1\c\bin\gmake.exe -- OK
 ---
-the installation might seem to stall while gmake.exe is running, but it's just being rather laconic. Eventually, something will happen. With Text::Unidecode, this can take several minutes, so do some creative multitasking as needed.
+the installation might seem to stall while gmake.exe is running, but it's just being rather laconic. Eventually, something will happen. With Text::Unidecode, this can take up to 10 minutes, so do some creative multitasking as needed.
 
 Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a command prompt and press Enter:
 ---
