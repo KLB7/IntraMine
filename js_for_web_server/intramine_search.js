@@ -999,3 +999,9 @@ function dirKey(e) {
 		e.preventDefault();
 		}
 }
+
+// Fixed sort order for the directory picker.
+function currentSortOrder() {
+	return("name_ascending");
+}
+
