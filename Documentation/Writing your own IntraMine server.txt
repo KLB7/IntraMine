@@ -58,7 +58,7 @@ Location		Whazzup
 61		"use swarmserver" brings in the **swarmserver.pm** module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).
 65..69		SSInitialize() in swarmserver.pm loads configuration values, including any specifically for your server. To pull in configuration values for your server, add a file to the data/ folder whose name is the Short name of your server followed by "_config.txt". The format is Key<tabs>Value. The DBX server has its own config file, called DBX_config.txt. SSInitialize() also sets variables holding your server's Page name, Short name, IntraMine's Main port, and the listening port for the current (DBX) server.
 71..76		This sets up server feedback, which can be just a print to the console window, or to a file, or both. Set $kLOGMESSAGES to 1 to log all Output() calls. The log file will be in logs/IntraMine/, with Short name, port, and date in the name, eg ".../logs/IntraMine/DBX 43133 2019-12-31-15-02.txt" 
-80..101		Specific to the example server, these lines just set up our little fruit database, you won't need them in your server.
+80..101		Specific to the example server, these lines set up our little fruit database, you won't need them in your server.
 113..116	The **%RequestAction** hash keys hold strings that swarmserver.pm will look for when requests come in, and the values hold addresses of subroutines to call in response. %RequestAction has its own description below.
 116		"$RequestAction{'/test/'} = \&SelfTest;" says this server can run tests. See "Testing" below.
 124		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.

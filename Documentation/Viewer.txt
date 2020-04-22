@@ -49,7 +49,7 @@ In intramine_config.txt:
 ---
 COMMON_IMAGES_DIR	C:/common/images/
 ---
-If you want to use a common folder for images now and then, you can drop them in this folder and they will be available in any View just by mentioning the image name.
+If you want to use a common folder for images now and then, you can drop them in this folder and they will be available in any View where you mention the image name.
 
 There are other config values used by the Viewer, such as
 CTAGS_DIR	C:/ctags-2019-01-18_5a2b65f8-x64

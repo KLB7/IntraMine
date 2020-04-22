@@ -22,7 +22,7 @@ On detecting a file system change, FILEWATCHER
 
 File consolidation
 ==================
-FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes just a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.
+FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes no more than a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.
 
 Configuring file consolidation
 ------------------------------
@@ -34,7 +34,7 @@ You'll find this in data/intramine_config.txt around line 131:
 FILEWATCHER_CONSOLIDATION_START_HOUR	3
 FILEWATCHER_CONSOLIDATION_END_HOUR		5
 ---
-Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation typically takes just a couple of seconds.
+Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.
 
 ---
 contents.txt

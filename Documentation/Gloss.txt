@@ -11,7 +11,7 @@ Overview
 ========
 Gloss is a markdown variant that concentrates on two things: minimal, memorable markdown that looks good in the source text; and automatic linking to files on your intranet.
 
-Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: just the plain file name without any directories or drive or quotes or brackets, or any other adornments.
+Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments.
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl - 
 
@@ -145,7 +145,7 @@ In a text file:
 To link to a heading in the same text (.txt)file, put it in "double quotes".
 
 In a source file:
-The links to functions and classes within the same file will just happen on their own. No quotes are needed in either source or comments.
+The links to functions and classes within the same file will happen on their own. No quotes are needed in either source or comments.
 
 As an example, "Images" will be a link to the section following this one. When you start using IntraMine you'll see same-file links to functions and classes in your source files.
 
@@ -253,7 +253,7 @@ Class				Description		<R>Low		<R>High
 
 Gloss vs Markdown tables
 ~~~~~~~~~~~~~~~~~~~~~~~
-Here's a simple Markdown style table, just straight HTML:
+Here's a simple Markdown style table, in plain old HTML:
 ~~~
 <table>
     <th>
