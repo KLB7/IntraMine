@@ -1264,7 +1264,7 @@ margin: 3px 8px;
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td><h2 id="File_consolidation">File consolidation</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R25'><td n='25'></td><td>FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes just a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.</td></tr>
+<tr id='R25'><td n='25'></td><td>FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes no more than a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.</td></tr>
 <tr id='R26'><td n='26'></td><td></td></tr>
 <tr id='R27'><td n='27'></td><td><h3 id="Configuring_file_consolidation">Configuring file consolidation</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1284,7 +1284,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R37'><td n='37'></td><td>Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation typically takes just a couple of seconds.</td></tr>
+<tr id='R37'><td n='37'></td><td>Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.</td></tr>
 <tr id='R38'><td n='38'></td><td></td></tr>
 <tr id='R39'><td n='39'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU

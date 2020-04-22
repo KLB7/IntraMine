@@ -1244,8 +1244,8 @@ margin: 3px 8px;
 <li class='h2' im-text-ln='57'><a href='#Tell_Windows_what_a_Perl_file_is_for'>Tell Windows what a Perl file is for</a></li>
 <li class='h2' im-text-ln='64'><a href='#Punch_a_hole_in_your_firewall'>Punch a hole in your firewall</a></li>
 <li class='h2' im-text-ln='76'><a href='#Installing_additional_Strawberry_Perl_modules'>Installing additional Strawberry Perl modules</a></li>
-<li class='h2' im-text-ln='107'><a href='#Optional_modules'>Optional modules</a></li>
-<li class='h2' im-text-ln='116'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
+<li class='h2' im-text-ln='109'><a href='#Optional_modules'>Optional modules</a></li>
+<li class='h2' im-text-ln='118'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps as described below consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
@@ -1408,102 +1408,104 @@ AABJRU5ErkJggg==
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R78'><td n='78'></td><td>Installing modules for <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts, I had no luck with it.</td></tr>
 <tr id='R79'><td n='79'></td><td></td></tr>
-<tr id='R80'><td n='80'></td><td>Note the "cpan Search::<a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>" install might freeze near the end: give it a couple of minutes, and if nothing happens hit CTRL-C. We'll check it's ok in a minute.</td></tr>
-<tr id='R81'><td n='81'></td><td></td></tr>
-<tr id='R82'><td n='82'></td><td>And "cpan IO::Socket::Timeout" does a lot of timeout tests during the install, so it can take a while, five minutes or so.</td></tr>
+<tr id='R80'><td n='80'></td><td>Note the "cpan Search::<a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>" install might freeze near the end, during final tests: if it stalls for more than a few minutes on </td></tr>
+<tr id='R81'><td n='81'></td><td>t/Server_PreFork.t ........ 1/5</td></tr>
+<tr id='R82'><td n='82'></td><td>or something similar, hit CTRL-C / Enter to get out. We'll check it's ok in a minute.</td></tr>
 <tr id='R83'><td n='83'></td><td></td></tr>
-<tr id='R84'><td n='84'></td><td>When you see</td></tr>
-<tr id='R85'><td n='85'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R86'><td n='86'></td><td>C:\STRAWB~1\c\bin\gmake.exe -- OK</td></tr>
+<tr id='R84'><td n='84'></td><td>And "cpan IO::Socket::Timeout" does a lot of timeout tests during the install, so it can take a while, five minutes or so.</td></tr>
+<tr id='R85'><td n='85'></td><td></td></tr>
+<tr id='R86'><td n='86'></td><td>When you see</td></tr>
 <tr id='R87'><td n='87'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R88'><td n='88'></td><td>the installation might seem to stall while gmake.exe is running, but it's just being rather laconic. Eventually, something will happen. With Text::Unidecode, this can take several minutes, so do some creative multitasking as needed.</td></tr>
-<tr id='R89'><td n='89'></td><td></td></tr>
-<tr id='R90'><td n='90'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> and press Enter:</td></tr>
-<tr id='R91'><td n='91'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R88'><td n='88'></td><td>C:\STRAWB~1\c\bin\gmake.exe -- OK</td></tr>
+<tr id='R89'><td n='89'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R92'><td n='92'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
-<tr id='R93'><td n='93'></td><td>cpan Date::Business</td></tr>
-<tr id='R94'><td n='94'></td><td>cpan ExportAbove</td></tr>
-<tr id='R95'><td n='95'></td><td>cpan Win32API::File::Time</td></tr>
-<tr id='R96'><td n='96'></td><td>cpan Math::SimpleHisto::XS</td></tr>
-<tr id='R97'><td n='97'></td><td>cpan File::ReadBackwards</td></tr>
-<tr id='R98'><td n='98'></td><td>cpan IO::Socket::Timeout</td></tr>
-<tr id='R99'><td n='99'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
-<tr id='R100'><td n='100'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
-<tr id='R101'><td n='101'></td><td>cpan Text::MultiMarkdown</td></tr>
-<tr id='R102'><td n='102'></td><td>cpan Win32::RunAsAdmin</td></tr>
-<tr id='R103'><td n='103'></td><td>cpan Text::Unidecode</td></tr>
-<tr id='R104'><td n='104'></td><td>cpan Selenium::Remote::Driver</td></tr>
-<tr id='R105'><td n='105'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R90'><td n='90'></td><td>the installation might seem to stall while gmake.exe is running, but it's just being rather laconic. Eventually, something will happen. With Text::Unidecode, this can take up to 10 minutes, so do some creative multitasking as needed.</td></tr>
+<tr id='R91'><td n='91'></td><td></td></tr>
+<tr id='R92'><td n='92'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> and press Enter:</td></tr>
+<tr id='R93'><td n='93'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R106'><td n='106'></td><td></td></tr>
-<tr id='R107'><td n='107'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
+<tr id='R94'><td n='94'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
+<tr id='R95'><td n='95'></td><td>cpan Date::Business</td></tr>
+<tr id='R96'><td n='96'></td><td>cpan ExportAbove</td></tr>
+<tr id='R97'><td n='97'></td><td>cpan Win32API::File::Time</td></tr>
+<tr id='R98'><td n='98'></td><td>cpan Math::SimpleHisto::XS</td></tr>
+<tr id='R99'><td n='99'></td><td>cpan File::ReadBackwards</td></tr>
+<tr id='R100'><td n='100'></td><td>cpan IO::Socket::Timeout</td></tr>
+<tr id='R101'><td n='101'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
+<tr id='R102'><td n='102'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
+<tr id='R103'><td n='103'></td><td>cpan Text::MultiMarkdown</td></tr>
+<tr id='R104'><td n='104'></td><td>cpan Win32::RunAsAdmin</td></tr>
+<tr id='R105'><td n='105'></td><td>cpan Text::Unidecode</td></tr>
+<tr id='R106'><td n='106'></td><td>cpan Selenium::Remote::Driver</td></tr>
+<tr id='R107'><td n='107'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R108'><td n='108'></td><td></td></tr>
+<tr id='R109'><td n='109'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R109'><td n='109'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
-<tr id='R110'><td n='110'></td><td></td></tr>
-<tr id='R111'><td n='111'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>:</td></tr>
-<tr id='R112'><td n='112'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R113'><td n='113'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R111'><td n='111'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
+<tr id='R112'><td n='112'></td><td></td></tr>
+<tr id='R113'><td n='113'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>:</td></tr>
 <tr id='R114'><td n='114'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R115'><td n='115'></td><td></td></tr>
-<tr id='R116'><td n='116'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R118'><td n='118'></td><td>If you ran into any problems or confusions during the module installation, or if you like certainty, run "verify_module_installation.pl" (found in your IntraMine folder). If modules are missing it will let you know, otherwise it will just say "Done."</td></tr>
-<tr id='R119'><td n='119'></td><td></td></tr>
-<tr id='R120'><td n='120'></td><td>[</td></tr>
-<tr id='R121'><td n='121'></td><td>To run a Perl program, using "verify_module_installation.pl" as an example:</td></tr>
-<tr id='R122'><td n='122'></td><td><p class="ol-1">1. Open a console (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>) window</p></td></tr>
-<tr id='R123'><td n='123'></td><td><p class="ol-1">2. Determine the path to the program, eg "C:\perlprogs\mine\verify_module_installation.pl" (yours will differ)</p></td></tr>
-<tr id='R124'><td n='124'></td><td><p class="ol-1">3. At the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>, enter</p></td></tr>
-<tr id='R125'><td n='125'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R115'><td n='115'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R116'><td n='116'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R126'><td n='126'></td><td>perl "C:\perlprogs\mine\verify_module_installation.pl"</td></tr>
+<tr id='R117'><td n='117'></td><td></td></tr>
+<tr id='R118'><td n='118'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R120'><td n='120'></td><td>If you ran into any problems or confusions during the module installation, or if you like certainty, run "verify_module_installation.pl" (found in your IntraMine folder). If modules are missing it will let you know, otherwise it will just say "Done."</td></tr>
+<tr id='R121'><td n='121'></td><td></td></tr>
+<tr id='R122'><td n='122'></td><td>[</td></tr>
+<tr id='R123'><td n='123'></td><td>To run a Perl program, using "verify_module_installation.pl" as an example:</td></tr>
+<tr id='R124'><td n='124'></td><td><p class="ol-1">1. Open a console (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>) window</p></td></tr>
+<tr id='R125'><td n='125'></td><td><p class="ol-1">2. Determine the path to the program, eg "C:\perlprogs\mine\verify_module_installation.pl" (yours will differ)</p></td></tr>
+<tr id='R126'><td n='126'></td><td><p class="ol-1">3. At the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>, enter</p></td></tr>
 <tr id='R127'><td n='127'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R128'><td n='128'></td><td>Again, use your own path there in the last step, and quotes around the path can be left off if there are no spaces in it.</td></tr>
-<tr id='R129'><td n='129'></td><td>]</td></tr>
-<tr id='R130'><td n='130'></td><td></td></tr>
-<tr id='R131'><td n='131'></td><td>Or you could wait until it's naturally time to start up IntraMine, at the end of installation, and you'll see complaints about any missing modules then.</td></tr>
-<tr id='R132'><td n='132'></td><td></td></tr>
-<tr id='R133'><td n='133'></td><td>The fix for a missing module is as simple as you might guess, if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>.</td></tr>
-<tr id='R134'><td n='134'></td><td></td></tr>
-<tr id='R135'><td n='135'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
-<tr id='R136'><td n='136'></td><td></td></tr>
-<tr id='R137'><td n='137'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R128'><td n='128'></td><td>perl "C:\perlprogs\mine\verify_module_installation.pl"</td></tr>
+<tr id='R129'><td n='129'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R138'><td n='138'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R130'><td n='130'></td><td>Again, use your own path there in the last step, and quotes around the path can be left off if there are no spaces in it.</td></tr>
+<tr id='R131'><td n='131'></td><td>]</td></tr>
+<tr id='R132'><td n='132'></td><td></td></tr>
+<tr id='R133'><td n='133'></td><td>Or you could wait until it's naturally time to start up IntraMine, at the end of installation, and you'll see complaints about any missing modules then.</td></tr>
+<tr id='R134'><td n='134'></td><td></td></tr>
+<tr id='R135'><td n='135'></td><td>The fix for a missing module is as simple as you might guess, if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: the flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>.</td></tr>
+<tr id='R136'><td n='136'></td><td></td></tr>
+<tr id='R137'><td n='137'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
+<tr id='R138'><td n='138'></td><td></td></tr>
 <tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R140'><td n='140'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R141'><td n='141'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
