@@ -613,8 +613,39 @@ a.embedded_image {
 	left: -64px;
 }
 
+#title-block {
+	display: inline-block;
+	max-height: 60px;
+	overflow: hidden;
+	text-align: right;
+}
+
+
 #viewEditTitle {
 	margin-right: 12px;
+	display: inline-block;
+	font-size: 1.4em;
+	font-weight: bold;
+}
+
+#viewEditDateSize {
+	margin-right: 12px;
+}
+
+#title-blockTR {
+	max-height: 60px;
+	overflow: hidden;
+}
+
+#title-blockTD {
+	max-height: 60px;
+	overflow: hidden;
+}
+
+#button-block {
+	display: inline-block;
+	vertical-align: top;
+	/*margin-top: 20px;*/
 }
 
 /* For the Status page main status tables. */

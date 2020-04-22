@@ -284,10 +284,17 @@ sub FullFile {
 	$title =~ s!/!\\!g;
 	$title = &HTML::Entities::encode($title);
 	
+	# Grab mod date and file size.
+	my $modDate = GetFileModTimeWide($filePath);
+	my $size = GetFileSizeWide($filePath);
+	my $sizeDateStr =  DateSizeString($modDate, $size);
+	
 	# Fill in the placeholders in the HTML template for title etc. And give values to
 	# JS variables. See FullFileTemplate() just below.
 	$theBody =~ s!_TITLEHEADER_!$title!;
-
+	
+	$theBody =~ s!_DATEANDSIZE_!$sizeDateStr!;
+	
 	$theBody =~ s!_PATH_!$filePath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 	
@@ -378,8 +385,12 @@ _TEXTTABLECSS_
 <div id="indicator"></div> <!-- iPad -->
 <div id="indicatorPC"></div>
 _TOPNAV_
-<h3><span id="viewEditTitle">_TITLEHEADER_</span>&nbsp;&nbsp;_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_
-_SEARCH_ <span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span></h3>
+<div id="title-block">
+<span id="viewEditTitle">_TITLEHEADER_</span><br /><span id="viewEditDateSize">_DATEANDSIZE_</span>
+</div>
+<div id="button-block">
+_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ <span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span>
+</div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
 _FILECONTENTS_

@@ -371,100 +371,48 @@ sub FileDatesAndSizes {
 		}
 	}
 
-sub DateSizeString {
-	my ($modDate, $sizeBytes) = @_;
-	my $sizeDateStr = '';
-	my $dateStr = localtime($modDate)->datetime;
-	
-	my $exp = 0;
-	my $sizeStr = '';
-	for (@$FILESIZEUNITS)
-		{
-		last if $sizeBytes < 1024;
-		$sizeBytes /= 1024;
-		$exp++;
-		}
-	if ($exp == 0)
-		{
-		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-		}
-	else
-		{
-		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-		}
-    
-     if ($dateStr ne '' || $sizeStr ne '')
-    	{
-    	$sizeDateStr = "<span>";
-    	if ($dateStr ne '')
-    		{
-    		$sizeDateStr .= $dateStr;
-    		}
-    	if ($sizeStr ne '')
-    		{
-    		if ($dateStr ne '')
-    			{
-    			$sizeDateStr .= ' ';
-    			}
-    		$sizeDateStr .= $sizeStr;
-    		}
-    	$sizeDateStr .= "</span>";
-    	}
-
-	return($sizeDateStr);	
-	}
-
-# Obsolete
-sub FileDateAndSizeString {
-	my ($dir, $file) = @_;
-	my $sizeDateStr = '';
-	
-	if (!$SHOWFILESIZESANDMODDATES)
-		{
-		return($sizeDateStr);
-		}
-	
-	my $modDate = GetFileModTimeWide($dir . $file);
-	my $dateStr = localtime($modDate)->datetime;
-
-	my $sizeBytes = GetFileSizeWide($dir . $file);
-	my $exp = 0;
-	my $sizeStr = '';
-	for (@$FILESIZEUNITS)
-		{
-		last if $sizeBytes < 1024;
-		$sizeBytes /= 1024;
-		$exp++;
-		}
-	if ($exp == 0)
-		{
-		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-		}
-	else
-		{
-		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-		}
-    
-     if ($dateStr ne '' || $sizeStr ne '')
-    	{
-    	$sizeDateStr = "<span>";
-    	if ($dateStr ne '')
-    		{
-    		$sizeDateStr .= $dateStr;
-    		}
-    	if ($sizeStr ne '')
-    		{
-    		if ($dateStr ne '')
-    			{
-    			$sizeDateStr .= ' ';
-    			}
-    		$sizeDateStr .= $sizeStr;
-    		}
-    	$sizeDateStr .= "</span>";
-    	}
-
-	return($sizeDateStr);
-	}
+#sub DateSizeString {
+#	my ($modDate, $sizeBytes) = @_;
+#	my $sizeDateStr = '';
+#	my $dateStr = localtime($modDate)->datetime;
+#	
+#	my $exp = 0;
+#	my $sizeStr = '';
+#	for (@$FILESIZEUNITS)
+#		{
+#		last if $sizeBytes < 1024;
+#		$sizeBytes /= 1024;
+#		$exp++;
+#		}
+#	if ($exp == 0)
+#		{
+#		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+#		}
+#	else
+#		{
+#		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+#		}
+#    
+#     if ($dateStr ne '' || $sizeStr ne '')
+#    	{
+#    	$sizeDateStr = "<span>";
+#    	if ($dateStr ne '')
+#    		{
+#    		$sizeDateStr .= $dateStr;
+#    		}
+#    	if ($sizeStr ne '')
+#    		{
+#    		if ($dateStr ne '')
+#    			{
+#    			$sizeDateStr .= ' ';
+#    			}
+#    		$sizeDateStr .= $sizeStr;
+#    		}
+#    	$sizeDateStr .= "</span>";
+#    	}
+#
+#	return($sizeDateStr);	
+#	}
 
 # Images get showhint() "hover" event listeners, as well as a link to open in a new tab.
 sub ImageLine {

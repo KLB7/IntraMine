@@ -16,10 +16,13 @@ use File::Path;
 use File::Find;
 use File::Copy;
 use Date::Business;
+use Time::Piece;
 use Path::Tiny qw(path);
 #use lib path($0)->absolute->parent->child('libs')->stringify;
 use lib ".";
 use holidays; # holidays for use with Date::Business
+
+my $FILESIZEUNITS = [qw(B KB MB GB TB PB)];
 
 my $Output = \&_Com_JustPrint;		# print or log
 
@@ -250,6 +253,54 @@ sub SaveKeyTabValueHashToFile {
 
     close $hfileH;
     }
+
+# Eg  <span>YYYY-MM-DDThh:mm:ss 123 KB</span>.
+# Usage:
+#	my $modDate = GetFileModTimeWide($filePath);
+#	my $size = GetFileSizeWide($filePath);
+#	my $sizeDateStr =  DateSizeString($modDate, $size);
+sub DateSizeString {
+	my ($modDate, $sizeBytes) = @_;
+	my $sizeDateStr = '';
+	my $dateStr = localtime($modDate)->datetime;
+	
+	my $exp = 0;
+	my $sizeStr = '';
+	for (@$FILESIZEUNITS)
+		{
+		last if $sizeBytes < 1024;
+		$sizeBytes /= 1024;
+		$exp++;
+		}
+	if ($exp == 0)
+		{
+		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+		}
+	else
+		{
+		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+		}
+    
+     if ($dateStr ne '' || $sizeStr ne '')
+    	{
+    	$sizeDateStr = "<span>";
+    	if ($dateStr ne '')
+    		{
+    		$sizeDateStr .= $dateStr;
+    		}
+    	if ($sizeStr ne '')
+    		{
+    		if ($dateStr ne '')
+    			{
+    			$sizeDateStr .= ' ';
+    			}
+    		$sizeDateStr .= $sizeStr;
+    		}
+    	$sizeDateStr .= "</span>";
+    	}
+
+	return($sizeDateStr);	
+	}
 
 sub DateTimeForFileName {
     my ($sec, $min, $hr, $mday, $mon, $year, $wday, $yday, $isdst) = localtime();

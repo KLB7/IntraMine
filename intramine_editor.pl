@@ -84,7 +84,7 @@ let errorID = "editor_error";
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<h3 id='edittitleheader'><span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _SEARCH_ _UNDOREDO_ <span id="editor_error">&nbsp;</span></h3>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _SEARCH_ _UNDOREDO_ <span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'><div id='scrollText'></div></div>
 
