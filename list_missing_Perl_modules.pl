@@ -1,4 +1,6 @@
-# list_missing_Perl_modules.pl: list modules that are missing based on "use" in a Perl file
+# list_missing_Perl_modules.pl: for ActivePerl, and probably obsolete.
+# 
+# list modules that are missing based on "use" in a Perl file
 # or all Perl files at the top of a folder, and generate a bat file that can be run manually
 # to install the modules. Examines given file, or for a folder examines all
 # .pl and .pm files at the top level only of the folder. Output to the bat file is in the form of
