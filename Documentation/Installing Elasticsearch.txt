@@ -26,7 +26,7 @@ Elasticsearch installation
 ==========================
 Getting Elasticsearch
 ----------------------
-Currently I'm recommending version 6.8.0. That's the highest version I've tried, aside from 7.1.1 which is too new. We are waiting for the admirable Clinton Gormley to produce a new version of Search::Elasticsearch, which will be compatible with ES version 7.
+Currently I'm recommending version 6.8.0. That's the highest version I've tried, aside from 7.1.1 which is too new. We are waiting for a new version of Search::Elasticsearch, one compatible with ES version 7.
 
 When Elasticsearch 7 is supported I'll update this page.
 
