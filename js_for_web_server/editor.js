@@ -282,7 +282,7 @@ function saveFile(path) {
 
 	request.onerror = function() {
 		// There was a connection error of some sort
-		// TODO make this less offensive.
+		// TODO make this less vague.
 		let e1 = document.getElementById("editor_error");
 		e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
 		hideSpinner();
