@@ -2488,7 +2488,6 @@ sub LaunchTestProgram {
 	my $result = 1;
 	if ($testProgramPath ne '')
 		{
-		# TEST ONLY codathon
 		print("Launching |$testProgramPath|\n");
 		my $running = RunPerlProgram($testProgramPath, $serverAddress, $mainPort, $shortName, $swarmserverPort);
 		if (!$running)
@@ -2499,7 +2498,6 @@ sub LaunchTestProgram {
 			}
 		else
 			{
-			# TEST ONLY codathon
 			print("|$testProgramPath| is running.\n");
 			}
 		}
