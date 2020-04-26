@@ -414,8 +414,8 @@ export default function(CodeMirror) {
       this.curOp.forceUpdate = true
       clearCaches(this)
       scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
-      updateGutterSpace(this)
-      if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
+      updateGutterSpace(this.display)
+      if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5 || this.options.lineWrapping)
         estimateLineHeights(this)
       signal(this, "refresh", this)
     }),
@@ -423,6 +423,8 @@ export default function(CodeMirror) {
     swapDoc: methodOp(function(doc) {
       let old = this.doc
       old.cm = null
+      // Cancel the current text selection if any (#5821)
+      if (this.state.selectingText) this.state.selectingText()
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
@@ -467,8 +469,9 @@ function findPosH(doc, pos, dir, unit, visually) {
   let oldPos = pos
   let origDir = dir
   let lineObj = getLine(doc, pos.line)
+  let lineDir = visually && doc.direction == "rtl" ? -dir : dir
   function findNextLine() {
-    let l = pos.line + dir
+    let l = pos.line + lineDir
     if (l < doc.first || l >= doc.first + doc.size) return false
     pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
@@ -482,7 +485,7 @@ function findPosH(doc, pos, dir, unit, visually) {
     }
     if (next == null) {
       if (!boundToLine && findNextLine())
-        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, lineDir)
       else
         return false
     } else {

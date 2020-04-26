@@ -172,6 +172,8 @@ export function postUpdateDisplay(cm, update) {
       update.visible = visibleLines(cm.display, cm.doc, viewport)
       if (update.visible.from >= cm.display.viewFrom && update.visible.to <= cm.display.viewTo)
         break
+    } else if (first) {
+      update.visible = visibleLines(cm.display, cm.doc, viewport)
     }
     if (!updateDisplayIfNeeded(cm, update)) break
     updateHeightsInViewport(cm)
@@ -248,9 +250,9 @@ function patchDisplay(cm, updateNumbersFrom, dims) {
   while (cur) cur = rm(cur)
 }
 
-export function updateGutterSpace(cm) {
-  let width = cm.display.gutters.offsetWidth
-  cm.display.sizer.style.marginLeft = width + "px"
+export function updateGutterSpace(display) {
+  let width = display.gutters.offsetWidth
+  display.sizer.style.marginLeft = width + "px"
 }
 
 export function setDocumentHeight(cm, measure) {

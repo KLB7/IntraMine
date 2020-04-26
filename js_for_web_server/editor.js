@@ -288,21 +288,16 @@ function saveFile(path) {
 		hideSpinner();
 	};
 
-	// TEST ONLY codathon quot handling out for contents.
 	// '%' needs encoding in contents, to survive the encodeURIComponent() below.
 	contents = contents.replace(/%/g, "%25");
 	// And the same for path.
 	path = path.replace(/%/g, "%25");
-	// which leaves "&" as in "&nbsp;", encode "&" as "&amp;"
-	/////contents = contents.replace(/\&quot;/g, "QUOTE");
 	
 	contents = encodeURIComponent(contents);
 	contents = encodeURIComponent(contents);
 	
 	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
 			+ contents);
-//	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
-//			+ encodeURIComponent(contents));
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.

@@ -225,18 +225,6 @@ sub Save {
 	if ($filepath ne '')
 		{
 		$filepath =~ s!\\!/!g;
-		# TEST ONLY codathon save to a different path.
-		if ($filepath =~ m!^(.+?)\.(\w+)$!)
-			{
-			my $pre = $1;
-			my $post = $2;
-			$filepath = $pre . '1.' . $post;
-			}
-		else
-			{
-			print("FILE RENAME FAIL in Save()!\n");
-			return('OK');
-			}
 		Output("Saving |$filepath|\n");
 		
 		my $contents = $formH->{'contents'};
