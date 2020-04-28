@@ -11,7 +11,7 @@ How it works
 ============
 FILEWATCHER detects file system changes in two ways:
  - check the File Watcher service log for anything new
- - launch a PowerShell script (foldermonitor.ps1) that monitors file system changes, and respond to any "signal=FILESYSTEMCHANGE" messages from it.
+ - launch a Powershell script (foldermonitor.ps1) that monitors file system changes, and respond to any "signal=FILESYSTEMCHANGE" messages from it.
 
 On detecting a file system change, FILEWATCHER
  - loads details of the changes from the File Watcher service log

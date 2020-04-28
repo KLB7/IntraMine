@@ -1,7 +1,7 @@
 Updating CodeMirror
 ===================
 
-IntraMine ships with a copy of CodeMirror (version 5.43.0), so it's not necessary to install it. The copy you have should be fine. However, if you want to update IntraMine's copy some day, read on. Otherwise, if you're installing stuff you can continue with "Installing universal ctags.txt".
+IntraMine ships with a copy of CodeMirror (version 5.53.0), so it's not necessary to install it. The copy you have should be fine. However, if you want to update IntraMine's copy some day, read on. Otherwise, if you're installing stuff you can continue with "Installing universal ctags.txt".
 
 A small iPad problem
 ====================

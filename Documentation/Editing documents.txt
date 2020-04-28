@@ -56,7 +56,7 @@ Make it the same as
 "INTRAMINE_FIRST_SWARM_SERVER_PORT" in IntraMine's data/intramine_config.txt file around line 15. Save that, it will be your "master" for copying to other PC's.
 2. In data/intramine_config.txt, set ALLOW_REMOTE_EDITING, USE_APP_FOR_REMOTE_EDITING, and REMOTE_OPENER_APP as described above.
  If any remote PC doesn't have the editor in the specified place, then IntraMine's Editor service will be used instead, if it's running.
-3. IntraMine needs to know how to come up with a path to a file on the IntraMine box, from the perspective of a remote PC. Near the bottom of intramine_config.txt around line 205 you'll find "Mappings for use by remote PCs". For best results any directory you share in order to allow remote editing should also be entered in your list of directories to index, in data/search_directories.txt and should match exactly.
+3. IntraMine needs to know how to come up with a path to a file on the IntraMine box, from the perspective of a remote PC. Near the bottom of intramine_config.txt around line 207 you'll find "Mappings for use by remote PCs". For best results any directory you share in order to allow remote editing should also be entered in your list of directories to index, in data/search_directories.txt and should match exactly.
  To make an entry for eg "P:\Qt" where the "P:" drive is attached to your IntraMine PC:
 3.1 first, share the folder on your IntraMine box as eg "devQt", under an account that your remote PC can use; note the host name for your IntraMine box (see "Device name" under Settings -> System -> About);
 3.2 make an entry in intramine_config.txt for the share, eg
@@ -75,16 +75,20 @@ enter your credentials for them if needed.
  If you no longer want this server later, you can remove the firewall rule by name with, e.g.:
  netsh advfirewall firewall delete rule name="IntraMine-Remote"
 5. Start your remote editor using "Run as administrator" (see the shouting above).
-6. Start PowerShell with administrative rights ("Run as administrator") on the remote PC. Type or paste
+6. Start Powershell with administrative rights ("Run as administrator") on the remote PC. Type or paste
  Set-ExecutionPolicy Bypass
  and press Enter, then
  C:\PS\IntraMine-Remote.ps1
  and press Enter.
-7. To stop the server, on the remote PC use http://localhost:43124/?app=quit
+7. To stop the IntraMine-Remote.ps1 service on the remote PC use http://localhost:43124/?app=quit
  (where of course the 43124 number should agree with "INTRAMINE_FIRST_SWARM_SERVER_PORT").
 
-Start your remote editor using "Run as administrator" before starting this script. The simplest way to do that is make a shortcut to your editor, then right-click for Properties and under the Shortcut tab
+Start your remote editor using "Run as administrator" before starting this script, rather than after, or it won't work properly. The simplest way to do that is make a shortcut to your editor, then right-click for Properties and under the Shortcut tab
 click "Advanced..." and select "Run as administrator". Both your editor and this script must be started via "Run as administrator" or this just won't work.
+
+For ways to run Powershell as an administrator, see
+https://danielengberg.com/how-to-run-powershell-as-an-administrator
+
 
 A remote edit example
 ---------------------
@@ -113,7 +117,7 @@ Preliminaries:
  or
  START /wait net use Q: \\WORKSTATION1\wsprojects /user:Gabriel 1234M$M /persistent:Yes
  to wait until the mapping is complete.
-3. In intramine_config.txt around line 174, set:
+3. In intramine_config.txt around line 182, set:
 3.1 ALLOW_REMOTE_EDITING	1
 3.2 USE_APP_FOR_REMOTE_EDITING	1
 3.3 REMOTE_OPENER_APP	REMOTE_OPENER_ATOM
@@ -125,7 +129,7 @@ Preliminaries:
 4.3 At a cmd prompt on the remote PC, started with "Run as administrator", enter:
  netsh advfirewall firewall add rule name="IntraMine-Remote" dir=in action=allow protocol=TCP localport=43124
 5. Start Atom using "Run as administrator". One simple way to do that is to make a shortcut to the editor and put in on your desktop, then under Properties -> Shortcut -> Advanced select "Run as administrator" - that way you won't forget.
-6. Start PowerShell with administrative rights ("Run as administrator") on the remote PC. Type or paste
+6. Start Powershell with administrative rights ("Run as administrator") on the remote PC. Type or paste
  Set-ExecutionPolicy Bypass
  and press Enter, then
  C:\PS\IntraMine-Remote.ps1
