@@ -48,5 +48,5 @@ IntraMine is for use only on a intranet, and provides absolutely no security on 
 ## How to get started
 Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
 
-![Search](https://github.com/KLB7/Documentation/Strawberry30.png)
+![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/Strawberry30.png)
 
