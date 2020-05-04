@@ -499,8 +499,9 @@ sub FindFileWide {
 		if ($path =~ m!^((.+?)\x00)\x00\x00!)
 			{
 			$path = $1;
-			# If the last character is some kind of real "unicode" with its second byte not null,
-			# then we will have grabbed an odd number of bytes, with a spurious null. Drop it.
+			# If the last character is some kind of real "unicode" with its second
+			# byte not null, then we will have grabbed an odd number of bytes,
+			# with a spurious null. Drop it.
 			my $pathLen = length($path);
 			if (($pathLen%2) != 0)
 				{
