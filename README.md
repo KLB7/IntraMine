@@ -1,14 +1,15 @@
 # IntraMine
 IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
 
-An attempt has been made to address the following problems:
+An attempt has been made to address the following:
 
+ - local file Search could be nicer, in particular it could show a complete view of hit documents with the hits marked
  - Perl for Windows lacks an easy approach to multiprocessing
- - autolinking for locally accessible files is very limited in all editors
- - images are too hard to use in source and text files - so they aren't.
- - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for.
+ - autolinking for local files is very limited in all editors
+ - images are too hard to use in source and text files - so they aren't
+ - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for, when it comes to in-house documentation.
 
-I had some notions, so I set out to do a demo to address those issues. My insidious plot is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time (years, actually) polishing it up to the point where I hope you find it pleasant and useful.
+I had some notions, so I set out to do a demo to address those issues. My nefarious intent is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time (years) polishing it up to the point where I hope you find it pleasant and useful.
 
 ## What's in the box
  - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with no-load index updates in five seconds.
