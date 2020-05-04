@@ -446,8 +446,9 @@ sub GetLogChanges {
 				$haveSeenLastTime = 1;
 				}
 				
-			# In archived log, check now and then and break if we've gone back too far in time.
-			if ($doingArchived && ($lineCounter%20) == 0 && !$haveSeenLastTime)
+			# In archived log, check to see if we've gone back too far in time.
+			if ($doingArchived && !$haveSeenLastTime)
+			#if ($doingArchived && ($lineCounter%20) == 0 && !$haveSeenLastTime)
 				{
 				my $dt = DateTimeFromLogString($timestamp);
 				my $cmp = DateTime->compare_ignore_floating($lastDT, $dt);

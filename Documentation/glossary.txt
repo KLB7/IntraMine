@@ -82,4 +82,4 @@ You can convert one file, or a whole folder. Images can be of the "pop up on hov
 
 There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there's an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more. 
 
-
+CTRL+C: "tenor.gif".

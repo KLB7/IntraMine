@@ -196,6 +196,7 @@ REMOTE_OPENER_APP	REMOTE_OPENER_ECLIPSE
 # Your path will almost certainly be different from the paths below.
 # You only need to update the path for the one you'll be using
 # NOTE in particular replace "username" with your actual user name.
+# (type whoami at a command prompt to see your user name)
 REMOTE_OPENER_ECLIPSE	C:\eclipse\eclipse\eclipse.exe
 REMOTE_OPENER_NOTEPADPP	C:/Program Files (x86)/Notepad++/notepad++.exe
 REMOTE_OPENER_NOTETAB	C:/Program Files (x86)/NoteTab Light/NoteTab.exe
@@ -208,15 +209,15 @@ REMOTE_OPENER_ATOM		C:/Users/username/AppData/Local/atom/atom.exe
 # the IntraMine host PC.
 # Enter the \\host-name\\share-name corresponding to the indexed directory
 # on your IntraMine box that you want to share. Eg if you are indexing
-# C:/Qt and have shared it on the IntraMine PC with host-name DESKTOP-D4KOMRV
-# as wsqt, then enter "C:/Qt	\\DESKTOP-D4KOMRV\wsqt" just below.
+# C:/Qt and have shared it on the IntraMine PC with host-name DESKTOP-DMRV
+# as wsqt, then enter "C:/Qt	\\DESKTOP-DMRV\wsqt" just below.
 # (https://www.lifewire.com/unc-universal-naming-convention-818230)
 # IMPORTANT: key entries on the left should match exactly with entries
 # in data/search_directories.txt.
 # Three examples, commented out:
-#C:/perlprogs	\\DESKTOP-D4KOMRV\wsperlprogs
-#C:/Personal		\\DESKTOP-D4KOMRV\wspersonal
-#C:/Qt			\\DESKTOP-D4KOMRV\wsqt
+#C:/perlprogs	\\DESKTOP-DMRV\wsperlprogs
+#C:/Personal		\\DESKTOP-DMRV\wspersonal
+#C:/Qt			\\DESKTOP-DMRV\wsqt
 #
 # If a server anticipates being out of server for a bit due to maintenance,
 # put an entry for the Server|event here, with one space between entries.
