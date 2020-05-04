@@ -48,5 +48,8 @@ IntraMine is for use only on a intranet, and provides absolutely no security on 
 ## How to get started
 Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
 
+
+
+* Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
 
