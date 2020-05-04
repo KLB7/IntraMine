@@ -50,6 +50,6 @@ Clone or download the .zip for IntraMine, and open the included Documentation/co
 
 
 
-*Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds.*
+*Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
 
