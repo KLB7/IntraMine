@@ -1,5 +1,5 @@
 # IntraMine
-IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
+IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Mind, anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
 
 An attempt has been made to address the following:
 
@@ -48,4 +48,5 @@ IntraMine is for use only on a intranet, and provides absolutely no security on 
 ## How to get started
 Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
 
- 
+![Search](https://github.com/KLB7/IntraMine/Documentation/2019-10-23 14_30_47-Full Text Search.png)
+
