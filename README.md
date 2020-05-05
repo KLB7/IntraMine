@@ -4,12 +4,12 @@ IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows d
 An attempt has been made to address the following:
 
  - local file Search could be nicer, in particular it could show a complete view of hit documents with the hits marked
- - Perl for Windows lacks an easy approach to multiprocessing
+ - Perl for Windows multiprocessing is, well, horrible comes to mind
  - autolinking for local files is very limited in all editors
  - images are too hard to use in source and text files - so they aren't
- - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for, when it comes to in-house documentation.
+ - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for, when it comes to intranet use and in-house documentation.
 
-I had some notions, so I set out to do a demo to address those issues. My nefarious intent is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time (years) polishing it up to the point where I hope you find it pleasant and useful.
+I had some notions, so I set out to do a demo to address those issues. My nefarious intent is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time polishing it up to the point where I hope you find it pleasant and useful.
 
 ## What's in the box
  - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with no-load index updates in five seconds.
@@ -46,12 +46,19 @@ If you spot a bug above the minor cosmetic level, please send an email describin
 IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, and you have proprietary files that no one else must see or you don't do regular backups of your important files, you might want to pass.
 
 ## How to get started
-Clone or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser.
+Clone or fork or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser. You'll see an "Installing" section near the top.
 
+I feel bound to mention that installation of IntraMine, though thoroughly documented, requires a bit of time to wade through - probably more than an hour. Not a lot of typing, just waiting while things install one by one. But you'll have many shiny new toys to play with in the end, including Elasticsearch, CodeMirror, ctags, File Watcher, and (in IntraMine proper) a round robin redirect server, instant system-wide search, a really decent file Viewer with automatic linking, image hovers, an intranet-specific version of markdown, perhaps some ideas to steal, and the chance to write your own IntraMine services and then run as many of each as you want. Nothing ventured, nothing gained.
 
+## Some images
 
 *Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
 
+
 *Some FindFileWide search hits in a file, seen with IntraMine's Viewer. The hits are in pink, in the text and down the scrollbar. A click on "allEntries" has highlighted all instances in green, in the text and down the scrollbar. There are automatically generated links to a subroutine in another file, a specific line in another file, and subroutines within the same file.*
 ![FindFileWide in a file](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2020-05-04%2016_22_47-win_wide_filepaths.pm.png)
+
+
+*When you pause your cursor over an image name, up pops the image. Nothing beyond the image name is needed in the source text, not even quotes.*
+![Image hover](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2020-05-04%2017_45_33-Search.png)
