@@ -7,11 +7,11 @@
 
 IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Mind, anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
 
-An attempt has been made to address the following:
+I lead a sheltered life, so these things bothered me more than perhaps they should have:
 
- - local file Search could be nicer, in particular it could show a complete view of hit documents with the hits marked
- - Perl for Windows multiprocessing is, well, horrible comes to mind
- - autolinking for local files is very limited in all editors
+ - local/NAS file Search could be nicer, in particular it could present a view of any document where hits happened, with hits marked in the document and on the scroll bar. It should of course be very fast, and need no manual updating when documents change.
+ - Perl for Windows multiprocessing is, well, disappointing
+ - autolinking for local files is very limited in editors
  - images are too hard to use in source and text files - so they aren't
  - most markdown approaches are not as minimal, memorable, mimetic, or automatic as one might wish for, when it comes to intranet use and in-house documentation.
 
@@ -19,9 +19,9 @@ I had some notions, so I set out to do a demo to address those issues. My nefari
 
 ## What's in the box
  - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with index updates in five seconds.
- - a truly nice Viewer to see your search hits in context
+ - a truly nice Viewer to see your search hits in context, or the contents of any source or text file
  - autolinks on everything in all file views, mostly with no extra typing
- - Gloss, a superautomatic minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
+ - Gloss, a minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
  - image hovers, so images actually become useful. Pause your mouse over the image name and the image pops up. Works in source and text files, zero extra typing required.
  - for Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks and JavaScript. IntraMine's main "round robin redirect" service won't be a bottleneck.
  - use IntraMine's autolinking approach etc for your own IDE, all original work is covered under an UNLICENSE.
