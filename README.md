@@ -1,4 +1,10 @@
 # IntraMine
+
+*Instant Search and other services for Windows*
+
+*Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
+![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
+
 IntraMine is an intranet service suite aimed mainly at Strawberry Perl Windows developers. Because you deserve nice things too. Mind, anyone can install and use it on a Windows box, but if you know a little Perl it will cut down installation cursing by approximately 30%.
 
 An attempt has been made to address the following:
@@ -12,7 +18,7 @@ An attempt has been made to address the following:
 I had some notions, so I set out to do a demo to address those issues. My nefarious intent is to incite someone to incorporate IntraMine's approach to autolinking and image handling in their own editor. But since no one really wants a raw demo, I spent some extra time polishing it up to the point where I hope you find it pleasant and useful.
 
 ## What's in the box
- - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with no-load index updates in five seconds.
+ - Elasticsearch-based one second search of all your source and text files (which could easily number more than half a million these days), with index updates in five seconds.
  - a truly nice Viewer to see your search hits in context
  - autolinks on everything in all file views, mostly with no extra typing
  - Gloss, a superautomatic minimal memorable markdown variant specialized for intranet use (autolinks, auto TOC, simple tables)
@@ -51,10 +57,6 @@ Clone or fork or download the .zip for IntraMine, and open the included Document
 I feel bound to mention that installation of IntraMine, though thoroughly documented, requires a bit of time to wade through - probably more than an hour. Not a lot of typing, just waiting while things install one by one. But you'll have many shiny new toys to play with in the end, including Elasticsearch, CodeMirror, ctags, File Watcher, and (in IntraMine proper) a round robin redirect server, instant system-wide search, a really decent file Viewer with automatic linking, image hovers, an intranet-specific version of markdown, perhaps some ideas to steal, and the chance to write your own IntraMine services and then run as many of each as you want. Nothing ventured, nothing gained.
 
 ## Some images
-
-*Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
-![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
-
 
 *Some FindFileWide search hits in a file, seen with IntraMine's Viewer. The hits are in pink, in the text and down the scrollbar. A click on "allEntries" has highlighted all instances in green, in the text and down the scrollbar. There are automatically generated links to a subroutine in another file, a specific line in another file, and subroutines within the same file.*
 ![FindFileWide in a file](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2020-05-04%2016_22_47-win_wide_filepaths.pm.png)
