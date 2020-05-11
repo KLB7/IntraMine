@@ -154,6 +154,14 @@ The queries in GetWordHits() and GetPhraseHits() were hard won, based on Elastic
 
 My rambling points are: if you want to write your own Elasticsearch queries involving text searches then the examples in IntraMine might help you get started; and if you want to tweak the existing queries, - well, I wish you all the patience in the world.
 
+TABLE API
+Action                     	URI						Details
+Simple search				Search/?findthis=rawquery	intramine_search.pl#SearchResults()
+Match phrase				additional arg, matchexact=1	ditto
+Limit to directory			additional arg, directory=[dir path or ALL]	ditto
+
+An API example (before encoding): Search/?findthis=brontosaurus tail&matchexact=0&directory=C:/dinosaurs/fourfoots
+
 ---
 contents.txt
 ---

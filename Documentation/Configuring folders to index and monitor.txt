@@ -48,6 +48,16 @@ H:						1		0
 
 Reminder, put a 1 in the Index column for all directories, and a 1 in the Monitor column for all directories on locally attached storage, with a 0 for NAS locations. That's what you see in the example above ("H:" is a shared folder on another PC in my setup).
 
+Folders and files not indexed
+===============================
+By default, IntraMine will not index:
+ - files in folders where the folder name starts with a period ".", eg ".git"
+ - files in /temp/ or /junk/ folders
+ - .log, .out files
+ - files with an unknown extension ($textExtensions in libs/ext.pm lists the 225 extensions known to IntraMine).
+
+In theory IntraMine could index extensionless files, if "ES_INDEX_NO_EXTENSION" is set to 1 in data/intramine_config.txt. However, this is untested, so don't do that unless you have everything backed up.
+
 Adding a directory
 ==================
 After running IntraMine for a bit, you might want to add a directory or two and not have to completely rebuild your Elasticsearch index (which can some time). To do that, see "Using IntraMine.txt#Indexing additional folders".

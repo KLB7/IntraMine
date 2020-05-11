@@ -10,6 +10,20 @@ Main is not quite a "dumb pipe" though. In addition it:
 
 There's more about interacting with Main in "Writing your own IntraMine server.txt".
 
+TABLE API
+Action                     	URI						Details
+Maintenance start			/?signal=knownMaintenanceSignal	intramine_main.pl#BroadcastSignal()
+Maintenance done			/?signal=backinservice	intramine_main.pl#BroadcastSignal()
+Explicit redirect request			/?req=redirect	intramine_main.pl#RedirectToCorrectedPort()
+Implicit redirect request	/shortName/?request details	intramine_main.pl#ResultPage()
+Send signal					/?signal=signalName		intramine_main.pl#BroadcastSignal()
+Server status				/?req=filestatus	intramine_main.pl#ServerStatus()
+Add one server				/?req=add_one_specific_server	intramine_main.pl#AddOneServer()
+Start stop restart server	/?req=[one of 'start_one_specific_server', 'stop_one_specific_server', 'restart_one_specific_server']	intramine_main.pl#StartOneServer() etc
+Open file		known file extension (.gif, .css etc), request not otherwise handled	intramine_main.pl#ResultPage()
+Identify				/?req=ruthere	intramine_main.pl#RUThere()
+Run tests at startup	-t on cmd line	intramine_main.pl##RunAllTests
+Stop						GET /?EXITEXITEXIT=1 HTTP/1.1	intramine_main.pl#HandleEstablishedConnection
 ---
 contents.txt
 ---

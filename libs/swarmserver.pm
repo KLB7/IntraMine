@@ -1982,7 +1982,8 @@ sub RedirectFromMain {
 	                ) or (ServerErrorReport() && return);
 	
 	$obj = uri_escape($obj); # This is needed due to the '?' and '=' and '&' in $obj.
-	print $mains "GET /?req=redirect&resource=$obj HTTP/1.1\n\n";
+	
+	print $mains "GET /?req=redirect&resource=$obj HTTP/1.1\r\n\r\n";
 	my $line = '';
 	while ($line=<$mains>)
 		{
@@ -1992,7 +1993,7 @@ sub RedirectFromMain {
 
 	return($result);
 	}
-
+	
 sub ServerIdentify {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $portNumber = $OurPort;

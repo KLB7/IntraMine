@@ -5,7 +5,8 @@
 # A RESTful approach is used for communications between the JavaScript handling the db display
 # and update form,  and the backend Perl supplying and updating db entries.
 # A GET to /DBX/fruit/ returns all db entries (fruit names and ratings).
-# A POST to /DBX/fruit/fruitname/rating/ sets the corresponding db entry.
+# A POST to /DBX/fruit/orange/3/ sets the rating for "orange" to 3.
+# A DELETE to /DBX/fruit/banana/ will delete the fruit named "banana".
 # Companion JS is in db_examples.js.
 #
 # Running and accessing this service:
@@ -14,7 +15,6 @@
 # in your data/serverlist.txt file, and restart IntraMine if it's running.
 # (omit the '#' at the start of the line and use one or more tabs only to separate fields).
 # This service will be named 'DBX' in the top navigation bar on any Intramine page.
-#
 # Under the hood:
 # As mentioned, IntraMine services use callbacks to get things done. The callbacks should be
 # entered in your %RequestAction hash (see below l. 103 for an example).

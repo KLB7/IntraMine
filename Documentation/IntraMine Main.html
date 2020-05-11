@@ -1279,13 +1279,27 @@ margin: 3px 8px;
 <tr id='R10'><td n='10'></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td>There's more about interacting with Main in <a href="./Writing your own IntraMine server.html" target="_blank">"Writing your own IntraMine server.txt"</a>.</td></tr>
 <tr id='R12'><td n='12'></td><td></td></tr>
-<tr id='R13'><td n='13'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R13'><td n='13'></td><td></td></tr></tbody></table><table class='bordered'><caption>API</caption><thead>
+<tr id='R14'><td n='14'></td><th>Action                     </th><th>URI</th><th>Details</th></tr></thead><tbody>
+<tr id='R15'><td n='15'></td><td>Maintenance start</td><td>/?signal=knownMaintenanceSignal</td><td>intramine_main.pl#BroadcastSignal()</td></tr>
+<tr id='R16'><td n='16'></td><td>Maintenance done</td><td>/?signal=backinservice</td><td>intramine_main.pl#BroadcastSignal()</td></tr>
+<tr id='R17'><td n='17'></td><td>Explicit redirect request</td><td>/?req=redirect</td><td>intramine_main.pl#RedirectToCorrectedPort()</td></tr>
+<tr id='R18'><td n='18'></td><td>Implicit redirect request</td><td>/shortName/?request details</td><td>intramine_main.pl#ResultPage()</td></tr>
+<tr id='R19'><td n='19'></td><td>Send signal</td><td>/?signal=signalName</td><td>intramine_main.pl#BroadcastSignal()</td></tr>
+<tr id='R20'><td n='20'></td><td>Server status</td><td>/?req=filestatus</td><td>intramine_main.pl#ServerStatus()</td></tr>
+<tr id='R21'><td n='21'></td><td>Add one server</td><td>/?req=add_one_specific_server</td><td>intramine_main.pl#AddOneServer()</td></tr>
+<tr id='R22'><td n='22'></td><td>Start stop restart server</td><td>/?req=[one of 'start_one_specific_server', 'stop_one_specific_server', 'restart_one_specific_server']</td><td>intramine_main.pl#StartOneServer() etc</td></tr>
+<tr id='R23'><td n='23'></td><td>Open file</td><td>known file extension (.gif, .css etc), request not otherwise handled</td><td>intramine_main.pl#ResultPage()</td></tr>
+<tr id='R24'><td n='24'></td><td>Identify</td><td>/?req=ruthere</td><td>intramine_main.pl#RUThere()</td></tr>
+<tr id='R25'><td n='25'></td><td>Run tests at startup</td><td>-t on cmd line</td><td>intramine_main.pl##RunAllTests</td></tr>
+<tr id='R26'><td n='26'></td><td>Stop</td><td>GET /?EXITEXITEXIT=1 HTTP/1.1</td><td>intramine_main.pl#HandleEstablishedConnection</td></tr></tbody></table><table><tbody>
+<tr id='R27'><td n='27'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R14'><td n='14'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R15'><td n='15'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R28'><td n='28'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R29'><td n='29'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

@@ -1,6 +1,18 @@
 Writing your own IntraMine server
 =================================
 
+API support
+===========
+An IntraMine service supports callbacks based on names in a URL, such as "/Search/" or "/fruit/", and arguments such as "req=redirect" or "fruitname=apple", as well as distinguishing GET, POST, and DELETE methods. It's enough for IntraMine's purposes and might be enough for you.
+
+The DBX example server (explored below) shows how to set up a simple RESTful style server that handles a table of fruit names and their ratings. It has one end point named "fruit" and all requests to add, update, or delete a fruit entry from its database table are handled with a single sub, HandleFruitRequest(). The callback setup for this is
+---
+$RequestAction{"/fruit/"} = \&HandleFruitRequest;
+---
+and HandleFruitRequest() receives arguments common to all IntraMine callbacks that supply needed details.
+
+For example, POST DBX/fruit/cherry/5 will add "cherry" to the fruit table, with a rating of 5. HandleFruitRequest() will look at its $formH hash argument for $formH->{'METHOD'} and see that the value is "post", then pull "cherry" and "5" from the URL and make the entry.
+
 Example servers to build on
 ===========================
 There are two example servers you can start from, to write your own server from scratch:

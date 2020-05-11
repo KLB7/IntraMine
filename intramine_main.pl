@@ -80,6 +80,7 @@ use warnings;
 use utf8;
 use Carp;
 use warnings;
+use URI::Escape;
 use FileHandle;
 use IO::Socket;
 use IO::Select;
@@ -1151,6 +1152,9 @@ sub RedirectToCorrectedPort {
 		my $potentialShortName = $1;
 		if (IsShortName($potentialShortName))
 			{
+			$params =~ s!\"!%22!g;
+			$params =~ s!\%!%25!;
+			
 			$result = RedirectBasedOnShortName($params, $potentialShortName);
 			}
 		}
@@ -2444,6 +2448,9 @@ sub RedirectBasedOnShortName {
 			{
 			$obj .= '?req=main';
 			}
+			
+		$obj = encode_utf8($obj);
+		
 		$theBody =~ s!_ARGS_!$obj!;
 		}
 	
