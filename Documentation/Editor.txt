@@ -24,7 +24,27 @@ File load sequence
 3. "$RequestAction{'href'} = \&FullFile;" near the top of intramine_editor.pl registers FullFile() as the handler for any "href=..." request. This is detected by swarmserver.pm#MainLoop() as usual, which issues a call to FullFile(). The file path is in its $formH->{'href'} argument
 4. FullFile() returns the basic HTML for the page and includes editor.js and CodeMirror files.
 5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.
-6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax hilighting etc) from then on.
+6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax highlighting etc) from then on.
+
+API
+=====
+Open a file for editing
+-----------------------
+**Action**: open a file for editing
+**Request**: http://192.168.1.132:43131/Editor/?href=filePath
+where filePath is a full path, such as C:/folder/afile.txt
+**Response**: the basic HTML for the page with inclusion of editor.js and CodeMirror files. Note the text contents are filled in later when the page loads, see "Load contents of file" just below.
+**For example**:
+http://192.168.1.132:43131/Editor/?href=C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm
+**See also**: 
+
+Load contents of file
+---------------------
+**Action**: load the text of a file into a CodeMirror display
+**Request**: /?req=loadfile&file=PathToFile
+**Response**: the full plain text of the source file, ready for putting in CodeMirror
+**For example**: http://localhost:43125/?req=loadfile&file=C:/temp/afile.cpp
+**See also**: editor.js#loadFileIntoCodeMirror(), intramine_editor.pl#LoadTheFile()
 
 ---
 contents.txt

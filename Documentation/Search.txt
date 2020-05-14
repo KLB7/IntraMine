@@ -154,13 +154,36 @@ The queries in GetWordHits() and GetPhraseHits() were hard won, based on Elastic
 
 My rambling points are: if you want to write your own Elasticsearch queries involving text searches then the examples in IntraMine might help you get started; and if you want to tweak the existing queries, - well, I wish you all the patience in the world.
 
-TABLE API
-Action                     	URI						Details
-Simple search				Search/?findthis=rawquery	intramine_search.pl#SearchResults()
-Match phrase				additional arg, matchexact=1	ditto
-Limit to directory			additional arg, directory=[dir path or ALL]	ditto
+API
+=====
+Search
+---------
+**Action**: search for one or more words, separately or as a phrase, with optional restriction to a folder or for specific languages
+**Request**:
+ - simple search: Search/?findthis=brontosaurus tail
+ - phrase: Search/?findthis=brontosaurus tail&matchexact=1
+ - one directory: Search/?findthis=brontosaurus tail&directory=L:/path/to/directory
+ - sub directories: Search/?findthis=brontosaurus tail&directory=L:/path/to/directory&subdirs=1
+ - all directories: default is 'ALL' if no directory is provided
+ - languages: "EXT_language=yes" as additional argument, one per language (eg &EXT_Plain%20Text=yes&EXT_CSS=yes)
+**Response**: a <div> containing search results, and within a table holding details on the hits (a hit summary line with file details followed by an excerpt showing the hit in context)
+**For example**: see above under Request
+**See also:** intramine_search.js#searchSubmit(), elasticsearcher.pm#GetSearchResults(), intramine_search.pl#SearchResults()
 
-An API example (before encoding): Search/?findthis=brontosaurus tail&matchexact=0&directory=C:/dinosaurs/fourfoots
+Document count
+--------------
+**Action**: get a count of the number of documents currently indexed by Elasticsearch
+**Request**: /?req=docCount
+**Response**: the document count, eg "296435"
+**For example**: currently not used. intramine_search.pl#SearchForm() calls the associated callback intramine_search.pl#CountOfIndexedDocuments() directly
+
+Test
+---------
+**Action**: run service-level tests
+**Request**: /test/ (GET)
+**Response**: run test_programs/test_Search.pl)
+**For example**: triggered if Main is started with -t on the command line (eg by running bats/TEST_INTRAMINE.bat) and the count for Search is set to 1 in data/serverlist_for_testing.txt
+**See also**: Testing with IntraMine.txt, test_programs/test_Search.pl
 
 ---
 contents.txt

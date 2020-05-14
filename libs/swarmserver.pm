@@ -509,7 +509,7 @@ sub MainLoop {
 		{
 		# Speak to main if there is an init callback that might take some time, we are starting up.
 		# During this phase the Status page will show the server as "STARTING UP".
-		# See eg the MainLoop() call in intramine_file_viewer_cm.pl.
+		# See eg the MainLoop() call in intramine_linker.pl.
 		RequestBroadcast('ssinfo=starting&port=' . $OurPort);
 		$callbackInit->();
 		}

@@ -418,7 +418,7 @@ sub SearchResults {
 
 # Push wanted extensions into an array ref $wantedExtA, in accordance with user-selected
 # languages in the Search form. There are many languages, and over 200 extensions.
-# So it's handy to set $$allExtensionsSelectedR to 1 (true) is all languages have been
+# So it's handy to set $$allExtensionsSelectedR to 1 (true) if all languages have been
 # selected, in which case there's no need to ask Elasticsearch to filter on extension.
 # See ext.pm for the corresponding lists of extensions for languages.
 sub GetWantedExtensions {

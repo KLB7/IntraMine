@@ -131,7 +131,7 @@ sub FileOrDirExistsWide {
 # NOTE the returned handle is not closed here.
 # To close it later after my $fh = GetExistingReadFileHandleWide($filePath), do
 # close($fh);
-# See eg intramine_file_viewer_cm.pl#GetHTML().
+# See eg intramine_viewer.pl#GetHTML().
 sub GetExistingReadFileHandleWide {
 	my ($filePath) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
@@ -333,7 +333,7 @@ sub AppendToExistingBinFileWide {
 # Set $failIfExists to 0 to force an overwrite.
 # (Note this uses the Win32::API->Import version of CopyFileW, I had no luck with
 # the win32api::files version.)
-# See eg intramine_file_viewer_cm.pl#MakeCtagsForFile().
+# See eg intramine_viewer.pl#MakeCtagsForFile().
 sub CopyFileWide {
 	my ($srcFullPath, $destFullPath, $failIfExists) = @_;
 	# being conservative, prevent overwrite by default.
@@ -548,7 +548,7 @@ sub DeepFindFileWide {
 
 # ReadTextFileWide: read in text file in one shot.
 # Returns contents of file (which may be ''), or undef if error.
-# See eg intramine_file_viewer_cm.pl#LoadTextFileContents().
+# See eg intramine_viewer.pl#LoadTextFileContents().
 sub ReadTextFileWide {
 	my ($filePath) = @_;
 	my $result = '';
@@ -686,7 +686,7 @@ sub RefReadBinFileWide {
 # GetHtmlEncodedTextFileWide: returns text contents of $filePath,
 # with <>&" encoded for use in HTML.
 # Returns '' on error (same as if file is empty).
-# See eg intramine_file_viewer_cm.pl#GetHtmlEncodedTextFile().
+# See eg intramine_viewer.pl#GetHtmlEncodedTextFile().
 sub GetHtmlEncodedTextFileWide {
 	my ($filePath) = @_;
 	my $result = '';

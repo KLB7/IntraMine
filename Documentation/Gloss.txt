@@ -69,10 +69,11 @@ Lowest level heading
 produces
 2019-09-18 13_31_52-Gloss.txt.png
 
+[Gloss does not implement using one hash tag for a large heading, two hash tags for a smaller heading, and three hash tags for the smallest heading. You might see where I'm going here, the visual impression in the source is the exact opposite of what's wanted in the HTML. After some minor anguish, I have decided not to support something that mimetically contrary.]
 
 Horizontal rules
 ----------------
-Put **three or four** equals signs '=' or hyphens'-'or tildes '~' at the beginning of a line, and nothing else, to produce a horizontal rule. A rule done with "===" will be slightly more noticeable than one done with "---" or "~~~".
+Put **three or four** equals signs '=' or hyphens'-'or tildes '~' at the beginning of a line, and nothing else on the line, to produce a horizontal rule. A rule done with "===" will be slightly more noticeable than one done with "---" or "~~~".
 
 Since IntraMine uses a monospaced font for text display, horizontal rules can help code examples stand out.
 
@@ -336,7 +337,10 @@ Unordered lists
  - optionally you can put one or more spaces at the beginning of the line.
    -- if you put two or more of '-', '+', or '*', eg '--' or '+++', you'll get a second-level entry. To make it prettier in the original text, you can insert spaces at the beginning of the line.
    A top-level or second-level item can continue in following paragraphs. To have the following paragraphs count as part of an item, begin each with one or more tabs or spaces. The leading spaces or tabs will be suppressed in the HTML display.
+   This paragraph begins with three spaces in the source, as does the one before.
      ---++** Another second-level item, with excessive spaces.
+
+To clarify some overlap with horizontal rules: the three or four hyphens '-' for a horizontal rule must be flush left on a line, and followed by nothing else. If there are spaces before the three or four '-' or text afterwards then they count as the start of a second order list item.
 
 Ordered lists
 ~~~~~~~~~~~~

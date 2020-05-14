@@ -10,20 +10,187 @@ Main is not quite a "dumb pipe" though. In addition it:
 
 There's more about interacting with Main in "Writing your own IntraMine server.txt".
 
-TABLE API
-Action                     	URI						Details
-Maintenance start			/?signal=knownMaintenanceSignal	intramine_main.pl#BroadcastSignal()
-Maintenance done			/?signal=backinservice	intramine_main.pl#BroadcastSignal()
-Explicit redirect request			/?req=redirect	intramine_main.pl#RedirectToCorrectedPort()
-Implicit redirect request	/shortName/?request details	intramine_main.pl#ResultPage()
-Send signal					/?signal=signalName		intramine_main.pl#BroadcastSignal()
-Server status				/?req=filestatus	intramine_main.pl#ServerStatus()
-Add one server				/?req=add_one_specific_server	intramine_main.pl#AddOneServer()
-Start stop restart server	/?req=[one of 'start_one_specific_server', 'stop_one_specific_server', 'restart_one_specific_server']	intramine_main.pl#StartOneServer() etc
-Open file		known file extension (.gif, .css etc), request not otherwise handled	intramine_main.pl#ResultPage()
-Identify				/?req=ruthere	intramine_main.pl#RUThere()
-Run tests at startup	-t on cmd line	intramine_main.pl##RunAllTests
-Stop						GET /?EXITEXITEXIT=1 HTTP/1.1	intramine_main.pl#HandleEstablishedConnection
+API
+=====
+Main redirects requests to the desired service when the port number for a service is unknown or incorrect. By default Main monitors ports 81 and ports 43125 through 43172. If a request is received on port 81, or on a port that's being monitored but not in use, the request will be redirected to a service if the short name of a service is found at the beginning of the request, eg http://localhost:81/Search will be redirecting to a running Search server. If the port is in use, then the service on that port will punt to Main for a redirect if the short name doesn't match the service.
+
+Main also handles requests to broadcast a message to one or more services, and is a minor intermediary in the handling of Server-Sent Events.
+
+And Main handles all requests to add, stop, start, or restart a service, as well as providing a current status summary.
+
+Perhaps stepping outside its proper boundaries, Main assists in the handling of maintenance outage requests. For example, if the FILEWATCHER service decides that all running Linker services should do a bit of maintenance due to a folder being renamed it will send a message to Main ("folderrenamed" in this case) and Main will request each Linker in turn to do maintenance, one at a time, until all Linker services are up to date.
+
+Since typically many services are being run at once, each in its own "while forever" loop, Main will respond to a stop request by sending stop requests to all running services first.
+
+And finally, Main can initiate testing for one or more services, as determined by entries in data/serverlist_for_testing.txt, if "-t" is supplied in its command line at startup.
+
+Explicit redirect request
+-------------------------
+**Action**: request a redirect, issued by a running service when it receives a request with the wrong short name.
+**Request**: /?req=redirect&resource=/ShortName[optional resource details, eg a file path]
+**Response**: a redirected request to the "ShortName" service.
+**For example**:
+http://192.168.1.132:43133/Viewer/?href=C:/perlprogs/IntraMine/docs/Bugs%20May%2018%202019.txt&searchItems=pokemonocle&rddm=20644
+If 43133 is not a port for a Viewer, the service running on port 43133 will ask for a redirect from Main:
+http://192.168.1.132:81/?req=redirect&resource=/Viewer/?href=C:/perlprogs/IntraMine/docs/Bugs%20May%2018%202019.txt&searchItems=pokemonocle&rddm=20644
+and Main will determine the correct port (say 43126), strip off the "req=redirect" and "resource=", and forward the request to the Viewer running on 43126 with something like
+---
+<!doctype html>
+<html><head>
+<script type="text/javascript">
+        window.location = "http://192.168.1.132:43127/Viewer/?href=C:/perlprogs/IntraMine/docs/Bugs%20May%2018%202019.txt&searchItems=pokemonocle&rddm=20644";
+</script>
+</head><body></body></html
+---
+**See also**: intramine_main.pl#RedirectToCorrectedPort()
+
+Implicit redirect request
+-------------------------
+**Action**: redirect a request, when received either at Main's port (default 81) or on a service port that's being listened to but has no active service running.
+**Request**: any request such as http://localhost:81/Search that uses a port number Main is listening to that isn't in active use by a service.
+**Response**: as for "Explicit redirect request", the request is forwarded to a port number if any where the service identified by the short name in the request is currently running.
+**For example**:
+If a Search service is running on port 43125 and Main is at 81, then
+http://localhost:81/Search
+will be redirected by Main to port 43125, with something like
+---
+<!doctype html>
+<html><head>
+<script type="text/javascript">
+        window.location = "http://192.168.1.132:43125/Search/?req=main";
+</script>
+</head><body></body></html>
+---
+(Note "req=main" is optional, it's assumed if nothing follows the short name.)
+**See also**: intramine_main.pl#RedirectBasedOnShortName()
+
+Send signal
+-------------
+**Action**: send a signal (messsage) to one or more services
+**Request**: /?signal=signalName&name=SendTo
+where "SendTo" can be:
+ - PageServers, to send to all page services (ie non-background services)
+ - BackgroundServers
+ - a page name
+ - a short name
+**Response**: /?signal=signalName&name=SendTo&shortname=Sender
+where "Sender" is the short name of the service that made the request.
+For more details see intramine_main.pl#BroadcastSignal().
+**For example**: from intramine_todolist.pl,
+The ToDo service sends a broadcast request to Main with a count of how many ToDo items are past their deadline:
+/?signal=todoCount&count=$overdueCount&name=PageServers
+(where $overdueCount is the count)
+Main responds by forwarding the signal to all "PageServers," which are all non-background services:
+/?signal=todoCount&count=$overdueCount&name=PageServers&shortname=ToDo
+**See also**: intramine_main.pl#BroadcastSignal()
+
+Server status
+-------------
+**Action**: report on the status () of all services
+**Request**: /?req=filestatus
+**Response**: two HTML tables holding status details for all services, one for page services and one for background services.
+Table fields:
+ - Server program (the Perl program for the service, eg intramine_linker.pl)
+ - Name (the Short name for the service, eg Viewer)
+ - Port (the port number for the service, typically 43125..up)
+ - Status (UP, STARTING UP, NOT RESPONDING,  DEAD)
+**For example**:
+The Status service asks for this at 30-second intervals.
+**See also**: intramine_main.pl#ServerStatus() and status.js#refreshStatus()
+
+Start stop restart service
+---------------------
+**Action**: start, stop, or restart a known service (page servers only), as specified by the port number for the service
+**Request**: /?req=serviceAction&portNumber=PORT
+where serviceAction is one of: "start_one_specific_server", "stop_one_specific_server", "restart_one_specific_server"
+and PORT is the port number of the service
+**Response**: Main carries out the start/stop/restart. Error handling is a bit weak here, but if a service doesn't stop or start properly its status on the Status page should change to NOT RESPONDING or DEAD.
+**For example**:
+/?req=stop_one_specific_server&portNumber=43133
+will stop the service running on port 43133.
+The Status service page has buttons for start/stop/restart.
+**See also**: intramine_main.pl#StartOneServer() and status.js#startStopRestartSubmit()
+
+Add one service
+-----------------
+**Action**: start a service (page servers only, and an instance of the service must have been started by Main at startup)
+**Request**: req=add_one_specific_server&shortname=ShortName
+where ShortName is the short name of a service
+**Response**: Main starts a new instance of the service
+**For example**:
+req=add_one_specific_server&shortname=Viewer
+The Status page has a dropdown and "Add" button for services.
+**See also**: intramine_main.pl#AddOneServer() and status.js#addServerSubmit()
+
+Maintenance start
+------------------
+**Action**: a service sends a signal that some other service will be out of action for a bit due to undergoing maintenance.
+**Request**: /?signal=MaintenanceSignalName
+where MaintenanceSignalName is listed in the values for MAINTENANCE_SERVER_EVENTS in data/intramine_config.txt
+**Response**: Main marks an instance of the service as being out of service, and sends a signal to that instance to begin maintenance,
+/?signal=MaintenanceSignalName
+where MaintenanceSignalName is the same as the one received
+**For example**:
+When intramine_filewatcher.pl detects that a folder has been renamed it sends
+/?signal=folderrenamed
+to Main. Main responds by marking one instance of running Linker services as under maintenance, and forwards the folderrenamed signal to that instance, sending
+/?signal=folderrenamed
+to the Linker.
+**See also**: intramine_main.pl#HandleMaintenanceSignal(), intramine_filewatcher.pl#IndexChangedFiles()
+**Notes**: when a service returns to service it sends a "Maintenance done" signal to Main.
+
+Maintenance done
+-------------------
+**Action**: a service instance undergoing maintenance signals to Main that it is done the maintenance.
+**Request**: /?signal=backinservice&sender=ShortName&respondingto=MaintenanceSignalName
+where MaintenanceSignalName is the same as used in "Maintenance start" and ShortName is the short name of the service
+**Response**: Main marks the service instance as back in service, and sends a signal to the next instance of the service that hasn't carried out maintenance yet (if any)
+**For example**:
+Continuing the Linker example in "Maintenance start" just above, when a specific Linker is done maintenance it sends
+/?signal=backinservice&sender=Linker&respondingto=folderrenamed
+back to Main. Main will mark the instance of the Linker service as back in service, and send a maintenance signal of the form /?signal=folderrenamed to the next instance of the Linker that hasn't done maintenance yet.
+**See also**: intramine_main.pl#HandleMaintenanceSignal(), intramine_filewatcher.pl#IndexChangedFiles()
+
+Identify
+----------
+**Action**: respond to "ruthere" request with service name and IP:port for Main.
+**Request**: /?req=ruthere
+**Response**: "IM_MAIN on $srvrAddr:$portNumber"
+where $srvrAddr is the LAN IP address of IntraMine, and $portNumber is the port number for Main (default 81)
+**For example**:
+/?req=ruthere is sent by the Cmd service to Main if a command is being run that involves restarting IntraMine - in this case Cmd repeatedly pings Main until it responds. As mentioned elsewhere, no one should use the Cmd service, it's crazy dangerous.
+**See also**: intramine_main.pl#RUThere(), and intramine_commandserver.p#MainServerResponse()
+
+Open file
+------------
+**Action**: respond directly to a browser request to open a file
+**Request**: any request ending in a file name that hasn't otherwise been handled (as a redirect or signal or SSE or a response to a registered callback).
+Allowed file types: gif|jpe?g|png|ico|css|js|ttf
+**Response**: the contents of the file
+**For example**:
+Normally all IntraMine services respond directly to a request to open a file, so this action is a fallback of last resort. It's not called much, except to load a favicon.
+As a specific example,
+http://192.168.1.132:81/C:/perlprogs/IntraMine/images_for_web_server/110.gif
+opens the gif on my PC.
+**See also**: intramine_main.pl#ResultPage()
+
+Run tests at startup
+----------------
+**Action**: Run tests at startup, as specified in data/serverlist_for_testing.txt when IntraMine is started with -t on the command line
+**Request**: perl %folder%\intramine_main.pl -t
+where %folder% is the path to intramine_main.pl
+**Response**: Main runs all requested service-level tests.
+**For example**: bats/TEST_INTRAMINE.bat
+**See also**: intramine_main.pl#RunAllTests(), and Documentation/Testing with IntraMine.txt
+
+Stop all services
+--------------
+**Action**: stop all running IntraMine services, including Main itself
+**Request**: /?FORCEEXIT=1
+**Response**: all services will stop
+**For example**: see intramine_all_stop.pl
+**See also**: intramine_main.pl#HandleEstablishedConnection(), bats/STOP_INTRAMINE.bat
+
 ---
 contents.txt
 ---

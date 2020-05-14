@@ -1267,7 +1267,10 @@ margin: 3px 8px;
 <div id='scrollAdjustedHeight'>
 <div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <ul>
-<li class='h1' im-text-ln='1'><a href='#Opener'>Opener</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Opener">Opener</h1></td></tr>
+<li class='h1' im-text-ln='1'><a href='#Opener'>Opener</a></li>
+<li class='h2' im-text-ln='16'><a href='#API'>API</a></li>
+<li class='h3' im-text-ln='20'><a href='#Open_a_file_using_a_specific_editor,_on_the_IntraMine_PC'>Open a file using a specific editor, on the IntraMine PC</a></li>
+<li class='h3' im-text-ln='28'><a href='#Open_a_file_using_a_specific_editor,_on_a_remote_PC'>Open a file using a specific editor, on a remote PC</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Opener">Opener</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td>intramine_open_with.pl is the main file for the Opener service. The Opener is only invoked when you set up IntraMine to use your preferred editor for editing files. It's not needed if you configure IntraMine to use its own Editor server, or if you turn off editing in the config. See <a href="./Editor.html" target="_blank">"Editor.txt"</a> and especially <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a> for configuration details.</td></tr>
@@ -1279,16 +1282,37 @@ margin: 3px 8px;
 <tr id='R10'><td n='10'></td><td><p class="outdent-unordered-sub">&#9702; <a href='http://host:ip/Opener/?req=open&amp;clientipaddress=123.123.123.1&amp;file=path_to_file' target='_blank'>http://host:ip/Opener/?req=open&amp;clientipaddress=123.123.123.1&amp;file=path_to_file</a></p></td></tr>
 <tr id='R11'><td n='11'></td><td>4.The Opener has just one registered %RequestAction, "$RequestAction{'req|open'} = \&amp;OpenTheFile;" and that's called in response to the request.</td></tr>
 <tr id='R12'><td n='12'></td><td><p class="ol-1">5. intramine_open_with.pl#OpenTheFile() in turn calls RemoteOpenFile() or LocalOpenFile(), depending on whether the request came from another PC or from the IntraMine PC itself.</p></td></tr>
-<tr id='R13'><td n='13'></td><td><p class="ol-1-1">5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the instance of IntraMine-Remote.ps1 that's running on the remote PC. See <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a> for details on getting that up and running. IntraMine-Remote.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.</p></td></tr>
-<tr id='R14'><td n='14'></td><td><p class="ol-1-1">5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "unicode" characters in the file path.</p></td></tr>
+<tr id='R13'><td n='13'></td><td><p class="ol-1-1">5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the tiny service being run by Start-Editing.ps1, running on the remote PC. See <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a> for details on getting that going. Start-Editing.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.</p></td></tr>
+<tr id='R14'><td n='14'></td><td><p class="ol-1-1">5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "Unicode" characters in the file path.</p></td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
-<tr id='R16'><td n='16'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R16'><td n='16'></td><td><h2 id="API">API</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R18'><td n='18'></td><td>The discussion above gives a walkthrough of opening a file with a preferred editor.</td></tr>
+<tr id='R19'><td n='19'></td><td></td></tr>
+<tr id='R20'><td n='20'></td><td><h3 id="Open_a_file_using_a_specific_editor,_on_the_IntraMine_PC">Open a file using a specific editor, on the IntraMine PC</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R22'><td n='22'></td><td><strong>Action</strong>: open a file using user-specified editing application, where the request comes from the PC where IntraMine is running</td></tr>
+<tr id='R23'><td n='23'></td><td><strong>Request</strong>: Opener/?req=open&amp;clientipaddress=[client IP address]&amp;file=[path to file]</td></tr>
+<tr id='R24'><td n='24'></td><td><strong>Response</strong>: call intramine_open_with.pl#LocalOpenFile() to open the file in the preferred local editor</td></tr>
+<tr id='R25'><td n='25'></td><td><strong>For example</strong>: Opener/?req=open&amp;clientipaddress=127.0.0.1&amp;file=C:/files/afile.txt</td></tr>
+<tr id='R26'><td n='26'></td><td><strong>See also</strong>: point 5.2 above</td></tr>
+<tr id='R27'><td n='27'></td><td></td></tr>
+<tr id='R28'><td n='28'></td><td><h3 id="Open_a_file_using_a_specific_editor,_on_a_remote_PC">Open a file using a specific editor, on a remote PC</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R30'><td n='30'></td><td><strong>Action</strong>: open a file using user-specified editing application, where the request comes from a remote PC</td></tr>
+<tr id='R31'><td n='31'></td><td><strong>Request</strong>: Opener/?req=open&amp;clientipaddress=[client IP address]&amp;file=[path to file]</td></tr>
+<tr id='R32'><td n='32'></td><td>(the same as for a request from the IntraMine PC, the Opener will figure it out)</td></tr>
+<tr id='R33'><td n='33'></td><td><strong>Response</strong>: call intramine_open_with.pl#RemoteOpenFile() to send an "open" request to the remote PC (where an instance of Start-Editing.ps1 should be running, or it won't work)</td></tr>
+<tr id='R34'><td n='34'></td><td><strong>For example</strong>: Opener/?req=open&amp;clientipaddress=192.168.1.145&amp;file=C:/files/afile.txt</td></tr>
+<tr id='R35'><td n='35'></td><td><strong>See also</strong>: point 5.1 above</td></tr>
+<tr id='R36'><td n='36'></td><td></td></tr>
+<tr id='R37'><td n='37'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R17'><td n='17'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R18'><td n='18'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R38'><td n='38'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R39'><td n='39'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

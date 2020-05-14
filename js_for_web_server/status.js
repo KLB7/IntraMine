@@ -151,7 +151,7 @@ function refreshServerStatus(doItRepeatedly) {
 			hideSpinner();
 
 			// Add buttons to stop/start/restart individual servers.
-			addStartStopRefreshButtons(serverStatusContentID);
+			addStartStopRefreshButtons();
 
 			// Do it all again every now and then (default 30 seconds).
 			if (doItRepeatedly)
@@ -182,7 +182,7 @@ function refreshServerStatus(doItRepeatedly) {
 }
 
 // Add Start/Stop/Restart buttons, to "Page" (non-background) servers.
-function addStartStopRefreshButtons(serverStatusContentID) {
+function addStartStopRefreshButtons() {
 	let statusTable = document.getElementById(pageServerTableId);
 	if (statusTable === null)
 		{
@@ -422,7 +422,6 @@ function flashOneServer(port, flashIt) {
 				{
 				for (let j = 0; j < rowCellData.length; ++j)
 					{
-					let ih = rowCellData.item(j).innerHTML;
 					if (rowCellData.item(j).innerHTML === portHolder)
 						{
 						foundServer = true;

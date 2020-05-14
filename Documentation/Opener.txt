@@ -10,8 +10,29 @@ The Opener is a "second level" server with no user interface. Here's a typical e
  -- http://host:ip/Opener/?req=open&clientipaddress=123.123.123.1&file=path_to_file
 4.The Opener has just one registered %RequestAction, "$RequestAction{'req|open'} = \&OpenTheFile;" and that's called in response to the request.
 5. intramine_open_with.pl#OpenTheFile() in turn calls RemoteOpenFile() or LocalOpenFile(), depending on whether the request came from another PC or from the IntraMine PC itself.
-5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the instance of IntraMine-Remote.ps1 that's running on the remote PC. See "Editing documents.txt" for details on getting that up and running. IntraMine-Remote.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.
-5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "unicode" characters in the file path.
+5.1 For remote requests, intramine_open_with.pl#RemoteOpenFile() sends an "open" request to the tiny service being run by Start-Editing.ps1, running on the remote PC. See "Editing documents.txt" for details on getting that going. Start-Editing.ps1 will then open your preferred editor on your remote PC, passing it the path of the file to open.
+5.2 For local requests, intramine_open_with.pl#LocalOpenFile() whips up a temporary .bat file to call your preferred editor with the file path to open as an argument, and finally a system() call runs the .bat file. This might seem like extra work, but it's the only way I've found that works with "Unicode" characters in the file path.
+
+API
+=====
+The discussion above gives a walkthrough of opening a file with a preferred editor.
+
+Open a file using a specific editor, on the IntraMine PC
+-----------------------------------
+**Action**: open a file using user-specified editing application, where the request comes from the PC where IntraMine is running
+**Request**: Opener/?req=open&clientipaddress=[client IP address]&file=[path to file]
+**Response**: call intramine_open_with.pl#LocalOpenFile() to open the file in the preferred local editor
+**For example**: Opener/?req=open&clientipaddress=127.0.0.1&file=C:/files/afile.txt
+**See also**: point 5.2 above
+
+Open a file using a specific editor, on a remote PC
+-----------------------------------
+**Action**: open a file using user-specified editing application, where the request comes from a remote PC
+**Request**: Opener/?req=open&clientipaddress=[client IP address]&file=[path to file]
+(the same as for a request from the IntraMine PC, the Opener will figure it out)
+**Response**: call intramine_open_with.pl#RemoteOpenFile() to send an "open" request to the remote PC (where an instance of Start-Editing.ps1 should be running, or it won't work)
+**For example**: Opener/?req=open&clientipaddress=192.168.1.145&file=C:/files/afile.txt
+**See also**: point 5.1 above
 
 ---
 contents.txt

@@ -82,8 +82,8 @@ $RequestAction{'req|loadfile'} = \&LoadTheFile; 		# req=loadfile
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
 $RequestAction{'req|css'} = \&GetRequestedFile; 		# req=css  see swarmserver.pm#GetRequestedFile()
 $RequestAction{'req|js'} = \&GetRequestedFile; 			# req=js
-$RequestAction{'/test/'} = \&SelfTest;				# Ask this server to test itself.
-#$RequestAction{'req|acestartjs'} = \&AceStartJS; 		# req=acestartjs
+# Testing
+$RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
 # Not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
 MainLoop(\%RequestAction);

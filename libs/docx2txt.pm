@@ -5,7 +5,7 @@
 # (This is still basically the work of Sandeep Kumar, but converted to docx2txt.pm, using 7-zip
 # instead of unzip, with config file, directory handling and some other stuff removed,
 # tested under Perl 5.22 and 5.30.)
-# For IntraMine use, see intramine_file_viewer_cm.pl#GetWordAsText().
+# For IntraMine use, see intramine_viewer.pl#GetWordAsText().
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@
 ## $docxReader->ShowHyperlinks();
 ## $docxReader->ShowListNumbering();
 ## my $contents = $docxReader->Contents($filePath);
-# (IntraMine, seeintramine_file_viewer_cm.pl#GetWordAsText())
+# (IntraMine, see intramine_viewer.pl#GetWordAsText())
 
 
 package docx2txt;

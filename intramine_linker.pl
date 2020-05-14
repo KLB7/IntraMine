@@ -401,6 +401,7 @@ sub EvaluateLinkCandidates {
 		my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
 		my $quoteChar = '';
 		my $badQuotation = 0;
+		my $insideID = 0;
 		if ($haveQuotation)
 			{
 			# Check for non-word or BOL before first quote, non-word or EOL after second.
@@ -420,6 +421,7 @@ sub EvaluateLinkCandidates {
 						if (substr($line, $startPos - 3, 3) eq "id=")
 							{
 							$badQuotation = 1;
+							$insideID = 1;
 							}
 						}
 					}
@@ -464,7 +466,14 @@ sub EvaluateLinkCandidates {
 		
 		if ($badQuotation)
 			{
-			pos($line) = $startPos + 1;
+			if ($insideID)
+				{
+				pos($line) = $endPos;
+				}
+			else
+				{
+				pos($line) = $startPos + 1;
+				}
 			}
 		else
 			{

@@ -1274,7 +1274,14 @@ margin: 3px 8px;
 <li class='h3' im-text-ln='40'><a href='#Autolink_sequence_overview'>Autolink sequence overview</a></li>
 <li class='h3' im-text-ln='51'><a href='#Stepping_through_text_to_find_links'>Stepping through text to find links</a></li>
 <li class='h3' im-text-ln='60'><a href='#reverse_filepaths.pm#FullPathInContextNS()_sequence'>reverse_filepaths.pm#FullPathInContextNS() sequence</a></li>
-<li class='h3' im-text-ln='64'><a href='#reverse_filepaths.pm#FullPathFromPartialOrFullPath()_sequence'>reverse_filepaths.pm#FullPathFromPartialOrFullPath() sequence</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Linker">Linker</h1></td></tr>
+<li class='h3' im-text-ln='64'><a href='#reverse_filepaths.pm#FullPathFromPartialOrFullPath()_sequence'>reverse_filepaths.pm#FullPathFromPartialOrFullPath() sequence</a></li>
+<li class='h2' im-text-ln='79'><a href='#API'>API</a></li>
+<li class='h3' im-text-ln='83'><a href='#Provide_links_for_text_(non-CodeMirror_displays)'>Provide links for text (non-CodeMirror displays)</a></li>
+<li class='h3' im-text-ln='104'><a href='#Provide_links_for_text_(CodeMirror_displays)'>Provide links for text (CodeMirror displays)</a></li>
+<li class='h3' im-text-ln='114'><a href='#Provide_one_link_for_text'>Provide one link for text</a></li>
+<li class='h3' im-text-ln='125'><a href='#Update_directory_lists'>Update directory lists</a></li>
+<li class='h3' im-text-ln='133'><a href='#Completely_rebuild_directory_lists'>Completely rebuild directory lists</a></li>
+<li class='h3' im-text-ln='141'><a href='#Test'>Test</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Linker">Linker</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td>The Linker service turns text into hyperlinks on file names or paths, in text and source files. It returns either a new version of the text with links in place, or a JSON summary of the links and where they should go.</td></tr>
@@ -1352,14 +1359,83 @@ margin: 3px 8px;
 <tr id='R76'><td n='76'></td><td><p class="outdent-unordered">&nbsp;&bull; <a href="./Stealing from IntraMine.html#Full path for partial path example" target="_blank">"Stealing from IntraMine.txt#Full path for partial path example"</a></p></td></tr>
 <tr id='R77'><td n='77'></td><td><p class="outdent-unordered">&nbsp;&bull; <a href="./Stealing from IntraMine.html#Another partial path example, without help from context" target="_blank">"Stealing from IntraMine.txt#Another partial path example, without help from context"</a></p></td></tr>
 <tr id='R78'><td n='78'></td><td></td></tr>
-<tr id='R79'><td n='79'></td><td></td></tr>
-<tr id='R80'><td n='80'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R79'><td n='79'></td><td><h2 id="API">API</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R81'><td n='81'></td><td>The Linker can handle requests to provide links for plain text, a signal to update its directory lists or completely rebuild them, and a request to test itself.</td></tr>
+<tr id='R82'><td n='82'></td><td></td></tr>
+<tr id='R83'><td n='83'></td><td><h3 id="Provide_links_for_text_(non-CodeMirror_displays)">Provide links for text (non-CodeMirror displays)</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R85'><td n='85'></td><td>This request comes from JavaScript, when new lines come into view in a file display. "Non CodeMirror" means mainly .txt and Perl.</td></tr>
+<tr id='R86'><td n='86'></td><td><strong>Action</strong>: convert mentions of files to hyperlinks</td></tr>
+<tr id='R87'><td n='87'></td><td><strong>Request</strong>: /?req=nonCmLinks&amp;remote=[01]&amp;allowEdit=[01]&amp;useApp=[01]&amp;text=textToAddLinksTo&amp;peerAddress=$peer&amp;path=$path&amp;first=$firstVisibleLineNum&amp;last=$lastVisibleLineNum</td></tr>
+<tr id='R88'><td n='88'></td><td>Note [01] stands for 0 or 1</td></tr>
+<tr id='R89'><td n='89'></td><td></td></tr></tbody></table><table class='bordered'><caption>arguments</caption><thead>
+<tr id='R90'><td n='90'></td><th>Argument</th><th>Description</th></tr></thead><tbody>
+<tr id='R91'><td n='91'></td><td>remote</td><td>1 if request doesn't come from the IntraMinePC</td></tr>
+<tr id='R92'><td n='92'></td><td>allowEdit</td><td>1 if an edit link is wanted as well</td></tr>
+<tr id='R93'><td n='93'></td><td>useApp</td><td>1 if edit link should use preferred editor instead of IntraMine's</td></tr>
+<tr id='R94'><td n='94'></td><td>text</td><td>plain text that wants markup with links</td></tr>
+<tr id='R95'><td n='95'></td><td>peerAddress</td><td>IP address of client</td></tr>
+<tr id='R96'><td n='96'></td><td>path</td><td>full path of file that wants the links</td></tr>
+<tr id='R97'><td n='97'></td><td>first</td><td>line number for first line in text</td></tr>
+<tr id='R98'><td n='98'></td><td>last</td><td>line number for last line in text</td></tr></tbody></table><table><tbody>
+<tr id='R99'><td n='99'></td><td><strong>Response</strong>: the text, with file mentions replaced by hyperlinks</td></tr>
+<tr id='R100'><td n='100'></td><td><strong>For example</strong>: see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it, so please see Gloss.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#requestLinkMarkupWithPort()</td></tr>
+<tr id='R101'><td n='101'></td><td><strong>See also</strong>: intramine_linker.ps#NonCmLinks(), <a href="./Stealing from IntraMine.html#Those autolinks" target="_blank">"Stealing from IntraMine.txt#Those autolinks"</a></td></tr>
+<tr id='R102'><td n='102'></td><td></td></tr>
+<tr id='R103'><td n='103'></td><td></td></tr>
+<tr id='R104'><td n='104'></td><td><h3 id="Provide_links_for_text_(CodeMirror_displays)">Provide links for text (CodeMirror displays)</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R106'><td n='106'></td><td>This request comes from JavaScript, when new lines come into view in a file being displayed with CodeMirror.</td></tr>
+<tr id='R107'><td n='107'></td><td><strong>Action</strong>: create JSON describing hyperlinks associated with file mentions in text</td></tr>
+<tr id='R108'><td n='108'></td><td><strong>Request</strong>: /?req=cmLinks&amp;remote=[01]&amp;allowEdit=[01]&amp;useApp=[01]&amp;text=textToAddLinksTo&amp;peerAddress=$peer&amp;path=$path&amp;first=$firstVisibleLineNum&amp;last=$lastVisibleLineNum</td></tr>
+<tr id='R109'><td n='109'></td><td>Except for "req=cmLinks" the arguments are the same as for non-CodeMirror just above.</td></tr>
+<tr id='R110'><td n='110'></td><td><strong>Response</strong>: JSON describing hyperlinks associated with the text</td></tr>
+<tr id='R111'><td n='111'></td><td><strong>For example</strong>: see cmAutoLinks.js#requestLinkMarkupWithPort()</td></tr>
+<tr id='R112'><td n='112'></td><td><strong>See also</strong>: intramine_linker.ps#CmLinks(), <a href="./Stealing from IntraMine.html#Those autolinks" target="_blank">"Stealing from IntraMine.txt#Those autolinks"</a></td></tr>
+<tr id='R113'><td n='113'></td><td></td></tr>
+<tr id='R114'><td n='114'></td><td><h3 id="Provide_one_link_for_text">Provide one link for text</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R116'><td n='116'></td><td><strong>Action</strong>: turn a partial file path into a hyperlink</td></tr>
+<tr id='R117'><td n='117'></td><td><strong>Request</strong>: Linker/?req=autolink&amp;partialpath=the partial path</td></tr>
+<tr id='R118'><td n='118'></td><td>where "the partial path" is part or all of a file path, ending in a file name</td></tr>
+<tr id='R119'><td n='119'></td><td><strong>Response</strong>: the full path to the file mentioned</td></tr>
+<tr id='R120'><td n='120'></td><td><strong>For example</strong>: Linker/?req=autolink&amp;partialpath=intramine/extract_method.pl</td></tr>
+<tr id='R121'><td n='121'></td><td>returns c:\perlprogs\intramine\extract_method.pl</td></tr>
+<tr id='R122'><td n='122'></td><td><strong>See also</strong>: files.js#openAutoLink(), <a href="./Stealing from IntraMine.html#Those autolinks" target="_blank">"Stealing from IntraMine.txt#Those autolinks"</a></td></tr>
+<tr id='R123'><td n='123'></td><td></td></tr>
+<tr id='R124'><td n='124'></td><td></td></tr>
+<tr id='R125'><td n='125'></td><td><h3 id="Update_directory_lists">Update directory lists</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R127'><td n='127'></td><td><strong>Action</strong>: load additional full paths</td></tr>
+<tr id='R128'><td n='128'></td><td><strong>Request</strong>: /?signal=reindex</td></tr>
+<tr id='R129'><td n='129'></td><td><strong>Response</strong>: call reverse_filepaths.pm#LoadIncrementalDirectoryFinderLists() to load additional full paths from fullpaths2.out in the File Watcher service directory (see FILEWATCHERDIRECTORY in data/intramine_config.txt)</td></tr>
+<tr id='R130'><td n='130'></td><td><strong>For example</strong>: intramine_filewatcher.pl#IndexChangedFiles() broadcasts "signal=reindex" whenever there are new file paths detected</td></tr>
+<tr id='R131'><td n='131'></td><td><strong>See also</strong>: reverse_filepaths.pm#LoadIncrementalDirectoryFinderLists(), <a href="./Stealing from IntraMine.html#4. a way of keeping the full paths list and partial paths list up to date" target="_blank">"Stealing from IntraMine.txt#4. a way of keeping the full paths list and partial paths list up to date"</a></td></tr>
+<tr id='R132'><td n='132'></td><td></td></tr>
+<tr id='R133'><td n='133'></td><td><h3 id="Completely_rebuild_directory_lists">Completely rebuild directory lists</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R135'><td n='135'></td><td><strong>Action</strong>: a folder has been renamed, completely rebuild full file paths and notify Main when rebuild is complete</td></tr>
+<tr id='R136'><td n='136'></td><td><strong>Request</strong>: /?signal=folderrenamed</td></tr>
+<tr id='R137'><td n='137'></td><td><strong>Response</strong>: call reverse_filepaths.pm#ReinitDirectoryFinder() to completely reload list of all files and directories. Signal "backinservice" when done.</td></tr>
+<tr id='R138'><td n='138'></td><td><strong>For example</strong>: intramine_filewatcher.pl#IndexChangedFiles() broadcasts "signal=folderrenamed" whenever a folder has been renamed</td></tr>
+<tr id='R139'><td n='139'></td><td><strong>See also</strong>: reverse_filepaths.pm#ReinitDirectoryFinder(), <a href="./Stealing from IntraMine.html#Folder renames" target="_blank">"Stealing from IntraMine.txt#Folder renames"</a></td></tr>
+<tr id='R140'><td n='140'></td><td></td></tr>
+<tr id='R141'><td n='141'></td><td><h3 id="Test">Test</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R143'><td n='143'></td><td><strong>Action</strong>: run service-level tests</td></tr>
+<tr id='R144'><td n='144'></td><td><strong>Request</strong>: /test/ (GET)</td></tr>
+<tr id='R145'><td n='145'></td><td><strong>Response</strong>: run test_programs/test_Linker.pl)</td></tr>
+<tr id='R146'><td n='146'></td><td><strong>For example</strong>: triggered if Main is started with -t on the command line (eg by running bats/TEST_INTRAMINE.bat) and the count for Linker is set to 1 in data/serverlist_for_testing.txt</td></tr>
+<tr id='R147'><td n='147'></td><td><strong>See also</strong>: <a href="./Testing with IntraMine.html" target="_blank">Testing with IntraMine.txt</a>, test_programs/test_Linker.pl</td></tr>
+<tr id='R148'><td n='148'></td><td></td></tr>
+<tr id='R149'><td n='149'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R81'><td n='81'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R82'><td n='82'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R150'><td n='150'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R151'><td n='151'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

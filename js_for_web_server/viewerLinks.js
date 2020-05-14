@@ -155,7 +155,7 @@ function editWithIntraMine(href) {
 }
 
 // Viewer links. Get a good port, do a window.open().
-// openView() calls are put in by eg intramine_file_viewer_cm.pl#GetTextFileRep().
+// openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
 function openView(href) {
 	let request = new XMLHttpRequest();
 	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' +

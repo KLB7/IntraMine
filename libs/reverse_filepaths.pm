@@ -20,12 +20,12 @@
 #		fuller path such as "catclicker/src/main.cpp" to help resolve which main.cpp is wanted.
 #
 # Usage: first call InitDirectoryFinder(). For an example see
-# intramine_file_viewer_cm.pl#callbackInitDirectoryFinder().
+# intramine_linker.pl#callbackInitDirectoryFinder().
 # The file holding a list of files and full paths for them must of course exist. This is
 # built when indexing files with Elasticsearch - see elastic_indexer.pl around line 151,
 # where there's a call back to AddIncrementalNewPaths(), defined here.
 # Then to get the best matching full path for a partial path (which could be a full path) call
-# FullPathInContextNS(): see intramine_file_viewer_cm.pl##FullPathForPartial() for a use.
+# FullPathInContextNS(): see intramine_linker.pl#FullPathForPartial() for a use.
 # (FullPathInContextTrimmed() is similar, the "Trimmed" version deals with nuisance HTML).
 
 package reverse_filepaths;
@@ -386,7 +386,7 @@ sub FullPathInContextNS {
 	}
 
 # Full path, given a partial path and context directory.
-# For linking with perhaps nuisance HTML prepended. Used in intramine_file_viewer_cm.pl#ModuleLink().
+# For linking with perhaps nuisance HTML prepended. Used in intramine_linker.pl#ModuleLink().
 # $partialPath: for success, one of:
 # file.txt
 # dir1/file.txt

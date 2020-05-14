@@ -76,6 +76,75 @@ For a couple of examples of how links are detected, see
  - "Stealing from IntraMine.txt#Full path for partial path example"
  - "Stealing from IntraMine.txt#Another partial path example, without help from context"
 
+API
+=====
+The Linker can handle requests to provide links for plain text, a signal to update its directory lists or completely rebuild them, and a request to test itself.
+
+Provide links for text (non-CodeMirror displays)
+---------------------------
+This request comes from JavaScript, when new lines come into view in a file display. "Non CodeMirror" means mainly .txt and Perl.
+**Action**: convert mentions of files to hyperlinks
+**Request**: /?req=nonCmLinks&remote=[01]&allowEdit=[01]&useApp=[01]&text=textToAddLinksTo&peerAddress=$peer&path=$path&first=$firstVisibleLineNum&last=$lastVisibleLineNum
+Note [01] stands for 0 or 1
+TABLE arguments
+Argument	Description
+remote		1 if request doesn't come from the IntraMinePC
+allowEdit	1 if an edit link is wanted as well
+useApp		1 if edit link should use preferred editor instead of IntraMine's
+text		plain text that wants markup with links
+peerAddress	IP address of client
+path		full path of file that wants the links
+first		line number for first line in text
+last		line number for last line in text
+**Response**: the text, with file mentions replaced by hyperlinks
+**For example**: see autoLinks.js#requestLinkMarkupWithPort()
+**See also**: intramine_linker.ps#NonCmLinks(), "Stealing from IntraMine.txt#Those autolinks"
+
+
+Provide links for text (CodeMirror displays)
+-------------------------------
+This request comes from JavaScript, when new lines come into view in a file being displayed with CodeMirror.
+**Action**: create JSON describing hyperlinks associated with file mentions in text
+**Request**: /?req=cmLinks&remote=[01]&allowEdit=[01]&useApp=[01]&text=textToAddLinksTo&peerAddress=$peer&path=$path&first=$firstVisibleLineNum&last=$lastVisibleLineNum
+Except for "req=cmLinks" the arguments are the same as for non-CodeMirror just above.
+**Response**: JSON describing hyperlinks associated with the text
+**For example**: see cmAutoLinks.js#requestLinkMarkupWithPort()
+**See also**: intramine_linker.ps#CmLinks(), "Stealing from IntraMine.txt#Those autolinks"
+
+Provide one link for text
+----------------------------
+**Action**: turn a partial file path into a hyperlink
+**Request**: Linker/?req=autolink&partialpath=the partial path
+where "the partial path" is part or all of a file path, ending in a file name
+**Response**: the full path to the file mentioned
+**For example**: Linker/?req=autolink&partialpath=intramine/extract_method.pl
+returns c:\perlprogs\intramine\extract_method.pl
+**See also**: files.js#openAutoLink(), "Stealing from IntraMine.txt#Those autolinks"
+
+
+Update directory lists
+----------------------
+**Action**: load additional full paths
+**Request**: /?signal=reindex
+**Response**: call reverse_filepaths.pm#LoadIncrementalDirectoryFinderLists() to load additional full paths from fullpaths2.out in the File Watcher service directory (see FILEWATCHERDIRECTORY in data/intramine_config.txt)
+**For example**: intramine_filewatcher.pl#IndexChangedFiles() broadcasts "signal=reindex" whenever there are new file paths detected
+**See also**: reverse_filepaths.pm#LoadIncrementalDirectoryFinderLists(), "Stealing from IntraMine.txt#4. a way of keeping the full paths list and partial paths list up to date"
+
+Completely rebuild directory lists
+-------------------------------
+**Action**: a folder has been renamed, completely rebuild full file paths and notify Main when rebuild is complete
+**Request**: /?signal=folderrenamed
+**Response**: call reverse_filepaths.pm#ReinitDirectoryFinder() to completely reload list of all files and directories. Signal "backinservice" when done.
+**For example**: intramine_filewatcher.pl#IndexChangedFiles() broadcasts "signal=folderrenamed" whenever a folder has been renamed
+**See also**: reverse_filepaths.pm#ReinitDirectoryFinder(), "Stealing from IntraMine.txt#Folder renames"
+
+Test
+---------
+**Action**: run service-level tests
+**Request**: /test/ (GET)
+**Response**: run test_programs/test_Linker.pl)
+**For example**: triggered if Main is started with -t on the command line (eg by running bats/TEST_INTRAMINE.bat) and the count for Linker is set to 1 in data/serverlist_for_testing.txt
+**See also**: Testing with IntraMine.txt, test_programs/test_Linker.pl
 
 ---
 contents.txt

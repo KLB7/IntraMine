@@ -1269,7 +1269,10 @@ margin: 3px 8px;
 <ul>
 <li class='h1' im-text-ln='1'><a href='#Editor'>Editor</a></li>
 <li class='h2' im-text-ln='17'><a href='#Under_the_hood'>Under the hood</a></li>
-<li class='h3' im-text-ln='19'><a href='#File_load_sequence'>File load sequence</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Editor">Editor</h1></td></tr>
+<li class='h3' im-text-ln='19'><a href='#File_load_sequence'>File load sequence</a></li>
+<li class='h2' im-text-ln='29'><a href='#API'>API</a></li>
+<li class='h3' im-text-ln='31'><a href='#Open_a_file_for_editing'>Open a file for editing</a></li>
+<li class='h3' im-text-ln='41'><a href='#Load_contents_of_file'>Load contents of file</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Editor">Editor</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>This is IntraMine's built-in editor, with intramine_editor.pl on the back end, and editor.js on the front.</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1347,15 +1350,35 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R24'><td n='24'></td><td><p class="ol-1">3. "$RequestAction{'href'} = \&amp;FullFile;" near the top of intramine_editor.pl registers FullFile() as the handler for any "href=..." request. This is detected by swarmserver.pm#MainLoop() as usual, which issues a call to FullFile(). The file path is in its $formH->{'href'} argument</p></td></tr>
 <tr id='R25'><td n='25'></td><td><p class="ol-1">4. FullFile() returns the basic HTML for the page and includes editor.js and CodeMirror files.</p></td></tr>
 <tr id='R26'><td n='26'></td><td><p class="ol-1">5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.</p></td></tr>
-<tr id='R27'><td n='27'></td><td><p class="ol-1">6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax hilighting etc) from then on.</p></td></tr>
+<tr id='R27'><td n='27'></td><td><p class="ol-1">6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax highlighting etc) from then on.</p></td></tr>
 <tr id='R28'><td n='28'></td><td></td></tr>
-<tr id='R29'><td n='29'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R29'><td n='29'></td><td><h2 id="API">API</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R31'><td n='31'></td><td><h3 id="Open_a_file_for_editing">Open a file for editing</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R33'><td n='33'></td><td><strong>Action</strong>: open a file for editing</td></tr>
+<tr id='R34'><td n='34'></td><td><strong>Request</strong>: <a href='http://192.168.1.132:43131/Editor/?href=filePath' target='_blank'>http://192.168.1.132:43131/Editor/?href=filePath</a></td></tr>
+<tr id='R35'><td n='35'></td><td>where filePath is a full path, such as C:/folder/afile.txt</td></tr>
+<tr id='R36'><td n='36'></td><td><strong>Response</strong>: the basic HTML for the page with inclusion of editor.js and CodeMirror files. Note the text contents are filled in later when the page loads, see <a href="#Load_contents_of_file">"Load contents of file</a>" just below.</td></tr>
+<tr id='R37'><td n='37'></td><td><strong>For example</strong>:</td></tr>
+<tr id='R38'><td n='38'></td><td><a href='http://192.168.1.132:43131/Editor/?href=C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm' target='_blank'>http://192.168.1.132:43131/Editor/?href=C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm</a></td></tr>
+<tr id='R39'><td n='39'></td><td><strong>See also</strong>: </td></tr>
+<tr id='R40'><td n='40'></td><td></td></tr>
+<tr id='R41'><td n='41'></td><td><h3 id="Load_contents_of_file">Load contents of file</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R43'><td n='43'></td><td><strong>Action</strong>: load the text of a file into a CodeMirror display</td></tr>
+<tr id='R44'><td n='44'></td><td><strong>Request</strong>: /?req=loadfile&amp;file=PathToFile</td></tr>
+<tr id='R45'><td n='45'></td><td><strong>Response</strong>: the full plain text of the source file, ready for putting in CodeMirror</td></tr>
+<tr id='R46'><td n='46'></td><td><strong>For example</strong>: <a href='http://localhost:43125/?req=loadfile&amp;file=C:/temp/afile.cpp' target='_blank'>http://localhost:43125/?req=loadfile&amp;file=C:/temp/afile.cpp</a></td></tr>
+<tr id='R47'><td n='47'></td><td><strong>See also</strong>: editor.js#loadFileIntoCodeMirror(), intramine_editor.pl#LoadTheFile()</td></tr>
+<tr id='R48'><td n='48'></td><td></td></tr>
+<tr id='R49'><td n='49'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R30'><td n='30'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R31'><td n='31'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R50'><td n='50'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R51'><td n='51'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

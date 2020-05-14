@@ -1,4 +1,4 @@
-# test_Viewer.pl: test intramine_file_viewer_cm.pl.
+# test_Viewer.pl: test intramine_viewer.pl.
 # For Selenium methods involving "$driver" below, see
 # https://metacpan.org/pod/Selenium::Remote::Driver
 

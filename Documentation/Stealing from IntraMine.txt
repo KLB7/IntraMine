@@ -129,33 +129,37 @@ IntraMine's Editor has an example of sending arbitrary text from Perl to JavaScr
 Edit load summary
 -----------------
 Sequence: Disk -> Perl -> JS -> CodeMirror
-Perl (intramine_editor.pl#LoadTheFile())
-~~~~~
+**Perl** (intramine_editor.pl#LoadTheFile())
+---
 $result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+---
 (see also win_wide_filepaths.pm#ReadTextFileDecodedWide())
 
-JavaScript (editor.js#loadFileIntoCodeMirror())
-~~~~~
+**JavaScript** (editor.js#loadFileIntoCodeMirror())
+---
 let theText = decodeURIComponent(request.responseText);
 cm.setValue(theText);
+---
 
 Edit save summary
 -----------------
 Sequence: CodeMirror -> JS -> Perl -> disk
-JavaScript (see editor.js#saveFile())
-~~~~~
+**JavaScript** (see editor.js#saveFile())
+---
 let contents = myCodeMirror.getValue();
 contents = contents.replace(/%/g, "%25");
 contents = encodeURIComponent(contents);
 contents = encodeURIComponent(contents); // sic
 request.send(... + '&contents=' + contents);
+---
 
-Perl (see intramine_editor.pl#Save())
-~~~~~
+**Perl** (see intramine_editor.pl#Save())
+---
 my $contents = $formH->{'contents'};
 $contents = encode_utf8($contents);
 $contents = uri_unescape($contents);
 ... WriteBinFileWide($filepath, $contents) ...
+---
 
 UTF16 in Windows file paths
 ===========================

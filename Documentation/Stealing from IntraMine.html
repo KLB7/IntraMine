@@ -1278,12 +1278,8 @@ margin: 3px 8px;
 <li class='h4' im-text-ln='115'><a href='#Folder_renames'>Folder renames</a></li>
 <li class='h2' im-text-ln='125'><a href='#Text_from_Perl_to_JavaScript_and_back'>Text from Perl to JavaScript and back</a></li>
 <li class='h3' im-text-ln='129'><a href='#Edit_load_summary'>Edit load summary</a></li>
-<li class='h4' im-text-ln='132'><a href='#Perl_(intramine_editor.pl#LoadTheFile())'>Perl (intramine_editor.pl#LoadTheFile())</a></li>
-<li class='h4' im-text-ln='137'><a href='#JavaScript_(editor.js#loadFileIntoCodeMirror())'>JavaScript (editor.js#loadFileIntoCodeMirror())</a></li>
-<li class='h3' im-text-ln='142'><a href='#Edit_save_summary'>Edit save summary</a></li>
-<li class='h4' im-text-ln='145'><a href='#JavaScript_(see_editor.js#saveFile())'>JavaScript (see editor.js#saveFile())</a></li>
-<li class='h4' im-text-ln='153'><a href='#Perl_(see_intramine_editor.pl#Save())'>Perl (see intramine_editor.pl#Save())</a></li>
-<li class='h2' im-text-ln='160'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
+<li class='h3' im-text-ln='144'><a href='#Edit_save_summary'>Edit save summary</a></li>
+<li class='h2' im-text-ln='164'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>(If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1414,47 +1410,83 @@ margin: 3px 8px;
 <tr id='R129'><td n='129'></td><td><h3 id="Edit_load_summary">Edit load summary</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R131'><td n='131'></td><td>Sequence: Disk -> Perl -> JS -> CodeMirror</td></tr>
-<tr id='R132'><td n='132'></td><td><h4 id="Perl_(intramine_editor.pl#LoadTheFile())">Perl (intramine_editor.pl#LoadTheFile())</h4></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R134'><td n='134'></td><td>$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));</td></tr>
-<tr id='R135'><td n='135'></td><td>(see also win_wide_filepaths.pm#ReadTextFileDecodedWide())</td></tr>
-<tr id='R136'><td n='136'></td><td></td></tr>
-<tr id='R137'><td n='137'></td><td><h4 id="JavaScript_(editor.js#loadFileIntoCodeMirror())">JavaScript (editor.js#loadFileIntoCodeMirror())</h4></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R139'><td n='139'></td><td>let theText = decodeURIComponent(request.responseText);</td></tr>
-<tr id='R140'><td n='140'></td><td>cm.setValue(theText);</td></tr>
-<tr id='R141'><td n='141'></td><td></td></tr>
-<tr id='R142'><td n='142'></td><td><h3 id="Edit_save_summary">Edit save summary</h3></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R144'><td n='144'></td><td>Sequence: CodeMirror -> JS -> Perl -> disk</td></tr>
-<tr id='R145'><td n='145'></td><td><h4 id="JavaScript_(see_editor.js#saveFile())">JavaScript (see editor.js#saveFile())</h4></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R147'><td n='147'></td><td>let contents = myCodeMirror.getValue();</td></tr>
-<tr id='R148'><td n='148'></td><td>contents = contents.replace(/%/g, "%25");</td></tr>
-<tr id='R149'><td n='149'></td><td>contents = encodeURIComponent(contents);</td></tr>
-<tr id='R150'><td n='150'></td><td>contents = encodeURIComponent(contents); // sic</td></tr>
-<tr id='R151'><td n='151'></td><td>request.send(... + '&amp;contents=' + contents);</td></tr>
-<tr id='R152'><td n='152'></td><td></td></tr>
-<tr id='R153'><td n='153'></td><td><h4 id="Perl_(see_intramine_editor.pl#Save())">Perl (see intramine_editor.pl#Save())</h4></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R155'><td n='155'></td><td>my $contents = $formH->{'contents'};</td></tr>
-<tr id='R156'><td n='156'></td><td>$contents = encode_utf8($contents);</td></tr>
-<tr id='R157'><td n='157'></td><td>$contents = uri_unescape($contents);</td></tr>
-<tr id='R158'><td n='158'></td><td>... WriteBinFileWide($filepath, $contents) ...</td></tr>
-<tr id='R159'><td n='159'></td><td></td></tr>
-<tr id='R160'><td n='160'></td><td><h2 id="UTF16_in_Windows_file_paths">UTF16 in Windows file paths</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R162'><td n='162'></td><td>win_wide_filepaths.pm has subs to deal with most aspects of file and folder handling under Windows (read, write, list dir etc), in a way that handles UTF16 folder and file names properly. Most of the subs there mention an example of use in IntraMine. It does seem that almost everyone avoids "non ASCII" characters in folder and file names under Windows, but it's nice to be able to accept them. The subs in win_wide_filepaths.pm are mostly wrappers that call Win32API::File functions, after converting supplied file or folder paths to "UTF-16LE".</td></tr>
-<tr id='R163'><td n='163'></td><td></td></tr>
-<tr id='R164'><td n='164'></td><td>If you wanted to port IntraMine to the Linux world, you might start by creating Linux equivalents for all of the subs in win_wide_filepaths.pm, and that would put you well along the path. Pun? What pun?</td></tr>
-<tr id='R165'><td n='165'></td><td></td></tr>
-<tr id='R166'><td n='166'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R132'><td n='132'></td><td><strong>Perl</strong> (intramine_editor.pl#LoadTheFile())</td></tr>
+<tr id='R133'><td n='133'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R167'><td n='167'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R168'><td n='168'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R134'><td n='134'></td><td>$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));</td></tr>
+<tr id='R135'><td n='135'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R136'><td n='136'></td><td>(see also win_wide_filepaths.pm#ReadTextFileDecodedWide())</td></tr>
+<tr id='R137'><td n='137'></td><td></td></tr>
+<tr id='R138'><td n='138'></td><td><strong>JavaScript</strong> (editor.js#loadFileIntoCodeMirror())</td></tr>
+<tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R140'><td n='140'></td><td>let theText = decodeURIComponent(request.responseText);</td></tr>
+<tr id='R141'><td n='141'></td><td>cm.setValue(theText);</td></tr>
+<tr id='R142'><td n='142'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R143'><td n='143'></td><td></td></tr>
+<tr id='R144'><td n='144'></td><td><h3 id="Edit_save_summary">Edit save summary</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R146'><td n='146'></td><td>Sequence: CodeMirror -> JS -> Perl -> disk</td></tr>
+<tr id='R147'><td n='147'></td><td><strong>JavaScript</strong> (see editor.js#saveFile())</td></tr>
+<tr id='R148'><td n='148'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R149'><td n='149'></td><td>let contents = myCodeMirror.getValue();</td></tr>
+<tr id='R150'><td n='150'></td><td>contents = contents.replace(/%/g, "%25");</td></tr>
+<tr id='R151'><td n='151'></td><td>contents = encodeURIComponent(contents);</td></tr>
+<tr id='R152'><td n='152'></td><td>contents = encodeURIComponent(contents); // sic</td></tr>
+<tr id='R153'><td n='153'></td><td>request.send(... + '&amp;contents=' + contents);</td></tr>
+<tr id='R154'><td n='154'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R155'><td n='155'></td><td></td></tr>
+<tr id='R156'><td n='156'></td><td><strong>Perl</strong> (see intramine_editor.pl#Save())</td></tr>
+<tr id='R157'><td n='157'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R158'><td n='158'></td><td>my $contents = $formH->{'contents'};</td></tr>
+<tr id='R159'><td n='159'></td><td>$contents = encode_utf8($contents);</td></tr>
+<tr id='R160'><td n='160'></td><td>$contents = uri_unescape($contents);</td></tr>
+<tr id='R161'><td n='161'></td><td>... WriteBinFileWide($filepath, $contents) ...</td></tr>
+<tr id='R162'><td n='162'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R163'><td n='163'></td><td></td></tr>
+<tr id='R164'><td n='164'></td><td><h2 id="UTF16_in_Windows_file_paths">UTF16 in Windows file paths</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R166'><td n='166'></td><td>win_wide_filepaths.pm has subs to deal with most aspects of file and folder handling under Windows (read, write, list dir etc), in a way that handles UTF16 folder and file names properly. Most of the subs there mention an example of use in IntraMine. It does seem that almost everyone avoids "non ASCII" characters in folder and file names under Windows, but it's nice to be able to accept them. The subs in win_wide_filepaths.pm are mostly wrappers that call Win32API::File functions, after converting supplied file or folder paths to "UTF-16LE".</td></tr>
+<tr id='R167'><td n='167'></td><td></td></tr>
+<tr id='R168'><td n='168'></td><td>If you wanted to port IntraMine to the Linux world, you might start by creating Linux equivalents for all of the subs in win_wide_filepaths.pm, and that would put you well along the path. Pun? What pun?</td></tr>
+<tr id='R169'><td n='169'></td><td></td></tr>
+<tr id='R170'><td n='170'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R171'><td n='171'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R172'><td n='172'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
