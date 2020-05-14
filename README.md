@@ -28,12 +28,14 @@ View the contents of any source or text file, with search hits highlighted in th
 
 The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents, but its main reason for being is to show off automatic linking. There's a picture up top.
 
+[CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files.
+
 ### Autolinks
 Autolinks appear on every reasonable thing when using IntraMine's Viewer, mostly with no extra typing. IntraMine introduces link detection algorithms that can automatically link to source and text and image files on your local and NAS storage, as well as jumps to headings, classes, and methods in the same file or in other files.
 
 You need only supply enough of the path to a file to make it unambiguous, with the understanding that if there's a choice then the "closest" file wins. For example, if the path fragment project51/main.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\main.cpp uniquely, that's all you need to type in your source or text file. To provide a link that goes directly to the updateFile() method, you could type project51/main.cpp#updateFile, or project51/main.cpp#updateFile() if you want to make it clear it's a method, or "project51/main.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then main.cpp is all you need to link to project51/src/main.cpp, since autolinking will pick the main.cpp that's closest to the document where you've done the typing (your "context").
 
-The upshot is autolinking can be made near perfect, armed with the master list of all full paths for files of interest that IntraMine will maintain for you (built when you index folders of interest), and the concepts of "the closest one to my context" and "only necessary parts of the path."
+The upshot is autolinking can be easy and accurate, armed with the master list of all full paths for files of interest that IntraMine will maintain for you (built when you index folders of interest), and the concepts of "the closest one to my context" and "only necessary parts of the path."
 
 ### Image hovers
 While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](http://intramine.info/contents.html).
@@ -64,7 +66,7 @@ If you spot a bug above the minor cosmetic level, please do the kindness of send
 ## Limitations and a heads up
 IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
 
-IntraMine's services need to run on the same PC, and adding/stopping/starting services is not automatic, though it can be done on the fly. This works because the load on an intranet is relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
+IntraMine's services need to run on the same PC, and adding/stopping/starting services is not automatic, though it can be done on the fly. This works because the load on IntraMine will be relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
 
 And I feel bound to mention that installation of IntraMine, though thoroughly documented to death and partway into the afterlife, requires a bit of time to wade through. Roughly an hour. Not a lot of typing, mostly just waiting while things install one by one. And then there's your first index build, which might take another hour. Put up with the one-time nuisance and you'll have many shiny new toys to play with.
 
