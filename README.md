@@ -78,6 +78,6 @@ See [the documentation](http://intramine.info).
 ## How to get started
 Clone or fork or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser. You'll see an "Installing and running IntraMine" section near the top.
 
-After installing IntraMine and starting it up, point your browser to http://localhost:81/Search.
+After installing IntraMine and starting it up, point your browser to http://localhost:81/Search. (Or whatever port you choose if you can't use 81).
 
 If that gets you interested, skim through the rest of the documentation. Maybe write your own IntraMine service? Put autolinking in your IDE? Fork IntraMine, rename it, and go your own way?
