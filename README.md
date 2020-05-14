@@ -26,9 +26,9 @@ IntraMine uses [Elasticsearch](https://www.elastic.co/what-is/elasticsearch) to 
 ### A truly nice Viewer
 View the contents of any source or text file, with search hits highlighted in the text and down the scrollbar if you came from a Search results link.
 
-The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents, but its main reason for being is to show off automatic linking. There's a picture up top.
+The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents, and some extras such as automatic linking, image hovers, and hit highlighting. There's a picture up top.
 
-[CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files.
+[CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files. Gloss is fully applied to .txt files, and autolinking is applied to all source and text files (except .md).
 
 ### Autolinks
 Autolinks appear on every reasonable thing in source and text files when using IntraMine's Viewer, mostly with no extra typing. IntraMine introduces link detection algorithms that can automatically link to source and text and image files on your local and NAS storage, as well as jumps to headings, classes, and methods in the same file or in other files.
