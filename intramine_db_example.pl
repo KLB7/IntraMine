@@ -146,7 +146,7 @@ MainLoop(\%RequestAction);
 # The call to PutPortsAndShortnameAtEndOfBody() puts in the port numbers and Short name
 # that setConfigValue() needs.
 # spinner.js shows a pacifier or a question mark in the top nav bar. The '?' links to Help.
-
+# 2020-02-18 12_43_13-Example of DB access.png
 sub OurPage {
 	my ($obj, $formH, $peeraddress) = @_;
 	

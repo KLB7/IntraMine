@@ -26,6 +26,19 @@ When someone changes the ToDo items, Sever-Sent Events are used to notify all op
 10. SendEventToClients(), associated here with the SSE server, sends out the event message to all clients that have registered with it.
 11. The event listener added in step 1 receives the "todochanged" event, and calls todoGetPutData.js#getToDoData(), which refreshes the browser view of the ToDo data. This happens for all ToDo views, since they have all registered to receive Server-Sent Events.
 
+API
+========
+SSE request handling is a small part of the overall handling of Server-Sent Events. Here's the signal handling, but for an overview of the entire process see above.
+
+Forward an activity event
+======================
+**Action**: on receiving a "signal=anything" from Main, foward it to all clients that have registered for events. It's up to the client to handle or ignore the event
+**Request**: /?signal=[anything, eg todochanged]
+**Response**: call swarmserver.pm#SendEventToClients() to send the event message to all clients that have registered with it
+**For example**: see above for an example describing "todochanged"
+**See also**: intramine_SSE.pl#HandleBroadcastRequest()
+
+
 ---
 contents.txt
 ---

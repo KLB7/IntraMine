@@ -1268,7 +1268,8 @@ margin: 3px 8px;
 <div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <ul>
 <li class='h1' im-text-ln='1'><a href='#Cmd'>Cmd</a></li>
-<li class='h3' im-text-ln='12'><a href='#Call_a_script_and_monitor_its_output_until_done'>Call a script and monitor its output until done</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Cmd">Cmd</h1></td></tr>
+<li class='h3' im-text-ln='12'><a href='#Call_a_script_and_monitor_its_output_until_done'>Call a script and monitor its output until done</a></li>
+<li class='h2' im-text-ln='20'><a href='#API'>API</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Cmd">Cmd</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>Main Perl file: intramine_commandserver.pl.</td></tr>
 <tr id='R4'><td n='4'></td><td>Main JavaScript file: cmdServer.js.</td></tr>
@@ -1287,13 +1288,16 @@ margin: 3px 8px;
 <tr id='R17'><td n='17'></td><td><p class="ol-1">4. Back on the JavaScript front end, runTheCommand() sets a timeout to call monitorCmdOutUntilDone(), which in turn regularly sends "req=monitor" requests to the back end.</p></td></tr>
 <tr id='R18'><td n='18'></td><td><p class="ol-1">5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose, see intramine_commandserver.pl#RunTheCommand().</p></td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
-<tr id='R20'><td n='20'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R20'><td n='20'></td><td><h2 id="API">API</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R22'><td n='22'></td><td>Not documented. If you want to dig in to the Cmd server, may fortune be with you and don't say I didn't warn you.</td></tr>
+<tr id='R23'><td n='23'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R21'><td n='21'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R22'><td n='22'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R24'><td n='24'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R25'><td n='25'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

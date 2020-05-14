@@ -62,7 +62,7 @@ my $FileWatcherLogPathModDate = 0;
 my $TimeStampPath = $FileWatcherDir . CVal('FWTIMESTAMPFILE');
 my $CudPath = $FileWatcherDir . CVal('FWCURRENTCHANGESFILE');	# Changed Updated Deleted path
 
-# filewatcher.pl responds to common default request (id, signal),
+# filewatcher.pl responds to common default requests (id, signal),
 # and also signal=FILESYSTEMCHANGE, a request to re-index Elasticsearch and rebuild file paths list.
 my %RequestAction;
 $RequestAction{'signal|FILESYSTEMCHANGE'} = \&OnChangeDelayedIndexChangedFiles;

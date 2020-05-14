@@ -21,6 +21,27 @@ DEFAULT_UPLOAD_DIR	:/temp/
 ---
 around line 107. "C:" will be used as the drive letter.
 
+API
+=====
+Upload a file
+-------------
+**Action**: 
+**Request**: POST /?req=upload
+with FormData in the contents holding filename, directory, and contents (the full contents of the file to be saved);
+**Response**: "Progress: 100%" on success, or "ERROR" message on the Upload page otherwise
+**For example**: see uploader.js#initFullFormAjaxUpload()
+**See also**: https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects,
+uploader.js#uploadTheFile()
+
+Does file exist?
+---------------
+**Action**: is it ok to save to a file path, or does the file already exist?
+**Request**: /?req=checkFile&filename=[file name]&directory=[directory for saving]
+**Response**: "OK" if directory/file does not exist yet, other (typically "ERROR") if there is a file there already by that name, directory cannot be made, etc
+**For example**: /?req=checkFile&filename=test1.txt&directory=C:/temp/
+**See also**: uploader.js#uploadTheFile()
+
+
 ---
 contents.txt
 ---

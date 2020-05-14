@@ -4,7 +4,7 @@ DBX
 
 This is an example server, meant to serve as an example for writing your own IntraMine server. It manages a simple database, with CRUD.
 
-For a fairly full guide to writing your own IntraMine server, which includes a discussion of DBX, please switch over to "Writing your own IntraMine server.txt".
+For a fairly full guide to writing your own IntraMine server, which includes a discussion of DBX, please switch over to "Writing your own IntraMine server.txt" where you'll also find details on the simple API for DBX.
 
 ---
 contents.txt

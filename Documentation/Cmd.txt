@@ -17,6 +17,9 @@ Call a script and monitor its output until done
 4. Back on the JavaScript front end, runTheCommand() sets a timeout to call monitorCmdOutUntilDone(), which in turn regularly sends "req=monitor" requests to the back end.
 5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose, see intramine_commandserver.pl#RunTheCommand().
 
+API
+===========
+Not documented. If you want to dig in to the Cmd server, may fortune be with you and don't say I didn't warn you.
 ---
 contents.txt
 ---

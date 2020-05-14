@@ -25,7 +25,7 @@ I wrote very little of this on the JavaScript side, and so I'll leave it to you 
 
 However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoEvents.js, which implements Server-Sent Events so that all open ToDo browser tabs can signal a change has happened, and respond to a change by refreshing the view, as outlined below.
 
-Server-Sent Events for Todo changes
+Server-Sent Events for ToDo changes
 ===================================
 1. User saves a ToDo item, or drags a ToDo item around.
 2. todo.js calls todoGetPutData.js#putData() to save the changes
@@ -38,6 +38,45 @@ Server-Sent Events for Todo changes
 9. So SendEventToClients() broadcasts the message out to all clients (browser pages) that have registered to receive Server-Sent Events
 10. The ToDo page's SSE listener, previously set up in getSSEPortAndRequestEvents(), responds to the 'todochanged' message by calling todoGetPutData.js#getToDoData()
 11. getToDoData() calls back to intramine_todolist.pl#GetData() with an XMLHttpRequest containing "req=getData", and refreshes the displayed ToDo page.
+
+API
+=========
+For details on the refresh that is broadcasted when the ToDo page changes, see the section just above, "Server-Sent Events for ToDo changes".
+
+Get ToDo items
+----------------
+**Action**: get JSON for all ToDo items (To Do, Doing, Done)
+**Request**: /?req=getData
+**Response**: full contents of the ToDo data file (JSON)
+**For example**: /?req=getData is it, really
+**See also**: intramine_todolist.pl#GetData(), todo.js
+
+Save ToDo items
+----------------
+**Action**: save JSON for all ToDo items
+**Request**: POST (no URL)
+with contents
+data=[all ToDo items in JSON format]
+**Response**: empty string, or error message if data could not be saved
+**For example**: see todoGetPutData.js#putData()
+**See also**: intramine_todolist.pl#PutData(), todo.js
+
+Broadcast overdue count
+-----------------------
+**Action**: broadcast a signal to all page services, the number of items overdue
+**Request**: /?signal=allServersUp or /?signal=dayHasChanged
+**Response**: request Main to broadcast "signal=todoCount&count=$overdueCount&name=PageServers"
+where $overdueCount is the number of ToDo items overdue
+**For example**: Main broadcasts a "dayHasChanged" at midnight - see intramine_main.pl#HandleDateChange()
+**See also**: intramine_todolist.pl#HandleToDoSignal()
+
+Get ToDo timestamp
+------------------
+**Action**: get time of last save of ToDo items
+**Request**: /?req=getModDate
+**Response**: time of last save of the ToDo data file, as returned by libs\win_wide_filepaths.pm#GetFileModTimeWide()
+**For example**: /?req=getModDate is all there is to it
+**See also**: intramine_todolist.pl#DataModDate()
 
 ---
 contents.txt

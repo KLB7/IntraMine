@@ -11,7 +11,7 @@ Installing universal ctags.txt
 Checks before the first run.txt
 Build your Elasticsearch index and run IntraMine.txt
 
-*INTRAMINE BASICS*
+*INTRAMINE IMPORTANT BITS*
 Using IntraMine.txt
 Configuring IntraMine.txt
 Editing documents.txt

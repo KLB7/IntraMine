@@ -71,6 +71,7 @@ MainLoop(\%RequestAction);
 # and new/changed/deleted files in indexed folders.
 # Called in response to eg http://localhost:81/Status
 # which redirects to our port here, eg http://localhost:43138/Status/?req=main
+# 2020-02-17 15_57_58-Status.png
 sub StatusPage {
 	my ($obj, $formH, $peeraddress) = @_;
 

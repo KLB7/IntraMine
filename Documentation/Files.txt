@@ -20,10 +20,33 @@ This is a JavaScript-heavy server, and most of the work is done by jqueryFileTre
 Directory retrieval sequence
 ----------------------------
 intramine_filetree.pl responds to a "dir" request with a list of files and subfolders in a folder, via intramine_filetree.pl#GetDirsAndFiles(). The sequence is:
-1. A folder name is clicked on in the view, prompting jqueryFileTree.js to issue a POST (jqueryFileTree.js#67) that is handled by intramine_filetree.pl#GetDirsAndFiles().
+1. A folder name is clicked on in the view, prompting jqueryFileTree.js to issue a POST (jqueryFileTree.js#69) that is handled by intramine_filetree.pl#GetDirsAndFiles().
 2. GetDirsAndFiles() uses win_wide_filepaths.pm#FindFileWide() to build a list of files an subfolders in the $formH->{'dir'} directory. Text and image files are linked.
 2.1 Image files receive "image hover" links, so pausing the cursor over an image link produces a preview.
 2.2 Source and text files receive regular links and optionally a little pencil icon that's a link to the configured editor.
+
+API
+=====
+Get directory contents
+---------------------------
+**Action**: get subdirectories and files for a directory or drive
+**Request**: POST /?dir
+post contents:
+dir: directory path
+rmt: "true" if caller is a remote PC, "false" if it's the IntraMine PC
+edt: "true" if editing is allowed, "false" otherwise
+app: "true" if user has chosen to use their preferred editor, "false" otherwise
+mobile: "true" if caller is using an iPad (untested for other mobile devices)
+sort: one of
+	'name_ascending' (default)
+	'name_descending'
+	'date_newest'
+	'date_oldest'
+	'size_smallest'
+	'size_largest'
+**Response**: <li> items, one per file or subdirectory. Files of a type that IntraMine can handle have links
+**For example**: see jqueryFileTree.js#69
+**See also**: intramine_filetree.pl#GetDirsAndFiles()
 
 ---
 contents.txt

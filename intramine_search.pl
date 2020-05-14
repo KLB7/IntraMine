@@ -185,6 +185,7 @@ FINIS
 
 # Return the Search form, with the usual standard search fields.
 # Allow "no extension" only if $kAllowNoExtension=1.
+# 2019-10-23 14_30_47-Full Text Search.png
 sub SearchForm {
 	my ($obj, $formH, $peeraddress) = @_;
 	

@@ -1269,7 +1269,10 @@ margin: 3px 8px;
 <ul>
 <li class='h1' im-text-ln='1'><a href='#Upload'>Upload</a></li>
 <li class='h2' im-text-ln='7'><a href='#To_upload_a_file'>To upload a file</a></li>
-<li class='h2' im-text-ln='16'><a href='#Configuration'>Configuration</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Upload">Upload</h1></td></tr>
+<li class='h2' im-text-ln='16'><a href='#Configuration'>Configuration</a></li>
+<li class='h2' im-text-ln='24'><a href='#API'>API</a></li>
+<li class='h3' im-text-ln='26'><a href='#Upload_a_file'>Upload a file</a></li>
+<li class='h3' im-text-ln='36'><a href='#Does_file_exist?'>Does file exist?</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Upload">Upload</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>Main file: intramine_uploader.pl.</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1326,13 +1329,34 @@ AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
 <tr id='R22'><td n='22'></td><td>around line 107. "C:" will be used as the drive letter.</td></tr>
 <tr id='R23'><td n='23'></td><td></td></tr>
-<tr id='R24'><td n='24'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R24'><td n='24'></td><td><h2 id="API">API</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R26'><td n='26'></td><td><h3 id="Upload_a_file">Upload a file</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R28'><td n='28'></td><td><strong>Action</strong>: </td></tr>
+<tr id='R29'><td n='29'></td><td><strong>Request</strong>: POST /?req=upload</td></tr>
+<tr id='R30'><td n='30'></td><td>with FormData in the contents holding filename, directory, and contents (the full contents of the file to be saved);</td></tr>
+<tr id='R31'><td n='31'></td><td><strong>Response</strong>: "Progress: 100%" on success, or "ERROR" message on the Upload page otherwise</td></tr>
+<tr id='R32'><td n='32'></td><td><strong>For example</strong>: see uploader.js#initFullFormAjaxUpload()</td></tr>
+<tr id='R33'><td n='33'></td><td><strong>See also</strong>: <a href='https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects' target='_blank'>https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects</a>,</td></tr>
+<tr id='R34'><td n='34'></td><td>uploader.js#uploadTheFile()</td></tr>
+<tr id='R35'><td n='35'></td><td></td></tr>
+<tr id='R36'><td n='36'></td><td><h3 id="Does_file_exist?">Does file exist?</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R38'><td n='38'></td><td><strong>Action</strong>: is it ok to save to a file path, or does the file already exist?</td></tr>
+<tr id='R39'><td n='39'></td><td><strong>Request</strong>: /?req=checkFile&amp;filename=[file name]&amp;directory=[directory for saving]</td></tr>
+<tr id='R40'><td n='40'></td><td><strong>Response</strong>: "OK" if directory/file does not exist yet, other (typically "ERROR") if there is a file there already by that name, directory cannot be made, etc</td></tr>
+<tr id='R41'><td n='41'></td><td><strong>For example</strong>: /?req=checkFile&amp;filename=test1.txt&amp;directory=C:/temp/</td></tr>
+<tr id='R42'><td n='42'></td><td><strong>See also</strong>: uploader.js#uploadTheFile()</td></tr>
+<tr id='R43'><td n='43'></td><td></td></tr>
+<tr id='R44'><td n='44'></td><td></td></tr>
+<tr id='R45'><td n='45'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R25'><td n='25'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R26'><td n='26'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R46'><td n='46'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R47'><td n='47'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

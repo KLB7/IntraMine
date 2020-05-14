@@ -6,7 +6,7 @@
  * and display is refreshed. This isn't bulletproof, two saves in the same few
  * milliseconds by different users might cause a version conflict and loss of an item. But on any
  * save, all open views everywhere of the ToDo list are immediately refreshed.
- * see todoGetPutData.js for the details on that.
+ * see todoEvents.js and todoGetPutData.js for the details on that.
  */
 
 var todo = todo || {};

@@ -36,6 +36,19 @@ FILEWATCHER_CONSOLIDATION_END_HOUR		5
 ---
 Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.
 
+API
+=====
+FILEWATCHER checks the File Watcher service log every thirty seconds, but also responds to a signal from foldermonitor.ps1, which picks up file changes every couple of seconds when they happen
+
+Respond to signal that the file system has changed
+--------------------------------------------
+**Action**: handle a file system changed signal, by rebuilding the full path list, having Elasticsearch index the changes, and signalling if new files have been added or a folder has been renamed
+**Request**: /?signal=FILESYSTEMCHANGE
+**Response**: none
+**For example**: /?signal=FILESYSTEMCHANGE&name=Watcher
+(as sent by foldermonitor.ps1. "name" is ignored.)
+**See also**: bats\foldermonitor.ps1, intramine_filewatcher.pl#OnChangeDelayedIndexChangedFiles(), the actual work is done by intramine_filewatcher.pl#IndexChangedFiles()
+
 ---
 contents.txt
 ---

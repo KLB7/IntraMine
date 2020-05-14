@@ -30,6 +30,11 @@ and so intramine_main.pl#ServerStatus() is called in response to the "req=filest
 8. intramine_main.pl#ServerStatus() creates HTML summary tables for Page servers and Background servers, and throws in some summary status lines at the top. That's all sent back to status.js#refreshServerStatus()...
 9. ...which puts the received HTML on the Status page, and then adds in properly maintained Start/Stop/Restart buttons for all of the Page servers by calling addStartStopRefreshButtons().
 
+API
+=====
+There isn't really anything worth calling here. Everything on the Status page is done through requests to Main. So kindly see "IntraMine Main.txt#API" for the details.
+
+
 ---
 contents.txt
 ---
