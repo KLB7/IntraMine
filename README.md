@@ -45,7 +45,7 @@ While using IntraMine's Viewer, pause your mouse over an image name and the imag
 ### Gloss
 Gloss is a minimal memorable markdown variant specialized for intranet use (autolinks, auto table of contents, simple tables, and the other usual stuff you would want for in-house documentation). It's implemented by IntraMine's Viewer, and most of it can be used with the included gloss2html.pl program which produces completely standalone HTML versions of your Gloss-marked text documents. All of IntraMine's documentation was generated with gloss2html.pl.
 
-Here's how to do a simple table in a text file with Gloss:
+Here's how to do a simple table in a .txt file with Gloss:
  - type TABLE at the beginning of a line, followed by an optional caption
  - put headings on the next line and data on the following lines, separating cells by one or more tabs
  - and the table ends when there's a line without tabs.
@@ -63,12 +63,12 @@ If you see a use for IntraMine's autolinking algorithms etc in your own work, go
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected, so that's fine for library files but not your own work.
 
 ## Bugs?
-If you spot a bug above the minor cosmetic level, please do the kindness of sending an email describing it to klb7 at intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
+If you spot a bug, please do the kindness of sending an email describing it to klb7 at intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
 
 ## Limitations and a heads up
 IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
 
-IntraMine's services need to run on the same PC, and adding/stopping/starting services is not automatic, though it can be done on the fly. This works because the load on IntraMine will be relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
+IntraMine's services need to all run on the same PC, and adding/stopping/starting services is not automatic, though it can be done manually on the fly. This works because the load on IntraMine is typically relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
 
 And I feel bound to mention that installation of IntraMine, though thoroughly documented to death and partway into the afterlife, requires a bit of time to wade through. Roughly an hour. Not a lot of typing, mostly just waiting while things install one by one. And then there's your first index build, which might take another hour. Put up with the one-time nuisance and you'll have many shiny new toys to play with.
 
@@ -80,4 +80,4 @@ Clone or fork or download the .zip for IntraMine, and open the included Document
 
 After installing IntraMine and starting it up, point your browser to http://localhost:81/Search.
 
-If that gets you interested, skim through the rest of the documentation. Maybe write your own IntraMine service?
+If that gets you interested, skim through the rest of the documentation. Maybe write your own IntraMine service? Put autolinking in your IDE? Fork IntraMine, rename it, and go your own way?
