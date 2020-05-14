@@ -31,11 +31,13 @@ The Viewer has standard display features such as syntax highlighting, line numbe
 [CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files.
 
 ### Autolinks
-Autolinks appear on every reasonable thing when using IntraMine's Viewer, mostly with no extra typing. IntraMine introduces link detection algorithms that can automatically link to source and text and image files on your local and NAS storage, as well as jumps to headings, classes, and methods in the same file or in other files.
+Autolinks appear on every reasonable thing in source and text files when using IntraMine's Viewer, mostly with no extra typing. IntraMine introduces link detection algorithms that can automatically link to source and text and image files on your local and NAS storage, as well as jumps to headings, classes, and methods in the same file or in other files.
 
-You need only supply enough of the path to a file to make it unambiguous, with the understanding that if there's a choice then the "closest" file wins. For example, if the path fragment project51/main.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\main.cpp uniquely, that's all you need to type in your source or text file. To provide a link that goes directly to the updateFile() method, you could type project51/main.cpp#updateFile, or project51/main.cpp#updateFile() if you want to make it clear it's a method, or "project51/main.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then main.cpp is all you need to link to project51/src/main.cpp, since autolinking will pick the main.cpp that's closest to the document where you've done the typing (your "context").
+You need only supply enough of the path to a file to make it unambiguous, with the understanding that if there's a choice then the "closest" file wins.
 
-The upshot is autolinking can be easy and accurate, armed with the master list of all full paths for files of interest that IntraMine will maintain for you (built when you index folders of interest), and the concepts of "the closest one to my context" and "only necessary parts of the path."
+For example, if the path fragment project51/main.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\main.cpp uniquely, that's all you need to type in your source or text file. To provide a link that goes directly to the updateFile() method, you could type project51/main.cpp#updateFile, or project51/main.cpp#updateFile() if you want to make it clear it's a method, or "project51/main.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then main.cpp is all you need to link to project51/src/main.cpp, since autolinking will pick the main.cpp that's closest to the document where you've done the typing (your "context").
+
+The upshot is autolinking that's accurate, and trivial to use.
 
 ### Image hovers
 While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](http://intramine.info/contents.html).
@@ -43,13 +45,13 @@ While using IntraMine's Viewer, pause your mouse over an image name and the imag
 ### Gloss
 Gloss is a minimal memorable markdown variant specialized for intranet use (autolinks, auto table of contents, simple tables, and the other usual stuff you would want for in-house documentation). It's implemented by IntraMine's Viewer, and most of it can be used with the included gloss2html.pl program which produces completely standalone HTML versions of your Gloss-marked text documents. All of IntraMine's documentation was generated with gloss2html.pl.
 
-Here's how to do a simple table in Gloss:
+Here's how to do a simple table in a text file with Gloss:
  - type TABLE at the beginning of a line, followed by an optional caption
  - put headings on the next line and data on the following lines, separating cells by one or more tabs
  - and the table ends when there's a line without tabs.
 
 ### Write your own service
-For Windows Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks and JavaScript. Two example services are provided, one static and one RESTful, in addition to 15 or so other services that actually do things.
+For Windows Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks, and JavaScript if needed. Two example services are provided, one static and one RESTful, in addition to 15 or so other services that actually do things.
 
 ### Free as in free
 If you see a use for IntraMine's autolinking algorithms etc in your own work, go right ahead: all original work is covered by an UNLICENSE. (Some software included with or used by IntraMine, such as Perl, CodeMirror and Elasticsearch, is covered by separate license agreements.)
