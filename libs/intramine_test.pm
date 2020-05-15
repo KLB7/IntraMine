@@ -4,7 +4,7 @@
 
 # package intramine_test;
 require Exporter;
-@ISA = qw(Exporter);
+use Exporter qw(import);
 
 use strict;
 use warnings;

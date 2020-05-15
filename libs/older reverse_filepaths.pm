@@ -36,7 +36,7 @@
 
 package reverse_filepaths;
 require Exporter;
-@ISA = qw(Exporter);
+use Exporter qw(import);
 
 use strict;
 use warnings;

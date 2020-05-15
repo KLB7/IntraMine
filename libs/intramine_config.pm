@@ -4,7 +4,7 @@
 package intramine_config;
 use warnings;
 require Exporter;
-@ISA = qw(Exporter);
+use Exporter qw(import);
 
 use strict;
 use utf8;
