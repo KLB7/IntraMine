@@ -15,8 +15,8 @@ use Selenium::Chrome;
 use URI::Escape;
 use Time::HiRes qw ( time );
 use Path::Tiny qw(path);
-#use lib path($0)->absolute->parent(2)->child('libs')->stringify;
-use lib ".";
+use lib path($0)->absolute->parent->child('libs')->stringify;
+#use lib ".";
 use intramine_config;
 
 my $ServerAddress;

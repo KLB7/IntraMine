@@ -46,8 +46,8 @@ use Scalar::Util 'refaddr';
 use Encode;
 use URI::Escape;
 use Path::Tiny qw(path);
-#use lib path($0)->absolute->parent->child('libs')->stringify;
-use lib ".";
+use lib path($0)->absolute->parent->child('libs')->stringify;
+#use lib ".";
 use common;
 use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;

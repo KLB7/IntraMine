@@ -19,6 +19,7 @@ BEGIN
 
 { # Holidays.
 my @holidays;
+my @holidaynames;
 my %holidaysHasher;
 
 sub InitHolidays {

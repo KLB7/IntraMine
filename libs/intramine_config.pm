@@ -10,8 +10,8 @@ use strict;
 use utf8;
 use FileHandle;
 use Path::Tiny qw(path);
-#use lib path($0)->absolute->parent->child('libs')->stringify;
-use lib ".";
+use lib path($0)->absolute->parent->child('libs')->stringify;
+#use lib ".";
 use common;
 use win_wide_filepaths;
 

@@ -38,9 +38,8 @@ use utf8;
 use FileHandle;
 use File::Basename;
 use Path::Tiny qw(path);
-#use lib path($0)->absolute->parent->child('libs')->stringify;
-#use lib 'C:/perlprogs/intramine/libs/';
-use lib ".";
+use lib path($0)->absolute->parent->child('libs')->stringify;
+#use lib ".";
 use common;
 use win_wide_filepaths;
 

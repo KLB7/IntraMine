@@ -9,8 +9,8 @@ use utf8;
 use Carp;
 use warnings;
 use Path::Tiny qw(path);
-#use lib path($0)->absolute->parent->child('libs')->stringify;
-use lib ".";
+use lib path($0)->absolute->parent->child('libs')->stringify;
+#use lib ".";
 use common;
 use dollars;
 
