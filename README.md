@@ -12,7 +12,7 @@ IntraMine is a Windows intranet service suite offering:
  - fast system-wide search, with five-second index update when you change a file
  - automatic linking for all source and text and image file mentions, with minimal overhead (often none)
  - a really nice file Viewer to browse your files, and see search hits in full context (plus automatic linking)
- - image hovers in your source and text files.
+ - image hovers in your source and text files
  - Gloss, a markdown variant for intranet use that takes advantage of autolinking and minimizes "computer friendly" overhead
  - scalable services - write your own IntraMine service, with or without a front end, and run multiple instances that can talk to other services
  - Search, Viewer, and Linker service support for 137 programming languages, as well as plain text.
