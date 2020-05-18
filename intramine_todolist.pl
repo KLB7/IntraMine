@@ -275,6 +275,7 @@ sub HandleToDoSignal {
 # Ask Main to broadcast an overdue signal to all Page servers.
 sub BroadcastOverdueCount {
 	my $overdueCount = GetOverdueCount();
+	
 	RequestBroadcast("signal=todoCount&count=$overdueCount&name=PageServers");
 	}
 
