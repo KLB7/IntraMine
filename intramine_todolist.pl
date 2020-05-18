@@ -105,7 +105,7 @@ _TOPNAV_
 			<form id="todo-form">
 				<input type="text" placeholder="Title" />
 				<textarea rows="10" placeholder="Description, optional"></textarea>
-				<input type="text" id="datepicker" placeholder="Due Date (yy/mm/dd), optional" />
+				<input type="text" id="datepicker" placeholder="Due Date (yyyy/mm/dd), optional" />
 				<input type="button" class="btn btn-primary" value="Save" onclick="todo.add();" />
 				<input type="hidden" value="1" />
 			</form>
@@ -275,6 +275,8 @@ sub HandleToDoSignal {
 # Ask Main to broadcast an overdue signal to all Page servers.
 sub BroadcastOverdueCount {
 	my $overdueCount = GetOverdueCount();
+	# TEST ONLY codathon
+	print("signal=todoCount&count=$overdueCount&name=PageServers\n");
 	RequestBroadcast("signal=todoCount&count=$overdueCount&name=PageServers");
 	}
 

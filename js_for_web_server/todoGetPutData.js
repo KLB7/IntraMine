@@ -147,7 +147,9 @@ function putData(theData) {
 
 // Called after getting the ToDo data, init the ToDo display.
 function startToDoList(rawData) {
-	$("#datepicker").datepicker();
+	$('#datepicker').datepicker({ dateFormat: 'yy/mm/dd'});
+
+	// was 	$("#datepicker").datepicker();
 	//$("#datepicker").datepicker("option", "dateFormat", "yy/mm/dd");
 
 	$(".task-container").droppable();
