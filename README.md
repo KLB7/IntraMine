@@ -65,7 +65,7 @@ If you see a use for IntraMine's autolinking algorithms etc in your own work, go
 ## Bugs?
 If you spot a bug, please do the kindness of sending an email describing it to klb7 at intramine.info. Pull requests for new features are not supported at this time - unless you want to collaborate on IntraMine and handle them yourself, in which case drop me a line.
 
-## Limitations and a heads up
+## Limitations and a heads-up
 IntraMine is for use only on a intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
 
 IntraMine's services need to all run on the same PC, and adding/stopping/starting services is not automatic, though it can be done manually on the fly. This works because the load on IntraMine is typically relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
