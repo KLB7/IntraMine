@@ -44,7 +44,7 @@ Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The View
 
 Partial path: For IntraMine's autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. 
 
-For example, "project51/Cpp/main.cpp" would be a partial path for "P:\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
 Run as administrator: You can get a command prompt (console window) by putting a shortcut to "C:/Windows/System32/cmd.exe" on your desktop.
 
