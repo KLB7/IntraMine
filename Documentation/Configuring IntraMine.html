@@ -1299,7 +1299,7 @@ margin: 3px 8px;
 <tr id='R27'><td n='27'></td><th>File</th><th>In brief</th></tr></thead><tbody>
 <tr id='R28'><td n='28'></td><td>data/intramine_config.txt</td><td>port numbers, file and folder names etc</td></tr>
 <tr id='R29'><td n='29'></td><td>data/serverlist.txt</td><td>services to run: Perl program name, how many of each, etc</td></tr>
-<tr id='R30'><td n='30'></td><td>data/search_directories.txt</td><td>directories to index/monitor with <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr></tbody></table><table><tbody>
+<tr id='R30'><td n='30'></td><td>data/search_directories.txt</td><td>directories to index/monitor with <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr></tbody></table><table><tbody>
 <tr id='R31'><td n='31'></td><td></td></tr>
 <tr id='R32'><td n='32'></td><td><h2 id="Per-service_configuration">Per-service configuration</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1316,14 +1316,14 @@ margin: 3px 8px;
 <tr id='R44'><td n='44'></td><td>A string</td><td>CVal()</td><td>my $mainPort = CVal('INTRAMINE_MAIN_PORT');</td></tr>
 <tr id='R45'><td n='45'></td><td>A full path from partial</td><td>FullDirectoryPath()</td><td>my $dbPath = FullDirectoryPath('DBEGPATH');</td></tr></tbody></table><table><tbody>
 <tr id='R46'><td n='46'></td><td></td></tr>
-<tr id='R47'><td n='47'></td><td>intramine_config.pm#FullDirectoryPath() expects the named partial path to go from the top of your IntraMine folder, wherever it is, down to the file you want. For example, consider the </td></tr>
+<tr id='R47'><td n='47'></td><td>intramine_config.pm#FullDirectoryPath() expects the named <a class='glossary' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p>', this, event, '500px', false);">partial path</a> to go from the top of your IntraMine folder, wherever it is, down to the file you want. <a class='glossary' href="#" onmouseover="showhint('<p>For example:\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p><p>Alt: For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P</p>', this, event, '500px', false);">For example</a>, consider the </td></tr>
 <tr id='R48'><td n='48'></td><td>DBEGPATH	data/dbeg.db</td></tr>
 <tr id='R49'><td n='49'></td><td>entry in DBX_config.txt. My IntraMine folder is at C:/perlprogs/mine/. Calling</td></tr>
 <tr id='R50'><td n='50'></td><td>my $dbPath = FullDirectoryPath('DBEGPATH');</td></tr>
 <tr id='R51'><td n='51'></td><td>results in $dbPath == 'C:/perlprogs/mine/' . 'data/dbeg.db';</td></tr>
 <tr id='R52'><td n='52'></td><td>ie $dbPath == 'C:/perlprogs/mine/data/dbeg.db';</td></tr>
 <tr id='R53'><td n='53'></td><td></td></tr>
-<tr id='R54'><td n='54'></td><td>intramine_config.pm#CVal() retrieves the string associated with a name, for example intramine_config.txt has</td></tr>
+<tr id='R54'><td n='54'></td><td>intramine_config.pm#CVal() retrieves the string associated with a name, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>For example:\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p><p>Alt: For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P</p>', this, event, '500px', false);">for example</a> intramine_config.txt has</td></tr>
 <tr id='R55'><td n='55'></td><td>TOTAL_SWARM_PORTS_TO_MONITOR	48</td></tr>
 <tr id='R56'><td n='56'></td><td>by default, so</td></tr>
 <tr id='R57'><td n='57'></td><td>CVal('TOTAL_SWARM_PORTS_TO_MONITOR') will return '48'. And Perl nicely treats strings as numbers with only the need for an occasional "plus zero" (see intramine_main.pl#AddAllListeners() for an example).</td></tr>
