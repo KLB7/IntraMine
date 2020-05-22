@@ -111,7 +111,7 @@ So if you see "main.cpp" in "C:/Projects/project51/docs/notes.txt", and the main
 
 If instead you wanted to link to the main.cpp in a different project, you would need to provide enough of a partial path, eg project999/src/main.cpp.
 
-But, there's no need to include a rightmost-complete partial path. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp).
+But, there's no need to include a rightmost-complete partial path: directories can be skipped, or out of order. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp).
 
 Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed (see Build your Elasticsearch index and run IntraMine.txt). You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
 
