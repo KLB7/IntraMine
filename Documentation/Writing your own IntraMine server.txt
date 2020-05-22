@@ -16,8 +16,8 @@ For example, POST DBX/fruit/cherry/5 will add "cherry" to the fruit table, with 
 Example servers to build on
 ===========================
 There are two example servers you can start from, to write your own server from scratch:
- - intramine_boilerplate.pl: as simple as you can get, it just serves up one static page. Take a look at this one first, so you'll know what "boilerplate" code to include at the top of your server.
- - intramine_db_example.pl: a simple database example, using Perl's standard DBM::Deep package to put a few entries in a table and display them. ("DBM::Deep - A pure perl multi-level hash/array DBM that supports transactions")
+ - intramine_boilerplate.pl: as simple as you can get, it just serves up one static page. Take a look at this one first, so you'll know what "boilerplate" code to include at the top of your server
+ - intramine_db_example.pl: a simple database example, using Perl's standard DBM::Deep package to put a few entries in a table and display them. (DBM::Deep - a pure Perl multi-level hash/array DBM that supports transactions).
 
 And of course you have the dozen or so other servers provided with IntraMine to steal from. Here are the most promising candidates to build on:
  - intramine_todolist.pl manages a Kanban-style ToDo list. It's fairly small, and relies on JavaScript to do most of the work. todoGetPutData.js (with todo.js) shows how to go from JSON data in a disk file to a web page and back again using XMLHttpRequest().
@@ -65,7 +65,7 @@ The main back-end file is **intramine_db_example.pl**.  Open that now in an edit
 
 TABLE intramine_db_example.pl (DBX) lines
 Location		Whazzup
-54..76		This is standard "boilerplate" that you can copy to your new server (except for the "use DBM::Deep" which is just there for the example's little database)."use swarmserver" brings in the swarmserver.pm module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc). "use common" brings in some subs that you might find useful, take a look at libs/common.pm to see for yourself.
+54..76		This is standard "boilerplate" that you can copy to your new server (except for the "use DBM::Deep" which is just there for the example's little database)."use swarmserver" brings in the swarmserver.pm module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).
 60			"use common" has some subs that you might find useful, take a look at libs/common.pm to see for yourself.
 61		"use swarmserver" brings in the **swarmserver.pm** module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).
 65..69		SSInitialize() in swarmserver.pm loads configuration values, including any specifically for your server. To pull in configuration values for your server, add a file to the data/ folder whose name is the Short name of your server followed by "_config.txt". The format is Key<tabs>Value. The DBX server has its own config file, called DBX_config.txt. SSInitialize() also sets variables holding your server's Page name, Short name, IntraMine's Main port, and the listening port for the current (DBX) server.
@@ -75,7 +75,7 @@ Location		Whazzup
 116		"$RequestAction{'/test/'} = \&SelfTest;" says this server can run tests. See "Testing" below.
 124		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.
 150..248		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
-212	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page had loaded.
+212	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
 213	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
 214	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
 245		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
