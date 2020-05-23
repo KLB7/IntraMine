@@ -1,7 +1,7 @@
 IntraMine on the iPad
 =====================
 
-IntraMine is not "officially" supported on the iPad, whatever that means for a free product, but it's ok for doing a quick search or even a minor edit. For best results, use Safari on as large an iPad as possible.
+IntraMine is not "officially" supported on the iPad, whatever that means for a free product, but it's ok for doing a quick search or even a minor edit. For best results, use Safari on as physically large an iPad as possible.
 
 Viewing files on the iPad
 =========================
@@ -9,13 +9,13 @@ This is for read-only views, mainly brought up by touching a link in Search hits
 
 Selecting text: use a double-tap to select a word, or drag to select any amount of text. Single tapping will highlight, but won't select any text.
 
-Image hovers: a brief touch on a image link such as "Strawberry30.png" will open the image in a new tab. Touch and hold to see the popup hover.
+Image hovers: a brief touch on an image link such as "Strawberry30.png" will open the image in a new tab. Touch and hold to see the popup hover.
 
 Find on page: to invoke the browser's Find command for a page, you'll need to hook up a keyboard. Try the various control keys plus "F", one of them should work.
 
 Editing files via the iPad
 ==========================
-IntraMine's built-in Editor will work, but files can't be editing on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see "Configuring IntraMine.txt#Editing".
+IntraMine's built-in Editor will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see "Configuring IntraMine.txt#Editing".
 
 ---
 contents.txt
