@@ -30,7 +30,8 @@
 // This plugin is dual-licensed under the GNU General Public License and the MIT License and
 // is copyright 2008 A Beautiful Site, LLC. 
 //
-// Lightly modifed from the original 2019, to include remote, mobile, and selectDirectories.
+// Lightly modifed from the original 2019, to include remote, allowEdit, useApp, mobile,
+// and selectDirectories.
 // And the memorable "h" function has been renamed to "action". I might have also added the
 // "resizeUs", a couple of years ago, sorry I forget.
 if(jQuery) (function($){
