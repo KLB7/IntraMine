@@ -8,7 +8,7 @@ IntraMine uses the standard combination of "Test::More" and "prove" to run modul
 
 Writing your module test program
 ----------------------
-Put your module test file in IntraMine's t/ folder, and give it the standard ".t" extension. You can otherwise call it whatever you like. You could try IntraMine's approach, if testing "novel.pm" then call the test file "test_novel.t" or "test_novel2.t" for a second one.
+Put your module test file in IntraMine's t/ folder, and give it the standard ".t" extension. You can otherwise call it whatever you like. You could try IntraMine's approach: if testing "novel.pm" then call the test file "test_novel.t" or "test_novel2.t" for a second one.
 
 To use modules from IntraMine's libs/ folder, put this near the top of your test program:
 ---
@@ -73,7 +73,7 @@ Note if service testing stops working in the future, try updating your version o
 
 Writing your test file
 ----------------------
-You'll probably want to read through the Selenium::Remote::Driver documentation at some point, but IntraMine provides libs/intramine_test.pm to help you get going: it contains some subs to intialize testing, start the Chrome driver, load a page, and report back how testing went. It's simplest to call Selenium directly to retrieve specific aspects of a loaded page, for example $driver->get_body() retrieves all of the text from the body of a page.
+You'll probably want to read through the Selenium::Remote::Driver documentation at some point, but IntraMine provides libs/intramine_test.pm to help you get going: it contains some subs to initialize testing, start the Chrome driver, load a page, and report back how testing went. It's simplest to call Selenium directly to retrieve specific aspects of a loaded page: for example, $driver->get_body() retrieves all of the text from the body of a page.
 
 Let's take a look now at test_programs/test_DBX.pl for a simple example. Here's a walkthrough:
 TABLE test_DBX.pl
@@ -103,7 +103,7 @@ For a top-level Page server, make the Page and Short names the same:
 ---
 1	Novel					Novel			novel.pl
 ---
-For a second level server, use a unique Short name together with the Page name of a top level server. For example, "NovelData", that responds to request from a top-level page called "Novel":
+For a second level server, use a unique Short name together with the Page name of a top level server. For example, "NovelData", that responds to requests from a top-level page called "Novel":
 ---
 1	Novel					NovelData			novel_data.pl
 ---
@@ -130,7 +130,7 @@ When tests have completed you'll see a summary of results (ok or error messages)
 
 Testing IntraMine's included servers
 ====================================
-1. Install Chrome and chromedriver.exe, and make an entry in data/intramine_config.txt for CHROME_DRIVER_PATH (see "Install a couple things" above).
+1. Install Chrome and chromedriver.exe, and make an entry in data/intramine_config.txt for CHROME_DRIVER_PATH (see above).
 2. Open data/serverlist_for_testing.txt, and set the "Count" fields to 1 for each server you want to test. You can test as many at once as you like, though things might get a bit busy.
 3. Note data/serverlist_for_testing.txt has a special entry for "Main". Set the Count for Main to 1 if you want IntraMine's Main server (intramine_main.pl) to run some self tests.
 4. Set Count entries to 0 for any of your own servers that you have added, to avoid confusion. Well, you don't have to do that, but it should help.

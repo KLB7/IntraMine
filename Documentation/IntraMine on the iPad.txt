@@ -11,7 +11,7 @@ Selecting text: use a double-tap to select a word, or drag to select any amount 
 
 Image hovers: a brief touch on an image link such as "Strawberry30.png" will open the image in a new tab. Touch and hold to see the popup hover.
 
-Find on page: to invoke the browser's Find command for a page, you'll need to hook up a keyboard. Try the various control keys plus "F", one of them should work.
+Find on page: to invoke the browser's Find command for a page, you'll need to hook up a keyboard. Try the various control keys plus "F", ... one of them should work.
 
 Editing files via the iPad
 ==========================
