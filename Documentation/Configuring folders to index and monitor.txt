@@ -19,8 +19,8 @@ Each directory entry in data/search_directories.txt has three fields, separated 
 NAS locations
 ==============
 To specify a NAS directory as a Location:
-1. First share it, of course.
-2. Note the \\host-name\share-name of the directory you want to share.
+1. First share it, of course
+2. Note the \\host-name\share-name of the directory you want to share
 3. Use "Map network drive" to map it to a drive letter on your IntraMine box
 4. And then use the drive letter with a colon (eg "H:") as the Location.
 
@@ -60,12 +60,12 @@ In theory IntraMine could index extensionless files, if "ES_INDEX_NO_EXTENSION" 
 
 Adding a directory
 ==================
-After running IntraMine for a bit, you might want to add a directory or two and not have to completely rebuild your Elasticsearch index (which can some time). To do that, see "Using IntraMine.txt#Indexing additional folders".
+After running IntraMine for a bit, you might want to add a directory or two and not have to completely rebuild your Elasticsearch index (which can take some time). To do that, see "Using IntraMine.txt#Indexing additional folders".
 
 Why the Index and Monitor fields?
 =================================
 There are situations where changing the 0's an 1's can be useful:
- - if you want to add a folder later, you can set all of the Index entries to 0 except for the folder you're adding, and run IM_ADD_INDEX.bat to add the files in the new directory to your Elasticsearch index without deleting your current index. Set Monitor for the new folder as above, to 1 if it's locally attached, 0 if it's a NAS location. For the whole description of adding a directory, see "Using IntraMine.txt#Indexing additional folders".
+ - if you want to add a folder later, you can set all of the Index entries to 0 except for the folder you're adding, and run IM_ADD_INDEX.bat to add the files in the new folder to your Elasticsearch index without deleting your current index. Set Monitor for the new folder as above, to 1 if it's locally attached, 0 if it's a NAS location. For the whole description of adding a directory, see "Using IntraMine.txt#Indexing additional folders".
  - if a directory on your C: drive contains static files, you can set Monitor to 0 for it, and not bother monitoring for changes.
 
 Where are you?
