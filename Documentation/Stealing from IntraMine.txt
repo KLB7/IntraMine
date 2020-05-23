@@ -36,12 +36,12 @@ intramine_filewatcher.pl (the FILEWATCHER server) calls reverse_filepath.pm#Init
 
 2. Full paths for all partial paths
 -----------------------------------
-What we're after in the "paths for file names list" is a list of all full paths that match a particular file name, for example the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However the lists of full paths for each partial path can be quite long, for example the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like
+What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However, the lists of full paths for each partial path can be quite long: for example, the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like:
 $AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
 where
 $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.
 
-When InitDirectoryFinder() finishes, full paths for partial paths can be retrieved with reverse_filepaths.pm#FullPathInContextNS(), more on that next.
+When InitDirectoryFinder() finishes, full paths for partial paths can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.
 
 3. Code to detect a partial path
 --------------------------------
@@ -63,7 +63,7 @@ In reverse_filepaths.pm#FullPathFromPartialOrFullPath() the work of collecting f
 4. Do pp folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
 5. Do pp folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
 If all of the above checks fail, return ''.
-Note where the supplied $partialPath is ambiguous, the wrong path can be returned.
+Note that where the supplied $partialPath is ambiguous, the wrong path can be returned.
 
 Full path for partial path example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,7 +78,7 @@ Arbitrarily assigned integer	Full path
 766								C:\Projects\Project999\test\main.cpp
 2013							P:\MoreProjects\Project27\source\main.cpp
 
-The corresponding hash entry is
+The corresponding hash entry is:
 $AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".
 
 FullPathFromPartialOrFullPath() looks at the file name in the passed-in partial path, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
@@ -114,7 +114,7 @@ To finish off, IndexChangedFiles()broadcasts a signal "signal=filechange" to all
 
 Folder renames
 ~~~~~~~~~~~~~~
-Updating for most file system changes is very fast, and typically changed documents will show their updated contents in searches after five seconds. The exception is renaming a folder, which potentially affects all entries in the Linker's hash of full paths for file names. Any key could contain a folder that's been renamed.
+Updating for most file system changes is very fast, and, typically, changed documents will show their updated contents in searches after five seconds. The exception is renaming a folder, which potentially affects all entries in the Linker's hash of full paths for file names. Any key could contain a folder that's been renamed.
 
 IntraMine's approach to handling this is to completely rebuild the Linker's hash of full paths for file names. This can take several seconds, and for that period the Linker will be out of service.
 
