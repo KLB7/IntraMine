@@ -30,7 +30,7 @@ How to update IntraMine's copy of CodeMirror
 2. Head to https://github.com/codemirror/codemirror
 3. Under the white-on-green "Clone or download" dropdown, select "Download ZIP". (2019-09-11 13_48_49-GitHub - codemirror_CodeMirror_ In-browser code editor.png) and your download will start.
 4. The resulting zip will be called "Codemirror...something.zip". Unzip it to a folder.
-5. Take a look inside. If you see directories names "addon", "bin", etc then you want the entire unzipped folder. If you just see a single folder, take a look inside that one and you should see "addon", "bin" etc - that single folder is the one you want.
+5. Take a look inside. If you see directories named "addon", "bin", etc then you want the entire unzipped folder. If you just see a single folder, take a look inside that one and you should see "addon", "bin" etc - that single folder is the one you want.
 5.1 Rename your wanted folder to "CodeMirror-master".
 6. Look in your IntraMine folder at the top and you will find a same-named "CodeMirror-master" subfolder. Copy that somewhere outside of your IntraMine folder so you can revert if things don't go well. Then delete IntraMine's "CodeMirror-master" folder and copy your new "CodeMirror-master" subfolder into your IntraMine folder.
 6. To verify you have the right folder, look inside CodeMirror-master and you should see something very much like this: 2019-09-11 13_51_31-C__perlprogs_mine_CodeMirror-master.png.
