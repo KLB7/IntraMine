@@ -9,7 +9,7 @@ First, a Java SDK is needed. Not just the JRE version, mind, the whole SDK. At t
 
 For a recent version of the Java SDK, go to
 https://www.oracle.com/java/technologies/javase-jsp-downloads.html
-and as mentioned, select the most recent stable Java SE 8 release "Java SE 8u221" or later.
+and as mentioned, select the most recent stable Java SE 8 release, "Java SE 8u221" or later.
 
 On the resulting page, scroll down to the most recent "Java SE Development Kit" for Windows x64, which I currently see at the bottom of the first table on the page, ending up with jdk-8uNNN-windows-x64.exe (where the "NNN" will be the current version, 221 or better).
 

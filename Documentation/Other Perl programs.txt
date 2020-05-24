@@ -8,7 +8,7 @@ Pulls a list of languages and corresponding file extensions that CodeMirror supp
 
 colour2gray.pl
 ---------------
-(sic) flattens an #RGB color to its grayscale equivalent. Use it as
+Flattens an #RGB color to its grayscale equivalent. Use it as
 perl path/colour2gray.pl "infile.txt" > "outfile.txt": it will convert all colors of the form "#rrggbb" such as "#f2e3d2" to grayscale such as "#e5e5e5" within infile.txt, and write infile.txt with the changes to outfile.txt. You can run it on a CSS file to produce a version with just grayscale colors.
 
 echo1.pl
@@ -23,7 +23,7 @@ extract_method.pl
 ------------------
 Copy some Perl code to your clipboard, run this program, and the code will be packaged up as a subroutine complete with example call and put on the clipboard ready for pasting. Along the way, extract_method.pl will show a dialog letting you pick whether each undeclared variable should be passed by value or reference, or ignored (it it's global).
 
-Note this program requires installing Tk plus a bit beforehand, by running
+NOTE this program requires installing Tk plus a bit beforehand, by running
 cpan Tk::BrowseEntry
 at a command prompt.
 
@@ -41,14 +41,14 @@ To add extract_method.pl to Eclipse:
   - OK again.
 
 To test that:
- - select some Perl
+ - Select some Perl
  - Copy
  - Run->External Tools->Extract Method
- - fine tune your params in the resulting dialog
+ - Fine tune your params in the resulting dialog
  - OK
  - Paste results somewhere and take a look.
 
-extract_method.pl can be added to other editors of course, each one has its own approach though so I'll leave that to you to explore.
+extract_method.pl can be added to other editors of course; each one has its own approach though so I'll leave that to you to explore.
 
 intramine_all_stop.pl
 ---------------------
@@ -56,7 +56,7 @@ Stops all IntraMine servers including Main and Cmd. It's more easily called by r
 
 intramine_stop.pl
 --------------------
-Stops all IntraMine servers, except any running "Persistent" server such as Cmd. This isn't really needed, you can safely ignore it.
+Stops all IntraMine servers, except any running "Persistent" server such as Cmd. This isn't really needed and you can safely ignore it.
 
 list_missing_Perl_modules.pl
 -----------------------------

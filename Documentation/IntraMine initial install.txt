@@ -10,7 +10,7 @@ You can clone it, or download a zip.
 
 Moving and renaming your IntraMine folder
 =========================================
-If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.
+If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.
 
 If you cloned IntraMine, wherever it ended up is fine, no need to move or rename it.
 
@@ -132,7 +132,7 @@ Again, use your own path there in the last step, and quotes around the path can 
 
 Or you could wait until it's naturally time to start up IntraMine, at the end of installation, and you'll see complaints about any missing modules then.
 
-The fix for a missing module is as simple as you might guess, if "X::Y" is missing then run "cpan X::Y" at a command prompt.
+The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a command prompt.
 
 Next: Installing Elasticsearch.txt
 
