@@ -339,7 +339,8 @@ sub GetDirsAndFiles {
 				    	{
 				    	my $fileName = &HTML::Entities::encode($file);
 					    $result .= '<li class="file ext_' . $ext . '">'
-					    		   . "<span class='unsupported'>" . $fileName . '</span>' . '</li>';
+					    		   . "<span class='unsupported'>" . $fileName . '</span>'
+								   . '&nbsp;&nbsp;' . $sizeDateStr . '</li>';
 				    	}
 					}
 	        	
@@ -457,7 +458,7 @@ sub TextDocxPdfLine {
 			$filePath . '">' .
 			$fileName . '</a>' .
 			'&nbsp;&nbsp;<a href="#"><img src="edit1.png" width="17" height="12" rel="'
-			. $filePath . '" />' . '</a>' . $sizeDateStr . '</li>';
+			. $filePath . '" />' . '</a>' . '&nbsp;&nbsp;' . $sizeDateStr . '</li>';
 		}
 	
 	return($result);
