@@ -495,19 +495,19 @@ function quickSortResults(tableID, sortBy) {
 		{
 		sortedTableIndexes = quickSortByScores(rows, tableIndexes);
 		}
-	else if (sortBy == 'Name')
+	else if (sortBy === 'Name')
 		{
 		sortedTableIndexes = quickSortByFileNamesInAnchors(rows, tableIndexes);
 		}
-	else if (sortBy == 'Date')
+	else if (sortBy === 'Date')
 		{
 		sortedTableIndexes = quickSortByFileDateTimes(rows, tableIndexes);
 		}
-	else if (sortBy == 'Size')
+	else if (sortBy === 'Size')
 		{
 		sortedTableIndexes = quickSortByFileSizes(rows, tableIndexes);
 		}
-	else if (sortBy == 'Extension')
+	else if (sortBy === 'Extension')
 		{
 		sortedTableIndexes = quickSortByFileExtensionsInAnchors(rows, tableIndexes);
 		}
