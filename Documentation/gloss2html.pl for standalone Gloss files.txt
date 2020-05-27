@@ -56,9 +56,9 @@ When you write your own text files for converting with Gloss you might worry tha
  
 Adding a table of contents file
 ==========================
-If you have a folder of several documents to convert, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with a old-fashioned look:
+If you have a folder of several documents to convert, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with an old-fashioned look:
  - name your table of contents file "contents.txt"
- - put the word CONTENTS at the top of a file on a line by itself. This is case sensitive.
+ - put the word CONTENTS at the top of a file on a line by itself. This is case-sensitive.
 
 Then add the names of other files in the same folder that you want listed in your table of contents. No quotes are needed, and you can have section headings if you want. Take a look at  IntraMine's /Documentation/contents.txt table of contents file and you'll see how to do it at a glance.
 

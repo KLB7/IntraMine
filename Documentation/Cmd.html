@@ -1286,7 +1286,7 @@ margin: 3px 8px;
 <tr id='R15'><td n='15'></td><td><p class="ol-1">2. runTheCommand sends a "req=open" request back to the Cmd server, which is received by intramine_commandserver.pl#RunTheCommand()</p></td></tr>
 <tr id='R16'><td n='16'></td><td><p class="ol-1">3. RunTheCommand() uses Win32::Process::Create() to start the script or program</p></td></tr>
 <tr id='R17'><td n='17'></td><td><p class="ol-1">4. Back on the JavaScript front end, runTheCommand() sets a timeout to call monitorCmdOutUntilDone(), which in turn regularly sends "req=monitor" requests to the back end.</p></td></tr>
-<tr id='R18'><td n='18'></td><td><p class="ol-1">5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose, see intramine_commandserver.pl#RunTheCommand().</p></td></tr>
+<tr id='R18'><td n='18'></td><td><p class="ol-1">5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose: see intramine_commandserver.pl#RunTheCommand().</p></td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
 <tr id='R20'><td n='20'></td><td><h2 id="API">API</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>

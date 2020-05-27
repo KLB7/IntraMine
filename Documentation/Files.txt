@@ -21,7 +21,7 @@ Directory retrieval sequence
 ----------------------------
 intramine_filetree.pl responds to a "dir" request with a list of files and subfolders in a folder, via intramine_filetree.pl#GetDirsAndFiles(). The sequence is:
 1. A folder name is clicked on in the view, prompting jqueryFileTree.js to issue a POST (jqueryFileTree.js#69) that is handled by intramine_filetree.pl#GetDirsAndFiles().
-2. GetDirsAndFiles() uses win_wide_filepaths.pm#FindFileWide() to build a list of files an subfolders in the $formH->{'dir'} directory. Text and image files are linked.
+2. GetDirsAndFiles() uses win_wide_filepaths.pm#FindFileWide() to build a list of files and subfolders in the $formH->{'dir'} directory. Text and image files are linked.
 2.1 Image files receive "image hover" links, so pausing the cursor over an image link produces a preview.
 2.2 Source and text files receive regular links and optionally a little pencil icon that's a link to the configured editor.
 

@@ -41,7 +41,7 @@ Server-Sent Events for ToDo changes
 
 API
 =========
-For details on the refresh that is broadcasted when the ToDo page changes, see the section just above, "Server-Sent Events for ToDo changes".
+For details on the refresh that is broadcast when the ToDo page changes, see the section just above, "Server-Sent Events for ToDo changes".
 
 Get ToDo items
 ----------------

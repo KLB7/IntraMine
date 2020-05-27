@@ -10,8 +10,8 @@ Main JavaScript file: well none, actually. This "background" server does not dis
 How it works
 ============
 FILEWATCHER detects file system changes in two ways:
- - check the File Watcher service log for anything new
- - launch a Powershell script (foldermonitor.ps1) that monitors file system changes, and respond to any "signal=FILESYSTEMCHANGE" messages from it.
+ - checks the File Watcher service log for anything new
+ - launches a Powershell script (foldermonitor.ps1) that monitors file system changes, and responds to any "signal=FILESYSTEMCHANGE" messages from it.
 
 On detecting a file system change, FILEWATCHER
  - loads details of the changes from the File Watcher service log
@@ -26,15 +26,15 @@ FILEWATCHER keeps two full paths lists, the current consolidated list and a list
 
 Configuring file consolidation
 ------------------------------
-You'll find this in data/intramine_config.txt around line 131:
+You'll find this in data/intramine_config.txt around line 133:
 ---
-# For File Watcher, the local start and end times for when
+# For FILEWATCHER, the local start and end times for when
 # path consolidation is allowed. Default 3 AM to 5 AM.
 # Allow a window of at least two hours.
 FILEWATCHER_CONSOLIDATION_START_HOUR	3
 FILEWATCHER_CONSOLIDATION_END_HOUR		5
 ---
-Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.
+Default configuration happens just after 3 AM in the early morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.
 
 API
 =====

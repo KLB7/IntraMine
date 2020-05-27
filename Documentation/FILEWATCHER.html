@@ -1285,8 +1285,8 @@ margin: 3px 8px;
 <tr id='R10'><td n='10'></td><td><h2 id="How_it_works">How it works</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>FILEWATCHER detects file system changes in two ways:</td></tr>
-<tr id='R13'><td n='13'></td><td><p class="outdent-unordered">&nbsp;&bull; check the File Watcher service log for anything new</p></td></tr>
-<tr id='R14'><td n='14'></td><td><p class="outdent-unordered">&nbsp;&bull; launch a Powershell script (foldermonitor.ps1) that monitors file system changes, and respond to any "signal=FILESYSTEMCHANGE" messages from it.</p></td></tr>
+<tr id='R13'><td n='13'></td><td><p class="outdent-unordered">&nbsp;&bull; checks the File Watcher service log for anything new</p></td></tr>
+<tr id='R14'><td n='14'></td><td><p class="outdent-unordered">&nbsp;&bull; launches a Powershell script (foldermonitor.ps1) that monitors file system changes, and responds to any "signal=FILESYSTEMCHANGE" messages from it.</p></td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td>On detecting a file system change, FILEWATCHER</td></tr>
 <tr id='R17'><td n='17'></td><td><p class="outdent-unordered">&nbsp;&bull; loads details of the changes from the File Watcher service log</p></td></tr>
@@ -1301,13 +1301,13 @@ margin: 3px 8px;
 <tr id='R26'><td n='26'></td><td></td></tr>
 <tr id='R27'><td n='27'></td><td><h3 id="Configuring_file_consolidation">Configuring file consolidation</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R29'><td n='29'></td><td>You'll find this in data/intramine_config.txt around line 131:</td></tr>
+<tr id='R29'><td n='29'></td><td>You'll find this in data/intramine_config.txt around line 133:</td></tr>
 <tr id='R30'><td n='30'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R31'><td n='31'></td><td># For File Watcher, the local start and end times for when</td></tr>
+<tr id='R31'><td n='31'></td><td># For FILEWATCHER, the local start and end times for when</td></tr>
 <tr id='R32'><td n='32'></td><td># path consolidation is allowed. Default 3 AM to 5 AM.</td></tr>
 <tr id='R33'><td n='33'></td><td># Allow a window of at least two hours.</td></tr>
 <tr id='R34'><td n='34'></td><td>FILEWATCHER_CONSOLIDATION_START_HOUR	3</td></tr>
@@ -1317,7 +1317,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R37'><td n='37'></td><td>Default configuration happens just after 3 AM in the morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.</td></tr>
+<tr id='R37'><td n='37'></td><td>Default configuration happens just after 3 AM in the early morning, on a daily basis. If you don't run IntraMine overnight and do want indexing to stay up to date, you should change the START and END hours there (0..23) to match a time when IntraMine is running but won't be too busy. The "busy" part isn't a big deal, since consolidation is typically quick.</td></tr>
 <tr id='R38'><td n='38'></td><td></td></tr>
 <tr id='R39'><td n='39'></td><td><h2 id="API">API</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>

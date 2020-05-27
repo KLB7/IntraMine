@@ -15,7 +15,7 @@ Call a script and monitor its output until done
 2. runTheCommand sends a "req=open" request back to the Cmd server, which is received by intramine_commandserver.pl#RunTheCommand()
 3. RunTheCommand() uses Win32::Process::Create() to start the script or program
 4. Back on the JavaScript front end, runTheCommand() sets a timeout to call monitorCmdOutUntilDone(), which in turn regularly sends "req=monitor" requests to the back end.
-5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose, see intramine_commandserver.pl#RunTheCommand().
+5. intramine_commandserver.pl#CommandOutput() responds with the latest text output from the script that's running. This is done using File::ReadBackwards() to read the latest output - the running script has been told to write its output to a temporary file for that purpose: see intramine_commandserver.pl#RunTheCommand().
 
 API
 ===========

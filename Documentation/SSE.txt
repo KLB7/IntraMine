@@ -20,7 +20,7 @@ When someone changes the ToDo items, Sever-Sent Events are used to notify all op
 4. todoGetPutData.js#putData() sends ToDo page data to intramine_SSE.pl#PutData() on the back end for saving.
 5. PutData() calls swarmserver.pm#BroadcastSSE("todochanged"). We're still in the ToDo server at this point.
 6. BroadcastSSE() calls RequestBroadcast() of "todochanged" message to SSE
-7. The swarmserver.pm#RequestBroadcast() being called is the one associated with the ToDo server, and is doesn't know how to reach other servers. So it sends the message back to the Main server (intramine_main.pl), which does know how to reach all other IntraMine servers.
+7. The swarmserver.pm#RequestBroadcast() being called is the one associated with the ToDo server, and it doesn't know how to reach other servers. So it sends the message back to the Main server (intramine_main.pl), which does know how to reach all other IntraMine servers.
 8. #intramine_main.plBroadcastSignal() sends the "todochanged" signal to the SSE server (Main knows the port numbers associated with all Short names such as SSE).
 9. intramine_SSE.pl#HandleBroadcastRequest() receives the request, and calls swarmserver.pm#SendEventToClients().
 10. SendEventToClients(), associated here with the SSE server, sends out the event message to all clients that have registered with it.
@@ -32,7 +32,7 @@ SSE request handling is a small part of the overall handling of Server-Sent Even
 
 Forward an activity event
 ======================
-**Action**: on receiving a "signal=anything" from Main, foward it to all clients that have registered for events. It's up to the client to handle or ignore the event
+**Action**: on receiving a "signal=anything" from Main, forward it to all clients that have registered for events. It's up to the client to handle or ignore the event
 **Request**: /?signal=[anything, eg todochanged]
 **Response**: call swarmserver.pm#SendEventToClients() to send the event message to all clients that have registered with it
 **For example**: see above for an example describing "todochanged"

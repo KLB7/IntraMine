@@ -70,7 +70,7 @@ CodeMirror generates the syntax highlighting for most files. Perl file highlight
 Table of contents
 -----------------
 2020-03-10 23_48_40-elasticsearcher.pm.png
-Most views have an automatically generated table of contents down the left side. A small double-headed arrow at the top of the table allows collapsinng/expanding, without altering your document position. Clicking on a table entry will of course jump you to the corresponding place in the main text, and the selected entry in the table of contents will change to keep up with the heading you're currently under as you scroll through the document.
+Most views have an automatically generated table of contents down the left side. A small double-headed arrow at the top of the table allows collapsing/expanding, without altering your document position. Clicking on a table entry will of course jump you to the corresponding place in the main text, and the selected entry in the table of contents will change to keep up with the heading you're currently under as you scroll through the document.
 
 In source files the entries in the table of contents are alphabetically ordered, and in text files the order is the same as in the document.
 
@@ -100,7 +100,7 @@ Image hovers
 topnav.png
 *Stop your cursor over the image name and it pops up.*
 
-If you pause your cursor over the name of a linked image file, a view of the image will pop up. Move your mouse and it goes away. For more, see Gloss.txt. If you're viewing this file with IntraMine, or you're looking at Viewer.html from the Documentation/ folder, you've already seem some examples.
+If you pause your cursor over the name of a linked image file, a view of the image will pop up. Move your mouse and it goes away. For more, see Gloss.txt. If you're viewing this file with IntraMine, or you're looking at Viewer.html from the Documentation/ folder, you've already seen some examples.
 
 Hit and selection highlighting
 ------------
@@ -118,7 +118,7 @@ Sometimes you want to jump back and forth between two widely spaced positions in
 
 Full Gloss on text files
 ------------------------
-Text files (.txt) are run through a Gloss preprocessor to give you all of the above, plus really easy to use tables, ordered and unordered lists, horizontal rules, italic and bold, and some extra emphasis for BUG and NOTE etc. Details are in Gloss.txt.
+Text files (.txt) are run through a Gloss preprocessor to give you all of the above, plus really easy-to-use tables, ordered and unordered lists, horizontal rules, italic and bold, and some extra emphasis for BUG and NOTE etc. Details are in Gloss.txt.
 
 Editor links
 -------------
@@ -134,7 +134,7 @@ The %RequestAction hash near the top of intramine_viewer.pl associates callbacks
 
 For example:
  - "$RequestAction{'href'} = \&FullFile;" means call FullFile() if the URL contains the argument "href=path to a file". A web page is returned.
- - "$RequestAction{'req|loadfile'} = \&LoadTheFile;" will call LoadTheFile() if the request contains "req=loadfile", with additional arguments containing the path to the file etc. This is called for CodeMirror views, to load the text into CodeMirror and returns the full plain text of the file.
+ - "$RequestAction{'req|loadfile'} = \&LoadTheFile;" will call LoadTheFile() if the request contains "req=loadfile", with additional arguments containing the path to the file etc. This is called for CodeMirror views to load the text into CodeMirror, and returns the full plain text of the file.
 
 Server start and finish
 -----------------------
@@ -155,7 +155,7 @@ View load sequence
 4. FullFile() returns HTML with CSS and JavaScript appropriate for the file, through a call to intramine_viewer.pl#GetContentBasedOnExtension(). The Viewer has separate handling for HTML, images, PDF, Word, Perl, pod, text, markdown, go, all other languages supported by CodeMirror with ctags (.cpp .js etc), and finally those supported by CodeMirror but not ctags (eg .textile). 
 4.1 For views handled by CodeMirror, the file contents are requested after loading by cmViewerStart.js#loadFileIntoCodeMirror().
 4.2 For views not handled by CodeMirror, FullFile() returns the entire file contents in the HTML response.
-5. After load in the browser, addAutoLinks() is called to turn all source and text file mentions into links. For CodeMirror-based views, cmViewerStart.js#loadFileIntoCodeMirror() calls cmAutoLinks.js#addAutoLinks() after the text has loaded. For non-CodeMirror views (.txt .pl and a few others), viewerStart.js#reJumpAndHighlight() calls autoLinks.js#addAutoLinks() on the browser's "load" event. For details on how and when autolinks are loaded, see "Linker.txt#Autolink sequence".
+5. After "loading complete" in the browser, addAutoLinks() is called to turn all source and text file mentions into links. For CodeMirror-based views, cmViewerStart.js#loadFileIntoCodeMirror() calls cmAutoLinks.js#addAutoLinks() after the text has loaded. For non-CodeMirror views (.txt .pl and a few others), viewerStart.js#reJumpAndHighlight() calls autoLinks.js#addAutoLinks() on the browser's "load" event. For details on how and when autolinks are loaded, see "Linker.txt#Autolink sequence".
 
 Gloss processing
 ---------------
@@ -163,7 +163,7 @@ Full Gloss processing is applied only to text files, by intramine_viewer.pl#GetP
 
 Gloss processing happens in several passes through the text:
  - table of contents generation, either during other processing (.txt etc, see eg intramine_viewer.pl#GetPrettyTextContents()) or separately by calling exuberant ctags (.go etc, see intramine_viewer.pl#GetCTagsTOCForFile())
- - emphasis (bold, italic), ordered/unordered lists, horizontal rules, headings, and Perl modules mentions
+ - emphasis (bold, italic), ordered/unordered lists, horizontal rules, headings, and Perl module mentions
  - TABLE handling (.txt only)  - see intramine_viewer.pl#PutTablesInText()
  - internal links, referencing headings in the current document.
  - external links (autolinks) are added after the view is loaded to the browser window, see Linker.txt for details.
@@ -178,9 +178,9 @@ Display a file
 **Request**: 
 *RESTful*: Viewer/file/$viewerPath$anchorWithNum
 where $viewerPath is a file path, such as "C:/files/afile.txt", and $anchorWithNum is an optional heading, class, or function/method within the file, such as "#OpenFile" or "#OpenFile()"
-*Argument based*: Viewer/?href=$viewerPath$anchorWithNum
+*Argument-based*: Viewer/?href=$viewerPath$anchorWithNum
 with $viewerPath and $anchorWithNum as above
-**Response**: HTML for display of the requested file, as generated by intramine_viewer.pl#FullFile(). Note for CodeMirror-based displays the text contents are filled in later, see "Load contents of file" just below. For other displays (mainly .txt and Perl files) the text is returned in the initial HTML by FullFile()
+**Response**: HTML for display of the requested file, as generated by intramine_viewer.pl#FullFile(). Note for CodeMirror-based displays the text contents are filled in later: see "Load contents of file" just below. For other displays (mainly .txt and Perl files) the text is returned in the initial HTML by FullFile()
 **For example**: http://192.168.1.132:43127/Viewer/?href=C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm#FindFileWide()
 or more RESTfully
 http://192.168.1.132:43127/Viewer/file/C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm#FindFileWide

@@ -36,7 +36,7 @@ where filePath is a full path, such as C:/folder/afile.txt
 **Response**: the basic HTML for the page with inclusion of editor.js and CodeMirror files. Note the text contents are filled in later when the page loads, see "Load contents of file" just below.
 **For example**:
 http://192.168.1.132:43131/Editor/?href=C:/perlprogs/IntraMine/libs/win_wide_filepaths.pm
-**See also**: 
+**See also**: intramine_editor.pl#FullFile()
 
 Load contents of file
 ---------------------

@@ -34,7 +34,7 @@ Put your text to find in the "Search for" field, and a document will match if al
 
 Searches are not cAse senSitive.
 
-Search is word oriented, meaning that most non-word symbols will be ignored when searching. However, you can include .$~%@: since they make up part of some full names in code, for example:
+Search is word-oriented, meaning that most non-word symbols will be ignored when searching. However, you can include .$~%@: since they make up part of some full names in code, for example:
  - SomeClass::MethodName
  - SomeClass::~SomeClass
  - $perlvar
@@ -101,7 +101,7 @@ The directory picker for Search is essentially the same as the one used for the 
 
 Language filter
 ---------------
-The Search form's Language drop down presents 226 extensions groups into a bit over 100 languages, with commonest languages first.
+The Search form's Language dropdown presents 226 extensions groups into a bit over 100 languages, with commonest languages first.
 
 The Language dropdown is filled in by intramine_search.pl#SearchForm() in response to a "req=frm" request from intramine_search.js#loadPageContent() when the Search page has loaded.
 
@@ -142,7 +142,7 @@ C:/Go/src/template/	4				allfolders		C:/Go/src/template/
 
 Suppose you use the Search form's Directory picker to select "C:/Go/src/", and check "Subdirectories too": to limit the search, we count the number of slashes in the limiting top directory("C:/Go/src/" has three slashes) and set up the search to require a match for "C:/Go/src/" in the folder3 index field. You'll notice both example files above have "C:/Go/src/" in the folder3 field, so they will both match, even though "doc.go" is down one level lower than "entity.go". This approach avoids looking at any file that doesn't have "C:/Go/src/" in its folder3 field by using a "filter" field in the search: in elasticsearch.pm#GetWordHits(), "$folderSearchFilterName" will be set to "folder3" and the array of wanted values for that field will contain "C:/Go/src/" as its only entry.
 
-When searching "C:/Go/src/" but not its subfolders, the search is done on the "allfolders" field, and so the second file above longer matches.
+When searching "C:/Go/src/" but not its subfolders, the search is done on the "allfolders" field, and so the second file above (doc.go) longer matches.
 
 If you look at elasticsearch_bulk_indexer.pm#MakeElasticsearchIndexEntry() you'll see that in addition to folder1..folder32 index fields there are folderExt1..folderExt32 fields. These have the same values as the folder1.folder32 fields, but with the file's extension appended. For example, for the entity.go index entry with folder3 = "C:/Go/src/" there would also be a folderExt3 = "C:/Go/src/go" entry. These fields combine partial path and extension in a single entry, which simplifies searches that involve filtering on both directory and extension at the same time. You can see them used in elasticsearcher.pm#GetWordHits(), specifically case 4 which covers searching when both specific extensions and a specific directory are selected.
 
@@ -150,7 +150,7 @@ Elasticsearch queries
 ---------------------
 You can find the constructed Elasticsearch queries in elasticsearcher.pm#GetWordHits() and elasticsearcher.pm#GetPhraseHits(), the latter handling "Match Exact Phrase" searches. Some preparation before searching is done in the sub that calls them, elasticsearcher.pm#GetSearchResults().
 
-The queries in GetWordHits() and GetPhraseHits() were hard won, based on Elasticsearch documentation, Search::Elasticsearch docs, and a few web examples, not one of them appropriate out of the box for the text searches wanted. I think it took me about 100 tries to get something working, maybe it was only 70. Such constructs as body=>query=>bool=>must=>multi_match=>query=>"the actual query" are right at my limit, and I hope to repeat the experience only once more in my life when a new version of Search::Elasticsearch is released for Elasticsearch v7.
+The queries in GetWordHits() and GetPhraseHits() were hard-won, based on Elasticsearch documentation, Search::Elasticsearch docs, and a few web examples, not one of them appropriate out of the box for the text searches wanted. I think it took me about 100 tries to get something working, maybe it was only 70. Such constructs as body=>query=>bool=>must=>multi_match=>query=>"the actual query" are right at my limit, and I hope to repeat the experience only once more in my life when a new version of Search::Elasticsearch is released for Elasticsearch v7.
 
 My rambling points are: if you want to write your own Elasticsearch queries involving text searches then the examples in IntraMine might help you get started; and if you want to tweak the existing queries, - well, I wish you all the patience in the world.
 

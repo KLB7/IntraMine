@@ -75,7 +75,7 @@ You can add one or more folders for indexing and monitoring without having to co
 1. Open data/search_directories.txt.
 2. Change all of the "Index" entries to 0.
 3. Add the new directory paths, and set "Index" for them to 1.
-4. Leave the existing "Monitor" entries as-is, and for the new entries set "Monitor" to 1 if the path is on locally attached storage and you want to pick up on file changes, set to 0 if the path is on NAS or you're not interested in re-indexing files there that change.
+4. Leave the existing "Monitor" entries as-is, and for the new entries: set "Monitor" to 1 if the path is on locally attached storage and you want to pick up on file changes; and set to 0 if the path is on NAS or you're not interested in re-indexing files there that change.
 5. Save search_directories.txt, and run **bats/IM_ADD_INDEX.bat**. This will stop IntraMine, add files in the new folders to your Elasticsearch index, and restart IntraMine. Along the way it will also stop the File Watcher service, rebuild its XML config file that tells it which folders to monitor, and restart the File Watcher service.
 6. Against the day when you might want to completely rebuild your Elasticsearch index, this would be a good time to revisit data/search_directories.txt and change all the altered "Index" entries back to 1.
 
@@ -89,7 +89,7 @@ To avoid swamping IntraMine's Watcher, stop IntraMine with bats/STOP_INTRAMINE.b
 
 Having warned about adding too many files at once to an indexed folder, I should add that IntraMine's theoretical "swamp limit" should be on the order of 40,000 files. But I haven't tested it. I *have* tested adding about 4,000 files to an indexed folder while IntraMine was running, and everything was fine.
 
-If IntraMine's Watcher goes DEAD, this typically means it's very very busy indexing newly added files. Give it a while, and it will probably recover (worst case about an hour). If it does recover, no file additions or changes will have been skipped. If it doesn't, your best recourse in this case is to blow away your current Elasticsearch index and full paths list and rebuild them, by running bats/IM_INIT_INDEX.bat (Run as administrator, see "Build your Elasticsearch index and run IntraMine.txt#Index and run").
+If IntraMine's Watcher goes DEAD, this typically means it's very very busy indexing newly added files. Give it a while, and it will probably recover (worst case about an hour). If it does recover, no file additions or changes will have been skipped. If it doesn't, your best recourse is to blow away your current Elasticsearch index and full paths list and rebuild them, by running bats/IM_INIT_INDEX.bat (Run as administrator, see "Build your Elasticsearch index and run IntraMine.txt#Index and run").
 
 More to explore
 ===============

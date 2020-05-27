@@ -46,7 +46,7 @@ Item                      	Description
 ALLOW_REMOTE_EDITING		1 if you want to allow any sort of remote editing, 0 to disable.
 USE_APP_FOR_REMOTE_EDITING	0 means use IntraMine's built-in simple Editor service, 1 means you will use the application specified in 'REMOTE_OPENER_APP' - but see the following section if you set it to 1.
 REMOTE_OPENER_APP			Set this to one of the keys that follow immediately, REMOTE_OPENER_ECLIPSE etc.
-REMOTE_OPENER_ECLIPSE etc	These are names for specific editors, enter one of them as the value for REMOTE_OPENER_APP if you have set USE_APP_FOR_REMOTE_EDITING to 1. You can make up your own entry if your wanted editor isn't on the list. For example to use C:/apps/whizbang/whiz.exe as your preferred remote editor make a new entry in data/intramine_config.txt consisting of "WHIZBANG<one or more tabs>C:/apps/whizbang/whiz.exe" and set the value of REMOTE_OPENER_APP to WHIZBANG. 
+REMOTE_OPENER_ECLIPSE etc	These are names for specific editors: enter one of them as the value for REMOTE_OPENER_APP if you have set USE_APP_FOR_REMOTE_EDITING to 1. You can make up your own entry if your wanted editor isn't on the list. For example, to use C:/apps/whizbang/whiz.exe as your preferred remote editor make a new entry in data/intramine_config.txt consisting of "WHIZBANG<one or more tabs>C:/apps/whizbang/whiz.exe" and set the value of REMOTE_OPENER_APP to WHIZBANG. 
 
 **IMPORTANT** if you choose to use your own preferred editor, check and update the path for it in data/intramine_config.txt. This should be the path on the *remote* PC, not the path on your IntraMine PC. And because you can set only one path, if you have more than one remote PC then the path to the preferred editor needs to be the same on all of them in order for remote editing to work on all of them.
 
@@ -158,7 +158,7 @@ That will start your editor with elevated privileges (Run as administrator), and
 For ways to run PowerShell as an administrator, see
 https://danielengberg.com/how-to-run-powershell-as-an-administrator
 
-To stop Start-Editing.ps1 (which is running that service just mentioned), return to your PowerShell window and type CTRL+C. Note that won't stop your editor.
+To stop Start-Editing.ps1 (which is running that service just mentioned), return to your PowerShell window and type CTRL+C. Note that this won't stop your editor.
 
 You can also stop Start-Editing.ps1 with
 http://localhost:43124/?app=quit
@@ -185,7 +185,7 @@ Assumptions:
  - an Admin account named "GabAdmin" with password "1234M$M" has been set up on the IntraMine PC, using Settings -> Accounts -> Family & other users -> Other users -> Add someone else to this PC. This is an account on your IntraMine PC and is distinct from the "Gab2" account mentioned below, which is the account used to log in to the remote PC.
  - IntraMine has been installed, and a first index built, with P:\Projects as one of the indexed folders.
 
-1. On your IntraMine PC, share the folder of interest (at a command prompt, note Run as administrator is not needed):
+1. On your IntraMine PC, share the folder of interest (at a command prompt;note that Run as administrator is not needed):
  net share wsprojects=P:/Projects /grant:GabAdmin,FULL
 1.1 In IntraMine's data/intramine_config.txt around line 208 where you see "Mappings for use by remote PCs" make a mapping entry for the shared folder:
  P:/Projects			\\WORKSTATION1\wsprojects

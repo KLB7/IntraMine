@@ -1,12 +1,12 @@
 Other services
 ==============
-All of IntraMines' supplied services are listed in data/serverlist.txt. To see what one of the other services does, change its Count entry there to 1 and restart IntraMine. Alas, you will probably not find hidden treasure.
+All of IntraMine's supplied services are listed in data/serverlist.txt. To see what one of the other services does, change its Count entry there to 1 and restart IntraMine. Alas, you will probably not find hidden treasure.
 
 Days
 ==========
 intramine_daysserver.pl and days.js, together with some jQuery, combine to show monthly calendars where you can click on start and end dates to see how many days there are between dates, both calendar and business days. The back end Perl just loads the web page, and after that it's all JavaScript to display the calendars and do the calculations.
 
-Holidays aren't calculated, they're listed in days.js. If you want different official holidays, wade in there and put in the ones you want, good for an afternoon's entertainment I expect.
+Holidays aren't calculated; they're listed in days.js. If you want different official holidays, wade in there and put in the ones you want, good for an afternoon's entertainment I expect.
 
 Events
 ==========

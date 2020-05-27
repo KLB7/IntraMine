@@ -121,7 +121,7 @@ main.cpp in P:/project51/src	P:/project51/docs/notes.txt				main.cpp
 main.cpp in P:/project999/src	P:/project51/docs/notes.txt				project999/src/main.cpp
 main.cpp in P:/project51/src	P:/project999/docs/notes.txt			project51/src/main.cpp
 main.cpp in P:/project51/src	a file on some other drive				project51/src/main.cpp
-Of course, it you have several copies of the project51 folder floating around, you'll need more of the path in the mention, and in that case you're better off using the whole path (eg P:/project51/src/main.cpp)
+Of course, if you have several copies of the project51 folder floating around, you'll need more of the path in the mention, and in that case you're better off using the whole path (eg P:/project51/src/main.cpp)
 
 IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/src/main.cpp. Maybe some day....
 
@@ -161,7 +161,7 @@ Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file 
 
 On-demand linking
 ~~~~~~~~~~~
-Context aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking: lines of text are processed only when they become visible, and only once.
+Context-aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking: lines of text are processed only when they become visible, and only once.
 
 Images
 ------
