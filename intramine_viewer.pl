@@ -1500,6 +1500,13 @@ sub Heading {
 	my $beforeHeader = $1;
 	my $headerProper = $2;
 	my $afterHeader = $3;
+
+	# No heading if the line before has no text.
+	if (!defined($headerProper) || $headerProper eq '')
+		{
+		return;
+		}
+	
 	my $id = $headerProper;
 	# Remove leading white from header, it looks better.
 	$headerProper =~ s!^\s+!!;
