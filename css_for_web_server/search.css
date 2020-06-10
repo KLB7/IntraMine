@@ -4,6 +4,7 @@
 	width:360px;
 }
 
+/* The "dot dot dot" for the Directory picker. */
 #annoyingdotcontainer {
 	position: relative;
 	display: inline-block;
@@ -14,6 +15,7 @@
 	padding-left: 12px;
 	padding-left: 12px;
 }
+
 #dotdotdot {
 	border: 1px solid #447314;
 	background: #8dc059;
@@ -26,6 +28,11 @@
 	padding: 0;
 	left: 4px;
 	top: 6px;
+}
+
+#dotdotdot:hover {
+	content:url("dotdotdot24x48i.png");
+	cursor: pointer;
 }
 
 #dirpickerMainContainer {
