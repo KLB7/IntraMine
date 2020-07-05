@@ -141,7 +141,7 @@ if ($kLOGMESSAGES)
 	my $LogPath = $LogDir . "$SERVERNAME $logDate.txt";
 	print("LogPath: |$LogPath|\n");
 	MakeDirectoriesForFile($LogPath);
-	$OutputLog = new LogFile($LogPath);
+	$OutputLog = LogFile->new($LogPath);
 	$OutputLog->Echo($kDISPLAYMESSAGES);
 	}
 
@@ -557,7 +557,7 @@ sub LoadServerList {
 	
 	if (-f $configFilePath)
 		{
-		my $fileH = new FileHandle("$configFilePath") or die("No config file found at |$configFilePath|!\n");
+		my $fileH = FileHandle->new("$configFilePath") or die("No config file found at |$configFilePath|!\n");
 		my $line;
 		my $pageIndex = -1;
 		my %pageNameSeen;
@@ -2362,7 +2362,7 @@ sub GetBinFile {
 	my ($filePath) = @_;
 
 	my $result = '';
-	my $fh = new FileHandle("$filePath") or return $result;
+	my $fh = FileHandle->new("$filePath") or return $result;
 	$fh->binmode();
 	my $n = 0;
 	my $buf = '';
@@ -2377,7 +2377,7 @@ sub GetBinFile {
 
 sub PutBinFile {
 	my ($result, $filePath) = @_;
-	my $fh = new FileHandle(">$filePath") or return;
+	my $fh = FileHandle->new(">$filePath") or return;
 	$fh->binmode();
 	print $fh "$result";
 	close($fh);
@@ -2387,7 +2387,7 @@ sub GetTextFile {
 	my ($filePath) = @_;
 	
 	my $result = '';
-	my $fh = new FileHandle("$filePath") or return $result;
+	my $fh = FileHandle->new("$filePath") or return $result;
 	my $line = '';
 	while ($line=<$fh>)
 		{

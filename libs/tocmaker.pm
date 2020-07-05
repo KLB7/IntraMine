@@ -59,7 +59,7 @@ sub MakeTocForDir {
 
 sub DumpToc {
 	my ($tocPath, $nameForFullPathH) = @_;
-	my $fileH = new FileHandle("> $tocPath") or
+	my $fileH = FileHandle->new("> $tocPath") or
 		return;
 	binmode($fileH, ":utf8");
 	my $dirProper = DirectoryFromPathTS($tocPath);

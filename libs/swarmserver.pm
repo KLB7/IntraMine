@@ -125,7 +125,7 @@ sub LoadServerList {
 	
 	if (-f $configFilePath)
 		{
-		my $fileH = new FileHandle("$configFilePath") or
+		my $fileH = FileHandle->new("$configFilePath") or
 									die("No config file found at |$configFilePath|!\n");
 		my $line;
 		my $pageIndex = 0;
@@ -335,7 +335,7 @@ sub SSInitialize {
 	binmode(STDOUT, ":unix:utf8");
 	
 	# Set the console code page to UTF8
-	my $SetConsoleOutputCP = new Win32::API( 'kernel32.dll', 'SetConsoleOutputCP', 'N','N' );
+	my $SetConsoleOutputCP = Win32::API->new( 'kernel32.dll', 'SetConsoleOutputCP', 'N','N' );
 	$SetConsoleOutputCP->Call(65001);
 
 	SetCommonOutput(\&Output);			# common.pm
@@ -368,7 +368,7 @@ sub StartNewLog {
 		my $LogPath = $LogDir . "$OurShortName $OurPort $logDate.txt";
 		print("LogPath: |$LogPath|\n");
 		MakeDirectoriesForFile($LogPath);
-		$OutputLog = new LogFile($LogPath);
+		$OutputLog = LogFile->new($LogPath);
 		$OutputLog->Echo($kDISPLAYMESSAGES); # 1 == also print to console
 		}
 	}

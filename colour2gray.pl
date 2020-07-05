@@ -12,7 +12,7 @@ use File::Find;
 use File::Copy;
 
 my $filePath = shift @ARGV;
-my $pathH = new FileHandle("$filePath") or die("Could not open $filePath!");
+my $pathH = FileHandle->new("$filePath") or die("Could not open $filePath!");
 my @outlines;
 my $line = '';
 while ($line = <$pathH>)

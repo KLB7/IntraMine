@@ -132,7 +132,7 @@ for (my $i = 0; $i < @files; ++$i)
 my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
 my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
 my $maxFileSizeKB = CVal('ELASTICSEARCH_MAXFILESIZE_KB');
-my $ElasticIndexer = new elasticsearch_bulk_indexer($esIndexName, $esTextIndexType, $maxFileSizeKB);
+my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexType, $maxFileSizeKB);
 
 # Add our test document to index, and list of file paths.
 if ($AddTestDocuments)

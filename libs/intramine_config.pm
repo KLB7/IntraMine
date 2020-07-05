@@ -204,7 +204,7 @@ sub BaseDirectory {
 # Both subs below return 1 if anything is loaded, 0 otherwise.
 sub LoadSearchDirectoriesToHashes {
 	my ($filePath, $indexThesePathsH, $monitorThesePathsH) = @_;
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	
 	binmode($fileH, ":utf8");
 	my $line;
@@ -240,7 +240,7 @@ sub LoadSearchDirectoriesToHashes {
 # Like above, but arrays instead of hashes.
 sub LoadSearchDirectoriesToArrays {
 	my ($filePath, $indexThesePathsA, $monitorThesePathsA) = @_;
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	
 	binmode($fileH, ":utf8");
 	my $line;

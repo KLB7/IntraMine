@@ -124,7 +124,7 @@ sub GetFileList {
 			}
 		if (-d $fileOrFolderPath) # a folder path
 			{
-			my $d = new DirHandle($fileOrFolderPath);
+			my $d = DirHandle->new($fileOrFolderPath);
 			if (defined($d))
 				{
 				my $fileName;

@@ -14,7 +14,7 @@ my @extensionArray;
 my %extensionHash; # to check for duplicates
 my %extsForLanguage; # $extsForLanguage{'HTML'} = 'html,htm,handlebars,hbs';
 
-my $cmFileH = new FileHandle($cmMetaFile)
+my $cmFileH = FileHandle->new($cmMetaFile)
 	or die("Could not find |$cmMetaFile|!\n");
 my $line;
 my $name = '';
@@ -68,7 +68,7 @@ $extsForLanguage{'Batch'} = 'bat';
 
 my @sortedExtensions = sort @extensionArray;
 
-my $outFileH = new FileHandle("> $outFile")
+my $outFileH = FileHandle->new("> $outFile")
 	or die("FILE ERROR could not make |$outFile|!");
 for (my $i = 0; $i < @sortedExtensions; ++$i)
 	{

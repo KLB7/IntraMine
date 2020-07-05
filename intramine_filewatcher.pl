@@ -77,7 +77,7 @@ InitPeriodicConsolidation();
 my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
 my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
 my $maxFileSizeKB = CVal('ELASTICSEARCH_MAXFILESIZE_KB');
-my $ElasticIndexer = new elasticsearch_bulk_indexer($esIndexName, $esTextIndexType, $maxFileSizeKB);
+my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexType, $maxFileSizeKB);
 my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 my $filePathCount = InitFullPathList($fullFilePathListPath);
 LoadIncrementalFullPathLists($fullFilePathListPath);
@@ -560,7 +560,7 @@ sub BestGuessAtOldFolderPath {
 		my $oldNewPath = $oldNewBasePath . $i . '.txt'; # eg  C:/fwws/oldnew3.txt
 		if (-f $oldNewPath)
 			{
-			my $fh = new FileHandle("$oldNewPath") or return('');
+			my $fh = FileHandle->new("$oldNewPath") or return('');
 			binmode($fh, ":encoding(UTF-8)");
 			my $line = '';
 			my $firstLine = 1;
@@ -828,7 +828,7 @@ sub SaveAndRememberNewFullPaths {
 # Here, "new" means newly created, as reported "just now" by File Watcher.
 sub SaveChangedFilesList {
 	my ($pathsOfChangedFilesA, $PathsOfChangedFilesFileTimesA, $pathsOfCreatedFilesH, $pathsOfDeletedFilesH) = @_;
-	my $fileH = new FileHandle("> $CudPath") or return;
+	my $fileH = FileHandle->new("> $CudPath") or return;
 	binmode($fileH, ":utf8");
 	my $numChangedNew = @$pathsOfChangedFilesA;
 	for (my $i = 0; $i < $numChangedNew; ++$i)
@@ -847,7 +847,7 @@ sub SaveChangedFilesList {
 	}
 
 sub LoadLastTimeStamp {
-	my $fileH = new FileHandle("$TimeStampPath") or return(0);
+	my $fileH = FileHandle->new("$TimeStampPath") or return(0);
 	my $line = <$fileH>;
 	chomp($line);
 	$LastTimeStampChecked = $line;
@@ -855,7 +855,7 @@ sub LoadLastTimeStamp {
 	}
 
 sub SaveLastTimeStamp {
-	my $fileH = new FileHandle("> $TimeStampPath") or return(0);
+	my $fileH = FileHandle->new("> $TimeStampPath") or return(0);
 	print $fileH "$LastTimeStampChecked\n";
 	close($fileH);
 	return(1);

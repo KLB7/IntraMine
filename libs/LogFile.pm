@@ -39,13 +39,13 @@ sub new
 	my $now = NiceToday();
 	if ($self->{CLEAR} =~ /no|0/i)
 		{
-		$self->{LOGH} = new FileHandle(">> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new(">> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
 		my $logH = $self->{LOGH};
 		print $logH "Time stamp: $now\n";
 		}
 	else
 		{
-		$self->{LOGH} = new FileHandle("> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new("> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
 		my $logH = $self->{LOGH};
 		print $logH "Last cleared: $now\n";
 		}
@@ -79,7 +79,7 @@ sub Log
 	my $text = shift;
 	if (!$self->{ISOPEN})
 		{
-		$self->{LOGH} = new FileHandle(">> $self->{PATH}") or confess("LogFile Log: DED, $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new(">> $self->{PATH}") or confess("LogFile Log: DED, $self->{PATH} would not open!");
 		}
 	my $logH = $self->{LOGH};
 	print $logH "$text";

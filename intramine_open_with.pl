@@ -264,7 +264,7 @@ sub GetTempBatPathForFile {
 	my $batPath = $LogDir . 'temp/' . 'tempbat' . $port_listen . '_' . time . $randomInteger . '.bat';
 	MakeDirectoriesForFile($batPath);
 	
-	my $outFileH = new FileHandle("> $batPath")
+	my $outFileH = FileHandle->new("> $batPath")
 		or return("FILE ERROR could not make |$batPath|!");
 	binmode($outFileH, ":utf8");
 	print $outFileH "chcp 65001\n";

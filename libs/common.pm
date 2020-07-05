@@ -81,7 +81,7 @@ sub LoadFileIntoArray {
 		{
 		$Output->("Loading $arrayDescription from $filePath into array\n");
 		}
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
@@ -110,7 +110,7 @@ sub LoadHashKeysFromFile {
 		{
 		$Output->("Loading $hashDescription from $filePath\n");
 		}
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
@@ -137,7 +137,7 @@ sub	SaveHashKeysToFile {
 		$Output->("Saving list of $hashDescription to $filePath...\n");
 		}
 	MakeDirectoriesForFile($filePath);
-	my $hfileH = new FileHandle("> $filePath") || die("Can't write to $filePath!");
+	my $hfileH = FileHandle->new("> $filePath") || die("Can't write to $filePath!");
 	binmode($hfileH, ":utf8");
 	foreach	my $key	(sort(keys %$hashRef))
 		{
@@ -156,7 +156,7 @@ sub LoadKeyTabValueHashFromFile {
 		{
 		$Output->("KeyTabValue Loading $hashDescription from $filePath\n");
 		}
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
@@ -184,7 +184,7 @@ sub LC_LoadKeyTabValueHashFromFile {
 		{
 		$Output->("KeyTabValue Loading $hashDescription from $filePath\n");
 		}
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
@@ -214,7 +214,7 @@ sub LoadKeyMultiTabValueHashFromFile {
 		{
 		$Output->("KeyTabValue Loading $hashDescription from $filePath\n");
 		}
-	my $fileH = new FileHandle("$filePath") or return(0);
+	my $fileH = FileHandle->new("$filePath") or return(0);
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
@@ -244,7 +244,7 @@ sub SaveKeyTabValueHashToFile {
     	$Output->("Saving list of $hashDescription to $filePath...\n");
     	}
     MakeDirectoriesForFile($filePath);
-    my $hfileH = new FileHandle("> $filePath") || die("Can't write to $filePath!");
+    my $hfileH = FileHandle->new("> $filePath") || die("Can't write to $filePath!");
 	binmode($hfileH, ":utf8");
     foreach my $key (sort(keys %$hashRef))
         {
@@ -393,7 +393,7 @@ sub TodayForPeople {
 	my $dy = $3;
 	my $monthName = $useShortMonthName? $MnNmes[$mn]: $MonthNames[$mn];
 	$todayString =~ s!\-!!g;
-	my $todayDate = new Date::Business(DATE => $todayString); # eg Thursday March 24 2010, dayofweek==4
+	my $todayDate = Date::Business->new(DATE => $todayString); # eg Thursday March 24 2010, dayofweek==4
 	my $todayDOW = $todayDate->day_of_week();
 	my $weekDayName = $dayName[$todayDOW];
 	my $result = "$weekDayName $monthName $dy, $yr";
@@ -423,7 +423,7 @@ sub YYYYMMDDForPeople {
 	my $mn = substr($yyyymmdd, 4, 2);
 	my $dy = substr($yyyymmdd, 6, 2);
 	my $monthName = $useShortMonthName? $MnNmes[$mn]: $MonthNames[$mn];
-	my $date = new Date::Business(DATE => $yyyymmdd); # eg Thursday March 24 2010, dayofweek==4
+	my $date = Date::Business->new(DATE => $yyyymmdd); # eg Thursday March 24 2010, dayofweek==4
 	my $dOW = $date->day_of_week();
 	my $weekDayName = $dayName[$dOW];
 	my $result = "$weekDayName $monthName $dy, $yr";
@@ -435,15 +435,15 @@ sub YYYYMMDDForPeople {
 # $elapsedDays for 20120608 to 20120611: |1| Friday to Monday
 sub ElapsedDaysYYYYMMDD {
 	my ($fromDate, $toDate) = @_;
-	my $toDat = new Date::Business(DATE => $toDate, HOLIDAY => \&holiday);
-	my $fromDat = new Date::Business(DATE => $fromDate, HOLIDAY => \&holiday);
+	my $toDat = Date::Business->new(DATE => $toDate, HOLIDAY => \&holiday);
+	my $fromDat = Date::Business->new(DATE => $fromDate, HOLIDAY => \&holiday);
 	my $diff = $toDat->diffb($fromDat);
 	return $diff;
 	}
 
 sub IsWeekendYYYYMMDD {
 	my ($yyyymmdd) = @_;
-	my $date = new Date::Business(DATE => $yyyymmdd); # eg Thursday March 24 2010, dayofweek==4
+	my $date = Date::Business->new(DATE => $yyyymmdd); # eg Thursday March 24 2010, dayofweek==4
 	my $dOW = $date->day_of_week();
 	my $result = ($dOW == 0 || $dOW == 6) ? 1: 0;
 	return $result;
@@ -454,8 +454,8 @@ sub IsWeekendYYYYMMDD {
 # working days, every day is a working day.
 sub FullElapsedDaysYYYYMMDD {
 	my ($fromDate, $toDate) = @_;
-	my $toDat = new Date::Business(DATE => $toDate);
-	my $fromDat = new Date::Business(DATE => $fromDate);
+	my $toDat = Date::Business->new(DATE => $toDate);
+	my $fromDat = Date::Business->new(DATE => $fromDate);
 	my $diff = $toDat->diff($fromDat);
 	return $diff;	
 	}
@@ -1086,7 +1086,7 @@ sub GetTopFilesInFolder {
 		{
 		$dirToSearch .= "/";
 		}
-	my $d = new DirHandle($dirToSearch);
+	my $d = DirHandle->new($dirToSearch);
 	my $numFiles = -1;
 	
 	if (defined($d))
@@ -1119,7 +1119,7 @@ sub GetTopSubfoldersInFolder {
 		{
 		$dirToSearch .= "/";
 		}
-	my $d = new DirHandle($dirToSearch);
+	my $d = DirHandle->new($dirToSearch);
 	my $numDirs = -1;
 	
 	if (defined($d))

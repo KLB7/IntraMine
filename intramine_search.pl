@@ -69,7 +69,7 @@ if ($numHits eq '' || $numHits == 0)
 	print("Warning, ES_NUMHITS is not set in intramine_config.txt config file. Using default of 25.\n");
 	$numHits = 25;
 	}
-my $ElasticSearcher = new elasticsearcher($esIndexName, $FULL_ACCESS_STR, $numHits);
+my $ElasticSearcher = elasticsearcher->new($esIndexName, $FULL_ACCESS_STR, $numHits);
 
 my $kAllowNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 

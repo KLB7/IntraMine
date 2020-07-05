@@ -200,7 +200,7 @@ sub MakeConfigFiles {
 	$configXML .= "</fWatcherConfig>";
 	
 	unlink($configFilePath);
-	my $fh = new FileHandle(">$configFilePath")
+	my $fh = FileHandle->new(">$configFilePath")
 		or die("File error, could not open |$configFilePath|!");
 	print $fh "$configXML";
 	close($fh);
@@ -275,7 +275,7 @@ sub LoadConfigTemplate {
 	my ($filePath) = @_;
 	
 	my $result = '';
-	my $fh = new FileHandle("$filePath") or return $result;
+	my $fh = FileHandle->new("$filePath") or return $result;
 	my $line = '';
 	my @lines;
 	while ($line=<$fh>)
@@ -297,7 +297,7 @@ sub MakeFolderListForFolderMonitor {
 	
 	# Default location data/foldermonitorlist.txt.
 	my $folderMonitorFolderListPath = FullDirectoryPath('FOLDERMONITOR_FOLDERLISTPATH');
-	my $fh = new FileHandle(">$folderMonitorFolderListPath")
+	my $fh = FileHandle->new(">$folderMonitorFolderListPath")
 		or die("File error, could not open |$folderMonitorFolderListPath|!");
 	foreach my $dir (sort keys %$dirsH)
 		{

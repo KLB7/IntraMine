@@ -900,7 +900,7 @@ sub GetWordAsText {
 	my ($formH, $peeraddress, $contentsR) = @_;
 	my $fileLocation = $formH->{'FULLPATH'};
 	
-	my $docxReader = new docx2txt();
+	my $docxReader = docx2txt->new();
 	$docxReader->ShowHyperlinks();
 	$docxReader->ShowListNumbering();
 	
@@ -2350,7 +2350,7 @@ my %StartFormats;
 my %EndFormats;
 
 sub InitPerlSyntaxHighlighter {
-	$formatter = new Syntax::Highlight::Perl::Improved;
+	$formatter = Syntax::Highlight::Perl::Improved->new();
 	
 	$StartFormats{'Comment_Normal'} = "<span class='Comment_Normal'>";
 	$StartFormats{'Comment_POD'} = "<span class='Comment_POD'>";

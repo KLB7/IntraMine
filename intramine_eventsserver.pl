@@ -223,7 +223,7 @@ sub EventsPageContentHTML {
 		my $month = $m;
 		my $year = $yr;
 		
-		my $cal = new HTML::CalendarMonthSimple('year'=>$year,'month'=>$month);
+		my $cal = HTML::CalendarMonthSimple->new('year'=>$year,'month'=>$month);
 		for (my $day = 1; $day < 32; ++$day)
 			{
 			my $yyyymd = sprintf("%04d%02d%02d", $year,$month,$day);

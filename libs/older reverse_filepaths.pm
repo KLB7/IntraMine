@@ -408,7 +408,7 @@ sub SaveIncrementalFullPaths {
 	my $ext = $2;
 	my $num = 2;
 	my $fragPath = $base . $num . $ext;
-	my $fileH = new FileHandle(">> $fragPath") or return("File Error, could not open |$fragPath|!");
+	my $fileH = FileHandle->new(">> $fragPath") or return("File Error, could not open |$fragPath|!");
 	binmode($fileH, ":utf8");
     foreach my $key (sort(keys %$fileNameForFullPathH))
         {
@@ -443,7 +443,7 @@ sub ConsolidateFullPathLists {
 		{
 		unlink($FullPathListPath);
 		unlink($fragPath);
-		my $fileH = new FileHandle("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
+		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");
 	    foreach my $key (sort(keys %FileNameForFullPath))
 	        {
@@ -622,7 +622,7 @@ sub SaveRawFullPathList {
 	my ($rawListH, $filePath) = @_;
 	$FullPathListPath = $filePath;
 	
-	my $fileH = new FileHandle("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
+	my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
 	binmode($fileH, ":utf8");
     foreach my $key (sort(keys %$rawListH))
         {
