@@ -544,7 +544,6 @@ sub FormatHitResults {
 	my %fullPathSeen; # Avoid showing the same file twice.
 	my $hitCounter = 0;
 
-	# For Es v 7: my $numHits = $rawResults->{'hits'}{'total'}->{'value'};
 	my $numHits = $rawResults->{'hits'}{'total'};
 	
 	if (defined($numHits) && $numHits > 0)

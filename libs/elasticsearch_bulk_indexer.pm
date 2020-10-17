@@ -45,11 +45,34 @@ sub new {
 #		,cxn_pool => 'Sniff'
 	);
 	$self->{E} = $e;
+
+	# Get ES version number. If it's 7 or above, we don't want a 'type' param for the
+	# bulk indexer.
+	my $info = $e->info;
+	my $vhash = $info->{'version'};
+	my $version = $vhash->{'number'};
+	my $mainNumber = substr($version, 0, 1) + 0;
+	#print("ES VERSION: |$version|\n"); # |7.9.2|
+	my $typeIsSupported = 1; # default 1 for ES 6
+	if ($mainNumber >= 7)
+		{
+		$typeIsSupported = 0; # 'type' param not supported for ES 7, 8
+		}
 	
-	$self->{BULK} = $e->bulk_helper(
-		index   => $esIndexName,
-		type    => $esTextIndexType
-	);
+	# ES 7 and above do not support 'type': "Specifying types in bulk requests is deprecated."
+	if (!$typeIsSupported)
+		{
+		$self->{BULK} = $e->bulk_helper(
+			index   => $esIndexName
+		);
+		}
+	else
+		{
+		$self->{BULK} = $e->bulk_helper(
+			index   => $esIndexName,
+			type    => $esTextIndexType
+		);
+		}
 	$TextFromXML = '';
 	
 	bless ($self, $class);
