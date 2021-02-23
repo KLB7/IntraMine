@@ -2,7 +2,7 @@
 
 *Fast search and real autolinking for your Windows intranet.*
 
-**Some news**: IntraMine is now compatible with Elasticsearch 7, but IntraMine will continue to support Elasticsearch 6.8 as long as you don't manually update your Search::Elasticsearch module. If you want to upgrade an older version of IntraMine to use Es 7, see [Installing Elasticsearch](https://intramine.info/Installing%20Elasticsearch.html#If%20you%20already%20have%20Elasticsearch).
+**Some news**: IntraMine is now compatible with Elasticsearch 7, but IntraMine will continue to support Elasticsearch 6.8 as long as you don't manually update your Search::Elasticsearch module. If you want to upgrade an older version of IntraMine to use Es 7, see [Installing Elasticsearch](http://htmlpreview.github.io/?https://intramine.info/Installing%20Elasticsearch.html#If%20you%20already%20have%20Elasticsearch).
 
 *Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
@@ -42,7 +42,7 @@ For example, if the path fragment project51/main.cpp is enough to identify P:\Cp
 The upshot is autolinking that's accurate, and trivial to use.
 
 ### Image hovers
-While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](http://intramine.info/contents.html).
+While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
 
 ### Gloss
 Gloss is a minimal memorable markdown variant specialized for intranet use (autolinks, auto table of contents, simple tables, and the other usual stuff you would want for in-house documentation). It's implemented by IntraMine's Viewer, and most of it can be used with the included gloss2html.pl program which produces completely standalone HTML versions of your Gloss-marked text documents. All of IntraMine's documentation was generated with gloss2html.pl.
@@ -75,7 +75,7 @@ IntraMine's services need to all run on the same PC, and adding/stopping/startin
 And I feel bound to mention that installation of IntraMine, though thoroughly documented to death and partway into the afterlife, requires a bit of time to wade through. Roughly an hour. Not a lot of typing, mostly just waiting while things install one by one. And then there's your first index build, which might take another hour. Put up with the one-time nuisance and you'll have many shiny new toys to play with.
 
 ## I'd like more details before diving in please
-See [the documentation](http://intramine.info).
+See [the documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
 
 ## How to get started
 Clone or fork or download the .zip for IntraMine, and open the included Documentation/contents.html in your browser. You'll see an "Installing and running IntraMine" section near the top.

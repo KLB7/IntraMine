@@ -1205,7 +1205,7 @@ sub ReportOnPageServers {
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
 	
 	$$resultR .= '<table id="' . $pageServerTableId . '"><caption><strong>Page servers</strong></caption><thead><tr>' .
-		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 0); pageSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
+		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 0); pageSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
 		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 1); pageSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>' .
 		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 2); pageSortColumn = 2;">Port</th>' .
 		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 3); pageSortColumn = 3;">Status</th>' .
@@ -1272,7 +1272,7 @@ sub ReportOnBackgroundServers {
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
 	
 	$$resultR .= '<table id="' . $backgroundServerTableId . '"><caption><strong>Background servers</strong></caption><thead><tr>' .
-		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 0); backgroundSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
+		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 0); backgroundSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
 		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 1); backgroundSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>' .
 		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 2); backgroundSortColumn = 2;">Port</th>' .
 		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 3); backgroundSortColumn = 3;">Status</th>' .
