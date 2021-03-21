@@ -2439,6 +2439,9 @@ sub InitDriveList {
 #		<option value='E:/'>E:</option>
 #		<option value='P:/'>P:</option>
 # FINIS
+# $QUICKDRIVELIST 1 uses fsutil, which is faster but lists mapped drives that aren't connected
+# and also doesn't list drive names.
+# $QUICKDRIVELIST 0 lists only connected drives, with names, but is sometime very slow (6 seconds).
 sub DriveSelectorOptions {
 	my $result = '';
 	
