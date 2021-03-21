@@ -53,6 +53,8 @@ use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
 use win_wide_filepaths;
 
+my $QUICKDRIVELIST = 1; # Set to 0 for slower but more accurate list
+
 { ##### Server address
 my $ServerAddress;
 
@@ -2439,23 +2441,47 @@ sub InitDriveList {
 # FINIS
 sub DriveSelectorOptions {
 	my $result = '';
-	InitDriveList();
 	
-	my $numDrives = 0;
-	for (my $i = 0; $i < @drives; ++$i)
+	if ($QUICKDRIVELIST)
 		{
-		if (defined($driveInfo[$i][5]) && $driveInfo[$i][5] ne '')
+		my $driveList = qx/fsutil fsinfo drives/;
+		my @parts = split(" ", $driveList);
+		my $numDrives = 0;
+		
+		for (my $i = 1; $i < @parts; ++$i) # Skip "Drives:"
 			{
-			my $drive = $drives[$i];
-			my $driveName = substr($drive, 0, -1);
+			my $drive = $parts[$i];
+			$drive =~ s!\\!/!;
 			my $selected = '';
-			my $optionalName = (defined($driveInfo[$i][0]) && $driveInfo[$i][0] ne '') ? " ($driveInfo[$i][0])" : '';
 			if ($numDrives == 0)
 				{
 				$selected = ' selected';
 				}
-			$result .= "<option value='$drive'$selected>$driveName$optionalName</option>\n";
+			my $driveName = substr($drive, 0, -1);
+			$result .= "<option value='$drive'$selected>$driveName</option>\n";
 			++$numDrives;
+			}
+		}
+	else
+		{
+		InitDriveList();
+		
+		my $numDrives = 0;
+		for (my $i = 0; $i < @drives; ++$i)
+			{
+			if (defined($driveInfo[$i][5]) && $driveInfo[$i][5] ne '')
+				{
+				my $drive = $drives[$i];
+				my $driveName = substr($drive, 0, -1);
+				my $selected = '';
+				my $optionalName = (defined($driveInfo[$i][0]) && $driveInfo[$i][0] ne '') ? " ($driveInfo[$i][0])" : '';
+				if ($numDrives == 0)
+					{
+					$selected = ' selected';
+					}
+				$result .= "<option value='$drive'$selected>$driveName$optionalName</option>\n";
+				++$numDrives;
+				}
 			}
 		}
 		
