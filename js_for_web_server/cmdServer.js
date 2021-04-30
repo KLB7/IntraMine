@@ -140,34 +140,45 @@ function runTheCommand(ank) {
 
 function additionalArgsForCommand(ank) {
 	let args = '';
-	let nodeName = '';
 	let numArgs = 0;
-	// Look at input siblings following ank. Note some can be simple text, lacking
-	// the .hasAttribute() function.
-	let ele = ank.nextSibling;
-	while (ele)
+
+	let pnode = ank.parentNode; // div
+	if (pnode !== null)
 		{
-		nodeName = ele.nodeName.toUpperCase();
-		if (nodeName === "INPUT")
+		pnode = pnode.parentNode; // td
+		if (pnode !== null)
 			{
-			if (ele.hasAttribute("name"))
+			pnode = pnode.parentNode; // tr
+			if (pnode !== null && pnode.hasChildNodes)
 				{
-				let value = ele.value;
-				if (value !== '')
+				let nextCell = pnode.firstChild.nextSibling; // second td
+				if (nextCell !== null && nextCell.hasChildNodes)
 					{
-					if (numArgs === 0)
+					let children = nextCell.childNodes; // a mix of text and input
+					for (let i = 0; i < children.length; i++)
 						{
-						args = ' ' + value;
+						let ele = children[i];
+						let nodeName = ele.nodeName.toUpperCase();
+						if (nodeName === "INPUT" && ele.hasAttribute("name"))
+							{
+							let value = ele.value;
+							if (value !== '')
+								{
+								if (numArgs === 0)
+									{
+									args = ' ' + value;
+									}
+								else
+									{
+									args += ' ' + value;
+									}
+								++numArgs;
+								}
+							}
 						}
-					else
-						{
-						args += ' ' + value;
-						}
-					++numArgs;
 					}
 				}
 			}
-		ele = ele.nextSibling;
 		}
 
 	return (args);

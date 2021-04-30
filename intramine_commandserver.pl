@@ -149,9 +149,11 @@ FINIS
 # <div id="cmdcontainer">.
 sub Commands {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	my $theBody = <<'FINIS';
+	<table id='cmdTable'>
 	_COMMANDS_
+	</table>
 FINIS
 
 	InitCommandStrings();
@@ -207,7 +209,7 @@ FINIS
 	# available to everyone.
 	# Last two args to OneCommandString are 0,0 meaning no restart, no monitoring.
 	###$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word From Anywhere', 0, 0);
-	
+
 	$theBody =~ s!_COMMANDS_!$cmdLs!;
 	return($theBody);
 	}
@@ -254,7 +256,7 @@ sub OneCommandString {
 		my $value = $passedIn[$idx];
 		if ($argNumber == 1)
 			{
-			$argInputs = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
+			$argInputs = "&nbsp;&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
 			}
 		else
 			{
@@ -264,10 +266,17 @@ sub OneCommandString {
 		++$argNumber;
 		}
 	
+	# Put args in a separate cell.
+	if ($argInputs eq "")
+		{
+		$argInputs = "&nbsp;";
+		}
+	$argInputs = "</td><td>$argInputs</td>";
+
 	my $rdm = random_int_between(1, 65000);
 	my $rdmStr = "rddm=$rdm";
-	my $cmdHtmlStart = "<div class='cmdItem'>";
-	my $cmdHtmlEnd = '</div>';
+	my $cmdHtmlStart = "<tr><td><div class='cmdItem'>";
+	my $cmdHtmlEnd = '</tr>';
 	my $willRestartStr = ($willRestart) ? '&willrestart=1' : '';
 	my $monitorStr = ($monitorUntilDone && !$willRestart) ? '&monitor=1' : '';
 	my $onClick = "onclick='runTheCommand(this); return false;'";
@@ -282,9 +291,10 @@ sub OneCommandString {
 	# nope $tipStr = &HTML::Entities::decode($tipStr);
 	$tipStr = "<p>$tipStr</p>";
 	my $onmouseOver = "onmouseOver='showhint(\"$tipStr\", this, event, \"500px\", false)'";
-	my $cmdString = $cmdHtmlStart . "<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor'  $onClick $onmouseOver id='Cmd$commandNumber'>$displayedName</a>" .$argInputs . $cmdHtmlEnd . "\n";
+	my $cmdString = $cmdHtmlStart . "<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor'  $onClick $onmouseOver id='Cmd$commandNumber'>$displayedName</a></div>" .$argInputs . $cmdHtmlEnd . "\n";
 
 	++$commandNumber;
+
 	return($cmdString);	
 	}
 } ##### Command Strings
