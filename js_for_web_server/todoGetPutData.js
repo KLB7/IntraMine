@@ -207,8 +207,89 @@ function numOverdue(el, today) {
 				}
 			}
 		}
+
 	return (currentOverdueCount);
 }
+
+// Get overdue count in navigation bar, or 0.
+function oldNavTextCount(text) {
+	let oldCount = 0;
+	let firstBracketPos = text.indexOf("[");
+
+	if (firstBracketPos > 0)
+		{
+		let lastBracketPos = text.indexOf("]");
+		if (lastBracketPos > firstBracketPos + 1)
+			{
+			let countStr = text.substring(firstBracketPos + 1, lastBracketPos);
+			oldCount = parseInt(countStr, 10);
+			}
+		}
+		
+	return(oldCount);
+}
+
+// Make up new "ToDo" nav item text with correct count.
+function newNavTextForCount(text, count) {
+	let newText = "";
+	let firstBracketPos = text.indexOf("[");
+	
+	if (firstBracketPos > 0)
+		{
+		let navName = text.substring(0, firstBracketPos);
+		if (count > 0)
+			{
+			newText = navName + "[" + count + "]";
+			}
+		else
+			{
+			let navName = text.substring(0, firstBracketPos - 1);
+			newText = navName;
+			}
+		}
+	else
+		{
+		if (count > 0)
+			{
+			newText = text + " [" + count + "]";
+			}
+		else // should not happen
+			{
+				newText = text;
+			}
+		}
+		
+	return(newText);
+}
+
+// Set current "ToDo" nav item's overdue count, if it has changed.
+function resetOverdueInNav(count) {
+	let navElem = document.getElementById('nav');
+
+	if (navElem !== null)
+		{
+		let navItems = navElem.children;
+
+		for (let i = 0; i < navItems.length; ++i)
+			{
+			let li = navItems[i];
+			if (hasClass(li, "current"))
+				{
+				let ank = li.firstChild;
+				let text = ank.text;
+				let oldCount = oldNavTextCount(text);
+	
+				if (count !== oldCount)
+					{
+					let newText = newNavTextForCount(text, count);
+					ank.text = newText;
+					}
+				break;
+				}
+			}
+		}
+}
+
 
 // Put a color on items due today or before.
 function colorByDaysToOverdue(el, today, overdueColor) {
@@ -258,6 +339,7 @@ function observeTasks() {
 			{
 			overdueCount = currentOverdueCount;
 			signalOverdueChanged();
+			resetOverdueInNav(overdueCount);
 			}
 
 		doResize();

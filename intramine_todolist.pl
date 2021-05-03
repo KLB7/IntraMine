@@ -13,6 +13,9 @@
 use strict;
 use warnings;
 use utf8;
+use JSON;
+# TEST ONLY
+use Data::Dumper;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -240,7 +243,7 @@ sub PutData {
 		$MasterDateStamp = GetFileModTimeWide($filePath) . '';
 		$result = $MasterDateStamp;
 		# Let other servers know if overdue count has changed.
-		BroadcastOverdueCount();
+		BroadcastOverdueCount($data);
 		# Let other ToDo clients know ToDo data has changed.
 		BroadcastSSE('todochanged', $SHORTNAME); # swarmserver.pm#BroadcastSSE()
 		}
@@ -274,7 +277,8 @@ sub HandleToDoSignal {
 
 # Ask Main to broadcast an overdue signal to all Page servers.
 sub BroadcastOverdueCount {
-	my $overdueCount = GetOverdueCount();
+	my ($data) = @_;
+	my $overdueCount = GetOverdueCount($data);
 	
 	RequestBroadcast("signal=todoCount&count=$overdueCount&name=PageServers");
 	}
@@ -282,27 +286,30 @@ sub BroadcastOverdueCount {
 # NOTE this is fragile, depends on format of /data/ToDo.txt.
 # Return number of pending ("code":"1") items that are due today or earlier.
 sub GetOverdueCount {
+	my ($data) = @_;
 	my $overdueCount = 0;
-	
-	# Load file in one lump (typically it's a one-liner).
-	my $data = GetData(undef, undef, undef); # standard args aren't needed for this sub
-	my @dates;
-	# Items are in no particular order, so we look for all "code":"1" items. Typical item:
-	# "code":"1","title":"INCOME TAX!","date":"2016/04/25"
-	while ($data =~ m!\"code\"\:\"1\".+?date\"\:\"(\d\d\d\d)/(\d\d)/(\d\d)\"!g)
+
+	if (!defined($data) || $data eq '')
 		{
-		my $date = $1 . $2 . $3;
-		push @dates, $date;
+		return(0);
 		}
+	
+
 	my $today = DateYYYYMMDD();
-	my $numDates = @dates;
-	for (my $i = 0; $i < $numDates; ++$i)
+	my $items = decode_json($data);
+	my $itemArr = $$items{'items'};
+	my $numItems = @$itemArr;
+	for (my $i = 0; $i < $numItems; ++$i)
 		{
-		if ($dates[$i] <= $today)
+		my $itemHashRef = $itemArr->[$i];
+		my $code = $$itemHashRef{'code'};
+		my $date = $$itemHashRef{'date'};
+		$date =~ s!/!!g;
+		if ($code == 1 && $date ne "" && $date <= $today)
 			{
 			++$overdueCount;
 			}
 		}
-	
+
 	return($overdueCount);
 	}
