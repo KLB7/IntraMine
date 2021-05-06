@@ -203,7 +203,10 @@ FINIS
 
 	# Open data/search_directories.txt (in the IntraMine folder) using default text editor.
 	# This will only work on the IntraMine machine.
-	$cmdLs .= OneCommandString($serverDirectory . "data/search_directories.txt", 'Open data/search_directories (Locally Only)', 0, 0);
+	if (!$clientIsRemote)
+		{
+		$cmdLs .= OneCommandString($serverDirectory . "data/search_directories.txt", 'Open data/search_directories (Locally Only)', 0, 0);
+		}
 		
 	# Other commands:
 	###$cmdLs .= OneCommandString($serverDirectory . 'bats/backup.bat', 'Back up files', 0, 1);
