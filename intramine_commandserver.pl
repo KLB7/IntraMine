@@ -180,7 +180,7 @@ FINIS
 	$cmdLs .= OneCommandString($serverDirectory . 'bats/echo1.bat hello there', 'Batch say hello there', 0, 1);
 	$cmdLs .= OneCommandString($serverDirectory . 'bats/echo1.bat', 'Batch say args', 0, 1, "arg_one", "\"this is arg_two\"", "and_three");
 	$cmdLs .= OneCommandString('perl ' . $serverDirectory . 'echo1.pl hi you', 'Perl say hi you', 0, 1);
-	$cmdLs .= OneCommandString('perl ' . $serverDirectory . 'test/test_backwards_tell.pl', 'Test ReadBackwards tell()', 0, 1);
+	$cmdLs .= OneCommandString('perl ' . $serverDirectory . 'test_programs/test_backwards_tell.pl', 'Test ReadBackwards tell()', 0, 1);
 	
 	# An example of calling an exe without monitoring (last two args to OneCommandString are 0,0),
 	# made available **only** on the PC where Intramine is running.
@@ -195,11 +195,15 @@ FINIS
 		}
 	if (!$clientIsRemote)
 		{
-		$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word Locally Only', 0, 0);
+		$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word (Locally Only)', 0, 0);
 		}
 	
 	# "Extract method": copy some Perl, run this, Paste into an editor for the method and call.
 	$cmdLs .= OneCommandString($serverDirectory . 'bats/extract_method.bat', 'Extract Perl Method (Copy code, run this and Ok resulting dialog, Paste)', 0, 1);	
+
+	# Open data/search_directories.txt (in the IntraMine folder) using default text editor.
+	# This will only work on the IntraMine machine.
+	$cmdLs .= OneCommandString($serverDirectory . "data/search_directories.txt", 'Open data/search_directories (Locally Only)', 0, 0);
 		
 	# Other commands:
 	###$cmdLs .= OneCommandString($serverDirectory . 'bats/backup.bat', 'Back up files', 0, 1);
