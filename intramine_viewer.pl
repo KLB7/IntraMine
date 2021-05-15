@@ -357,7 +357,7 @@ sub FullFile {
 	Output("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 	
 	# TEST ONLY codathon force display of load time
-	print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
+	#print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 
 	return $theBody;
 	}
