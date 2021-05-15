@@ -414,7 +414,7 @@ sub GetPrettyText {
 				$justDidHeadingOrHr = 0;
 				}
 			}
-		else # in a table
+		else # in a table - note a glossary file should not contain any TABLE's.
 			{
 			AddWebAndFileLinksToLine(\${lines[$i]}, $i, $context, $isGlossaryFile);
 			if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
