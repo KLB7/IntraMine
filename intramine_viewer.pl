@@ -357,7 +357,7 @@ sub FullFile {
 	Output("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 	
 	# TEST ONLY codathon force display of load time
-	# print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
+	print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 
 	return $theBody;
 	}
@@ -1207,32 +1207,54 @@ sub GetPrettyTextContents {
 	my $secondOrderListNum = 0;
 	my $unorderedListDepth = 0; # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
+	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
+	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
+	my $inATable = 0;
 	
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
 		AddEmphasis(\$lines[$i]);
-		UnorderedList(\$lines[$i], \$unorderedListDepth);
-		OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
-		
-		# Underlines -> hr or heading. Heading requires altering line before underline.
-		if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
+
+		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
 			{
-			my $underline = $1;
-			if (length($underline) <= 2) # ie three or four total
+			$inATable = 1;
+			}
+		elsif ($inATable && $lines[$i] !~ m!\t!)
+			{
+			$inATable = 0;
+			}
+
+		if (!$inATable)
+			{
+			UnorderedList(\$lines[$i], \$unorderedListDepth);
+			OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
+			
+			# Underlines -> hr or heading. Heading requires altering line before underline.
+			if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
 				{
-				HorizontalRule(\$lines[$i], $lineNum);
-				}
-			elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
-				{
-				Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+				my $underline = $1;
+				if (length($underline) <= 2) # ie three or four total
+					{
+					HorizontalRule(\$lines[$i], $lineNum);
+					}
+				elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+					{
+					Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+					}
+				else # treat like any ordinary line
+					{
+					my $rowID = 'R' . $lineNum;
+					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+					}
+				$justDidHeadingOrHr = 1;
 				}
 			else # treat like any ordinary line
 				{
 				my $rowID = 'R' . $lineNum;
 				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				$justDidHeadingOrHr = 0;
 				}
-			$justDidHeadingOrHr = 1;
 			}
 		else
 			{

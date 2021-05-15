@@ -346,47 +346,76 @@ sub GetPrettyText {
 	my $secondOrderListNum = 0;
 	my $unorderedListDepth = 0; # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
+	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
+	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
+	my $inATable = 0;
 
 	# Gloss, aka quick and easy Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
 		AddEmphasis(\$lines[$i]);
-		UnorderedList(\$lines[$i], \$unorderedListDepth);
-		OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
-		
-		# Underlines -> hr or heading. Heading requires altering line before underline.
-		if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
+
+		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
 			{
-			my $underline = $1;
-			if (length($underline) <= 2) # ie three or four total
+			$inATable = 1;
+			}
+		elsif ($inATable && $lines[$i] !~ m!\t!)
+			{
+			$inATable = 0;
+			}
+
+		if (!$inATable)
+			{
+			UnorderedList(\$lines[$i], \$unorderedListDepth);
+			OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
+			
+			# Underlines -> hr or heading. Heading requires altering line before underline.
+			if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
 				{
-				Underline(\$lines[$i], $lineNum);
+				my $underline = $1;
+				if (length($underline) <= 2) # ie three or four total
+					{
+					Underline(\$lines[$i], $lineNum);
+					}
+				elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+					{
+					Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+					}
+				else # treat like any ordinary line
+					{
+					my $rowID = 'R' . $lineNum;
+					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+					}
+				$justDidHeadingOrHr = 1;
 				}
-			elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+			else
 				{
-				Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-				}
-			else # treat like any ordinary line
-				{
+				if ($isGlossaryFile)
+					{
+					if ($lines[$i] =~ m!^([^:]+)\:!)
+						{
+						my $term = $1;
+						my $anchorText = lc(AnchorForGlossaryTerm($term));
+						my $contentsClass = 'h2';
+						my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$anchorText'>";
+						my $jlEnd = "</a></li>";
+						push @jumpList, $jlStart . $term . $jlEnd;
+						}
+					}
+				AddWebAndFileLinksToLine(\${lines[$i]}, $i, $context, $isGlossaryFile);
+				if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
+					{
+					#####AddModuleLinkToText(\${lines[$i]}, $dir, $serverAddr, $port_listen, $clientIsRemote);
+					}
+					
+				# Put contents in table, separate cells for line number and line proper.
 				my $rowID = 'R' . $lineNum;
 				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				$justDidHeadingOrHr = 0;
 				}
-			$justDidHeadingOrHr = 1;
 			}
-		else
+		else # in a table
 			{
-			if ($isGlossaryFile)
-				{
-				if ($lines[$i] =~ m!^([^:]+)\:!)
-					{
-					my $term = $1;
-					my $anchorText = lc(AnchorForGlossaryTerm($term));
-					my $contentsClass = 'h2';
-					my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$anchorText'>";
-					my $jlEnd = "</a></li>";
-					push @jumpList, $jlStart . $term . $jlEnd;
-					}
-				}
 			AddWebAndFileLinksToLine(\${lines[$i]}, $i, $context, $isGlossaryFile);
 			if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
 				{
@@ -398,6 +427,54 @@ sub GetPrettyText {
 			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
 			$justDidHeadingOrHr = 0;
 			}
+
+		# UnorderedList(\$lines[$i], \$unorderedListDepth);
+		# OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
+		
+		# # Underlines -> hr or heading. Heading requires altering line before underline.
+		# if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
+		# 	{
+		# 	my $underline = $1;
+		# 	if (length($underline) <= 2) # ie three or four total
+		# 		{
+		# 		Underline(\$lines[$i], $lineNum);
+		# 		}
+		# 	elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+		# 		{
+		# 		Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+		# 		}
+		# 	else # treat like any ordinary line
+		# 		{
+		# 		my $rowID = 'R' . $lineNum;
+		# 		$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+		# 		}
+		# 	$justDidHeadingOrHr = 1;
+		# 	}
+		# else
+		# 	{
+		# 	if ($isGlossaryFile)
+		# 		{
+		# 		if ($lines[$i] =~ m!^([^:]+)\:!)
+		# 			{
+		# 			my $term = $1;
+		# 			my $anchorText = lc(AnchorForGlossaryTerm($term));
+		# 			my $contentsClass = 'h2';
+		# 			my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$anchorText'>";
+		# 			my $jlEnd = "</a></li>";
+		# 			push @jumpList, $jlStart . $term . $jlEnd;
+		# 			}
+		# 		}
+		# 	AddWebAndFileLinksToLine(\${lines[$i]}, $i, $context, $isGlossaryFile);
+		# 	if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
+		# 		{
+		# 		#####AddModuleLinkToText(\${lines[$i]}, $dir, $serverAddr, $port_listen, $clientIsRemote);
+		# 		}
+				
+		# 	# Put contents in table, separate cells for line number and line proper.
+		# 	my $rowID = 'R' . $lineNum;
+		# 	$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+		# 	$justDidHeadingOrHr = 0;
+		# 	}
 		++$lineNum;
 		}
 	
