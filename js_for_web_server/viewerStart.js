@@ -284,6 +284,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -348,9 +349,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -365,6 +367,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -377,6 +380,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -403,6 +407,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -502,7 +508,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -547,18 +553,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 

@@ -35,6 +35,7 @@ use swarmserver;
 #use reverse_filepaths;
 use pod2thml_intramine;
 use win_wide_filepaths;
+use win_user32;
 use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 
@@ -322,6 +323,9 @@ sub FullFile {
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
+	my $dtime = DoubleClickTime();
+	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
+
 	
 	# Put in an "Edit" button for files that can be edited (if editing is allowed).
 	# "Edit" can invoke IntraMine's Editor or your preferred editor.
@@ -416,6 +420,7 @@ let errorID = "editor_error";
 let highlightItems = [_HIGHLIGHTITEMS_];
 let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
+let doubleClickTime = _DOUBLECLICKTIME_;
 </script>
 <script>
 	// Call fn when ready.
