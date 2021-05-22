@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1672,14 +1672,14 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R125'><td n='125'></td><td></td></tr>
 <tr id='R126'><td n='126'></td><td>As an example, let's pretend your index has entries for these two (fictitious) files:</td></tr>
 <tr id='R127'><td n='127'></td><td>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>folderN entries for "C:/Go/src/entity.go"</span></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R128'><td n='128'></td><th><a class='glossary' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">Partial path</a></th><th>Slash count</th><th>Index field</th><th>Field value</th></tr></thead><tbody>
+<tr id='R128'><th n='128'></th><th><a class='glossary' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">Partial path</a></th><th>Slash count</th><th>Index field</th><th>Field value</th></tr></thead><tbody>
 <tr id='R129'><td n='129'></td><td>C:/</td><td>1</td><td>folder1</td><td>C:/</td></tr>
 <tr id='R130'><td n='130'></td><td>C:/Go/</td><td>2</td><td>folder2</td><td>C:/Go/</td></tr>
 <tr id='R131'><td n='131'></td><td>C:/Go/src/</td><td>3</td><td>folder3</td><td>C:/Go/src/</td></tr>
 <tr id='R132'><td n='132'></td><td>C:/Go/src/</td><td>3</td><td>allfolders</td><td>C:/Go/src/</td></tr>
 <tr id='R133'><td n='133'></td><td></td><td>4..32</td><td>folder4..32</td><td>empty string</td></tr></tbody></table><table><tbody>
 <tr id='R134'><td n='134'></td><td>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>folderN entries for "C:/Go/src/template/doc.go"</span></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R135'><td n='135'></td><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">Partial path</a></th><th>Slash count</th><th>Index field</th><th>Field value</th></tr></thead><tbody>
+<tr id='R135'><th n='135'></th><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">Partial path</a></th><th>Slash count</th><th>Index field</th><th>Field value</th></tr></thead><tbody>
 <tr id='R136'><td n='136'></td><td>C:/</td><td>1</td><td>folder1</td><td>C:/</td></tr>
 <tr id='R137'><td n='137'></td><td>C:/Go/</td><td>2</td><td>folder2</td><td>C:/Go/</td></tr>
 <tr id='R138'><td n='138'></td><td>C:/Go/src/</td><td>3</td><td>folder3</td><td>C:/Go/src/</td></tr>
@@ -3015,6 +3015,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -3079,9 +3080,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -3096,6 +3098,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -3108,6 +3111,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -3134,6 +3138,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -3233,7 +3239,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3278,18 +3284,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4591,7 +4597,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

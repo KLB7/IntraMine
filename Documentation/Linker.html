@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1312,7 +1312,7 @@ margin: 3px 8px;
 <tr id='R29'><td n='29'></td><td></td></tr>
 <tr id='R30'><td n='30'></td><td>Here's a summary of the main Linker subs and how they are triggered from JavaScript.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr></tbody></table><table class='bordered'><caption>Linker subs and their JavaScript callers</caption><thead>
-<tr id='R32'><td n='32'></td><th>Linker subroutine       </th><th>Linker %RequestAction</th><th>Called by</th><th>Purpose</th><th>JavaScript example</th></tr></thead><tbody>
+<tr id='R32'><th n='32'></th><th>Linker subroutine       </th><th>Linker %RequestAction</th><th>Called by</th><th>Purpose</th><th>JavaScript example</th></tr></thead><tbody>
 <tr id='R33'><td n='33'></td><td>CmLinks</td><td>req|cmLinks</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td><td>Links for CodeMirror views</td><td>cmAutoLinks.js#addAutoLinks()</td></tr>
 <tr id='R34'><td n='34'></td><td>NonCmLinks</td><td>req|nonCmLinks</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td><td>Links for .txt and Perl views etc</td><td><a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#addAutoLinks()</td></tr>
 <tr id='R35'><td n='35'></td><td>FullPathForPartial</td><td>req|autolink</td><td>Files</td><td>Single link for a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a></td><td>files.js#openAutoLink()</td></tr></tbody></table><table><tbody>
@@ -1370,7 +1370,7 @@ margin: 3px 8px;
 <tr id='R87'><td n='87'></td><td><strong>Request</strong>: /?req=nonCmLinks&amp;remote=[01]&amp;allowEdit=[01]&amp;useApp=[01]&amp;text=textToAddLinksTo&amp;peerAddress=$peer&amp;path=$path&amp;first=$firstVisibleLineNum&amp;last=$lastVisibleLineNum</td></tr>
 <tr id='R88'><td n='88'></td><td>Note [01] stands for 0 or 1</td></tr>
 <tr id='R89'><td n='89'></td><td></td></tr></tbody></table><table class='bordered'><caption>arguments</caption><thead>
-<tr id='R90'><td n='90'></td><th>Argument</th><th>Description</th></tr></thead><tbody>
+<tr id='R90'><th n='90'></th><th>Argument</th><th>Description</th></tr></thead><tbody>
 <tr id='R91'><td n='91'></td><td>remote</td><td>1 if request doesn't come from the IntraMinePC</td></tr>
 <tr id='R92'><td n='92'></td><td>allowEdit</td><td>1 if an edit link is wanted as well</td></tr>
 <tr id='R93'><td n='93'></td><td>useApp</td><td>1 if edit link should use preferred editor instead of IntraMine's</td></tr>
@@ -2712,6 +2712,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2776,9 +2777,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2793,6 +2795,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2805,6 +2808,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2831,6 +2835,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2930,7 +2936,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -2975,18 +2981,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4288,7 +4294,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

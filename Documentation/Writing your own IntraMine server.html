@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1325,7 +1325,7 @@ AABJRU5ErkJggg==
 <tr id='R40'><td n='40'></td><td></td></tr>
 <tr id='R41'><td n='41'></td><td>You'll probably find it easiest to use the following standard locations when saving files for your new server:</td></tr>
 <tr id='R42'><td n='42'></td><td>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>Standard file locations</span></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R43'><td n='43'></td><th>Type</th><th>Location</th></tr></thead><tbody>
+<tr id='R43'><th n='43'></th><th>Type</th><th>Location</th></tr></thead><tbody>
 <tr id='R44'><td n='44'></td><td>Main Perl file</td><td>at the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Top level: A service is &quot;top level&quot; and has an entry in the top navigation bar if its Page name and Short name are the same in data/serverlist.txt, and it&#8216;s not marked there as a &quot;BACKGROUND&quot; service. A top level service will show up in IntraMine&#8216;s top navigation bar.</p><p>The number of instances of a top level service to run is set by its &quot;Count&quot; field in serverlist.txt.</p><p>A top-level service can have second level services that it hands off to for specific tasks. For example, the Search page presents a list of hits with file links, and hands off to either the Viewer or Editor service when a link is clicked. The Viewer and Editor services are also called in response to clicks on the Files page links.</p>', this, event, '500px', false);">top level</a> of your IntraMine folder</td></tr>
 <tr id='R45'><td n='45'></td><td>Supporting .pm modules</td><td>libs/</td></tr>
 <tr id='R46'><td n='46'></td><td>CSS</td><td>css_for_web_server/</td></tr>
@@ -1383,7 +1383,7 @@ AABJRU5ErkJggg==
 <tr id='R64'><td n='64'></td><td>The main back-end file is <strong>intramine_db_example.pl</strong>.  Open that now in an editor, and let's take a look.</td></tr>
 <tr id='R65'><td n='65'></td><td></td></tr>
 <tr id='R66'><td n='66'></td><td></td></tr></tbody></table><table class='bordered'><caption>intramine_db_example.pl (DBX) lines</caption><thead>
-<tr id='R67'><td n='67'></td><th>Location</th><th>Whazzup</th></tr></thead><tbody>
+<tr id='R67'><th n='67'></th><th>Location</th><th>Whazzup</th></tr></thead><tbody>
 <tr id='R68'><td n='68'></td><td>54..76</td><td>This is standard "boilerplate" that you can copy to your new server (except for the "use DBM::Deep" which is just there for the example's little database)."use swarmserver" brings in the swarmserver.pm module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).</td></tr>
 <tr id='R69'><td n='69'></td><td>60</td><td>"use common" has some subs that you might find useful, take a look at libs/common.pm to see for yourself.</td></tr>
 <tr id='R70'><td n='70'></td><td>61</td><td>"use swarmserver" brings in the <strong>swarmserver.pm</strong> module that will handle the tedious parts of web communications (listening for HTTP requests, responding, broadcasting to other IntraMine servers etc).</td></tr>
@@ -2749,6 +2749,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2813,9 +2814,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2830,6 +2832,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2842,6 +2845,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2868,6 +2872,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2967,7 +2973,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3012,18 +3018,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4325,7 +4331,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

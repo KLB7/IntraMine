@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1336,7 +1336,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R32'><td n='32'></td><td>Here are the servers supplied with IntraMine. You'll find the master list used by IntraMine in data/serverlist.txt in your IntraMine folder. The individual services are described in their own files, as listed in the "SUPPLIED SERVICES" section of <a href="./contents.html" target="_blank">contents.txt</a>.</td></tr>
 <tr id='R33'><td n='33'></td><td></td></tr>
 <tr id='R34'><td n='34'></td><td></td></tr></tbody></table><table class='bordered'><caption>All services, with default Count value</caption><thead>
-<tr id='R35'><td n='35'></td><th>Count</th><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Page name: This is set in the &quot;Page name&quot; column of data/serverlist.txt, and serves two purposes: it provides the name to display for the service in IntraMine&#8216;s top navigation bar for top-level services, and it can be shared by several services to indicate that they are somehow associated - signals can be sent to all services that share the same Page name, for example. </p>', this, event, '500px', false);">Page name</a></th><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a></th><th>Program</th><th>Option</th><th>Docs</th></tr></thead><tbody>
+<tr id='R35'><th n='35'></th><th>Count</th><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Page name: This is set in the &quot;Page name&quot; column of data/serverlist.txt, and serves two purposes: it provides the name to display for the service in IntraMine&#8216;s top navigation bar for top-level services, and it can be shared by several services to indicate that they are somehow associated - signals can be sent to all services that share the same Page name, for example. </p>', this, event, '500px', false);">Page name</a></th><th><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a></th><th>Program</th><th>Option</th><th>Docs</th></tr></thead><tbody>
 <tr id='R36'><td n='36'></td><td>1</td><td>Search</td><td>Search</td><td>intramine_search.pl</td><td colspan='2' class='centered_cell'>&nbsp;<a href="./Search.html" target="_blank">Search.txt</a></td></tr>
 <tr id='R37'><td n='37'></td><td>2</td><td>Search</td><td><a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td><td>intramine_viewer.pl</td><td class='centered_cell'> </td><td><a href="./Viewer.html" target="_blank">Viewer.txt</a></td></tr>
 <tr id='R38'><td n='38'></td><td>2</td><td>Search</td><td>Linker</td><td>intramine_linker.pl</td><td class='centered_cell'> </td><td><a href="./Linker.html" target="_blank">Linker.txt</a></td></tr>
@@ -2686,6 +2686,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2750,9 +2751,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2767,6 +2769,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2779,6 +2782,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2805,6 +2809,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2904,7 +2910,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -2949,18 +2955,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4262,7 +4268,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

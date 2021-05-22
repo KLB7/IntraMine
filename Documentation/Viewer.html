@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1408,7 +1408,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R36'><td n='36'></td><td><h3 id="Related_servers">Related servers</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R39'><td n='39'></td><th><a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a></th><th>Main Perl file        </th><th>Description</th></tr></thead><tbody>
+<tr id='R39'><th n='39'></th><th><a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a></th><th>Main Perl file        </th><th>Description</th></tr></thead><tbody>
 <tr id='R40'><td n='40'></td><td>Linker</td><td>intramine_linker.pl</td><td>provides links of all sorts, in response to an XMLHttpRequest</td></tr>
 <tr id='R41'><td n='41'></td><td>Search</td><td>intramine_search.pl</td><td>puts links to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> on all of its search hits</td></tr>
 <tr id='R42'><td n='42'></td><td>Files</td><td>intramine_filetree.pl</td><td>shows directory lists, and all source and text files there have links to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td></tr>
@@ -1486,7 +1486,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R81'><td n='81'></td><td>The <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> inserts the following kinds of links, with source and text file links expanded to full paths by the Linker (some file paths are made up):</td></tr>
 <tr id='R82'><td n='82'></td><td></td></tr></tbody></table><table class='bordered'><caption>Links inserted by the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></caption><thead>
-<tr id='R83'><td n='83'></td><th>Type                     </th><th>Example                     </th><th>Constraints/Overhead</th></tr></thead><tbody>
+<tr id='R83'><th n='83'></th><th>Type                     </th><th>Example                     </th><th>Constraints/Overhead</th></tr></thead><tbody>
 <tr id='R84'><td n='84'></td><td>Full local/<a class='glossary' href="#" onmouseover="showhint('<p>NAS: Network Attached Storage. These are drives accessed over Ethernet, as opposed to locally attached storage which is connected directly to your PC via USB or SATA. IntraMine can index files on NAS, but cannot monitor them for changes, so static source files in a library are fine, but constantly changing source files in a project you&#8216;re working on would require regular manual re-indexing in order for IntraMine to show up-to-date search results.</p>', this, event, '500px', false);">NAS</a> path</td><td>C:/Go/src/entity.go</td><td>None. Can be put in quotes.</td></tr>
 <tr id='R85'><td n='85'></td><td>Partial local/<a class='glossary term-seen' href="#" onmouseover="showhint('<p>NAS: Network Attached Storage. These are drives accessed over Ethernet, as opposed to locally attached storage which is connected directly to your PC via USB or SATA. IntraMine can index files on NAS, but cannot monitor them for changes, so static source files in a library are fine, but constantly changing source files in a project you&#8216;re working on would require regular manual re-indexing in order for IntraMine to show up-to-date search results.</p>', this, event, '500px', false);">NAS</a> path</td><td>src/entity.go</td><td>Must be indexed. Can be put in quotes.</td></tr>
 <tr id='R86'><td n='86'></td><td>File name</td><td>entity.go</td><td>Must be indexed. Can be put in quotes.</td></tr>
@@ -2997,6 +2997,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -3061,9 +3062,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -3078,6 +3080,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -3090,6 +3093,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -3116,6 +3120,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -3215,7 +3221,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3260,18 +3266,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4573,7 +4579,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1280,7 +1280,7 @@ margin: 3px 8px;
 <tr id='R8'><td n='8'></td><td>Here we'll mostly go the other way, with a guide to finding config values to make specific things happen. And a brief chat about adding your own configuration values if you're writing your own IntraMine service.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td></td></tr></tbody></table><table class='bordered'><caption>IntraMine configuration</caption><thead>
-<tr id='R11'><td n='11'></td><th>To configure</th><th>See</th></tr></thead><tbody>
+<tr id='R11'><th n='11'></th><th>To configure</th><th>See</th></tr></thead><tbody>
 <tr id='R12'><td n='12'></td><td>Port numbers</td><td><a href="./A note on port numbers.html" target="_blank">A note on port numbers.txt</a></td></tr>
 <tr id='R13'><td n='13'></td><td>Start/stop services</td><td><a href="./Using IntraMine.html#Supplied services" target="_blank">"Using IntraMine.txt#Supplied services"</a></td></tr>
 <tr id='R14'><td n='14'></td><td>Search options</td><td><a href="./Search.html#Search configuration" target="_blank">"Search.txt#Search configuration"</a></td></tr>
@@ -1296,7 +1296,7 @@ margin: 3px 8px;
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R25'><td n='25'></td><td>IntraMine's configuration values can be found (within your IntraMine folder) in</td></tr>
 <tr id='R26'><td n='26'></td><td></td></tr></tbody></table><table class='bordered'><caption>IntraMine configuration value files</caption><thead>
-<tr id='R27'><td n='27'></td><th>File</th><th>In brief</th></tr></thead><tbody>
+<tr id='R27'><th n='27'></th><th>File</th><th>In brief</th></tr></thead><tbody>
 <tr id='R28'><td n='28'></td><td>data/intramine_config.txt</td><td>port numbers, file and folder names etc</td></tr>
 <tr id='R29'><td n='29'></td><td>data/serverlist.txt</td><td>services to run: Perl program name, how many of each, etc</td></tr>
 <tr id='R30'><td n='30'></td><td>data/search_directories.txt</td><td>directories to index/monitor with <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr></tbody></table><table><tbody>
@@ -1312,7 +1312,7 @@ margin: 3px 8px;
 <tr id='R40'><td n='40'></td><td><p class="outdent-unordered">&nbsp;&bull; you can retrieve values using the subs in intramine_config.pm (these will be available if you put "use swarmserver;" near the top of your program).</p></td></tr>
 <tr id='R41'><td n='41'></td><td><p class="outdent-unordered-continued"></p></td></tr>
 <tr id='R42'><td n='42'></td><td></td></tr></tbody></table><table class='bordered'><caption>How to retrieve configuration values using subs in intramine_config.pm</caption><thead>
-<tr id='R43'><td n='43'></td><th>To retrieve</th><th>Call</th><th>Eg</th></tr></thead><tbody>
+<tr id='R43'><th n='43'></th><th>To retrieve</th><th>Call</th><th>Eg</th></tr></thead><tbody>
 <tr id='R44'><td n='44'></td><td>A string</td><td>CVal()</td><td>my $mainPort = CVal('INTRAMINE_MAIN_PORT');</td></tr>
 <tr id='R45'><td n='45'></td><td>A full path from partial</td><td>FullDirectoryPath()</td><td>my $dbPath = FullDirectoryPath('DBEGPATH');</td></tr></tbody></table><table><tbody>
 <tr id='R46'><td n='46'></td><td></td></tr>
@@ -2611,6 +2611,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2675,9 +2676,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2692,6 +2694,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2704,6 +2707,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2730,6 +2734,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2829,7 +2835,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -2874,18 +2880,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4187,7 +4193,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

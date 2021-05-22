@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1325,7 +1325,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R18'><td n='18'></td><td>To change how editing is handled when you're working on the same PC where IntraMine is installed, open data/intramine_config.txt and scroll down to about line 158, where you'll see 'ALLOW_LOCAL_EDITING' followed by configuration entries (format key &#60;tabs> value) that control "local" editing. The following table shows the possibilities.</td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
 <tr id='R20'><td n='20'></td><td></td></tr></tbody></table><table class='bordered'><caption>Local editing configuration</caption><thead>
-<tr id='R21'><td n='21'></td><th>Item                     </th><th>Description</th></tr></thead><tbody>
+<tr id='R21'><th n='21'></th><th>Item                     </th><th>Description</th></tr></thead><tbody>
 <tr id='R22'><td n='22'></td><td>ALLOW_LOCAL_EDITING</td><td>If you want any sort of local editing, set this to 1. Otherwise, 0 disables all local editing.</td></tr>
 <tr id='R23'><td n='23'></td><td>USE_APP_FOR_EDITING</td><td>0 means use IntraMine's built-in simple Editor service, 1 means you will use the application specified in 'LOCAL_OPENER_APP'</td></tr>
 <tr id='R24'><td n='24'></td><td>LOCAL_OPENER_APP</td><td>Set this to one of the keys that follow immediately: 'OPENER_NOTEPADPP' to use notepad++ (which is the default), 'OPENER_ECLIPSE' to use Eclipse, etc.</td></tr>
@@ -1357,7 +1357,7 @@ AABJRU5ErkJggg==
 <tr id='R42'><td n='42'></td><td></td></tr>
 <tr id='R43'><td n='43'></td><td>Here are the configuration settings that govern remote editing, around line 182 in data/intramine_config.txt:</td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R45'><td n='45'></td><th>Item                      </th><th>Description</th></tr></thead><tbody>
+<tr id='R45'><th n='45'></th><th>Item                      </th><th>Description</th></tr></thead><tbody>
 <tr id='R46'><td n='46'></td><td>ALLOW_REMOTE_EDITING</td><td>1 if you want to allow any sort of remote editing, 0 to disable.</td></tr>
 <tr id='R47'><td n='47'></td><td>USE_APP_FOR_REMOTE_EDITING</td><td>0 means use IntraMine's built-in simple Editor service, 1 means you will use the application specified in 'REMOTE_OPENER_APP' - but see the following section if you set it to 1.</td></tr>
 <tr id='R48'><td n='48'></td><td>REMOTE_OPENER_APP</td><td>Set this to one of the keys that follow immediately, REMOTE_OPENER_ECLIPSE etc.</td></tr>
@@ -1573,7 +1573,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R169'><td n='169'></td><td>Let's set things up so that when using a remote PC a click on an edit "pencil" icon opens the file using a specific editing app on the remote PC. Note the file being edited stays on the IntraMine PC. I'll try to make this complete, no assumptions.</td></tr>
 <tr id='R170'><td n='170'></td><td>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>Specific details for the example</span></td></tr></tbody></table><table class='bordered'><thead>
-<tr id='R171'><td n='171'></td><th>What</th><th>Example value</th></tr></thead><tbody>
+<tr id='R171'><th n='171'></th><th>What</th><th>Example value</th></tr></thead><tbody>
 <tr id='R172'><td n='172'></td><td>IntraMine edit port</td><td>43124 ("INTRAMINE_FIRST_SWARM_SERVER_PORT" in intramine_config.txt)</td></tr>
 <tr id='R173'><td n='173'></td><td>IntraMine PC host-name</td><td>WORKSTATION1</td></tr>
 <tr id='R174'><td n='174'></td><td>Remote PC host-name</td><td>REMOTE1</td></tr>
@@ -2901,6 +2901,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2965,9 +2966,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2982,6 +2984,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2994,6 +2997,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -3020,6 +3024,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -3119,7 +3125,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3164,18 +3170,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4477,7 +4483,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

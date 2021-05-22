@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1353,7 +1353,7 @@ margin: 3px 8px;
 <tr id='R72'><td n='72'></td><td><p class="outdent-unordered">&nbsp;&bull; $contextDir: "C:\Projects\Project51\docs\" (because the mention of the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a> is in a file in that docs directory)</p></td></tr>
 <tr id='R73'><td n='73'></td><td>with the possible full paths for "src\main.cpp" being</td></tr>
 <tr id='R74'><td n='74'></td><td></td></tr></tbody></table><table class='bordered'><caption>full paths for "src\main.cpp"</caption><thead>
-<tr id='R75'><td n='75'></td><th>Arbitrarily assigned integer</th><th>Full path</th></tr></thead><tbody>
+<tr id='R75'><th n='75'></th><th>Arbitrarily assigned integer</th><th>Full path</th></tr></thead><tbody>
 <tr id='R76'><td n='76'></td><td>27</td><td>C:\Projects\Project51\src\main.cpp</td></tr>
 <tr id='R77'><td n='77'></td><td>12347</td><td>C:\Projects\Project999\src\main.cpp</td></tr>
 <tr id='R78'><td n='78'></td><td>766</td><td>C:\Projects\Project999\test\main.cpp</td></tr>
@@ -1370,7 +1370,7 @@ margin: 3px 8px;
 <tr id='R89'><td n='89'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a>? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.</p></td></tr>
 <tr id='R90'><td n='90'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:</p></td></tr>
 <tr id='R91'><td n='91'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with context directory</caption><thead>
-<tr id='R92'><td n='92'></td><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
+<tr id='R92'><th n='92'></th><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
 <tr id='R93'><td n='93'></td><td>C:\Projects\Project51\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>22</td></tr>
 <tr id='R94'><td n='94'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table><tbody>
 <tr id='R95'><td n='95'></td><td>And the first one there is the clear winner.</td></tr>
@@ -2763,6 +2763,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2827,9 +2828,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2844,6 +2846,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2856,6 +2859,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2882,6 +2886,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2981,7 +2987,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3026,18 +3032,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4339,7 +4345,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>

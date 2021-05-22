@@ -1153,7 +1153,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
@@ -1397,7 +1397,7 @@ AABJRU5ErkJggg==
 <tr id='R77'><td n='77'></td><td></td></tr>
 <tr id='R78'><td n='78'></td><td>Let's take a look now at test_programs/test_DBX.pl for a simple example. Here's a walkthrough:</td></tr>
 <tr id='R79'><td n='79'></td><td></td></tr></tbody></table><table class='bordered'><caption>test_DBX.pl</caption><thead>
-<tr id='R80'><td n='80'></td><th>Location</th><th>What's that</th></tr></thead><tbody>
+<tr id='R80'><th n='80'></th><th>Location</th><th>What's that</th></tr></thead><tbody>
 <tr id='R81'><td n='81'></td><td>31</td><td>Brings in intramine_test.pm for talking to Selenium and ChromeDriver</td></tr>
 <tr id='R82'><td n='82'></td><td>38</td><td>intramine_test.pm#InitTesting() grabs some standard arguments from the command line that called us, and loads IntraMine configuration values, from data/intramine_config.txt and also any values that are specific to the server being tested, based on its <a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a>. For DBX, data/DBX_config.txt is also loaded.</td></tr>
 <tr id='R83'><td n='83'></td><td>42</td><td>"my @errors;" is important, and your test program should have this array. If an error is encountered, push a string describing the error onto your @errors array. There are several examples of that in test_DBX.pl.</td></tr>
@@ -2772,6 +2772,7 @@ let justUpdateScrollbar = false;
 let theSelection = {};
 theSelection.selectionIsTooBig = false;
 theSelection.isDoubleClick = false;
+theSelection.doingDoubleClick = false;
 theSelection.userDragged = false;
 //For LightRange.min.js range representing text selection.
 theSelection.ltRange = null;
@@ -2836,9 +2837,10 @@ if (markerMainElement !== null)
 
 // After a click, update markers in text and scroll corresponding TOC element into view.
 function delayedUpdateMarkersAndTOC(evt) {
+	let doubleClickDelay = doubleClickTime + 100; // milliseconds
 	setTimeout(function() {
 		updateMarkers(evt);
-	}, 1000);
+	}, doubleClickDelay);
 	
 	scrollTocEntryIntoView(evt, false);
 }
@@ -2853,6 +2855,7 @@ function updateMarkers(evt) {
 	if (theSelection.isDoubleClick)
 		{
 		theSelection.isDoubleClick = false;
+		theSelection.doingDoubleClick = true;
 		return;
 		}
 	if (markerMainElement === null || evtIsInScrollbar(evt))
@@ -2865,6 +2868,7 @@ function updateMarkers(evt) {
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
 		{
+		theSelection.doingDoubleClick = false;
 		return;
 		}
 
@@ -2891,6 +2895,8 @@ function updateMarkers(evt) {
 		removeAllScrollbarHighlights(scrollMarkerClass);
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
+
+	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }
 
@@ -2990,7 +2996,7 @@ function getSelectionText() {
 	
 	theSelection.userDragged = false;
 	
-	if (window.getSelection)
+	if (window.getSelection && !theSelection.doingDoubleClick)
 		{
 		let currSelection = window.getSelection();
 		if (!theSelection.selectionTooBig)
@@ -3035,18 +3041,18 @@ function getSelectionText() {
 			}
 
 		// If it's a single word with a single trailing space, trim any trailing space.
-		if (text !== '')
-			{
-			let numSpaces = (text.match(/\s/g) || []).length;
-			if (numSpaces === 1)
-				{
-				let lastChar = text.substring(text.length - 1);
-				if (lastChar === " " || lastChar === "\t")
-					{
-					text = text.substring(0, text.length - 1);
-					}
-				}
-			}
+		// if (text !== '')
+		// 	{
+		// 	let numSpaces = (text.match(/\s/g) || []).length;
+		// 	if (numSpaces === 1)
+		// 		{
+		// 		let lastChar = text.substring(text.length - 1);
+		// 		if (lastChar === " " || lastChar === "\t")
+		// 			{
+		// 			text = text.substring(0, text.length - 1);
+		// 			}
+		// 		}
+		// 	}
 
 		}
 
@@ -4348,7 +4354,10 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }
 
 </script>
