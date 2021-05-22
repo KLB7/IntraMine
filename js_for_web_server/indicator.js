@@ -210,5 +210,8 @@ function addHideIndicatorScrollListener() {
 }
 
 function hideIndicator() {
-	indicatorElem.style.display = 'none';
+	if (indicatorElem !== null)
+		{
+		indicatorElem.style.display = 'none';
+		}
 }

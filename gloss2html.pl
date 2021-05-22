@@ -1017,9 +1017,9 @@ sub DoTableRows {
 			}
 		else
 			{
-			# Leftmost line number cell is always td, subsequent cells are th or td.
+			# Leftmost cell is for line number.
 			my $rowID = 'R' . $lineNum;
-			$newLine = "<tr id='$rowID'><td n='$lineNum'></td>";
+			$newLine = "<tr id='$rowID'><$cellName n='$lineNum'></$cellName>";
 			for (my $j = 0; $j <= $lastUsableFieldIndex; ++$j)
 				{
 				# A single non-word char such as a space or period is taken as a signal for

@@ -229,7 +229,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 3em;
+	min-width: 4em;
 }
 
 .bordered th:first-child {
