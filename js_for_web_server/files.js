@@ -579,6 +579,8 @@ function currentSortOrder() {
 const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
 	let leftList = document.getElementById("scrollDriveListLeft");
 	let rightList = document.getElementById("scrollDriveListRight");
+	let leftTop = leftList.scrollTop;
+	let rightTop = rightList.scrollTop;
 	let fileLists = [leftList, rightList];
 	let openRels1 = [];
 	let nestingLevel1 = [];
@@ -643,6 +645,10 @@ const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
 				}
 			}
 		}
+	
+	await(500);
+	leftList.scrollTop = leftTop;
+	rightList.scrollTop = rightTop;
 	}
 
 function depthForDir(dir) {
