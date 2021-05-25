@@ -90,7 +90,8 @@ _TOPNAV_
 		<select id="driveselector_1" name="drive selector" onchange="driveChanged('scrollDriveListLeft', this.value);">
 		  _DRIVESELECTOROPTIONS_
 		</select><span id='sort_by'>Sort files by: </span>
-		<select id="sort_1" name="sort order">
+		<!-- <select id="sort_1" name="sort order"> -->
+		<select id="sort_1" name="sort order"  onchange="reSortExpandedDirectoriesOnSortChange();">
 		  <option value='name_ascending' selected>Name A_Z</option>
 		  <option value='name_descending'>Name Z_A</option>
 		  <option value='date_newest'>Date newest</option>

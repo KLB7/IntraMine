@@ -30,7 +30,7 @@ function hasClass(el, className) {
 	if (el.classList)
 		return el.classList.contains(className)
 	else
-		return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+		return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
 
 function addClass(el, className) {
@@ -56,7 +56,16 @@ function removeClass(el, className) {
 		}
 }
 
-
+function isDescendant(parent, child) {
+	var node = child.parentNode;
+	while (node != null) {
+		if (node == parent) {
+			return true;
+		}
+		node = node.parentNode;
+	}
+	return false;
+}
 // Helper function to get an element's exact position
 function getPosition(el) {
 	"use strict";

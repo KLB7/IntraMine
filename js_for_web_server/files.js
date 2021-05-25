@@ -562,11 +562,104 @@ function toggleRightListWidth() {
 		document.getElementById('fileTreeRight').style.width = "28%";
 		document.getElementById('fileTreeLeft').style.width = "70%";
 		}
-}
+	}
 
 function currentSortOrder() {
 	let sortElem = document.getElementById( "sort_1" );
 	return( sortElem.options[ sortElem.selectedIndex ].value );
 	}
+
+// See intramine_filetree.pl#FileTreePage() for the "onchange" that calls this.
+// When sort changes, re-sort all open directory listings.
+// This is done by simulated clicks, to collapse/expand the listings.
+// A top-level listing requires two clicks, to collapse and the re-expand
+// with the new sort order.
+// A nested listing in a subdirectory is collapsed when its parent directory
+// is collapsed, so a nested listing just needs one click to expand it again.
+const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
+	let leftList = document.getElementById("scrollDriveListLeft");
+	let rightList = document.getElementById("scrollDriveListRight");
+	let fileLists = [leftList, rightList];
+	let openRels1 = [];
+	let nestingLevel1 = [];
+	let openRels2 = [];
+	let nestingLevel2 = [];
+
+	// Get the anchor 'rel' and directory depth for all expanded directories.
+	for (let lIndex = 0; lIndex < 2; ++lIndex)
+		{
+		let dirList = fileLists[lIndex].getElementsByClassName('directory');
+		for (let i = 0; i < dirList.length; ++i)
+			{
+			let dir = dirList[i];
+			if (hasClass(dir, 'expanded'))
+				{
+				// Get the anchor inside, first child of the dir.
+				let anchor = dir.firstChild;
+				if (anchor !== null)
+					{
+					let rel = anchor.attributes.rel.value;
+					let level = depthForDir(dir);
+					if (lIndex == 0)
+						{
+						openRels1.push(rel);
+						nestingLevel1.push(level);
+						}
+					else
+						{
+						openRels2.push(rel);
+						nestingLevel2.push(level);
+						}
+					}
+				}
+			}
+		}
+
+	// Collapse/expand directories to force the new sort order.
+	for (let lIndex = 0; lIndex < 2; ++lIndex)
+		{
+		let openRels = (lIndex == 0) ? openRels1: openRels2;
+		let nestingLevel = (lIndex == 0) ? nestingLevel1: nestingLevel2;
+		for (let i = 0; i < openRels.length; ++i)
+			{
+			let relval = openRels[i];
+			let depth = nestingLevel[i];
+			let relQuery = '[rel=' + '"' + relval + '"]';
+	
+			await delay(500);
+	
+			let ank = fileLists[lIndex].querySelectorAll(relQuery)[0];
+			
+			if (ank !== null)
+				{
+				// Click at least once on all dirs that want expansion.
+				// Click a second time on top level dirs (depth 0).
+				ank.click();
+				if (depth == 0)
+					{
+					await delay(300);
+					ank.click();
+					}
+				}
+			}
+		}
+	}
+
+function depthForDir(dir) {
+	let depth = 0;
+	while (dir)
+		{
+		dir = dir.parentNode;
+
+		if (dir !== null && hasClass(dir, 'expanded'))
+			{
+			++depth;
+			}
+		}
+
+	return(depth);
+	}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
 window.addEventListener("load", startFileTreeUp);
