@@ -187,7 +187,7 @@ REMOTE_OPENER_APP	REMOTE_OPENER_ECLIPSE
 # App to use if you want to open files remotely, instead of using IntraMine's
 # rather plain Opener service (intramine_open_with.pl). Note 'remote_open.ps1'
 # must be running on the remote PC for this to work.
-# See TODO for details on setup.
+# See "Editing Documents.txt" for details on setup.
 # Check the path, update it here if yours is different. Note the path is the same
 # for any remote PC (not the IntraMine PC, which is specified separately above)
 # and since there is just one path, all remote PCs that want to use an app

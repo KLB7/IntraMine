@@ -7,8 +7,12 @@
  * see eg db_example.js#turnOffTheLoadingSpinner().
  */
 
+// Rev May 26 2021, contentsName is now hard-wired to avoid a req=portNumber callback,
+// which was a nuisance because it interfered with the round-robin when multiple
+// instances of a server were running. Especially with two servers, the port
+// number would get stuck due to calling req=portNumber twice.
 // contentsName is taken from data/intramine_config.txt "SPECIAL_INDEX_NAME_HTML"
-let contentsName = '';
+let contentsName = 'contents.html';
 let spinnerTimeoutTimer = 0;
 
 function showSpinner() {
@@ -16,15 +20,16 @@ function showSpinner() {
 	let spinnerParent = document.getElementById('spinnerParent');
 	if (spinnerParent !== null)
 		{
-		spinnerParent.innerHTML = "<div id='spinnerParent'><img id='spinner' src='globe.gif' "
-									+ "alt='' width='43.3' height='36' /></div>\n";
+		spinnerParent.innerHTML = "<img id='spinner' src='globe.gif' "
+									+ "alt='' width='43.3' height='36' />\n";
+//	spinnerParent.innerHTML = "<div id='spinnerParent'><img id='spinner' src='globe.gif' " + "alt='' width='43.3' height='36' /></div>\n";
 		spinnerTimeoutTimer = setTimeout(hideSpinner, 20000);
 		}
 }
 
 function hideSpinner() {
 	// Wait a bit if page hasn't loaded yet.
-	if (contentsName === '')
+	if (document.readyState !== "complete")
 		{
 		spinnerTimeoutTimer = setTimeout(hideSpinner, 100);
 		return;
@@ -33,14 +38,8 @@ function hideSpinner() {
 	let spinnerParent = document.getElementById('spinnerParent');
 	if (spinnerParent !== null)
 		{
-		spinnerParent.innerHTML = "<div id='spinnerParent'><a href='./" + contentsName + "' target='_blank'>"
-		+ "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a></div>\n";
+		spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
+		+ "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a>\n";
+//		spinnerParent.innerHTML = "<div id='spinnerParent'><a href='./" + contentsName + "' target='_blank'>" + "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a></div>\n";
 		}
 }
-
-// Callback to set contentsName after page has loaded.
-function setContentsName(value) {
-	contentsName = value;
-}
-
-window.addEventListener("load", function() {setConfigValue("SPECIAL_INDEX_NAME_HTML", setContentsName);});

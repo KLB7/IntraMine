@@ -192,16 +192,10 @@ $addDropdown
 </form>
 FINIS
 
-	my $action;
+	# Rev May 26 2021, localhost is no longer used here.
+	# Possibly required by Chrome for "CORS-RFC1918 Support". Doesn't hurt to be safe.
 	my $serverAddr = ServerAddress();
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
-		{
-		$action = "http://$serverAddr:$server_port/?rddm=1";
-		}
-	else
-		{
-		$action = "http://localhost:$server_port/?rddm=1";
-		}
+	my $action = "http://$serverAddr:$server_port/?rddm=1";
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
 	

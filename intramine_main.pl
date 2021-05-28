@@ -663,13 +663,15 @@ sub ServerErrorReport{
 sub StopAllSwarmServers {
 	# TEST ONLY
 	print("Asking all servers to stop.\n");
+
+	my $srvrAddr = ServerAddress();
 	
 	# Background servers.
 	my $numServers = @BackgroundCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
-		AskSwarmServerToExit($port, 'localhost');
+		AskSwarmServerToExit($port, $srvrAddr);
 		}
 
 	# Page servers.
@@ -677,7 +679,7 @@ sub StopAllSwarmServers {
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
-		AskSwarmServerToExit($port, 'localhost');
+		AskSwarmServerToExit($port, $srvrAddr);
 		}
 	}
 
@@ -726,6 +728,8 @@ sub AskSwarmServerToExit {
 sub ForceStopAllSwarmServers {
 	# TEST ONLY
 	print("Forcing all servers to stop.\n");
+
+	my $srvrAddr = ServerAddress();
 	
 	# Background servers.
 	my $numServers = @BackgroundCommandLines;
@@ -733,7 +737,7 @@ sub ForceStopAllSwarmServers {
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		print("Forcing stop of background server on port $port\n");
-		ForceStopServer($port, 'localhost');
+		ForceStopServer($port, $srvrAddr);
 		}
 
 	# Page servers.
@@ -742,7 +746,7 @@ sub ForceStopAllSwarmServers {
 		{
 		my $port = $ServerCommandPorts[$i];
 		print("Forcing stop of page server on port $port\n");
-		ForceStopServer($port, 'localhost');
+		ForceStopServer($port, $srvrAddr);
 		}
 	}
 
@@ -823,6 +827,8 @@ sub BroadcastSignal {
 	my $name = (defined($formH->{'name'})) ? $formH->{'name'}: '';
 	my $msg = $obj; # '/?signal=todoCount&count=3&name=PageServers' or '/?signal=reindex' etc
 	$msg =~ s!^/\?!!;
+
+	my $srvrAddr = ServerAddress();
 	
 	# Maintenance signal handling: a known maintenance signal (see ) starts this off.
 	# Each server that finishes maintenance will send us a 'backinservice' signal, together with
@@ -856,7 +862,7 @@ sub BroadcastSignal {
 				$portSignalled{$port} = 1;
 				my $message = $msg;
 				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
-				SendOneSignal($port, 'localhost', $message);
+				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
@@ -876,7 +882,7 @@ sub BroadcastSignal {
 					$portSignalled{$port} = 1;
 					my $message = $msg;
 					$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
-					SendOneSignal($port, 'localhost', $message);
+					SendOneSignal($port, $srvrAddr, $message);
 					}
 				}
 			}
@@ -897,7 +903,7 @@ sub BroadcastSignal {
 				$portSignalled{$port} = 1;
 				my $message = $msg;
 				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";			
-				SendOneSignal($port, 'localhost', $message);
+				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
@@ -912,7 +918,7 @@ sub BroadcastSignal {
 			$portSignalled{$port} = 1;
 			my $message = $msg;
 			$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
-			SendOneSignal($port, 'localhost', $message);
+			SendOneSignal($port, $srvrAddr, $message);
 			}
 		}
 	
@@ -921,6 +927,8 @@ sub BroadcastSignal {
 
 sub HandleMaintenanceSignal {
 	my ($formH, $maintenanceShortNameR, $maintenancePortR) = @_;
+
+	my $srvrAddr = ServerAddress();
 
 	if (SignalIndicatesMaintenanceOutage($formH->{'signal'}))
 		{
@@ -933,7 +941,7 @@ sub HandleMaintenanceSignal {
 			my $numServers = NumServersTotalForShortName($$maintenanceShortNameR);
 			my $serverSP = ($numServers == 1) ? 'server' : 'servers';
 			$$maintenancePortR = $port;
-			SendOneSignal($port, 'localhost', "signal=$formH->{'signal'}&shortname=$$maintenanceShortNameR");
+			SendOneSignal($port, $srvrAddr, "signal=$formH->{'signal'}&shortname=$$maintenanceShortNameR");
 			}
 		}
 	elsif ($formH->{'signal'} eq 'backinservice')
@@ -947,7 +955,7 @@ sub HandleMaintenanceSignal {
 				if ($port != 0)
 					{
 					$$maintenancePortR = $port;
-					SendOneSignal($port, 'localhost', "signal=$formH->{'respondingto'}&shortname=$$maintenanceShortNameR");
+					SendOneSignal($port, $srvrAddr, "signal=$formH->{'respondingto'}&shortname=$$maintenanceShortNameR");
 					}
 				}
 			}
@@ -1067,6 +1075,9 @@ sub BroadcastAllServersUp {
 sub AnyCommandServerIsUp {
 	my $result = 0;
 	my $numServers = @ServerCommandLines;
+
+	# At this point ServerAddress() has not been initted, so we have to use localhost.
+	my $srvrAddr = 'localhost';
 	
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
@@ -1076,7 +1087,7 @@ sub AnyCommandServerIsUp {
 		if ($isPersistent)
 			{
 			my $port = $ServerCommandPorts[$i];
-			$result = ServerOnPortIsRunning($port) && ServerIsUp('localhost', $port);
+			$result = ServerOnPortIsRunning($port) && ServerIsUp($srvrAddr, $port);
 			if ($result)
 				{
 				last;
@@ -1108,6 +1119,8 @@ sub ServerIsUp {
 sub RestartCommandServers {
 	my $numServers = @ServerCommandLines;
 	
+	my $srvrAddr = ServerAddress();
+
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $pgIdx = $PageIndexForCommandLineIndex[$i];
@@ -1118,7 +1131,7 @@ sub RestartCommandServers {
 			my $port = $ServerCommandPorts[$i];
 			if (ServerOnPortIsRunning($port))
 				{
-				ForceStopServer($port, 'localhost');
+				ForceStopServer($port, $srvrAddr);
 				}
 
 			Output("   STARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
@@ -1203,6 +1216,8 @@ sub ReportOnPageServers {
 	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
+
+	my $srvrAddr = ServerAddress();
 	
 	$$resultR .= '<table id="' . $pageServerTableId . '"><caption><strong>Page servers</strong></caption><thead><tr>' .
 		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 0); pageSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
@@ -1246,7 +1261,7 @@ sub ReportOnPageServers {
 					my $pageName = $ServerCommandLinePageNames[$i];
 					if ($pageName !~ m!status!i && !ShortServerNameIsUndergoingMaintenance($name))
 						{
-						my $stillResponding = ServerIsUp('localhost', $port);
+						my $stillResponding = ServerIsUp($srvrAddr, $port);
 						if (!$stillResponding)
 							{
 							$serverStatus = 'NOT RESPONDING';
@@ -1270,6 +1285,8 @@ sub ReportOnBackgroundServers {
 	my ($resultR) = @_;
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
+
+	my $srvrAddr = ServerAddress();
 	
 	$$resultR .= '<table id="' . $backgroundServerTableId . '"><caption><strong>Background servers</strong></caption><thead><tr>' .
 		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 0); backgroundSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
@@ -1305,7 +1322,7 @@ sub ReportOnBackgroundServers {
 					# business as usual, probably....
 					if (!ShortServerNameIsUndergoingMaintenance($name))
 						{
-						my $stillResponding = ServerIsUp('localhost', $port);
+						my $stillResponding = ServerIsUp($srvrAddr, $port);
 						if (!$stillResponding)
 							{
 							$serverStatus = 'NOT RESPONDING';
@@ -1610,7 +1627,8 @@ sub StopOneServerBasedOnPort {
 	my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
 	if ($shortName ne '') # just a double check, not really needed
 		{
-		ForceStopServer($portNumber, 'localhost');
+		my $srvrAddr = ServerAddress();
+		ForceStopServer($portNumber, $srvrAddr);
 		SetServerPortIsRunning($portNumber, 0);
 		$$resultR = 'OK';
 		}
@@ -1690,6 +1708,12 @@ sub InitServerAddress {
 	my $ipaddr = GetReadableAddress($S);
 	$ServerAddress = $ipaddr;
 	#print "Main Server IP: $ipaddr\n";
+
+	# Save server address for use by other programs, as CVal('SERVER_ADDRESS');
+	my %addrH;
+	$addrH{'SERVER_ADDRESS'} = $ServerAddress;
+	my $extraConfigName = 'SRVR';
+	SaveExtraConfigValues($extraConfigName, \%addrH);
 	}
 
 sub GetReadableAddress {

@@ -186,9 +186,32 @@ sub FullDirectoryPath {
 	return($result);
 	}
 
+# Valid after call to LoadConfigValues() above.
 sub BaseDirectory {
 	return($ScriptFullDirTS);
-}
+	}
+
+# Save extra value(s) to a specially named config file.
+# Eg SaveExtraConfigValues('MAIN', $h) with $h->{'SERVER_ADDRESS'} = 1.2.3.4
+# will save the $h hash to data/MAIN_config.txt.
+# And LoadConfigValues('MAIN') will read the 'SERVER_ADDRESS' key/value into %ConfigValues.
+sub SaveExtraConfigValues {
+	my ($extraConfigName, $h) = @_;
+	my $scriptFullPath = $0; # path of calling program
+	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $configFilePath = $ScriptFullDirTS . "data/$extraConfigName" . '_config.txt';
+	
+	# First load any existing values from the file.
+	my %extraValues = %$h;
+	LoadKeyMultiTabValueHashFromFile(\%extraValues, $configFilePath, "", 1);
+	# Write out the new values (plus existing unchanged values).
+	SaveKeyTabValueHashToFile(\%extraValues, $configFilePath, '');
+	# Put extra values in %ConfigValues.
+	foreach my $key (sort(keys %extraValues))
+		{
+		$ConfigValues{$key} = $extraValues{$key};
+		}
+	}
 } ##### Config values
 
 # Search directory list, load to hashes or arrays. There are two hashes or arrays, one for

@@ -269,16 +269,21 @@ ENDIT
 </form>
 FINIS
 
-	my $action;
+	# Rev May 26 2021, localhost is no longer used here.
+	# Required by Chrome for "CORS-RFC1918 Support".
 	my $serverAddr = ServerAddress();
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
-		{
-		$action = "http://$serverAddr:$port_listen/?rddm=1";
-		}
-	else
-		{
-		$action = "http://localhost:$port_listen/?rddm=1";
-		}
+	my $action = "http://$serverAddr:$port_listen/?rddm=1";
+
+	# my $action;
+	# my $serverAddr = ServerAddress();
+	# if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
+	# 	{
+	# 	$action = "http://$serverAddr:$port_listen/?rddm=1";
+	# 	}
+	# else
+	# 	{
+	# 	$action = "http://localhost:$port_listen/?rddm=1";
+	# 	}
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
 	

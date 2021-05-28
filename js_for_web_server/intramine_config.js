@@ -11,7 +11,8 @@ Retrieve a configuration value from any running IntraMine swarmserver
 // 	widgetName = value;
 // }
 // where 'widgetName' is in a larger scope containing the callback setWidgetName.
-// See spinner.js for an example.
+// See spinner.js for an example. Rev May 26, this is no longer used since it
+// was generating an extra req=portNumber call.
 function setConfigValue(configKey, callback) {
 	let request = new XMLHttpRequest();	
 	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + shortServerName + '/?req=portNumber';

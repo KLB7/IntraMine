@@ -207,14 +207,6 @@ sub MakeTopNavTemplate {
 			{
 			my $overdueCount = ToDoOverdueCount();
 			my $overdue = ($overdueCount > 0) ? " [$overdueCount]": '';
-			# UNTESTED example of showing a submenu:
-#			$entry = "<li$pageName><a href='_RESTRICTED_$pageName'>$pageName$overdue</a>\n";
-#			$entry .= "<ul>\n";
-#			$entry .= "<li><a href='#'>Sub one</a></li>\n";
-#			$entry .= "<li><a href='#'>Sub two</a></li>\n";
-#			$entry .= "<li><a href='#'>Sub three</a></li>\n";
-#			$entry .= "</ul>\n";
-#			$entry .= "<li>\n";
 			$entry = "<li$pageName><a href='_RESTRICTED_$pageName'>$pageName$overdue</a></li>\n";
 			}
 		else
@@ -223,7 +215,6 @@ sub MakeTopNavTemplate {
 			}
 		$theTopNav .= $entry;
 		}
-#	$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='spinner_green.gif' alt='' width='24' height='24' /></div>\n";
 	$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='globe.gif' alt='' width='43.3' height='36' /></div>\n";
 	$theTopNav .= "</ul>\n";
 	$theTopNav .= "<div class='shimclear'></div>\n";

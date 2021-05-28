@@ -13,10 +13,17 @@ use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use intramine_config;
 
-LoadConfigValues();
+# 'SRVR' loads current 'SERVER_ADDRESS' as saved by intramine_main.pl#InitServerAddress().
+LoadConfigValues('SRVR');
 my $port_listen = CVal('INTRAMINE_MAIN_PORT'); 			# default 81
 
-my $serverAddress = 'localhost';
+my $serverAddress = CVal('SERVER_ADDRESS');
+if ($serverAddress eq '')
+	{
+	# This is an error, but we will try to carry on.
+	$serverAddress = 'localhost';
+	}
+
 AskServerToExit($port_listen, $serverAddress);
 sleep(2); # let the dust settle
 
@@ -26,6 +33,7 @@ sub ErrorReport{
         return 1;
     }
 
+# Ask main server to stop. This will in turn request all servers to stop.
 sub AskServerToExit {
 	my ($portNumber, $serverAddress) = @_;
 	

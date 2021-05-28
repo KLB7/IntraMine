@@ -142,7 +142,7 @@ sub EventsPageContent {
 		my $yr = $1;
 		my $mn = $2;
 		if ( defined($yr) && defined($mn)
-		  && $yr >= 2010 && $yr <= 2020 && $mn >= 1 && $mn <= 12 )
+		  && $yr >= 2010 && $yr <= 2030 && $mn >= 1 && $mn <= 12 )
 			{
 			$startYear = $yr;
 			$startMonth = $mn;
@@ -385,15 +385,10 @@ sub EventsPageContentHTML {
 	$theBody =~ s!_BACK_!startym=$singleBackYM\&rddm=$rdm!;
 	$theBody =~ s!_AHEAD_!startym=$singleAheadYM\&rddm=$rdm!;
 	$theBody =~ s!_DOUBLEAHEAD_!startym=$doubleAheadYM\&rddm=$rdm!;
-	
-	# Replace 'localhost' with server address, if client is not on our server.
-	my $amRemoteValue = 'false';
-	if ($clientIsRemote)
-		{
-		$theBody =~ s!localhost!$serverAddr!g;
-		$amRemoteValue = 'true';
-		}
-	# Not currently needed: $theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
+
+	# Rev May 26 2021, localhost is no longer used here.
+	# Required by Chrome for "CORS-RFC1918 Support".
+	$theBody =~ s!localhost!$serverAddr!g;
 	
 	# Put in port for this server.
 	$theBody =~ s!_EVENTSPORT_!$port_listen!g;
@@ -464,6 +459,8 @@ function loadPageContent(href) {
 	if (arrayMatch !== null)
 		{
 		var startYM = arrayMatch[1];
+		// TEST ONLY
+		console.log("New startYM :" + startYM);
 		showSpinner();
 		request.open('get', 'http://_THEHOST_:_THEPORT_/?req=eventscontent&startym=' + startYM, true);
 		}

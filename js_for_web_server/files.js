@@ -646,7 +646,7 @@ const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
 			}
 		}
 	
-	await(500);
+	await delay(500);
 	leftList.scrollTop = leftTop;
 	rightList.scrollTop = rightTop;
 	}
