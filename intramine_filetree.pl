@@ -98,6 +98,7 @@ _TOPNAV_
 		  <option value='date_oldest'>Date oldest</option>
 		  <option value='size_smallest'>Size smallest</option>
 		  <option value='size_largest'>Size largest</option>
+		  <option value='extension'>File extension</option>
 		</select>
 		<span id="errorMessage">&nbsp;</span>
 		<div id='scrollDriveListLeft'>
@@ -284,6 +285,12 @@ sub GetDirsAndFiles {
 					{
 					@idx = sort {lc $files[$b] cmp lc $files[$a]} 0..$#files;
 					}
+				elsif ($sortOrder eq 'extension')
+					{
+					my @extensions;
+					Extensions(\@files, \@extensions);
+					@idx = sort{$extensions[$a] cmp $extensions[$b]} 0..$#extensions;
+					}
 				else # 'name_ascending', the default
 					{
 					@idx = sort {lc $files[$a] cmp lc $files[$b]} 0..$#files;
@@ -374,48 +381,25 @@ sub FileDatesAndSizes {
 		}
 	}
 
-#sub DateSizeString {
-#	my ($modDate, $sizeBytes) = @_;
-#	my $sizeDateStr = '';
-#	my $dateStr = localtime($modDate)->datetime;
-#	
-#	my $exp = 0;
-#	my $sizeStr = '';
-#	for (@$FILESIZEUNITS)
-#		{
-#		last if $sizeBytes < 1024;
-#		$sizeBytes /= 1024;
-#		$exp++;
-#		}
-#	if ($exp == 0)
-#		{
-#		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-#		}
-#	else
-#		{
-#		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
-#		}
-#    
-#     if ($dateStr ne '' || $sizeStr ne '')
-#    	{
-#    	$sizeDateStr = "<span>";
-#    	if ($dateStr ne '')
-#    		{
-#    		$sizeDateStr .= $dateStr;
-#    		}
-#    	if ($sizeStr ne '')
-#    		{
-#    		if ($dateStr ne '')
-#    			{
-#    			$sizeDateStr .= ' ';
-#    			}
-#    		$sizeDateStr .= $sizeStr;
-#    		}
-#    	$sizeDateStr .= "</span>";
-#    	}
-#
-#	return($sizeDateStr);	
-#	}
+sub Extensions {
+	my ($filesA, $extA) = @_;
+	my $numFiles = @$filesA;
+
+	for (my $i = 0; $i < $numFiles; ++$i)
+		{
+		my $file = $filesA->[$i];
+		my $ext;
+		if ($file =~ m!\.(\w+)$!)
+			{
+			$ext = lc $1;
+			}
+		else
+			{
+			$ext = '_NONE';
+			}
+		push @$extA, $ext;
+		}
+	}
 
 # Images get showhint() "hover" event listeners, as well as a link to open in a new tab.
 sub ImageLine {
