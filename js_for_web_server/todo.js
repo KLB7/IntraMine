@@ -14,7 +14,7 @@ var todo = todo || {};
 (function(todo, $) {
 		
 	let data = {};
-	
+ 	
 	let defaults = {
             todoTask: "todo-task",
             todoHeader: "task-header",
@@ -182,9 +182,11 @@ var todo = todo || {};
             "text": params.date
         }).appendTo(wrapper);
 
+
         $("<div />", {
             "class" : defaults.todoDescription,
-            "text": params.description
+            "html": decodeURIComponent(params.html)
+            //"text": params.description
         }).appendTo(wrapper);
 
 	    wrapper.draggable({

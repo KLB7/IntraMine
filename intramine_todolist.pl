@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use utf8;
 use JSON;
+use URI::Escape;
 # TEST ONLY
 use Data::Dumper;
 use Path::Tiny qw(path);
@@ -21,6 +22,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use win_wide_filepaths;
 use swarmserver;
+use gloss;
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
@@ -70,10 +72,9 @@ sub ToDoPage {
 <html><head>
 <title>To Do</title>
 <link rel="stylesheet" type="text/css" href="main.css" />
+<link rel="stylesheet" type="text/css" href="non_cm_text.css" />
+<link rel="stylesheet" type="text/css" href="todo_gloss_tables.css" />
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
-<!--
-<link rel="stylesheet" type="text/css" href="jquery.ui.min.css" />
--->
 <link rel="stylesheet" type="text/css" href="jquery-ui.min.css" />
 
 <link rel="stylesheet" type="text/css" href="todo.css" />
@@ -127,20 +128,7 @@ _TOPNAV_
 
 
 <script src="jquery.min.js"></script>
-
-
-<!-- too many errors
-<script src="jquery-3.4.1.min.js"></script>
--->
-
-
 <script src="jquery.ui.min.js"></script>
-
-
-<!-- also errors
-<script src="jquery-ui.min.js"></script>
--->
-
 
 <script src="jquery.ui.touch-punch.min.js"></script>
 
@@ -156,7 +144,6 @@ let contentID = '_CONTENTID_';
 <script src="todoGetPutData.js"></script>
 <script src="todo.js"></script>
 <script src="todoEvents.js"></script>
-<script src="todoLinks.js"></script>
 </body></html>
 FINIS
 
@@ -207,6 +194,31 @@ sub GetData {
 			{
 			$MasterDateStamp = GetFileModTimeWide($filePath) . '';
 			}
+
+		# TEST ONLY
+		my $p  = decode_json $result;
+		my $arr = $p->{'items'};
+		for (my $i = 0; $i < @$arr; ++$i)
+			{
+			my $ih = $arr->[$i];
+			my $desc = $ih->{"description"};
+
+			# Generate html version of text, with Gloss markdown.
+			my $gloss;
+			Gloss($desc, \$gloss);
+			$gloss = uri_escape_utf8($gloss);
+
+			# Spurious LF's, stomp them with malice.
+			$gloss =~ s!\%0A!!g;
+
+			$ih->{"html"} = $gloss;
+			}
+
+		# Convert JSON back to text and return that.
+		$result = encode_json $p;
+
+		# TEST ONLY dump json string
+		#print("GetaData JSON string: |$result|\n");
 		}
 	return($result);
 	}
@@ -224,6 +236,25 @@ sub PutData {
 	my $result = '';
 	my $filePath = $ToDoPath;
 	my $data = $formH->{'data'};
+
+	# TEST ONLY print each description.
+	# TEST ONLY all out
+	# my $p = decode_json $data;
+	# my $arr = $p->{'items'};
+	# for (my $i = 0; $i < @$arr; ++$i)
+	# 	{
+	# 	my $ih = $arr->[$i];
+	# 	my $desc = $ih->{"description"};
+	# 	#$desc =~ s!\<div id\=\'gloss_div\'\>\<table\>\<tbody\>.*?\<\/tbody\>\<\/table\>\<\/div\>$!!;
+	# 	#$ih->{"description"} = $desc;
+	# 	#####print("$desc\n");
+	# 	}
+	# $data = encode_json $p;
+
+
+	# Change '<' to '&lt;' to avoid HTML trouble later.
+	# TEST ONLY OUT
+	#####$data =~ s!\<!\&lt;!g;
 	
 	my $didit = WriteBinFileWide($filePath, $data);
 	my $tryCount = 0;
