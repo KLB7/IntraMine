@@ -30,22 +30,9 @@ td.vam {
 	vertical-align: middle;
 }
 
-td:nth-child(1) {
-	background-color: #F8F8F8;
-	color: #808080;
-	text-align: right;
-	min-width: 4em; /* enough for 99999 one hopes */
-}
 
 th {
 	text-align: left;
-}
-
-/* Avoid copy of line numbers in the first column.
-<td n='$lineNum'></td>
-*/
-td:first-child:after, th:first-child:after {
-    content: attr(n);
 }
 
 
@@ -273,10 +260,6 @@ paragraph (ie not the first paragraph in the item).
 
 .bordered td.left_cell, .bordered th.left_cell {
 	text-align: left;
-}
-
-.bordered td.right_cell, .bordered th.right_cell {
-	text-align: right;
 }
 
 .shrunkrow {

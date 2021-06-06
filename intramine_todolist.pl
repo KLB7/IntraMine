@@ -140,10 +140,27 @@ let thePort = '_THEPORT_';
 let mainPort = '_MAINPORT_';
 let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
 let contentID = '_CONTENTID_';
+
+let weAreRemote = _WEAREREMOTE_;
+let allowEditing = _ALLOW_EDITING_;
+let useAppForEditing = _USE_APP_FOR_EDITING_;
+let clientIPAddress = '_CLIENT_IP_ADDRESS_'; 	// ip address of client
+let viewerShortName = '_VIEWERSHORTNAME_';
+let openerShortName = '_OPENERSHORTNAME_';
+let editorShortName = '_EDITORSHORTNAME_';
+let errorID = "loadError";
+
+let onMobile = false; // Set below, true if we have touch events.
+if (typeof window.ontouchstart !== 'undefined')
+	{
+	onMobile = true;
+	}
+
 </script>
 <script src="todoGetPutData.js"></script>
 <script src="todo.js"></script>
 <script src="todoEvents.js"></script>
+<script src="viewerLinks.js" ></script>
 </body></html>
 FINIS
 
@@ -166,6 +183,42 @@ FINIS
 	
 	my $contentID = 'scrollAdjustedHeight';
 	$theBody =~ s!_CONTENTID_!$contentID!g;
+
+	my $clientIsRemote = 0;
+	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
+	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
+	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
+	#if ($peeraddress ne '127.0.0.1')
+		{
+		$clientIsRemote = 1;
+		}
+
+	my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
+	my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
+	my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
+	my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
+	my $viewerShortName = CVal('VIEWERSHORTNAME');
+	my $openerShortName = CVal('OPENERSHORTNAME');
+	my $editorShortName = CVal('EDITORSHORTNAME');
+
+
+	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
+	my $useAppForEditing = 0;
+	if ($allowEditing)
+		{
+		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing) || (!$clientIsRemote && $UseAppForLocalEditing));
+		}
+	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
+	my $tfAllowEditing = ($allowEditing) ? 'true' : 'false';
+	my $tfUseAppForEditing = ($useAppForEditing) ? 'true' : 'false';
+
+	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
+	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
+	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
+	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
+	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
+	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
+	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -195,17 +248,19 @@ sub GetData {
 			$MasterDateStamp = GetFileModTimeWide($filePath) . '';
 			}
 
-		# TEST ONLY
+		my $serverAddr = ServerAddress();
+		my $mainServerPort = $server_port;
 		my $p  = decode_json $result;
 		my $arr = $p->{'items'};
-		for (my $i = 0; $i < @$arr; ++$i)
+		my $len = scalar(@{$arr});
+		for (my $i = 0; $i < $len; ++$i)
 			{
 			my $ih = $arr->[$i];
 			my $desc = $ih->{"description"};
 
 			# Generate html version of text, with Gloss markdown.
 			my $gloss;
-			Gloss($desc, \$gloss);
+			Gloss($desc, $serverAddr, $mainServerPort, \$gloss);
 			$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.
@@ -237,25 +292,6 @@ sub PutData {
 	my $filePath = $ToDoPath;
 	my $data = $formH->{'data'};
 
-	# TEST ONLY print each description.
-	# TEST ONLY all out
-	# my $p = decode_json $data;
-	# my $arr = $p->{'items'};
-	# for (my $i = 0; $i < @$arr; ++$i)
-	# 	{
-	# 	my $ih = $arr->[$i];
-	# 	my $desc = $ih->{"description"};
-	# 	#$desc =~ s!\<div id\=\'gloss_div\'\>\<table\>\<tbody\>.*?\<\/tbody\>\<\/table\>\<\/div\>$!!;
-	# 	#$ih->{"description"} = $desc;
-	# 	#####print("$desc\n");
-	# 	}
-	# $data = encode_json $p;
-
-
-	# Change '<' to '&lt;' to avoid HTML trouble later.
-	# TEST ONLY OUT
-	#####$data =~ s!\<!\&lt;!g;
-	
 	my $didit = WriteBinFileWide($filePath, $data);
 	my $tryCount = 0;
 	while (!$didit && ++$tryCount <= 3)
@@ -325,7 +361,6 @@ sub GetOverdueCount {
 		return(0);
 		}
 	
-
 	my $today = DateYYYYMMDD();
 	my $items = decode_json($data);
 	my $itemArr = $$items{'items'};

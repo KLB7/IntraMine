@@ -7,12 +7,24 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
+use Path::Tiny qw(path);
+use lib path($0)->absolute->parent->child('libs')->stringify;
+use common;
+use intramine_config;
+use win_wide_filepaths;
+use ext;
+
+BEGIN {
+    LoadConfigValues();
+}
 
 # Return an HTML version of $text with Gloss-style markdown.
 # Note no table of contents here.
 # And note contents are put in a simple table without line numbers.
 sub Gloss {
-    my ($text, $contentsR) = @_;
+    my ($text, $serverAddr, $mainServerPort, $contentsR) = @_;
+    $text = horribleUnescape($text);
+
     my @lines = split(/\n/, $text);
 
     my @jumpList;
@@ -89,10 +101,46 @@ sub Gloss {
     
     # Tables, see below.
 	PutTablesInText(\@lines);
+
+    # Put in web links and double-quoted full path links.
+    for (my $i = 0; $i < @lines; ++$i)
+        {
+        AddLinks(\${lines[$i]}, $serverAddr, $mainServerPort);
+        }
     
     $$contentsR .= "<div class='gloss_div'><table><tbody>" . join("\n", @lines) . "</tbody></table></div>";
-    # Undefined subroutine &gloss::encode_utf8 called at C:/perlprogs/IntraMine/libs/gloss.pm line 94.
-    #$$contentsR = encode_utf8($$contentsR);
+    $$contentsR = horribleEscape($$contentsR);
+    }
+
+# See todo.js#horribleEscape();
+sub horribleUnescape {
+    my ($text) = @_;
+
+    $text =~ s!__EQUALSIGN_REP__!\=!g;
+    $text =~ s!__DQUOTE_REP__!\"!g;
+    $text =~ s!__ONEQUOTE_REP__!\'!g;
+    $text =~ s!__PLUSSIGN_REP__!\+!g;
+    $text =~ s!__PERCENTSIGN_REP__!\%!g;
+    $text =~ s!__AMPERSANDSIGN_REP__!\&!g;
+    $text =~ s!__TABERINO__!\t!g; # true tab, as opposed to \t
+    $text =~ s!__BSINO__!\\!g;
+
+    return($text);
+    }
+
+sub horribleEscape {
+    my ($text) = @_;
+
+    $text =~ s!\=!__EQUALSIGN_REP__!g;
+    $text =~ s!\"!__DQUOTE_REP__!g;
+    $text =~ s!\'!__ONEQUOTE_REP__!g;
+    $text =~ s!\+!__PLUSSIGN_REP__!g;
+    $text =~ s!\%!__PERCENTSIGN_REP__!g;
+    $text =~ s!\&!__AMPERSANDSIGN_REP__!g;
+    $text =~ s!\t!__TABERINO__!g; # true tab replaced by placeholder
+    $text =~ s!\\!__BSINO__!g;
+
+    return($text);
     }
 
 sub AddEmphasis {
@@ -108,14 +156,6 @@ sub AddEmphasis {
 	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
 	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
-	
-	# Somewhat experimental, loosen requirements to just *.+?\S* and **.+?\S**
-	#$$lineR =~ s!\*\*(.+?\S)\*\*!<strong>$1</strong>!g;
-	#$$lineR =~ s!\*(.+?\S)\*!<em>$1</em>!g;
-	## Older more restrictive approach
-	#$$lineR =~ s!\*\*([a-zA-Z0-9_. \t',-]+[a-zA-Z0-9_.'-])\*\*!<strong>$1</strong>!g;
-	#$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-]+[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
-
 	# Some "markdown": make TODO etc prominent.
 	# CSS for .textSymbol has font-family: "Segoe UI Symbol", that font has better looking
 	# symbols than most others on a std Windows box.
@@ -167,12 +207,12 @@ sub UnorderedList {
 		if (length($listSignal) == 1)
 			{
 			$$unorderedListDepthR = 1;
-			$$lineR = '<p class="outdent-unordered">' . '&nbsp;&bull; ' . $2 . '</p>'; # &#9830;(diamond) or &bull;
+			$$lineR = '<p class=\'outdent-unordered\'>' . '&nbsp;&bull; ' . $2 . '</p>'; # &#9830;(diamond) or &bull;
 			}
 		else
 			{
 			$$unorderedListDepthR = 2;
-			$$lineR = '<p class="outdent-unordered-sub">' . '&#9702; ' . $2 . '</p>'; # &#9702; circle, &#9830;(diamond) or &bull;
+			$$lineR = '<p class=\'outdent-unordered-sub\'>' . '&#9702; ' . $2 . '</p>'; # &#9702; circle, &#9830;(diamond) or &bull;
 			}
 		}
 	elsif ($$unorderedListDepthR > 0 && $$lineR =~ m!^\s+!)
@@ -180,11 +220,11 @@ sub UnorderedList {
 		$$lineR =~ s!^\s+!!;
 		if ($$unorderedListDepthR == 1)
 			{
-			$$lineR = '<p class="outdent-unordered-continued">' . $$lineR . '</p>';
+			$$lineR = '<p class=\'outdent-unordered-continued\'>' . $$lineR . '</p>';
 			}
 		else
 			{
-			$$lineR = '<p class="outdent-unordered-sub-continued">' . $$lineR . '</p>';
+			$$lineR = '<p class=\'outdent-unordered-sub-continued\'>' . $$lineR . '</p>';
 			}
 		}
 	else
@@ -232,7 +272,7 @@ sub OrderedList {
 		
 		$$subListNumberR = 0;
 		my $class = (length($suggestedNum) > 1) ? "ol-2": "ol-1";
-		$$lineR = '<p class="' . $class . '">' . "$$listNumberR. $trailer" . '</p>';
+        $$lineR = "<p class='" . $class . "'>" . "$$listNumberR. $trailer" . '</p>';
 		}
 	# A minor entry, eg "3.1":
 	elsif ($$lineR =~ m!^\s*(\d+|\#)\.(\d+|\#) +(.+?)$!)
@@ -249,12 +289,12 @@ sub OrderedList {
 		if (length($$listNumberR) > 1)
 			{
 			my $class = (length($$subListNumberR) > 1) ? "ol-2-2": "ol-2-1";
-			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+			$$lineR = "<p class='" . $class . "'>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		else
 			{
 			my $class = (length($$subListNumberR) > 1) ? "ol-1-2": "ol-1-1";
-			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+			$$lineR = "<p class='" . $class . "'>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		}
 	# Line continues an item if we're in one and it starts with one or more tabs or spaces.
@@ -266,18 +306,18 @@ sub OrderedList {
 			if (length($$listNumberR) > 1)
 				{
 				my $class = (length($$subListNumberR) > 1) ? "ol-2-2-c": "ol-2-1-c";
-				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+				$$lineR = "<p class='" . $class . "'>" . $$lineR . '</p>';
 				}
 			else
 				{
 				my $class = (length($$subListNumberR) > 1) ? "ol-1-2-c": "ol-1-1-c";
-				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+				$$lineR = "<p class='" . $class . "'>" . $$lineR . '</p>';
 				}
 			}
 		else
 			{
 			my $class = (length($$listNumberR) > 1) ? "ol-2-c": "ol-1-c";
-			$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+			$$lineR = "<p class='" . $class . "'>" . $$lineR . '</p>';
 			}
 		}
 	else
@@ -298,7 +338,6 @@ sub HorizontalRule {
 	# If it's === or ====, use a slightly thicker rule.
 	my $imageName = ($$lineR =~ m!^\=\=\=\=?!) ? 'mediumrule4.png': 'slimrule4.png';
 	my $height = ($imageName eq 'mediumrule4.png') ? 6: 3;
-	my $rowID = 'R' . $lineNum;
 	$$lineR = "<tr><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
@@ -357,19 +396,19 @@ sub Heading {
 		{
 		$contentsClass = 'h4';
 		}
-	if ($i == 1) # right at the top of the document, assume it's a document title <h1>
-		{
-		$contentsClass = 'h1';
-		}
+	# if ($i == 1) # right at the top of the document, assume it's a document title <h1>
+	# 	{
+	# 	$contentsClass = 'h1';
+	# 	}
 	
 	# im-text-ln='$i' rather than $lineNum=$i+1, because we're on the
 	# underline here and want to record the heading line number on the line before.
-	my $jlStart = "<li class='$contentsClass' im-text-ln='$i'><a href='#$id'>";
-	my $jlEnd = "</a></li>";
+	my $jlStart = "<li class='$contentsClass'>";
+	my $jlEnd = "</li>";
 
 	# Turn the underline into a tiny blank row, make line before look like a header
 	$$lineR = "<tr class='shrunkrow'><td></td><td></td></tr>";
-	$$lineBeforeR = "$beforeHeader<$contentsClass id=\"$id\">$headerProper</$contentsClass>$afterHeader";
+	$$lineBeforeR = "$beforeHeader<$contentsClass>$headerProper</$contentsClass>$afterHeader";
 	# Back out any "outdent" wrapper that might have been added, for better alignment.
 	if ($jumperHeader =~ m!^<p!)
 		{
@@ -680,5 +719,271 @@ sub DoTableRows {
 		
 	return($idx);
 	}
+
+# Put in links to
+# - web pages
+# - double-quoted full paths to text files (ONLY if Viewer is running)
+# - double-quoted full paths to images (tooltip only if Viewer isn't running).
+# The ToDo page has no "context" and the Linker is not guaranteed to be running,
+# so links are a bit limited.
+sub AddLinks {
+    my ($txtR, $serverAddr, $mainServerPort) = @_;
+    my $line = $$txtR;
+    my @repStr;
+	my @repLen;
+	my @repStartPos;
+
+    my $previousEndPos = 0;
+    my $haveGoodMatch = 0;
+
+    while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+        {
+		my $startPos = $-[0];
+		my $endPos = $+[0];		# pos of char after end of entire match
+		my $ext = $1;			# double-quoted chunk, or url
+
+        my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
+        my $quoteChar = '';
+        if ($haveQuotation)
+            {
+            # Trim quotes and pick up $quoteChar.
+			$quoteChar =  substr($ext, 0, 1);
+			$ext = substr($ext, 1);
+			$ext = substr($ext, 0, length($ext) - 1);
+            }
+
+        my $haveURL = (index($ext, 'http') == 0);
+        my $url = $haveURL ? $ext : '';
+        if ($haveURL)
+            {
+            RememberUrl($url, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos);
+			$haveGoodMatch = 1;
+            }
+        else
+            {
+            # A spurious tab can sneak in if there's a literal \t in a path,
+            # such as C:\temp\file.xt.
+            # Change it to a forward slash (it won't be displayed).
+            # This is a case where a regex won't work, due to the enclosing "while" regex above.
+            # Or maybe I'm just dumb.
+            $ext = str_replace("\t", '/t', $ext);
+
+            # File path (trim #anchor) and check it's a path to an existing file.
+            my $pathToCheck = $ext;
+            my $anchorPos = index($ext, '#');
+            if ($anchorPos > 0)
+                {
+                $pathToCheck = substr($ext, 0, $anchorPos);
+                }
+            
+            my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
+            if (FileOrDirExistsWide($pathToCheck) == 1 && $fileExtension ne '')
+                {
+                RememberTextOrImageFileMention($ext, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos);
+                }
+            $haveGoodMatch = 1;
+            }
+
+        if (!$haveGoodMatch)
+            {
+            pos($line) = $startPos + 1;
+            }
+        }
+
+    my $numReps = @repStr;
+    if ($numReps)
+        {
+        DoTextReps($numReps, \@repStr, \@repLen, \@repStartPos, $txtR);
+        }
+    }
+
+# From http://www.bin-co.com/perl/scripts/str_replace.php.
+#Replace a string without using RegExp.
+sub str_replace {
+	my $replace_this = shift;
+	my $with_this  = shift; 
+	my $string   = shift;
+	
+	my $length = length($string);
+	my $target = length($replace_this);
+	
+	for(my $i=0; $i<$length - $target + 1; $i++) {
+		if(substr($string,$i,$target) eq $replace_this) {
+			$string = substr($string,0,$i) . $with_this . substr($string,$i+$target);
+			return $string; #Comment this if you what a global replace
+		}
+	}
+	return $string;
+}
+
+sub RememberUrl {
+    my ($url, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA) = @_;
+
+    $url =~ s!\&amp;quot;.?.?.?.?.?$!!;
+    $url =~ s![.,:;?\!\)\] \t\-]$!!;
+    if (length($url) < 10)
+        {
+        return;
+        }
+    my $displayedURL = $url;
+    if ($haveQuotation)
+        {
+        $displayedURL = $quoteChar . $displayedURL . $quoteChar;
+        }
+    my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
+    my $repLength = $haveQuotation ?  length($url) + 2 : length($url);
+    my $repStartPosition = $startPos;
+    push @$repStrA, $repString;
+    push @$repLenA, $repLength;
+    push @$repStartPosA, $repStartPosition;
+    }
+
+sub RememberTextOrImageFileMention {
+    my ($ext, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA) = @_;
+    my $pathToCheck = $ext;
+    my $anchorWithNum = '';
+    my $anchorPos = index($ext, '#');
+    if ($anchorPos > 0)
+        {
+        $pathToCheck = substr($ext, 0, $anchorPos);
+        $anchorWithNum = substr($ext, $anchorPos);
+        }
+    my $anchorLength = length($anchorWithNum);
+    my $doingQuotedPath = $haveQuotation;
+    my $longestSourcePath = $pathToCheck;
+    my $bestVerifiedPath = $longestSourcePath;
+    my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
+    my $haveImageExtension = IsImageExtensionNoPeriod($fileExtension);
+    my $haveTextExtension = IsTextExtensionNoPeriod($fileExtension);
+    my $repString = '';
+
+    if ($haveTextExtension)
+        {
+        GetTextFileRep($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath,
+							$anchorWithNum, \$repString);
+        }
+    else # currently only image extension
+        {
+        GetImageFileRep($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
+							$longestSourcePath, \$repString);
+        }
+
+    my $repLength = length($longestSourcePath) + $anchorLength;
+    if ($haveQuotation)
+        {
+        $repLength += 2; # for the quotes
+        }
+
+    # TEST ONLY is this right?
+    my $repStartPosition = $startPos;
+
+    push @$repStrA, $repString;
+    push @$repLenA, $repLength;
+    push @$repStartPosA, $repStartPosition;
+    }
+
+sub GetTextFileRep {
+    my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath,
+							$anchorWithNum, $repStringR) = @_;
+    
+    my $editLink = '';
+	my $viewerPath = $longestSourcePath;
+    my $editorPath = $viewerPath;
+	$editorPath =~ s!\\!/!g;
+	$editorPath =~ s!%!%25!g;
+	$editorPath =~ s!\+!\%2B!g;
+	$viewerPath =~ s!\\!/!g;
+	$viewerPath =~ s!%!%25!g;
+	$viewerPath =~ s!\+!\%2B!g;
+
+    my $displayedLinkName = $longestSourcePath . $anchorWithNum;
+    # In a ToDo item a full link can be too wide too often.
+    # So shorten the displayed link name to just the file name with anchor.
+    $displayedLinkName = ShortenedLinkText($displayedLinkName);
+
+ 	if ($haveQuotation)
+		{
+		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
+		}
+
+    my $host = $serverAddr;
+	my $port = $mainServerPort;
+    my $ViewerShortName = CVal('VIEWERSHORTNAME');
+
+    my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
+    my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
+    # This is a cheat. If it fails, clicking on the pencil icon to edit will fail.
+    my $allowEditing = ($AllowRemoteEditing || $AllowLocalEditing);
+
+	if ($allowEditing)
+		{
+		$editLink = "<a href='$editorPath' class='canedit' onclick=\"editOpen(this.href); return false;\">"
+					. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
+		}
+
+
+    my $viewerLink = "<a href=\"http://$host:$port/$ViewerShortName/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+	$$repStringR = "$viewerLink$editLink";
+    }
+
+sub GetImageFileRep {
+	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $repStringR) = @_;
+    my $fullPath = $longestSourcePath;
+    $fullPath =~ s!%!%25!g;
+	$fullPath =~ s!\+!\%2B!g;
+
+    my $host = $serverAddr;
+	my $port = $mainServerPort;
+    my $ViewerShortName = CVal('VIEWERSHORTNAME');
+    my $imagePath = "http://$host:$port/$ViewerShortName/$fullPath";
+    my $displayedLinkName = $longestSourcePath;
+    # In a ToDo item a full link can be too wide too often.
+    # So shorten the displayed link name to just the file name with anchor.
+    $displayedLinkName = ShortenedLinkText($displayedLinkName);
+
+	if ($haveQuotation)
+		{
+		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
+		}
+    my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
+	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
+
+    $$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+    }
+
+# Replacements of file/url mentions with links are done straight in the text.
+# Do all reps in reverse order for text, so as to not throw off positions.
+sub DoTextReps {
+	my ($numReps, $repStrA, $repLenA, $repStartPosA, $txtR) = @_;
+	my $line = $$txtR;
+
+	for (my $i = $numReps - 1; $i >= 0; --$i)
+		{
+		if ($repLenA->[$i] > 0)
+			{
+			# substr($line, $pos, $srcLen, $repString);
+			substr($line, $repStartPosA->[$i], $repLenA->[$i], $repStrA->[$i]);
+			}
+		}
+	
+	$$txtR = $line;
+	}
+
+sub ShortenedLinkText {
+    my ($text) = @_;
+    my $filename = FileNameFromPath($text);
+
+    # ToDo items are narrow, no more than 28 chars wide.
+    my $len = length($filename);
+
+    while ($len > 28)
+        {
+        $filename = substr($filename, 1);
+        $len = length($filename);
+        }
+
+    return($filename);
+}
+
 use ExportAbove;
 return 1;

@@ -139,7 +139,8 @@ var todo = todo || {};
             		
             		// Set input values from object.
             		inputs[0].value = object.title;
-            		inputs[1].value = object.description;
+                    inputs[1].value = horribleUnescape(object.description);
+            		//inputs[1].value = object.description;
             		inputs[2].value = object.date;
             		// 3 is the save button
             		inputs[4].value = index;
@@ -185,7 +186,7 @@ var todo = todo || {};
 
         $("<div />", {
             "class" : defaults.todoDescription,
-            "html": decodeURIComponent(params.html)
+            "html": horribleUnescape(decodeURIComponent(params.html))
             //"text": params.description
         }).appendTo(wrapper);
 
@@ -228,8 +229,7 @@ var todo = todo || {};
         }
 
         title = inputs[0].value;
-        description = inputs[1].value; //.replace(/\n/g, '<br\\/>');
-        
+        description = horribleEscape(inputs[1].value);        
         date = inputs[2].value;
         index = inputs[4].value;
 
@@ -254,15 +254,20 @@ var todo = todo || {};
         //localStorage.setItem("todoData", JSON.stringify(data));
         data.items = cleanAndSort(data.items, 'id', 1);
         putData(JSON.stringify(data));
-		
-        // Generate Todo Element
-        generateElement(tempData);
 
         // Reset Form
         inputs[0].value = "";
         inputs[1].value = "";
         inputs[2].value = "";
         inputs[4].value = "1";
+
+        // Reload
+        $("." + defaults.todoTask).remove();
+        getToDoData();
+        
+        // Generate Todo Element
+        //generateElement(tempData);
+
     };
 
     let generateDialog = function (message) {
@@ -425,4 +430,36 @@ var todo = todo || {};
 			   }
 		   }
    		}
+
+    // Interim hack, replace troublesome characters (in description)
+    // with placeholders. These are undone when presenting description for
+    // editing, and also in gloss.pm#Gloss() when applying Gloss to the
+    // description.
+    function horribleEscape(text) {
+        text = text.replace(/\=/g, '__EQUALSIGN_REP__');
+        text = text.replace(/\"/g, '__DQUOTE_REP__');
+        text = text.replace(/\'/g, '__ONEQUOTE_REP__');
+        text = text.replace(/\+/g, '__PLUSSIGN_REP__');
+        text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
+        text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
+        text = text.replace(/\\t/g, '__TABERINO__');
+        text = text.replace(/\\/g, '__BSINO__');
+
+        return(text);        
+    }
+
+    // Reverse of horribleEscape just above.
+    function horribleUnescape(text) {
+        text = text.replace(/__EQUALSIGN_REP__/g, '=');
+        text = text.replace(/__DQUOTE_REP__/g, '\"');
+        text = text.replace(/__ONEQUOTE_REP__/g, '\'');
+        text = text.replace(/__PLUSSIGN_REP__/g, '+');
+        text = text.replace(/__PERCENTSIGN_REP__/g, '%');
+        text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
+        text = text.replace(/__TABERINO__/g, '\\t');
+        text = text.replace(/__BSINO__/g, '\\');
+
+
+        return(text);
+    }
 })(todo, jQuery);
