@@ -12,49 +12,43 @@ body {
 }
 
 #container{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
     margin: 0 auto;
-    /*Kills the scrollbar: min-width: 1040px;*/ /* 770 if "In Progress" is not present */
     width: 98%;
     height: 100%;
     background-color: transparent;
     border: 0;
-    float: left;
     overflow: auto;
 }
 
 #header{
     font-size: 2em;
-    /*text-align: center;*/
 	margin-left: 30px;
     margin-bottom: 15px;
-    /*color: #fff;*/
 }
 
 .task-list{
-    width: 235px;
-    float: left;
     margin: 2px;
     background-color: #e3e3e3;
-    min-height: 240px;
     border-radius: 10px;
     padding-bottom: 15px;
 }
 
 .task-list input, .task-list textarea{
-    width: 215px;
+    width: 90%;
     margin: 3px;
 	padding: 0 5px;
 }
 
 .task-list input{
     height: 30px;
-
 }
 
 .todo-task{
     border-radius: 5px;
     background-color: #fffffb;
-    width: 222px;
     margin: 3px;
     padding: 3px;
     cursor: move;

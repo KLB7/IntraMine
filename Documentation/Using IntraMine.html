@@ -1429,6 +1429,7 @@ let errorID = "editor_error";
 let highlightItems = [];
 let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFLMAABSzATFtOXUAAAQZSURBVFhH1ZZfTFtVHMd/91/L7VY6/hVG4xgymWUIY5ENkq0jy4wGN3EjMmpI9mCcb0s0PvnnzfiyZCb6YqI+mJCUoRkmc7onXeYSBcxWZkfDMjYR6Ua7Au0dXLn33Hs8pz3BdC1QQpvUT/+l39/J70/POb/+ONggTX1SrQkwBEg/FBgAhcmborEX7CBKvxgAJ4L9+n0mZwXPPrPC/bpwQLTDb3I5NJtWkJi8aagv6rOI+KYxmJwVWRfg9krdWyv4n1s9zU7BSjZuiRlyAfFFfbZ6mpw0Bo3FLOuSVQF7vNK7jh384BHPS/KBbT1MzT3tJb3Q4Tkq01g0JpPXZM0Cmk+DSBx9Xu6Wzr3Q3sXvsrWBai4wa+5ZMmJQbzsIR9uO8WXPiudobJoDM2dk1UvsPgnFgiwNulrkF9t2dUKJ6EroGlbh4vUvITZleEDgYglxsxjY4agRrnUffBMkrighRdE0DN+9AiG/eoU0jJ7VGkbGAnb3WZ6yivj7mlZHU7PrMMicg1kAdFLA9ftDoEYxU3KDXMbBodpuEDkrU8iOkN2+FboKU6PKrWXEHZvo16aZaYW0Ahp6xX0WO3eprq20uq5kH3FoYZYkmDz+MR+vfMslRbydJJSakm4uw+T8Dbg3PB/SFHx8fADdYKYEKasbeqTjshN8dfsrtlTZaomyoS6bNzCYMLs4CZOj0UU1DN7xQf0SM/1XAGldZ4td3PmalhLBLpUztbBQtAhM+RcMZQa/Pe7TP6Ma19EBQni7eL60XjhbWW8DiU9eokJFN1WYvaPC3ITxqfMheodr8IpDlXvFV+0uPu38FSr0Hioz5Fj50Xc8xjCmxck7fZKz9n940VxpzjR34VHAvErO/rS2CJ1bKnmBK/BNwCT/Wb+hK3+ZZ0hH+kSgYiRg3ty2kx9R58yurVW8lUuohYepA4RGkaJG4MTtAfQt1VJ+78ZT4l6xmLtcvV+oFuXC2gqkYgiNGCEUxy8HLiA/k9NvbaPXsoMvwpe3Py80Wh2FUcRyDMOD343Ass51PvlvnDHDei84LKJ0sapFOGJzpi9ZiuC8jBK2igyxwhge3jR+0pB+8o4P0mavVX/inafBYtOlryr2CH2OmtRl4T+MvAxzzudSL19sCkPkttG/JOlv/Pk1aExOYdUCGJz7lPhR6TPCe2W7yVjBVtMC4ve0svFvYC6pbI6G16C0+GlLdKUAsrnRCRPP3zU+Jp3mw6SSmfWGHRy8gN6fmzTOkNaFaAvLN6xNIhLzLZL8B1RKWjKT1bQW9KEv4jO4KzSMHtNWli8SbXIEKfEQfoXGZPKaZD1uBgf0H8jFPfz3r+iBoTIxhyDik/pWH+GOoE//kcnrsqF5mc7i+gLXvhjGY7wAOdsL6ot0mzHq+8l5f20A/gW9of8+fiHTAwAAAABJRU5ErkJggg==';
 let selectedTocId = 'tocitup';
+let doubleClickTime = 500;
 //let weAreStandalone = true;
 </script>
 <script type="text/javascript">
@@ -1507,7 +1508,7 @@ function hasClass(el, className) {
 	if (el.classList)
 		return el.classList.contains(className)
 	else
-		return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+		return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
 
 function addClass(el, className) {
@@ -1533,7 +1534,16 @@ function removeClass(el, className) {
 		}
 }
 
-
+function isDescendant(parent, child) {
+	var node = child.parentNode;
+	while (node != null) {
+		if (node == parent) {
+			return true;
+		}
+		node = node.parentNode;
+	}
+	return false;
+}
 // Helper function to get an element's exact position
 function getPosition(el) {
 	"use strict";

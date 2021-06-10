@@ -1,4 +1,11 @@
-# gloss.pm: a module for gloss. See Gloss.txt.
+# gloss.pm: a module for Gloss, as used by the ToDo page. See Gloss.txt.
+# And see intramine_todolist.pl for an example of usage.
+# This is a slightly reduced version of Gloss:
+# - linking: only web links and full paths in double quotes are supported
+# - cells in TABLEs should be separated by \t rather than actual tab
+# - there is no automatic table of contents
+# - line numbers are not supported
+# - lesser niceties, such as highlighting all instances of a selection, are not supported.
 
 package gloss;
 require Exporter;
@@ -14,16 +21,25 @@ use intramine_config;
 use win_wide_filepaths;
 use ext;
 
+# VS Code is messing with me, trying to work around it. Success!
+my $CONFIGLOADED = 0;
+
 BEGIN {
-    LoadConfigValues();
+    $CONFIGLOADED = 0;
 }
 
 # Return an HTML version of $text with Gloss-style markdown.
 # Note no table of contents here.
-# And note contents are put in a simple table without line numbers.
+# Contents are put in a simple table without line numbers.
 sub Gloss {
     my ($text, $serverAddr, $mainServerPort, $contentsR) = @_;
     $text = horribleUnescape($text);
+
+	if (!$CONFIGLOADED)
+		{
+		LoadConfigValues();
+		$CONFIGLOADED = 1;
+		}
 
     my @lines = split(/\n/, $text);
 
@@ -34,7 +50,7 @@ sub Gloss {
 	my $secondOrderListNum = 0;
 	my $unorderedListDepth = 0; # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
-   # We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
+	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
 	my $inATable = 0;
 
     for (my $i = 0; $i < @lines; ++$i)
@@ -69,30 +85,27 @@ sub Gloss {
 					}
 				else # treat like any ordinary line
 					{
-					my $rowID = 'R' . $lineNum;
 					$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
 					}
 				$justDidHeadingOrHr = 1;
 				}
 			else # treat like any ordinary line
 				{
-				my $rowID = 'R' . $lineNum;
-				$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
-				$justDidHeadingOrHr = 0;
+				if ($lines[$i] eq '')
+					{
+					$lines[$i] = "<tr><td>" . '&nbsp;' . '</td></tr>';
+					$justDidHeadingOrHr = 0;
+					}
+				else
+					{
+					$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
+					$justDidHeadingOrHr = 0;
+					}
 				}
 			}
 		else
 			{
-			# Add AutoLinks for source and text files, image files, and web links.
-###			AddWebAndFileLinksToLine(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-			# Add module links if it looks like a Perl use or import.
-#			if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
-#				{
-#				AddModuleLinkToText(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-#				}
-				
-			# Put contents in table, separate cells for line number and line proper
-			my $rowID = 'R' . $lineNum;
+			# Put contents in table cell.
 			$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
 			$justDidHeadingOrHr = 0;
 			}
@@ -143,6 +156,7 @@ sub horribleEscape {
     return($text);
     }
 
+# Bold, italic, and special symbols.
 sub AddEmphasis {
 	my ($lineR) = @_;
 
@@ -419,6 +433,7 @@ sub Heading {
 	}
 
 # Where a line begins with TABLE, convert lines following TABLE that contain tab(s) into an HTML table.
+# NOTE here "tab" means \t rather than an actual tab.
 # We have already put in line numbers and <tr> with <td> for the line numbers and contents proper, see just above.
 # A table begins with TABLE followed by optional text, provided the first character in the optional text
 # is one of space tab underscore colon period hyphen. The following line must also
@@ -722,8 +737,9 @@ sub DoTableRows {
 
 # Put in links to
 # - web pages
-# - double-quoted full paths to text files (ONLY if Viewer is running)
-# - double-quoted full paths to images (tooltip only if Viewer isn't running).
+# - double-quoted full paths to text files
+# - double-quoted full paths to images
+# For the file links to function, IntraMine's Viewer must be running.
 # The ToDo page has no "context" and the Linker is not guaranteed to be running,
 # so links are a bit limited.
 sub AddLinks {
@@ -766,6 +782,7 @@ sub AddLinks {
             # Change it to a forward slash (it won't be displayed).
             # This is a case where a regex won't work, due to the enclosing "while" regex above.
             # Or maybe I'm just dumb.
+            my $extOriginal = $ext;
             $ext = str_replace("\t", '/t', $ext);
 
             # File path (trim #anchor) and check it's a path to an existing file.
@@ -779,9 +796,9 @@ sub AddLinks {
             my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
             if (FileOrDirExistsWide($pathToCheck) == 1 && $fileExtension ne '')
                 {
-                RememberTextOrImageFileMention($ext, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos);
+                RememberTextOrImageFileMention($extOriginal, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos);
                 }
-            $haveGoodMatch = 1;
+           $haveGoodMatch = 1;
             }
 
         if (!$haveGoodMatch)
@@ -798,7 +815,7 @@ sub AddLinks {
     }
 
 # From http://www.bin-co.com/perl/scripts/str_replace.php.
-#Replace a string without using RegExp.
+# Replace a string without using RegExp.
 sub str_replace {
 	my $replace_this = shift;
 	my $with_this  = shift; 
@@ -810,7 +827,7 @@ sub str_replace {
 	for(my $i=0; $i<$length - $target + 1; $i++) {
 		if(substr($string,$i,$target) eq $replace_this) {
 			$string = substr($string,0,$i) . $with_this . substr($string,$i+$target);
-			return $string; #Comment this if you what a global replace
+	#		return $string; # Commented out to do global replace.
 		}
 	}
 	return $string;
@@ -838,8 +855,14 @@ sub RememberUrl {
     push @$repStartPosA, $repStartPosition;
     }
 
+# Push link replacement details into $repStrA, $repLenA, $repStartPosA arrays.
+# $repStrA: the replacement text for the link
+# $repStartPosA: where the replacement starts in the original text
+# $repLenA: length of text being replaced.
 sub RememberTextOrImageFileMention {
-    my ($ext, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA) = @_;
+    my ($extOriginal, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA) = @_;
+    my $ext = $extOriginal; # $ext for href, $extOriginal when caculating $repLength
+    $ext = str_replace("\t", '/t', $ext);
     my $pathToCheck = $ext;
     my $anchorWithNum = '';
     my $anchorPos = index($ext, '#');
@@ -861,6 +884,7 @@ sub RememberTextOrImageFileMention {
         {
         GetTextFileRep($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath,
 							$anchorWithNum, \$repString);
+
         }
     else # currently only image extension
         {
@@ -868,13 +892,12 @@ sub RememberTextOrImageFileMention {
 							$longestSourcePath, \$repString);
         }
 
-    my $repLength = length($longestSourcePath) + $anchorLength;
+    my $repLength = length($extOriginal);
     if ($haveQuotation)
         {
         $repLength += 2; # for the quotes
         }
 
-    # TEST ONLY is this right?
     my $repStartPosition = $startPos;
 
     push @$repStrA, $repString;
@@ -882,6 +905,7 @@ sub RememberTextOrImageFileMention {
     push @$repStartPosA, $repStartPosition;
     }
 
+# Get link for full file path $longestSourcePath.
 sub GetTextFileRep {
     my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath,
 							$anchorWithNum, $repStringR) = @_;
@@ -892,6 +916,7 @@ sub GetTextFileRep {
 	$editorPath =~ s!\\!/!g;
 	$editorPath =~ s!%!%25!g;
 	$editorPath =~ s!\+!\%2B!g;
+
 	$viewerPath =~ s!\\!/!g;
 	$viewerPath =~ s!%!%25!g;
 	$viewerPath =~ s!\+!\%2B!g;
@@ -899,7 +924,7 @@ sub GetTextFileRep {
     my $displayedLinkName = $longestSourcePath . $anchorWithNum;
     # In a ToDo item a full link can be too wide too often.
     # So shorten the displayed link name to just the file name with anchor.
-    $displayedLinkName = ShortenedLinkText($displayedLinkName);
+    $displayedLinkName = ShortenedLinkText($displayedLinkName, 28);
 
  	if ($haveQuotation)
 		{
@@ -926,9 +951,12 @@ sub GetTextFileRep {
 	$$repStringR = "$viewerLink$editLink";
     }
 
+# Get image link for full path $longestSourcePath. Includes showhint() popup call
+# and the little hummingbird images to suggest hovering.
 sub GetImageFileRep {
 	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $repStringR) = @_;
     my $fullPath = $longestSourcePath;
+    $fullPath =~ s!\\!/!g;
     $fullPath =~ s!%!%25!g;
 	$fullPath =~ s!\+!\%2B!g;
 
@@ -939,7 +967,7 @@ sub GetImageFileRep {
     my $displayedLinkName = $longestSourcePath;
     # In a ToDo item a full link can be too wide too often.
     # So shorten the displayed link name to just the file name with anchor.
-    $displayedLinkName = ShortenedLinkText($displayedLinkName);
+    $displayedLinkName = ShortenedLinkText($displayedLinkName, 28);
 
 	if ($haveQuotation)
 		{
@@ -969,14 +997,15 @@ sub DoTextReps {
 	$$txtR = $line;
 	}
 
+# Truncate displayed link text.
+# Set $truncLimit to about 28 for ToDo item links.
 sub ShortenedLinkText {
-    my ($text) = @_;
+    my ($text, $truncLimit) = @_;
     my $filename = FileNameFromPath($text);
 
-    # ToDo items are narrow, no more than 28 chars wide.
     my $len = length($filename);
 
-    while ($len > 28)
+    while ($len > $truncLimit)
         {
         $filename = substr($filename, 1);
         $len = length($filename);

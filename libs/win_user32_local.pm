@@ -1,6 +1,6 @@
-# win_user32.pm: access functions in user32.dll. For now, just GetDoubleClickTime.
+# win_user32_local.pm: access functions in user32.dll. For now, just GetDoubleClickTime.
 
-package win_user32;
+package win_user32_local;
 require Exporter;
 use Exporter qw(import);
 

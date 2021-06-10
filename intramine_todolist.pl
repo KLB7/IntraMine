@@ -8,6 +8,8 @@
 # The interface handling, and Server-Sent Events handling, is done in JavaScript - 
 # see todo.js, todoEvents.js, and todoGetPutData.js. jQuery is used.
 
+# Rev May 2021, ToDo items support Gloss-style markdown (most of it anyway).
+
 # perl C:\perlprogs\mine\intramine_todolist.pl  81 43131
 
 use strict;
@@ -63,13 +65,17 @@ MainLoop(\%RequestAction);
 
 ################### subs
 
-# 2020-03-11 14_09_25-To Do.png
+# 2021-06-09 14_02_16-To Do.png
 sub ToDoPage {
 	my ($obj, $formH, $peeraddress) = @_;
 
 	my $theBody = <<'FINIS';
 <!doctype html>
 <html><head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="google" content="notranslate">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
 <title>To Do</title>
 <link rel="stylesheet" type="text/css" href="main.css" />
 <link rel="stylesheet" type="text/css" href="non_cm_text.css" />
@@ -121,7 +127,7 @@ _TOPNAV_
 			</div>
 		</div>
 
-		<div style="clear:both;"></div>
+		<!-- <div style="clear:both;"></div> -->
 	</div>
 <!-- </div> -->
 </div>
@@ -291,6 +297,8 @@ sub PutData {
 	my $result = '';
 	my $filePath = $ToDoPath;
 	my $data = $formH->{'data'};
+
+	$data = uri_unescape($data);
 
 	my $didit = WriteBinFileWide($filePath, $data);
 	my $tryCount = 0;

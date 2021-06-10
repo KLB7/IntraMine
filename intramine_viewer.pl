@@ -35,7 +35,7 @@ use swarmserver;
 #use reverse_filepaths;
 use pod2thml_intramine;
 use win_wide_filepaths;
-use win_user32;
+use win_user32_local;
 use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 

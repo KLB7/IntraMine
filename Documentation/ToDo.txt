@@ -1,6 +1,6 @@
 ToDo
 =====
-2020-03-11 14_09_25-To Do.png
+2021-06-09 14_02_16-To Do.png
 
 The ToDo server provides a simple Kanban-style todo list, with just enough features to make it useful. Most of it is done in JavaScript.
 
@@ -21,9 +21,34 @@ All tasks can be dragged around, both between lists and within one list. As you 
 
 Simple enough, right? If you enthusiastically add a large number of tasks then the view will scroll, but it's best not to have so many tasks that scrolling is needed.
 
+If you make your browser window wider all of the tasks will get wider.
+
 I wrote very little of this on the JavaScript side, and so I'll leave it to you to go through todo.js if you want an understanding of the basic ToDo list.
 
-However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoEvents.js, which implements Server-Sent Events so that all open ToDo browser tabs can signal a change has happened, and respond to a change by refreshing the view, as outlined below.
+However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoEvents.js, which implements Server-Sent Events so that all open ToDo browser tabs can signal a change has happened, and respond to a change by refreshing the view, as outlined below in "Server-Sent Events for ToDo changes".
+
+Gloss markdown can be used in ToDo items
+----------------------------------------
+IntraMine's approach to markdown is called Gloss. It's a minimal approach, targeted at intranet documents. For all the details, see "Gloss.txt".
+
+The ToDo version of Gloss supports:
+ - **bold** and *italic*
+ - unordered or "bullet" lists, two level
+ - ordered or "numbered" lists, two levels
+ - headings (three levels)
+ - special icons (such as FIXED)
+ - tables (**but** use \t instead of a real tab as the cell separator)
+ - links (see below).
+
+Links are restricted for ToDo items by comparison with full autolinking as seen with IntraMine's Viewer for text files. Supported links for ToDo:
+ - web links, as usual they must start with http: or https:
+ - file links, but they must be full paths enclosed in single or double quotes, such as "C:\Common/images/animage.png" or "P:\project51\src/afile.cpp"
+ - file links are supported for all source files and text files, and image files
+ - you do get the "pop up on hover" for image links, so if you pause your cursor over the image link a (possibly reduced) version of the image will appear.
+
+Full autolinking as seen with the Viewer really isn't appropriate for ToDo, because there's no useful "context" for ToDo items, and because the FILEWATCHER and Linker services might not even be running.
+
+Please see also "Gloss.txt" if you haven't yet, you might enjoy using Gloss for your intranet documentation.
 
 Server-Sent Events for ToDo changes
 ===================================

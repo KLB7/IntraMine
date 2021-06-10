@@ -30,13 +30,15 @@ function getToDoData() {
 			// Success!
 			hideSpinner();
 
+			let theText = decodeURIComponent(request.responseText);
+
 			if (toDoIsStarted)
 				{
-				todo.init(request.responseText, false);
+				todo.init(theText, false);
 				}
 			else
 				{
-				startToDoList(request.responseText);
+				startToDoList(theText);
 				toDoIsStarted = true;
 				}
 			}
@@ -141,6 +143,11 @@ function putData(theData) {
 		e1.innerHTML = 'Connection error!';
 		hideSpinner();
 	};
+
+	
+	theData = theData.replace(/%/g, "%25");
+	theData = encodeURIComponent(theData);
+	theData = encodeURIComponent(theData); // sic
 
 	request.send('data=' + theData);
 }

@@ -13,7 +13,9 @@ Gloss is a markdown variant that concentrates on two things: minimal, memorable 
 
 Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments.
 
-IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl - 
+IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt"). 
+
+Most of Gloss is also available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main differences are that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt"), and that cell separation in tables is done with \t rather than an actual tab.
 
 Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use, as opposed to publishing to the world. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
 

@@ -107,6 +107,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use intramine_config;
 use win_wide_filepaths;
+use win_user32_local;
 use ext;
 
 
@@ -2016,6 +2017,7 @@ let errorID = "editor_error";
 let highlightItems = [];
 let b64ToggleImage = '_B64TOGGLEIMAGE';
 let selectedTocId = '_SELECTEDTOCID_';
+let doubleClickTime = _DOUBLECLICKTIME_;
 //let weAreStandalone = true;
 </script>
 <script type="text/javascript">
@@ -2048,6 +2050,9 @@ DONEIT
 	# Hilight class for table of contents selected element - see also non_cm_test.css
 	# and cm_viewer.css.
 	$topJS =~ s!_SELECTEDTOCID_!tocitup!; 
+	# Double click time.
+	my $dtime = DoubleClickTime();
+	$topJS =~ s!_DOUBLECLICKTIME_!$dtime!;
 
 	$$contents_R .= $topJS;
 	
