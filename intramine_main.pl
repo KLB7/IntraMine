@@ -1686,6 +1686,44 @@ sub ServerOnPortIsStarting {
 sub HighestPortInUse {
 	return($HighestUsedServerPort);
 	}
+
+# This responds to serverswarm.pm#ServiceIsRunning(), which translates the
+# "yes"/"no" returned here into 1/0.
+# See intramine_boilerplate.pl#ReportOnSomeServers() for an example.
+sub ServiceIsRunning {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'no';
+	my $shortName = defined($formH->{'shortname'}) ? $formH->{'shortname'} : '';
+	if ($shortName ne '')
+		{
+		my $numServicesRunning = (defined( $PortsForShortServerNames{$shortName})) ?
+						 @{$PortsForShortServerNames{$shortName}}: 0;
+		if ($numServicesRunning > 0)
+			{
+			for (my $i = 0; $i < $numServicesRunning; ++$i)
+				{
+				my $portNumber = $PortsForShortServerNames{$shortName}->[$i];
+				my $isRunning = ServerOnPortIsRunning($portNumber);
+				if ($isRunning)
+					{
+					$result = 'yes';
+					last;
+					}
+				}
+			}
+		elsif (defined($PortForShortBackgroundServerName{$shortName}))
+			{
+			my $portNumber = $PortForShortBackgroundServerName{$shortName};
+			if (ServerOnPortIsRunning($portNumber))
+				{
+				$result = 'yes';
+				}
+			}
+		}
+	
+	return($result);
+	}
+
 	
 sub SetMainSelfTest {
 	my ($shouldTest) = @_;
@@ -1997,6 +2035,7 @@ sub SetUpRequestActionHandlers {
 	$RequestAction{'req|restart_one_specific_server'} = \&RestartOneServer; # $obj holds server port
 	$RequestAction{'req|ruthere'} = \&RUThere; 					# req=ruthere
 	$RequestAction{'req|serverstatus'} = \&ServerStatus; 		# req=serverstatus
+	$RequestAction{'req|running'} = \&ServiceIsRunning; 		# req=running
 	$RequestAction{'req|id'} = \&Identify; 						# req=id
 	$RequestAction{'signal'} = \&BroadcastSignal; 				# signal=anything
 	$RequestAction{'ssinfo'} = \&ReceiveInfo; 					# ssinfo=anything, eg 'ssinfo=serverUp'

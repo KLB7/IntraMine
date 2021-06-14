@@ -1987,6 +1987,41 @@ sub RedirectFromMain {
 	return($result);
 	}
 	
+# If you know the short name for a service (see data/serverlist.txt)
+# you can call this sub to find out if an instance is currently running.
+# Eg "if (ServiceIsRunning('Files'))...".
+# See intramine_boilerplate.pl#ReportOnSomeServers() for an example.
+sub ServiceIsRunning {
+	my ($shortName) = @_;
+	my $result = 0;
+	
+	my $serverAddress = ServerAddress(); 			# This is common to all servers in IntraMine, local IP
+	my $portNumber = MainServerPort();				# Typ. 81
+	my $mains = IO::Socket::INET->new(
+	                Proto   => 'tcp',       		# protocol
+	                PeerAddr=> "$serverAddress",
+	                PeerPort=> "$portNumber"
+	                ) or (ServerErrorReport() && return(0));
+	
+	print $mains "GET /?req=running&shortname=$shortName HTTP/1.1\r\n\r\n";
+	my $line = '';
+	my $rawResult = '';
+
+	# Pick up some headers, and then a 'yes' or 'no' at the end.
+	while ($line=<$mains>)
+		{
+		$rawResult .= $line . "\n";
+		}
+	close $mains;
+	
+	if ($rawResult =~ m!yes\s*$!i)
+		{
+		$result = 1;
+		}
+
+	return($result);
+	}
+
 sub ServerIdentify {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $portNumber = $OurPort;
