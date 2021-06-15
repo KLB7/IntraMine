@@ -767,8 +767,11 @@ function showCheckboxes() {
     checkboxes.style.height = "400px";
     languageDropdownExpanded = true;
     let summaryElement = document.getElementById("languageSummary");
-    summaryElement.textContent = '';
-  } else {
+	if (summaryElement !== null)
+		{
+		summaryElement.textContent = '';
+		}
+   } else {
     checkboxes.style.display = "none";
     checkboxes.style.height = "20px";
     languageDropdownExpanded = false;
@@ -780,7 +783,6 @@ function showCheckboxes() {
 // Up to 4 specific languages are shown, above that it says "etc".
 // And of course if all are selected the summary reads "all are selected".
 function updateLanguageSummary() {
-	let summaryElement = document.getElementById("languageSummary");
 	let summary = '';
 	let firstLanguage = '';
 	let secondLanguage = '';
@@ -843,7 +845,18 @@ function updateLanguageSummary() {
 			}
 		summary = '(' + lans + ' selected)';
 		}
-	summaryElement.textContent = summary;
+	
+	let summaryElement = document.getElementById("languageSummary");
+	if (summaryElement !== null)
+		{
+		summaryElement.textContent = summary;
+		}
+
+	let multiSummaryElement = document.getElementById("multiLanguageSummary");
+	if (multiSummaryElement !== null)
+		{
+		multiSummaryElement.textContent = summary;
+		}
 	}
 
 function addFormClickListener() {

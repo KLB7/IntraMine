@@ -19,9 +19,10 @@
    font-family: 'Helvetica Neue',Helvetica,sans-serif;
    text-decoration: none;
    vertical-align: middle;
-   min-width:760px;
+   /*min-width:760px;*/
    padding:10px;
-   width:760px;
+   width: 60em; /*65.5em;800px;*/
+   /*max-width: 1000px;*/
    }
  .form-container-small {
    margin: 0;
@@ -111,6 +112,7 @@
    background: #fff;
    color: #565656;
    }
+
 .form-container h2 {
    text-shadow: #f3f3f3 0 1px 0;
    font-size:1.2em;
@@ -189,7 +191,7 @@
 #docCount {
 	font-size:0.875em;
 	border: 1px solid #bbb;
-	margin-left: 10px;
+	/*margin-left: 10px;*/
 	padding: 3px;
 	}
 
@@ -310,7 +312,7 @@ and DBX delete buttons. */
 
 /* A dropdown with check boxes */
 #languageDropdown {
-	
+	display: inline-block;
 }
 
 #languageDropdown select {
@@ -318,7 +320,7 @@ and DBX delete buttons. */
 }
 
 #languageSummaryDiv {
-  width: 402px;
+  width: 28em;
   margin: 0 auto;
   
 }
@@ -327,7 +329,7 @@ and DBX delete buttons. */
 }
 
 .multiselect {
-  width: 402px;
+  width: 28em;
   margin: 7px auto;
   margin-bottom: 0;
   
@@ -368,6 +370,7 @@ and DBX delete buttons. */
   border: 1px #dadada solid;
   overflow-y: auto;
   height: 400px;
+  text-align: left;
 }
 
 #checkboxes label {

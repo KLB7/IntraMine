@@ -1,5 +1,119 @@
 /* search.css: for the Search service. Search service directory picker etc. */
 
+/* Grid layout for the Search form and items within. */
+#ftsform {
+	display: grid;
+	grid-template-columns: 3fr 1fr 1fr;/*repeat(3, 1fr);*/
+	grid-template-rows: auto; /*50px 50px 50px 50px;*/
+	column-gap: 10px;
+	padding-right: 20px;
+}
+
+/* form_column_row */
+#form_1_1 {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 1;
+	grid-row-end: 1;
+	justify-self: end;
+	align-self: center;
+}
+
+#form_2_1 {
+	grid-column-start: 2;
+	grid-column-end: 2;
+	grid-row-start: 1;
+	grid-row-end: 1;
+	justify-self: end;
+	align-self: center;
+	padding-right: 0.5em;
+}
+
+#form_3_1 {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 1;
+	grid-row-end: 1;
+	justify-self: end;
+	align-self: center;
+}
+
+#form_1_2 {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 2;
+	grid-row-end: 2;
+	justify-self: end;
+}
+
+#form_2_2 {
+	grid-column-start: 2;
+	grid-column-end: 3;
+	grid-row-start: 2;
+	grid-row-end: 2;
+	justify-self: start;
+	padding-left: 2px;
+}
+
+#form_3_2 {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 2;
+	grid-row-end: 2;
+	justify-self: end;
+	align-self: center;
+}
+
+#form_1_3 {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 3;
+	grid-row-end: 3;
+	justify-self: end;
+}
+
+#form_2_3 {
+	grid-column-start: 2;
+	grid-column-end: 2;
+	grid-row-start: 3;
+	grid-row-end: 3;
+	justify-self: end;
+}
+
+#form_3_3 {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 3;
+	grid-row-end: 3;
+	justify-self: end;
+
+}
+
+/*
+#form_1_4 {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 4;
+	grid-row-end: 4;
+	justify-self: end;
+}
+
+#form_2_4 {
+	grid-column-start: 2;
+	grid-column-end: 2;
+	grid-row-start: 4;
+	grid-row-end: 4;
+}
+
+#form_3_4 {
+	grid-column-start: 3;
+	grid-column-end: 3;
+	grid-row-start: 4;
+	grid-row-end: 4;
+}
+*/
+
+
 #searchdirectory {
 	width:360px;
 }
@@ -26,8 +140,8 @@
 	display: inline-block;
 	margin: 0;
 	padding: 0;
-	left: 4px;
-	top: 6px;
+	/*left: 4px;*/
+	top:4px;
 }
 
 #dotdotdot:hover {

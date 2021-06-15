@@ -1989,8 +1989,8 @@ sub RedirectFromMain {
 	
 # If you know the short name for a service (see data/serverlist.txt)
 # you can call this sub to find out if an instance is currently running.
+# Returns 1 if Main thinks the service is running, 0 otherwise.
 # Eg "if (ServiceIsRunning('Files'))...".
-# See intramine_boilerplate.pl#ReportOnSomeServers() for an example.
 sub ServiceIsRunning {
 	my ($shortName) = @_;
 	my $result = 0;

@@ -218,7 +218,7 @@ sub SearchForm {
 <div class="multiselect">
 	<div class="selectBox" onclick="showCheckboxes()">
 	  <select>
-		<option>Language</option>
+		<option id='multiLanguageSummary'>(all are selected))</option>
 	  </select>
 	  <div class="overSelect"></div>
 	</div>
@@ -231,7 +231,7 @@ sub SearchForm {
 TOHERE
 
 	my $sortByDropdown = <<'ENDIT';
- &nbsp; <strong>Sort by:</strong> <select name="sortBy" id="sortBy" onchange="sortSearchResults(this)">
+<strong>Sort by:</strong> <select name="sortBy" id="sortBy" onchange="sortSearchResults(this)">
 <option value="Score" selected="selected">Score</option>
 <option value="Name">Name</option>
 <option value="Date">Date</option>
@@ -243,29 +243,30 @@ ENDIT
 	# The Search form proper:
 	my $theSource = <<"FINIS";
 <form class="form-container" id="ftsform" method="get" action=_ACTION_ onsubmit="searchSubmit(this); return false;">
-<table>
-<tr><td class="formItemTitle"><h2>Search for&nbsp;</h2></td>
-<td><input id="searchtext" class="form-field" type="search" name="findthis" placeholder='type here eh' required />
-<label><input type='checkbox' name='matchexact' value='yes'>Match Exact Phrase</label>_DOCCOUNT_</td>
-</tr>
-<tr><td class="formItemTitle"><h2>Directory&nbsp;</h2></td>
-<td><input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path, hit the dots->, or leave blank for all dirs'><div id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></div>
-<label><input type='checkbox' id="subDirCheck" name='subdirs' value='yes'_CHECKEDBYDEFAULT_>Subdirectories too</label></td>
-</tr>
-</table>
-<div class="submit-container">
-<table id="ftsLanguageTable">
-	<tr>
-	<td><div id="languageDropdown">$languageDropdown</div></td>
-	<td>$sortByDropdown</td>
-	<td rowspan="2"><div class='submitbuttonthecontainer'>
-			<input id="searchSubmitButton" class="submit-button" type="submit" value="Search" />
-			</div>
-	</td>
-	</tr>
-	<tr><td><div id="languageSummaryDiv"><div id="languageSummary">(all are selected)</div></div></td><td></td></tr>
-</table>
+
+<div id="form_1_1" class="formItemTitle"><h2>Search for&nbsp;</h2>
+<input id="searchtext" class="form-field" type="search" name="findthis" placeholder='type here eh' required /></div>
+<div id="form_2_1"><label><input type='checkbox' name='matchexact' value='yes'>Match Exact Phrase</label></div>
+<div id="form_3_1">_DOCCOUNT_</div>
+
+<div id="form_1_2" class="formItemTitle"><h2>Directory&nbsp;</h2>
+<input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path, hit the dots->, or leave blank for all dirs' /></div>
+<div id="form_2_2"><div id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></div></div>
+<div id="form_3_2"><label><input type='checkbox' id="subDirCheck" name='subdirs' value='yes'_CHECKEDBYDEFAULT_>Subdirectories too</label></div>
+
+<div id="form_1_3" class="formItemTitle"><h2>Language&nbsp;</h2>
+<div id="languageDropdown">$languageDropdown</div>
 </div>
+
+<div id="form_2_3">$sortByDropdown</div>
+
+<div id="form_3_3"><div class='submitbuttonthecontainer'>
+		<input id="searchSubmitButton" class="submit-button" type="submit" value="Search" />
+		</div></div>
+
+<!-- <div id="form_1_4"><div id="languageSummaryDiv"><div id="languageSummary">(all are selected)</div></div></div>
+<div id="form_2_4"></div>
+<div id="form_3_4"></div> -->
 </form>
 FINIS
 
@@ -287,13 +288,13 @@ FINIS
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
 	
-	# <span id='docCount'>_DOCCOUNT_</span>
+	# <div id='docCount'>_DOCCOUNT_</div>
 	my $documentCount = Commify(CountOfIndexedDocuments());
 	$documentCount = $documentCount . ' docs indexed';
 	# Cluster health: set background colour of span id='docCount' to red/yellow/green.
 	my $clusterStatus = lc(ClusterHealth()); # red yellow green
 	my $healthClass = 'light' . $clusterStatus . 'Back'; # css .lightredBack etc - see forms.css#lightredBack
-	my $docCountElement = "<span id='docCount' class='$healthClass'>$documentCount</span>";
+	my $docCountElement = "<div id='docCount' class='$healthClass'>$documentCount</div>";
 	$theSource =~ s!_DOCCOUNT_!$docCountElement!;
 	# Check "Subdirectories too" if config says to.
 	my $checkSubdirsByDefault = CVal('SEARCH_SUBDIRS_BY_DEFAULT');
