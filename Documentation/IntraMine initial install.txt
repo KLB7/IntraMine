@@ -38,11 +38,10 @@ Head off to
 ---
 http://strawberryperl.com/
 ---
-and download "Strawberry Perl 5.30.0.1 (64bit)", an msi installer, from the rather pink link under "Recommended version:".
-Strawberry30.png
-
-If you see a later version, that's probably ok. There's a very small chance that a module needed by IntraMine won't be available under a later version: if you're not willing to gamble, click on the pink "All releases" link lower on the page under "More downloads:", and select the 64-bit msi download for version 5.30.0.1.
+Click on the pink "All releases" link lower on the page under "More downloads:", and select the 64-bit msi download for version 5.30.0.1.
 2019-09-10 12_43_47-Strawberry Perl for Windows.png
+
+NOTE as of June 2021 the Search::Elasticsearch module might not work with a different version of Strawberry Perl, which is a bit of a bummer. I'll update this note if things change.
 
 After downloading, run the msi file to install Strawberry Perl.
 
