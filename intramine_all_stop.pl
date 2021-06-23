@@ -21,6 +21,7 @@ my $serverAddress = CVal('SERVER_ADDRESS');
 if ($serverAddress eq '')
 	{
 	# This is an error, but we will try to carry on.
+	print("We will continue, using 'localhost' as the server address.\n");
 	$serverAddress = 'localhost';
 	}
 

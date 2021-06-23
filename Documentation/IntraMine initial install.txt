@@ -38,10 +38,9 @@ Head off to
 ---
 http://strawberryperl.com/
 ---
-Click on the pink "All releases" link lower on the page under "More downloads:", and select the 64-bit msi download for version 5.30.0.1.
-2019-09-10 12_43_47-Strawberry Perl for Windows.png
-
-NOTE as of June 2021 the Search::Elasticsearch module might not work with a different version of Strawberry Perl, which is a bit of a bummer. I'll update this note if things change.
+Download the "Recommended version" from the pink box on the right. IntraMine has been tested with Strawberry Perl 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.
+Strawberry30.png
+(*the pink box for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested*)
 
 After downloading, run the msi file to install Strawberry Perl.
 
@@ -74,19 +73,9 @@ Now you'll want to grab a few modules.
 
 Installing additional Strawberry Perl modules
 =============================================
-Installing modules for Strawberry Perl is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts, I had no luck with it.
+Installing modules for Strawberry Perl is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts; I had no luck with it.
 
-Note the "cpan Search::Elasticsearch" install might freeze near the end, during final tests: if it stalls for more than a few minutes on 
-t/Server_PreFork.t ........ 1/5
-or something similar, hit CTRL-C / Enter to get out. We'll check it's ok in a minute.
-
-And "cpan IO::Socket::Timeout" does a lot of timeout tests during the install, so it can take a while, five minutes or so.
-
-When you see
----
-C:\STRAWB~1\c\bin\gmake.exe -- OK
----
-the installation might seem to stall while gmake.exe is running, but it's just being rather laconic. Eventually, something will happen. With Text::Unidecode, this can take up to 10 minutes, so do some creative multitasking as needed.
+cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just thinking hard.
 
 Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a command prompt and press Enter:
 ---
@@ -113,25 +102,13 @@ If you want to try it you'll need to install Tk, which is a bit large. To instal
 ---
 cpan Tk::BrowseEntry
 ---
+You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hotdogging pointer casts and such.
 
 Verifying module installation
 =============================
-If you ran into any problems or confusions during the module installation, or if you like certainty, run "verify_module_installation.pl" (found in your IntraMine folder). If modules are missing it will let you know, otherwise it will just say "Done."
+When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.
 
-[
-To run a Perl program, using "verify_module_installation.pl" as an example:
-1. Open a console (command prompt) window
-2. Determine the path to the program, eg "C:\perlprogs\mine\verify_module_installation.pl" (yours will differ)
-3. At the command prompt, enter
----
-perl "C:\perlprogs\mine\verify_module_installation.pl"
----
-Again, use your own path there in the last step, and quotes around the path can be left off if there are no spaces in it.
-]
-
-Or you could wait until it's naturally time to start up IntraMine, at the end of installation, and you'll see complaints about any missing modules then.
-
-The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a command prompt.
+The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a command prompt. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.
 
 Next: Installing Elasticsearch.txt
 
