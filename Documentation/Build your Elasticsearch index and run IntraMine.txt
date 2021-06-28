@@ -30,11 +30,20 @@ This is easy enough, but building your initial file index will probably take a w
 
 NOTE there is a bug somewhere (I don't think it's in IntraMine) that causes the command prompt window to mess up line feeds, so feedback from IntraMine all shows up on one line. If this happens to you, CTRL+C and restart IntraMine. This problem doesn't recur predictably. If you have an idea of what the problem is, please let me know (KLB7 at intramine.info).
 
-When IntraMine is running, it will keep your index up to date in near real time. For a single file edit, the lag is five seconds. If you add a hundred files, the lag will be slightly longer. If you plan on adding **thousands** of files at once, you should stop IntraMine beforehand and then selectively re-index as described in "Using IntraMine.txt#Adding files to indexed folders".
+When IntraMine is running, it will keep your index up to date in near real time. For a single file edit, the lag is five seconds. If you add a hundred files, the lag will be slightly longer. If you plan on adding **thousands** of files at once to a folder that's already being indexed, you should stop IntraMine beforehand and then selectively re-index as described in "Using IntraMine.txt#Adding files to indexed folders".
+
+Problem starting IntraMine?
+-----------------------------
+After the index build, did a second command prompt window come up mentioning uninitialized variable errors? Use Ctrl+c in both windows, close them, and then try this:
+1. Fire up regedit.msc
+2. Navigate to HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\
+3. Make a new DWORD key there called "InheritConsoleHandles"
+4. Leave its value at the default 0.
+5. Try starting IntraMine by running bats/START_INTRAMINE.bat (which will be your normal way of starting IntraMine). You should get a clean start.
 
 Visit IntraMine
 ===============
-Point your browser to http://127.0.0.1:81/Search  - use your own main port number if you changed it from 81, and if you're not on your IntraMine box, substitute its LAN IP address for 127.0.0.1 in the URI above.
+Point your browser to http://127.0.0.1:81/Search  - use your own main port number if you changed it from 81, and if you're not on your IntraMine box, substitute its LAN IP address for 127.0.0.1 in the URI above. (As I'm sure you know, type "ipconfig /all" at a command prompt on your IntraMine box to see the LAN IP).
 
 A couple of quick tests
 ========================

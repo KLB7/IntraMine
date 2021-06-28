@@ -31,8 +31,8 @@ Unzip "fwws_4.3.0.0_bin_45.zip" (using 7-zip of course), copy the resulting fold
 NOTE if you can't for some reason use C:\fwws as the name of your File Watcher folder, you can still do this - take note of the name you've actually used, and use it in place of C:\fwws in everything that follows below. Also, and this is just as important, open data/intramine_config.txt in your IntraMine folder, and update the following three configuration entries (line numbers "l.31" etc might be off):
 ---
 around l.31: FOLDERMONITOR_OLDNEWBASEPATH	C:/fwws/oldnew
-around l.116: FILEWATCHERDIRECTORY	C:/fwws/
-around l.120: FWWS_CONFIG	C:/fwws/fwatcher.xml
+around l.118: FILEWATCHERDIRECTORY	C:/fwws/
+around l.122: FWWS_CONFIG	C:/fwws/fwatcher.xml
 ---
 
 Configure the service a bit
