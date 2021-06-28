@@ -61,7 +61,7 @@ _TOPNAV_
 </td></tr></table>
 <input type="submit" style="display:none">
 </form>
-</div>
+<!-- </div> -->
 <h3>Notes</h3>
 <div style='width:90%'>
 <ol>
@@ -70,6 +70,7 @@ _TOPNAV_
 	<li>Click on the calendars to set the start and end dates and see the days between those dates.</li>
 	<li>Or set the start date and type in the &ldquo;Business days between dates&rdquo; to set the end date.</li>
 </ol>
+</div>
 </div>
 <script src="jquery-3.4.1.min.js"></script>
 <script src="jsDatePick.full.1.3.js"></script>
