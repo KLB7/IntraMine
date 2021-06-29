@@ -847,13 +847,48 @@ sub RememberUrl {
         {
         $displayedURL = $quoteChar . $displayedURL . $quoteChar;
         }
+	
+    my $repLength = length($displayedURL);
+	$displayedURL = TextWithSpanBreaks($displayedURL, 28);
     my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
-    my $repLength = $haveQuotation ?  length($url) + 2 : length($url);
     my $repStartPosition = $startPos;
     push @$repStrA, $repString;
     push @$repLenA, $repLength;
     push @$repStartPosA, $repStartPosition;
     }
+
+# Break up long text using <span>. This allows a browser
+# to break long lines that don't have spaces etc.
+# This could be better (eg break on slashes or words) but it's good enough.
+sub TextWithSpanBreaks {
+	my ($text, $maxPartLength) = @_;
+	my $lineBreaker = '<span class="noshow"></span>';
+	my $textLen = length($text);
+	my $excessLength = $textLen - $maxPartLength;
+
+	if ($excessLength <= 0)
+		{
+		return($text);
+		}
+
+	my $result = '';
+	
+	while (length($text) >= $maxPartLength)
+		{
+		$result .= substr($text, 0, $maxPartLength);
+		$text = substr($text, $maxPartLength);
+		if ($text ne '')
+			{
+			$result .= $lineBreaker;
+			}
+		}
+	if ($text ne '')
+		{
+		$result .= $text;
+		}
+	
+	return($result);
+	}
 
 # Push link replacement details into $repStrA, $repLenA, $repStartPosA arrays.
 # $repStrA: the replacement text for the link
@@ -1005,11 +1040,11 @@ sub ShortenedLinkText {
 
     my $len = length($filename);
 
-    while ($len > $truncLimit)
-        {
-        $filename = substr($filename, 1);
-        $len = length($filename);
-        }
+	if ($len > $truncLimit)
+		{
+		my $offset = $len - $truncLimit;
+		$filename = substr($filename, $offset);
+		}
 
     return($filename);
 }
