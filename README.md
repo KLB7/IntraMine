@@ -4,8 +4,8 @@
 
 **Some news**: IntraMine is now compatible with Elasticsearch 7, but IntraMine will continue to support Elasticsearch 6.8 as long as you don't manually update your Search::Elasticsearch module. If you want to upgrade an older version of IntraMine to use Es 7, see "If you already have Elasticsearch" in [Installing Elasticsearch](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Installing%20Elasticsearch.html#If%20you%20already%20have%20Elasticsearch).
 
-*Search results: 296,000 files searched for "FindFileWide", results in 0.07 seconds. No restriction on directory or language.*
-![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2019-10-23%2014_30_47-Full%20Text%20Search.png)
+*Search results: 125,000 files searched for "FindFileWide", results in 0.09 seconds. No restriction on directory or language.*
+![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/Search1.png)
 
 *Some "FindFileWide" search hits in a file, seen with IntraMine's Viewer. The hits are in pink, in the text and down the scrollbar. A click on "allEntries" has highlighted all instances in green, in the text and down the scrollbar. There are automatically generated links to a subroutine in another file, a specific line in another file, and subroutines within the same file.*
 ![FindFileWide in a file](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2020-05-04%2016_22_47-win_wide_filepaths.pm.png)

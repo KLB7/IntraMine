@@ -1,6 +1,6 @@
 Search
 ======
-2019-10-23 14_30_47-Full Text Search.png
+Search1.png
 
 The Search service provides an interface for Elasticsearch, to carry out searches and show search results.
 
@@ -28,7 +28,7 @@ which determines the maximum file size in kilobytes that Elasticsearch will inde
 
 Searching
 ===================
-2019-10-04 12_55_28-Full Text Search.png
+Search2.png
 
 Put your text to find in the "Search for" field, and a document will match if all the words are found in the document, at any position. If you check "Match Exact Phrase" then the exact phrase will be matched.
 
@@ -47,8 +47,8 @@ Both file contents and file name are searched, and for scoring purposes a slight
 2019-11-23 17_55_38-Full Text Search.png
 You can use the "Directory" picker (three dots on a green background) to limit your search to a particular directory. Beside it, the "Subdirectories too" box is checked by default, because searching all subdirectories with IntraMine is not slower than searching just the top directory.
 
-2019-11-23 17_56_28-Full Text Search.png
-The "Language" dropdown menu allows picking specific file extensions, grouped by language. The commonest suspects (plain text, Perl, C/C++ etc) are listed first, followed by an alphabetical list of less common languages. There are 226 extensions, grouped into 136 languages.
+Search3.png
+The "Language" dropdown menu allows picking specific file extensions, grouped by language, or by specific extensions. Under the "Language" version the commonest suspects (plain text, Perl, C/C++ etc) are listed first, followed by an alphabetical list of less common languages. Click on the "Extension" radio button to select from all file extensions in alphabetical order. There are 226 extensions, grouped into 136 languages.
 
 2019-11-23 17_59_26-Full Text Search.png
 Use the "Sort by" dropdown to sort results in the usual ways. The default is "Score", which lists best results first as determined by Elasticsearch.
@@ -63,7 +63,7 @@ If you click on the pencil icon (edit1.png) that follows a regular link, the fil
 If a word or function or class name that you're searching for isn't common, you'll find there's no need to limit the search by directory or language.
 
 Searches are very fast, except for pathological cases (such as searching for "main" in Qt and other folders, which will turn up more than 10,000 hits but still struggle back to you with the best matches quickly, 1.3 seconds on my 2 GHz PC).
-2019-10-14 15_46_53-Full Text Search.png
+Search4.png
 
 Some Search limitations
 =======================
@@ -108,6 +108,10 @@ The Language dropdown is filled in by intramine_search.pl#SearchForm() in respon
 On intramine_search.js#searchSubmit(), the names of all selected languages are sent with the search request, ending up in the $formH hash by the time we enter SearchResults(). Each selected language is present in the $formH hash as the language name with "EXT_" prepended, eg $formH{"EXT_Perl"}: if the language hasn't been selected, it won't be in the $formH hash. SearchResults() calls GetWantedExtensions() to compare the values in $formH with the full list in ext.pm, and it returns a list of selected file extensions corresponding to the languages selected, together with a bool telling if all languages have been selected.
 
 ext.pm, has a few subroutines but is basically a big hash of Language names and their corresponding extensions.
+
+Extensions filter
+------------------
+This is essentially the same as the Language filter, but works with all extensions explicitly rather than extensions grouped by language.
 
 Elasticsearch index structure
 -----------------------------

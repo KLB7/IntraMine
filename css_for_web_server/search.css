@@ -89,30 +89,48 @@
 
 }
 
-/*
-#form_1_4 {
+#languageGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: auto;
+}
+
+/* Language/Extension */
+#byLanguage {
 	grid-column-start: 1;
 	grid-column-end: 1;
-	grid-row-start: 4;
-	grid-row-end: 4;
+	grid-row-start: 1;
+	grid-row-end: 1;
 	justify-self: end;
+	align-self: center;
 }
 
-#form_2_4 {
+#byExtension {
+	grid-column-start: 1;
+	grid-column-end: 1;
+	grid-row-start: 2;
+	grid-row-end: 2;
+	justify-self: end;
+	align-self: center;
+}
+
+#languageDropdown {
 	grid-column-start: 2;
 	grid-column-end: 2;
-	grid-row-start: 4;
-	grid-row-end: 4;
+	grid-row-start: 1;
+	grid-row-end: 3;
+	justify-self: end;
+	align-self: center;
 }
 
-#form_3_4 {
-	grid-column-start: 3;
-	grid-column-end: 3;
-	grid-row-start: 4;
-	grid-row-end: 4;
-}
-*/
 
+#languageDropdownItems {
+	display: none;
+}
+
+#extensionDropDownItems {
+	display: none;
+}
 
 #searchdirectory {
 	width:360px;
@@ -202,9 +220,11 @@
 	padding-left:10px;
 }
 
+/*
 #driveSelectorLeft {
 	
 }
+*/
 
 /* Smaller buttons for OK/Cancel.*/
 #okCancelHolder {

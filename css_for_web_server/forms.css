@@ -21,7 +21,7 @@
    vertical-align: middle;
    /*min-width:760px;*/
    padding:10px;
-   width: 60em; /*65.5em;800px;*/
+   width: 63em; /*65.5em;800px;*/
    /*max-width: 1000px;*/
    }
  .form-container-small {
@@ -124,16 +124,17 @@
 .formItemTitle {
 	text-align: right;
 }
+
 .form-title {
    margin-bottom:10px;
    color: #565656;
    text-shadow: #f3f3f3 0 1px 0;
-   }
+}
 
 .submit-container {
    margin:2px 0;
    width: 100%;
-   }
+}
 
 .submit-container table {
 	width: 100%;

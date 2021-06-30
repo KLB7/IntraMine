@@ -195,38 +195,66 @@ sub SearchForm {
 	# A dropdown of many languages and their extensions, with check boxes.
 	my $extsForLan = ExtensionsForLanguageHashRef();
 	my $popluarExtsForLan = PopularExtensionsForLanguageHashRef();
-	my $items = '';
+	my $languageItems = '';
+
+	$languageItems .= "<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
+	$languageItems .= "<a href='javascript:selectAllOrNone(false);' class='allOrNone'>None</a>";
 	foreach my $key (sort keys %$popluarExtsForLan)
 		{
 		my $nicerExtensionList = $popluarExtsForLan->{$key};
 		$nicerExtensionList =~ s!,!, !g;
-		$items .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
+		$languageItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
 		}
-	$items .= "<div>- - - - - - - - - - - - - - (and more below)</div>";
+	$languageItems .= "<div>- - - - - - - - - - - - - - (and more below)</div>";
 	foreach my $key (sort keys %$extsForLan)
 		{
 		if (!defined($popluarExtsForLan->{$key}))
 			{
 			my $nicerExtensionList = $extsForLan->{$key};
 			$nicerExtensionList =~ s!,!, !g;
-			$items .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
+			$languageItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
 			}
 		}
-	$items .= $boxNoExtension;
+	$languageItems .= $boxNoExtension;
+
+	# THe dropdown for extensions, alphabetically.
+	my $extensionItems = '';
+	$extensionItems .= "<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
+	$extensionItems .= "<a href='javascript:selectAllOrNone(false);' class='allOrNone'>None</a>";
+
+	my %extensionsH;
+	foreach my $key (sort keys %$extsForLan)
+		{
+		my $nicerExtensionList = $extsForLan->{$key};
+		my @extensionsForLanguage = split(/,/, $nicerExtensionList);
+		for (my $i = 0; $i < @extensionsForLanguage; ++$i)
+			{
+			$extensionsH{$extensionsForLanguage[$i]} = 1;
+			}
+		}
+
+	foreach my $key (sort keys %extensionsH)
+		{
+		$extensionItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key</label>";
+		}
 	
 	my $languageDropdown = <<"TOHERE";
 <div class="multiselect">
 	<div class="selectBox" onclick="showCheckboxes()">
 	  <select>
-		<option id='multiLanguageSummary'>(all are selected))</option>
+		<option id='multiLanguageSummary'>(all languages are selected)</option>
 	  </select>
 	  <div class="overSelect"></div>
 	</div>
 	<div id="checkboxes">
-		<a href="javascript:selectAllOrNone(true);" class="allOrNone">All</a>&nbsp;&nbsp;
-		<a href="javascript:selectAllOrNone(false);" class="allOrNone">None</a>
-		$items
+		$languageItems
 	</div>
+</div>
+<div id='languageDropdownItems'>
+$languageItems
+</div>
+<div id='extensionDropDownItems'>
+$extensionItems
 </div>
 TOHERE
 
@@ -254,8 +282,18 @@ ENDIT
 <div id="form_2_2"><div id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></div></div>
 <div id="form_3_2"><label><input type='checkbox' id="subDirCheck" name='subdirs' value='yes'_CHECKEDBYDEFAULT_>Subdirectories too</label></div>
 
-<div id="form_1_3" class="formItemTitle"><h2>Language&nbsp;</h2>
-<div id="languageDropdown">$languageDropdown</div>
+<div id="form_1_3" class="formItemTitle">
+<div id="languageGrid">
+<div>
+  <input type="radio" id="byLanguage" name="langExt" value="languageDropdownItems" onchange="swapLangExt();"
+         checked>
+  <label for="byLanguage"><h2>Language</h2>&nbsp;</label>
+</div>
+<div>
+  <input type="radio" id="byExtension" name="langExt" value="extensionDropDownItems" onchange="swapLangExt();">
+  <label for="byExtension"><h2>Extension</h2>&nbsp;</label>
+</div>	<div id="languageDropdown">$languageDropdown</div>
+</div>
 </div>
 
 <div id="form_2_3">$sortByDropdown</div>
@@ -430,7 +468,21 @@ sub SearchResults {
 # See ext.pm for the corresponding lists of extensions for languages.
 sub GetWantedExtensions {
 	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
-	
+	my $extFilter = defined($formH->{'extFilter'}) ? $formH->{'extFilter'} : 'languageDropdownItems';
+
+	if ($extFilter =~ m!language!i)
+		{
+		GetWantedLanguageExtensions($formH, $wantedExtA, $allExtensionsSelectedR);
+		}
+	else
+		{
+		GetwantedExplicitExtensions($formH, $wantedExtA, $allExtensionsSelectedR);
+		}
+	}
+
+sub GetWantedLanguageExtensions {
+	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
+
 	# Extension filter, provided as wanted language names, eg $formH{'EXT_Plain%20Text'}='yes'.
 	my $extsForLan = ExtensionsForLanguageHashRef();
 	my %extensionHasBeenSeen;
@@ -473,6 +525,29 @@ sub GetWantedExtensions {
 		{
 		++$numExtensionsTotal;
 		}
+	my $numExtensionsSeen = keys %extensionHasBeenSeen;
+	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
+	}
+
+sub GetwantedExplicitExtensions {
+	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
+
+	# Extension filter, provided as wanted language names, eg $formH{'EXT_Plain%20Text'}='yes'.
+	#my $extsForLan = ExtensionsForLanguageHashRef();
+	my %extensionHasBeenSeen;
+	my $extensionNoneIsWanted = 0;
+
+	foreach my $key (keys %$formH)
+		{
+		if ($key =~ m!^EXT_(.+?)$!)
+			{
+			my $extension = $1;
+			push @{$wantedExtA}, $extension;
+			$extensionHasBeenSeen{$extension} = 1;
+			}
+		}
+
+	my $numExtensionsTotal = NumExtensions();
 	my $numExtensionsSeen = keys %extensionHasBeenSeen;
 	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
 	}

@@ -183,6 +183,11 @@ function searchSubmit(oFormElement) {
 		dirValue = 'ALL';
 		}
 	sSearch += "&directory=" + dirValue;
+
+	// And tack on whether languages or extensions have been selected.
+	let val = document.querySelector('input[name="langExt"]:checked').value;
+	sSearch += "&extFilter=" + val;
+
 	//let subdirElem = document.getElementById("subDirCheck");
 	//console.log(sSearch);
 	
@@ -192,6 +197,37 @@ function searchSubmit(oFormElement) {
 	oReq.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
 	blurTextBox(); // Remove the darned suggestions select dropdown that sometimes stays up.
 	oReq.send();
+}
+
+// Swap Language dropdown with Extensions dropdown when the radio buttons for those are clicked.
+function swapLangExt() {
+	let val = document.querySelector('input[name="langExt"]:checked').value;
+
+	let itemList = document.getElementById(val);
+	let dropDownContainer = document.getElementById("checkboxes");
+	dropDownContainer.innerHTML = itemList.innerHTML;
+
+	selectAllOrNone(true);
+
+	let languagesBeingDone = true;
+	if (val.indexOf("language") < 0)
+		{
+		languagesBeingDone = false;
+		}
+
+	let multiSummaryElement = document.getElementById("multiLanguageSummary");
+	if (multiSummaryElement !== null)
+		{
+		if (languagesBeingDone)
+			{
+			multiSummaryElement.textContent = '(all languages are selected)';
+			}
+		else
+			{
+			multiSummaryElement.textContent = '(all extensions are selected)';
+			}
+		}
+
 }
 
 // Call IntraMine's editor (editWithIntraMine) or a specific app (editWithPreferredApp).
@@ -780,6 +816,7 @@ function showCheckboxes() {
 }
 
 // A brief summary below the Language dropdown shows which languages have been selected.
+// Or which extensions have been selected.
 // Up to 4 specific languages are shown, above that it says "etc".
 // And of course if all are selected the summary reads "all are selected".
 function updateLanguageSummary() {
@@ -819,14 +856,35 @@ function updateLanguageSummary() {
 			}
 		}
 
+	let val = document.querySelector('input[name="langExt"]:checked').value;
+	let languagesBeingDone = true;
+	if (val.indexOf("language") < 0)
+		{
+		languagesBeingDone = false;
+		}
 	
 	if (numLanguagesSelected === 0)
 		{
-		summary = '(none selected)';
+		if (languagesBeingDone)
+			{
+				summary = '(no languages are selected)';
+			}
+		else
+			{
+				summary = '(no extensions are selected)';
+			}
+		
 		}
 	else if (numLanguagesSelected === numLanguages)
 		{
-		summary = '(all are selected)';
+		if (languagesBeingDone)
+			{
+			summary = '(all languages are selected)';
+			}
+		else
+			{
+			summary = '(all extensions are selected)';
+			}
 		}
 	else
 		{
