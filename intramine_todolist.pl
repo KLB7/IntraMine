@@ -140,11 +140,11 @@ _TOPNAV_
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script>
 let thePort = '_THEPORT_';
-let mainPort = '_MAINPORT_';
-let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
+
 let contentID = '_CONTENTID_';
 
 let weAreRemote = _WEAREREMOTE_;
@@ -179,13 +179,10 @@ FINIS
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
 	# The IPv4 Address for this server is  (eg 192.168.0.14);
 	my $serverAddr = ServerAddress();
-	my $mainServerPort = MainServerPort();
+	
 	my $host = $serverAddr;
 	my $port = $port_listen;
-	my $sseServerShortName = CVal('ACTIVITY_MONITOR_SHORT_NAME');
 	$theBody =~ s!_THEPORT_!$port!g;
-	$theBody =~ s!_MAINPORT_!$mainServerPort!g;
-	$theBody =~ s!SSE_SERVER_SHORT_NAME!$sseServerShortName!;
 	
 	my $contentID = 'scrollAdjustedHeight';
 	$theBody =~ s!_CONTENTID_!$contentID!g;
@@ -321,6 +318,8 @@ sub PutData {
 		BroadcastOverdueCount($data);
 		# Let other ToDo clients know ToDo data has changed.
 		BroadcastSSE('todochanged', $SHORTNAME); # swarmserver.pm#BroadcastSSE()
+		# Tell all web pages that ToDo has changed. Nav bar will flash.
+		BroadcastSSE('todoflash', $SHORTNAME);
 		}
 	return($result);
 	}

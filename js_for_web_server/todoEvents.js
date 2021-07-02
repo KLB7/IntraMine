@@ -19,7 +19,7 @@ let sourceURL;
 //(Called at the bottom here).
 function getSSEPortAndRequestEvents() {
 	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + mainPort +
+	let theRequest = 'http://' + theHost + ':' + theMainPort +
 						'/' + sseServerShortName + '/?req=portNumber';
 	request.open('get', theRequest, true);
 	

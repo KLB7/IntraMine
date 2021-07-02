@@ -155,7 +155,8 @@ function searchSubmit(oFormElement) {
 	let useAppValue = (useAppForEditing)? '1': '0';
 	let sSearch = "&req=results&remote=" + remoteValue
 		+ "&allowEdit=" + allowEditValue + "&useApp=" + useAppValue;
-	for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
+
+		for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
 		{
 		oField = oFormElement.elements[nItem];
 		if (!oField.hasAttribute("name")) { continue; }
@@ -187,10 +188,6 @@ function searchSubmit(oFormElement) {
 	// And tack on whether languages or extensions have been selected.
 	let val = document.querySelector('input[name="langExt"]:checked').value;
 	sSearch += "&extFilter=" + val;
-
-	//let subdirElem = document.getElementById("subDirCheck");
-	//console.log(sSearch);
-	
 	
 	let theAction = oFormElement.action + sSearch;
 	oReq.open('get', theAction, true);
@@ -411,24 +408,31 @@ function viewerOpenAnchor(href) {
 // For the Search form, handlers for the "All" and "None" language thingies.
 function selectAllOrNone(checkEm) {
 	let oFormElement = document.forms[0]; // document.getElementById(formID);
-	
-	for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
+
+	let checks = document.getElementById("checkboxes");
+	let checksChildren = checks.children;
+
+	for (let i = 0; i < checksChildren.length; ++i)
 		{
-		let oField = oFormElement.elements[nItem];
-		if (!oField.hasAttribute("name")) { continue; }
-		let sFieldType = oField.nodeName.toUpperCase() === "INPUT" ? oField.getAttribute("type").toUpperCase() : "TEXT";
-		if (sFieldType === "CHECKBOX" && oField.name !== 'matchexact' && oField.name !== 'subdirs')
+		let checkItem = (typeof (checksChildren[i].children[0]) !== 'undefined') ? checksChildren[i].children[0]: null;
+		if (checkItem === null) { continue; }
+		if (!checkItem.hasAttribute("name")) { continue; }
+		let sFieldType = checkItem.nodeName.toUpperCase() === "INPUT" ? checkItem.getAttribute("type").toUpperCase() : "TEXT";
+		if (sFieldType === "CHECKBOX" && checkItem.name !== 'matchexact' && checkItem.name !== 'subdirs')
 			{
 			if (checkEm)
 				{
-				oField.checked = 'checked';
+				checkItem.checked = 'checked';
 				}
 			else
 				{
-				oField.checked = '';
+				checkItem.checked = '';
 				}
 			}
 		}
+
+
+	return;
 	}
 
 // Update the main content holder's height and width, so scrolling works properly etc.
@@ -1047,7 +1051,6 @@ function selectTheDirectory(el, file) {
 }
 
 function selectCollapsedDirectory(dir) {
-	//console.log("sCD arg: |" + file + "|");
 	if (dir.length === 0)
 		{
 		return;

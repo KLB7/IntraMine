@@ -212,6 +212,13 @@ html[xmlns] #nav {
 * html #nav {
 	height: 1%;
 }
+
+/* For changing "ToDo" in the Nav bar. See todoFlash.js. */
+#nav li > a.flashOn {
+	background-color: black;
+    color: lightgreen;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;

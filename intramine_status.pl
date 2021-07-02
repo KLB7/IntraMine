@@ -113,10 +113,10 @@ let pageServerTableId = 'PAGE_SERVER_STATUS_TABLE';
 let backgroundServerTableId = 'BACKGROUND_SERVER_STATUS_TABLE';
 let statusButtonClass = 'STATUS_BUTTON_HOLDER_CLASS';
 let portHolderClass = 'PORT_STATUS_HOLDER_CLASS';
-let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="status.js"></script>
 <script src="sortTable.js"></script>
@@ -154,12 +154,10 @@ FINIS
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
-	my $sseServerShortName = CVal('ACTIVITY_MONITOR_SHORT_NAME');
 	$theBody =~ s!PAGE_SERVER_STATUS_TABLE!$pageServerTableId!;
 	$theBody =~ s!BACKGROUND_SERVER_STATUS_TABLE!$backgroundServerTableId!;
 	$theBody =~ s!STATUS_BUTTON_HOLDER_CLASS!$statusButtonClass!;
 	$theBody =~ s!PORT_STATUS_HOLDER_CLASS!$portHolderClass!;
-	$theBody =~ s!SSE_SERVER_SHORT_NAME!$sseServerShortName!;
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()

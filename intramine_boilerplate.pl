@@ -104,6 +104,7 @@ _TOPNAV_
 </div>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script src="boilerplateDemo.js"></script>
 <script src="tooltip.js"></script>
 </body></html>

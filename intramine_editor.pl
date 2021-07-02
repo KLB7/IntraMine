@@ -90,6 +90,7 @@ _TOPNAV_
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script type="text/javascript" src="lib/codemirror.js" ></script>
 <!-- script type="text/javascript" src="mode/javascript/javascript.js"></script> -->
 <script type="text/javascript" src="addon/mode/loadmode.js"></script>

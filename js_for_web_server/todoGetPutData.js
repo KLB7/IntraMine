@@ -380,7 +380,7 @@ function doResize() {
 
 function signalOverdueChanged() {
 	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + mainPort + '/?signal=todoCount&count='
+	request.open('get', 'http://' + theHost + ':' + theMainPort + '/?signal=todoCount&count='
 			+ overdueCount + '&name=PageServers', true);
 
 	request.onload = function() {

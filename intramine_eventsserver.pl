@@ -92,6 +92,7 @@ sub EventsPage {
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script type="text/javascript" src="tooltip.js"></script>
 <!-- addtional CSS inserted by intramine_eventsserver.pl -->
 <script type="text/javascript">

@@ -122,6 +122,7 @@ let errorID = "headingAboveContents";
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="quicksort.js"></script>
 <script src="jquery-3.4.1.min.js"></script>
@@ -527,6 +528,10 @@ sub GetWantedLanguageExtensions {
 		}
 	my $numExtensionsSeen = keys %extensionHasBeenSeen;
 	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
+
+	# TEST ONLY
+	print("\$allExtensionsSelected :|$$allExtensionsSelectedR|\n");
+	print("Potential |$numExtensionsTotal| vs actual |$numExtensionsSeen|\n");
 	}
 
 sub GetwantedExplicitExtensions {

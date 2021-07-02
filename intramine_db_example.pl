@@ -210,6 +210,7 @@ let fruitTableId = '_FRUIT_TABLE_ID_';
 Here it's needed in spinner.js for the value of "SPECIAL_INDEX_NAME_HTML". -->
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="db_example.js"></script>
 </body></html>

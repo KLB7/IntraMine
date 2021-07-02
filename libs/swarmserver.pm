@@ -393,6 +393,7 @@ sub MainServerPort {
 	}
 
 # Put the ports and short name at the bottom of a body.
+# And sseServerShortName
 sub PutPortsAndShortnameAtEndOfBody {
 	my ($theBodyR) = @_;
 	my $portsAndShortName = PortsAndShortNameForJavaScript();
@@ -412,14 +413,17 @@ let theMainPort = '_THEMAINPORT_';
 let mainIP = '_THEHOST_';
 let theHost = mainIP;
 let shortServerName = '_SHORTSERVERNAME_';
+let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
 </script>
 
 FINIS
 
 	my $host = ServerAddress();
+	my $sseServerShortName = CVal('ACTIVITY_MONITOR_SHORT_NAME');
 	$result =~ s!_THEMAINPORT_!$MainPort!;
 	$result =~ s!_THEHOST_!$host!g;
 	$result =~ s!_SHORTSERVERNAME_!$OurShortName!;
+	$result =~ s!SSE_SERVER_SHORT_NAME!$sseServerShortName!;
 
 	return($result);
 	}
