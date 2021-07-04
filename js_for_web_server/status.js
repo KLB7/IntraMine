@@ -415,7 +415,8 @@ function flashOneServer(port, flashIt) {
 			}
 		let tableData = currentTable.getElementsByTagName('tbody').item(0);
 		let rowData = tableData.getElementsByTagName('tr');
-		for(let i = 0; i < rowData.length - 1; i++)
+
+		for(let i = 0; i < rowData.length; i++)
 			{
 			let rowCellData = rowData.item(i).getElementsByTagName('td');
 			if (rowCellData !== null)

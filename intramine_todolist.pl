@@ -277,6 +277,9 @@ sub GetData {
 
 		# TEST ONLY dump json string
 		#print("GetaData JSON string: |$result|\n");
+
+		# Make the Status light flash for this server.
+		ReportActivity($SHORTNAME);
 		}
 	return($result);
 	}

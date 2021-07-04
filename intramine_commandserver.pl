@@ -312,6 +312,9 @@ sub OneCommandString {
 sub RunTheCommand {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
+
+	# Make the Status light flash for this server.
+	ReportActivity($SHORTNAME);
 	
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	$filepath =~ s!\\!/!g;
