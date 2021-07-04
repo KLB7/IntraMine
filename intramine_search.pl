@@ -528,10 +528,6 @@ sub GetWantedLanguageExtensions {
 		}
 	my $numExtensionsSeen = keys %extensionHasBeenSeen;
 	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
-
-	# TEST ONLY
-	print("\$allExtensionsSelected :|$$allExtensionsSelectedR|\n");
-	print("Potential |$numExtensionsTotal| vs actual |$numExtensionsSeen|\n");
 	}
 
 sub GetwantedExplicitExtensions {
