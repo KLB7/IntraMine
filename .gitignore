@@ -11,3 +11,4 @@ temp/
 test/
 backup.pl
 opendns_monitor.pl
+*.komodoproject

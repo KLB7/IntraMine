@@ -101,6 +101,7 @@ sub ParseCashEvents {
 			(RecordFailure($self, "ERROR, bad row $dispRow: |$cashEvent|\n") && return);
 		# Event type is always in $fields[0].
 		my $eventType = $fields[0];
+
 		if ($eventType == kOpeningBalance) # OPENING amount YYYYMM
 			{
 			$eventDetailsH->{'Opening Balance'}{'Amount'} = $fields[1];
@@ -116,6 +117,7 @@ sub ParseCashEvents {
 			$eventDetailsH->{'Income Annual'}{'Start YYYYMM'}{$numIncomeEventsAnnual} = $fields[2];
 			$eventDetailsH->{'Income Annual'}{'End YYYYMM'}{$numIncomeEventsAnnual} = $fields[3];
 			$eventDetailsH->{'Income Annual'}{'Description'}{$numIncomeEventsAnnual} = $fields[4];
+			$eventDetailsH->{'Income Annual'}{'Percent Annual Increase'}{$numIncomeEventsAnnual} = defined($fields[5])? $fields[5] : 0;
 			++$numIncomeEventsAnnual;
 			}
 		elsif ($eventType == kIncomeMonthly) # INCOME_MONTHLY amount YYYYMM YYYYMM Description
@@ -124,6 +126,7 @@ sub ParseCashEvents {
 			$eventDetailsH->{'Income Monthly'}{'Start YYYYMM'}{$numIncomeEventsMonthly} = $fields[2];
 			$eventDetailsH->{'Income Monthly'}{'End YYYYMM'}{$numIncomeEventsMonthly} = $fields[3];
 			$eventDetailsH->{'Income Monthly'}{'Description'}{$numIncomeEventsMonthly} = $fields[4];
+			$eventDetailsH->{'Income Monthly'}{'Percent Annual Increase'}{$numIncomeEventsMonthly} = defined($fields[5])? $fields[5] : 0;
 			++$numIncomeEventsMonthly;
 			}
 		elsif ($eventType == kExpenseAnnual) # EXPENSE_ANNUAL amount YYYYMM YYYYMM Description
@@ -132,6 +135,7 @@ sub ParseCashEvents {
 			$eventDetailsH->{'Expense Annual'}{'Start YYYYMM'}{$numExpenseEventsAnnual} = $fields[2];
 			$eventDetailsH->{'Expense Annual'}{'End YYYYMM'}{$numExpenseEventsAnnual} = $fields[3];
 			$eventDetailsH->{'Expense Annual'}{'Description'}{$numExpenseEventsAnnual} = $fields[4];
+			$eventDetailsH->{'Expense Annual'}{'Percent Annual Increase'}{$numExpenseEventsAnnual} = defined($fields[5])? $fields[5] : 0;
 			++$numExpenseEventsAnnual;
 			}
 		elsif ($eventType == kExpenseMonthly) # EXPENSE_MONTHLY amount YYYYMM YYYYMM Description
@@ -140,6 +144,7 @@ sub ParseCashEvents {
 			$eventDetailsH->{'Expense Monthly'}{'Start YYYYMM'}{$numExpenseEventsMonthly} = $fields[2];
 			$eventDetailsH->{'Expense Monthly'}{'End YYYYMM'}{$numExpenseEventsMonthly} = $fields[3];
 			$eventDetailsH->{'Expense Monthly'}{'Description'}{$numExpenseEventsMonthly} = $fields[4];
+			$eventDetailsH->{'Expense Monthly'}{'Percent Annual Increase'}{$numExpenseEventsMonthly} = defined($fields[5])? $fields[5] : 0;
 			++$numExpenseEventsMonthly;
 			}
 		elsif ($eventType == kAssetPurchase)# ASSET amount YYYYMM Description
@@ -171,7 +176,7 @@ sub _GetCashEventFields {
 		}
 	else
 		{
-		@$fieldsArr = split(/\t/, $cashEvent);
+		@$fieldsArr = split(/\t+/, $cashEvent);
 		$fieldsArr->[0] = uc($fieldsArr->[0]);
 		# Convert event name to constant number
 # OPENING amount YYYYMM
@@ -214,6 +219,47 @@ sub _GetCashEventFields {
 			$result = 0;
 			}
 		}
+	return($result);
+	}
+
+# Apply $percent to $amount annually.
+# $percent: a true per cent, eg 4 for 4% annually.
+sub _InflatedAmount {
+	my ($amount, $startYYYYMM, $nowYYYYMM, $percent) = @_;
+	my $result = $amount;
+
+	if (!defined($percent) || $percent == 0)
+		{
+		return($result);
+		}
+	
+	my $ms = sprintf("%06d", $startYYYYMM);
+	$ms =~ m!^(\d\d\d\d)(\d\d)$!;
+	my $yr = $1;
+	my $mon = $2;
+	$ms = sprintf("%06d", $nowYYYYMM);
+	$ms =~ m!^(\d\d\d\d)(\d\d)$!;
+	my $yrNow = $1;
+	my $monNow = $2;
+	my $elapsedYears = $yrNow - $yr;
+	my $elapsedMonths = $monNow - $mon;
+	if ($elapsedMonths < 0)
+		{
+		--$elapsedYears;
+		$elapsedMonths += 12;
+		}
+	
+	# Apply increase annually.
+	for (my $i = 0; $i < $elapsedYears; ++$i)
+		{
+		$result *= 1.0 + $percent/100.0;
+		}
+	if ($elapsedMonths > 0)
+		{
+		my $elapsedMonthsAsYearFraction = $elapsedMonths/12.0;
+		$result *= 1.0 + ($percent*$elapsedMonthsAsYearFraction)/100.0;
+		}
+	
 	return($result);
 	}
 
@@ -277,7 +323,7 @@ sub RunCashEvents {
 			}
 			
 		#Output("$ms\n") if ($TESTING);
-		RunCashEventsForMonth($self, $ms, \$balance);
+		RunCashEventsForMonth($self, $startYYYYMMStr, $ms, \$balance);
 		$balanceDollars = ($balance > 0) ? '&nbsp;' . Dollars($balance) : Dollars($balance);
 		if ($mon != 12)
 			{
@@ -309,7 +355,7 @@ sub RunCashEvents {
 	}
 
 sub RunCashEventsForMonth {
-	my ($self, $ms, $balanceR) = @_;
+	my ($self, $startYYYYMMStr, $ms, $balanceR) = @_;
 	my $eventDetailsH = $self->{'EVENTDETAILS'};
 	
 	$ms =~ m!^(\d\d\d\d)(\d\d)$!;
@@ -322,22 +368,22 @@ sub RunCashEventsForMonth {
 		#Output("$evtType\n") if ($TESTING);
 		if ($evtType eq 'Income Annual')
 			{
-			RunAnnualIncomeEventForMonth($self, $m, $mon, $ms, $balanceR) or
+			RunAnnualIncomeEventForMonth($self, $startYYYYMMStr, $m, $mon, $ms, $balanceR) or
 				return;
 			}
 		elsif ($evtType eq 'Income Monthly')
 			{
-			RunMonthlyIncomeEventForMonth($self, $m, $mon, $ms, $balanceR) or
+			RunMonthlyIncomeEventForMonth($self, $startYYYYMMStr, $m, $mon, $ms, $balanceR) or
 				return;
 			}
 		elsif ($evtType eq 'Expense Annual')
 			{
-			RunAnnualExpenseEventForMonth($self, $m, $mon, $ms, $balanceR) or
+			RunAnnualExpenseEventForMonth($self, $startYYYYMMStr, $m, $mon, $ms, $balanceR) or
 				return;
 			}
 		elsif ($evtType eq 'Expense Monthly')
 			{
-			RunMonthlyExpenseEventForMonth($self, $m, $mon, $ms, $balanceR) or
+			RunMonthlyExpenseEventForMonth($self, $startYYYYMMStr, $m, $mon, $ms, $balanceR) or
 				return;
 			}
 		elsif ($evtType eq 'Asset Purchase')
@@ -349,7 +395,7 @@ sub RunCashEventsForMonth {
 	}
 
 sub RunAnnualIncomeEventForMonth {
-	my ($self, $m, $mon, $ms, $balanceR) = @_;
+	my ($self, $openingYYYYMMStr, $m, $mon, $ms, $balanceR) = @_;
 	my $eventDetailsH = $self->{'EVENTDETAILS'};
 	my $detailsR = $self->{'DETAILS'};
 	my $result = 1;
@@ -365,6 +411,12 @@ sub RunAnnualIncomeEventForMonth {
 		my $endM = $2;
 		
 		my $amt = $eventDetailsH->{'Income Annual'}{'Amount'}{$idx};
+		if ($eventDetailsH->{'Income Annual'}{'Percent Annual Increase'}{$idx} > 0)
+			{
+			my $startYM = ($openingYYYYMMStr > $startYYYYMMStr) ? $openingYYYYMMStr: $startYYYYMMStr;
+			$amt = _InflatedAmount($amt, $startYM, $m, 
+					$eventDetailsH->{'Income Annual'}{'Percent Annual Increase'}{$idx});
+			}
 		my $desc = $eventDetailsH->{'Income Annual'}{'Description'}{$idx};
 		my $startYYYYMM = $startYYYYMMStr + 0;
 		my $endYYYYMM = $endYYYYMMStr + 0;
@@ -394,7 +446,7 @@ sub RunAnnualIncomeEventForMonth {
 	}
 
 sub RunMonthlyIncomeEventForMonth {
-	my ($self, $m, $mon, $ms, $balanceR) = @_;
+	my ($self, $openingYYYYMMStr, $m, $mon, $ms, $balanceR) = @_;
 	my $eventDetailsH = $self->{'EVENTDETAILS'};
 	my $detailsR = $self->{'DETAILS'};
 	my $result = 1;
@@ -410,6 +462,12 @@ sub RunMonthlyIncomeEventForMonth {
 		my $endM = $2;
 		
 		my $amt = $eventDetailsH->{'Income Monthly'}{'Amount'}{$idx};
+		if ($eventDetailsH->{'Income Monthly'}{'Percent Annual Increase'}{$idx} > 0)
+			{
+			my $startYM = ($openingYYYYMMStr > $startYYYYMMStr) ? $openingYYYYMMStr: $startYYYYMMStr;
+			$amt = _InflatedAmount($amt, $startYM, $m, 
+					$eventDetailsH->{'Income Monthly'}{'Percent Annual Increase'}{$idx});
+			}
 		my $desc = $eventDetailsH->{'Income Monthly'}{'Description'}{$idx};
 		my $startYYYYMM = $startYYYYMMStr + 0;
 		my $endYYYYMM = $endYYYYMMStr + 0;
@@ -433,7 +491,7 @@ sub RunMonthlyIncomeEventForMonth {
 	}
 
 sub RunAnnualExpenseEventForMonth {
-	my ($self, $m, $mon, $ms, $balanceR) = @_;
+	my ($self, $openingYYYYMMStr, $m, $mon, $ms, $balanceR) = @_;
 	my $eventDetailsH = $self->{'EVENTDETAILS'};
 	my $detailsR = $self->{'DETAILS'};
 	my $result = 1;
@@ -449,6 +507,12 @@ sub RunAnnualExpenseEventForMonth {
 		my $endM = $2;
 		
 		my $amt = $eventDetailsH->{'Expense Annual'}{'Amount'}{$idx};
+		if ($eventDetailsH->{'Expense Annual'}{'Percent Annual Increase'}{$idx} > 0)
+			{
+			my $startYM = ($openingYYYYMMStr > $startYYYYMMStr) ? $openingYYYYMMStr: $startYYYYMMStr;
+			$amt = _InflatedAmount($amt, $startYM, $m, 
+					$eventDetailsH->{'Expense Annual'}{'Percent Annual Increase'}{$idx});
+			}
 		my $desc = $eventDetailsH->{'Expense Annual'}{'Description'}{$idx};
 		my $startYYYYMM = $startYYYYMMStr + 0;
 		my $endYYYYMM = $endYYYYMMStr + 0;
@@ -478,7 +542,7 @@ sub RunAnnualExpenseEventForMonth {
 	}
 
 sub RunMonthlyExpenseEventForMonth {
-	my ($self, $m, $mon, $ms, $balanceR) = @_;
+	my ($self, $openingYYYYMMStr, $m, $mon, $ms, $balanceR) = @_;
 	my $eventDetailsH = $self->{'EVENTDETAILS'};
 	my $detailsR = $self->{'DETAILS'};
 	my $result = 1;
@@ -494,6 +558,12 @@ sub RunMonthlyExpenseEventForMonth {
 		my $endM = $2;
 		
 		my $amt = $eventDetailsH->{'Expense Monthly'}{'Amount'}{$idx};
+		if ($eventDetailsH->{'Expense Monthly'}{'Percent Annual Increase'}{$idx} > 0)
+			{
+			my $startYM = ($openingYYYYMMStr > $startYYYYMMStr) ? $openingYYYYMMStr: $startYYYYMMStr;
+			$amt = _InflatedAmount($amt, $startYM, $m, 
+					$eventDetailsH->{'Expense Monthly'}{'Percent Annual Increase'}{$idx});
+			}
 		my $desc = $eventDetailsH->{'Expense Monthly'}{'Description'}{$idx};
 		my $startYYYYMM = $startYYYYMMStr + 0;
 		my $endYYYYMM = $endYYYYMMStr + 0;

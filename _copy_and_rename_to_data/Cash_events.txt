@@ -1,7 +1,7 @@
 # Cash flow, with details and a summary graph.
 
 # Cash events file fields: any line starting with ^\s*# is a comment line, ignored.
-# Fields are tab-separated (<t> below in the description).
+# Fields are separated by ONE OR MORE tabs (<t> below in the description).
 # Events:
 # OPENING<t>amount<t>YYYYMM<t>(Description, ignored)				# Opening balance and month to start
 # UNTIL<t>YYYYMM<t>(Description, ignored)						# Ending month, inclusive
@@ -10,6 +10,12 @@
 # EXPENSE_ANNUAL<t>amount<t>YYYYMM<t>YYYYMM<t>Description			# Like INCOME_ANNUAL, except amount is deducted
 # EXPENSE_MONTHLY<t>amount<t>YYYYMM YYYYMM<t>Description			# Like INCOME_MONTHLY, except amount is deducted
 # ASSET<t>amount<t>YYYYMM<t>Description							# One-shot expense, in the year/month specified
+
+# Per cent annual increase is optional for annual and monthly income and expenses. Eg
+# EXPENSE_MONTHLY	100	202107	202501	Insurance	3
+# for a 3% annual increase on the monthly expense of $100.
+# NOTE percentage increase will start at the event date or the OPENING
+# event date, whichever is later.
 
 # There are no explicit twice-a-year or quarterly events, but you can do those with two or four ANNUAL events.
 # It's ok if the range of dates for an annual or monthly item is wider
