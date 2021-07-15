@@ -299,6 +299,16 @@ my $revLine;
 my $contextDir;
 my $len;
 
+# In non-CodeMirror files there are <mark> tags around Search highlights.
+# We need a version of the line of text that's been stripped of <mark> tags
+# for spotting links. $revLine can just be stripped of <mark>s since it's
+# only used to spot links. Basically, we need to spot links in the stripped
+# version of the line but do the replacements in the original line.
+my $lineIsStripped; # 1 means <mark> tags have been removed from $strippedLine.
+my $strippedLine;
+my $strippedLen;
+
+
 # Replacements for discovered links: For text files where replacement is done directly
 # in the text, these replacements are more easily done in reverse order to avoid throwing off
 # the start/end. For CodeMirror files, reps are done in the JavaScript (using $linksA).
@@ -349,8 +359,8 @@ sub AddWebAndFileLinksToLine {
 		$line = $txtR;
 		}
 	
-	# And init all the remaining variables with AutoLink scope.
-	$revLine = scalar reverse($line);
+	# Init some of the remaining variables with AutoLink scope.
+	# (For $revLine see EvaluateLinkCandidates just below.)
 	$contextDir = $theContextDir;
 	$len = length($line);
 	$host = $theHost;
@@ -388,10 +398,28 @@ sub EvaluateLinkCandidates {
 	my $hadGoodMatch = 0; # Don't advance $startPos if there was previous match.
 	
 	# Collect positions of quotes and HTML tags (start and end of both start and end tags).
+	# And <mark> tags, which can interfere with links.
 	GetHtmlTagAndQuotePositions($line);
+	$lineIsStripped = LineHasMarkTags();
+
+	# If $line has <mark> tags, create a version stripped of those, for spotting links
+	# without have to use a monstrous regex.
+	if ($lineIsStripped)
+		{
+		$strippedLine = $line;
+		$strippedLine =~ s!(</?mark[^>]*>)!!g;
+		$strippedLen = length($strippedLine);
+		$revLine = scalar reverse($strippedLine);
+		}
+	else
+		{
+		$strippedLine = $line;
+		$strippedLen = $len;
+		$revLine = scalar reverse($line);
+		}
 	
 	# while see quotes or a potential file .extension, or http(s)://
-	while ($line =~ m!((\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 #	while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
@@ -407,7 +435,7 @@ sub EvaluateLinkCandidates {
 			# Check for non-word or BOL before first quote, non-word or EOL after second.
 			if ($startPos > 0)
 				{
-				my $charBefore = substr($line, $startPos - 1, 1);
+				my $charBefore = substr($strippedLine, $startPos - 1, 1);
 				if ($charBefore !~ m!\W!)
 					{
 					$badQuotation = 1;
@@ -418,7 +446,7 @@ sub EvaluateLinkCandidates {
 					# <h3 id="gloss2html.pl#AddWebAndFileLinksToLine()_refactor"...
 					if ($haveRefToText && $startPos >= 7)
 						{
-						if (substr($line, $startPos - 3, 3) eq "id=")
+						if (substr($strippedLine, $startPos - 3, 3) eq "id=")
 							{
 							$badQuotation = 1;
 							$insideID = 1;
@@ -426,9 +454,9 @@ sub EvaluateLinkCandidates {
 						}
 					}
 				}
-			if ($endPos < $len)
+			if ($endPos < $strippedLen)
 				{
-				my $charAfter = substr($line, $endPos, 1);
+				my $charAfter = substr($strippedLine, $endPos, 1);
 				if ($charAfter !~ m!\W!)
 					{
 					$badQuotation = 1;
@@ -468,11 +496,11 @@ sub EvaluateLinkCandidates {
 			{
 			if ($insideID)
 				{
-				pos($line) = $endPos;
+				pos($strippedLine) = $endPos;
 				}
 			else
 				{
-				pos($line) = $startPos + 1;
+				pos($strippedLine) = $startPos + 1;
 				}
 			}
 		else
@@ -525,12 +553,12 @@ sub EvaluateLinkCandidates {
 			if ($haveGoodMatch)
 				{
 				$previousEndPos = $endPos;
-				$previousRevEndPos = $len - $previousEndPos - 1; # Limit backwards extent of 2nd and subsequent searches.
+				$previousRevEndPos = $strippedLen - $previousEndPos - 1; # Limit backwards extent of 2nd and subsequent searches.
 				$haveGoodMatch = 0;
 				}
 			elsif (!$haveGoodMatch && $haveQuotation)
 				{
-				pos($line) = $startPos + 1;
+				pos($strippedLine) = $startPos + 1;
 				}
 			}
 		} # while another extension or url matched
@@ -550,8 +578,8 @@ sub RememberTextOrImageFileMention {
 	if ($extProper eq 'txt' && !$haveQuotation && $anchorWithNum ne '')
 		{
 		my $anchorPosOnLine = $startPos;
-		$anchorPosOnLine = index($line, '#', $anchorPosOnLine);
-		$anchorWithNum = substr($line, $anchorPosOnLine, 100);
+		$anchorPosOnLine = index($strippedLine, '#', $anchorPosOnLine);
+		$anchorWithNum = substr($strippedLine, $anchorPosOnLine, 100);
 		# Remove any HTML junk there.
 		$anchorWithNum =~ s!\</[A-Za-z]+\>!!g;
 		$anchorWithNum =~ s!\<[A-Za-z]+\>!!g;				
@@ -588,7 +616,7 @@ sub RememberTextOrImageFileMention {
 			}
 		}
 	
-	my $revPos = $len - $startPos - 1 + 1; # extra +1 there to skip '.' before the extension proper.
+	my $revPos = $strippedLen - $startPos - 1 + 1; # extra +1 there to skip '.' before the extension proper.
 	
 	# Extract the substr to search.
 	# (Note to self, using ^.{}... might be faster.)
@@ -616,19 +644,7 @@ sub RememberTextOrImageFileMention {
 			$usingCommonImageLocation = 1;
 			}
 		my $repString = '';
-		
-		if ($haveTextExtension)
-			{
-			GetTextFileRep($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
-							$anchorWithNum, \$repString);
-			}
-		else # currently only image extension
-			{
-			$linkType = 'image'; # For CodeMirror
-			GetImageFileRep($haveQuotation, $quoteChar, $usingCommonImageLocation,
-							$imageName, \$repString);
-			}
-			
+
 		my $repLength = length($longestSourcePath) + $anchorLength;
 		if ($haveQuotation)
 			{
@@ -636,6 +652,25 @@ sub RememberTextOrImageFileMention {
 			}
 		
 		my $repStartPosition = ($haveQuotation) ? $startPos : $startPos - $repLength + $periodPlusAfterLength;
+
+		# We are using the "stripped" line here, so correct replacement start position and length of text
+		# to be replaced by adding back the <mark> tags.
+		($repStartPosition, $repLength) = CorrectedPositionAndLength($repStartPosition, $repLength);
+		my $displayTextForAnchor = substr($line, $repStartPosition, $repLength);
+
+		
+		if ($haveTextExtension)
+			{
+			GetTextFileRep($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
+							$anchorWithNum, $displayTextForAnchor, \$repString);
+			}
+		else # currently only image extension
+			{
+			$linkType = 'image'; # For CodeMirror
+			GetImageFileRep($haveQuotation, $quoteChar, $usingCommonImageLocation,
+							$imageName, $displayTextForAnchor, \$repString);
+			}
+			
 		push @repStr, $repString;
 		push @repLen, $repLength;
 		push @repStartPos, $repStartPosition;
@@ -675,7 +710,7 @@ sub GetLongestGoodPath {
 		{
 		if ($checkToEndOfLine)
 			{
-			$currentRevPos = $len;
+			$currentRevPos = $strippedLen;
 			}
 		else
 			{
@@ -691,7 +726,7 @@ sub GetLongestGoodPath {
 						$slashSeen = 1;
 						# Check for a second slash in $revStrToSearch, signalling a
 						# \\host\share... or //host/share... location.
-						if ($currentRevPos < $len - 1
+						if ($currentRevPos < $strippedLen - 1
 							&& substr($revStrToSearch, $currentRevPos + 1, 1) eq $charSeen)
 							{
 							++$currentRevPos;
@@ -773,7 +808,7 @@ sub GetLongestGoodPath {
 # Cook up viewer and editor links for $bestVerifiedPath, put them in $$repStringR.
 sub GetTextFileRep {
 	my ($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
-		$anchorWithNum, $repStringR) = @_;
+		$anchorWithNum, $displayTextForAnchor, $repStringR) = @_;
 	
 	my $editLink = '';
 	my $viewerPath = $bestVerifiedPath;
@@ -789,10 +824,12 @@ sub GetTextFileRep {
 	$editorPath =~ s!%!%25!g;
 	$editorPath =~ s!\+!\%2B!g;
 	
-	my $displayedLinkName = $longestSourcePath . $anchorWithNum;
+	my $displayedLinkName = $displayTextForAnchor;
+	#my $displayedLinkName = $longestSourcePath . $anchorWithNum;
 	if ($haveQuotation)
 		{
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
+		#$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
 	
 	if ($allowEditing)
@@ -810,7 +847,7 @@ sub GetTextFileRep {
 
 # Do up a view/hover link for image in $bestVerifiedPath, put that in $$repStringR.
 sub GetImageFileRep {
-	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $repStringR) = @_;
+	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $displayTextForAnchor, $repStringR) = @_;
 	if ($haveRefToText)
 		{
 		$bestVerifiedPath =~ s!%!%25!g;
@@ -824,11 +861,18 @@ sub GetImageFileRep {
 	my $fullPath = $bestVerifiedPath;
 	my $imagePath = "http://$host:$port/$VIEWERNAME/$fullPath";
 	my $originalPath = $usingCommonImageLocation ? $imageName : $longestSourcePath;
-	my $displayedLinkName = $originalPath;
+
+	my $displayedLinkName = $displayTextForAnchor;
 	if ($haveQuotation)
 		{
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
+	# my $displayedLinkName = $originalPath;
+	# if ($haveQuotation)
+	# 	{
+	# 	$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
+	# 	}
+	
 	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
 	if ($haveRefToText)
@@ -847,6 +891,17 @@ sub GetImageFileRep {
 # One exception, if $url is too short to be real then skip it.
 sub RememberUrl {
 	my ($startPos, $haveQuotation, $quoteChar, $url) = @_;
+
+	my $linkIsMaybeTooLong = 0;
+	my $repLength = length($url);
+	my $repStartPosition = $startPos;
+
+	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
+
+	# Re-get $url for display (including any <mark> elements).
+	my $displayedURL = substr($line, $startPos, $repLength); # was = $url;
+	$repLength = length($displayedURL);
+
 	# Trim any trailing punctuation character from $url - period, comma etc. Typically those are not part
 	# of a URL, eg "if you go to http://somewhere.com/things, you will find...".
 	# (Only    .^$*+?()[{\|  need escaping in regex outside of a character class, and only  ^-]\  inside one).
@@ -865,20 +920,14 @@ sub RememberUrl {
 		return;
 		}
 	
-	my $displayedURL = $url;
 	if ($haveQuotation)
 		{
 		$displayedURL = $quoteChar . $displayedURL . $quoteChar;
-		}
-	my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
-	
-	my $linkIsMaybeTooLong = 0;
-	my $repLength = length($url);
-	my $repStartPosition = $startPos;
-	if ($haveQuotation)
-		{
 		$repLength += 2;
 		}
+
+	my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
+	
 	push @repStr, $repString;
 	push @repLen, $repLength;
 	push @repStartPos, $repStartPosition;
@@ -955,6 +1004,9 @@ sub DoTextReps {
 # See CmLinks() above.
 sub DoCodeMirrorReps {
 	my ($numReps, $currentLineNumber, $linksA) = @_;
+
+	# TEST ONLY
+	print("Num CM reps on line: |$numReps|\n");
 	
 	for (my $i = 0; $i < $numReps; ++$i)
 		{
@@ -1092,6 +1144,10 @@ my @quotePos;
 my $numQuotes;
 my %badQuotePosition;
 
+my @markStartPos;
+my @markLength;
+my @isMarkStart;
+
 sub GetHtmlTagAndQuotePositions {
 	my ($line) = @_;
 	
@@ -1108,6 +1164,9 @@ sub GetHtmlTagAndQuotePositions {
 
 	# Identify "bad" quote positions, the ones inside HTML tags.
 	GetBadQuotePositions();
+
+	# Find starts and length of <mark...> and </mark>.
+	GetMarkStartsAndLengths($line);
 	}
 	
 # Find start and end positions of HTML start/end tags on line.
@@ -1190,6 +1249,90 @@ sub InsideHtmlTag {
 			}
 		}
 	
+	return($result);
+	}
+
+# Find starts and length of <mark...> and </mark>.
+sub GetMarkStartsAndLengths {
+	my ($line) = @_;
+
+	@markStartPos = ();
+	@markLength = ();
+	@isMarkStart = ();
+	
+	while ($line =~ m!(</?mark[^>]*>)!g)
+		{
+		my $startPos = $-[1];	# beginning of match
+		my $endPos = $+[1];		# one past last matching character
+		push @markStartPos, $startPos;
+		push @markLength, $endPos - $startPos;
+		my $markStr = $1;
+		my $isMarkStarter = 1;
+		if (index($markStr, '</') == 0)
+			{
+			$isMarkStarter = 0;
+			}
+		push @isMarkStart, $isMarkStarter;
+
+		# TEST ONLY
+		my $len = $endPos - $startPos;
+		print("start |$startPos|, len |$len|, isStart |$isMarkStarter|\n");
+		}
+	}
+
+# Correct for missing <mark...> and </mark>.
+sub CorrectedPositionAndLength {
+	my ($startPos, $repLength) = @_;
+	my $correctedStartPos = $startPos;
+	my $originalEndPos = $startPos + $repLength;
+
+	# First correct the start position for <marks> preceding the $startPos.
+	for (my $i = 0; $i < @markStartPos; ++$i)
+		{
+		if ($markStartPos[$i] < $startPos)
+			{
+			$correctedStartPos += $markLength[$i];
+			}
+		}
+
+	# Add back lengths of removed <mark> tags that were originally
+	# in the stripped text.
+	for (my $i = 0; $i < @markStartPos; ++$i)
+		{
+		my $deflatedPosition = $markStartPos[$i];
+		if ($i > 0)
+			{
+			my $pi = $i - 1;
+			while ($pi >= 0 )
+				{
+				$deflatedPosition -= $markLength[$pi];
+				--$pi;
+				}
+			}
+
+		if ($deflatedPosition >= $startPos && $deflatedPosition <= $originalEndPos)
+			{
+			if ($deflatedPosition < $originalEndPos || !$isMarkStart[$i])
+				{
+				# TEST ONLY
+				#print("DefPos |$deflatedPosition| subtracting |$markLength[$i]|\n");
+				$repLength += $markLength[$i];
+				}
+			# TEST ONLY
+			else
+				{
+				#print("NOT DOING DefPos |$deflatedPosition| subtracting |$markLength[$i]|\n");
+				}
+			}
+		}
+
+	return($correctedStartPos, $repLength);
+	}
+
+# Valid after calling GetHtmlTagAndQuotePositions() above.
+sub LineHasMarkTags {
+	my $numTags = @markStartPos;
+	my $result = ($numTags > 0);
 	return($result);
 	}
 } ##### HTML tag and quote positions
