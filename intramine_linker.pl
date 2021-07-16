@@ -1005,9 +1005,6 @@ sub DoTextReps {
 sub DoCodeMirrorReps {
 	my ($numReps, $currentLineNumber, $linksA) = @_;
 
-	# TEST ONLY
-	print("Num CM reps on line: |$numReps|\n");
-	
 	for (my $i = 0; $i < $numReps; ++$i)
 		{
 		# Avoid overlap of replacements.
@@ -1273,30 +1270,23 @@ sub GetMarkStartsAndLengths {
 			$isMarkStarter = 0;
 			}
 		push @isMarkStart, $isMarkStarter;
-
-		# TEST ONLY
-		my $len = $endPos - $startPos;
-		print("start |$startPos|, len |$len|, isStart |$isMarkStarter|\n");
 		}
 	}
 
-# Correct for missing <mark...> and </mark>.
+# Correct for missing <mark...> and </mark>
+# as found in @markStartPos /@ markLength. 
 sub CorrectedPositionAndLength {
 	my ($startPos, $repLength) = @_;
 	my $correctedStartPos = $startPos;
 	my $originalEndPos = $startPos + $repLength;
 
-	# First correct the start position for <marks> preceding the $startPos.
-	for (my $i = 0; $i < @markStartPos; ++$i)
-		{
-		if ($markStartPos[$i] < $startPos)
-			{
-			$correctedStartPos += $markLength[$i];
-			}
-		}
-
-	# Add back lengths of removed <mark> tags that were originally
+	# Correct the start position by adding back lengths of
+	# preceding marks.
+	# And add back lengths of removed <mark> tags that were originally
 	# in the stripped text.
+	# We have to correct the position of each mark by removing
+	# length of all preceding marks before comparing with the
+	# (already stripped) $startPos and $originalEndPos.
 	for (my $i = 0; $i < @markStartPos; ++$i)
 		{
 		my $deflatedPosition = $markStartPos[$i];
@@ -1310,18 +1300,16 @@ sub CorrectedPositionAndLength {
 				}
 			}
 
+		if ($deflatedPosition < $startPos)
+			{
+			$correctedStartPos += $markLength[$i];
+			}
+		
 		if ($deflatedPosition >= $startPos && $deflatedPosition <= $originalEndPos)
 			{
 			if ($deflatedPosition < $originalEndPos || !$isMarkStart[$i])
 				{
-				# TEST ONLY
-				#print("DefPos |$deflatedPosition| subtracting |$markLength[$i]|\n");
 				$repLength += $markLength[$i];
-				}
-			# TEST ONLY
-			else
-				{
-				#print("NOT DOING DefPos |$deflatedPosition| subtracting |$markLength[$i]|\n");
 				}
 			}
 		}
