@@ -2,7 +2,7 @@
 # text with links - see NonCmLinks()
 # or a JSON summary of the links that can be used to create an overlay for CodeMirror
 # - see CmLinks().
-# File and web links are handled, "internal" links within a document are handled
+# File and web links are handled, "internal" links within a document are done
 # in intramine_viewer.pl.
 # FullPathForPartial() will return its best guess at a full path, given a partial path.
 #
@@ -360,7 +360,7 @@ sub AddWebAndFileLinksToLine {
 		}
 	
 	# Init some of the remaining variables with AutoLink scope.
-	# (For $revLine see EvaluateLinkCandidates just below.)
+	# (For $revLine and $strippedLine see EvaluateLinkCandidates just below.)
 	$contextDir = $theContextDir;
 	$len = length($line);
 	$host = $theHost;
@@ -546,6 +546,11 @@ sub EvaluateLinkCandidates {
 				} # if known extensions
 			elsif ($haveURL)
 				{
+				# Skip first char if quoted.
+				if ($haveQuotation)
+					{
+					++$startPos;
+					}
 				RememberUrl($startPos, $haveQuotation, $quoteChar, $url);
 				$haveGoodMatch = 1;
 				}
@@ -566,7 +571,7 @@ sub EvaluateLinkCandidates {
 
 
 # If we can find a valid file mention looking backwards from $startPos, remember its details
-# in @repStr, @repLen etc.
+# in @repStr, @repLen etc. We go for the longest valid path.
 sub RememberTextOrImageFileMention {
 	my ($startPos, $previousRevEndPos, $ext, $extProper, $haveQuotation,
 		$haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum) = @_;
@@ -574,7 +579,7 @@ sub RememberTextOrImageFileMention {
 	
 	# To allow for spaces in #anchors where file#anchor hasn't been quoted, grab the
 	# 100 chars following '#' here, and sort it out on the other end when going to
-	# the anchor. Only for txt files.
+	# the anchor. Only for txt files. This looks ugly in the view, alas.
 	if ($extProper eq 'txt' && !$haveQuotation && $anchorWithNum ne '')
 		{
 		my $anchorPosOnLine = $startPos;
@@ -619,7 +624,6 @@ sub RememberTextOrImageFileMention {
 	my $revPos = $strippedLen - $startPos - 1 + 1; # extra +1 there to skip '.' before the extension proper.
 	
 	# Extract the substr to search.
-	# (Note to self, using ^.{}... might be faster.)
 	my $revStrToSearch = substr($revLine, $revPos, $previousRevEndPos - $revPos + 1);
 	
 	# Good break points for hunt are [\\/ ], and [*?"<>|\t] end the hunt.
@@ -654,10 +658,9 @@ sub RememberTextOrImageFileMention {
 		my $repStartPosition = ($haveQuotation) ? $startPos : $startPos - $repLength + $periodPlusAfterLength;
 
 		# We are using the "stripped" line here, so correct replacement start position and length of text
-		# to be replaced by adding back the <mark> tags.
+		# to be replaced by adding back the <mark> tags, for use at the displayed link text.
 		($repStartPosition, $repLength) = CorrectedPositionAndLength($repStartPosition, $repLength);
 		my $displayTextForAnchor = substr($line, $repStartPosition, $repLength);
-
 		
 		if ($haveTextExtension)
 			{
@@ -825,12 +828,6 @@ sub GetTextFileRep {
 	$editorPath =~ s!\+!\%2B!g;
 	
 	my $displayedLinkName = $displayTextForAnchor;
-	#my $displayedLinkName = $longestSourcePath . $anchorWithNum;
-	if ($haveQuotation)
-		{
-		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
-		#$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
-		}
 	
 	if ($allowEditing)
 		{
@@ -863,15 +860,6 @@ sub GetImageFileRep {
 	my $originalPath = $usingCommonImageLocation ? $imageName : $longestSourcePath;
 
 	my $displayedLinkName = $displayTextForAnchor;
-	if ($haveQuotation)
-		{
-		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
-		}
-	# my $displayedLinkName = $originalPath;
-	# if ($haveQuotation)
-	# 	{
-	# 	$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
-	# 	}
 	
 	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
@@ -896,6 +884,7 @@ sub RememberUrl {
 	my $repLength = length($url);
 	my $repStartPosition = $startPos;
 
+	# Adjust position and length of URL to include any <mark> tags that were stripped.
 	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
 
 	# Re-get $url for display (including any <mark> elements).
@@ -924,6 +913,7 @@ sub RememberUrl {
 		{
 		$displayedURL = $quoteChar . $displayedURL . $quoteChar;
 		$repLength += 2;
+		--$repStartPosition;
 		}
 
 	my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
@@ -947,6 +937,7 @@ sub DoTextReps {
 		{
 		if ($i > 0 && $linkIsPotentiallyTooLong[$i-1])
 			{
+			# Avoid overlap of replacements.
 			# If repstart [$i] is greater that [$i-1] end, shorten [$i-1].
 			if ($repStartPos[$i] <= $repStartPos[$i-1] + $repLen[$i-1])
 				{
@@ -1133,7 +1124,7 @@ sub PositionIsInsideAnchorOrImage {
 	}
 } ##### AutoLink
 
-{ ##### HTML tag and quote positions
+{ ##### HTML tag, quote, and <mark> positions.
 my @htmlTagStartPos;
 my @htmlTagEndPos;
 my $numHtmlTags;
@@ -1143,7 +1134,7 @@ my %badQuotePosition;
 
 my @markStartPos;
 my @markLength;
-my @isMarkStart;
+my @isMarkStart; # <mark...> gets 1, </mark> gets 0.
 
 sub GetHtmlTagAndQuotePositions {
 	my ($line) = @_;
@@ -1249,7 +1240,8 @@ sub InsideHtmlTag {
 	return($result);
 	}
 
-# Find starts and length of <mark...> and </mark>.
+# Find starts and length of <mark...> and </mark>,
+# and whether it's a start or end tag.
 sub GetMarkStartsAndLengths {
 	my ($line) = @_;
 
@@ -1274,7 +1266,7 @@ sub GetMarkStartsAndLengths {
 	}
 
 # Correct for missing <mark...> and </mark>
-# as found in @markStartPos /@ markLength. 
+# as found in @markStartPos /@ markLength.
 sub CorrectedPositionAndLength {
 	my ($startPos, $repLength) = @_;
 	my $correctedStartPos = $startPos;
@@ -1323,7 +1315,7 @@ sub LineHasMarkTags {
 	my $result = ($numTags > 0);
 	return($result);
 	}
-} ##### HTML tag and quote positions
+} ##### HTML tag, quote, and <mark> positions.
 
 # Get links (except internal headers) for a range of lines in a CodeMirror view.
 # Called by CmGetLinksForText().
@@ -1340,6 +1332,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 		}
 	}
 
+# Get links, for non-CodeMirror (txt pl etc) files.
 sub AddWebAndFileLinksToVisibleLines {
 	my ($text, $dir, $ext, $serverAddr, $server_port,
 		$clientIsRemote, $allowEditing, $resultR) = @_;
@@ -1361,7 +1354,9 @@ sub AddWebAndFileLinksToVisibleLines {
 				my $pre = $1;
 				my $link = $2;
 				my $post = $3;
-				$link = PodLink($link, $dir, $serverAddr, $server_port, $clientIsRemote);
+
+				$link = PodLink($link, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
+
 				$lines[$counter] = $pre . $link . $post;
 				}
 			}
@@ -1420,26 +1415,92 @@ sub IsPerlExtension {
 sub AddModuleLinkToText {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 
-	# The regex for module/package name here isn't perfect, just good enough. Unfortunately, in a text
-	# file the word "use" pops up quite often, so it's better to restrict linking to cases where "use"
-	# starts the line or it's followed by something that really looks like a package name (an uppercase
-	# letter will do).
-	if ( $$txtR =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
-	  || $$txtR =~ m!^(.+?(use|import)\s+)([A-Z][0-9A-Za-z_:]+)(.+?)$! )
+	# Worth looking only if "use " appears in the text.
+	if (index($$txtR, "use ") < 0)
 		{
-		my $pre = $1;
-		my $mid = $3; # the full module name eg "This", or "This::That"
-		my $post = $4;
+		return;
+		}
+
+	# Make a version of $$txtR with <mark> tags removed, remember where they are.
+	GetMarkStartsAndLengths($$txtR);
+	my $hasMarks = LineHasMarkTags();
+	my $strippedline = $$txtR;
+	if ($hasMarks)
+		{
+		$strippedline =~ s!(</?mark[^>]*>)!!g;
+		}
+
+
+	# Collect replacement string for the module links, apply them in reverse at the end.
+	my @reps;
+	my @repsPositions;
+	my @repLength;
+	my $foundAModule = 0;
+
+	# Look for use X::Y, import X::Y, use local_module etc. Some spurious matches
+	# are happening in text files, but not I hope too many.
+	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+))!g)
+	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
+	#   || $strippedline =~ m!^(.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(.+?)$! )
+	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
+	#   || $strippedline =~ m!^(.+?(use|import)\s+)([A-Z][0-9A-Za-z_:]+)(.+?)$! )
+		{
+		#my $pre = $2;
+		my $mid;
+		my $midPos;
+		my $midLength;
+		if (defined($4))
+			{
+			$mid = $4; # the full module name eg "This", or "This::That"
+			$midPos = $-[4];
+			$midLength = $+[4] - $midPos;
+			}
+		else
+			{
+			$mid = $8; # the full module name eg "This", or "This::That"
+			$midPos = $-[8];
+			$midLength = $+[8] - $midPos;
+			}
 		
 		# Avoid doing a single colon, such as use C:/folder. Also skip if an apostrophe
 		# follows the $mid module name.
 		if (!(index($mid, ":") > 0 && index($mid, "::") < 0)
-		  && !(substr($post, 0, 1) eq "'"))
+		  && !(substr($strippedline, $midPos + $midLength, 1) eq "'"))
 			{
-			$mid = ModuleLink($mid, $dir, $host, $port, $clientIsRemote, $allowEditing);
-			$$txtR = $pre . $mid . $post;
+			# Get original text for $mid, with <mark> tags included.
+			($midPos, $midLength) = CorrectedPositionAndLength($midPos, $midLength);
+			my $displayMid = substr($$txtR, $midPos, $midLength);
+			
+			# And this one is really annoying, "use for" can get a link because some
+			# soul decided that "for" was a good name to use for a module. Skip it
+			# unless it's followed by a semicolon.
+			my $badFor = 0;
+			if (index($mid, "for") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
+				{
+				$badFor = 1;
+				}
+
+			if (!$badFor)
+				{
+				$mid = ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
+				#$textCopy = substr($$txtR, 0, $midPos) . $mid . substr($$txtR, $midPos + $midLength);
+				push @reps, $mid;
+				push @repsPositions, $midPos;
+				push @repLength, $midLength;
+				$foundAModule = 1;
+				}
 			}
-		}	
+		}
+
+	# Apply replacements to $$txtR in reverse order to preserve positions.
+	my $numReps = @reps;
+	if ($numReps)
+		{
+		for (my $i = $numReps - 1; $i >= 0; --$i)
+			{
+			$$txtR = substr($$txtR, 0, $repsPositions[$i]) . $reps[$i] . substr($$txtR, $repsPositions[$i] + $repLength[$i]);
+			}
+		}
 	}
 
 # Turn 'use Package::Module;' into a link to cpan. One wrinkle, if it's a local-only module
@@ -1450,17 +1511,33 @@ sub AddModuleLinkToText {
 # <span class="Keyword">use</span> <span class="Package">
 # base</span>           <span class="Quote">qw(</span><span class="String">Text::Markdown</span>
 # <span class="Quote">)</span><span class="Symbol">;</span>
-# (Note this should be called before wrapping in tr/td elements.)
 # TODO this picks up the occasional spurious "use" mention, though not very often.
 sub AddModuleLinkToPerl {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
+
+	# Worth looking only if "use" appears in the text.
+	if (index($$txtR, "use") < 0)
+		{
+		return;
+		}
+
+	# Make a version of $$txtR with <mark> tags removed, remember where they are.
+	GetMarkStartsAndLengths($$txtR);
+	my $hasMarks = LineHasMarkTags();
+	my $strippedline = $$txtR;
+	if ($hasMarks)
+		{
+		$strippedline =~ s!(</?mark[^>]*>)!!g;
+		}
 	
 	my $modulePartialPath = '';
 	my $displayedModuleName = '';
+	my $dispPosition;
+	my $dispLength;
 	my $pre = '';
 	my $post = '';
 	
-	if ($$txtR =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)(base\s*)(</span>\s*<span class=['"]Quote['"]>qw\(</span><span class=['"]String['"]>)([^<]+)(</span><span class=['"]Quote['"]>\)</span><span class=['"]Symbol['"]>;</span>.*?)$!)
+	if ($strippedline =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)(base\s*)(</span>\s*<span class=['"]Quote['"]>qw\(</span><span class=['"]String['"]>)([^<]+)(</span><span class=['"]Quote['"]>\)</span><span class=['"]Symbol['"]>;</span>.*?)$!)
 		{
 		$pre = $1;
 		my $base = $2;
@@ -1468,30 +1545,35 @@ sub AddModuleLinkToPerl {
 		$modulePartialPath = $4;
 		$post = $5;
 		$displayedModuleName = $base;
+		$dispPosition = $-[2];
+		$dispLength = $+[2] - $dispPosition;
 		
 		$post = $intermediate . $modulePartialPath . $post;
 		}
 
-	elsif ( $$txtR =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)([^<]+)(</span>.*?)$!
+	elsif ( $strippedline =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)([^<]+)(</span>.*?)$!
 	  || $$txtR =~ m!(.*?import\s*</span>\s*<span class=['"]Bareword['"]>)([^<]+)(</span>.*?)$! )
 		{
 		$pre = $1;
 		$modulePartialPath = $2;
 		$post = $3;
 		$displayedModuleName = $modulePartialPath;
+		$dispPosition = $-[2];
+		$dispLength = $+[2] - $dispPosition;
 		}
 		
 	if ($pre ne '')
 		{
-		my $mid = ModuleLink($modulePartialPath, $dir, $host, $port, $clientIsRemote, $allowEditing, $displayedModuleName);
-		$$txtR = $pre . $mid . $post;
+		($dispPosition, $dispLength) = CorrectedPositionAndLength($dispPosition, $dispLength);
+		$displayedModuleName = substr($$txtR, $dispPosition, $dispLength);
+		my $mid = ModuleLink($modulePartialPath, $displayedModuleName, $dir, $host, $port, $clientIsRemote, $allowEditing);
+		$$txtR = substr($$txtR, 0, $dispPosition) . $mid . substr($$txtR, $dispPosition + $dispLength);
 		}
 	}
 
 # Return links to metacpan and to source for a Perl module mention.
 sub ModuleLink {
-	my ($srcTxt, $dir, $host, $port, $clientIsRemote, $allowEditing, $linkName) = @_;
-	$linkName ||= $srcTxt;
+	my ($srcTxt, $displayText, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 	my $result = '';
 	
 	my $isCustom = 0;
@@ -1500,6 +1582,7 @@ sub ModuleLink {
 		{
 		$modulePartialPath =~ s!::!/!g;
 		}
+
 	my $fullPath = FullPathInContextTrimmed($modulePartialPath, $dir); # reverse_filepaths.pm#FullPathInContextTrimmed()
 	if ($fullPath ne '')
 		{
@@ -1518,22 +1601,32 @@ sub ModuleLink {
 			$editLink = " <a href='' class='canedit' onclick=\"editOpen('$fullPath'); return false;\">"
 						. "<img src='edit1.png' width='17' height='12' />" . '</a>';
 			}
-		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$linkName</a>";
+		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayText</a>";
 		$result = "$viewerLink$editLink";
 		}
 	else # path not found, or path found but in main Perl or Perl64 folder
 		{
+		#
 		my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'><img src='metacpan-icon.png' /></a>";
 		
 		# Link to file if possible, follow with meta-cpan link.
 		if ($fullPath ne '')
 			{
-			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$linkName</a>";
+			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayText</a>";
 			$result = "$viewerLink$docsLink";
 			}
-		else # just tack on a meta-cpan link
+		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z]. And skip "use for".
 			{
-			$result = $srcTxt . $docsLink;
+			my $firstChar = substr($srcTxt, 0, 1);
+			my $ordVal = ord($firstChar);
+			if ($ordVal >= 65 && $ordVal <= 90)
+				{
+				$result = $displayText . $docsLink;
+				}
+			else
+				{
+				$result = $displayText;
+				}
 			}
 		}
 	
@@ -1542,10 +1635,8 @@ sub ModuleLink {
 
 # Return HTML link for a link mention in a Pod file.
 sub PodLink {
-	my ($srcTxt, $dir, $host, $port, $clientIsRemote) = @_;
+	my ($srcTxt, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 	my $result = '';
-	
-	#print("PodLink: |$srcTxt|\n");
 	
 	# Separate displayed text from name.
 	my $text;
@@ -1571,7 +1662,7 @@ sub PodLink {
 		{
 		# Tweak, for something like "See Bit::Vector::Overload(3)" strip the (3).
 		$name =~ s!\s*\(\d+\)\s*$!!;
-		$result = ModuleLink($name, $dir, $host, $port, $clientIsRemote, $text);
+		$result = ModuleLink($name, $text, $dir, $host, $port, $clientIsRemote, $allowEditing);
 		}
 	
 	return($result);
