@@ -1,3 +1,4 @@
+# OBSOLETE, IntraMine now uses Pod::Simple::HTML directly.
 # pod2thml_intramine.pm, a version of Pod::Simple::Text tweaked to output simple HTML
 # for use by intramine_file_viewer_cm.pl.
 # See /Pod/Simple/Text.pm for the basis of this module.

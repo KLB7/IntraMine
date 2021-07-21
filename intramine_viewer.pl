@@ -29,11 +29,10 @@ use Win32::Process; # for calling Exuberant ctags.exe
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
+use Pod::Simple::HTML;
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
-#use reverse_filepaths;
-use pod2thml_intramine;
 use win_wide_filepaths;
 use win_user32_local;
 use docx2txt;
@@ -342,7 +341,12 @@ sub FullFile {
 	my ($highlightItems, $toggleHitsButton) = InitialHighlightItems($formH, $usingCM, $searchItems);
 	$theBody =~ s!_HIGHLIGHTITEMS_!$highlightItems!;
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
-	my $togglePositionButton = PositionToggle();
+	my $togglePositionButton = '';
+	# Pod and Mardown Toggle won't work because they don't have line numbers.
+	if ($filePath !~ m!\.(pod|md)$!i)
+		{
+		$togglePositionButton = PositionToggle();
+		}
 	$theBody =~ s!_TOGGLEPOSACTION_!$togglePositionButton!;
 	
 	# Hilight class for table of contents selected element - see also non_cm_test.css
@@ -469,14 +473,12 @@ sub GetContentBasedOnExtension {
 '<link rel="stylesheet" type="text/css" media="screen" href="addon/search/cm_small_tip.css" />' . "\n" .
 '<link rel="stylesheet" type="text/css" href="cm_viewer.css" />' . "\n";
 	# Markdown CSS:
-	my $cssForMD = 
-'<link rel="stylesheet" type="text/css" href="cm_md.css" />';
+	my $cssForMD = '<link rel="stylesheet" type="text/css" href="cm_md.css" />';
 	# Non CodeMirror CSS:
-my $cssForNonCm = 
-'<link rel="stylesheet" type="text/css" href="non_cm_text.css" />';
+	my $cssForNonCm = '<link rel="stylesheet" type="text/css" href="non_cm_text.css" />';
 	# For $textTableCSS variations, some table formatting.
-	my $cssForNonCmTables =
-'<link rel="stylesheet" type="text/css" href="non_cm_tables.css" />';
+	my $cssForNonCmTables = '<link rel="stylesheet" type="text/css" href="non_cm_tables.css" />';
+	my $cssForPod = '<link rel="stylesheet" type="text/css" href="pod.css" />';
 
 
 	# 1.2 Images: entire "contents" of the page is just an img link.
@@ -520,7 +522,7 @@ my $cssForNonCm =
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-		$$customCSS_R = $cssForNonCm;
+		$$customCSS_R = $cssForNonCm . "\n" . $cssForPod;
 		$$textTableCSS_R = $cssForNonCmTables;
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
@@ -1086,105 +1088,138 @@ sub GetPrettyPod {
 		return;
 		}
 
-	my @lines = split(/\n/, $octets);
+	# Add target='_blank' to <a href=...> links;
+	# But avoid links to location in same file, <a href="#...
+	$octets =~ s!\<a href\=([\'\"][^#])!\<a target\='_blank' href\=$1!g;
 	
-	my @jumpList;
-	push @jumpList, "<ul>";
-	push @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
-	# At present L<> links are incompatible with AddWebAndFileLinksToLine() below, so
-	# AddWebAndFileLinksToLine() is not called if a line contains an L<> link.
-#	my @skipFileLinks;
-	my %sectionIdExists; # used to avoid duplicated anchor id's for sections.
-	my $lineNum = 1;
+	$$contentsR = "<span id='top-of-document'></span>";
+	# No table of contents down the left, but one is provided at top.
+	###$$contentsR .= "<div id='scrollContentsList'>" . "<ul>" . '</ul></div>';
+	$$contentsR .= "<div id='scrollTextRightOfContents'>" . $octets . '</div>';
+	$$contentsR = encode_utf8($$contentsR);
+	}
+
+# Look for top-level HTML tags, and gather all line fragments for
+# each tag into a single line. We need this in order to put
+# lines in table cells without breaking the HTML, which in
+# turn allows using line numbers.
+# Ugh, sometimes a tag starts midline and end tag is the only content
+# on the next line: move the end tag up for those.
+sub ConsolidatePodHtmlIntoLines {
+	my ($text) = @_;
+	my @lines;
+
+	my @fragments = split(/\n/, $text);
+	my @tags;
+
+	my $numFraments = @fragments;
+	my $i = 0;
+	while ($i < $numFraments)
+		{
+		if ($fragments[$i] =~ m!^<([a-zA-Z]+)!)
+			{
+			my $tag = $1;
+			my $doingPre = ($tag eq 'pre') ? 1 : 0;
+			my $line = $fragments[$i];
+			my $nextI = $i;
+
+			if ($line !~ m!</$tag!)
+				{
+				if ($doingPre)
+					{
+					push @lines, $line . '</pre>';
+					}
+
+				$nextI = $i + 1;
+				while ($nextI < $numFraments && $fragments[$nextI] !~ m!</$tag!)
+					{
+					if ($doingPre)
+						{
+						push @lines, '<pre>' . $fragments[$nextI] . '</pre>';
+						}
+					else
+						{
+						$line .= " $fragments[$nextI]";
+						}
+					++$nextI;
+					}
+				if ($doingPre)
+					{
+					push @lines, '<pre>' . $fragments[$nextI];
+					}
+				else
+					{
+					$line .= " $fragments[$nextI]";
+					}
+				}
+			else
+				{
+				if ($doingPre)
+					{
+					push @lines, $line;
+					}
+				}
+			if (index($line, '<p>') == 0)
+				{
+				$line =~ s!^<p>!!;
+				$line =~ s!</p>$!!;
+				}
+			
+			if (!$doingPre)
+				{
+				push @lines, $line;
+				}
+			
+			if ($nextI == $i)
+				{
+				++$i;
+				}
+			else
+				{
+				$i = $nextI + 1;
+				}
+			}
+		else # error?
+			{
+			if ($fragments[$i] !~ m!^\s*$!)
+				{
+				#print("Pod error, |$fragments[$i]| is not blank!\n");
+				}
+			push @lines, $fragments[$i];
+			++$i;
+			}
+		}
+
+	# Second pass, consolidate solo end tags.
+	my @goodLines;
 	for (my $i = 0; $i < @lines; ++$i)
 		{
-		# First, fix the C<> markup, <c>...</c>. And non-breaking space, S<>, <s>...</s>
-		if ($lines[$i] =~ m!<c>! && $lines[$i] !~ m!</c>!)
+		if ($lines[$i] =~ m!^\s*</[^>]+>\s*$!)
 			{
-			$lines[$i] .= '</c>';
-			}
-		elsif ($lines[$i] =~ m!</c>! && $lines[$i] !~ m!<c>!)
-			{
-			$lines[$i] = '<c>' . $lines[$i];
-			}
-		if ($lines[$i] =~ m!<s>! && $lines[$i] !~ m!</s>!)
-			{
-			$lines[$i] .= '</s>';
-			}
-		elsif ($lines[$i] =~ m!</s>! && $lines[$i] !~ m!<s>!)
-			{
-			$lines[$i] = '<s>' . $lines[$i];
-			}
-		$lines[$i] =~ s!<c>!<span class='codehere'>!g;
-		$lines[$i] =~ s!</c>!</span>!g;
-		while ($lines[$i] =~ m!^(.*?)<s>(.+?)</s>(.*)$!)
-			{
-			my $pre = $1;
-			my $s = $2;
-			my $post = $3;
-			$s =~ s! !\&nbsp;!g;
-			$lines[$i] = $pre . $s . $post;
-			}
-			
-		# Links, L<...> comes throught to us here as <l>...</l>.
-#		my $shouldSkipAddFileLinks = 0;
-#		while ($lines[$i] =~ m!^(.*?)<l>(.+?)</l>(.*)$!)
-#			{
-#			my $pre = $1;
-#			my $link = $2;
-#			my $post = $3;
-#			$link = PodLink($link, $dir, $serverAddr, $server_port, $clientIsRemote);
-#			$lines[$i] = $pre . $link . $post;
-#			$shouldSkipAddFileLinks = 1;
-#			}
-#		$skipFileLinks[$i] = $shouldSkipAddFileLinks;
-		
-		# Headings h2 h3 go in table of contents, also put in an anchor.
-		if ($lines[$i] =~ m!^\s*(<h[23]>)(.+?)(</h[23]>)$!)
-			{
-			my $headingStart = $1;
-			my $rawHeading = $2;
-			my $headingEnd = $3;
-			my $id = $rawHeading;
-			$id =~ s!<[^>]+>!!g;
-			$id =~ s!^\s+!!;
-			$id =~ s!\s+$!!;
-			$id =~ s!\s+!_!g;
-			$id =~ s!&nbsp;!_!g;
-			# Quotes don't help either.
-			$id =~ s!['"]!!g;
-			if ($id eq '' || defined($sectionIdExists{$id}))
+			if ($i > 0)
 				{
-				my $anchorNumber = @jumpList;
-				$id = "hdr_$anchorNumber";
+				$lines[$i-1] .= $lines[$i];
 				}
-			$sectionIdExists{$id} = 1;
-			my $contentsClass = ($headingStart =~ m!2!) ? 'h2': 'h3';
-			my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$id'>";
-			my $jlEnd = "</a></li>";
-			$headingStart = "<$contentsClass id=\"$id\">";
-			$lines[$i] = "$headingStart$rawHeading</$contentsClass>";
-			push @jumpList, $jlStart . $rawHeading . $jlEnd;				
+			else
+				{
+				push @goodLines, $lines[$i];
+				}
 			}
-#		elsif (!($skipFileLinks[$i]))
-#			{
-###			AddWebAndFileLinksToLine(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-#			}
-		
-		# Preserve space appearance, turn every second space into a non-breaking space.
-		$lines[$i] =~ s!  !&nbsp; !g;
-		# And as always, throw in some line numbers in the first column of the content table.
-		my $rowID = 'R' . $lineNum;
-		$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
-		++$lineNum;
+		else
+			{
+			push @goodLines, $lines[$i];
+			}
 		}
-		
-	$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
-	
-	$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
-	$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . '</tbody></table></div>';
-	
-	$$contentsR = encode_utf8($$contentsR);
+
+	# TEST ONLY
+	# print("---\n");
+	# for (my $i = 0; $i < @lines; ++$i)
+	# 	{
+	# 	print("$lines[$i]\n");
+	# 	}
+	# print("---\n");
+
+	return(@goodLines);
 	}
 
 # An attempt at a pleasing and useful view of text files.
@@ -1969,43 +2004,40 @@ sub LoadPerlFileContents {
 	return(1);
 	}
 
-# Call a modifed version of Pod/Simple/Text.pm to convert pod to HTML.
+# Call  Pod::Simple::HTML to convert pod to HTML.
 sub LoadPodFileContents {
 	my ($filePath, $contentsR, $octetsR) = @_;
-	
-	$$octetsR = ReadTextFileWide($filePath);
-	if (!defined($$octetsR))
-		{
-		$$contentsR .= "Error, could not open $filePath.";
-		return(0);
-		}
-	my $decoder = Encode::Guess->guess($$octetsR);
-	
-	my $eightyeightFired = 0;
-	if (ref($decoder))
-		{
-		my $decoderName = $decoder->name();
-		if ($decoderName =~ m!iso-8859-\d+!)
-			{
-			$$octetsR = $decoder->decode($$octetsR);
-			$eightyeightFired = 1;
-			}
-		}
-	
-	my $parser = pod2thml_intramine->new;
-	$parser->parse_characters(1);
-	$parser->no_whining(1);
-	$parser->no_errata_section(1);
+
+	my $contents = ReadTextFileDecodedWide($filePath, 1);
+	my $p = Pod::Simple::HTML->new;
+
+	# TEST ONLY
+	$p->index(1);
+
+	$p->no_whining(1);
+	$p->parse_characters(1);
+	$p->html_h_level(2);
 	my $html;
-	$parser->output_string(\$html);
-	$parser->parse_string_document($$octetsR);
+	$p->output_string(\$html);
+	$p->parse_string_document($contents);
 	
-	if (!$eightyeightFired)
+	# Strip off the top and bottom, we just want  after "<!-- start doc -->"
+	# down to before "<!-- end doc -->"
+	my $startDoc = "<!-- start doc -->";
+	my $idx = index($html, "<!-- start doc -->");
+	if ($idx > 0)
 		{
-		$html = decode_utf8($html);
+		my $skipStartLength = length($startDoc);
+		$html = substr($html, $idx + $skipStartLength);
 		}
+	$idx = index($html, "<!-- end doc -->");
+	if ($idx > 0)
+		{
+		$html = substr($html, 0, $idx);
+		}
+
 	$$octetsR = $html;
-	
+
 	return(1);
 	}
 

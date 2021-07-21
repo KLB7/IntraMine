@@ -832,32 +832,30 @@ function updateLanguageSummary() {
 	let numLanguages = 0;
 	
 	let oFormElement = document.forms[0]; // document.getElementById(formID);
-	
-	for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
+
+	// Get languages, and whether all are selected.
+	let checkElement = document.getElementById("checkboxes");
+	let inputs = checkElement.getElementsByTagName("INPUT");
+	for (let i = 0; i < inputs.length; ++i)
 		{
-		let oField = oFormElement.elements[nItem];
-		if (!oField.hasAttribute("name")) { continue; }
-		let sFieldType = oField.nodeName.toUpperCase() === "INPUT" ? oField.getAttribute("type").toUpperCase() : "TEXT";
-		if (sFieldType === "CHECKBOX" && oField.name !== 'matchexact' && oField.name !== 'subdirs')
+		let theInput = inputs[i];
+		if (theInput.checked && theInput.name !== 'matchexact' && theInput.name !== 'subdirs')
 			{
-			if (oField.checked)
+			++numLanguagesSelected;
+			if (firstLanguage === '')
 				{
-				++numLanguagesSelected;
-				if (firstLanguage === '')
-					{
-					firstLanguage = oField.name.substr(4);
-					}
-				else if (secondLanguage === '')
-					{
-					secondLanguage = oField.name.substr(4);
-					}
-				else if (thirdLanguage === '')
+				firstLanguage = theInput.name.substr(4);
+				}
+			else if (secondLanguage === '')
 				{
-					thirdLanguage = oField.name.substr(4);
+				secondLanguage = theInput.name.substr(4);
 				}
+			else if (thirdLanguage === '')
+				{
+				thirdLanguage = theInput.name.substr(4);
 				}
-			++numLanguages;
 			}
+		++numLanguages;
 		}
 
 	let val = document.querySelector('input[name="langExt"]:checked').value;

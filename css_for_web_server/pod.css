@@ -1,0 +1,17 @@
+.codehere, code {
+	background-color: rgba(211, 211, 211, 0.3); /* #ECF6CE #dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+
+
+pre {
+	/*white-space: normal;*/
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+/* Pod has no table of contents on left, so widen the text area. */
+#scrollTextRightOfContents {
+	left: 1%;
+	width: 97.7%;
+	padding-right: 10px;
+}

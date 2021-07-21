@@ -1345,22 +1345,6 @@ sub AddWebAndFileLinksToVisibleLines {
 			AddModuleLinkToText(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
 			}
 		}
-	elsif (IsPodExtension($ext))
-		{
-		for (my $counter = 0; $counter < @lines; ++$counter)
-			{
-			while ($lines[$counter] =~ m!^(.*?)<l>(.+?)</l>(.*)$!)
-				{
-				my $pre = $1;
-				my $link = $2;
-				my $post = $3;
-
-				$link = PodLink($link, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-
-				$lines[$counter] = $pre . $link . $post;
-				}
-			}
-		}
 	elsif(IsPerlExtension($ext))
 		{
 		for (my $counter = 0; $counter < @lines; ++$counter)
@@ -1371,12 +1355,13 @@ sub AddWebAndFileLinksToVisibleLines {
 				}
 			}
 		}
-	
-	#my $doingCM = 0;
-	for (my $counter = 0; $counter < @lines; ++$counter)
+	elsif (!IsPodExtension($ext))
 		{
-		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
-								$clientIsRemote, $allowEditing);
+		for (my $counter = 0; $counter < @lines; ++$counter)
+			{
+			AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
+									$clientIsRemote, $allowEditing);
+			}
 		}
 	
 	#$$resultR = join("\n", @lines);
@@ -1656,7 +1641,7 @@ sub PodLink {
 	# Is it one of them hyperlink things?
 	if (index($name, 'http') == 0)
 		{
-		$result = WebLink($name, $host, $port, $text);
+		#$result = WebLink($name, $host, $port, $text);
 		}
 	else
 		{

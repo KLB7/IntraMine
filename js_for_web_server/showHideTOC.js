@@ -272,7 +272,7 @@ function wantedTableForPosition(topChildren, enclosingRectTopOrBot, getTop) {
 			}
 		else
 			{
-			console.log("ERROR no tables in document!");
+			//console.log("ERROR no tables in document!");
 			}
 		}
 	
