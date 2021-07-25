@@ -187,7 +187,7 @@ sub textHandler {
 						}
 					else
 						{
-						$textForAutoLink = "[$text]($href)";
+						$textForAutoLink = '___LB__' . $text . '___RB__' . '___LP__' . $href . '___RP__'; # "[$text]($href)";
 						}
                     # Sometime there's no text in a <li>, just an anchor.
                     if ($tagAbove eq 'li' && $self->{CURRENT_LINE} eq '')

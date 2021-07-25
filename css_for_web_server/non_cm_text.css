@@ -218,6 +218,10 @@ and the entry name in a span with
 	height: 3px;
 	}
 
+/* For Gloss display of POD. */
+code {
+	background-color:#ECF6CE;
+}
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {

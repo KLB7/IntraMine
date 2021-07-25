@@ -37,6 +37,7 @@ use win_wide_filepaths;
 use win_user32_local;
 use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
+use html2gloss;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -529,7 +530,7 @@ sub GetContentBasedOnExtension {
 		{
 		# By default this runs the text through a Gloss processor.
 		# So all your .txt files are belong to Gloss.
-		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R);
+		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
@@ -1074,8 +1075,29 @@ sub GetPrettyMD {
 	$$contentsR = encode_utf8($$contentsR);
 	}
 
-# POD to HTML.
 sub GetPrettyPod {
+	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
+	my $filePath = $formH->{'FULLPATH'};
+	my $dir = lc(DirectoryFromPathTS($filePath));
+	my $serverAddr = ServerAddress();
+	$$contentsR = "";
+
+	my $octets;
+	if (!LoadPodFileContents($filePath, \$octets))
+		{
+		return;
+		}
+
+	my $p = html2gloss->new();
+	my $contentsInrawGloss;
+	$p->htmlToGloss(\$octets, \$contentsInrawGloss);
+
+	# Convert to Gloss HTML display with GetPrettyTextContents().
+	GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, \$contentsInrawGloss);
+	}
+
+# POD to HTML.
+sub xGetPrettyPod {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
 	my $filePath = $formH->{'FULLPATH'};
 	my $dir = lc(DirectoryFromPathTS($filePath));
@@ -1227,7 +1249,7 @@ sub ConsolidatePodHtmlIntoLines {
 # autolinks and hover images and headings and tables and lists and all that.
 # A Table of Contents down the left side lists headings.
 sub GetPrettyTextContents {
-	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
+	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $sourceR) = @_;
 	my $serverAddr = ServerAddress();
 	
 	my $filePath = $formH->{'FULLPATH'};
@@ -1235,9 +1257,17 @@ sub GetPrettyTextContents {
 	$$contentsR = ""; # "<hr />";
 	
 	my $octets;
-	if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+	# GetPrettyPod calls this sub with loaded source.
+	if (defined($sourceR))
 		{
-		return;
+		$octets = $$sourceR;
+		}
+	else
+		{
+		if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+			{
+			return;
+			}
 		}
 	
 	my @lines = split(/\n/, $octets);
@@ -1345,7 +1375,10 @@ sub GetPrettyTextContents {
 		$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
 		}
 	
-	$$contentsR = encode_utf8($$contentsR);
+	if (!defined($sourceR))
+		{
+		$$contentsR = encode_utf8($$contentsR);
+		}
 	}
 
 sub AddEmphasis {
@@ -1355,9 +1388,9 @@ sub AddEmphasis {
 	$$lineR =~ s!\<!&#60;!g;
 	$$lineR =~ s!\&#62;!&gt;!g;
 	
-	# **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
+	# ***code*** **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
 	# Require non-whitespace before trailing *, avoiding *this and *that mentions.
-	# Blend of two below: try * simple arbitrary simple *
+	$$lineR =~ s!\*\*\*([^*]+)\*\*\*!<code>$1</code>!g;
 	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
 	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
@@ -2004,8 +2037,77 @@ sub LoadPerlFileContents {
 	return(1);
 	}
 
-# Call  Pod::Simple::HTML to convert pod to HTML.
 sub LoadPodFileContents {
+	my ($filePath, $octetsR) = @_;
+
+	my $contents = ReadTextFileDecodedWide($filePath, 1);
+
+    # Some repair is needed before parsing it seems.
+    # Specifically, two consecutive headings can mess things up.
+    # Headings start with ^=headN where N is a digit.
+    my @lines = split(/\n/, $contents);
+    my $consecutiveHeadingCount = 0;
+    my @fixedLines;
+    for (my $i = 0; $i < @lines; ++$i)
+        {
+        if (index($lines[$i], "=head") == 0
+          && $lines[$i] =~ m!^\=head\d!)
+            {
+            ++$consecutiveHeadingCount;
+            if ($consecutiveHeadingCount == 2)
+                {
+                --$consecutiveHeadingCount;
+                push @fixedLines, '';
+                push @fixedLines, $lines[$i];
+                }
+            else
+                {
+                push @fixedLines, $lines[$i];
+                }
+            }
+        else
+            {
+            $consecutiveHeadingCount = 0;
+            push @fixedLines, $lines[$i];
+            }
+        }
+
+    $contents = join("\n", @fixedLines);
+
+	my $p = Pod::Simple::HTML->new;
+
+	# TEST ONLY
+	#$p->index(1);
+
+	$p->no_whining(1);
+	$p->parse_characters(1);
+	$p->html_h_level(2);
+	my $html;
+	$p->output_string(\$html);
+	$p->parse_string_document($contents);
+
+	# Strip off the top and bottom, we just want  after "<!-- start doc -->"
+	# down to before "<!-- end doc -->"
+	my $startDoc = "<!-- start doc -->";
+	my $idx = index($html, "<!-- start doc -->");
+	if ($idx > 0)
+		{
+		my $skipStartLength = length($startDoc);
+		$html = substr($html, $idx + $skipStartLength);
+		}
+	$idx = index($html, "<!-- end doc -->");
+	if ($idx > 0)
+		{
+		$html = substr($html, 0, $idx);
+		}
+
+	$$octetsR = $html;
+
+	return(1);
+	}
+
+# Call  Pod::Simple::HTML to convert pod to HTML.
+sub xLoadPodFileContents {
 	my ($filePath, $contentsR, $octetsR) = @_;
 
 	my $contents = ReadTextFileDecodedWide($filePath, 1);

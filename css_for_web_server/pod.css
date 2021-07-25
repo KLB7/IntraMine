@@ -9,9 +9,20 @@ pre {
 	margin-bottom: 0;
 }
 
-/* Pod has no table of contents on left, so widen the text area. */
-#scrollTextRightOfContents {
-	left: 1%;
-	width: 97.7%;
-	padding-right: 10px;
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+	display: inline-block;
+	margin-block-start: .5em;
+	margin-block-end: .1em;
+}
+
+
+#scrollTextRightOfContents table {
+	border-collapse:separate; 
+	border-spacing: 0 .5em;
+  }
+
+  /* Horizontal rule in Gloss. */
+.vam {
+	padding-top: .2em;
+	padding-bottom: .5em;
 }

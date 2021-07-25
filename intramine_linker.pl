@@ -341,7 +341,7 @@ sub AddWebAndFileLinksToLine {
 	
 	if (ref($txtR) eq 'SCALAR') # ref to a SCALAR, so doing text
 		{
-		if ($$txtR !~ m!\.\w! && $$txtR !~ m!http!)
+		if ($$txtR !~ m!\.\w|http|___LB__!)
 			{
 			return;
 			}
@@ -351,7 +351,7 @@ sub AddWebAndFileLinksToLine {
 	else # not a ref (at least it shouldn't be), so doing CodeMirror
 		{
 		# Return if nothing on the line looks roughly like a link.
-		if ($txtR !~ m!\.\w! && $txtR !~ m!http!)
+		if ($txtR !~ m!\.\w|http|___LB__!)
 			{
 			return;
 			}
@@ -419,13 +419,21 @@ sub EvaluateLinkCandidates {
 		}
 	
 	# while see quotes or a potential file .extension, or http(s)://
-	while ($strippedLine =~ m!((\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
-#	while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	# or [text](href) with ___LB__ for [ etc.
+	while ($strippedLine =~ m!((___LB__.+?___RB_____LP__.+?___RP__)|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
-		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url
-		
+		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
+
+		my $haveTextHref = (index($ext, '___LB__') == 0);
+		my $textHref = ($haveTextHref) ? $ext : '';
+
+		# TEST ONLY
+		# if ($haveTextHref)
+		# 	{
+		# 	print("\$textHref: |$textHref|\n");
+		# 	}
 		my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
 		my $quoteChar = '';
 		my $badQuotation = 0;
@@ -505,10 +513,10 @@ sub EvaluateLinkCandidates {
 			}
 		else
 			{
-			my $haveURL = (index($ext, 'http') == 0);
-			my $anchorWithNum = (!$haveQuotation && !$haveURL && defined($9)) ? $9 : ''; # includes '#'
+			my $haveURL = (!$haveTextHref && index($ext, 'http') == 0);
+			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($10)) ? $10 : ''; # includes '#'
 			# Need to sort out actual anchor if we're dealing with a quoted chunk.
-			if ($haveQuotation && !$haveURL)
+			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
 				if ($ext =~ m!(\#[^"]+)!)
 					{
@@ -516,25 +524,25 @@ sub EvaluateLinkCandidates {
 					}
 				}
 			my $url = $haveURL ? $ext : '';
-			my $extProper = (!$haveQuotation && !$haveURL) ? substr($ext, 1) : '';
+			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref) ? substr($ext, 1) : '';
 			# Get file extension if it's a quoted chunk (many won't have an extension).
-			if ($haveQuotation && !$haveURL)
+			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
 				if ($ext =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 					{
 					$extProper = $1;
 					}
 				}
-			if ($anchorWithNum ne '' && !$haveURL && !$haveQuotation)
+			if ($anchorWithNum ne '' && !$haveURL && !$haveQuotation && !$haveTextHref)
 				{
 				my $pos = index($extProper, '#');
 				$extProper = substr($extProper, 0, $pos);
 				}
 			
 			# "$haveTextExtension" includes docx|pdf
-			my $haveTextExtension = (!$haveURL && IsTextDocxPdfExtensionNoPeriod($extProper));
-			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && IsImageExtensionNoPeriod($extProper)); 
-			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension); # else URL
+			my $haveTextExtension = (!$haveURL && !$haveTextHref && IsTextDocxPdfExtensionNoPeriod($extProper));
+			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && !$haveTextHref && IsImageExtensionNoPeriod($extProper)); 
+			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension); # else URL or [text](href)
 			
 			my $linkIsMaybeTooLong = 0;
 			
@@ -552,6 +560,11 @@ sub EvaluateLinkCandidates {
 					++$startPos;
 					}
 				RememberUrl($startPos, $haveQuotation, $quoteChar, $url);
+				$haveGoodMatch = 1;
+				}
+			elsif ($haveTextHref)
+				{
+				RememberTextHref($startPos, $textHref);
 				$haveGoodMatch = 1;
 				}
 			
@@ -922,6 +935,43 @@ sub RememberUrl {
 	push @repLen, $repLength;
 	push @repStartPos, $repStartPosition;
 	push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
+	if (!$haveRefToText) # CodeMirror
+		{
+		push @repLinkType, 'web';
+		}
+	}
+
+sub RememberTextHref {
+	my ($startPos, $textHref) = @_;
+	my $repLength = length($textHref);
+	my $repStartPosition = $startPos;
+
+	# We want the href from the (stripped) $textHref as passed in,
+	# and the display text from the corrected version of $textHref.
+	# Text presents as ___LB__ text proper ___RB__,
+	# href as ___LP__ href proper ___RP__.
+
+	# First extract a good href.
+	my $leftIdx = index($textHref, '___LP__');
+	$leftIdx += length('___LP__');
+	my $rightIdx = index($textHref, '___RP__');
+	my $href = substr($textHref, $leftIdx, $rightIdx - $leftIdx);
+
+	# Adjust position and length of URL to include any <mark> tags that were stripped.
+	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
+
+	# Get display text from the corrected version of $textHref.
+	my $correctTextHref = substr($line, $startPos, $repLength);
+	$leftIdx = index($correctTextHref, '___LB__');
+	$leftIdx += length('___LB__');
+	$rightIdx = index($correctTextHref, '___RB__');
+	my $displayedText = substr($correctTextHref, $leftIdx, $rightIdx - $leftIdx);
+
+	my $repString = "<a href = '$href' target='_blank'>$displayedText</a>";
+	push @repStr, $repString;
+	push @repLen, $repLength;
+	push @repStartPos, $repStartPosition;
+	push @linkIsPotentiallyTooLong, 0;
 	if (!$haveRefToText) # CodeMirror
 		{
 		push @repLinkType, 'web';
@@ -1355,7 +1405,7 @@ sub AddWebAndFileLinksToVisibleLines {
 				}
 			}
 		}
-	elsif (!IsPodExtension($ext))
+	else # elsif (!IsPodExtension($ext))
 		{
 		for (my $counter = 0; $counter < @lines; ++$counter)
 			{

@@ -164,9 +164,9 @@ sub AddEmphasis {
 	$$lineR =~ s!\<!&#60;!g;
 	$$lineR =~ s!\&#62;!&gt;!g;
 	
-	# **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
+	# ***code*** **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
 	# Require non-whitespace before trailing *, avoiding *this and *that mentions.
-	# Blend of two below: try * simple arbitrary simple *
+	$$lineR =~ s!\*\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*\*!<code>$1</code>!g;
 	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
 	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
