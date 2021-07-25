@@ -420,7 +420,7 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with ___LB__ for [ etc.
-	while ($strippedLine =~ m!((___LB__.+?___RB_____LP__.+?___RP__)|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((___LB__.+?___RB_____LP__.+?___RP__)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
