@@ -220,6 +220,7 @@ sub FullFile {
 	# For cmTextHolderName = '_CMTEXTHOLDERNAME_'; -- can also  be 'scrollTextRightOfContents'
 	my $textHolderName = 'scrollText';
 	my $usingCM = 'true'; # for _USING_CM_ etc (using CodeMirror)
+
 	my $ctrlSPath = $filePath;
 	
 	my $topNav = TopNav($PAGENAME);
@@ -296,6 +297,12 @@ sub FullFile {
 	$theBody =~ s!_TITLEHEADER_!$title!;
 	
 	$theBody =~ s!_DATEANDSIZE_!$sizeDateStr!;
+
+	# Use $ctrlSPath for $filePath beyond this point.
+	# Why? It works. Otherwise Unicode is messed up.
+	$filePath = $ctrlSPath;
+
+
 	
 	$theBody =~ s!_PATH_!$filePath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
@@ -343,8 +350,8 @@ sub FullFile {
 	$theBody =~ s!_HIGHLIGHTITEMS_!$highlightItems!;
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
 	my $togglePositionButton = '';
-	# Pod and Mardown Toggle won't work because they don't have line numbers.
-	if ($filePath !~ m!\.(pod|md)$!i)
+	# Mardown Toggle won't work because ther are no line numbers.
+	if ($filePath !~ m!\.md$!i)
 		{
 		$togglePositionButton = PositionToggle();
 		}
@@ -630,8 +637,9 @@ sub EditButton {
 FINIS
 #<a href='_FILEPATH_' onclick='editWithPreferredApp(this.href); return false;'><img src='edit_55_22.png'></a>
 
-		#my $encFilePath = $filePath;
-		my $encFilePath = encode_utf8($filePath);
+		# TEST ONLY encode_utf8 out
+		my $encFilePath = $filePath;
+		#my $encFilePath = encode_utf8($filePath);
 		$encFilePath =~ s!\\!/!g;
 		$encFilePath =~ s!^file\:///!!;
 		$encFilePath =~ s!%!%25!g;
@@ -1092,156 +1100,14 @@ sub GetPrettyPod {
 	my $contentsInrawGloss;
 	$p->htmlToGloss(\$octets, \$contentsInrawGloss);
 
+	
+	# TEST ONLY
+	# Dump what we have so far.
+	WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_gloss.txt", $contentsInrawGloss);
+
+
 	# Convert to Gloss HTML display with GetPrettyTextContents().
 	GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, \$contentsInrawGloss);
-	}
-
-# POD to HTML.
-sub xGetPrettyPod {
-	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
-	my $filePath = $formH->{'FULLPATH'};
-	my $dir = lc(DirectoryFromPathTS($filePath));
-	my $serverAddr = ServerAddress();
-	$$contentsR = "";
-	
-	my $octets;
-	if (!LoadPodFileContents($filePath, $contentsR, \$octets))
-		{
-		return;
-		}
-
-	# Add target='_blank' to <a href=...> links;
-	# But avoid links to location in same file, <a href="#...
-	$octets =~ s!\<a href\=([\'\"][^#])!\<a target\='_blank' href\=$1!g;
-	
-	$$contentsR = "<span id='top-of-document'></span>";
-	# No table of contents down the left, but one is provided at top.
-	###$$contentsR .= "<div id='scrollContentsList'>" . "<ul>" . '</ul></div>';
-	$$contentsR .= "<div id='scrollTextRightOfContents'>" . $octets . '</div>';
-	$$contentsR = encode_utf8($$contentsR);
-	}
-
-# Look for top-level HTML tags, and gather all line fragments for
-# each tag into a single line. We need this in order to put
-# lines in table cells without breaking the HTML, which in
-# turn allows using line numbers.
-# Ugh, sometimes a tag starts midline and end tag is the only content
-# on the next line: move the end tag up for those.
-sub ConsolidatePodHtmlIntoLines {
-	my ($text) = @_;
-	my @lines;
-
-	my @fragments = split(/\n/, $text);
-	my @tags;
-
-	my $numFraments = @fragments;
-	my $i = 0;
-	while ($i < $numFraments)
-		{
-		if ($fragments[$i] =~ m!^<([a-zA-Z]+)!)
-			{
-			my $tag = $1;
-			my $doingPre = ($tag eq 'pre') ? 1 : 0;
-			my $line = $fragments[$i];
-			my $nextI = $i;
-
-			if ($line !~ m!</$tag!)
-				{
-				if ($doingPre)
-					{
-					push @lines, $line . '</pre>';
-					}
-
-				$nextI = $i + 1;
-				while ($nextI < $numFraments && $fragments[$nextI] !~ m!</$tag!)
-					{
-					if ($doingPre)
-						{
-						push @lines, '<pre>' . $fragments[$nextI] . '</pre>';
-						}
-					else
-						{
-						$line .= " $fragments[$nextI]";
-						}
-					++$nextI;
-					}
-				if ($doingPre)
-					{
-					push @lines, '<pre>' . $fragments[$nextI];
-					}
-				else
-					{
-					$line .= " $fragments[$nextI]";
-					}
-				}
-			else
-				{
-				if ($doingPre)
-					{
-					push @lines, $line;
-					}
-				}
-			if (index($line, '<p>') == 0)
-				{
-				$line =~ s!^<p>!!;
-				$line =~ s!</p>$!!;
-				}
-			
-			if (!$doingPre)
-				{
-				push @lines, $line;
-				}
-			
-			if ($nextI == $i)
-				{
-				++$i;
-				}
-			else
-				{
-				$i = $nextI + 1;
-				}
-			}
-		else # error?
-			{
-			if ($fragments[$i] !~ m!^\s*$!)
-				{
-				#print("Pod error, |$fragments[$i]| is not blank!\n");
-				}
-			push @lines, $fragments[$i];
-			++$i;
-			}
-		}
-
-	# Second pass, consolidate solo end tags.
-	my @goodLines;
-	for (my $i = 0; $i < @lines; ++$i)
-		{
-		if ($lines[$i] =~ m!^\s*</[^>]+>\s*$!)
-			{
-			if ($i > 0)
-				{
-				$lines[$i-1] .= $lines[$i];
-				}
-			else
-				{
-				push @goodLines, $lines[$i];
-				}
-			}
-		else
-			{
-			push @goodLines, $lines[$i];
-			}
-		}
-
-	# TEST ONLY
-	# print("---\n");
-	# for (my $i = 0; $i < @lines; ++$i)
-	# 	{
-	# 	print("$lines[$i]\n");
-	# 	}
-	# print("---\n");
-
-	return(@goodLines);
 	}
 
 # An attempt at a pleasing and useful view of text files.
@@ -1388,9 +1254,9 @@ sub AddEmphasis {
 	$$lineR =~ s!\<!&#60;!g;
 	$$lineR =~ s!\&#62;!&gt;!g;
 	
-	# ***code*** **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
+	# *!*code*!* **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
 	# Require non-whitespace before trailing *, avoiding *this and *that mentions.
-	$$lineR =~ s!\*\*\*([^*]+)\*\*\*!<code>$1</code>!g;
+	$$lineR =~ s!\*\!\*(.*?)\*\!\*!<code>$1</code>!g;
 	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
 	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
@@ -2043,6 +1909,7 @@ sub LoadPodFileContents {
 	my $contents = ReadTextFileDecodedWide($filePath, 1);
 
     # Some repair is needed before parsing it seems.
+	# Comments 
     # Specifically, two consecutive headings can mess things up.
     # Headings start with ^=headN where N is a digit.
     my @lines = split(/\n/, $contents);
@@ -2081,7 +1948,7 @@ sub LoadPodFileContents {
 
 	$p->no_whining(1);
 	$p->parse_characters(1);
-	$p->html_h_level(2);
+	#$p->html_h_level(2);
 	my $html;
 	$p->output_string(\$html);
 	$p->parse_string_document($contents);
@@ -2101,42 +1968,12 @@ sub LoadPodFileContents {
 		$html = substr($html, 0, $idx);
 		}
 
-	$$octetsR = $html;
-
-	return(1);
-	}
-
-# Call  Pod::Simple::HTML to convert pod to HTML.
-sub xLoadPodFileContents {
-	my ($filePath, $contentsR, $octetsR) = @_;
-
-	my $contents = ReadTextFileDecodedWide($filePath, 1);
-	my $p = Pod::Simple::HTML->new;
+	# And strip comments, easier to do it here than in html2gloss.pm
+	$html =~ s!<\!--.*?-->!!gs;
 
 	# TEST ONLY
-	$p->index(1);
-
-	$p->no_whining(1);
-	$p->parse_characters(1);
-	$p->html_h_level(2);
-	my $html;
-	$p->output_string(\$html);
-	$p->parse_string_document($contents);
-	
-	# Strip off the top and bottom, we just want  after "<!-- start doc -->"
-	# down to before "<!-- end doc -->"
-	my $startDoc = "<!-- start doc -->";
-	my $idx = index($html, "<!-- start doc -->");
-	if ($idx > 0)
-		{
-		my $skipStartLength = length($startDoc);
-		$html = substr($html, $idx + $skipStartLength);
-		}
-	$idx = index($html, "<!-- end doc -->");
-	if ($idx > 0)
-		{
-		$html = substr($html, 0, $idx);
-		}
+	# Write out what we have so far.
+	WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_html.txt", $html);
 
 	$$octetsR = $html;
 

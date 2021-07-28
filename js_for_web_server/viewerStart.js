@@ -957,6 +957,12 @@ function restoreRangeStartsAndEnds() {
 	let topNode = theSelection.currentSelectionElem;
 	
 	let drillDownNode = topNode;
+
+	if (typeof drillDownNode === 'undefined')
+		{
+		return;
+		}
+
 	for (let i = 0; i < theSelection.startNodeIndexes.length; ++i)
 		{
 		drillDownNode = drillDownNode.childNodes[theSelection.startNodeIndexes[i]];

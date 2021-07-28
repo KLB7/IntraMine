@@ -338,10 +338,10 @@ my $bestVerifiedPath;
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
 		$currentLineNumber, $linksA) = @_;
-	
+
 	if (ref($txtR) eq 'SCALAR') # ref to a SCALAR, so doing text
 		{
-		if ($$txtR !~ m!\.\w|http|___LB__!)
+		if ($$txtR !~ m!\.\w|http|_RB_!)
 			{
 			return;
 			}
@@ -351,7 +351,7 @@ sub AddWebAndFileLinksToLine {
 	else # not a ref (at least it shouldn't be), so doing CodeMirror
 		{
 		# Return if nothing on the line looks roughly like a link.
-		if ($txtR !~ m!\.\w|http|___LB__!)
+		if ($txtR !~ m!\.\w|http|_LB_!)
 			{
 			return;
 			}
@@ -419,14 +419,14 @@ sub EvaluateLinkCandidates {
 		}
 	
 	# while see quotes or a potential file .extension, or http(s)://
-	# or [text](href) with ___LB__ for [ etc.
-	while ($strippedLine =~ m!((___LB__.+?___RB_____LP__.+?___RP__)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	# or [text](href) with _LB_ for [ etc.
+	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
 
-		my $haveTextHref = (index($ext, '___LB__') == 0);
+		my $haveTextHref = (index($ext, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $ext : '';
 
 		# TEST ONLY
@@ -948,13 +948,13 @@ sub RememberTextHref {
 
 	# We want the href from the (stripped) $textHref as passed in,
 	# and the display text from the corrected version of $textHref.
-	# Text presents as ___LB__ text proper ___RB__,
-	# href as ___LP__ href proper ___RP__.
+	# Text presents as _LB_ text proper _RB_,
+	# href as _LP_ href proper _RP_.
 
 	# First extract a good href.
-	my $leftIdx = index($textHref, '___LP__');
-	$leftIdx += length('___LP__');
-	my $rightIdx = index($textHref, '___RP__');
+	my $leftIdx = index($textHref, '_LP_');
+	$leftIdx += length('_LP_');
+	my $rightIdx = index($textHref, '_RP_');
 	my $href = substr($textHref, $leftIdx, $rightIdx - $leftIdx);
 
 	# Adjust position and length of URL to include any <mark> tags that were stripped.
@@ -962,9 +962,9 @@ sub RememberTextHref {
 
 	# Get display text from the corrected version of $textHref.
 	my $correctTextHref = substr($line, $startPos, $repLength);
-	$leftIdx = index($correctTextHref, '___LB__');
-	$leftIdx += length('___LB__');
-	$rightIdx = index($correctTextHref, '___RB__');
+	$leftIdx = index($correctTextHref, '_LB_');
+	$leftIdx += length('_LB_');
+	$rightIdx = index($correctTextHref, '_RB_');
 	my $displayedText = substr($correctTextHref, $leftIdx, $rightIdx - $leftIdx);
 
 	my $repString = "<a href = '$href' target='_blank'>$displayedText</a>";
@@ -1388,7 +1388,7 @@ sub AddWebAndFileLinksToVisibleLines {
 		$clientIsRemote, $allowEditing, $resultR) = @_;
 	my @lines = split(/\n/, $text);
 	
-	if (IsTextFileExtension($ext))
+	if (IsTextFileExtension($ext) || IsPodExtension($ext))
 		{
 		for (my $counter = 0; $counter < @lines; ++$counter)
 			{
@@ -1405,13 +1405,11 @@ sub AddWebAndFileLinksToVisibleLines {
 				}
 			}
 		}
-	else # elsif (!IsPodExtension($ext))
+
+	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
-		for (my $counter = 0; $counter < @lines; ++$counter)
-			{
-			AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
-									$clientIsRemote, $allowEditing);
-			}
+		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
+								$clientIsRemote, $allowEditing);
 		}
 	
 	#$$resultR = join("\n", @lines);
