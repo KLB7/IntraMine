@@ -1127,6 +1127,9 @@ sub GetPrettyTextContents {
 	if (defined($sourceR))
 		{
 		$octets = $$sourceR;
+		# Convert _NBS_ marker to non-breaking space.
+		# These come from html2gloss.pm#textHandler().
+		$octets =~ s!_NBS_!&nbsp;!g;
 		}
 	else
 		{
@@ -1186,6 +1189,14 @@ sub GetPrettyTextContents {
 					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
 					}
 				$justDidHeadingOrHr = 1;
+				}
+			# Anchors, gotta put them in all the way down so links to them work.
+			elsif (index($lines[$i], '_ALB_') >= 0)
+				{
+				Anchor(\$lines[$i]);
+				my $rowID = 'R' . $lineNum;
+				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				$justDidHeadingOrHr = 0;
 				}
 			else # treat like any ordinary line
 				{
@@ -1255,10 +1266,12 @@ sub AddEmphasis {
 	$$lineR =~ s!\&#62;!&gt;!g;
 	
 	# *!*code*!* **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
-	# Require non-whitespace before trailing *, avoiding *this and *that mentions.
+	
 	$$lineR =~ s!\*\!\*(.*?)\*\!\*!<code>$1</code>!g;
-	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
-	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
+	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].*?)\*\*!<strong>$1</strong>!g;
+	# For italic *str*, (any one char) or (any one chars but last has to be non-white)
+	# We're trying to avoid *this and *that mentions.
+	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-]|[a-zA-Z0-9_. \t'",-]+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
 	
 	# Somewhat experimental, loosen requirements to just *.+?\S* and **.+?\S**
@@ -1529,6 +1542,59 @@ sub Heading {
 		$jumperHeader =~ s!</p>$!!;
 		}
 	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
+	}
+
+# Turn anchor eg
+# _ALB_C<code> -- code text    _ARB__ALP_id=C%3Ccode%3E_--_code_text_ARP_
+# into a real anchor <a id='C%3Ccode%3E_--_code_text'>C<code> -- code text    </a>
+# Anchor requires all four of _ALB_ _ARB_ _ALP_ _ARP_
+# and also the 'id=' just after _ALP_.
+# This is mainly for POD files, but you can your own to a .txt
+# file, eg _ALB_Text for anchor_ARB__ALP_id=uniqueid_ARP_
+#  - just be aware there is no checking that the id
+# is unique.
+sub Anchor {
+	my ($lineR) = @_;
+
+	my $anchorStartPosition = 0;
+	while (($anchorStartPosition = index($$lineR, '_ALB_')) >= 0)
+		{
+		my $leftIdx = $anchorStartPosition;
+		# Extract text.
+		my $startRepPosition = $leftIdx;
+		$leftIdx += length('_ALB_');
+		my $rightIdx = index($$lineR, '_ARB_');
+		if ($rightIdx < 0)
+			{
+			return;
+			}
+		my $displayedText = substr($$lineR, $leftIdx, $rightIdx - $leftIdx);
+
+		# Extract id.
+		$leftIdx = index($$lineR, '_ALP_');
+		if ($leftIdx < 0)
+			{
+			return;
+			}
+		$leftIdx += length('_ALP_');
+		my $idIndex = index($$lineR, 'id=', $leftIdx);
+		if ($idIndex != $leftIdx) # No 'id=', no link. Abort the whole process here.
+			{
+			return;
+			}
+		$leftIdx += 3; # Skip 'id='
+		$rightIdx = index($$lineR, '_ARP_');
+		if ($rightIdx < 0)
+			{
+			return;
+			}
+		my $endRepPosition = $rightIdx + length('_ARP_');
+		my $id = substr($$lineR, $leftIdx, $rightIdx - $leftIdx);
+
+		my $anchor = "<a id='$id'>$displayedText</a>";
+
+		$$lineR = substr($$lineR, 0, $startRepPosition) . $anchor . substr($$lineR, $endRepPosition);
+		}
 	}
 
 # Where a line begins with TABLE, convert lines following TABLE that contain tab(s) into an HTML table.
@@ -1913,9 +1979,11 @@ sub LoadPodFileContents {
     # Specifically, two consecutive headings can mess things up.
     # Headings start with ^=headN where N is a digit.
     my @lines = split(/\n/, $contents);
+	my $numLines =  @lines;
     my $consecutiveHeadingCount = 0;
     my @fixedLines;
-    for (my $i = 0; $i < @lines; ++$i)
+
+    for (my $i = 1; $i < $numLines; ++$i)
         {
         if (index($lines[$i], "=head") == 0
           && $lines[$i] =~ m!^\=head\d!)
@@ -1966,6 +2034,15 @@ sub LoadPodFileContents {
 	if ($idx > 0)
 		{
 		$html = substr($html, 0, $idx);
+		}
+
+	# Strip any '___top' anchor, not needed.
+	my $topAnchor = "<a name='___top' class='dummyTopAnchor' ></a>";
+	$idx = index($html, $topAnchor);
+	if ($idx >= 0)
+		{
+		my $skipLength = length($topAnchor);
+		$html = substr($html, $idx + $skipLength);
 		}
 
 	# And strip comments, easier to do it here than in html2gloss.pm

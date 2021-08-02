@@ -9,6 +9,19 @@ use HTML::Parser();
 our @ISA = qw(HTML::Parser);
 
 my %blockTag;
+# Text is accumulated as ordinary, main <li> entry, or
+# an <li> continuation paragraph (of which there may be several).
+# Used in $self->{'TEXT_TYPE'}.
+my $kMain = 1;
+my $kLi = 2;
+my $kLiContinued = 3;
+
+# For encoding name an id.
+my %ENCMAP = (enc_map =>
+          { ( map { chr($_) => sprintf( "%%%02X", $_ ) } ( 0 ... 255 ) ) });
+my $RESERVED_RE
+  = qr{([^a-zA-Z0-9\-\_\.\~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\#\[\]\%])}x;
+
 
 sub new {
     my ($proto) = @_;
@@ -17,20 +30,26 @@ sub new {
     my $self = HTML::Parser->new( api_version => 3,
         start_h => [\&startHandler, "self, tagname, attr"],
         end_h => [\&endHandler, "self, tagname"],
-        text_h => [\&textHandler, "self, dtext, is_cdata" ]
+        text_h => [\&textHandler, "self, dtext, is_cdata"]
         );
 
     bless ($self, $class);
     ###$self->unbroken_text(1);
     $self->utf8_mode(1); # ???
 
-    $self->{DEPTH} = 0; # HTML tag nesting depth
-    $self->{CURRENT_LINE} = '';
+	$self->{'TEXT_TYPE'} = $kMain;
+    #$self->{DEPTH} = 0; # HTML tag nesting depth
     @{$self->{LINES}} = ();
+	# $kMain text accumulator.
+    $self->{CURRENT_LINE} = '';
+	# $kLi main <li> item accumulator.
+	$self->{LI} = '';
+	# <li> continuation accumulator (there may be several).
 	@{$self->{LI_PENDING_LINES}} = ();
     @{$self->{TAG}} = ();
     @{$self->{CLASS}} = ();
     @{$self->{HREF}} = ();
+	@{$self->{NAME}} = ();
     @{$self->{LIST_TYPE}} = ();
     $self->{OLNUMBER} = 1; # post increment
     $self->{HEADING_LEVEL} = 0;
@@ -49,10 +68,32 @@ sub htmlToGloss {
     $$outTextR = join("\n", @{$self->{LINES}});
     }
 
-# Track tag name, class and href attributes.
+# Track tag name, class, name, id, and href attributes.
 # Note those must be pushed and popped together.
 sub startHandler {
     my ($self, $tag, $attr) = @_;
+
+	# Set text accumulator. Mainly about <li> items.
+	if ($tag eq 'li')
+		{
+		$self->{'TEXT_TYPE'} = $kLi;
+		}
+	else
+		{
+		# A <p> tag when $self->{LI} is not empty signals the start
+		# of a new continuation paragraph.
+		
+		my $toptag = defined(${$self->{TAG}}[-1]) ? ${$self->{TAG}}[-1]: '';
+		if ($toptag eq 'li' && $tag eq 'p')
+			{
+			if ($self->{LI} ne '')
+				{
+				$self->{'TEXT_TYPE'} = $kLiContinued;
+				# Push a blank to start new continuation paragraph.
+				push @{$self->{LI_PENDING_LINES}}, '';
+				}
+			}
+		}
 
 	# Some cleanup: sometimes <dd> is missing.
 	if ($tag eq 'dt' || $tag eq 'dl' || $tag eq 'dd')
@@ -71,21 +112,30 @@ sub startHandler {
     push @{$self->{CLASS}}, $class;
     my $href = defined($attr->{'href'}) ? $attr->{'href'}: '';
     push @{$self->{HREF}}, $href;
+	my $name = defined($attr->{'name'}) ? $attr->{'name'}: '';
+    push @{$self->{NAME}}, $name;
+	my $id = defined($attr->{'id'}) ? $attr->{'id'}: '';
+    push @{$self->{ID}}, $id;
 
     if ($tag eq 'ul' || $tag eq 'ol')
         {
         push @{$self->{LIST_TYPE}}, $tag;
         }
 
-    if ($tag eq 'pre')
+    elsif ($tag eq 'pre')
         {
         $self->{IN_PRE} = 1;
         }
 
 	# <code> start
-	if ($tag eq 'code' || $tag eq 'codehere')
+	elsif ($tag eq 'code' || $tag eq 'codehere')
 		{
-		$self->{CURRENT_LINE} .= '*!*';
+		AddText($self, '*!*');
+		}
+	# <a> anchor start
+	elsif ($tag eq 'a')
+		{
+		StartAnchor($href, $name, $id);
 		}
     }
 
@@ -93,62 +143,65 @@ sub endHandler {
     my ($self, $tag) = @_; # $tag isn't needed
     if (!defined(${$self->{TAG}}[-1]))
         {
+		# Could there be text accumulated?
         return;
         }
     
     my $ptag = pop @{$self->{TAG}};
     my $class = pop @{$self->{CLASS}};
     my $href = pop @{$self->{HREF}};
+	my $name = pop @{$self->{NAME}};
+	my $id = pop @{$self->{ID}};
 
     if (IsPushTag($ptag))
         {
-		# Avoid dumping empty or just \s*\-\s* lines if in <li>.
-		if ($self->{CURRENT_LINE} !~ m!^\s*\-?\s*$!)
+		if ($self->{'TEXT_TYPE'} == $kMain)
 			{
-			# And always strip any trailing newlines.
-			$self->{CURRENT_LINE} =~ s!\n+$!!;
+			# Avoid dumping empty or just \s*\-\s* lines if in <li>.
+			if ($self->{CURRENT_LINE} !~ m!^\s*\-?\s*$!)
+				{
+				# And always strip any trailing newlines.
+				$self->{CURRENT_LINE} =~ s!\n+$!!;
 
-       		push @{$self->{LINES}}, $self->{CURRENT_LINE};
+				push @{$self->{LINES}}, $self->{CURRENT_LINE};
+
+				# Add appropriate underline for headings (for Gloss).
+				if ($self->{HEADING_LEVEL})
+					{
+					my $headingLevel = $self->{HEADING_LEVEL};
+					if ($headingLevel == 1)
+						{
+						push @{$self->{LINES}}, '=====';
+						}
+					elsif ($headingLevel == 2)
+						{
+						push @{$self->{LINES}}, '-----';
+						}
+					else
+						{
+						push @{$self->{LINES}}, '~~~~~';
+						}
+					}
+				}
+			$self->{HEADING_LEVEL} = 0;
+			$self->{CURRENT_LINE} = '';
 			}
-         $self->{CURRENT_LINE} = '';
-
-
-        if ($self->{HEADING_LEVEL})
-            {
-            my $headingLevel = $self->{HEADING_LEVEL};
-            if ($headingLevel == 1)
-                {
-                push @{$self->{LINES}}, '=====';
-                }
-            elsif ($headingLevel == 2)
-                {
-                push @{$self->{LINES}}, '-----';
-                }
-            else
-                {
-                push @{$self->{LINES}}, '~~~~~';
-                }
-            $self->{HEADING_LEVEL} = 0;
-            }
 
 		if ($ptag eq 'li')
 			{
+			my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
+			$self->{LI} = StartListItemProperly($self, $self->{LI}, $listType);
+			push @{$self->{LINES}}, $self->{LI};
 			if (defined(${$self->{LI_PENDING_LINES}}[-1]))
 				{
-				# if (defined(${$self->{LINES}}[-1]))
-				# 	{
-				# 	my $previousLine = ${$self->{LINES}}[-1];
-				# 	print("Last line dumped: |$previousLine|\n");
-				# 	}
 				while (my $line = shift @{$self->{LI_PENDING_LINES}})
 					{
-					# TEST ONLY
-					#print("Dumping out pending |$line|\n");
-
-					push @{$self->{LINES}}, $line;
+					push @{$self->{LINES}}, " $line";
 					}
 				}
+			$self->{LI} = '';
 			}
+		$self->{'TEXT_TYPE'} = $kMain;
         }
     elsif ($ptag eq 'ul' || $ptag eq 'ol')
         {
@@ -164,7 +217,12 @@ sub endHandler {
         }
 	elsif ($ptag eq 'code' || $ptag eq 'codehere')
 		{
-		$self->{CURRENT_LINE} .= '*!*';
+		AddText($self, '*!*');
+		}
+	elsif ($ptag eq 'a')
+		{
+		my $textA = EndAnchor($self->{HEADING_LEVEL});
+		AddText($self, $textA);
 		}
     }
 
@@ -187,6 +245,10 @@ sub textHandler {
         my @lines = split(/\n/, $text);
         for (my $i = 0; $i < @lines; ++$i)
             {
+			# Preserve whitespace in HTML without <pre>, as will
+			# be the case in Gloss. '_NBS_' will be converted
+			# to &nbsp; in intramine_viewer.pl#GetPrettyTextContents().
+			$lines[$i] =~ s! !_NBS_!g;
             push @{$self->{LINES}}, $lines[$i];
             }
         push @{$self->{LINES}}, '---';
@@ -205,18 +267,7 @@ sub textHandler {
 		# Clean out embedded new lines.
 		$text =~ s!\n! !g;
 
-		if ($tagAbove eq 'dt')
-			{
-			if ($self->{CURRENT_LINE} eq '')
-				{
-				$self->{CURRENT_LINE} = '**' . $text . '**';
-				}
-			else
-				{
-				$self->{CURRENT_LINE} .= $text;
-				}
-			}
-		elsif ($tagAbove =~ m!^h(\d)$!)
+		if ($tagAbove =~ m!^h(\d)$!)
 			{
 			my $headingLevel = $1;
 			
@@ -224,120 +275,62 @@ sub textHandler {
 				{
 				$self->{HEADING_LEVEL} = $headingLevel;
 				}
-			$self->{CURRENT_LINE} = $text;
+			# Just dump out the heading, an underline will be added
+			# above in endHandler so Gloss will pick up on it as a heading.
+			AddText($self, $text);
+			}
+		elsif ($tagAbove eq 'dt')
+			{
+			AddText($self, '**' . $text . '**');
 			}
 		else
 			{
-			my $href = ($topHref ne '') ? "$topHref" : '';
-			if ($href ne '')
-				{
-				# If it's an internal link ($href starts with "#")
-				# then just put the (double-quoted) text and Gloss
-				# will convert it to a heading link if possible.
-				# Otherwise, put "[$text]($href)" and at some
-				# point Gloss will be upgraded to support that.
-				my $startsWithHash = (index($href, '#') == 0);
-				my $textForAutoLink;
-				if ($startsWithHash)
-					{
-					$textForAutoLink = $text;
-					if (index($text, "\"") != 0)
-						{
-						$textForAutoLink = '"' . $textForAutoLink . '"';
-						}
-					}
-				else
-					{
-					$textForAutoLink = '_LB_' . $text . '_RB_' . '_LP_' . $href . '_RP_'; # "[$text]($href)";
-					}
-				# Sometime there's no text in a <li>, just an anchor.
-				if ($tagAbove eq 'li' && $self->{CURRENT_LINE} eq '')
-					{
-					my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
-					if ($listType eq 'ul')
-						{
-						$self->{CURRENT_LINE} = " - $textForAutoLink";
-						}
-					else
-						{
-						$self->{CURRENT_LINE} = "$self->{OLNUMBER}. $textForAutoLink";
-						$self->{OLNUMBER} += 1;
-						}
-					}
-				else # a regular anchor.
-					{
-					$self->{CURRENT_LINE} .= $textForAutoLink;
-					}
-				}
-			else
-				{
-				# What could this be? Dunno.
-				$self->{CURRENT_LINE} .= $text
-				}		
+			AddText($self, $text);
 			}
 		}
-	elsif ($toptag eq 'p' && $tagAbove eq 'dd')
-		{
-		$text =~ s!^\s*!!;
-		$self->{CURRENT_LINE} .= $text;
-		#my $def = ": " . $text;
-		#$self->{CURRENT_LINE} .= $def;
-		}
-	elsif ($toptag eq 'p' && $tagAbove eq 'li')
-		{
-		if ($self->{CURRENT_LINE} eq '')
-			{
-			my $listType = defined(${$self->{LIST_TYPE}}[-2]) ? ${$self->{LIST_TYPE}}[-2]: 'ul';
-			if ($listType eq 'ul')
-				{
-				$self->{CURRENT_LINE} = " - $text";
-				}
-			else # 'ol'
-				{
-				$self->{CURRENT_LINE} = "$self->{OLNUMBER}. $text";
-				$self->{OLNUMBER} += 1;
-				}
-			}
-		else # a continuation paragraph, add a space and store for later.
-			{
-			push @{$self->{LI_PENDING_LINES}}, " $text";
-			}
-		}
-	elsif ($toptag eq 'li')
-		{
-		# Unordered ol or unordered ul. Or whatnot, default 'ul'.
-		my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
+	# elsif ($toptag eq 'p' && $tagAbove eq 'dd')
+	# 	{
+	# 	AddText($self, $text);
+	# 	}
+	# elsif ($toptag eq 'p' && $tagAbove eq 'li')
+	# 	{
+	# 	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
+	# 	if ($self->{CURRENT_LINE} ne '')
+	# 		{
+	# 		# A continuation paragraph, add space and store for later.
+	# 		push @{$self->{LI_PENDING_LINES}}, " $text";
 
-		# <li> can pick up spurious empty lines, so strip them.
-		if ($self->{CURRENT_LINE} =~ m!^\s*$!)
-			{
-			if ($listType eq 'ul')
-				{
-				$self->{CURRENT_LINE} = " - $text";
-				}
-			else # 'ol'
-				{
-				$self->{CURRENT_LINE} = "$self->{OLNUMBER}. $text";
-				$self->{OLNUMBER} += 1;
-				}
-			}
-		else
-			{
-			$self->{CURRENT_LINE} .= $text;
-			}
-		}
+	# 		# TEST ONLY
+	# 		print("CONT_PARA: | $text|\n");
+	# 		}
+	# 	else 
+	# 		{
+	# 		# We're starting a list item, put list start and then text.
+	# 		AddTextToListItem($self, $text, $listType);
+	# 		}
+	# 	}
+	# elsif ($toptag eq 'li')
+	# 	{
+	# 	# Unordered ol or unordered ul. default 'ul'.
+	# 	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
+	# 	AddTextToListItem($self, $text, $listType);
+	# 	}
 	elsif ($toptag eq 'em' || $toptag eq 'i')
 		{
-		$self->{CURRENT_LINE} .= "*$text*";
+		AddText($self, "*$text*");
 		}
 	elsif ($toptag eq 'strong' || $toptag eq 'b')
 		{
-		$self->{CURRENT_LINE} .= "**$text**";
+		AddText($self, "**$text**");
 		}
 	# <code>: also see start and end handlers. <code> can contain <em> or <strong>
 	elsif ($toptag eq 'code' || $toptag eq 'codehere')
 		{
-		$self->{CURRENT_LINE} .= $text;
+		AddText($self, $text);
+		}
+	elsif ($toptag eq 'dt')
+		{
+		AddText($self, "**$text**");
 		}
 	else
 		{
@@ -346,18 +339,125 @@ sub textHandler {
 			{
 			# Clean out embedded new lines.
 			$text =~ s!\n! !g;
-			$self->{CURRENT_LINE} .= $text;
+			AddText($self, $text);
 			}
-
-		# Skip blanks between consecutive block start tags.
-		# TEST ONLY OUT
-
-		# if (!$toptag eq 'dl')
-		#    {
-		#    $self->{CURRENT_LINE} .= $text;
-		#    }
 		}
      }
+
+sub AddText {
+	my ($self, $text) = @_;
+	if (InAnchor())
+		{
+		AddAnchorText($text);
+		}
+	elsif ($self->{'TEXT_TYPE'} == $kLi)
+		{
+		$self->{LI} .= $text;
+		}
+	elsif ($self->{'TEXT_TYPE'} == $kLiContinued)
+		{
+		# Add to latest 
+		my $pendingLineCount = @{$self->{LI_PENDING_LINES}};
+		if ($pendingLineCount)
+			{
+			my $lastIdx = $pendingLineCount - 1;
+			${$self->{LI_PENDING_LINES}}[$lastIdx] .= $text;
+			}
+		else # shouldn't happen, push the first entry
+			{
+			push @{$self->{LI_PENDING_LINES}}, $text;
+			}
+		}
+	else
+		{
+		$self->{CURRENT_LINE} .= $text;
+		}
+	}
+
+sub xAddTextToListItem {
+	my ($self, $text, $listType) = @_;
+	if ($self->{CURRENT_LINE} eq '')
+		{
+		if ($listType eq 'ul')
+			{
+			$self->{CURRENT_LINE} = " - $text";
+			}
+		else # 'ol'
+			{
+			$self->{CURRENT_LINE} = "$self->{OLNUMBER}. $text";
+			$self->{OLNUMBER} += 1;
+			}
+		}
+	else
+		{
+		if ($listType eq 'ul')
+			{
+			if (index($self->{CURRENT_LINE}, " - ") != 0)
+				{
+				$self->{CURRENT_LINE} = " - " . $self->{CURRENT_LINE};
+				}
+			else
+				{
+				$self->{CURRENT_LINE} .= $text;
+				}
+			}
+		else # 'ol'
+			{
+			if ($self->{CURRENT_LINE} !~ m!^\d\d?\.!)
+				{
+				$self->{CURRENT_LINE} = "$self->{OLNUMBER}. $text" . $self->{CURRENT_LINE};
+				$self->{OLNUMBER} += 1;
+				}
+			else
+				{
+				$self->{CURRENT_LINE} .= $text;
+				}
+			}
+		}
+	}
+
+sub StartListItemProperly {
+	my ($self, $text, $listType) = @_;
+	
+	if ($listType eq 'ul')
+		{
+		if (index($text, " - ") != 0)
+			{
+			$text = " - " . $text;
+			}
+		}
+	else # 'ol'
+		{
+		if ($text !~ m!^\d\d?\.!)
+			{
+			$text = "$self->{OLNUMBER}. $text";
+			$self->{OLNUMBER} += 1;
+			}
+		}
+	
+	return($text);
+	}
+
+sub HasListStart {
+	my ($text, $listType) = @_;
+	my $result = 0;
+	if ($listType eq 'ul')
+		{
+		if (index($text, " - ") == 0)
+			{
+			$result = 1;
+			}
+		}
+	else # 'ol'
+		{
+		if ($text =~ m!^\d\d?\.!)
+			{
+			$result = 1;
+			}
+		}
+	
+	return($result);	
+	}
 
 { ##### Anchor handling
 my $InAnchor;
@@ -378,6 +478,10 @@ sub InAnchor {
 	return($InAnchor);
 	}
 
+sub AnchorTextIsEmpty {
+	return($AnchorText eq '');
+	}
+
 sub StartAnchor {
 	my ($href, $name, $id) = @_;
 	$InAnchor = 1;
@@ -394,20 +498,43 @@ sub AddAnchorText {
 
 # On </a>, return entire <a...>text</a> element.
 sub EndAnchor {
+	my ($headingLevel) = @_;
+
+	$InAnchor = 0;
+
+	# If we're in a heading, just return the text.
+	if ($headingLevel)
+		{
+		return($AnchorText);
+		}
+	
 	my $wholeAnchor = '';
 
-	if ($Href ne '')
+	if ($Name ne '' || $Id ne '')
 		{
-		
+		my $refOrId = '';
+
+		if ($Name ne '')
+			{
+			# Encode to match href elsewhere.
+			$Name =~ s/([^^A-Za-z0-9\-_.!~*'()])/ sprintf "%%%02X", ord $1 /eg;
+			$refOrId = 'id=' . $Name;
+			}
+		else
+			{
+			# Encode to match href elsewhere.
+			$Id =~ s/([^^A-Za-z0-9\-_.!~*'()])/ sprintf "%%%02X", ord $1 /eg;
+			$refOrId = 'id=' . $Id;
+			}
+
+		$wholeAnchor = '_ALB_' . $AnchorText . '_ARB_' . '_ALP_' . $refOrId . '_ARP_';
 		}
-	elsif ($Name ne '')
+	elsif ($Href ne '')
 		{
-		
+		my $refOrId = 'href=' . $Href;
+		$wholeAnchor = '_LB_' . $AnchorText . '_RB_' . '_LP_' . $refOrId . '_RP_';
 		}
-	else # ??? What is this ???
-		{
-		
-		}
+	#else # unknown, probably a maintenance error
 	
 	return($wholeAnchor);
 	}
@@ -442,13 +569,13 @@ sub InitBlockTags {
     $blockTag{'main'} = 1;
     $blockTag{'nav'} = 1;
     $blockTag{'noscript'} = 1;
-    $blockTag{'ol'} = 1;
+    $blockTag{'ol'} = 0;
     $blockTag{'p'} = 1;
     $blockTag{'pre'} = 0;
     $blockTag{'section'} = 1;
     $blockTag{'table'} = 1;
     $blockTag{'tfoot'} = 1;
-    $blockTag{'ul'} = 1;
+    $blockTag{'ul'} = 0;
     $blockTag{'video'} = 1;
     }
 
@@ -464,6 +591,13 @@ sub IsPushTag {
     my $result = defined($blockTag{$tag}) ? $blockTag{$tag} : 0;
     return($result);
     }
+
+# For encoding name and id.
+sub get_encoded_char {
+    my ($char) = @_;
+  return $ENCMAP{enc_map}->{$char} if exists $ENCMAP{enc_map}->{$char};
+  return $char;
+}
 
 1;
 

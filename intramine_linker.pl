@@ -957,6 +957,20 @@ sub RememberTextHref {
 	my $rightIdx = index($textHref, '_RP_');
 	my $href = substr($textHref, $leftIdx, $rightIdx - $leftIdx);
 
+	# "$href" can in fact be an href or an id, and starts with "href="
+	# or "id=", which needs removing.
+	my $attrName = 'href';
+	if (index($href, 'href=') == 0)
+		{
+		$href = substr($href, 5);
+		}
+	elsif (index($href, 'id=') == 0)
+		{
+		$href = substr($href, 3);
+		$attrName = 'id';
+		}
+	# else treat as an href, without the leading 'href=';
+
 	# Adjust position and length of URL to include any <mark> tags that were stripped.
 	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
 
@@ -967,7 +981,13 @@ sub RememberTextHref {
 	$rightIdx = index($correctTextHref, '_RB_');
 	my $displayedText = substr($correctTextHref, $leftIdx, $rightIdx - $leftIdx);
 
-	my $repString = "<a href = '$href' target='_blank'>$displayedText</a>";
+	# Leave out target='_blank' if it's an internal link (href starts with '#')
+	# or an id.
+	my $isInternal = (index($href, '#') == 0 || $attrName eq 'id');
+
+	my $repString = ($isInternal) ? "<a $attrName='$href'>$displayedText</a>"
+					: "<a $attrName='$href' target='_blank'>$displayedText</a>";
+
 	push @repStr, $repString;
 	push @repLen, $repLength;
 	push @repStartPos, $repStartPosition;
