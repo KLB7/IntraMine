@@ -1133,7 +1133,7 @@ sub GetPrettyTextContents {
 		$octets = $$sourceR;
 		# Convert _NBS_ marker to non-breaking space.
 		# These come from html2gloss.pm#textHandler().
-		$octets =~ s!_NBS_! !g; # That's a Unicode no-break space there.
+		#$octets =~ s!_NBS_! !g; # That's a Unicode no-break space there.
 		}
 	else
 		{

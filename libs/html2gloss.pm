@@ -161,12 +161,19 @@ sub endHandler {
 		if ($self->{'TEXT_TYPE'} == $kMain)
 			{
 			# Avoid dumping empty or just \s*\-\s* lines if in <li>.
-			if ($self->{CURRENT_LINE} !~ m!^\s*\-?\s*$!)
+			if ($self->{CURRENT_LINE} !~ m!^(_INDT_)*\s*\-?\s*$!)
+			#if ($self->{CURRENT_LINE} !~ m!^\s*\-?\s*$!)
 				{
 				# Convert all newlines to spaces
 				$self->{CURRENT_LINE} =~ s!\n! !g;
 				# Strip leading spaces.
 				$self->{CURRENT_LINE} =~ s!^\s+!!;
+
+				# Remove _INDT_ from headings.
+				if ($self->{HEADING_LEVEL})
+					{
+					$self->{CURRENT_LINE} =~ s!_INDT_!!g;
+					}
 
 				push @{$self->{LINES}}, $self->{CURRENT_LINE};
 
@@ -318,13 +325,10 @@ sub textHandler {
 		{
 		# Have to trim trailing space, otherwise Gloss won't pick up on the text.
 		$text =~ s!\s+$!!;
-		AddText($self, "**$text**");
+		AddText($self, '**' . $text . '**');
 		}
 	else
 		{
-		#my $stayOnSameLine = ($self->{'TEXT_TYPE'} == $kMain || $self->{AT_PARA_START} == 0);
-		# my $stayOnSameLine = (($self->{'TEXT_TYPE'} == $kMain) || ($toptag eq 'code' || $toptag eq 'codehere')
-		# 					|| $self->{AT_PARA_START} == 0);
 		AddText($self, $text);
 		}
      }
@@ -412,7 +416,25 @@ sub AddText {
 			}
 		else
 			{
-			$self->{CURRENT_LINE} .= $text;
+			# Add an indent marker, Gloss will add a class to do the indent.
+			my $indentMarker = '';
+			if ($self->{CURRENT_LINE} =~ m!^\s*$!)
+				{
+				my $dlDepth = NestingDepth($self);
+				if ($dlDepth >= 2)
+					{
+					if ($dlDepth ==2)
+						{
+						$indentMarker = '_INDT_';
+						}
+					else
+						{
+						$indentMarker = '_INDT__INDT_';
+						}
+					}
+				}
+
+			$self->{CURRENT_LINE} .= $indentMarker . $text;
 			}
 		}
 
@@ -461,7 +483,7 @@ sub EmitPre {
 			# Preserve whitespace in HTML without <pre>, as will
 			# be the case in Gloss. '_NBS_' will be converted
 			# to &nbsp; in intramine_viewer.pl#GetPrettyTextContents().
-			$lines[$i] =~ s! !_NBS_!g;
+			$lines[$i] =~ s! ! !g;
 			push @{$self->{LI_PENDING_LINES}}, $lines[$i];
 			}
 		push @{$self->{LI_PENDING_LINES}}, ' _EPR_';
@@ -480,7 +502,7 @@ sub EmitPre {
 			# Preserve whitespace in HTML without <pre>, as will
 			# be the case in Gloss. '_NBS_' will be converted
 			# to &nbsp; in intramine_viewer.pl#GetPrettyTextContents().
-			$lines[$i] =~ s! !_NBS_!g;
+			$lines[$i] =~ s! ! !g;
 			push @{$self->{LINES}}, $lines[$i];
 			}
 		push @{$self->{LINES}}, '_EPR_';
@@ -530,6 +552,28 @@ sub GetListStarter {
 		}
 	
 	return($starter);
+	}
+
+# A count of how many 'dl' are on the TAG stack.
+sub NestingDepth {
+	my ($self) = @_;
+	my $numDlTags = 0;
+
+	my $numTags = @{$self->{TAG}};
+	for (my $i = 0; $i < $numTags; ++$i)
+		{
+		if (${$self->{TAG}}[$i] eq 'dl' || ${$self->{TAG}}[$i] eq 'dd')
+			{
+			++$numDlTags;
+			}
+		elsif (index(${$self->{TAG}}[$i], 'h') == 0)
+			{
+			$numDlTags = 0;
+			last;
+			}
+		}
+
+	return($numDlTags);
 	}
 
 { ##### Anchor handling
