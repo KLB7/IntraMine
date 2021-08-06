@@ -163,12 +163,19 @@ sub AddEmphasis {
 	$$lineR =~ s!\&!\&amp;!g;
 	$$lineR =~ s!\<!&#60;!g;
 	$$lineR =~ s!\&#62;!&gt;!g;
-	
-	# ***code*** **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
-	# Require non-whitespace before trailing *, avoiding *this and *that mentions.
+
+	$$lineR =~ s!\*\!\*(.*?)\*\!\*!<code>$1</code>!g;
 	$$lineR =~ s!\*\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*\*!<code>$1</code>!g;
-	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
-	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
+	# For italic and bold, avoid a space or tab as the last character,
+	# to prevent bolding "*this, but *this doesn't always" etc.
+	$$lineR =~ s!\*\*(.*?[^\s])\*\*!<strong>$1</strong>!g;
+	$$lineR =~ s!\*(.*?[^\s])\*!<em>$1</em>!g;
+	
+	# # ***code*** **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
+	# # Require non-whitespace before trailing *, avoiding *this and *that mentions.
+	# $$lineR =~ s!\*\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*\*!<code>$1</code>!g;
+	# $$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*!<strong>$1</strong>!g;
+	# $$lineR =~ s!\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
 	
 	# Some "markdown": make TODO etc prominent.
 	# CSS for .textSymbol has font-family: "Segoe UI Symbol", that font has better looking

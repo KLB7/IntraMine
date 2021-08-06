@@ -296,7 +296,7 @@ html[xmlns] #nav {
 
 #scrollContentsList { /* Replaces CLASS .jumplist */
 	float: left;
-	width: 23.9%;
+	width: 22.5%;
 	overflow: auto;
 	height: 100%;
 	padding: 4px;

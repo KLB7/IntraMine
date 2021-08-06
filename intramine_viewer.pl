@@ -1122,14 +1122,18 @@ sub GetPrettyTextContents {
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	$$contentsR = ""; # "<hr />";
 	
+	my $doingPOD = 0;
+	my $inPre = 0; # POD only, are we in a <pre> element?
 	my $octets;
 	# GetPrettyPod calls this sub with loaded source.
 	if (defined($sourceR))
 		{
+		$doingPOD = 1;
+
 		$octets = $$sourceR;
 		# Convert _NBS_ marker to non-breaking space.
 		# These come from html2gloss.pm#textHandler().
-		$octets =~ s!_NBS_!&nbsp;!g;
+		$octets =~ s!_NBS_! !g; # That's a Unicode no-break space there.
 		}
 	else
 		{
@@ -1155,7 +1159,7 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
-		AddEmphasis(\$lines[$i]);
+		AddEmphasis(\$lines[$i], $doingPOD);
 
 		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
 			{
@@ -1190,6 +1194,19 @@ sub GetPrettyTextContents {
 					}
 				$justDidHeadingOrHr = 1;
 				}
+			# Special <pre> starts and ends from html2gloss.pm for POD files.
+			elsif ($doingPOD && $lines[$i] =~ m!^\s*_[SE]PR_$!)
+				{
+				if (index($lines[$i], 'S') > 0)
+					{
+					$inPre = 1;
+					}
+				else
+					{
+					$inPre = 0;
+					}
+				PreRule(\$lines[$i], $lineNum);
+				}
 			# Anchors, gotta put them in all the way down so links to them work.
 			elsif (index($lines[$i], '_ALB_') >= 0)
 				{
@@ -1219,6 +1236,12 @@ sub GetPrettyTextContents {
 			my $rowID = 'R' . $lineNum;
 			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
 			$justDidHeadingOrHr = 0;
+			}
+
+		# Add background color to <pre> lines.
+		if ($inPre && $inPre++ > 1)
+			{
+			$lines[$i] =~ s!^<tr !<tr class='pre_line' !;
 			}
 		++$lineNum;
 		}
@@ -1259,7 +1282,7 @@ sub GetPrettyTextContents {
 	}
 
 sub AddEmphasis {
-	my ($lineR) = @_;
+	my ($lineR, $doingPOD) = @_;
 
 	$$lineR =~ s!\&!\&amp;!g;
 	$$lineR =~ s!\<!&#60;!g;
@@ -1268,10 +1291,16 @@ sub AddEmphasis {
 	# *!*code*!* **bold** *italic*  (NOTE __bold__  _italic_ not done, they mess up file paths).
 	
 	$$lineR =~ s!\*\!\*(.*?)\*\!\*!<code>$1</code>!g;
-	$$lineR =~ s!\*\*([a-zA-Z0-9_. \t'",-].*?)\*\*!<strong>$1</strong>!g;
-	# For italic *str*, (any one char) or (any one chars but last has to be non-white)
-	# We're trying to avoid *this and *that mentions.
-	$$lineR =~ s!\*([a-zA-Z0-9_. \t'",-]|[a-zA-Z0-9_. \t'",-]+?[a-zA-Z0-9_.'"-])\*!<em>$1</em>!g;
+	# For italic and bold, avoid a space or tab as the last character,
+	# to prevent bolding "*this, but *this doesn't always" etc.
+	$$lineR =~ s!\*\*(.*?[^\s])\*\*!<strong>$1</strong>!g;
+	$$lineR =~ s!\*(.*?[^\s])\*!<em>$1</em>!g;
+
+	# Translate __A__ (an asterisk standin from POD) to *.
+	if ($doingPOD)
+		{
+		$$lineR =~ s!__A__!\*!g;
+		}
 	
 	
 	# Somewhat experimental, loosen requirements to just *.+?\S* and **.+?\S**
@@ -1300,16 +1329,19 @@ sub AddEmphasis {
 	# Smiling face: &#9786;
 	# PEBKAC, ID10T: &#128261;
 	
-	$$lineR =~ s!(TODO)!<span class='notabene'>\&#127895;$1</span>!;		
-	$$lineR =~ s!(REMINDERS?)!<span class='notabene'>\&#127895;$1</span>!;
-	$$lineR =~ s!(NOTE\W)!<span class='notabene'>$1</span>!;
-	$$lineR =~ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><span class='notabene'>$1</span>!;
-	$$lineR =~ s!^\=\>!<span class='textSymbol' style='color: Green;'>\&#9755;</span>!; 			# White is \&#9758; but it's hard to see.
-	$$lineR =~ s!^( )+\=\>!$1<span class='textSymbol' style='color: Green;'>\&#9755;</span>!;
-	$$lineR =~ s!(IDEA\!)!<span class='textSymbol' style='color: Gold;'>\&#128161;</span>$1!;
-	$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
-	$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
-	$$lineR =~ s!\:\)!<span class='textSymbol' style='color: #FFBF00;'>\&#128578;</span>!; # or \&#9786;
+	if (!$doingPOD)
+		{
+		$$lineR =~ s!(TODO)!<span class='notabene'>\&#127895;$1</span>!;		
+		$$lineR =~ s!(REMINDERS?)!<span class='notabene'>\&#127895;$1</span>!;
+		$$lineR =~ s!(NOTE\W)!<span class='notabene'>$1</span>!;
+		$$lineR =~ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><span class='notabene'>$1</span>!;
+		$$lineR =~ s!^\=\>!<span class='textSymbol' style='color: Green;'>\&#9755;</span>!; 			# White is \&#9758; but it's hard to see.
+		$$lineR =~ s!^( )+\=\>!$1<span class='textSymbol' style='color: Green;'>\&#9755;</span>!;
+		$$lineR =~ s!(IDEA\!)!<span class='textSymbol' style='color: Gold;'>\&#128161;</span>$1!;
+		$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
+		$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
+		$$lineR =~ s!\:\)!<span class='textSymbol' style='color: #FFBF00;'>\&#128578;</span>!; # or \&#9786;
+		}
 	}
 
 # Bulleted lists start with space? hyphen hyphen* space? then not-a-hyphen, and then anything goes.
@@ -1465,6 +1497,15 @@ sub HorizontalRule {
 	my $height = ($imageName eq 'mediumrule4.png') ? 6: 3;
 	my $rowID = 'R' . $lineNum;
 	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+	}
+
+sub PreRule {
+	my ($lineR, $lineNum) = @_;
+	my $imageName = 'mediumrule4.png';
+	my $height = 6;
+	my $spacer = (index($$lineR, ' ') == 0) ? ' ': '';
+	my $rowID = 'R' . $lineNum;
+	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
 # Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
@@ -1973,6 +2014,12 @@ sub LoadPodFileContents {
 	my ($filePath, $octetsR) = @_;
 
 	my $contents = ReadTextFileDecodedWide($filePath, 1);
+
+	# Stick in =pod if first line is =heading NAME
+	if ($contents =~ m!^\=head1 NAME!)
+		{
+		$contents = "=pod\n\n" . $contents;
+		}
 
     # Some repair is needed before parsing it seems.
 	# Comments 

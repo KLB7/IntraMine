@@ -429,11 +429,6 @@ sub EvaluateLinkCandidates {
 		my $haveTextHref = (index($ext, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $ext : '';
 
-		# TEST ONLY
-		# if ($haveTextHref)
-		# 	{
-		# 	print("\$textHref: |$textHref|\n");
-		# 	}
 		my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
 		my $quoteChar = '';
 		my $badQuotation = 0;
@@ -707,7 +702,7 @@ sub RememberTextOrImageFileMention {
 sub GetLongestGoodPath {
 	my ($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $currentPath,
 		$imageNameR, $commonDirForImageNameR) = @_;
-		
+
 	my $trimmedCurrentPath = $currentPath;
 	my $slashSeen = 0; 				# stop checking standard locs for image if a dir slash is seen
 	my $checkToEndOfLine = 0;
@@ -730,7 +725,7 @@ sub GetLongestGoodPath {
 			}
 		else
 			{
-			if ($revStrToSearch =~ m!^.{$prevSubRevPos}.*?([ \t/\\,\(>])!s)
+			if ($revStrToSearch =~ m!^.{$prevSubRevPos}.*?([ \t/\\,\(<>:|?])!s)
 				{
 				$currentRevPos = $-[1];
 					
@@ -760,7 +755,7 @@ sub GetLongestGoodPath {
 			{
 			# Pick up next reversed term, including space.
 			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $currentRevPos - $prevSubRevPos + 1);
-			# Drop out if we see a double quote.
+			# Drop out if we see a double quote or colon.
 			if (index($nextRevTerm, '"') >= 0)
 				{
 				last;
@@ -772,10 +767,18 @@ sub GetLongestGoodPath {
 			my $trimmedNextTerm = substr($nextTerm, $trimOffset); # trim space etc at start, unless checking to end
 			$trimmedCurrentPath = $trimmedNextTerm . $currentPath;
 			$currentPath = $nextTerm . $currentPath;
-			
-			# See reverse_filepaths.pm#FullPathInContextNS().
-			my $verifiedPath = FullPathInContextNS($trimmedCurrentPath, $contextDir);
-			
+
+			my $verifiedPath = '';
+			# I know this is a bit awkward, but we want to skip illegal file name characters
+			# and it's best to avoid a nested regex.
+			if (index($trimmedCurrentPath, ':') < 0 && index($trimmedCurrentPath, '<') < 0
+				&& index($trimmedCurrentPath, '>') < 0 && index($trimmedCurrentPath, '|') < 0
+				&& index($trimmedCurrentPath, '?') < 0)
+				{
+				# See reverse_filepaths.pm#FullPathInContextNS().
+				$verifiedPath = FullPathInContextNS($trimmedCurrentPath, $contextDir);
+				}
+
 			if ($verifiedPath ne '')
 				{
 				$longestSourcePath = $trimmedCurrentPath;
@@ -895,7 +898,6 @@ sub RememberUrl {
 
 	my $linkIsMaybeTooLong = 0;
 	my $repLength = length($url);
-	my $repStartPosition = $startPos;
 
 	# Adjust position and length of URL to include any <mark> tags that were stripped.
 	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
@@ -926,14 +928,14 @@ sub RememberUrl {
 		{
 		$displayedURL = $quoteChar . $displayedURL . $quoteChar;
 		$repLength += 2;
-		--$repStartPosition;
+		--$startPos;
 		}
 
 	my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
 	
 	push @repStr, $repString;
 	push @repLen, $repLength;
-	push @repStartPos, $repStartPosition;
+	push @repStartPos, $startPos;
 	push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
 	if (!$haveRefToText) # CodeMirror
 		{
@@ -944,7 +946,6 @@ sub RememberUrl {
 sub RememberTextHref {
 	my ($startPos, $textHref) = @_;
 	my $repLength = length($textHref);
-	my $repStartPosition = $startPos;
 
 	# We want the href from the (stripped) $textHref as passed in,
 	# and the display text from the corrected version of $textHref.
@@ -990,7 +991,7 @@ sub RememberTextHref {
 
 	push @repStr, $repString;
 	push @repLen, $repLength;
-	push @repStartPos, $repStartPosition;
+	push @repStartPos, $startPos;
 	push @linkIsPotentiallyTooLong, 0;
 	if (!$haveRefToText) # CodeMirror
 		{
@@ -1527,13 +1528,30 @@ sub AddModuleLinkToText {
 			# And this one is really annoying, "use for" can get a link because some
 			# soul decided that "for" was a good name to use for a module. Skip it
 			# unless it's followed by a semicolon.
+			# Added later, "use only" and "use any" and "use code" should also be skipped.
 			my $badFor = 0;
 			if (index($mid, "for") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
 				{
 				$badFor = 1;
 				}
+			my $badOnly = 0;
+			if (index($mid, "only") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
+				{
+				$badOnly = 1;
+				}
+			my $badAny = 0;
+			if (index($mid, "any") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
+				{
+				$badAny = 1;
+				}
+			my $badCode = 0;
+			if (index($mid, "code") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
+				{
+				$badCode = 1;
+				}
 
-			if (!$badFor)
+
+			if (!$badFor && !$badOnly && !$badAny && !$badCode)
 				{
 				$mid = ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
 				#$textCopy = substr($$txtR, 0, $midPos) . $mid . substr($$txtR, $midPos + $midLength);

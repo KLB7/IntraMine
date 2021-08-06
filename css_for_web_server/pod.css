@@ -2,11 +2,15 @@
 	background-color: rgba(211, 211, 211, 0.3); /* #ECF6CE #dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
 }
 
-
+/* Not needed at the moment. */
 pre {
 	/*white-space: normal;*/
 	margin-top: 0;
 	margin-bottom: 0;
+}
+
+.pre_line {
+	background-color:#f2f2f2;
 }
 
 #scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
