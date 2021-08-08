@@ -1159,6 +1159,36 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
+		# First, remove _INDT_ for all lines, and count how many.
+		my $indentClass = '';
+		# TEMP OUT
+		if ($doingPOD && (my $indentPos = index($lines[$i], '_INDT_')) >= 0)
+			{
+			my $indentLevel = 0;
+			while ($indentPos >= 0)
+				{
+				++$indentLevel;
+				$lines[$i] = substr($lines[$i], 0, $indentPos) . substr($lines[$i], $indentPos + 6);
+				$indentPos = index($lines[$i], '_INDT_');
+				}
+			if ($indentLevel == 1)
+				{
+				$indentClass = 'onePodIndent';
+				}
+			elsif ($indentLevel == 2)
+				{
+				$indentClass = 'twoPodIndents';
+				}
+			elsif ($indentLevel == 3)
+				{
+				$indentClass = 'threePodIndents';
+				}
+			elsif ($indentLevel >= 4)
+				{
+				$indentClass = 'fourPodIndents';
+				}
+			}
+
 		AddEmphasis(\$lines[$i], $doingPOD);
 
 		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
@@ -1172,8 +1202,12 @@ sub GetPrettyTextContents {
 
 		if (!$inATable)
 			{
-			UnorderedList(\$lines[$i], \$unorderedListDepth);
-			OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
+			UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass);
+			# I don't think Pod::Simple::HTML does <ol> so I'm turning this off for Pod.
+			if (!$doingPOD)
+				{
+				OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
+				}
 			
 			# Underlines -> hr or heading. Heading requires altering line before underline.
 			if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
@@ -1181,7 +1215,7 @@ sub GetPrettyTextContents {
 				my $underline = $1;
 				if (length($underline) <= 2) # ie three or four total
 					{
-					HorizontalRule(\$lines[$i], $lineNum);
+					HorizontalRule(\$lines[$i], $lineNum, $indentClass);
 					}
 				elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
 					{
@@ -1205,24 +1239,26 @@ sub GetPrettyTextContents {
 					{
 					$inPre = 0;
 					}
-				PreRule(\$lines[$i], $lineNum);
+				PreRule(\$lines[$i], $lineNum, $indentClass);
 				}
 			# Anchors, gotta put them in all the way down so links to them work.
 			elsif (index($lines[$i], '_ALB_') >= 0)
 				{
 				Anchor(\$lines[$i]);
 				my $rowID = 'R' . $lineNum;
-				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				my $classAttr = ClassAttribute('', $indentClass);
+				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
 				$justDidHeadingOrHr = 0;
 				}
 			else # treat like any ordinary line
 				{
 				my $rowID = 'R' . $lineNum;
-				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				my $classAttr = ClassAttribute('', $indentClass);
+				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
 				$justDidHeadingOrHr = 0;
 				}
 			}
-		else
+		else # In a table, nothing special done at the moment.
 			{
 			# Add AutoLinks for source and text files, image files, and web links.
 ###			AddWebAndFileLinksToLine(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
@@ -1280,6 +1316,55 @@ sub GetPrettyTextContents {
 		$$contentsR = encode_utf8($$contentsR);
 		}
 	}
+
+# Cook up a class= entry.
+# Any one specific class, or indent level class, or ''.
+# Leading space is tacked in to make final assembly easier.
+sub ClassAttribute {
+	my ($specificClass, $indentClass) = @_;
+	my $result = '';
+	
+	if ($specificClass eq '' && $indentClass eq '')
+		{
+		return($result);
+		}
+	
+	if ($specificClass ne '')
+		{
+		$result = ' class=';
+		my $classes = $specificClass;
+		if ($indentClass ne '')
+			{
+			$classes .= " $indentClass";
+			}
+		$result .= "'$classes'";
+		}
+	else # we have in indent level, no specific class
+		{
+		$result = " class='$indentClass'";
+		}
+	
+	return($result);
+	}
+
+# sub IndentClass {
+# 	my ($indentLevel) = @_;
+# 	my $result = '';
+
+# 	if ($indentLevel > 0)
+# 		{
+# 		if ($indentLevel == 1)
+# 			{
+# 			$result = 'onePodIndent';
+# 			}
+# 		else
+# 			{
+# 			$result = 'twoPodIndents';
+# 			}
+# 		}
+	
+# 	return($result);
+# 	}
 
 sub AddEmphasis {
 	my ($lineR, $doingPOD) = @_;
@@ -1355,7 +1440,7 @@ sub AddEmphasis {
 # The leading spaces or tabs will be suppressed in the HTML display.
 #     ---++** Another second-level item, with excessive spaces.
 sub UnorderedList {
-	my ($lineR, $unorderedListDepthR) = @_;
+	my ($lineR, $unorderedListDepthR, $indentClass) = @_;
 	
 	if ($$lineR =~ m!^\s*([-+*][-+*]*)\s+([^-].+)$!)
 		{
@@ -1364,12 +1449,16 @@ sub UnorderedList {
 		if (length($listSignal) == 1)
 			{
 			$$unorderedListDepthR = 1;
-			$$lineR = '<p class="outdent-unordered">' . '&nbsp;&bull; ' . $2 . '</p>'; # &#9830;(diamond) or &bull;
+			my $classAttr = ClassAttribute('outdent-unordered', $indentClass);
+			$$lineR = "<p$classAttr>" . '&nbsp;&bull; ' . $2 . '</p>'; # &#9830;(diamond) or &bull;
+			#$$lineR = '<p class="outdent-unordered">' . '&nbsp;&bull; ' . $2 . '</p>'; # &#9830;(diamond) or &bull;
 			}
 		else
 			{
 			$$unorderedListDepthR = 2;
-			$$lineR = '<p class="outdent-unordered-sub">' . '&#9702; ' . $2 . '</p>'; # &#9702; circle, &#9830;(diamond) or &bull;
+			my $classAttr = ClassAttribute('outdent-unordered-sub', $indentClass);
+			$$lineR = "<p$classAttr>" . '&#9702; ' . $2 . '</p>'; # &#9702; circle, &#9830;(diamond) or &bull;
+			#$$lineR = '<p class="outdent-unordered-sub">' . '&#9702; ' . $2 . '</p>'; # &#9702; circle, &#9830;(diamond) or &bull;
 			}
 		}
 	elsif ($$unorderedListDepthR > 0 && $$lineR =~ m!^\s+!)
@@ -1377,11 +1466,15 @@ sub UnorderedList {
 		$$lineR =~ s!^\s+!!;
 		if ($$unorderedListDepthR == 1)
 			{
-			$$lineR = '<p class="outdent-unordered-continued">' . $$lineR . '</p>';
+			my $classAttr = ClassAttribute('outdent-unordered-continued', $indentClass);
+			$$lineR = "<p$classAttr>" . $$lineR . '</p>';
+#			$$lineR = '<p class="outdent-unordered-continued">' . $$lineR . '</p>';
 			}
 		else
 			{
-			$$lineR = '<p class="outdent-unordered-sub-continued">' . $$lineR . '</p>';
+			my $classAttr = ClassAttribute('outdent-unordered-sub-continued', $indentClass);
+			$$lineR = "<p$classAttr>" . $$lineR . '</p>';
+#			$$lineR = "<p class="outdent-unordered-sub-continued">" . $$lineR . '</p>';
 			}
 		}
 	else
@@ -1407,7 +1500,7 @@ sub UnorderedList {
 #  paragraph.
 # "ol-2" = ordered list - two digits top level, no second level, first paragraph.
 sub OrderedList {
-	my ($lineR, $listNumberR, $subListNumberR) = @_;
+	my ($lineR, $listNumberR, $subListNumberR, $indentClass) = @_;
 	
 	# A major list item, eg "3.":
 	if ($$lineR =~ m!^\s*(\d+|\#)\. +(.+?)$!)
@@ -1429,7 +1522,9 @@ sub OrderedList {
 		
 		$$subListNumberR = 0;
 		my $class = (length($suggestedNum) > 1) ? "ol-2": "ol-1";
-		$$lineR = '<p class="' . $class . '">' . "$$listNumberR. $trailer" . '</p>';
+		my $classAttr = ClassAttribute($class, $indentClass);
+		$$lineR = "<p$classAttr>" . "$$listNumberR. $trailer" . '</p>';
+#		$$lineR = '<p class="' . $class . '">' . "$$listNumberR. $trailer" . '</p>';
 		}
 	# A minor entry, eg "3.1":
 	elsif ($$lineR =~ m!^\s*(\d+|\#)\.(\d+|\#) +(.+?)$!)
@@ -1446,12 +1541,16 @@ sub OrderedList {
 		if (length($$listNumberR) > 1)
 			{
 			my $class = (length($$subListNumberR) > 1) ? "ol-2-2": "ol-2-1";
-			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+			my $classAttr = ClassAttribute($class, $indentClass);
+			$$lineR = "<p$classAttr>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+#			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		else
 			{
 			my $class = (length($$subListNumberR) > 1) ? "ol-1-2": "ol-1-1";
-			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+			my $classAttr = ClassAttribute($class, $indentClass);
+			$$lineR = "<p$classAttr>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
+#			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		}
 	# Line continues an item if we're in one and it starts with one or more tabs or spaces.
@@ -1463,18 +1562,24 @@ sub OrderedList {
 			if (length($$listNumberR) > 1)
 				{
 				my $class = (length($$subListNumberR) > 1) ? "ol-2-2-c": "ol-2-1-c";
-				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+				my $classAttr = ClassAttribute($class, $indentClass);
+				$$lineR = "<p$classAttr>" . $$lineR . '</p>';
+#				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 				}
 			else
 				{
 				my $class = (length($$subListNumberR) > 1) ? "ol-1-2-c": "ol-1-1-c";
-				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+				my $classAttr = ClassAttribute($class, $indentClass);
+				$$lineR = "<p$classAttr>" . $$lineR . '</p>';
+#				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 				}
 			}
 		else
 			{
 			my $class = (length($$listNumberR) > 1) ? "ol-2-c": "ol-1-c";
-			$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
+			my $classAttr = ClassAttribute($class, $indentClass);
+			$$lineR = "<p$classAttr>" . $$lineR . '</p>';
+#			$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 			}
 		}
 	else
@@ -1489,23 +1594,28 @@ sub OrderedList {
 	}
 
 sub HorizontalRule {
-	my ($lineR, $lineNum) = @_;
+	my ($lineR, $lineNum, $indentClass) = @_;
 	
 	# <hr> equivalent for three or four === or --- or ~~~
 	# If it's === or ====, use a slightly thicker rule.
 	my $imageName = ($$lineR =~ m!^\=\=\=\=?!) ? 'mediumrule4.png': 'slimrule4.png';
 	my $height = ($imageName eq 'mediumrule4.png') ? 6: 3;
 	my $rowID = 'R' . $lineNum;
-	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+	my $classAttr = ClassAttribute('vam', $indentClass);
+	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+
+#	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
 sub PreRule {
-	my ($lineR, $lineNum) = @_;
+	my ($lineR, $lineNum, $indentClass) = @_;
 	my $imageName = 'mediumrule4.png';
 	my $height = 6;
 	my $spacer = (index($$lineR, ' ') == 0) ? ' ': '';
 	my $rowID = 'R' . $lineNum;
-	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+	my $classAttr = ClassAttribute('vam', $indentClass);
+	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+#	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
 # Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);

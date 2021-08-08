@@ -9,7 +9,7 @@ h1 {
 	float: none;
 }
 
-#help {display:none;}
+/*#help {display:none;}*/
 
 /* ipadfix out overflow: hidden; in width: 100%*/
 html, body {

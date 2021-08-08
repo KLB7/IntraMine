@@ -30,3 +30,20 @@ pre {
 	padding-top: .2em;
 	padding-bottom: .5em;
 }
+
+/* Indentation for Pod in Gloss. */
+.onePodIndent {
+	padding-left: 1.8em;
+}
+
+.twoPodIndents {
+	padding-left: 2.9em;
+}
+
+.threePodIndents {
+	padding-left: 4em;
+}
+
+.fourPodIndents {
+	padding-left: 5.1em;
+}
