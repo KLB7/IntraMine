@@ -69,6 +69,7 @@ sub htmlToGloss {
 	$$outTextR = '';
     $self->{OUT} = $outTextR;
     $self->parse($$inTextR);
+
     $$outTextR = join("\n", @{$self->{LINES}});
 
 	#print("TAG stack at end: |@{$self->{TAG}}|\n");
@@ -278,8 +279,9 @@ sub textHandler {
 			}
 		elsif ($tagAbove eq 'dt')
 			{
-			# Have to trim trailing space, otherwise Gloss won't pick up on the text.
-			$text =~ s!\s+$!!;
+			# Have to rep trailing space, otherwise Gloss won't pick up on the text.
+			# This will be turned back into a space by intramine_viewer.pl#GetPrettyTextContents().
+			$text =~ s!\s$!_NBS_!;
 			AddText($self, '**' . $text . '**');
 			}
 		else
@@ -289,31 +291,31 @@ sub textHandler {
 		}
 	elsif ($toptag eq 'em' || $toptag eq 'i')
 		{
-		# Have to trim trailing space, otherwise Gloss won't pick up on the text.
-		$text =~ s!\s+$!!;
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContent())
+		# Have to rep trailing space, otherwise Gloss won't pick up on the text.
+		$text =~ s!\s$!_NBS_!;
+		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
 		$text =~ s!\*!__A__!g;
 		AddText($self, "*$text*");
 		}
 	elsif ($toptag eq 'strong' || $toptag eq 'b')
 		{
-		# Have to trim trailing space, otherwise Gloss won't pick up on the text.
-		$text =~ s!\s+$!!;
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContent())
+		# Have to rep trailing space, otherwise Gloss won't pick up on the text.
+		$text =~ s!\s$!_NBS_!;
+		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
 		$text =~ s!\*!__A__!g;
 		AddText($self, "**$text**");
 		}
 	# <code>: also see start and end handlers. <code> can contain <em> or <strong>
 	elsif ($toptag eq 'code' || $toptag eq 'codehere')
 		{
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContent())
+		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
 		$text =~ s!\*!__A__!g;
 		AddText($self, $text);
 		}
 	elsif ($toptag eq 'dt')
 		{
-		# Have to trim trailing space, otherwise Gloss won't pick up on the text.
-		$text =~ s!\s+$!!;
+		# Have to rep trailing space, otherwise Gloss won't pick up on the text.
+		$text =~ s!\s$!_NBS_!;
 		AddText($self, '**' . $text . '**');
 		}
 	else
@@ -449,9 +451,9 @@ sub EmitPre {
 			# There's a zero width unicode space between $1 and $2.
 			$lines[$i] =~ s!^(\s*)([=~+*-])!$1​$2!g;
 			# Preserve whitespace in HTML without <pre>, as will
-			# be the case in Gloss. '_NBS_' will be converted
-			# to &nbsp; in intramine_viewer.pl#GetPrettyTextContents().
+			# be the case in Gloss.
 			$lines[$i] =~ s! ! !g;
+
 			push @{$self->{LI_PENDING_LINES}}, $lines[$i];
 			}
 		push @{$self->{LI_PENDING_LINES}}, ' _EPR_';
@@ -490,7 +492,6 @@ sub EmitListItem {
 	my $lineCount = 0;
 	my $line;
 	while (defined($line = shift @{$self->{LI_PENDING_LINES}}))
-	#while (my $line = shift @{$self->{LI_PENDING_LINES}})
 		{
 		if (!$lineCount)
 			{
@@ -508,11 +509,19 @@ sub EmitListItem {
 sub GetListStarter {
 	my ($self) = @_;
 	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
+	my $listDepth = @{$self->{LIST_TYPE}};
 	my $starter = '';
 
 	if ($listType eq 'ul')
 		{
-		$starter = ' - ';
+		if ($listDepth == 1)
+			{
+			$starter = ' - ';
+			}
+		else # We only support two levels for lists.
+			{
+			$starter = ' -- ';
+			}
 		}
 	else # 'ol'
 		{

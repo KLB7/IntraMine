@@ -370,7 +370,7 @@ sub FullFile {
 	
 	my $elapsed = time - $t1;
 	my $ruffElapsed = substr($elapsed, 0, 6);
-	Output("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
+	#Output("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 	
 	# TEST ONLY codathon force display of load time
 	#print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
@@ -1161,7 +1161,6 @@ sub GetPrettyTextContents {
 		{
 		# First, remove _INDT_ for all lines, and count how many.
 		my $indentClass = '';
-		# TEMP OUT
 		if ($doingPOD && (my $indentPos = index($lines[$i], '_INDT_')) >= 0)
 			{
 			my $indentLevel = 0;
@@ -1191,6 +1190,13 @@ sub GetPrettyTextContents {
 
 		AddEmphasis(\$lines[$i], $doingPOD);
 
+		# After fooling AddEmphasis() with a one or more of _NBS_ placeholder in place of
+		# any trailing space, we can put the space back. Pod only.
+		if ($doingPOD)
+			{
+			$lines[$i] =~ s!_NBS_! !g;
+			}
+
 		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
 			{
 			$inATable = 1;
@@ -1202,7 +1208,22 @@ sub GetPrettyTextContents {
 
 		if (!$inATable)
 			{
-			UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass);
+			# Special <pre> starts and ends from html2gloss.pm for POD files.
+			if ($doingPOD && $lines[$i] =~ m!^\s*(_[SE]PR_)$!)
+				{
+				my $preSignal = $1;
+				if (index($preSignal, 'S') > 0)
+					{
+					$inPre = 1;
+					}
+				else
+					{
+					$inPre = 0;
+					}
+				PreRule(\$lines[$i], $lineNum, $indentClass);
+				}
+			
+			UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
 			# I don't think Pod::Simple::HTML does <ol> so I'm turning this off for Pod.
 			if (!$doingPOD)
 				{
@@ -1227,19 +1248,6 @@ sub GetPrettyTextContents {
 					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
 					}
 				$justDidHeadingOrHr = 1;
-				}
-			# Special <pre> starts and ends from html2gloss.pm for POD files.
-			elsif ($doingPOD && $lines[$i] =~ m!^\s*_[SE]PR_$!)
-				{
-				if (index($lines[$i], 'S') > 0)
-					{
-					$inPre = 1;
-					}
-				else
-					{
-					$inPre = 0;
-					}
-				PreRule(\$lines[$i], $lineNum, $indentClass);
 				}
 			# Anchors, gotta put them in all the way down so links to them work.
 			elsif (index($lines[$i], '_ALB_') >= 0)
@@ -1440,7 +1448,7 @@ sub AddEmphasis {
 # The leading spaces or tabs will be suppressed in the HTML display.
 #     ---++** Another second-level item, with excessive spaces.
 sub UnorderedList {
-	my ($lineR, $unorderedListDepthR, $indentClass) = @_;
+	my ($lineR, $unorderedListDepthR, $indentClass, $doingPOD) = @_;
 	
 	if ($$lineR =~ m!^\s*([-+*][-+*]*)\s+([^-].+)$!)
 		{
@@ -1463,7 +1471,14 @@ sub UnorderedList {
 		}
 	elsif ($$unorderedListDepthR > 0 && $$lineR =~ m!^\s+!)
 		{
-		$$lineR =~ s!^\s+!!;
+		if ($doingPOD)
+			{
+			$$lineR =~ s!^ !!; # That's a space
+			}
+		else
+			{
+			$$lineR =~ s!^ +!!; # That's a space(s)
+			}
 		if ($$unorderedListDepthR == 1)
 			{
 			my $classAttr = ClassAttribute('outdent-unordered-continued', $indentClass);
@@ -1607,14 +1622,18 @@ sub HorizontalRule {
 #	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
+# Convert a <pre> marker line to an image.
 sub PreRule {
 	my ($lineR, $lineNum, $indentClass) = @_;
 	my $imageName = 'mediumrule4.png';
 	my $height = 6;
 	my $spacer = (index($$lineR, ' ') == 0) ? ' ': '';
 	my $rowID = 'R' . $lineNum;
-	my $classAttr = ClassAttribute('vam', $indentClass);
-	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+	#my $classAttr = ClassAttribute('vam', $indentClass);
+
+	$$lineR = "$spacer<img class='vam' style='display: block;' src='$imageName' width='98%' height='$height' />";
+
+	#$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 #	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
