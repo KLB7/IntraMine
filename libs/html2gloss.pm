@@ -55,6 +55,9 @@ sub new {
 	$self->{AT_PARA_START} = 0; 		# At the start of a <p>, no text seen yet.
 	$self->{IN_PARAGRAPH} = 0;			# We are anywhere in a <p>
 	$self->{LI_STARTED_BLANK} = 0; 		# Stay on same line if <li> starts with spaces
+	# Track last indent used and last close tag, for indenting <pre> element lines.
+	$self->{LAST_INDENT} = '';			# Last set of indents used ()
+	$self->{LAST_CLOSED_TAG} = '';		# Erm, last closed HTML tag.
 
     InitBlockTags(); # block (vs inline) element names
     
@@ -150,6 +153,8 @@ sub endHandler {
     my $href = pop @{$self->{HREF}};
 	my $name = pop @{$self->{NAME}};
 	my $id = pop @{$self->{ID}};
+
+	$self->{LAST_CLOSED_TAG} = $ptag;
 
     if (IsPushTag($ptag))
         {
@@ -461,7 +466,13 @@ sub EmitPre {
 		}
 	else # push lines out to LINES immediately
 		{
-		push @{$self->{LINES}}, '_SPR_';
+		# Indent lines of pre to match line above.
+		my $indentMarker = '';
+		if ($self->{LAST_CLOSED_TAG} ne 'ul')
+			{
+			$indentMarker = $self->{LAST_INDENT};
+			}
+		push @{$self->{LINES}}, $indentMarker. '_SPR_';
 		#push @{$self->{LINES}}, '---';
 		my @lines = split(/\n/, $text);
 		for (my $i = 0; $i < @lines; ++$i)
@@ -473,9 +484,9 @@ sub EmitPre {
 			# be the case in Gloss.
 			# There's probably a non-breaking space in the line below.
 			$lines[$i] =~ s! ! !g;
-			push @{$self->{LINES}}, $lines[$i];
+			push @{$self->{LINES}}, $indentMarker. $lines[$i];
 			}
-		push @{$self->{LINES}}, '_EPR_';
+		push @{$self->{LINES}}, $indentMarker. '_EPR_';
 		#push @{$self->{LINES}}, '---';
 		}
 	}
@@ -566,6 +577,8 @@ sub IndentMarker {
 			}
 		}
 	
+	$self->{LAST_INDENT} = $indentMarker;
+
 	return($indentMarker);
 	}
 
