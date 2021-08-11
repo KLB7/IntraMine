@@ -943,14 +943,13 @@ sub RememberUrl {
 		}
 	}
 
+# We want the href from the (stripped) $textHref as passed in,
+# and the display text from the corrected version of $textHref.
+# Text comes in here as _LB_ text proper _RB_,
+# href as _LP_ href proper _RP_.
 sub RememberTextHref {
 	my ($startPos, $textHref) = @_;
 	my $repLength = length($textHref);
-
-	# We want the href from the (stripped) $textHref as passed in,
-	# and the display text from the corrected version of $textHref.
-	# Text presents as _LB_ text proper _RB_,
-	# href as _LP_ href proper _RP_.
 
 	# First extract a good href.
 	my $leftIdx = index($textHref, '_LP_');
@@ -993,7 +992,7 @@ sub RememberTextHref {
 	push @repLen, $repLength;
 	push @repStartPos, $startPos;
 	push @linkIsPotentiallyTooLong, 0;
-	if (!$haveRefToText) # CodeMirror
+	if (!$haveRefToText) # CodeMirror (not needed at present, CM doesn't see this sort of thing)
 		{
 		push @repLinkType, 'web';
 		}

@@ -165,7 +165,6 @@ sub AddEmphasis {
 	$$lineR =~ s!\&#62;!&gt;!g;
 
 	$$lineR =~ s!\*\!\*(.*?)\*\!\*!<code>$1</code>!g;
-	$$lineR =~ s!\*\*\*([a-zA-Z0-9_. \t'",-].+?[a-zA-Z0-9_.'"-])\*\*\*!<code>$1</code>!g;
 	# For italic and bold, avoid a space or tab as the last character,
 	# to prevent bolding "*this, but *this doesn't always" etc.
 	$$lineR =~ s!\*\*(.*?[^\s])\*\*!<strong>$1</strong>!g;

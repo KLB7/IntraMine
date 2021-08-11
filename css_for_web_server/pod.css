@@ -22,7 +22,14 @@ pre {
 
 #scrollTextRightOfContents table {
 	border-collapse:separate; 
-	border-spacing: 0 .6em;
+	/*border-spacing: 0 .6em;*/
+	/*padding: 0 .6em;*/
+  }
+
+#scrollTextRightOfContents table td {
+	border-collapse:separate; 
+	/*border-spacing: 0 .6em;*/
+	padding: .15em;
   }
 
   /* Horizontal rule in Gloss. */
@@ -32,6 +39,22 @@ pre {
 }
 
 /* Indentation for Pod in Gloss. */
+#scrollTextRightOfContents table td.onePodIndent {
+	padding-left: 1.8em;
+}
+
+#scrollTextRightOfContents table td.twoPodIndents {
+	padding-left: 2.9em;
+}
+
+#scrollTextRightOfContents table td.threePodIndents {
+	padding-left: 4em;
+}
+
+#scrollTextRightOfContents table td.fourPodIndents {
+	padding-left: 5.1em;
+}
+
 .onePodIndent {
 	padding-left: 1.8em;
 }

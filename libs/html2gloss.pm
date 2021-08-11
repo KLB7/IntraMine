@@ -1,5 +1,5 @@
 # html2gloss.pm: convert HTML to Gloss.
-# Intended for converting HTML from Pos::Simple::HTML.
+# Intended for converting HTML from Pod::Simple::HTML.
 # Really not suitable for any other use, there are too
 # many special issues when translating from HTML with its
 # many different nested elements to Gloss, where every
@@ -19,7 +19,9 @@ our @ISA = qw(HTML::Parser);
 my %blockTag;
 # Text is accumulated as ordinary, main <li> entry, or
 # an <li> continuation paragraph (of which there may be several).
-# Used in $self->{'TEXT_TYPE'}.
+# Anchors and <pre> also get some special handling.
+# But there are only two top-level types of text,
+# remembered in in $self->{'TEXT_TYPE'}:
 my $kMain = 1; # Anything not in a <li> item at any depth
 my $kLi = 2;
 
@@ -44,6 +46,7 @@ sub new {
     @{$self->{LINES}} = ();				# Final output lines
     $self->{CURRENT_LINE} = '';			# $kMain text accumulator.
 	@{$self->{LI_PENDING_LINES}} = ();	# <li> item accumulator.
+	@{$self->{LI_DEPTH}} = ();			# Depth of each list line, 1 for main item,  2 for sub item.
     @{$self->{TAG}} = ();				# HTML start tags
     @{$self->{CLASS}} = ();				# class attribute or ''
     @{$self->{HREF}} = ();				# href, from <a>
@@ -55,9 +58,11 @@ sub new {
 	$self->{AT_PARA_START} = 0; 		# At the start of a <p>, no text seen yet.
 	$self->{IN_PARAGRAPH} = 0;			# We are anywhere in a <p>
 	$self->{LI_STARTED_BLANK} = 0; 		# Stay on same line if <li> starts with spaces
+	$self->{AT_START_OF_LI} = 0;		# but start new line always if at start of a list item
 	# Track last indent used and last close tag, for indenting <pre> element lines.
 	$self->{LAST_INDENT} = '';			# Last set of indents used ()
-	$self->{LAST_CLOSED_TAG} = '';		# Erm, last closed HTML tag.
+	$self->{DD_FORCED_CLOSED} = '';		# Recalculate LAST_INDENT for a main 'pre' if 'dd' is forced closed.
+	$self->{LAST_CLOSED_TAG} = '';		# Well, that's the last closed HTML tag.
 
     InitBlockTags(); # block (vs inline) element names
     
@@ -83,20 +88,23 @@ sub htmlToGloss {
 sub startHandler {
     my ($self, $tag, $attr) = @_;
 
+	my $toptag = defined(${$self->{TAG}}[-1]) ? ${$self->{TAG}}[-1]: '';
+
 	# Set text accumulator. Mainly about <li> items.
 	if ($tag eq 'li')
 		{
 		$self->{'TEXT_TYPE'} = $kLi;
+		$self->{AT_START_OF_LI} = 1;
 		}
 
 	# Some cleanup: sometimes </dd> is missing.
 	if ($tag eq 'dt' || $tag eq 'dd')
 		{
-		my $toptag = defined(${$self->{TAG}}[-1]) ? ${$self->{TAG}}[-1]: '';
 		if ($toptag eq 'dd')
 			{
 			# Invoke endHandler for 'dd', </dd> is missing
 			endHandler($self, 'dd');
+			$self->{DD_FORCED_CLOSED} = 1;
 			}
 		}
 
@@ -113,12 +121,18 @@ sub startHandler {
 	my $id = defined($attr->{'id'}) ? $attr->{'id'}: '';
     push @{$self->{ID}}, $id;
 
+	# Put list type on the LIST_TYPE stack. Lists and
+	# sublists are handled, but not deeper.
+	# Note there aren't any 'ol' lists to handle at this time.
     if ($tag eq 'ul' || $tag eq 'ol')
         {
+		
         push @{$self->{LIST_TYPE}}, $tag;
         }
     elsif ($tag eq 'pre')
         {
+		# <pre> elements are emitted all at once, broken
+		# into separate lines. See EmitPre().
         $self->{IN_PRE} = 1;
         }
 
@@ -130,8 +144,17 @@ sub startHandler {
 	# <a> anchor start
 	elsif ($tag eq 'a')
 		{
+		# Sometimes, alas, anchors are unnecissarily nested.
+		# We don't like that, end any old anchor before
+		# starting a new one.
+		if ($toptag eq 'a')
+			{
+			my $textA = EndAnchor($self->{HEADING_LEVEL});
+			AddText($self, $textA);
+			}
 		StartAnchor($href, $name, $id);
 		}
+	# <p> start
 	elsif ($tag eq 'p')
 		{
 		$self->{AT_PARA_START} = 1;
@@ -148,16 +171,24 @@ sub endHandler {
         return;
         }
     
+	# All tracking stackes are pushed and popped as one.
     my $ptag = pop @{$self->{TAG}};
     my $class = pop @{$self->{CLASS}};
     my $href = pop @{$self->{HREF}};
 	my $name = pop @{$self->{NAME}};
 	my $id = pop @{$self->{ID}};
 
+	# LAST_CLOSED_TAG is used when emitting a <pre> element,
+	# to avoid indenting in some cases. See EmitPre().
 	$self->{LAST_CLOSED_TAG} = $ptag;
 
+	# A "push" tag signals it's time to output one or more lines.
+	# These are all block-level tags. Some few tags are set to
+	# not push, eg 'ul', because all text is handled before
+	# those tags are seen. See InitBlockTags().
     if (IsPushTag($ptag))
         {
+		# "Ordinary" text, held in $self->{CURRENT_LINE}.
 		if ($self->{'TEXT_TYPE'} == $kMain)
 			{
 			# Avoid dumping empty or just \s*\-\s* lines if in <li>.
@@ -199,6 +230,9 @@ sub endHandler {
 			$self->{HEADING_LEVEL} = 0;
 			$self->{CURRENT_LINE} = '';
 			}
+		# End of a list item. Lines for it are stacked
+		# in the LI_PENDING_LINES array.
+		# Note there may be a sublist.
 		elsif ($self->{TEXT_TYPE} == $kLi && $ptag eq 'li')
 			{
 			my $numPendingLines = @{$self->{LI_PENDING_LINES}};
@@ -206,6 +240,7 @@ sub endHandler {
 				{
 				EmitListItem($self);
 				@{$self->{LI_PENDING_LINES}} = ();
+				@{$self->{LI_DEPTH}} = ();
 				}
 			$self->{'TEXT_TYPE'} = $kMain;
 			}
@@ -229,17 +264,39 @@ sub endHandler {
         {
         $self->{IN_PRE} = 0;
         }
+	# <code>text</code> is transformed to *!*text*!*for Gloss.
 	elsif ($ptag eq 'code' || $ptag eq 'codehere')
 		{
 		AddText($self, '*!*');
 		}
+	# Attributes for <a> elements are picked up in the startHandler
+	# above, text is accumulated in textHandler, and the final
+	# anchor for Gloss goes out to the CURRENT_LINE or LI_PENDING_LINES
+	# on seeing </a> here.
 	elsif ($ptag eq 'a')
 		{
 		my $textA = EndAnchor($self->{HEADING_LEVEL});
 		AddText($self, $textA);
 		}
+
+	# Clear $self->{AT_START_OF_LI} unconditionally
+	$self->{AT_START_OF_LI} = 0;
+	# Clear notice that 'dd' was forced to close, if we're not closing a 'dd'.
+	if ($ptag ne 'dd')
+		{
+		$self->{DD_FORCED_CLOSED} = 0;
+		}
     }
 
+# Text is accumulated here by calls to AddText().
+#
+# A <pre> element, however, comes in all at once as one chunk of text, and
+# is immediately put on the main output array
+# of lines (LINES) or on the stack of pending list item lines
+# (LI_PENDING_LINES) by EmitPre().
+#
+# All headings in Pod have anchors <a> inside with a class of 'u',
+# and the anchor contains the actual text of the heading.
 sub textHandler {
     my ($self, $text, $iscdata) = @_;
     if ($iscdata)
@@ -251,6 +308,10 @@ sub textHandler {
     my $tagAbove = defined(${$self->{TAG}}[-2]) ? ${$self->{TAG}}[-2]: '';
     my $topClass = defined(${$self->{CLASS}}[-1]) ? ${$self->{CLASS}}[-1]: '';
     my $topHref = defined(${$self->{HREF}}[-1]) ? ${$self->{HREF}}[-1]: '';
+
+	# Translate '*'' in text to '__A__' (translated back in intramine_viewer.pl#AddWEmphasis()).
+	# '*' is used to signal *italic*, **bold**, and *!*code*!* for Gloss.
+	$text =~ s!\*!__A__!g;
 
 	# If we're in a <pre> don't process any contained tags.
     if ($self->{IN_PRE})
@@ -298,23 +359,19 @@ sub textHandler {
 		{
 		# Have to rep trailing space, otherwise Gloss won't pick up on the text.
 		$text =~ s!\s$!_NBS_!;
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
-		$text =~ s!\*!__A__!g;
 		AddText($self, "*$text*");
 		}
 	elsif ($toptag eq 'strong' || $toptag eq 'b')
 		{
 		# Have to rep trailing space, otherwise Gloss won't pick up on the text.
 		$text =~ s!\s$!_NBS_!;
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
-		$text =~ s!\*!__A__!g;
 		AddText($self, "**$text**");
 		}
 	# <code>: also see start and end handlers. <code> can contain <em> or <strong>
 	elsif ($toptag eq 'code' || $toptag eq 'codehere')
 		{
-		# Translate * in text to __A__ (translated back in intramine_viewer.pl#GetPrettyTextContents())
-		$text =~ s!\*!__A__!g;
+		# Experimental, replace newlines.
+		$text =~ s!\n! !g;
 		AddText($self, $text);
 		}
 	elsif ($toptag eq 'dt')
@@ -332,11 +389,13 @@ sub textHandler {
 # Anchor text is tracked separately (see AddAnchorText() below).
 # List text is tracked in the @{$self->{LI_PENDING_LINES}} array.
 # For text in <pre> elements see EmitPre().
-# Other text is tracked in $self->{CURRENT_LINE}.
-# Some attempt at indenting is done, for "other" text: zero of more of _INDT_
+# Other "ordinary" text is tracked in $self->{CURRENT_LINE}.
+# Some attempt at indenting is donehere , for "ordinary" text: zero of more of _INDT_
 # is added at line beginnings, and intramine_viewer.pl#GetPrettyTextContents()
 # removes them while adding an appropriate class to the HTML such as 'onePodIndent'.
 # Lists get ' - ' at the line start, which GetPrettyTextContents() converts to bullets.
+# Note <pre> elements are indented separately according to the indent on
+# the line above, in EmitPre().
 sub AddText {
 	my ($self, $text) = @_;
 
@@ -347,7 +406,21 @@ sub AddText {
 		}
 	else
 		{
-		my $stayOnSameLine = ($self->{'TEXT_TYPE'} == $kMain || $self->{AT_PARA_START} == 0);
+		my $toptag = defined(${$self->{TAG}}[-1]) ? ${$self->{TAG}}[-1]: '';
+
+		my $stayOnSameLine = ($self->{'TEXT_TYPE'} == $kMain || $self->{AT_PARA_START} == 0 || $toptag eq 'li');
+		#my $stayOnSameLine = ($self->{'TEXT_TYPE'} == $kMain || $self->{AT_PARA_START} == 0);
+
+		# If we see text for a list item and we're at the start of the item, put
+		# all of the text on one line. Pod::Simple::HTML will send it to us
+		# in one chunk, but with embedded newlines. Other Pod converters take them out.
+		my $dumpLiTextOnNewLine = 0; #($self->{'TEXT_TYPE'} == $kLi && $toptag eq 'li');
+		if ($self->{AT_START_OF_LI})
+			{
+			$dumpLiTextOnNewLine = 1;
+			# Just make sure we're at start of a list item only once:)
+			$self->{AT_START_OF_LI} = 0;
+			}
 
 		if ($self->{IN_PARAGRAPH})
 			{
@@ -355,16 +428,26 @@ sub AddText {
 			}
 
 		# Break $text into separate lines.
-		my @lines = split(/\n/, $text);
-		if (!defined($lines[0]))
+		my @lines;
+		if ($dumpLiTextOnNewLine || $toptag eq 'li')
 			{
-			$lines[0] = '';
+			$text =~ s!\n! !g;
+			$lines[0] = $text;
+			}
+		else
+			{
+			@lines = split(/\n/, $text);
+			if (!defined($lines[0]))
+				{
+				$lines[0] = '';
+				}
 			}
 
 		# List text, stacked up in the LI_PENDING_LINES array.
 		if ($self->{'TEXT_TYPE'} == $kLi)
 			{
-			if ($stayOnSameLine || $self->{LI_STARTED_BLANK})
+			my $listDepth = @{$self->{LIST_TYPE}};
+			if (($stayOnSameLine || $self->{LI_STARTED_BLANK}) && !$dumpLiTextOnNewLine)
 				{
 				my $numPendingLines = @{$self->{LI_PENDING_LINES}};
 
@@ -374,6 +457,7 @@ sub AddText {
 					for (my $i = 1; $i < @lines; ++$i)
 						{
 						push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+						push @{$self->{LI_DEPTH}}, $listDepth;
 						}
 					}
 				else
@@ -382,14 +466,17 @@ sub AddText {
 						{
 						$text =~ s!\n! !g;
 						push @{$self->{LI_PENDING_LINES}}, $text;
+						push @{$self->{LI_DEPTH}}, $listDepth;
 						$self->{LI_STARTED_BLANK} = 2;
 						}
 					else
 						{
 						push @{$self->{LI_PENDING_LINES}}, $lines[0];
+						push @{$self->{LI_DEPTH}}, $listDepth;
 						for (my $i = 1; $i < @lines; ++$i)
 							{
 							push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+							push @{$self->{LI_DEPTH}}, $listDepth;
 							}
 						}
 					}
@@ -399,22 +486,32 @@ sub AddText {
 				for (my $i = 0; $i < @lines; ++$i)
 					{
 					push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+					push @{$self->{LI_DEPTH}}, $listDepth;
 					}
 				}
 
 			# Clear AT_PARA_START, we have received text.
 			$self->{AT_PARA_START} = 0;
 			}
+		# Main "ordinary" text: put in in the CURRENT_LINE, together
+		# with an indent marker (zero of more of '_INDT_').
 		else
 			{
-			my $toptag = defined(${$self->{TAG}}[-1]) ? ${$self->{TAG}}[-1]: '';
-
 			# Add an indent marker, Gloss will add a class to do the indent.
 			my $indentMarker = '';
 			my $doingBlank = (($toptag eq 'dd' && $text =~ m!^\s*$!) || $toptag eq 'dl');
 			if ($self->{CURRENT_LINE} =~ m!^\s*$! && !$doingBlank)
 				{
-				$indentMarker = IndentMarker($self);
+				# If a paragraph 'p' follows a 'pre' or 'p', keep the same indent.
+				if (   $toptag eq 'p'
+					&& ($self->{LAST_CLOSED_TAG} eq 'pre' || $self->{LAST_CLOSED_TAG} eq 'p'))
+					{
+					$indentMarker = $self->{LAST_INDENT};
+					}
+				else
+					{
+					$indentMarker = IndentMarker($self);
+					}
 				}
 
 			$self->{CURRENT_LINE} .= $indentMarker . $text;
@@ -429,9 +526,12 @@ sub AddText {
 		}
 	}
 
-# Emit all text in a <pre>.
-# Add a space to the start of each line if we're in <li> (Gloss wants that
-# for continuation paragraphs in a list item).
+# Emit all text in a <pre>, either straight to the LINES array
+# for non-list text, or stacked on LI_PENDING_LINES for a list item.
+# A <pre> text set of lines begins with '_SPR_' and ends with  '_EPR_'
+# (Start PRe and End PRe).
+# intramine_viewer.pl#GetPrettyTextContents() converts those markers to horizontal
+# rules, and adds a bit of background color to the actual pre lines.
 sub EmitPre {
 	my ($self, $text) = @_;
 	if (!$self->{IN_PRE})
@@ -441,14 +541,13 @@ sub EmitPre {
 	
 	my $doingList = ($self->{TEXT_TYPE} == $kLi) ? 1: 0;
 
-	# If we're in a list item, push lines into list item continuation paragraph accumulator.
-	# A pre text set of lines begins with a _SPR_ and ends with  _EPR_.
-	# intramine_viewer.pl#GetPrettyTextContents() converts those markers to horizontal
-	# rules, and adds a bit of background color to the actual pre lines.
+	# If we're in a list item, push lines on the LI_PENDING_LINES array.
 	if ($doingList)
 		{
-		push @{$self->{LI_PENDING_LINES}}, ' _SPR_';
-		#push @{$self->{LI_PENDING_LINES}}, '﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘';
+		my $listDepth = @{$self->{LIST_TYPE}};
+
+		push @{$self->{LI_PENDING_LINES}}, '_SPR_';
+		push @{$self->{LI_DEPTH}}, $listDepth;
 		my @lines = split(/\n/, $text);
 		for (my $i = 0; $i < @lines; ++$i)
 			{
@@ -460,15 +559,23 @@ sub EmitPre {
 			$lines[$i] =~ s! ! !g;
 
 			push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+			push @{$self->{LI_DEPTH}}, $listDepth;
 			}
-		push @{$self->{LI_PENDING_LINES}}, ' _EPR_';
-		#push @{$self->{LI_PENDING_LINES}}, '﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘﹘';
+		push @{$self->{LI_PENDING_LINES}}, '_EPR_';
+		push @{$self->{LI_DEPTH}}, $listDepth;
 		}
-	else # push lines out to LINES immediately
+	else # push lines out to the final LINES array immediately
 		{
-		# Indent lines of pre to match line above.
+		# Indent lines of pre to match the line above the pre element.
 		my $indentMarker = '';
-		if ($self->{LAST_CLOSED_TAG} ne 'ul')
+		my $tagAbove = defined(${$self->{TAG}}[-2]) ? ${$self->{TAG}}[-2]: '';
+		if ($tagAbove eq 'dd')
+			{
+			$indentMarker = IndentMarker($self);
+			$self->{LAST_INDENT} = $indentMarker;
+			$self->{DD_FORCED_CLOSED} = 0;
+			}
+		elsif ($self->{LAST_CLOSED_TAG} ne 'ul')
 			{
 			$indentMarker = $self->{LAST_INDENT};
 			}
@@ -492,35 +599,43 @@ sub EmitPre {
 	}
 
 # List item:
-# Unordered list item starts with ' - '.
+# Unordered list item starts with ' - ', or ' -- ' for a subitem.
 # Ordered list item starts with 'N. ' where N is one or more digits.
-# Subsequent lines start with a space.
+# Lines following the first line of a list item start with a space.,
+# elsewhere called a "continuation paragraph".
+# There may be main items (depth 1) or sub items (depth 2):
+# issue a new list starter whenever the depth changes.
 # As mentioned above, Pod::Simple::HTML doesn't produce <ol>.
 sub EmitListItem {
 	my ($self) = @_;
-	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
 	
-	my $lineCount = 0;
+	my $previousDepth = 0;
 	my $line;
 	while (defined($line = shift @{$self->{LI_PENDING_LINES}}))
 		{
-		if (!$lineCount)
+		my $listDepth = shift @{$self->{LI_DEPTH}};
+		if ($listDepth != $previousDepth)
 			{
-			my $starter = GetListStarter($self);
+			my $starter = GetListStarter($self, $listDepth);
 			push @{$self->{LINES}}, $starter . $line;
 			}
 		else
 			{
 			push @{$self->{LINES}}, " $line";
 			}
-		++$lineCount;
+
+		$previousDepth = $listDepth;
 		}
 	}
 
+# For the first line in a list item only.
+# Return ' - ' for a top-level list item,
+# ' -- ' for a sub-item.
+# See intramine_viewer.pl#UnorderedList() for the resulting HTML.
 sub GetListStarter {
-	my ($self) = @_;
+	my ($self, $listDepth) = @_;
 	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
-	my $listDepth = @{$self->{LIST_TYPE}};
+	#my $listDepth = @{$self->{LIST_TYPE}};
 	my $starter = '';
 
 	if ($listType eq 'ul')
@@ -545,6 +660,8 @@ sub GetListStarter {
 
 # Return zero or more _INDT_ in a row, to be added at start of current line
 # as an indentation level signal.
+# These are counted, removed, and converted to a class when converting Gloss to HTML in
+# intramine_viewer.pl#GetPrettyTextContents().
 sub IndentMarker {
 	my ($self) = @_;
 	if ($self->{'TEXT_TYPE'} != $kMain)
@@ -582,16 +699,16 @@ sub IndentMarker {
 	return($indentMarker);
 	}
 
-# A count of how many 'dl' are on the TAG stack.
+# A count of how many 'dl', 'dd' are on the TAG stack.
+# Add one for a 'p', don't ask me why it just works. Mostly.
 sub NestingDepth {
 	my ($self) = @_;
 	my $numDlTags = 0;
 
 	my $numTags = @{$self->{TAG}};
-	my $sawPara = 0;
+	my $sawParaOrPre = 0;
 	for (my $i = 0; $i < $numTags; ++$i)
 		{
-#		if (${$self->{TAG}}[$i] eq 'dl' || ${$self->{TAG}}[$i] eq 'dt')
 		if (${$self->{TAG}}[$i] eq 'dl' || ${$self->{TAG}}[$i] eq 'dd')
 			{
 			++$numDlTags;
@@ -601,17 +718,14 @@ sub NestingDepth {
 			$numDlTags = 0;
 			last;
 			}
-		elsif (${$self->{TAG}}[$i] eq 'p')
+		elsif (${$self->{TAG}}[$i] eq 'p' || ${$self->{TAG}}[$i] eq 'pre')
 			{
-			$sawPara = 1;
+			$sawParaOrPre = 1;
 			}
 		}
 
-	if ($numDlTags && $sawPara)
+	if ($numDlTags && $sawParaOrPre)
 		{
-		# TEST ONLY
-		#print("SAW PARA\n");
-
 		$numDlTags += 1;
 		}
 	
@@ -635,10 +749,6 @@ sub InitAnchorHandling {
 
 sub InAnchor {
 	return($InAnchor);
-	}
-
-sub AnchorTextIsEmpty {
-	return($AnchorText eq '');
 	}
 
 sub StartAnchor {
@@ -714,7 +824,10 @@ sub EndAnchor {
 } ##### Anchor handling
 
 # HTML block tags, from (blush) https://www.w3schools.com/html/html_blocks.asp.
-# Note some values are 0, we don't push a line for those.
+# Note values are 0 for "list containers", we don't push a line in endHandler() for them
+# because the actual text is in their contained elements.
+# <pre> is also not a push tag, because its text is emitted all at once rather
+# than being accumulated - see EmitPre() as I've mentioned a thousand times.
 sub InitBlockTags {
     $blockTag{'address'} = 1;
     $blockTag{'article'} = 1;
@@ -758,7 +871,7 @@ sub IsBlockTag {
     return($result);
     }
 
-# We don't want to emit a line for dl dt or pre.
+# We don't want to emit a line for "list containers" or pre.
 sub IsPushTag {
     my ($tag) = @_;
     my $result = defined($blockTag{$tag}) ? $blockTag{$tag} : 0;
@@ -766,6 +879,7 @@ sub IsPushTag {
     }
 
 { ##### Log HTML tags to a file
+# For testing only, not used at the moment.
 my $TagFilePath;
 my $FileH;
 
