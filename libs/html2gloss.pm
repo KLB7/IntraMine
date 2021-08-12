@@ -144,7 +144,7 @@ sub startHandler {
 	# <a> anchor start
 	elsif ($tag eq 'a')
 		{
-		# Sometimes, alas, anchors are unnecissarily nested.
+		# Sometimes, alas, anchors are unnecessarily nested.
 		# We don't like that, end any old anchor before
 		# starting a new one.
 		if ($toptag eq 'a')
@@ -159,6 +159,10 @@ sub startHandler {
 		{
 		$self->{AT_PARA_START} = 1;
 		$self->{IN_PARAGRAPH} = 1;
+		}
+	elsif ($tag =~ m!^h(\d)$!)
+		{
+		$self->{HEADING_LEVEL} = $1;
 		}
     }
 
@@ -331,19 +335,7 @@ sub textHandler {
 		# Clean out embedded new lines.
 		$text =~ s!\n! !g;
 
-		if ($tagAbove =~ m!^h(\d)$!)
-			{
-			my $headingLevel = $1;
-			
-			if (index($topClass, 'u') == 0)
-				{
-				$self->{HEADING_LEVEL} = $headingLevel;
-				}
-			# Just dump out the heading, an underline will be added
-			# above in endHandler so Gloss will pick up on it as a heading.
-			AddText($self, $text);
-			}
-		elsif ($tagAbove eq 'dt')
+		if ($tagAbove eq 'dt')
 			{
 			# Have to rep trailing space, otherwise Gloss won't pick up on the text.
 			# This will be turned back into a space by intramine_viewer.pl#GetPrettyTextContents().
@@ -739,7 +731,7 @@ my $Href;
 my $Name;
 my $Id;
 
-sub InitAnchorHandling {
+sub ResetAnchor {
 	$InAnchor = 0;
 	$AnchorText = '';
 	$Href = '';
@@ -802,22 +794,33 @@ sub EndAnchor {
 		}
 	elsif ($Href ne '')
 		{
-		# Convert underscores to hyphens in metacpan #anchors
-		if ((my $metaIdx = index($Href, 'metacpan')) > 0)
+		my $hashIdx =  index($Href, '#');
+		if ($hashIdx >= 0)
 			{
-			my $hashIdx =  index($Href, '#');
-			if ($hashIdx > $metaIdx)
+			# Remove double quotes, they won't be in the actual heading id.
+			# And there shouldn't be any double quotes anywhere, really.
+			my $upToHash = substr($Href, 0, $hashIdx);
+			my $after = substr($Href, $hashIdx);
+			$after =~ s!\"!!g;
+			$after =~ s!\%22!!g;
+
+			# Convert underscores to hyphens in metacpan #anchors
+			if ((my $metaIdx = index($Href, 'metacpan')) > 0)
 				{
-				my $upToHash = substr($Href, 0, $hashIdx);
-				my $after = substr($Href, $hashIdx);
-				$after =~ s!_!-!g;
-				$Href = $upToHash . $after;
+				if ($hashIdx > $metaIdx)
+					{
+					$after =~ s!_!-!g;
+					}
 				}
+			$Href = $upToHash . $after;
 			}
+
 		my $refOrId = 'href=' . $Href;
 		$wholeAnchor = '_LB_' . $AnchorText . '_RB_' . '_LP_' . $refOrId . '_RP_';
 		}
 	#else - unreachable, see above
+
+	ResetAnchor();
 	
 	return($wholeAnchor);
 	}

@@ -1209,7 +1209,8 @@ sub GetPrettyTextContents {
 		if (!$inATable)
 			{
 			# Special <pre> starts and ends from html2gloss.pm for POD files.
-			if ($doingPOD && $lines[$i] =~ m!^\s*(_[SE]PR_)$!)
+			my $didPodPreRule = 0;
+			if ($doingPOD && $lines[$i] =~ m!^\s*(_[SE]PR_)\s*$!)
 				{
 				my $preSignal = $1;
 				if (index($preSignal, 'S') > 0)
@@ -1221,49 +1222,56 @@ sub GetPrettyTextContents {
 					$inPre = 0;
 					}
 				PreRule(\$lines[$i], $lineNum, $indentClass);
+				$didPodPreRule = 1;
+				}
+			else
+				{
+				UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
 				}
 			
-			UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
 			# I don't think Pod::Simple::HTML does <ol> so I'm turning this off for Pod.
 			if (!$doingPOD)
 				{
 				OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
 				}
 			
-			# Underlines -> hr or heading. Heading requires altering line before underline.
-			if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
+			if (!$didPodPreRule)
 				{
-				my $underline = $1;
-				if (length($underline) <= 2) # ie three or four total
+				# Underlines -> hr or heading. Heading requires altering line before underline.
+				if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
 					{
-					HorizontalRule(\$lines[$i], $lineNum, $indentClass);
+					my $underline = $1;
+					if (length($underline) <= 2) # ie three or four total
+						{
+						HorizontalRule(\$lines[$i], $lineNum, $indentClass);
+						}
+					elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+						{
+						Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+						}
+					else # treat like any ordinary line
+						{
+						my $rowID = 'R' . $lineNum;
+						$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+						}
+					$justDidHeadingOrHr = 1;
 					}
-				elsif ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+				# Anchors, gotta put them in all the way down so links to them work.
+				elsif (index($lines[$i], '_ALB_') >= 0)
 					{
-					Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+					Anchor(\$lines[$i]);
+					my $rowID = 'R' . $lineNum;
+					my $classAttr = ClassAttribute('', $indentClass);
+					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
+					$justDidHeadingOrHr = 0;
 					}
 				else # treat like any ordinary line
 					{
 					my $rowID = 'R' . $lineNum;
-					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+					my $classAttr = ClassAttribute('', $indentClass);
+					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
+					$justDidHeadingOrHr = 0;
 					}
-				$justDidHeadingOrHr = 1;
-				}
-			# Anchors, gotta put them in all the way down so links to them work.
-			elsif (index($lines[$i], '_ALB_') >= 0)
-				{
-				Anchor(\$lines[$i]);
-				my $rowID = 'R' . $lineNum;
-				my $classAttr = ClassAttribute('', $indentClass);
-				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
-				$justDidHeadingOrHr = 0;
-				}
-			else # treat like any ordinary line
-				{
-				my $rowID = 'R' . $lineNum;
-				my $classAttr = ClassAttribute('', $indentClass);
-				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
-				$justDidHeadingOrHr = 0;
 				}
 			}
 		else # In a table, nothing special done at the moment.
@@ -1618,23 +1626,23 @@ sub HorizontalRule {
 	my $rowID = 'R' . $lineNum;
 	my $classAttr = ClassAttribute('vam', $indentClass);
 	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
-
-#	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 	}
 
 # Convert a <pre> marker line to an image.
 sub PreRule {
 	my ($lineR, $lineNum, $indentClass) = @_;
-	my $imageName = 'mediumrule4.png';
-	my $height = 6;
+	my $imageName = 'slimrule4.png'; # 'slimrule4.png'; 'mediumrule4.png'
+	my $height = 3; # 3; 6;
 	my $spacer = (index($$lineR, ' ') == 0) ? ' ': '';
+	my $pClass = ($spacer eq '') ? "class='ruleHeightPara'": " class='outdent-unordered ruleHeightPara'";
+	my $classAttr = " class='vam'";
 	my $rowID = 'R' . $lineNum;
-	#my $classAttr = ClassAttribute('vam', $indentClass);
 
-	$$lineR = "$spacer<img class='vam' style='display: block;' src='$imageName' width='98%' height='$height' />";
+	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 
-	#$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
-#	$$lineR = "<tr id='$rowID'><td n='$lineNum'></td><td class='vam'>$spacer<img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+#	$$lineR = "$spacer<img class='vam' style='display: block;' src='$imageName' width='98%' height='$height' />";
+#	$$lineR = "<p$pClass>$spacer<img class='vam' style='display: block;' src='$imageName' width='98%' height='$height' /></p>";
+
 	}
 
 # Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);

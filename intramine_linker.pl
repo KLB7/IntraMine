@@ -1468,8 +1468,8 @@ sub IsPerlExtension {
 sub AddModuleLinkToText {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 
-	# Worth looking only if "use " appears in the text.
-	if (index($$txtR, "use ") < 0)
+	# Worth looking only if "use " of "import " appears in the text.
+	if (index($$txtR, "use ") < 0 && index($$txtR, "import ") < 0)
 		{
 		return;
 		}
@@ -1492,7 +1492,7 @@ sub AddModuleLinkToText {
 
 	# Look for use X::Y, import X::Y, use local_module etc. Some spurious matches
 	# are happening in text files, but not I hope too many.
-	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+))!g)
+	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+);)|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+);)!g)
 	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
 	#   || $strippedline =~ m!^(.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(.+?)$! )
 	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
@@ -1524,41 +1524,12 @@ sub AddModuleLinkToText {
 			($midPos, $midLength) = CorrectedPositionAndLength($midPos, $midLength);
 			my $displayMid = substr($$txtR, $midPos, $midLength);
 			
-			# And this one is really annoying, "use for" can get a link because some
-			# soul decided that "for" was a good name to use for a module. Skip it
-			# unless it's followed by a semicolon.
-			# Added later, "use only" and "use any" and "use code" should also be skipped.
-			my $badFor = 0;
-			if (index($mid, "for") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
-				{
-				$badFor = 1;
-				}
-			my $badOnly = 0;
-			if (index($mid, "only") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
-				{
-				$badOnly = 1;
-				}
-			my $badAny = 0;
-			if (index($mid, "any") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
-				{
-				$badAny = 1;
-				}
-			my $badCode = 0;
-			if (index($mid, "code") >= 0 && substr($strippedline, $midPos + $midLength, 1) ne ";")
-				{
-				$badCode = 1;
-				}
-
-
-			if (!$badFor && !$badOnly && !$badAny && !$badCode)
-				{
-				$mid = ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
-				#$textCopy = substr($$txtR, 0, $midPos) . $mid . substr($$txtR, $midPos + $midLength);
-				push @reps, $mid;
-				push @repsPositions, $midPos;
-				push @repLength, $midLength;
-				$foundAModule = 1;
-				}
+			$mid = ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
+			#$textCopy = substr($$txtR, 0, $midPos) . $mid . substr($$txtR, $midPos + $midLength);
+			push @reps, $mid;
+			push @repsPositions, $midPos;
+			push @repLength, $midLength;
+			$foundAModule = 1;
 			}
 		}
 
