@@ -1492,13 +1492,9 @@ sub AddModuleLinkToText {
 
 	# Look for use X::Y, import X::Y, use local_module etc. Some spurious matches
 	# are happening in text files, but not I hope too many.
-	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+);)|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+);)!g)
-	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
-	#   || $strippedline =~ m!^(.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(.+?)$! )
-	# if ( $strippedline =~ m!^(\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(.+?)$!
-	#   || $strippedline =~ m!^(.+?(use|import)\s+)([A-Z][0-9A-Za-z_:]+)(.+?)$! )
+	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(;| \"| qw| \'))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(;| \"| qw| \'))!g)
+#	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+);)|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+);)!g)
 		{
-		#my $pre = $2;
 		my $mid;
 		my $midPos;
 		my $midLength;
@@ -1510,9 +1506,9 @@ sub AddModuleLinkToText {
 			}
 		else
 			{
-			$mid = $8; # the full module name eg "This", or "This::That"
-			$midPos = $-[8];
-			$midLength = $+[8] - $midPos;
+			$mid = $9; # the full module name eg "This", or "This::That"
+			$midPos = $-[9];
+			$midLength = $+[9] - $midPos;
 			}
 		
 		# Avoid doing a single colon, such as use C:/folder. Also skip if an apostrophe

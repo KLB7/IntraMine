@@ -372,7 +372,7 @@ sub FullFile {
 	my $ruffElapsed = substr($elapsed, 0, 6);
 	#Output("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 	
-	# TEST ONLY codathon force display of load time
+	# TEST ONLY display load time.
 	#print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
 
 	return $theBody;
@@ -1083,6 +1083,10 @@ sub GetPrettyMD {
 	$$contentsR = encode_utf8($$contentsR);
 	}
 
+# Call LoadPodFileContents() to get an HTML version using Pod::Simple::HTML,
+# then use html2gloss.pm to convert that to Gloss.
+# Finally, pass that through GetPrettyTextFileContents() to convert the
+# Gloss text to HTML for display. Whew.
 sub GetPrettyPod {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
 	my $filePath = $formH->{'FULLPATH'};
@@ -1096,6 +1100,7 @@ sub GetPrettyPod {
 		return;
 		}
 
+	# Convert HTML tags and text to Gloss equivalents. See html2gloss.pm
 	my $p = html2gloss->new();
 	my $contentsInrawGloss;
 	$p->htmlToGloss(\$octets, \$contentsInrawGloss);
@@ -1103,7 +1108,7 @@ sub GetPrettyPod {
 	
 	# TEST ONLY
 	# Dump what we have so far.
-	WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_gloss.txt", $contentsInrawGloss);
+	#WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_gloss.txt", $contentsInrawGloss);
 
 
 	# Convert to Gloss HTML display with GetPrettyTextContents().
@@ -1111,9 +1116,12 @@ sub GetPrettyPod {
 	}
 
 # An attempt at a pleasing and useful view of text files.
+# This is the main implementation of Gloss, IntraMine's markdown variant
+# optimized for intranet use.
 # All text (.txt) files are run through Gloss processing, see Gloss.txt for details. There are
 # autolinks and hover images and headings and tables and lists and all that.
 # A Table of Contents down the left side lists headings.
+# Alas, handling POD files introduces a light fog of special cases.
 sub GetPrettyTextContents {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $sourceR) = @_;
 	my $serverAddr = ServerAddress();
@@ -1125,15 +1133,16 @@ sub GetPrettyTextContents {
 	my $doingPOD = 0;
 	my $inPre = 0; # POD only, are we in a <pre> element?
 	my $octets;
+
 	# GetPrettyPod calls this sub with loaded source.
+	# Pod sends a lot of placeholders such as _A_, _POLB_, _ALB_ etc
+	# that are removed or replaced below if $doingPOD is set
+	# - see gloss2hmtl.pm for details on why they are needed.
 	if (defined($sourceR))
 		{
 		$doingPOD = 1;
 
 		$octets = $$sourceR;
-		# Convert _NBS_ marker to non-breaking space.
-		# These come from html2gloss.pm#textHandler().
-		#$octets =~ s!_NBS_! !g; # That's a Unicode no-break space there.
 		}
 	else
 		{
@@ -1159,7 +1168,7 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
-		# First, remove _INDT_ for all lines, and count how many.
+		# First, remove _INDT_ for all lines, and count how many. These only come from .pod files.
 		my $indentClass = '';
 		if ($doingPOD && (my $indentPos = index($lines[$i], '_INDT_')) >= 0)
 			{
@@ -1208,7 +1217,8 @@ sub GetPrettyTextContents {
 
 		if (!$inATable)
 			{
-			# Special <pre> starts and ends from html2gloss.pm for POD files.
+			# Special <pre> starts and ends _SPRE_ _EPRE_ from html2gloss.pm for POD files.
+			# These are just horizontal rules, marking the start and end of <pre> sections.
 			my $didPodPreRule = 0;
 			if ($doingPOD && $lines[$i] =~ m!^\s*(_[SE]PR_)\s*$!)
 				{
@@ -1226,13 +1236,20 @@ sub GetPrettyTextContents {
 				}
 			else
 				{
+				# Convert unordered (bullet) and numbered lists to final form.
 				UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
+				OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
 				}
 			
-			# I don't think Pod::Simple::HTML does <ol> so I'm turning this off for Pod.
-			if (!$doingPOD)
+			if ($doingPOD)
 				{
-				OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
+				# Translate __A__ (an asterisk standin from POD) to *. We've waited until
+				# here because '*' is important in AddEmphasis() and UnorderedList().
+				$lines[$i] =~ s!__A__!\*!g;
+
+				# And remove _POLB_ (Pod Ordered List Blocker), that was blocking the interpretation
+				# of a line starting with a number as being a Gloss ordered list item.
+				$lines[$i] =~ s!_POLB_!!g;
 				}
 			
 			if (!$didPodPreRule)
@@ -1274,16 +1291,8 @@ sub GetPrettyTextContents {
 					}
 				}
 			}
-		else # In a table, nothing special done at the moment.
+		else # In a table, nothing special done yet - see just below, PutTablesInText().
 			{
-			# Add AutoLinks for source and text files, image files, and web links.
-###			AddWebAndFileLinksToLine(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-			# Add module links if it looks like a Perl use or import.
-#			if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
-#				{
-#				AddModuleLinkToText(\${lines[$i]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
-#				}
-				
 			# Put contents in table, separate cells for line number and line proper
 			my $rowID = 'R' . $lineNum;
 			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
@@ -1396,13 +1405,6 @@ sub AddEmphasis {
 	# to prevent bolding "*this, but *this doesn't always" etc.
 	$$lineR =~ s!\*\*(.*?[^\s])\*\*!<strong>$1</strong>!g;
 	$$lineR =~ s!\*(.*?[^\s])\*!<em>$1</em>!g;
-
-	# Translate __A__ (an asterisk standin from POD) to *.
-	if ($doingPOD)
-		{
-		$$lineR =~ s!__A__!\*!g;
-		}
-	
 	
 	# Somewhat experimental, loosen requirements to just *.+?\S* and **.+?\S**
 	#$$lineR =~ s!\*\*(.+?\S)\*\*!<strong>$1</strong>!g;
@@ -1522,15 +1524,18 @@ sub UnorderedList {
 # Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
 #  paragraph.
 # "ol-2" = ordered list - two digits top level, no second level, first paragraph.
+#
+# Ordered lists from Pod files start with
+# '_OLN_. ' or '_OLN_._OLN_ ' for main or sub items, and numbering starts at 1.
 sub OrderedList {
 	my ($lineR, $listNumberR, $subListNumberR, $indentClass) = @_;
 	
 	# A major list item, eg "3.":
-	if ($$lineR =~ m!^\s*(\d+|\#)\. +(.+?)$!)
+	if ($$lineR =~ m!^\s*(\d+|\#)\. +(.+?)$! || $$lineR =~ m!^\s*(_OLN_)\. +(.+?)$!)
 		{
 		my $suggestedNum = $1;
 		my $trailer = $2;
-		if ($suggestedNum eq '#')
+		if ($suggestedNum eq '#' || $suggestedNum eq '_OLN_')
 			{
 			$suggestedNum = 0;
 			}
@@ -1547,10 +1552,9 @@ sub OrderedList {
 		my $class = (length($suggestedNum) > 1) ? "ol-2": "ol-1";
 		my $classAttr = ClassAttribute($class, $indentClass);
 		$$lineR = "<p$classAttr>" . "$$listNumberR. $trailer" . '</p>';
-#		$$lineR = '<p class="' . $class . '">' . "$$listNumberR. $trailer" . '</p>';
 		}
 	# A minor entry, eg "3.1":
-	elsif ($$lineR =~ m!^\s*(\d+|\#)\.(\d+|\#) +(.+?)$!)
+	elsif ($$lineR =~ m!^\s*(\d+|\#)\.(\d+|\#) +(.+?)$! || $$lineR =~ m!^\s*(_OLN_)\.(_OLN_) +(.+?)$!)
 		{
 		my $suggestedNum = $1;			# not used
 		my $secondSuggestedNum = $2;	# not used
@@ -1566,14 +1570,12 @@ sub OrderedList {
 			my $class = (length($$subListNumberR) > 1) ? "ol-2-2": "ol-2-1";
 			my $classAttr = ClassAttribute($class, $indentClass);
 			$$lineR = "<p$classAttr>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
-#			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		else
 			{
 			my $class = (length($$subListNumberR) > 1) ? "ol-1-2": "ol-1-1";
 			my $classAttr = ClassAttribute($class, $indentClass);
 			$$lineR = "<p$classAttr>" . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
-#			$$lineR = '<p class="' . $class . '">' . "$$listNumberR.$$subListNumberR $trailer" . '</p>';
 			}
 		}
 	# Line continues an item if we're in one and it starts with one or more tabs or spaces.
@@ -1587,14 +1589,12 @@ sub OrderedList {
 				my $class = (length($$subListNumberR) > 1) ? "ol-2-2-c": "ol-2-1-c";
 				my $classAttr = ClassAttribute($class, $indentClass);
 				$$lineR = "<p$classAttr>" . $$lineR . '</p>';
-#				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 				}
 			else
 				{
 				my $class = (length($$subListNumberR) > 1) ? "ol-1-2-c": "ol-1-1-c";
 				my $classAttr = ClassAttribute($class, $indentClass);
 				$$lineR = "<p$classAttr>" . $$lineR . '</p>';
-#				$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 				}
 			}
 		else
@@ -1602,7 +1602,6 @@ sub OrderedList {
 			my $class = (length($$listNumberR) > 1) ? "ol-2-c": "ol-1-c";
 			my $classAttr = ClassAttribute($class, $indentClass);
 			$$lineR = "<p$classAttr>" . $$lineR . '</p>';
-#			$$lineR = '<p class="' . $class . '">' . $$lineR . '</p>';
 			}
 		}
 	else
@@ -2147,6 +2146,8 @@ sub LoadPerlFileContents {
 	return(1);
 	}
 
+# Called by GetPrettyPOD().
+# Load the file, then convert to HTML using Pod::Simple::HTML.
 sub LoadPodFileContents {
 	my ($filePath, $octetsR) = @_;
 
@@ -2195,9 +2196,6 @@ sub LoadPodFileContents {
 
 	my $p = Pod::Simple::HTML->new;
 
-	# TEST ONLY
-	#$p->index(1);
-
 	$p->no_whining(1);
 	$p->parse_characters(1);
 	#$p->html_h_level(2);
@@ -2234,7 +2232,7 @@ sub LoadPodFileContents {
 
 	# TEST ONLY
 	# Write out what we have so far.
-	WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_html.txt", $html);
+	#WriteTextFileWide("C:/perlprogs/IntraMine/test/test_pod_4_html.txt", $html);
 
 	$$octetsR = $html;
 

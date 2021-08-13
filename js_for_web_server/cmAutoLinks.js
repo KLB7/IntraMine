@@ -27,6 +27,10 @@ function addAutoLinks() {
 	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
 
+	// Go past the window bottom, sometimes linkage removes so much text
+	// that fresh lines come into view.
+	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 1.5);
+
 	if (!allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum))
 		{
 		let visibleText = cm.doc.getRange({

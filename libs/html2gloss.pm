@@ -52,7 +52,6 @@ sub new {
     @{$self->{HREF}} = ();				# href, from <a>
 	@{$self->{NAME}} = ();				# name, from <a>
     @{$self->{LIST_TYPE}} = ();			# 'ul' or 'ol'
-    $self->{OLNUMBER} = 1; 				# post increment
     $self->{HEADING_LEVEL} = 0;			# h2 h3 h4
     $self->{IN_PRE} = 0; 				# in a <pre> element.
 	$self->{AT_PARA_START} = 0; 		# At the start of a <p>, no text seen yet.
@@ -79,8 +78,6 @@ sub htmlToGloss {
     $self->parse($$inTextR);
 
     $$outTextR = join("\n", @{$self->{LINES}});
-
-	#print("TAG stack at end: |@{$self->{TAG}}|\n");
     }
 
 # Track tag name, class, name, id, and href attributes.
@@ -123,10 +120,8 @@ sub startHandler {
 
 	# Put list type on the LIST_TYPE stack. Lists and
 	# sublists are handled, but not deeper.
-	# Note there aren't any 'ol' lists to handle at this time.
     if ($tag eq 'ul' || $tag eq 'ol')
         {
-		
         push @{$self->{LIST_TYPE}}, $tag;
         }
     elsif ($tag eq 'pre')
@@ -149,7 +144,7 @@ sub startHandler {
 		# starting a new one.
 		if ($toptag eq 'a')
 			{
-			my $textA = EndAnchor($self->{HEADING_LEVEL});
+			my $textA = EndAnchor($self);
 			AddText($self, $textA);
 			}
 		StartAnchor($href, $name, $id);
@@ -231,6 +226,7 @@ sub endHandler {
 						}
 					}
 				}
+			
 			$self->{HEADING_LEVEL} = 0;
 			$self->{CURRENT_LINE} = '';
 			}
@@ -257,12 +253,7 @@ sub endHandler {
         }
     elsif ($ptag eq 'ul' || $ptag eq 'ol')
         {
-		# Pod doesn't do 'ol', but I've left it in for now.
-        pop @{$self->{LIST_TYPE}};
-        if ($ptag eq 'ol')
-            {
-            $self->{OLNUMBER} = 1;
-            }
+       pop @{$self->{LIST_TYPE}};
         }
     elsif ($ptag eq 'pre') # Note 'pre' is not a push tag.
         {
@@ -279,7 +270,7 @@ sub endHandler {
 	# on seeing </a> here.
 	elsif ($ptag eq 'a')
 		{
-		my $textA = EndAnchor($self->{HEADING_LEVEL});
+		my $textA = EndAnchor($self);
 		AddText($self, $textA);
 		}
 
@@ -316,6 +307,11 @@ sub textHandler {
 	# Translate '*'' in text to '__A__' (translated back in intramine_viewer.pl#AddWEmphasis()).
 	# '*' is used to signal *italic*, **bold**, and *!*code*!* for Gloss.
 	$text =~ s!\*!__A__!g;
+
+	# Put _POLB_ (Pod Ordered List Blocker) at beginning of any line that begins with !\s*\d+!
+	# to prevent intramine_viewer.pl#OrderedList() from interpreting the line as an ordered
+	# list item.
+	$text =~ s!(\s*\d+)!_POLB_$1!;
 
 	# If we're in a <pre> don't process any contained tags.
     if ($self->{IN_PRE})
@@ -394,7 +390,7 @@ sub AddText {
 	if (InAnchor())
 		{
 		$text =~ s!\n!!g;
-		AddAnchorText($text);
+		AddAnchorText($self, $text);
 		}
 	else
 		{
@@ -439,6 +435,8 @@ sub AddText {
 		if ($self->{'TEXT_TYPE'} == $kLi)
 			{
 			my $listDepth = @{$self->{LIST_TYPE}};
+			my $indentMarker = $self->{LAST_INDENT} . '_INDT_';
+
 			if (($stayOnSameLine || $self->{LI_STARTED_BLANK}) && !$dumpLiTextOnNewLine)
 				{
 				my $numPendingLines = @{$self->{LI_PENDING_LINES}};
@@ -448,7 +446,7 @@ sub AddText {
 					${$self->{LI_PENDING_LINES}}[$numPendingLines - 1] .= $lines[0];
 					for (my $i = 1; $i < @lines; ++$i)
 						{
-						push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+						push @{$self->{LI_PENDING_LINES}}, $indentMarker . $lines[$i];
 						push @{$self->{LI_DEPTH}}, $listDepth;
 						}
 					}
@@ -457,17 +455,17 @@ sub AddText {
 					if ($text =~ m!^\s*$!)
 						{
 						$text =~ s!\n! !g;
-						push @{$self->{LI_PENDING_LINES}}, $text;
+						push @{$self->{LI_PENDING_LINES}}, $indentMarker . $text;
 						push @{$self->{LI_DEPTH}}, $listDepth;
 						$self->{LI_STARTED_BLANK} = 2;
 						}
 					else
 						{
-						push @{$self->{LI_PENDING_LINES}}, $lines[0];
+						push @{$self->{LI_PENDING_LINES}}, $indentMarker . $lines[0];
 						push @{$self->{LI_DEPTH}}, $listDepth;
 						for (my $i = 1; $i < @lines; ++$i)
 							{
-							push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+							push @{$self->{LI_PENDING_LINES}}, $indentMarker . $lines[$i];
 							push @{$self->{LI_DEPTH}}, $listDepth;
 							}
 						}
@@ -477,7 +475,7 @@ sub AddText {
 				{
 				for (my $i = 0; $i < @lines; ++$i)
 					{
-					push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+					push @{$self->{LI_PENDING_LINES}}, $indentMarker . $lines[$i];
 					push @{$self->{LI_DEPTH}}, $listDepth;
 					}
 				}
@@ -537,6 +535,7 @@ sub EmitPre {
 	if ($doingList)
 		{
 		my $listDepth = @{$self->{LIST_TYPE}};
+		my $indentMarker = $self->{LAST_INDENT} . '_INDT_';
 
 		push @{$self->{LI_PENDING_LINES}}, '_SPR_';
 		push @{$self->{LI_DEPTH}}, $listDepth;
@@ -547,10 +546,10 @@ sub EmitPre {
 			# There's a zero width unicode space between $1 and $2.
 			$lines[$i] =~ s!^(\s*)([=~+*-])!$1​$2!g;
 			# Preserve whitespace in HTML without <pre>, as will
-			# be the case in Gloss.
+			# be the case in Gloss. Rep with non-breaking space.
 			$lines[$i] =~ s! ! !g;
 
-			push @{$self->{LI_PENDING_LINES}}, $lines[$i];
+			push @{$self->{LI_PENDING_LINES}}, $indentMarker . $lines[$i];
 			push @{$self->{LI_DEPTH}}, $listDepth;
 			}
 		push @{$self->{LI_PENDING_LINES}}, '_EPR_';
@@ -564,7 +563,7 @@ sub EmitPre {
 		if ($tagAbove eq 'dd')
 			{
 			$indentMarker = IndentMarker($self);
-			$self->{LAST_INDENT} = $indentMarker;
+			#$self->{LAST_INDENT} = $indentMarker; # Done in IndentMarker().
 			$self->{DD_FORCED_CLOSED} = 0;
 			}
 		elsif ($self->{LAST_CLOSED_TAG} ne 'ul')
@@ -624,6 +623,7 @@ sub EmitListItem {
 # Return ' - ' for a top-level list item,
 # ' -- ' for a sub-item.
 # See intramine_viewer.pl#UnorderedList() for the resulting HTML.
+# Ordered lists start with '_OLN_. ' or '_OLN_._OLN_ ' for main or sub items.
 sub GetListStarter {
 	my ($self, $listDepth) = @_;
 	my $listType = defined(${$self->{LIST_TYPE}}[-1]) ? ${$self->{LIST_TYPE}}[-1]: 'ul';
@@ -643,8 +643,14 @@ sub GetListStarter {
 		}
 	else # 'ol'
 		{
-		$starter = "$self->{OLNUMBER}. ";
-		$self->{OLNUMBER} += 1;
+		if ($listDepth == 1)
+			{
+			$starter = '_OLN_. ';
+			}
+		else # We only support two levels for lists.
+			{
+			$starter = '_OLN_._OLN_ ';
+			}
 		}
 	
 	return($starter);
@@ -753,20 +759,29 @@ sub StartAnchor {
 	}
 
 sub AddAnchorText {
-	my ($text) = @_;
-	$AnchorText .= $text;
+	my ($self, $text) = @_;
+
+	# Headings just want plain text, no anchors.
+	if ($self->{HEADING_LEVEL})
+		{
+		$self->{CURRENT_LINE} .= $text;
+		}
+	else
+		{
+		$AnchorText .= $text;
+		}
 	}
 
 # On </a>, return entire <a...>text</a> element.
 # Or just the text if doing a heading or there are no attributes.
 sub EndAnchor {
-	my ($headingLevel) = @_;
+	my ($self) = @_;
 
 	$InAnchor = 0;
 
 	# If we're in a heading, just return the text.
 	# Same if no attributes (it's Pod, there are not many rules).
-	if ($headingLevel || ($Name eq '' && $Id eq '' && $Href eq ''))
+	if ($self->{HEADING_LEVEL} || ($Name eq '' && $Id eq '' && $Href eq ''))
 		{
 		return($AnchorText);
 		}
