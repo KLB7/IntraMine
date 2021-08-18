@@ -75,10 +75,10 @@ function flashNavBar() {
     let aTags = document.getElementsByTagName("a");
     let searchText = "ToDo";
     let todoElem;
-    
+
     for (let i = 0; i < aTags.length; i++)
         {
-        if (aTags[i].textContent == searchText)
+		if (aTags[i].textContent.indexOf(searchText) == 0)
             {
             todoElem = aTags[i];
             break;

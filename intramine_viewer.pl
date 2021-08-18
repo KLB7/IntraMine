@@ -1307,7 +1307,7 @@ sub GetPrettyTextContents {
 		++$lineNum;
 		}
 	
-	# Tables, see just below.
+	# Tables.
 	PutTablesInText(\@lines);
 	
 	# Put in internal links that reference headers within the current document.
