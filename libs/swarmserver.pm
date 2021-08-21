@@ -414,6 +414,8 @@ let mainIP = '_THEHOST_';
 let theHost = mainIP;
 let shortServerName = '_SHORTSERVERNAME_';
 let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
+// Added for talking to the WebSockets server
+let wsShortName = 'WS';
 </script>
 
 FINIS

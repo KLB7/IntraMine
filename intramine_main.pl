@@ -90,6 +90,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
+use intramine_websockets_client;
 
 # "-t" on the command line means we are testing.
 # $TESTING is used in ReceiveInfo() below to start the tests with RunAllTests()
@@ -179,6 +180,8 @@ LoadMaintenanceSignalsForServers();
 
 # Start up all the swarm servers, based on the list in data/serverlist.txt.
 StartServerSwarm($kSwarmServerStartingPort);
+
+my $WebSockIsUp = 0;
 
 # Listen for requests.
 MainLoop($port_listen);
@@ -358,6 +361,9 @@ sub PortIsUnderMaintenance {
 # show results, such as Viewer (which is called by links in Search and Files to show a
 # read-only view of a file). If a server doesn't have "BACKGROUND" in its config line
 # in data/serverlist.txt, then it's a page server.
+# Note "WEBSOCKET" also counts basically as a background server (single instance etc)
+# and in addition only communicates by the ws:// (websockets) protocol, as opposed to http://.
+# (And shouldn't it be called an "application" rather than a protocol? Never mind.)
 my @ServerCommandLines;			# One entry per server, eg "C:/Progs/Intramine/intramine_viewer.pl Search Viewer 81 43126"
 my @ServerCommandProgramNames;	# Just the program name, eg "intramine_search.pl" for a $ServerCommandLines[] entry.
 my @ServerCommandPorts;			# Just the port used for a server.
@@ -383,7 +389,7 @@ my @PageIndexForCommandLineIndex; # PageIndexForCommandLineIndex[4] = 1 for File
 # There is at most one of each Background server, regardless the Count field in serverlist.txt.
 my @BackgroundCommandLines;			# $BackgroundCommandLines[0] = "$scriptFullDir$BackgroundServerNames[$idx] $port_listen " .  $currentPort;
 my @BackgroundCommandProgramNames;	# Like above, but just the program name, eg "intramine_filewatcher.pl"
-my @BackgroundCommandPorts;			# and the just the port number for a $BackgroundCommandLines[] entry
+my @BackgroundCommandPorts;			# and just the port number for a $BackgroundCommandLines[] entry
 my $NumBackgroundServers;			# 0..up
 my @BackgroundNames;				# $BackgroundNames[0] = 'FILEWATCHER'
 my @BackgroundServerNames;			# $BackgroundServerNames[0] = 'intramine_filewatcher.pl'
@@ -394,6 +400,10 @@ my %BackgroundProcIDs;				# proc ID, used when restarting and to check server pr
 # For broadcasting to servers by name, it helps to know the server name for each command line. See BroadcastSignal() below.
 my @ServerCommandLinePageNames;
 my @BackgroundCommandLineNames;
+
+# For WEBSOCKET servers (BACKGROUND servers that communicate using WebSockets only).
+my %PortIsForWEBSOCKETServer;		# $PortIsForWEBSOCKETServer{'43128'} = 1
+my %IsWEBSOCKETServer;				# $IsWEBSOCKETServer{$shortServerName} = 1
 
 # For redirect based on short server name:
 # Eg
@@ -421,6 +431,7 @@ my $MainSelfTest;
 
 # Start all servers listed in data/serverlist.txt. The "Count" field in serverlist.txt
 # determines how many of each server to start.
+# First create CMd lines for all servers, then start them.
 sub StartServerSwarm {
 	my ($startingPort) = @_;
 	$SwarmServerStartingPort = $startingPort;
@@ -435,8 +446,7 @@ sub StartServerSwarm {
 
 	my $scriptFullPath = $0;
 	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
-	# Command for page server [$pgIdx][$srv] (including PERSISTENT) is
-	# "$scriptFullDir$PageServerNames[$pgIdx][$srv] $port_listen "
+	# Command for page server [$pgIdx][$srv] (including PERSISTENT).
 	for (my $pgIdx = 0; $pgIdx < $NumServerPages; ++$pgIdx)
 		{
 		my $pageName = $PageNames[$pgIdx];
@@ -457,36 +467,51 @@ sub StartServerSwarm {
 			
 			# For redirects, remember port list for each short server name.
 			push @{$PortsForShortServerNames{$shortName}}, $currentPort;
-			$CurrentlyUsedIndexForShortServerNames{$shortName} = 0; # index of first port for short server name
+			$CurrentlyUsedIndexForShortServerNames{$shortName} = 0;
 			# Set server on current port as running (perhaps optimistic).
 			SetServerPortIsRunning($currentPort, 1);
 			++$currentPort;
 			}
 		}
 	
-	# Command for BACKGROUND server is "$scriptFullDir$BackgroundServerNames[$idx] $port_listen " .  $currentPort;
-	#$NumBackgroundServers = @BackgroundNames;
-	for (my $idx = 0; $idx < $NumBackgroundServers; ++$idx)
+	# Command for BACKGROUND server.
+	# $NumBackgroundServers = @BackgroundNames;
+	# Start any WEBSOCKET server first.
+	for (my $loop = 1; $loop <= 2; ++$loop)
 		{
-		my $shortName = $ShortBackgroundServerNames[$idx];
-		$ShortBackgroundServerNameForPort{$currentPort} = $shortName;
-		$PortForShortBackgroundServerName{$shortName} = $currentPort;
-		# A background server doesn't have a "page" name since it isn't associated with a page, it just lurks
-		# in the background. So we send the $shortName in place of the page name, just to keep the interface simple.
-		my $cmdLine = "$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $currentPort";
-		push @BackgroundCommandLines, $cmdLine;
-		push @BackgroundCommandProgramNames, $BackgroundServerNames[$idx];		
-		push @BackgroundCommandPorts, $currentPort;
-		push @BackgroundCommandLineNames, $BackgroundNames[$idx];
-		# Set server on current port as running (perhaps optimistic).
-		SetServerPortIsRunning($currentPort, 1);
-		++$currentPort;
-		}
+		for (my $idx = 0; $idx < $NumBackgroundServers; ++$idx)
+			{
+			my $shortName = $ShortBackgroundServerNames[$idx];
+			if (   ($loop == 1 && ShortNameIsForWEBSOCKServer($shortName))
+				|| ($loop == 2 && !ShortNameIsForWEBSOCKServer($shortName)) )
+				{
+				$ShortBackgroundServerNameForPort{$currentPort} = $shortName;
+				$PortForShortBackgroundServerName{$shortName} = $currentPort;
+				# A background server doesn't have a "page" name since it isn't associated with
+				# a page, it just lurks in the background. So we send the $shortName in place of
+				# the page name, just to keep the interface simple.
+				my $cmdLine = "$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $currentPort";
+				push @BackgroundCommandLines, $cmdLine;
+				push @BackgroundCommandProgramNames, $BackgroundServerNames[$idx];		
+				push @BackgroundCommandPorts, $currentPort;
+				push @BackgroundCommandLineNames, $BackgroundNames[$idx];
+				# Set server on current port as running (perhaps optimistic).
+				SetServerPortIsRunning($currentPort, 1);
+		
+				if (ShortNameIsForWEBSOCKServer($shortName))
+					{
+					$PortIsForWEBSOCKETServer{$currentPort} = 1;
+					}
+			
+				++$currentPort;
+				} # if first $loop and WEBSOCKET, or second $loop
+			} # for BACKGROUND servers
+		} # two $loops
 	
 	# Postpone 'persistent' (command) server starts if any are running.
 	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
 	
-	# Start Page servers, from $PageIndexForCommandLineIndex[].
+	# Start the Page servers, from $PageIndexForCommandLineIndex[].
 	my $numServers = @ServerCommandLines;
 	my $numServersStarted = 0;
 	for (my $i = 0; $i < $numServers; ++$i)
@@ -512,7 +537,7 @@ sub StartServerSwarm {
 		
 	$TotalServersWanted = $numServers;
 	
-	# Start one of each background server.
+	# Start one of each BACKGROUND (or WEBSOCKET) server.
 	$numServers = @BackgroundCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
@@ -534,7 +559,7 @@ sub SwarmServerFirstPort {
 	}
 
 # Load data/serverlist.txt. Using '|' to mean 'one or more tabs', file format there is:
-# Count|Page Name|Unique short name|Perl program name(*optional*|PERSISTENT or BACKGROUND)
+# Count|Page Name|Unique short name|Perl program name(*optional*|PERSISTENT or BACKGROUND or WEBSOCKET)
 # Count is how many of each server. The second entry is the name of the associated web page,
 # third is a unique short name for the server,
 # fourth entry is the name of associated Perl program that runs the server for the page.
@@ -561,74 +586,21 @@ sub LoadServerList {
 		my $line;
 		my $pageIndex = -1;
 		my %pageNameSeen;
+		
+		# Load the WS service line first and always.
+		my $webSocketLine = '1	WEBSOCKETS			WS			intramine_websockets.pl		WEBSOCKET';
+		LoadOneServer($webSocketLine, \$count, \$pageIndex, \%pageNameSeen);
+		
 		while ($line = <$fileH>)
 	    	{
 	        chomp($line);
 	        if (length($line) && $line !~ m!^\s*(#|$)! && $line !~ m!^0\s!) # skip blank lines and comments and zero Count
 	        	{
-	        	my @fields = split(/\t+/, $line); # Split on one or more tabs
-	        	my $instanceCount = $fields[0];
-	        	my $pageName = $fields[1];
-	        	my $shortServerName = $fields[2]; # for %ShortServerNameForPort, eventually
-	        	my $serverProgramName = $fields[3];
-	        	my $specialType = (defined($fields[4])) ? $fields[4]: '';
-	        	
-	        	if ($shortServerName eq 'Main')
+	        	# Avoid loading the WS service twice.
+	        	if ($line !~ m!intramine_websockets\.pl!)
 	        		{
-	        		# Main entry just triggers a self-test if its Count field is positive.
-	        		if ($instanceCount > 0)
-	        			{
-	        			SetMainSelfTest(1);
-	        			
-	        			# Fudge up an entry for intramine_test_main.pl.
-	        			my $mainTestProgram = CVal('INTRAMINE_TEST_SERVICE');
-	        			my $mainTestShortname = CVal('INTRAMINE_TEST_NAME');
-	        			$line = "";
-	        			$instanceCount = 2; # Run two to test round robin.
-	        			$pageName = $mainTestShortname;
-	        			$shortServerName = $pageName;
-	        			$serverProgramName = $mainTestProgram;
-	        			$specialType = '';
-	        			}
+	        		LoadOneServer($line, \$count, \$pageIndex, \%pageNameSeen);
 	        		}
-
-	        	# 'BACKGROUND' programs do not correspond to pages, and have no web interface.
-				# Only one of each is started, and they do not appear in the navigation at top of page.
-	        	if ($specialType eq 'BACKGROUND')
-	        		{
-	        		push @BackgroundNames, $pageName;
-	        		push @BackgroundServerNames, $serverProgramName;
-	        		push @ShortBackgroundServerNames, $shortServerName;
-	        		}
-	        	else # a regular Page server, main entry will show up in nav bar.
-	        		{
-	        		if (!defined($pageNameSeen{$pageName}))
-	        			{
-	        			$pageNameSeen{$pageName} = 1;
-	        			++$pageIndex;
-	        			push @PageNames, $pageName;
-	        			$PageIndexForPageName{$pageName} = $pageIndex;
-	        			}
-	        			
-	        		my $currPageIndex = $PageIndexForPageName{$pageName};
-		         	
-		        	if ($specialType eq 'PERSISTENT')
-		        		{
-		        		$PageIsPersistent{$pageName} = 1; # eg "Cmd" server, will ignore regular 'EXITEXITEXIT' requests so it can monitor during restart
-		        		$PageIndexIsPersistent[$currPageIndex] = 1;
-		        		}
-		        	elsif (!defined($PageIndexIsPersistent[$currPageIndex]))
-		        		{
-		        		$PageIndexIsPersistent[$currPageIndex] = 0;
-		        		}
-		        	
-		        	for (my $j = 0; $j < $instanceCount; ++$j)
-		        		{
-		        		push @{$PageServerNames[$currPageIndex]}, $serverProgramName;
-		        		push @{$ShortServerNames[$currPageIndex]}, $shortServerName;
-		        		}
-	        		}
-	         	++$count; # includes backgrounds, just used to report count of servers seen
 	        	}
 	        }
 	    close $fileH;
@@ -651,6 +623,79 @@ sub LoadServerList {
 	return($count);
 	}
 
+sub LoadOneServer {
+	my ($line, $countR, $pageIndexR, $pageNameSeenH) = @_;
+
+	my @fields = split(/\t+/, $line); # Split on one or more tabs
+	my $instanceCount = $fields[0];
+	my $pageName = $fields[1];
+	my $shortServerName = $fields[2]; # for %ShortServerNameForPort, eventually
+	my $serverProgramName = $fields[3];
+	my $specialType = (defined($fields[4])) ? $fields[4]: '';
+	
+	if ($shortServerName eq 'Main')
+		{
+		# Main entry just triggers a self-test if its Count field is positive.
+		if ($instanceCount > 0)
+			{
+			SetMainSelfTest(1);
+			
+			# Fudge up an entry for intramine_test_main.pl.
+			my $mainTestProgram = CVal('INTRAMINE_TEST_SERVICE');
+			my $mainTestShortname = CVal('INTRAMINE_TEST_NAME');
+			$line = "";
+			$instanceCount = 2; # Run two to test round robin.
+			$pageName = $mainTestShortname;
+			$shortServerName = $pageName;
+			$serverProgramName = $mainTestProgram;
+			$specialType = '';
+			}
+		}
+
+	# 'BACKGROUND' programs do not correspond to pages, and have no web interface.
+	# Only one of each is started, and they do not appear in the navigation at top of page.
+	# A WEBSOCKET program is a BACKGROUND program that communicates only with WebSockets.
+	if ($specialType eq 'BACKGROUND' || $specialType eq 'WEBSOCKET')
+		{
+		push @BackgroundNames, $pageName;
+		push @BackgroundServerNames, $serverProgramName;
+		push @ShortBackgroundServerNames, $shortServerName;
+		
+		if ($specialType eq 'WEBSOCKET')
+			{
+			$IsWEBSOCKETServer{$shortServerName} = 1;
+			}
+		}
+	else # a regular Page server, main entry will show up in nav bar.
+		{
+		if (!defined($pageNameSeenH->{$pageName}))
+			{
+			$pageNameSeenH->{$pageName} = 1;
+			++$$pageIndexR;
+			push @PageNames, $pageName;
+			$PageIndexForPageName{$pageName} = $$pageIndexR;
+			}
+			
+		my $currPageIndex = $PageIndexForPageName{$pageName};
+		
+		if ($specialType eq 'PERSISTENT')
+			{
+			$PageIsPersistent{$pageName} = 1; # eg "Cmd" server, will ignore regular 'EXITEXITEXIT' requests so it can monitor during restart
+			$PageIndexIsPersistent[$currPageIndex] = 1;
+			}
+		elsif (!defined($PageIndexIsPersistent[$currPageIndex]))
+			{
+			$PageIndexIsPersistent[$currPageIndex] = 0;
+			}
+		
+		for (my $j = 0; $j < $instanceCount; ++$j)
+			{
+			push @{$PageServerNames[$currPageIndex]}, $serverProgramName;
+			push @{$ShortServerNames[$currPageIndex]}, $shortServerName;
+			}
+		}
+	++$$countR; # includes backgrounds, just used to report count of servers seen	
+	}
 
 sub ServerErrorReport{
         print Win32::FormatMessage( Win32::GetLastError() );
@@ -690,32 +735,41 @@ sub AskSwarmServerToExit {
 		{
 		Output("Attempting to stop $serverAddress:$portNumber\n");
 		
-		my $remote = IO::Socket::INET->new(
-		                Proto   => 'tcp',       		# protocol
-		                PeerAddr=> "$serverAddress", 	# Address of server
-		                PeerPort=> "$portNumber"      	# port of swarm server, default is 43124..up
-		                ) or (ServerErrorReport() && return);
-		
-		print $remote "GET /?EXITEXITEXIT=1 HTTP/1.1\n\n";
-		close $remote;
-		Output("Exit request sent to $serverAddress:$portNumber\n");
-		
-		# A persistent server such as "Cmd" will not stop for this request.
-		my $numServers = @ServerCommandLines;
-		my $isPersistent = 0; 
-		for (my $i = 0; $i < $numServers; ++$i)
+		if (PortIsForWEBSOCKServer($portNumber))
 			{
-			my $port = $ServerCommandPorts[$i];
-			if ($port == $portNumber)
-				{
-				my $pgIdx = $PageIndexForCommandLineIndex[$i];
-				$isPersistent = $PageIndexIsPersistent[$pgIdx];
-				last;
-				}
-			}
-		if (!$isPersistent)
-			{
+			WebSocketSend('EXITEXITEXIT');
+			Output("Exit request sent to $serverAddress:$portNumber\n");
 			SetServerPortIsRunning($portNumber, 0);
+			}
+		else
+			{
+			my $remote = IO::Socket::INET->new(
+			                Proto   => 'tcp',       		# protocol
+			                PeerAddr=> "$serverAddress", 	# Address of server
+			                PeerPort=> "$portNumber"      	# port of swarm server, default is 43124..up
+			                ) or (ServerErrorReport() && return);
+			
+			print $remote "GET /?EXITEXITEXIT=1 HTTP/1.1\n\n";
+			close $remote;
+			Output("Exit request sent to $serverAddress:$portNumber\n");
+			
+			# A persistent server such as "Cmd" will not stop for this request.
+			my $numServers = @ServerCommandLines;
+			my $isPersistent = 0; 
+			for (my $i = 0; $i < $numServers; ++$i)
+				{
+				my $port = $ServerCommandPorts[$i];
+				if ($port == $portNumber)
+					{
+					my $pgIdx = $PageIndexForCommandLineIndex[$i];
+					$isPersistent = $PageIndexIsPersistent[$pgIdx];
+					last;
+					}
+				}
+			if (!$isPersistent)
+				{
+				SetServerPortIsRunning($portNumber, 0);
+				}
 			}
 		}
 	else
@@ -758,16 +812,26 @@ sub ForceStopServer {
 	if (ServerOnPortIsRunning($portNumber))
 		{
 		Output("Attempting to FORCE stop $serverAddress:$portNumber\n");
-		my $remote = IO::Socket::INET->new(
-		                Proto   => 'tcp',       		# protocol
-		                PeerAddr=> "$serverAddress", 	# Address of server
-		                PeerPort=> "$portNumber"      	# port of server typ. 43124..up
-		                ) or (ServerErrorReport() && return);
 		
-		print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n\n";
-		close $remote;
-		Output("FORCEEXIT sent to $serverAddress:$portNumber\n");
-		SetServerPortIsRunning($portNumber, 0);
+		if (PortIsForWEBSOCKServer($portNumber))
+			{
+			WebSocketSend('FORCEEXIT');
+			Output("FORCEEXIT sent to $serverAddress:$portNumber\n");
+			SetServerPortIsRunning($portNumber, 0);
+			}
+		else
+			{
+			my $remote = IO::Socket::INET->new(
+			                Proto   => 'tcp',       		# protocol
+			                PeerAddr=> "$serverAddress", 	# Address of server
+			                PeerPort=> "$portNumber"      	# port of server typ. 43124..up
+			                ) or (ServerErrorReport() && return);
+			
+			print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n\n";
+			close $remote;
+			Output("FORCEEXIT sent to $serverAddress:$portNumber\n");
+			SetServerPortIsRunning($portNumber, 0);
+			}		
 		}
 	else
 		{
@@ -818,6 +882,8 @@ sub ForceStopServer {
 # TODO currently there is no way to send a signal to a top level servers such as Search without
 # also sending the signal to its associated second level servers (Viewer Opener Editor Linker).
 # This is inefficient, but a server that doesn't want a signal can just ignore it.
+#
+# Note WEBSOCKET servers are skipped, they only talk through ws:// connections, not http://.
 sub BroadcastSignal {
 	my ($obj, $formH, $peeraddress) = @_;
 	if (!defined($formH->{'signal'}))
@@ -898,7 +964,9 @@ sub BroadcastSignal {
 			my $port = $BackgroundCommandPorts[$i];
 			# Append short name of server to all signals going out.
 			my $shortName = $ShortBackgroundServerNameForPort{$port};
-			if (!ShortServerNameIsUndergoingMaintenance($shortName) && !defined($portSignalled{$port}))
+			if (   !ShortServerNameIsUndergoingMaintenance($shortName)
+				&& !defined($portSignalled{$port})
+				&& !PortIsForWEBSOCKServer($port) )
 				{
 				$portSignalled{$port} = 1;
 				my $message = $msg;
@@ -913,7 +981,9 @@ sub BroadcastSignal {
 		my $port = $PortForShortBackgroundServerName{$name};
 		# Append short name of server to all signals going out.
 		my $shortName = $name;
-		if (!ShortServerNameIsUndergoingMaintenance($shortName) && !defined($portSignalled{$port}))
+		if (   !ShortServerNameIsUndergoingMaintenance($shortName)
+			&& !defined($portSignalled{$port})
+			&& !PortIsForWEBSOCKServer($port) )
 			{
 			$portSignalled{$port} = 1;
 			my $message = $msg;
@@ -990,30 +1060,7 @@ sub ReceiveInfo {
 	
 	if ($info eq 'serverUp')
 		{
-		if ($DoingInitialStartup)
-			{
-			++$TotalServersStarted;
-			}
-		
-		if (defined($formH->{'port'}))
-			{
-			my $senderPort = $formH->{'port'};
-
-			# Announce specific server has started, short name and port.
-			my $srvr = (defined($ShortServerNameForPort{$senderPort})) ? $ShortServerNameForPort{$senderPort}: '';
-			if ($srvr eq '')
-				{
-				$srvr = (defined($ShortBackgroundServerNameForPort{$senderPort})) ? 
-						$ShortBackgroundServerNameForPort{$senderPort}: '(PORT NOT RECOGNISED)';
-				}
-			Output("$srvr server has started on port $senderPort.\n");
-			if (!$kDISPLAYMESSAGES) # Avoid duplicated print.
-				{
-				print("$srvr server has started on port $senderPort.\n");
-				}
-				
-			SetServerOnPortIsStarting($senderPort, 0);
-			}
+		ReceiveServerUp($formH);
 		}
 	elsif ($info eq 'starting')
 		{
@@ -1031,7 +1078,9 @@ sub ReceiveInfo {
 	# All servers are started? Do some housekeeping. Mainly let all other servers know that
 	# all servers have fully started.
 	# If we are $TESTING, start the tests.
-	if ($DoingInitialStartup && $TotalServersStarted == $TotalServersWanted)
+	if (   $DoingInitialStartup
+		&& ($TotalServersStarted == $TotalServersWanted
+		|| ($WebSockIsUp && $TotalServersStarted == $TotalServersWanted - 1)) )
 		{
 		BroadcastAllServersUp();
 		SetAllServersToNotStarting();
@@ -1043,6 +1092,35 @@ sub ReceiveInfo {
 		}
 	
 	return("OK");
+	}
+
+sub ReceiveServerUp {
+	my ($formH) = @_;
+	
+	if ($DoingInitialStartup)
+		{
+		++$TotalServersStarted;
+		}
+	
+	if (defined($formH->{'port'}))
+		{
+		my $senderPort = $formH->{'port'};
+
+		# Announce specific server has started, short name and port.
+		my $srvr = (defined($ShortServerNameForPort{$senderPort})) ? $ShortServerNameForPort{$senderPort}: '';
+		if ($srvr eq '')
+			{
+			$srvr = (defined($ShortBackgroundServerNameForPort{$senderPort})) ? 
+					$ShortBackgroundServerNameForPort{$senderPort}: '(PORT NOT RECOGNISED)';
+			}
+		Output("$srvr server has started on port $senderPort.\n");
+		if (!$kDISPLAYMESSAGES) # Avoid duplicated print.
+			{
+			print("$srvr server has started on port $senderPort.\n");
+			}
+			
+		SetServerOnPortIsStarting($senderPort, 0);
+		}
 	}
 
 # Here we "dummy up" a broadcast with an allServersUp signal, which triggers ToDo server to do a
@@ -1102,16 +1180,26 @@ sub AnyCommandServerIsUp {
 sub ServerIsUp {
 	my ($serverAddress, $portNumber) = @_;
 	Output("Pinging $serverAddress:$portNumber\n");
-	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       		# protocol
-	                PeerAddr=> "$serverAddress", 	# Address of server
-	                PeerPort=> "$portNumber"      	# port of server 591 or 8008 are standard HTML variants
-	                ) or (return(0));
-	print $remote "GET /?req=id HTTP/1.1\n\n";
-	my $line = <$remote>;
-	chomp($line) if (defined($line));
-	close $remote;
-	my $result = (defined($line) && length($line) > 0);
+	my $result = 0;
+	
+	if (PortIsForWEBSOCKServer($portNumber))
+		{
+		$result = WebSocketSend('"hello ws are you there"');
+		}
+	else
+		{
+		my $remote = IO::Socket::INET->new(
+		                Proto   => 'tcp',       		# protocol
+		                PeerAddr=> "$serverAddress", 	# Address of server
+		                PeerPort=> "$portNumber"      	# port of server 591 or 8008 are standard HTML variants
+		                ) or (return(0));
+		print $remote "GET /?req=id HTTP/1.1\n\n";
+		my $line = <$remote>;
+		chomp($line) if (defined($line));
+		close $remote;
+		$result = (defined($line) && length($line) > 0);
+		}
+	
 	return($result);
 	}
 
@@ -1281,6 +1369,8 @@ sub ReportOnPageServers {
 	$$resultR .= "</tbody></table><div>&nbsp;</div>";
 	}
 
+# Report if servers are UP DEAD etc.
+# The WEBSOCKET server is just checked to see if it responds, so UP or DEAD.
 sub ReportOnBackgroundServers {
 	my ($resultR) = @_;
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
@@ -1322,11 +1412,23 @@ sub ReportOnBackgroundServers {
 					# business as usual, probably....
 					if (!ShortServerNameIsUndergoingMaintenance($name))
 						{
-						my $stillResponding = ServerIsUp($srvrAddr, $port);
-						if (!$stillResponding)
+						if (PortIsForWEBSOCKServer($port))
 							{
-							$serverStatus = 'NOT RESPONDING';
-							$statusImg = "<div class='led-red'></div>";
+							my $stillResponding = WebSocketSend("hello ws are you there");
+							if (!$stillResponding)
+								{
+								$serverStatus = 'DEAD';
+								$statusImg = "<div class='led-red'></div>";
+								}
+							}
+						else
+							{
+							my $stillResponding = ServerIsUp($srvrAddr, $port);
+							if (!$stillResponding)
+								{
+								$serverStatus = 'NOT RESPONDING';
+								$statusImg = "<div class='led-red'></div>";
+								}
 							}
 						}
 					}
@@ -1364,12 +1466,6 @@ sub AddSummaryLines {
 	$summary .= "<tr><td$cellAlign>Active servers</td><td>$numberOfSwarmServers</td></tr>";
 	$summary .= "<tr><td$cellAlign>Session start</td><td>$startTime</td></tr>";
 	$summary .= "</table>";
-
-#	$summary .= "<p>Main port: $mainPort</p>\n";
-#	$summary .= "<p>Swarm port range: $firstSwarmPort .. $lastSwarmPort</p>\n";
-#	$summary .= "<p>Remote app edit port: $remoteEditPort</p>\n";
-#	$summary .= "<p>$numberOfSwarmServers active swarm servers\n";
-	
 	
 	$$resultR = $summary . $$resultR;
 	}
@@ -1689,7 +1785,6 @@ sub HighestPortInUse {
 
 # This responds to serverswarm.pm#ServiceIsRunning(), which translates the
 # "yes"/"no" returned here into 1/0.
-# See intramine_boilerplate.pl#ReportOnSomeServers() for an example.
 sub ServiceIsRunning {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'no';
@@ -1724,7 +1819,30 @@ sub ServiceIsRunning {
 	return($result);
 	}
 
-	
+# A couple of helpers for WEBSOCKET servers.
+sub ShortNameIsForWEBSOCKServer {
+	my ($shortName) = @_;
+	my $result = defined($IsWEBSOCKETServer{$shortName}) ? 1 : 0;
+	return($result);
+	}
+
+sub PortIsForWEBSOCKServer {
+	my ($port) = @_;
+	my $result = defined($PortIsForWEBSOCKETServer{$port}) ? 1 : 0;
+	return($result);
+	}
+
+# Set host and port for the WebSocket client.
+sub InitWebSocketClient {
+	my $srvrAddr = ServerAddress();
+	foreach my $key (sort keys %PortIsForWEBSOCKETServer)
+		{
+		my $port = $key;
+		InitWebSocket($srvrAddr, $port);
+		last; # Start a client for the first one only.
+		}
+	}
+
 sub SetMainSelfTest {
 	my ($shouldTest) = @_;
 	$MainSelfTest = $shouldTest;
@@ -1733,7 +1851,7 @@ sub SetMainSelfTest {
 
 sub ShouldSelfTestMain {
 	return($MainSelfTest);
-}
+	}
 } ##### Swarm Server management
 
 
@@ -1813,6 +1931,26 @@ sub MainLoop {
 	AddAllListeners($readable);
 	
 	SetLastPeriodicCallTime();
+	
+	# Start WEBSOCKET client. Only for the first WEBSOCKET server seen (lowest port number,
+	# and that's the first one in the data/serverlist.txt list).
+	print("Starting WEBSOCKET client.\n");
+	
+	# TEST ONLY
+	#select(undef, undef, undef, 2);
+	#select(undef, undef, undef, 0.5); # Sleep for half a second.
+	InitWebSocketClient();
+	#####select(undef, undef, undef, 0.5);
+	$WebSockIsUp = WebSocketSend("ws first call from main");
+	# Warn if WS not up, might be someone upgrading.
+	if (!$WebSockIsUp)
+		{
+		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running.\n");
+		print("If you haven't done so, please copy the line for that server\n");
+		print("from the bottom of /_copy_and_rename_to_data/serverlist.txt\n");
+		print("to /data/serverlist.txt\n");
+		print("and then restart.\n");
+		}
 	
 	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
 	
@@ -2312,6 +2450,7 @@ sub ResultPage {
 		{
 		$$mimeTypeR = CVal('html');
 		}
+	
 	# CSS JS images. For testing purposes. Hey what's your favicon, got a favicon? No? THEN DIE!
 	# Image: try supplied path first, else look in our web server images folder
 	# eg |/C:/perlprogs/mine/images_for_web_server/110.gif|
