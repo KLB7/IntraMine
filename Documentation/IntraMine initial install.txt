@@ -92,6 +92,8 @@ cpan Text::MultiMarkdown
 cpan Win32::RunAsAdmin
 cpan Text::Unidecode
 cpan Selenium::Remote::Driver
+cpan Protocol::WebSocket::Client
+cpan Net::WebSocket::Server
 ---
 
 Optional modules

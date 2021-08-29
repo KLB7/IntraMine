@@ -129,6 +129,7 @@ let errorID = "errorMessage";
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="jquery-3.4.1.min.js"></script>

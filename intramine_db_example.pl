@@ -118,6 +118,7 @@ $RequestAction{'/test/'} = \&SelfTest;	# swarmserver.pm#SelfTest(), ask this ser
 # would look like this:
 ###$RequestAction{'req|addafruit'} = \&AddOrUpdateFruit; 	# req=addafruit: Create/Update a fruit entry
 ###$RequestAction{'req|getfruit'} = \&GetHTMLforDbContents;# req=getfruit: get the whole fruit table for display
+### and something similar to delete, maybe 'dumpfruit'.
 ##### END ADD AND MODIFY THIS
 
 #### COPY THIS line into your new server too, it does the network request/response handling.
@@ -210,6 +211,7 @@ let fruitTableId = '_FRUIT_TABLE_ID_';
 Here it's needed in spinner.js for the value of "SPECIAL_INDEX_NAME_HTML". -->
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="db_example.js"></script>

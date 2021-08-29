@@ -28,8 +28,8 @@ function addAutoLinks() {
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
 
 	// Go past the window bottom, sometimes linkage removes so much text
-	// that fresh lines come into view.
-	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 1.5);
+	// that fresh lines come into view. And this makes scrolling smoother.
+	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 2.1);
 
 	if (!allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum))
 		{

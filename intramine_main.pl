@@ -71,15 +71,14 @@
 # bats/TEST_INTRAMINE.bat.
 
 # Syntax check:
-# perl -c C:\perlprogs\mine\intramine_main.pl
+# perl -c C:\perlprogs\IntraMine\intramine_main.pl
 # Command line (see bats/START_INTRAMINE.bat for a handier way to run):
-# perl C:\perlprogs\mine\intramine_main.pl
+# perl C:\perlprogs\IntraMine\intramine_main.pl
 
 use strict;
 use warnings;
 use utf8;
 use Carp;
-use warnings;
 use URI::Escape;
 use FileHandle;
 use IO::Socket;
@@ -404,6 +403,7 @@ my @BackgroundCommandLineNames;
 # For WEBSOCKET servers (BACKGROUND servers that communicate using WebSockets only).
 my %PortIsForWEBSOCKETServer;		# $PortIsForWEBSOCKETServer{'43128'} = 1
 my %IsWEBSOCKETServer;				# $IsWEBSOCKETServer{$shortServerName} = 1
+my $PrimaryWEBSOCKETPort;			# See WebSocketServerPort() etc below
 
 # For redirect based on short server name:
 # Eg
@@ -436,6 +436,7 @@ sub StartServerSwarm {
 	my ($startingPort) = @_;
 	$SwarmServerStartingPort = $startingPort;
 	my $currentPort = $startingPort;
+	my $webSocketPort = 0;
 	$TotalServersStarted = 0;
 	$DoingInitialStartup = 1;
 	SetMainSelfTest(0);
@@ -501,12 +502,25 @@ sub StartServerSwarm {
 				if (ShortNameIsForWEBSOCKServer($shortName))
 					{
 					$PortIsForWEBSOCKETServer{$currentPort} = 1;
+					$webSocketPort = $currentPort;
+					SetWebSocketServerPort($currentPort);
 					}
 			
 				++$currentPort;
 				} # if first $loop and WEBSOCKET, or second $loop
 			} # for BACKGROUND servers
 		} # two $loops
+	
+	# Revisit the command lines for all servers and put in " $webSocketPort" at end.
+	for (my $i = 0; $i < @ServerCommandLines; ++$i)
+		{
+		$ServerCommandLines[$i] .= " $webSocketPort";
+		}
+	for (my $i = 0; $i < @BackgroundCommandLines; ++$i)
+		{
+		$BackgroundCommandLines[$i] .= " $webSocketPort";
+		}
+	
 	
 	# Postpone 'persistent' (command) server starts if any are running.
 	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
@@ -591,13 +605,14 @@ sub LoadServerList {
 		my $webSocketLine = '1	WEBSOCKETS			WS			intramine_websockets.pl		WEBSOCKET';
 		LoadOneServer($webSocketLine, \$count, \$pageIndex, \%pageNameSeen);
 		
+		# Aug 2021 the SSE server has been dropped. Don't start it.
 		while ($line = <$fileH>)
 	    	{
 	        chomp($line);
 	        if (length($line) && $line !~ m!^\s*(#|$)! && $line !~ m!^0\s!) # skip blank lines and comments and zero Count
 	        	{
-	        	# Avoid loading the WS service twice.
-	        	if ($line !~ m!intramine_websockets\.pl!)
+	        	# Avoid loading the WS service twice. And avoid loading the SSE server always.
+	        	if ($line !~ m!intramine_websockets\.pl! && $line !~ m!intramine_SSE\.pl!)
 	        		{
 	        		LoadOneServer($line, \$count, \$pageIndex, \%pageNameSeen);
 	        		}
@@ -874,10 +889,6 @@ sub ForceStopServer {
 # Some signals imply that a server will be out of action carrying out maintenance for a while.
 # For these signals, if there are two or more instances of the server running we signal them
 # to carry out the maintenance one at a time, to avoid a total service outage.
-#
-# Signals also come through here from swarmserver.pm#BroadcastSSE(); for example, the ToDo page
-# sends signal=todochanged using BroadcastSSE(), and the signal is forwarded here to
-# the SSE server, which handles sending Server-Sent Events.
 #
 # TODO currently there is no way to send a signal to a top level servers such as Search without
 # also sending the signal to its associated second level servers (Viewer Opener Editor Linker).
@@ -1184,7 +1195,7 @@ sub ServerIsUp {
 	
 	if (PortIsForWEBSOCKServer($portNumber))
 		{
-		$result = WebSocketSend('"hello ws are you there"');
+		$result = WebSocketSend('Main hello WS are you there');
 		}
 	else
 		{
@@ -1414,7 +1425,7 @@ sub ReportOnBackgroundServers {
 						{
 						if (PortIsForWEBSOCKServer($port))
 							{
-							my $stillResponding = WebSocketSend("hello ws are you there");
+							my $stillResponding = WebSocketSend("Main hello WS are you there");
 							if (!$stillResponding)
 								{
 								$serverStatus = 'DEAD';
@@ -1436,7 +1447,7 @@ sub ReportOnBackgroundServers {
 			else
 				{
 				$serverStatus = 'DEAD';
-				$statusImg = "<img style='vertical-align:middle' src='square_red.jpg' width='15' height='15'>"; # red
+				#$statusImg = "<img style='vertical-align:middle' src='square_red.jpg' width='15' height='15'>"; # red
 				$statusImg = "<div class='led-red'></div>";
 				}
 			$$resultR .= "<tr><td>$cmdProper</td><td>$name</td><td><span class='$portHolderClass'>$port</span></td><td><div class='divAlignCenter'>$statusImg<div class='divAlignCenter'>&nbsp;$serverStatus</div></div></td></tr>\n"
@@ -1608,6 +1619,7 @@ sub AddOneServerBasedOnShortName {
 	my $pageName = $PageNameForShortServerName{$shortName};
 	my $pageIndex = $PageIndexForPageName{$pageName};
 	my $numServersForPage = @{$PageServerNames[$pageIndex]};
+	my $wsPort = WebSocketServerPort();
 	
 	for (my $srv = 0; $srv < $numServersForPage; ++$srv)
 		{
@@ -1621,7 +1633,7 @@ sub AddOneServerBasedOnShortName {
 				my $progamName = $PageServerNames[$pageIndex][$srv];
 				my $scriptFullPath = $0;
 				my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
-				my $cmdLine = "$scriptFullDir$progamName $pageName $shortName $port_listen $currentPort";
+				my $cmdLine = "$scriptFullDir$progamName $pageName $shortName $port_listen $currentPort $wsPort";
 				push @ServerCommandLines, $cmdLine;
 				push @ServerCommandProgramNames, $progamName;
 				push @ServerCommandPorts, $currentPort;
@@ -1832,8 +1844,21 @@ sub PortIsForWEBSOCKServer {
 	return($result);
 	}
 
+sub SetWebSocketServerPort {
+	my ($port) = @_;
+	$PrimaryWEBSOCKETPort = $port;
+	}
+
+sub WebSocketServerPort {
+	return($PrimaryWEBSOCKETPort);
+	}
+
 # Set host and port for the WebSocket client.
 sub InitWebSocketClient {
+	
+	# TEST ONLY OUT
+	#return;
+	
 	my $srvrAddr = ServerAddress();
 	foreach my $key (sort keys %PortIsForWEBSOCKETServer)
 		{
@@ -1921,6 +1946,7 @@ sub MainLoop {
 	my ($port_listen) = @_;
 	
 	my $maintenanceTimeoutSeconds = 60;
+	
 	$Date = DateYYYYMMDD();
 	
 	# Handle http://host:port/Viewer/?req=redirect etc.
@@ -1934,22 +1960,16 @@ sub MainLoop {
 	
 	# Start WEBSOCKET client. Only for the first WEBSOCKET server seen (lowest port number,
 	# and that's the first one in the data/serverlist.txt list).
-	print("Starting WEBSOCKET client.\n");
-	
-	# TEST ONLY
-	#select(undef, undef, undef, 2);
-	#select(undef, undef, undef, 0.5); # Sleep for half a second.
+	#print("Main starting WEBSOCKET client.\n");
 	InitWebSocketClient();
-	#####select(undef, undef, undef, 0.5);
-	$WebSockIsUp = WebSocketSend("ws first call from main");
+	
+	$WebSockIsUp = WebSocketSend("Main first call to WS");
+	
 	# Warn if WS not up, might be someone upgrading.
 	if (!$WebSockIsUp)
 		{
-		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running.\n");
-		print("If you haven't done so, please copy the line for that server\n");
-		print("from the bottom of /_copy_and_rename_to_data/serverlist.txt\n");
-		print("to /data/serverlist.txt\n");
-		print("and then restart.\n");
+		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
+		print("No likely cause for that, sorry.\n");
 		}
 	
 	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
@@ -2184,7 +2204,7 @@ sub AddAllListeners {
 	my ($readable) = @_;
 
 	my $listener = 
-  		IO::Socket::INET->new( LocalPort => $port_listen, Listen => 5, ReuseAddr => 1 );
+  		IO::Socket::INET->new( LocalPort => $port_listen, Listen => SOMAXCONN, ReuseAddr => 1 );
 	die "Can't create socket on port $port_listen for listening: $!" unless $listener;
 	$readable->add($listener);          # Add the listener to it
 	push @listenerArray, $listener;
@@ -2203,7 +2223,7 @@ sub AddAllListeners {
 	for (my $port = $firstFreePort; $port < $firstFreePort + $numExtraPortsToMonitor; ++$port)
 		{
 		my $listener = 
-	  		IO::Socket::INET->new( LocalPort => $port, Listen => 10, ReuseAddr => 1 );
+	  		IO::Socket::INET->new( LocalPort => $port, Listen => 20, ReuseAddr => 1 );
 		die "Can't create socket on port $port for listening: $!" unless $listener;
 		$readable->add($listener);          # Add the listener to it
 		push @listenerArray, $listener;
@@ -2536,6 +2556,23 @@ sub RUThere {
 # Called once a minute or so, check for important changes such as change of date.
 sub DoMaintenance {
 	HandleDateChange();
+	
+	# Call WebSocketReceiveAllMessages() periodically (currently one a minute)
+	# to "drain" all pending WebSockets messages.
+	#print("About to call WebSocketReceiveAllMessages\n");
+	my $numMessagesSeen = WebSocketReceiveAllMessages();
+	
+	
+	#
+	## TEST ONLY
+	#if ($numMessagesSeen)
+	#	{
+	#	print("MAIN saw $numMessagesSeen WebSockets messages.\n");
+	#	}
+	#else
+	#	{
+	#	print("zip\n");
+	#	}
 	}
 
 sub HandleDateChange {

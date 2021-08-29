@@ -755,6 +755,7 @@ sub CodeMirrorJS {
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 <script src="isW.js" ></script>
 <script src="cmViewerStart.js" ></script>
@@ -777,11 +778,13 @@ sub NonCodeMirrorJS {
 	my $jsFiles = <<'FINIS';
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 <script src="isW.js" ></script>
 <script src="mark.min.js" ></script>
 <script src="wordAtInsertionPt.js" ></script>
 <script src="LightRange.min.js" ></script>
+<script src="commonEnglishWords.js" ></script>
 <script src="viewerStart.js" ></script>
 <script src="autoLinks.js" ></script>
 <script src="showHideTOC.js" ></script>

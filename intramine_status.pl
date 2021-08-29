@@ -116,11 +116,12 @@ let portHolderClass = 'PORT_STATUS_HOLDER_CLASS';
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="status.js"></script>
+<script src="websockets.js"></script>
+<script src="statusEvents.js"></script>
 <script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
-<script src="status.js"></script>
 <script src="sortTable.js"></script>
-<script src="statusEvents.js"></script>
 </body></html>
 FINIS
 

@@ -1,0 +1,16 @@
+WS
+===========
+
+The WS server is a BACKGROUND service that provides WebSockets communication in IntraMine. There is no command line for it in data/serverlist.txt: instead, one instance of it is always started.
+
+The service itself, intramine_websockets.pl, is very small and does nothing more than provide a broadcast of any message received to all clients that are listening. These include all browser clients that show an IntraMine navigation bar, and all IntraMine servers (if the Perl program uses swarmserver.pm, it's an IntraMine server).
+
+If you'd like to add WebSockets communication to your own IntraMine server, see "Writing your own IntraMine server.txt" for the details.
+
+Why not Server-Sent Events?
+===========================
+IntraMine was using Server-Sent Events, but it turns out they can't handle a large number of users at once. Each browser (Chrome, Edge etc) will only handle about six connections per domain, with IntraMine counting as a single domain. WebSockets, by comparison, offer practically unlimited connections. Yes, it was a bit green of me to become enamoured of SSE, and I apologize for that.
+
+---
+contents.txt
+---

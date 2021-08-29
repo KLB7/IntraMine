@@ -140,7 +140,6 @@ _TOPNAV_
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
-<script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script>
 let thePort = '_THEPORT_';
@@ -164,8 +163,10 @@ if (typeof window.ontouchstart !== 'undefined')
 
 </script>
 <script src="todoGetPutData.js"></script>
+<script src="websockets.js"></script>
+<script src="todoFlash.js"></script>
 <script src="todo.js"></script>
-<script src="todoEvents.js"></script>
+<!-- obsolete <script src="todoEvents.js"></script> -->
 <script src="viewerLinks.js" ></script>
 </body></html>
 FINIS
@@ -277,9 +278,6 @@ sub GetData {
 
 		# TEST ONLY dump json string
 		#print("GetaData JSON string: |$result|\n");
-
-		# Make the Status light flash for this server.
-		ReportActivity($SHORTNAME);
 		}
 	return($result);
 	}
@@ -319,10 +317,16 @@ sub PutData {
 		$result = $MasterDateStamp;
 		# Let other servers know if overdue count has changed.
 		BroadcastOverdueCount($data);
+		
+		# SSE handling in IntraMine has been replaced by WebSockets.
+		# See todoGetPutData.js#putData() for the new approach.
 		# Let other ToDo clients know ToDo data has changed.
-		BroadcastSSE('todochanged', $SHORTNAME); # swarmserver.pm#BroadcastSSE()
+		#####BroadcastSSE('todochanged', $SHORTNAME); # swarmserver.pm#BroadcastSSE()
 		# Tell all web pages that ToDo has changed. Nav bar will flash.
-		BroadcastSSE('todoflash', $SHORTNAME);
+		#####BroadcastSSE('todoflash', $SHORTNAME);
+		
+		# Make the Status light flash for this server.
+		ReportActivity($SHORTNAME);
 		}
 	return($result);
 	}

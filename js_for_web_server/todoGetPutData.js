@@ -116,6 +116,12 @@ function putData(theData) {
 			{
 			// Success! Probably.
 			hideSpinner();
+			
+			// Trigger reload, and ToDo flash in the nav bar
+			// (see todoFlash.js).
+			wsSendMessage("todochanged");
+			wsSendMessage("todoflash");
+			
 			let responseTxt = request.responseText;
 			let errorMatch = /^FILE/.exec(responseTxt);
 			if (errorMatch === null)

@@ -54,7 +54,7 @@ sub ListenForWSConnections {
 	                if (   $msg =~ m!^(..)?FORCEEXIT(..)?$!
 	                	|| $msg =~ m!^(..)?EXITEXITEXIT(..)?$! )
 	                	{
-	                	print("BYE from $port_listen.\n");
+	                	print("WS EXIT bye!\n");
 	                	exit(0);
 	                	}
 	                else

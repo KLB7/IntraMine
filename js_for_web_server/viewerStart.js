@@ -243,6 +243,7 @@ function finishStartup() {
 	hideIt("search-button");
 	hideIt("small-tip");
 	positionViewItems();
+	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	reJump();
 }
 
@@ -551,25 +552,10 @@ function getSelectionText() {
 					}
 				}
 			}
-
-		// If it's a single word with a single trailing space, trim any trailing space.
-		// if (text !== '')
-		// 	{
-		// 	let numSpaces = (text.match(/\s/g) || []).length;
-		// 	if (numSpaces === 1)
-		// 		{
-		// 		let lastChar = text.substring(text.length - 1);
-		// 		if (lastChar === " " || lastChar === "\t")
-		// 			{
-		// 			text = text.substring(0, text.length - 1);
-		// 			}
-		// 		}
-		// 	}
-
 		}
 
-	// Avoid highlighting just one or two characters.
-	if (text.length <= 2)
+	// Avoid highlighting just one or two characters. Or a common English word (top 100);
+	if (text.length <= 2 || (text.length > 2 && isCommonEnglishWord(text)))
 		{
 		text = "";
 		}

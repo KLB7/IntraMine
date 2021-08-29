@@ -52,6 +52,7 @@ use common;
 use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
 use win_wide_filepaths;
+use intramine_websockets_client;
 
 my $QUICKDRIVELIST = 1; # Set to 0 for slower but more accurate list
 
@@ -147,7 +148,7 @@ sub LoadServerList {
 	        	my $serverProgramName = $fields[3];
 	        	my $specialType = (defined($fields[4])) ? $fields[4]: '';
 	        	# Skip BACKGROUND servers (they have no web pages, just lurk darkly).
-	        	if ($specialType ne 'BACKGROUND')
+	        	if ($specialType ne 'BACKGROUND' && $specialType ne 'WEBSOCKET')
 	        		{
 		        	if ($pageName ne $previousPageName && $pageName eq $shortServerName)
 		        		{
@@ -309,6 +310,11 @@ my $ActivityMonitorShortName;
 my %socketForClientId;
 my $readable; # sockets
 
+# WebSocket handling requires knowing the port that the WS server is running on.
+# This is supplied as the last argument on the command line for a server program.
+my $WebSocketPort;
+my $WebSockIsUp;
+
 # SSInitialize: call this at the start of every IntraMine server, page or background. Except
 # the Main server intramine_main.pl, of course. See any server program for an example.
 # Passing undef here as an arg means "not interested in the value."
@@ -324,6 +330,8 @@ sub SSInitialize {
 	$MainPort = $$serverPortR;
 	GrabParameter($listeningPortR);
 	$OurPort = $$listeningPortR;
+	
+	WebSocketPortInitialize();
 	
 	binmode(STDOUT, ":unix:utf8");
 	
@@ -341,6 +349,14 @@ sub GrabParameter {
 	if (defined($paramR))
 		{
 		$$paramR = $value;
+		}
+	}
+
+sub WebSocketPortInitialize {
+	GrabParameter(\$WebSocketPort);
+	if (!defined($WebSocketPort))
+		{
+		$WebSocketPort = 0;
 		}
 	}
 
@@ -493,16 +509,23 @@ sub MainLoop {
 	# Handle for configuration value requests from JavaScript.
 	# req=configvalueforjs&key='the_key'
 	$ReqActions{'req|configvalueforjs'} = \&ConfigValue;
+	
 
 	# Set up to listen for requests on $OurPort.
 	my $listener = 
-  		IO::Socket::INET->new( LocalPort => $OurPort, Listen => 10, ReuseAddr => 1 );
+  		IO::Socket::INET->new( LocalPort => $OurPort, Listen => SOMAXCONN, ReuseAddr => 1 );
 	die "Can't create socket for listening: $!" unless $listener;
 	Output("$OurShortName: Listening for connections on port $OurPort\n");
 	
 	$readable = IO::Select->new;     # Create a new IO::Select object
 	$readable->add($listener);          # Add the listener to it
 	InitServerAddress($listener);
+	
+	# Start up WebSocket communications.
+	InitWebSocketClient();
+	my $sname = OurShortName();
+	$WebSockIsUp = WebSocketSend("$sname checking in");
+	
 	
 	if (defined($callbackInit))
 		{
@@ -523,11 +546,34 @@ sub MainLoop {
 	_MainLoop($listener, $readable, \%InputLines, $timeout, $DoPeriodic);
 	}
 
-# Listen forever, until an "EXIT" request. This is the real MainLoop(), sorry for teasing.
+# Listen forever, until an "EXIT" request.
 # Handle GET, POST and OPTIONS requests. When things go well, RespondNormally()
 # handles the request and returns a response.
+# A timeout is forced if none is provided, to handle WbSockets maintenance
+# (drain all pending WebSockets messages to avoid congestion).
 sub _MainLoop {
 	my ($listener, $readable, $InputLinesH, $timeout, $DoPeriodic) = @_;
+	
+	# We want to force a periodic timeout if none is provided, in order to
+	# remove all pending WebSockets messages for this server. Otherwise, they
+	# can pile up and cause a delay when sending a message, because
+	# WebSocketSend() checks all pending messages when trying to
+	# confirm the message was sent.
+	# If a timeout is provided, we "piggyback" on it to call WebSocketReceiveAllMessages,
+	# and hope the timeout isn't so long that messages pile up too much.
+	# This is perhaps a work in progress. Any timeout longer that about one hour
+	# might cause problems. Putting out a warning message every time  the server
+	# starts might be considered gauche or crass or lazy - but I've decided
+	# to take the hit. How long is too long to wait? Dunno, but I'll
+	# go with 10 minutes for now.
+	if (!defined($timeout))
+		{
+		$timeout = 30; # seconds
+		}
+	elsif ($timeout > 600) # thirty minutes
+		{
+		print("Warning, from (swarmserver.pm _MainLoop): using a MainLooop() timeout of more than 10 minutes may cause a slowdown due to WebSockets congestion.\n");
+		}
 	
 	while(1)
 		{
@@ -539,7 +585,32 @@ sub _MainLoop {
 			{
 			if (!defined($ready))
 				{
-				$DoPeriodic->();
+				if (defined($DoPeriodic))
+					{
+					$DoPeriodic->();
+					}
+				
+				# Drain all pending WebSockets messages to avoid constipation.
+				# Limit to at most once every 29 seconds.
+				my $elapsed = time - GetLastPeriodicCallTime();
+				if ($elapsed >= 29.0)
+					{
+					my $sname = OurShortName();
+					###print("$sname WSRAM start.\n");
+					my $wsramStart = time;
+					my $numMessagesSeen = WebSocketReceiveAllMessages();
+					my $wsElapsed = time - $wsramStart;
+					if ($wsElapsed > 2.1)
+						{
+						my $ruffElapsed = substr($wsElapsed, 0, 6);
+						print("LONG DELAY |$ruffElapsed| s $sname WSRAM END $numMessagesSeen messages.\n");
+						}
+					else
+						{
+						###print("$sname WSRAM END $numMessagesSeen messages.\n");
+						}
+					}
+				
 				SetLastPeriodicCallTime();
 				}
 			else
@@ -635,7 +706,30 @@ sub _MainLoop {
 		# If we have fallen behind, force $DoPeriodic() to run.
 		if ($forcePeriodic)
 			{
-			$DoPeriodic->();
+			if (defined($DoPeriodic))
+				{
+				$DoPeriodic->();
+				}
+			# Drain all pending WebSockets messages to avoid constipation.
+			my $elapsed = time - GetLastPeriodicCallTime();
+			if ($elapsed >= 29.0)
+				{
+				my $sname = OurShortName();
+				###print("Forced $sname WSRAM start.\n");
+				my $wsramStart = time;
+				my $numMessagesSeen = WebSocketReceiveAllMessages();
+				my $wsElapsed = time - $wsramStart;
+				if ($wsElapsed > 2.1)
+					{
+					my $ruffElapsed = substr($wsElapsed, 0, 6);
+					print("LONG DELAY Forced |$ruffElapsed| s $sname WSRAM END $numMessagesSeen messages.\n");
+					}
+				else
+					{
+					###print("$sname WSRAM END $numMessagesSeen messages.\n");
+					}
+				}
+
 			SetLastPeriodicCallTime();
 			}
 		}	
@@ -703,7 +797,7 @@ sub RespondNormally {
 		Output("|$InputLinesH->{$sock}[$i]|");
 		}
 	Output("-----------------\n");
-	
+		
 	my $reportShortName = '';
 	my $isSSERequest = 0;
 	Respond(\$reportShortName, \$isSSERequest, $readable, $sock, \@{$InputLinesH->{$sock}},
@@ -718,6 +812,7 @@ sub RespondNormally {
 		@{$InputLinesH->{$sock}} = ();
 		delete $InputLinesH->{$sock};
 		}
+
 	ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
 	}
 
@@ -2089,6 +2184,12 @@ sub OurShortName {
 	return($OurShortName);
 }
 
+# Set host and port for the WebSocket client.
+sub InitWebSocketClient {
+	my $srvrAddr = ServerAddress();
+	InitWebSocket($srvrAddr, $WebSocketPort);
+	}
+
 # A server such as intramine_filewatcher.pl might want to send a message 'signal=reindex' etc to
 # all instances running of intramine_fileserver.pl: so it calls this sub, which forwards requestS
 # to the main redirect server intramine_main.pl, which in turn shotguns it out to ALL servers,
@@ -2120,23 +2221,33 @@ sub RequestBroadcast {
 	close $remote;
 	}
 
+# OBSOLETE. IntraMine is now using WebSockets instead.
+# See "Writing your own IntraMine server.txt" for the new approach.
+# ReportActivity() just below now uses WebSockets to report on activity.
+# 
 # Send event: $eventName to 'SSE' (Server-Sent Events) server, if it's running, with
 # Short name of active server.
 # Called eg to signal ToDo data has changed, see intramine_todolist.pl#PutData().
-# And by ReportActivity() below.
+# And by ReportActivity() below. (That's no longer true, WebSockets have entirely
+# replaced SSE in all of IntraMine.)
 sub BroadcastSSE {
 	my ($eventName, $activeShortName) = @_;
+	
 	RequestBroadcast("signal=$eventName&name=$ActivityMonitorShortName&activeserver=$activeShortName&port=$OurPort");
 	}
 
-# Send activity signal to 'SSE' (Server-Sent Events) server, if it's running, with Short Name of active server.
+# Send out an "activity" WebSockets message. This is picked up by statusEvents.js.
 sub ReportActivity {
-	my ($activeShortName) = @_;
-	BroadcastSSE('activity', $activeShortName);
-	#RequestBroadcast("signal=activity&name=$ActivityMonitorShortName&activeserver=$activeShortName&port=$OurPort");
+	my ($activeShortName) = @_; # ignored
+	
+	my $name = OurShortName();
+	my $port = OurListeningPort();
+	
+	WebSocketSend('activity ' . $name . ' ' . $port);
 	}
 
 
+# OBSOLETE.
 # For all browser clients registered to receive Server-Sent Events, send an activity notice
 # containing the Short Name of the active server. Default server with browser clients
 # wanting these is typically the 'Status' server.

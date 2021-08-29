@@ -1,4 +1,5 @@
-/** todoEvents.js: initiate and handle Server-Sent Events reporting ToDo data has changed.
+/** OBSOLETE. WebSockets are now used instead of SSE. See todoGetPutData.js#putData().
+ * todoEvents.js: initiate and handle Server-Sent Events reporting ToDo data has changed.
  * 
  */
 

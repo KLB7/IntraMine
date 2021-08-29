@@ -373,14 +373,20 @@ function startStopRestartSubmit(ssrText, port) {
 // Flash an "LED" when there's some IntraMine activity on a port.
 // See statusEvents.js#requestSSE().
 function showActivity(data) {
-	// Break data into name space port.
+	// TEST ONLY
+	console.log("showActivity data: |" + data + "|");
+	
+	// Break data into 'activity' space name space port.
 	let spacePos = data.indexOf(' ');
 	if (spacePos < 1)
 		{
 		return;
 		}
-	let serverName = data.substring(0, spacePos);
-	let port = data.substring(spacePos + 1);
+	let activityWord = data.substring(0, spacePos);
+	let nameAndPort = data.substring(spacePos + 1);
+	spacePos = nameAndPort.indexOf(' ');
+	let shortName = nameAndPort.substring(0, spacePos);
+	let port = nameAndPort.substring(spacePos + 1);
 	
 	// serverName is not needed at the moment.
 	flashOneServerAFewTimes(port);

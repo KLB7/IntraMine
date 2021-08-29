@@ -116,6 +116,7 @@ _LOADANDGO_
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 </body></html>
 FINIS

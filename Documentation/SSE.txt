@@ -1,5 +1,21 @@
 SSE
 ======
+
+**OBSOLETE**
+
+As of August 2021 IntraMine **no longer uses Server-Sent Events**. WebSockets are used instead. On or around line 614 of intramine_main.pl you'll find that the intramine_SSE.pl is specifically prevented from running. If you have written anything that depends on SSE you can re-enable the SSE server by:
+ - making a copy of intramine_SSE.pl, at the top of your IntraMine folder
+ - changing the copy's name to anything you like, such as intramine_MY_SSE.pl
+ - updating the corresponding program name in your data/serverlist.txt file
+ - and then of course restarting IntraMine.
+
+However, if you are using Server-Sent Events, I urge you to read the new "WS.txt" doc which describes how to use WebSockets in IntraMine.
+
+Server-Sent Events have been dropped because they can handle only six connections per browser per domain, and that's just not enough because all of IntraMine counts as a single domain.
+
+Original doc follows.
+
+
 SSE is a background service that serves as IntraMine's registration and distribution center for Server-Sent Events.
 
 Perl main files:

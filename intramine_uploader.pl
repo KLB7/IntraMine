@@ -89,6 +89,7 @@ _TOPNAV_
 <p>Leave &quot;Server Directory&quot; blank to use default directory (_DEFAULTUPLOADDIR_).</p>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
+<script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
 <script src="tooltip.js"></script>
 <script type="text/javascript">

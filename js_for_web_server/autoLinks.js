@@ -20,8 +20,8 @@ function addAutoLinks() {
 	let firstVisibleLineNum = firstVisibleLineNumber(el);
 	let lastVisibleLineNum = lastVisibleLineNumber(el);
 	// Go past the window bottom, sometimes linkage removes so much text
-	// that fresh lines come into view.
-	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 1.5);
+	// that fresh lines come into view. And this makes scrolling smoother.
+	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 2.1);
 
 	let rowIds = []; // track <tr id='rowId' fo reach line, in sequence.
 	getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds);

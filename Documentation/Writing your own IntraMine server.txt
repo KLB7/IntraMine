@@ -26,9 +26,9 @@ And of course you have the dozen or so other servers provided with IntraMine to 
 Getting started on your own server
 ==================================
 First, decide which of three different kinds of server it will be, and pick a name for it:
- - do you want your server to have an entry in the top navigation bar, and produce a web page when your user clicks on its entry there? That's a top level Page server. In its data/serverlist.txt entry, the Page name and Short name should be the same and unique.
- - will it be called by some user action in a top level server? That's a "second level" server. In serverlist, the Page name should be the name of the top level server it's associated with, and its Short name should be different from that, and unique.
- - will it just lurk behind the scenes as a single instance? That's a BACKGROUND server. In serverlist.txt, its Page name and Short name should be different and unique, with "BACKGROUND" appended in the Option column.
+ - do you want your server to have an entry in the top navigation bar, and produce a web page when your user clicks on its entry there? That's a top level Page server, like Search, Files etc. In its data/serverlist.txt entry, the Page name and Short name should be the same and unique.
+ - will it be called by some user action in a top level server? That's a "second level" server, like Viewer. In serverlist, the Page name should be the name of the top level server it's associated with, and its Short name should be different from that, and unique.
+ - will it just lurk behind the scenes as a single instance? That's a BACKGROUND server, like FILEWATCHER. In serverlist.txt, its Page name and Short name should be different and unique, with "BACKGROUND" appended in the Option column.
 
 Here are example entries from data/serverlist.txt for supplied servers:
 Top level Page server, showing the Search form and search hits:
@@ -73,13 +73,26 @@ Location		Whazzup
 80..101		Specific to the example server, these lines set up our little fruit database, you won't need them in your server.
 113..116	The **%RequestAction** hash keys hold strings that swarmserver.pm will look for when requests come in, and the values hold addresses of subroutines to call in response. %RequestAction has its own description below.
 116		"$RequestAction{'/test/'} = \&SelfTest;" says this server can run tests. See "Testing" below.
-124		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.
-150..248		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
-212	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
-213	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
-214	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
-245		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
-250..290		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
+125		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.
+151..249		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
+213	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
+214	websockets.js implements client-side WebSockets. Sending a message is simple, wsSendMessage("Your message here") will do the job. Receiving messages requires setting up a callback - see "IntraMine communications" for details.
+215	todoFlash.js sets up callbacks to handle WebSockets messages involving the ToDo server. In DBX, receiving a "todoflash" messages triggers a "flash" of the ToDo item in the navigation bar. Again, there's more about this below under "IntraMine communications".
+216	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
+217	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
+248		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
+253..293		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
+
+The main front-end file for DBX is **db_example.js**. Open that up and we'll take a quick tour of the good bits.
+
+TABLE db_example.js (DBX) lines
+Location		Whazzup
+47..80			The addFruitSubmit() function uses an XMLHttpRequest to POST a new fruit name and rating back to intramine_db_example.pl, where 
+ $RequestAction{"/$APINAME/"} = \&HandleFruitRequest;
+ recognizes that it's a POST and calls AddOrUpdateFruit(... $fruitName, $rating).
+85..115			refreshFruitDisplay() is very like addFruitSubmit(), but uses GET as the send method instead of POST.
+138..166		deleteOneFruit() similarly does an XMLHttpRequest using DELETE.
+169..174		When everything is loaded we start things off properly here by resizing the main content div, stopping the load spinner, registering a callback to use if the window is resized, and finally showing the main content with refreshFruitDisplay() - the same function is also called when a fruit is added or deleted.
 
 %RequestAction and subroutine arguments
 -----------------------------------
@@ -134,6 +147,101 @@ For example, the DBX server has its own config file, data/DBX_config.txt.
 The Short name is entered as the third entry on the server's line in data/serverlist.txt (and also data/serverlist_for_testing.txt if you have tests for the server). For example, the entry in serverlist.txt for IntraMine's Editor is
 1	Search				Editor		intramine_editor.pl
 and the Short name for it is "Editor".
+
+WebSockets
+==============
+IntraMine's WebSockets server (Short name 'WS', intramine_websockets.pl) provides a broadcast of any message received to all clients that are listening. These include all browser clients that show an IntraMine navigation bar, and all IntraMine servers (if the Perl program uses swarmserver.pm, it's an IntraMine server).
+
+**Note** because the WS server sends all received messages out to all servers and web clients, you should not respond to a received message by sending another message: otherwise you risk starting an endless loop, and as a friend of mine once put it, "You're in for the long wait."
+
+You'll find some examples of WebSockets usage in the next section.
+
+IntraMine communications
+=========================
+
+Summary
+----------
+For talking to a web client (browser web page generated by an IntraMine service), use WebSockets. For talking to an IntraMine service, use HTTP.
+
+Web client JavaScript can send and receive WebSockets messages.
+They can also receive WebSockets messages from your Perl program.
+However, Perl programs cannot receive WebSockets messages. That's because when it comes to event loops There Can Be Only One, and all of your IntraMine Perl servers are running an event loop for HTTP messages (swarmserver.pm#MainLoop()).
+So, if a web client needs to send a message back to an IntraMine server, use HTTP on both ends.
+And if an IntraMine server needs to send a message to another IntraMine server, use HTTP on both ends.
+That was a bit abstract, now we'll get down to specifics.
+
+1. Web client to web client: use websockets.js#wsSendMessage() to send, and register a callback with addCallback() to receive
+2. Perl server to web client: use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive
+3. Web client to Perl server: use AJAX on the JS side to send, and a callback in %RequestAction on the Perl side to receive
+4. Perl server to server: use swarmserver.pm#RequestBroadcast() to send, and a callback in %RequestAction on the Perl side to receive (see intramine_status.pl#54 for a 'signal' callback).
+
+1. Web client to web client
+---------------------------
+1. Use WebSockets in the JavaScript for both send and receive in your client. As an example we'll use the reporting of any change on any open ToDo page to all open IntraMine web pages: when any page with an IntraMine navigation bar receives the "todoflash" message it briefly changes the appearance of the ToDo nav bar item. And then you know there's something new to do:)
+
+1.1 Put <script src="websockets.js"></script> in the source of the pages that want to send or receive messages. A WebSockets connection to the WS server is automatically established. This is done for all non-BACKGROUND IntraMine servers, see for example intramine_todolist.pl#166.
+ Each server with a navigation bar in Intramine handles the "todoflash" message by also including
+ <script src="todoFlash.js"></script>
+ which handles the flashing and the registration of the flashNavBar() callback in a self-contained way. This is done for example by the DBX server at intramine_db_example.pl#215.
+1.2 Decide what the message will be. It can have variable content, but the left part of the message must be fixed. That's because the leftmost part of the message will serve as the "trigger" for your JavaScript callback function. For example, activity messages in IntraMine have the trigger "activity" and the actual message always begins with that, followed by details if wanted. To make your message unique across the whole system, you can start it off with the Short name of your server. For the ToDo flash, the trigger is "todoflash" and that's also the entire message.
+1.3 Write a JavaScript function to serve as your callback that receives the full message as its only argument. For todoflash the function is todoFlash.js#flashNavBar().
+1.4 Register a callback for the JS function that will handle receiving the message. Do this registration in a separate function called registerXXCallback (or Callbacks if more than one). The exact name doesn't matter, it should just be unique to avoid collisions with other "register" functions. In the function, call
+ addCallback("trigger", callback);
+ For the ToDo flash, todoFlash.js#registerToDoCallbacks() contains
+ addCallback("todoflash", flashNavBar);
+ (and another callback we're ignoring here).
+1.5 Add the line
+ window.addEventListener('wsinit', function (e) { registerXXCallback(); }, false);
+ somewhere, to call your registerXXCallback function at an appropriate time. The 'wsinit' custom event is defined in websockets.js. For the ToDo flash, the 'wsinit' listener is at the bottom of todoFlash.js, the same file that defines the flashNavBar() callback and contains the registration function registerToDoCallbacks(). The line is
+ window.addEventListener('wsinit', function (e) { registerToDoCallbacks(); }, false);
+1.6 And of course we want to send a message that triggers the callback. This is done with
+ wsSendMessage("the message");
+ somewhere in your JavaScript.
+ For ToDo flashing, the call is wsSendMessage("todochanged");, called in todoGetPutData.js#putData() when the changed ToDo data is being POSTed back to the ToDo server.
+
+2. Perl server to web client
+-----------------------------
+2. Use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive. We'll use the sending of "activity" messages from Perl servers to any open Status web page as an example. When a Status page receives an "activity" message for a Perl server, it flashes the "LED" for that server.
+ 
+ The web client callback part, and thinking up a message to send, and a trigger for it, are the same as for "1. Web client to web client" just above, so we'll focus here on the Perl side of things, where the WebSockets message is sent.
+ 
+2.1 Put "use swarmserver;" in your Perl server to be able to use WebSockets. Then put
+ WebSocketSend("the message");
+ wherever you need it.
+ The "activity" calls in IntraMine are done in swarmserver.pm#ReportActivity(), by
+ WebSocketSend('activity ' . $name . ' ' . $port);
+ where "$name" is the server's short name, and "$port" is the port it's running on.
+ But your server can call WebSocketSend() anywhere it wants.
+2.2 On the JavaScript side, you will need a callback to handle your message. See "1. Web client to web client" just above for the details on that.
+ The Status server sets up a callback to the JS function "activity()" in statusEvents.js, and registers the callback there too. It's just a four-line file. The function that handles the "activity" message for Status is status.js#showActivity(), which flashes the "LED" for the server on the Status page.
+ "activity" messages in IntraMine have the trigger "activity" and the actual message always begins with that, followed by details, for example "activity Viewer 43126".
+
+3. Web client to Perl server
+----------------------------
+3. You'll want HTTP at both ends. In the web client, your JavaScript will use an XMLHttpRequest() (also known as "AJAX"). And on the Perl end, you will use a callback sub registered as an entry in the "%RequestAction" hash for your server.
+
+
+
+
+---
+DROP THIS NEXT BIT, it's worked into the above.
+---
+
+An example always helps, no? The "ToDo flash" will do.
+
+All navigation bars on all IntraMine web client pages change the appearance of the "ToDo" item briefly whenever the ToDo page is changed on any open ToDo page. JavaScript for the ToDo page sends the message, and a callback on any web client page catches it and does the "flash" of the ToDo nav bar item.
+
+The message send is done by todoGetPutData.js#putData(), and it's simply wsSendMessage("todoflash");
+
+Receiving the message and handling it is slightly more complicated. To receive and handle a WebSockets message, JavaScript for the client page needs to: include websockets.js; have a function for handling the message; and register that function as a callback, to be invoked when a specific "trigger" string is received. All servers in IntraMine that show a navigation bar are set up to handle the "todoflash" message and flash the ToDo item in response. To allow this, each server with a nav bar includes
+---
+<script src="websockets.js"></script>
+<script src="todoFlash.js"></script>
+---
+in its page load. websockets.js self-initializes WebSockets communications when loaded, and todoFlash.js registers a callback for the "todoflash" message when it loads.
+
+ - 
+
 
 Testing
 =======
