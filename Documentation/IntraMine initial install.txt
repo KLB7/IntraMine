@@ -40,7 +40,7 @@ http://strawberryperl.com/
 ---
 Download the "Recommended version" from the pink box on the right. IntraMine has been tested with Strawberry Perl 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.
 Strawberry30.png
-(*the pink box for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested*)
+(*the pink box is for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested*)
 
 After downloading, run the msi file to install Strawberry Perl.
 
@@ -94,6 +94,7 @@ cpan Text::Unidecode
 cpan Selenium::Remote::Driver
 cpan Protocol::WebSocket::Client
 cpan Net::WebSocket::Server
+cpan URI::Encode
 ---
 
 Optional modules
@@ -104,7 +105,7 @@ If you want to try it you'll need to install Tk, which is a bit large. To instal
 ---
 cpan Tk::BrowseEntry
 ---
-You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hotdogging pointer casts and such.
+You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.
 
 Verifying module installation
 =============================

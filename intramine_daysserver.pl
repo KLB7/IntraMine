@@ -84,6 +84,9 @@ _TOPNAV_
 window.addEventListener("load", startCustomDateJS);
 hideSpinner();
 </script>
+<script>
+window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+</script>
 </body></html>
 FINIS
 

@@ -83,6 +83,10 @@ function addFruitSubmit(oFormElement) {
 // GET  http://n.n.n.n:81/DBX/fruit/,
 // after addFruitSubmit() above successfully adds a fruit with rating.
 function refreshFruitDisplay() {
+	
+	// Send "activity" message.
+	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	
 	let request = new XMLHttpRequest();
 	request.onload = function() {
 	if (request.status >= 200 && request.status < 400)
@@ -171,4 +175,7 @@ ready(turnOffTheLoadingSpinner);
 window.addEventListener("resize", doResize);
 
 // Show initial db contents in the fruit table.
-ready(refreshFruitDisplay);
+// "ready" is slightly premature, we need to wait for websockets.js to connect.
+// See websockets.js for the 'wsinit' event, sent after WebSockets are up and running.
+window.addEventListener('wsinit', function (e) { refreshFruitDisplay(); }, false);
+// ready(refreshFruitDisplay);

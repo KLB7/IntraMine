@@ -2056,6 +2056,7 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('mark.min.js');
 	$$contents_R .= InlineJavaScriptForFile('wordAtInsertionPt.js');
 	$$contents_R .= InlineJavaScriptForFile('LightRange.min.js');
+	$$contents_R .= InlineJavaScriptForFile('commonEnglishWords.js');
 	$$contents_R .= InlineJavaScriptForFile('glossstubs.js');
 	$$contents_R .= InlineJavaScriptForFile('viewerStart.js');
 	$$contents_R .= InlineJavaScriptForFile('showHideTOC.js');

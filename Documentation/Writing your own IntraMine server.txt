@@ -38,7 +38,7 @@ A second level server for Search, used to display read-only file views:
 A background server, monitoring file system changes:
 1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
 
-You'll probably find it easiest to use the following standard locations when saving files for your new server:
+You'll find it easiest to use the following standard locations when saving files for your new server:
 TABLE Standard file locations
 Type					Location
 Main Perl file			at the top level of your IntraMine folder
@@ -88,8 +88,8 @@ The main front-end file for DBX is **db_example.js**. Open that up and we'll tak
 TABLE db_example.js (DBX) lines
 Location		Whazzup
 47..80			The addFruitSubmit() function uses an XMLHttpRequest to POST a new fruit name and rating back to intramine_db_example.pl, where 
- $RequestAction{"/$APINAME/"} = \&HandleFruitRequest;
- recognizes that it's a POST and calls AddOrUpdateFruit(... $fruitName, $rating).
+ 	$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;
+ 	recognizes that it's a POST and calls AddOrUpdateFruit(... $fruitName, $rating).
 85..115			refreshFruitDisplay() is very like addFruitSubmit(), but uses GET as the send method instead of POST.
 138..166		deleteOneFruit() similarly does an XMLHttpRequest using DELETE.
 169..174		When everything is loaded we start things off properly here by resizing the main content div, stopping the load spinner, registering a callback to use if the window is resized, and finally showing the main content with refreshFruitDisplay() - the same function is also called when a fruit is added or deleted.
@@ -152,7 +152,7 @@ WebSockets
 ==============
 IntraMine's WebSockets server (Short name 'WS', intramine_websockets.pl) provides a broadcast of any message received to all clients that are listening. These include all browser clients that show an IntraMine navigation bar, and all IntraMine servers (if the Perl program uses swarmserver.pm, it's an IntraMine server).
 
-**Note** because the WS server sends all received messages out to all servers and web clients, you should not respond to a received message by sending another message: otherwise you risk starting an endless loop, and as a friend of mine once put it, "You're in for the long wait."
+WebSockets messages sent from web client to web client (using JavScript) are always very fast. WebSockets messages sent from a Perl server, however, can take a couple of seconds to go through, so they should be used sparingly.
 
 You'll find some examples of WebSockets usage in the next section.
 
@@ -170,20 +170,22 @@ So, if a web client needs to send a message back to an IntraMine server, use HTT
 And if an IntraMine server needs to send a message to another IntraMine server, use HTTP on both ends.
 That was a bit abstract, now we'll get down to specifics.
 
-1. Web client to web client: use websockets.js#wsSendMessage() to send, and register a callback with addCallback() to receive
-2. Perl server to web client: use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive
+1. Web client to web client: use websockets.js#wsSendMessage() to send, and register a callback with websockets.js#addCallback() to receive.
+2. Perl server to web client: use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive. Note however that this will typically tie your server up for a couple of seconds.
 3. Web client to Perl server: use AJAX on the JS side to send, and a callback in %RequestAction on the Perl side to receive
 4. Perl server to server: use swarmserver.pm#RequestBroadcast() to send, and a callback in %RequestAction on the Perl side to receive (see intramine_status.pl#54 for a 'signal' callback).
 
 1. Web client to web client
 ---------------------------
-1. Use WebSockets in the JavaScript for both send and receive in your client. As an example we'll use the reporting of any change on any open ToDo page to all open IntraMine web pages: when any page with an IntraMine navigation bar receives the "todoflash" message it briefly changes the appearance of the ToDo nav bar item. And then you know there's something new to do:)
+Modern browsers are very good at handling WebSockets, so you can pretty much send and receive as many messages as you want between web clients.
+
+1. Use WebSockets in the JavaScript for send or receive or both in your client. As an example we'll use the reporting of any change on any open ToDo page to all open IntraMine web pages: when any page with an IntraMine navigation bar receives the "todoflash" message it briefly changes the appearance of the ToDo nav bar item. And then you know there's something new to do:)
 
 1.1 Put <script src="websockets.js"></script> in the source of the pages that want to send or receive messages. A WebSockets connection to the WS server is automatically established. This is done for all non-BACKGROUND IntraMine servers, see for example intramine_todolist.pl#166.
  Each server with a navigation bar in Intramine handles the "todoflash" message by also including
  <script src="todoFlash.js"></script>
  which handles the flashing and the registration of the flashNavBar() callback in a self-contained way. This is done for example by the DBX server at intramine_db_example.pl#215.
-1.2 Decide what the message will be. It can have variable content, but the left part of the message must be fixed. That's because the leftmost part of the message will serve as the "trigger" for your JavaScript callback function. For example, activity messages in IntraMine have the trigger "activity" and the actual message always begins with that, followed by details if wanted. To make your message unique across the whole system, you can start it off with the Short name of your server. For the ToDo flash, the trigger is "todoflash" and that's also the entire message.
+1.2 Decide what the message will be. It can have variable content, but the left part of the message must be fixed. That's because the leftmost part of the message will serve as the "trigger" for your JavaScript callback function. For example, activity messages in IntraMine have the trigger "activity" and the actual message always begins with that, followed by details such as port etc. To make your message unique across the whole system, you can start it off with the Short name of your server. For the ToDo flash, the trigger is "todoflash" and that's also the entire message.
 1.3 Write a JavaScript function to serve as your callback that receives the full message as its only argument. For todoflash the function is todoFlash.js#flashNavBar().
 1.4 Register a callback for the JS function that will handle receiving the message. Do this registration in a separate function called registerXXCallback (or Callbacks if more than one). The exact name doesn't matter, it should just be unique to avoid collisions with other "register" functions. In the function, call
  addCallback("trigger", callback);
@@ -201,9 +203,11 @@ That was a bit abstract, now we'll get down to specifics.
 
 2. Perl server to web client
 -----------------------------
-2. Use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive. We'll use the sending of "activity" messages from Perl servers to any open Status web page as an example. When a Status page receives an "activity" message for a Perl server, it flashes the "LED" for that server.
+Perl servers can send WebSockets messages, but with the setup and teardown it can take a couple of seconds to send the message. So they are best used sparingly, and sent after your server has done the work that needs to be done quickly. IntraMine uses WebSockets in the Watcher server (intramine_filewatcher.pl) to notify any open Status page that a file has changed, by calling swarmserver.pm#ReportActivity(): this happens at the end of intramine_filewatcher.pl#IndexChangedFiles() after file lists have been updated and files re-indexed, etc. If you need this, here's how.
+
+2. Use intramine_websockets_client.pm#WebSocketSend() to send, and websockets.js#addCallback() to receive. We'll use the sending of an "activity" message from the Watcher server (intramine_filewatcher.pl) to any open Status web page as an example. When a Status page receives an "activity" message for a Perl server, it flashes the "LED" for that server.
  
- The web client callback part, and thinking up a message to send, and a trigger for it, are the same as for "1. Web client to web client" just above, so we'll focus here on the Perl side of things, where the WebSockets message is sent.
+ The web client callback part, and thinking up a message to send, and a trigger for it, are the same as for "1. Web client to web client" just above, so we'll focus here on the Perl side of things, where the WebSockets message is sent from.
  
 2.1 Put "use swarmserver;" in your Perl server to be able to use WebSockets. Then put
  WebSocketSend("the message");
@@ -212,40 +216,87 @@ That was a bit abstract, now we'll get down to specifics.
  WebSocketSend('activity ' . $name . ' ' . $port);
  where "$name" is the server's short name, and "$port" is the port it's running on.
  But your server can call WebSocketSend() anywhere it wants.
+ As mentioned, intramine_filewatcher.pl#IndexChangedFiles() calls ReportActivity() at the end, after all the work is done.
 2.2 On the JavaScript side, you will need a callback to handle your message. See "1. Web client to web client" just above for the details on that.
- The Status server sets up a callback to the JS function "activity()" in statusEvents.js, and registers the callback there too. It's just a four-line file. The function that handles the "activity" message for Status is status.js#showActivity(), which flashes the "LED" for the server on the Status page.
+ The Status server sets up a callback to the JS function "activity()" in statusEvents.js, and registers the callback there too. It's just a twelve-line file. The function that handles the "activity" message for Status is status.js#showActivity(), which flashes the "LED" for the server on the Status page.
  "activity" messages in IntraMine have the trigger "activity" and the actual message always begins with that, followed by details, for example "activity Viewer 43126".
 
 3. Web client to Perl server
 ----------------------------
-3. You'll want HTTP at both ends. In the web client, your JavaScript will use an XMLHttpRequest() (also known as "AJAX"). And on the Perl end, you will use a callback sub registered as an entry in the "%RequestAction" hash for your server.
+This is done using HTTP, with an XMLHttpRequest() request on the JavaScript side, and a callback on the Perl server side. If XMLHttpRequest() is new to you, you might enjoy reading "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest" first.
 
+3. You'll want HTTP at both ends. In the web client, your JavaScript will use an XMLHttpRequest(). And on the Perl end, you will use a callback sub registered as an entry in the "%RequestAction" hash for your server. As an example, we'll look at the DBX server (DataBase eXample, intramine_db_example.pl and db_example.js), which uses this approach to update the fruit database.
+3.1 Your approach can be RESTful or not, as you please. The DBX example is RESTful, with a single endpoint handling GET/POST/DELETE requests. Adding a fruit, for example is done with the HTTP request "http://n.n.n.n:81/DBX/fruit/fruitname/fruitrating/", sent with POST. If you read through db_example.js#refreshFruitDisplay(), db_example.js#addFruitSubmit(), db_example.js#deleteOneFruit(), you'll see how to send GET, POST, and DELETE requests from your client.
+ (For an example using "thisKey=thatValue" parameters in the request see the next section.)
+3.2 On the Perl server side, you'll need a sub to do the work, and an entry in the %RequestAction hash that triggers your sub.
+ In the DBX server, the single sub to handle CRUD requests for the fruit database is registered with
+ $RequestAction{"/fruit/"} = \&HandleFruitRequest;
+ where "fruit" is the same api endpoint name used on the JavaScript side to send XMLHttpRequests.
+3.3 Your sub to handle requests should take exactly the same parameters as intramine_db_example.pl#HandleFruitRequest(), namely
+ my ($obj, $formH, $peeraddress) = @_;
+ where
+  $obj holds the entire request. See HandleFruitRequest() for how to parse it
+  $formH holds the HTTP method as $formH->{'METHOD'} with possible values 'GET', 'POST', 'DELETE'. It also holds all "x=y" entries in the request, as $formH{'x'} == 'y'.
+  $peeraddress is the address of the sending client, not much needed.
+ 
+4. Perl server to server
+-------------------------
+RequestBroadcast("the message") in the sender and a %RequestAction handler in the receiver can be used for **one-way** message sending between IntraMiner servers.
 
+RequestBroadcast works best with "thisthing=thatvalue" argument pairs: your %RequestAction handler can use one of them as the "trigger", and one or more other pairs as data. Separate the pairs by '&' in the message.
 
+You can send the message selectively to specific servers using a "name=X" pair, where "X" is either the Short name of a server or a Page name. Short names and Page names for your servers can be found in data/serverlist.txt.
 
+Here's a complete example, a 'weather' report sent from some server to all servers with Page name or Short name 'Weather', as signalled by 'name=Weather':
+
+*In your server sending the message*:
 ---
-DROP THIS NEXT BIT, it's worked into the above.
+		# Send to the (Short name or Page name) 'Weather' server(s):
+		RequestBroadcast("name=Weather&trigger=weather&info_category=weather stats&details=北京 87 degrees, partly cloudy");
 ---
 
-An example always helps, no? The "ToDo flash" will do.
-
-All navigation bars on all IntraMine web client pages change the appearance of the "ToDo" item briefly whenever the ToDo page is changed on any open ToDo page. JavaScript for the ToDo page sends the message, and a callback on any web client page catches it and does the "flash" of the ToDo nav bar item.
-
-The message send is done by todoGetPutData.js#putData(), and it's simply wsSendMessage("todoflash");
-
-Receiving the message and handling it is slightly more complicated. To receive and handle a WebSockets message, JavaScript for the client page needs to: include websockets.js; have a function for handling the message; and register that function as a callback, to be invoked when a specific "trigger" string is received. All servers in IntraMine that show a navigation bar are set up to handle the "todoflash" message and flash the ToDo item in response. To allow this, each server with a nav bar includes
+*In your (Short name or Page name) Weather server receiving the message*:
 ---
-<script src="websockets.js"></script>
-<script src="todoFlash.js"></script>
----
-in its page load. websockets.js self-initializes WebSockets communications when loaded, and todoFlash.js registers a callback for the "todoflash" message when it loads.
+# Put this near the top, right after "my %RequestAction;":
+# (note the '|' instead of '=', it's needed for reasons lost in the mists of time)
+$RequestAction{'trigger|weather'} = \&HandleWeatherReport; # "trigger=weather"
 
- - 
+# The weather message handler:
+sub HandleWeatherReport {
+	my ($obj, $formH, $peeraddress) = @_; # REQUIRED ARGUMENTS
+	
+	if (defined($formH->{'trigger'}) && $formH->{'trigger'} eq 'weather')
+		{
+		if (defined($formH->{'info_category'}) && defined($formH->{'details'}) &&
+		$formH->{'info_category'} eq 'weather stats')
+			{
+			print("WEATHER MESSAGE: |$formH->{'details'}|\n");
+			}
+		else
+			{
+			print("NO MESSAGE!\n");
+			}
+		}
+	}
+---
+
+The "trigger" parameter doesn't have to be called "trigger", it can be anything you want. In IntraMine you'll find "signal" used in a few places, for example.
+
+If the %RequestAction in the above example was just
+$RequestAction{'trigger'} = \&HandleWeatherReport;
+(leaving out '|weather')
+then it would be called for any 'trigger=...' message, eg '&trigger=sport news'. In other workds, if you leave out the value for your trigger then any value will match.
+
+If we left out 'name=Weather' in the above example, the message would be sent to all IntraMine servers. No errors would be generated, servers that don't have a %RequestAction to handle a specific message will just ignore it.
+
+No direct reply is possible from the receiving server to the sending server, but you can use
+  RequestBroadcast("the reply");
+to respond, and a %RequestAction handler back on the sending server to handle the response. That's a bit stateless, so if you want to track which reply goes with which message you'll need to do a bit of extra work. For example, you could put a unique identifier '&message_id=37891' in each original message, and send it back in the reply, then have your sending server's request handler look for $formH->{'message_id'}. IntraMine doesn't currently need responses to messages so I don't have a full example, but I bet you can figure out the other details on your own:)
 
 
 Testing
 =======
-Please see "Testing.txt" for details on how to take advantage of IntraMine's approach to testing your own servers and supporting modules. For modules it's just a standard approach (use "Test::More" and "prove"). For servers there's a bit more help, to put up web pages and check what they contain.
+See "Testing.txt" for details on how to take advantage of IntraMine's approach to testing your own servers and supporting modules. For modules it's just a standard approach (use "Test::More" and "prove"). For servers there's a bit more help, to put up web pages and check what they contain.
 
 ---
 contents.txt

@@ -107,6 +107,9 @@ _TOPNAV_
 <script src="debounce.js"></script>
 <script type="text/javascript" src="editor.js" ></script>
 <script type="text/javascript" src="cmMobile.js" ></script>
+<script>
+window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+</script>
 </body></html>
 FINIS
 	

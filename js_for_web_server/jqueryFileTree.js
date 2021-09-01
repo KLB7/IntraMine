@@ -81,6 +81,8 @@ if(jQuery) (function($){
 				function bindTree(t) {
 					$(t).find('LI A, LI IMG').bind(o.folderEvent, function() {
 						if( $(this).parent().hasClass('directory') ) {
+							wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+
 							if( $(this).parent().hasClass('collapsed') ) {
 								// Expand
 								if( !o.multiFolder ) {

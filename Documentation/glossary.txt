@@ -82,6 +82,8 @@ gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files t
 
 You can convert one file, or a whole folder. Images can be of the "pop up on hover" sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.
 
-There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there's an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more. 
+There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there's an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more.
+
+WebSockets: like HTTP, but it allows two-way communications, and allows easy communications between web clients.
 
 CTRL+C: "tenor.gif".

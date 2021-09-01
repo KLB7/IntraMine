@@ -33,6 +33,7 @@ ToDo.txt
 Bp.txt
 DBX.txt
 FILEWATCHER.txt
+WS.txt
 SSE.txt
 Other services.txt
 

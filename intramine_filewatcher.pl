@@ -217,10 +217,7 @@ sub IndexChangedFiles {
 			return;
 			}
 		}
-	
-	# Make the Status light flash for this server.
-	ReportActivity($SHORTNAME);
-	
+		
 	if (!GetChangesFromWatcherLogs())
 		{
 		return;
@@ -299,6 +296,9 @@ sub IndexChangedFiles {
 		# Tickle the Status page, which will load the list of changed/new and deleted files.
 		RequestBroadcast('signal=filechange');
 		}
+	
+	# Make the Status light flash for this server.
+	ReportActivity($SHORTNAME);
 	}
 
 sub ReportMissingFileWatcherLog {

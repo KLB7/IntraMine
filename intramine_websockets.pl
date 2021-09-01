@@ -7,7 +7,7 @@
 # Expects to receive and send strings only, no binary stuff.
 
 # Solo start without IntraMine (change to your path and preferred port number):
-# perl C:\perlprogs\IntraMine\intramine_websockets.pl WEBSOCKETS WS 81 44000
+# perl C:\perlprogs\IntraMine\intramine_websockets.pl WEBSOCKETS WS 81 43140
 
 
 use strict;

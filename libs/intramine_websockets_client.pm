@@ -191,7 +191,7 @@ sub WebSocketSend {
 	# Since the IntraMine WebSockets server is just an echo server there are
 	# often other messages to ignore while looking for the $msg we sent.
 	
-	my $timeout = 10; # seconds
+	my $timeout = 3; # seconds
 	
 	# TEST ONLY
 	#print("Confirming |$msg|...\n");
@@ -236,8 +236,8 @@ sub WebSocketSend {
 	my $wsElapsed = time - $wsStart;
 	if ($wsElapsed > 2.1)
 		{
-		my $ruffElapsed = substr($wsElapsed, 0, 6);
-		print("LONG DELAY |$ruffElapsed| s WebSocketSend end.\n");
+		#my $ruffElapsed = substr($wsElapsed, 0, 6);
+		print("LONG DELAY |$wsElapsed| s WebSocketSend end.\n");
 		}
 	else
 		{
@@ -249,6 +249,11 @@ sub WebSocketSend {
 		{
 		print("WS message |$msg$| NOT CONFIRMED!\n");
 		}
+		
+	# This was a one-shot connection, to avoid message constipation
+	# (The WS server broadcasts all messages received to all connections.)
+	WebSocketDisconnect();
+	
 	return($result);
 	}
 
@@ -267,9 +272,9 @@ sub WebSocketSendNoConfirm {
 	return(1);
 	}
 
-# Not really used at the moment.
 sub WebSocketDisconnect {
 	$client->disconnect;
+	$isConnected = 0;
 	}
 
 # $isConnected is set above around line 77.

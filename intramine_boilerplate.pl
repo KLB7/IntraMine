@@ -108,6 +108,9 @@ _TOPNAV_
 <script src="todoFlash.js"></script>
 <script src="boilerplateDemo.js"></script>
 <script src="tooltip.js"></script>
+<script>
+window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+</script>
 </body></html>
 FINIS
 

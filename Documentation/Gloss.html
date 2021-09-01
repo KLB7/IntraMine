@@ -18,7 +18,7 @@ h1 {
 	float: none;
 }
 
-#help {display:none;}
+/*#help {display:none;}*/
 
 /* ipadfix out overflow: hidden; in width: 100%*/
 html, body {
@@ -221,6 +221,13 @@ html[xmlns] #nav {
 * html #nav {
 	height: 1%;
 }
+
+/* For changing "ToDo" in the Nav bar. See todoFlash.js. */
+#nav li > a.flashOn {
+	background-color: black;
+    color: lightgreen;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;
@@ -298,7 +305,7 @@ html[xmlns] #nav {
 
 #scrollContentsList { /* Replaces CLASS .jumplist */
 	float: left;
-	width: 23%;
+	width: 22.5%;
 	overflow: auto;
 	height: 100%;
 	padding: 4px;
@@ -800,7 +807,7 @@ div#indicatorPC {
     z-index: 99;
     top: 0px;
     /*left: 3px;*/
-    right: 0.75%;
+    right: 0.74%;
     /*opacity: .5;*/
     width: 9px;
     height: 20px;
@@ -913,6 +920,10 @@ and the entry name in a span with
 	height: 3px;
 	}
 
+/* For Gloss display of POD. */
+code {
+	background-color:#ECF6CE;
+}
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
@@ -1217,9 +1228,6 @@ paragraph (ie not the first paragraph in the item).
 	padding: 0;
 	}
 
-.codehere {
-	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
-}
 </style>
 <style>
 /* tooltip.css: for popup hints and images, see also tooltip.js. */
@@ -1315,13 +1323,13 @@ AABJRU5ErkJggg==
 <tr id='R13'><td n='13'></td><td></td></tr>
 <tr id='R14'><td n='14'></td><td>Regular markdown doesn't do links to files on local storage, and editors typically limit <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">automatic linking</a> to the files in your project. With <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a>, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments.</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
-<tr id='R16'><td n='16'></td><td>IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> fully implements <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a>, and almost all of Gloss's features are also available in standalone files produced by <a class='glossary' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more. </p>', this, event, '500px', false);">gloss2html.pl</a> (for standalone Gloss, see <a href="./gloss2html.pl for standalone Gloss files.html" target="_blank">"gloss2html.pl for standalone Gloss files.txt"</a>). </td></tr>
+<tr id='R16'><td n='16'></td><td>IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> fully implements <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a>, and almost all of Gloss's features are also available in standalone files produced by <a class='glossary' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more.</p>', this, event, '500px', false);">gloss2html.pl</a> (for standalone Gloss, see <a href="./gloss2html.pl for standalone Gloss files.html" target="_blank">"gloss2html.pl for standalone Gloss files.txt"</a>). </td></tr>
 <tr id='R17'><td n='17'></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td>Most of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> is also available in ToDo items - see <a href="./ToDo.html#Gloss markdown can be used in ToDo items" target="_blank">"ToDo.txt#Gloss markdown can be used in ToDo items"</a>. The main differences are that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt"), and that cell separation in tables is done with \t rather than an actual tab.</td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
 <tr id='R20'><td n='20'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use, as opposed to publishing to the world. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
-<tr id='R22'><td n='22'></td><td>Since IntraMine is a bit of a tech demo, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> processing is fully applied to all .txt files by the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>. A subset (including table of contents, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">automatic linking</a>, and <a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a>) is also applied to source files. And <a class='glossary term-seen' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more. </p>', this, event, '500px', false);">gloss2html.pl</a> generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.</td></tr>
+<tr id='R22'><td n='22'></td><td>Since IntraMine is a bit of a tech demo, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> processing is fully applied to all .txt files by the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>. A subset (including table of contents, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">automatic linking</a>, and <a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a>) is also applied to source files. And <a class='glossary term-seen' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more.</p>', this, event, '500px', false);">gloss2html.pl</a> generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.</td></tr>
 <tr id='R23'><td n='23'></td><td></td></tr>
 <tr id='R24'><td n='24'></td><td>I sense you want some bullet points. <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> does</td></tr>
 <tr id='R25'><td n='25'></td><td><p class="outdent-unordered">&nbsp;&bull; <a href="#Links">"Links</a>": autolinking to local and <a class='glossary' href="#" onmouseover="showhint('<p>NAS: Network Attached Storage. These are drives accessed over Ethernet, as opposed to locally attached storage which is connected directly to your PC via USB or SATA. IntraMine can index files on NAS, but cannot monitor them for changes, so static source files in a library are fine, but constantly changing source files in a project you&#8216;re working on would require regular manual re-indexing in order for IntraMine to show up-to-date search results.</p>', this, event, '500px', false);">NAS</a> source and text files, the web, internal headings, images, and links that jump directly to places in other documents (functions, classes, text file headings). Overhead per link: at most two double quotes, and a hash tag '#' between a file name and a heading in the file. File links are <a class='glossary' href="#" onmouseover="showhint('<p>Context aware: IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as &quot;main.cpp&quot; is used for many files, we need some way to pin down which &quot;main.cpp&quot; is meant. IntraMine does this in two ways: you can provide enough of a partial path leading up to the file, such as &quot;project51/src/main.pp&quot;, that only one indexed file matches that partial path; or, if you mean the main.cpp that&#8216;s &quot;closest&quot; to the file where you&#8216;ve mentioned it, then that&#8216;s the one IntraMine will pick by default, and no partial path is needed.</p><p>&quot;Closest&quot; uses the folder notion of distance, where a step up to a parent folder or a step down into a child folder counts as one step.</p><p>If you&#8216;re writing in project51/docs/Scrum notes Dec 1 2019.txt, for example, and you mention main.cpp, then IntraMine will pick project51/src/main.cpp if that is indeed the &quot;closest&quot; instance of main.cpp, at only two steps away (up from docs to project51, then down into src).</p><p>See also the &quot;Links&quot; section in Gloss.txt.</p><p>Alt: Context aware, context-aware</p>', this, event, '500px', false);">context aware</a>, minimizing the need to provide a <a class='glossary' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. </p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a>. Autolinking is applied to all source and text files by the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>.</p></td></tr>
@@ -1935,7 +1943,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R375'><td n='375'></td><td></td></tr>
 <tr id='R376'><td n='376'></td><td><h3 id="Emphasis">Emphasis</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R378'><td n='378'></td><td>Put single asterisks (*) before and after text to mark it as italic. Put two asterisks (**) both before and after text to mark it as bold. You get &#60;em> for italic and &#60;strong> for bold, which I hope is what you expected.</td></tr>
+<tr id='R378'><td n='378'></td><td>Put single asterisks (<em>) before and after text to mark it as italic. Put two asterisks (</em>*) both before and after text to mark it as bold. You get &#60;em> for italic and &#60;strong> for bold, which I hope is what you expected.</td></tr>
 <tr id='R379'><td n='379'></td><td></td></tr>
 <tr id='R380'><td n='380'></td><td>This could use a small example. So I'm going to cheat in the original text and use a Unicode heavy asterisk, which <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> won't convert. The second instance of the example line uses regular asterisks.</td></tr>
 <tr id='R381'><td n='381'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> does ✱italic emphasis✱ and ✱✱bold emphasis✱✱ like this.</td></tr>
@@ -1965,7 +1973,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R405'><th n='405'></th><th>Item                  </th><th>Why</th></tr></thead><tbody>
 <tr id='R406'><td n='406'></td><td># H1, ##H2, ###H3</td><td>In the source, the emphasis is the opposite of what's wanted, with H3 being more prominent than H1. <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> uses underlining instead.</td></tr>
 <tr id='R407'><td n='407'></td><td>~~strikethrough~~</td><td>I have never needed that, have you?</td></tr>
-<tr id='R408'><td n='408'></td><td>Definition list</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> provides a glossary for standalone Gloss files, as generated by <a class='glossary term-seen' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more. </p>', this, event, '500px', false);">gloss2html.pl</a>. A definition is available wherever a term is used, by stopping the cursor over the term.</td></tr>
+<tr id='R408'><td n='408'></td><td>Definition list</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> provides a glossary for standalone Gloss files, as generated by <a class='glossary term-seen' href="#" onmouseover="showhint('<p>gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.</p><p>You can convert one file, or a whole folder. Images can be of the &quot;pop up on hover&quot; sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.</p><p>There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there&#8216;s an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more.</p>', this, event, '500px', false);">gloss2html.pl</a>. A definition is available wherever a term is used, by stopping the cursor over the term.</td></tr>
 <tr id='R409'><td n='409'></td><td>Heading ID</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> links headings automatically: put the heading mentions in double quotes, for example <a href="#Overview">"Overview</a>".</td></tr>
 <tr id='R410'><td n='410'></td><td>Footnotes</td><td>Something for grander documents.</td></tr>
 <tr id='R411'><td n='411'></td><td>Code</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> lets you set off code with horizontal rules (--- or ===), which is typically all that's needed.</td></tr>
@@ -2972,6 +2980,241 @@ LightRange.prototype.saveSelection=function(){if(window.getSelection){var a=wind
 
 </script>
 <script type="text/javascript">
+// commonEnglishWords.js: top one hundred or so English words.
+// Wanted when deciding what to highlight, common words can take too long in a large file.
+// See viewerStart.js for use.
+
+let commonEnglishWords = new Object();
+
+
+function isCommonEnglishWord(wrd) {
+	return(wrd.toLowerCase() in commonEnglishWords);
+	}
+
+// This started out as roughly the 200 commonest words, but many have been commented out
+// because they're of some interest to developers.
+function loadCommonestEnglishWords() {
+	commonEnglishWords['I'] = 1;
+	commonEnglishWords['a'] = 1;
+	commonEnglishWords['about'] = 1;
+	commonEnglishWords['after'] = 1;
+	commonEnglishWords['again'] = 1;
+	commonEnglishWords['against'] = 1;
+	commonEnglishWords['all'] = 1;
+	commonEnglishWords['also'] = 1;
+	commonEnglishWords['an'] = 1;
+	commonEnglishWords['and'] = 1;
+	commonEnglishWords['another'] = 1;
+	commonEnglishWords['any'] = 1;
+	commonEnglishWords['around'] = 1;
+	commonEnglishWords['as'] = 1;
+	commonEnglishWords['ask'] = 1;
+	commonEnglishWords['at'] = 1;
+	commonEnglishWords['back'] = 1;
+	commonEnglishWords['be'] = 1;
+	commonEnglishWords['because'] = 1;
+	commonEnglishWords['become'] = 1;
+	commonEnglishWords['before'] = 1;
+	commonEnglishWords['begin'] = 1;
+	commonEnglishWords['between'] = 1;
+	commonEnglishWords['both'] = 1;
+	commonEnglishWords['but'] = 1;
+	commonEnglishWords['by'] = 1;
+	commonEnglishWords['call'] = 1;
+	commonEnglishWords['can'] = 1;
+	commonEnglishWords['change'] = 1;
+	commonEnglishWords['child'] = 1;
+	commonEnglishWords['come'] = 1;
+	commonEnglishWords['consider'] = 1;
+	commonEnglishWords['could'] = 1;
+	commonEnglishWords['course'] = 1;
+	commonEnglishWords['day'] = 1;
+	//commonEnglishWords['develop'] = 1;
+	commonEnglishWords['do'] = 1;
+	//commonEnglishWords['down'] = 1;
+	commonEnglishWords['during'] = 1;
+	commonEnglishWords['each'] = 1;
+	commonEnglishWords['early'] = 1;
+	commonEnglishWords['end'] = 1;
+	commonEnglishWords['even'] = 1;
+	commonEnglishWords['eye'] = 1;
+	commonEnglishWords['face'] = 1;
+	commonEnglishWords['fact'] = 1;
+	commonEnglishWords['feel'] = 1;
+	commonEnglishWords['few'] = 1;
+	//commonEnglishWords['find'] = 1;
+	//commonEnglishWords['first'] = 1;
+	commonEnglishWords['follow'] = 1;
+	commonEnglishWords['for'] = 1;
+	//commonEnglishWords['form'] = 1;
+	commonEnglishWords['from'] = 1;
+	//commonEnglishWords['general'] = 1;
+	commonEnglishWords['get'] = 1;
+	commonEnglishWords['give'] = 1;
+	commonEnglishWords['go'] = 1;
+	commonEnglishWords['good'] = 1;
+	commonEnglishWords['govern'] = 1;
+	commonEnglishWords['great'] = 1;
+	commonEnglishWords['group'] = 1;
+	commonEnglishWords['hand'] = 1;
+	commonEnglishWords['have'] = 1;
+	commonEnglishWords['he'] = 1;
+	//commonEnglishWords['head'] = 1;
+	commonEnglishWords['help'] = 1;
+	commonEnglishWords['her'] = 1;
+	commonEnglishWords['here'] = 1;
+	commonEnglishWords['high'] = 1;
+	commonEnglishWords['him'] = 1;
+	commonEnglishWords['his'] = 1;
+	commonEnglishWords['hold'] = 1;
+	commonEnglishWords['home'] = 1;
+	commonEnglishWords['house'] = 1;
+	commonEnglishWords['how'] = 1;
+	commonEnglishWords['however'] = 1;
+	commonEnglishWords['if'] = 1;
+	commonEnglishWords['in'] = 1;
+	//commonEnglishWords['increase'] = 1;
+	//commonEnglishWords['interest'] = 1;
+	//commonEnglishWords['into'] = 1;
+	commonEnglishWords['it'] = 1;
+	commonEnglishWords['its'] = 1;
+	commonEnglishWords['just'] = 1;
+	//commonEnglishWords['keep'] = 1;
+	commonEnglishWords['know'] = 1;
+	//commonEnglishWords['large'] = 1;
+	//commonEnglishWords['last'] = 1;
+	commonEnglishWords['late'] = 1;
+	//commonEnglishWords['lead'] = 1;
+	commonEnglishWords['leave'] = 1;
+	commonEnglishWords['let'] = 1;
+	commonEnglishWords['lets'] = 1;
+	commonEnglishWords['life'] = 1;
+	//commonEnglishWords['like'] = 1;
+	//commonEnglishWords['line'] = 1;
+	commonEnglishWords['little'] = 1;
+	//commonEnglishWords['long'] = 1;
+	commonEnglishWords['look'] = 1;
+	//commonEnglishWords['make'] = 1;
+	commonEnglishWords['man'] = 1;
+	//commonEnglishWords['many'] = 1;
+	commonEnglishWords['may'] = 1;
+	commonEnglishWords['me'] = 1;
+	//commonEnglishWords['mean'] = 1;
+	commonEnglishWords['might'] = 1;
+	commonEnglishWords['more'] = 1;
+	commonEnglishWords['most'] = 1;
+	//commonEnglishWords['move'] = 1;
+	commonEnglishWords['much'] = 1;
+	commonEnglishWords['must'] = 1;
+	commonEnglishWords['my'] = 1;
+	commonEnglishWords['nation'] = 1;
+	commonEnglishWords['need'] = 1;
+	commonEnglishWords['never'] = 1;
+	//commonEnglishWords['new'] = 1;
+	commonEnglishWords['no'] = 1;
+	commonEnglishWords['not'] = 1;
+	//commonEnglishWords['now'] = 1;
+	//commonEnglishWords['number'] = 1;
+	commonEnglishWords['of'] = 1;
+	//commonEnglishWords['off'] = 1;
+	commonEnglishWords['old'] = 1;
+	commonEnglishWords['on'] = 1;
+	//commonEnglishWords['one'] = 1;
+	commonEnglishWords['only'] = 1;
+	//commonEnglishWords['open'] = 1;
+	commonEnglishWords['or'] = 1;
+	commonEnglishWords['order'] = 1;
+	commonEnglishWords['other'] = 1;
+	//commonEnglishWords['our'] = 1;
+	//commonEnglishWords['out'] = 1;
+	commonEnglishWords['over'] = 1;
+	//commonEnglishWords['own'] = 1;
+	commonEnglishWords['part'] = 1;
+	commonEnglishWords['people'] = 1;
+	commonEnglishWords['person'] = 1;
+	commonEnglishWords['place'] = 1;
+	commonEnglishWords['plan'] = 1;
+	commonEnglishWords['play'] = 1;
+	//commonEnglishWords['point'] = 1;
+	//commonEnglishWords['possible'] = 1;
+	commonEnglishWords['present'] = 1;
+	//commonEnglishWords['problem'] = 1;
+	//commonEnglishWords['program'] = 1;
+	//commonEnglishWords['public'] = 1;
+	//commonEnglishWords['real'] = 1;
+	//commonEnglishWords['right'] = 1;
+	//commonEnglishWords['run'] = 1;
+	//commonEnglishWords['same'] = 1;
+	//commonEnglishWords['say'] = 1;
+	commonEnglishWords['school'] = 1;
+	commonEnglishWords['see'] = 1;
+	commonEnglishWords['seem'] = 1;
+	//commonEnglishWords['set'] = 1;
+	commonEnglishWords['she'] = 1;
+	//commonEnglishWords['should'] = 1;
+	commonEnglishWords['show'] = 1;
+	commonEnglishWords['since'] = 1;
+	//commonEnglishWords['small'] = 1;
+	commonEnglishWords['so'] = 1;
+	//commonEnglishWords['some'] = 1;
+	commonEnglishWords['stand'] = 1;
+	//commonEnglishWords['state'] = 1;
+	commonEnglishWords['still'] = 1;
+	commonEnglishWords['such'] = 1;
+	//commonEnglishWords['system'] = 1;
+	commonEnglishWords['take'] = 1;
+	//commonEnglishWords['tell'] = 1;
+	commonEnglishWords['than'] = 1;
+	commonEnglishWords['that'] = 1;
+	commonEnglishWords['the'] = 1;
+	commonEnglishWords['their'] = 1;
+	commonEnglishWords['them'] = 1;
+	commonEnglishWords['then'] = 1;
+	commonEnglishWords['there'] = 1;
+	commonEnglishWords['these'] = 1;
+	commonEnglishWords['they'] = 1;
+	commonEnglishWords['thing'] = 1;
+	commonEnglishWords['think'] = 1;
+	//commonEnglishWords['this'] = 1;
+	commonEnglishWords['those'] = 1;
+	commonEnglishWords['through'] = 1;
+	//commonEnglishWords['time'] = 1;
+	commonEnglishWords['to'] = 1;
+	commonEnglishWords['too'] = 1;
+	commonEnglishWords['turn'] = 1;
+	commonEnglishWords['two'] = 1;
+	commonEnglishWords['under'] = 1;
+	commonEnglishWords['up'] = 1;
+	commonEnglishWords['us'] = 1;
+	//commonEnglishWords['use'] = 1;
+	commonEnglishWords['very'] = 1;
+	commonEnglishWords['want'] = 1;
+	commonEnglishWords['way'] = 1;
+	commonEnglishWords['we'] = 1;
+	commonEnglishWords['well'] = 1;
+	commonEnglishWords['what'] = 1;
+	commonEnglishWords['when'] = 1;
+	commonEnglishWords['where'] = 1;
+	commonEnglishWords['which'] = 1;
+	//commonEnglishWords['while'] = 1;
+	commonEnglishWords['who'] = 1;
+	commonEnglishWords['why'] = 1;
+	commonEnglishWords['will'] = 1;
+	commonEnglishWords['with'] = 1;
+	commonEnglishWords['without'] = 1;
+	commonEnglishWords['word'] = 1;
+	commonEnglishWords['work'] = 1;
+	commonEnglishWords['world'] = 1;
+	commonEnglishWords['would'] = 1;
+	//commonEnglishWords['write'] = 1;
+	//commonEnglishWords['year'] = 1;
+	commonEnglishWords['you'] = 1;
+	commonEnglishWords['your'] = 1;
+	}
+
+
+</script>
+<script type="text/javascript">
 /* glossstubs.js: stubs for functions that gloss2html.pl doesn't need.
 */
 
@@ -3225,6 +3468,7 @@ function finishStartup() {
 	hideIt("search-button");
 	hideIt("small-tip");
 	positionViewItems();
+	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	reJump();
 }
 
@@ -3533,25 +3777,10 @@ function getSelectionText() {
 					}
 				}
 			}
-
-		// If it's a single word with a single trailing space, trim any trailing space.
-		// if (text !== '')
-		// 	{
-		// 	let numSpaces = (text.match(/\s/g) || []).length;
-		// 	if (numSpaces === 1)
-		// 		{
-		// 		let lastChar = text.substring(text.length - 1);
-		// 		if (lastChar === " " || lastChar === "\t")
-		// 			{
-		// 			text = text.substring(0, text.length - 1);
-		// 			}
-		// 		}
-		// 	}
-
 		}
 
-	// Avoid highlighting just one or two characters.
-	if (text.length <= 2)
+	// Avoid highlighting just one or two characters. Or a common English word (top 100);
+	if (text.length <= 2 || (text.length > 2 && isCommonEnglishWord(text)))
 		{
 		text = "";
 		}
@@ -3939,6 +4168,12 @@ function restoreRangeStartsAndEnds() {
 	let topNode = theSelection.currentSelectionElem;
 	
 	let drillDownNode = topNode;
+
+	if (typeof drillDownNode === 'undefined')
+		{
+		return;
+		}
+
 	for (let i = 0; i < theSelection.startNodeIndexes.length; ++i)
 		{
 		drillDownNode = drillDownNode.childNodes[theSelection.startNodeIndexes[i]];
@@ -4331,7 +4566,7 @@ function wantedTableForPosition(topChildren, enclosingRectTopOrBot, getTop) {
 			}
 		else
 			{
-			console.log("ERROR no tables in document!");
+			//console.log("ERROR no tables in document!");
 			}
 		}
 	
@@ -4721,6 +4956,84 @@ function setUpIndicator() {
 		return;
 		}
 	
+	recalculateIndicatorM();
+	// let rect = markerMainElement.getBoundingClientRect();
+	// let yTop = rect.top;
+	// let yBottom = rect.bottom;
+	// let textViewableHeight = yBottom - yTop;
+	// let mainScrolllHeight = markerMainElement.scrollHeight;
+	
+	// let viewWidth = rect.right - rect.left;
+	// let widthDifference = viewWidth - markerMainElement.clientWidth;
+	// let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	// let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	// let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	// let arrowMultiplier = 2;
+	// if (typeof window.ontouchstart !== 'undefined')
+	// 	{
+	// 	arrowHeight = 2;
+	// 	}
+	// else
+	// 	{
+	// 	if (haveVerticalScroll)
+	// 		{
+	// 		if (widthDifference > 6.0 && widthDifference < 30.0)
+	// 			{
+	// 			arrowHeight = widthDifference;
+	// 			}
+	// 		if (haveHorizontalScroll)
+	// 			{
+	// 			arrowMultiplier = 3;
+	// 			}
+	// 		}
+	// 	else
+	// 		{
+	// 		arrowHeight = 0;
+	// 		}
+	// 	}
+
+	// let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	// if (mainScrolllHeight > usableTextHeight)
+	// 	{
+	// 	let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
+		
+	// 	// Show the indicator only if thumb is too small to reflect actual page size.
+	// 	if (indicatorHeight <= 20)
+	// 		{
+	// 		indicatorM =
+	// 				(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+	
+	// 		if (indicatorHeight < 2.0)
+	// 			{
+	// 			indicatorHeight = 2.0;
+	// 			}
+	// 		indicatorElem.style.height = indicatorHeight + "px";
+	// 		}
+	// 	else
+	// 		{
+	// 		indicatorM = 0;
+	// 		}
+	// 	}
+	// else
+	// 	{
+	// 	indicatorM = 0;
+	// 	}
+
+	lazyScroll();
+	
+	setTimeout(function() {
+				hideIndicator();
+			}, 1000);
+}
+
+function recalculateIndicatorM() {
+	if (onMobile)
+		{
+		return;
+		}
+	
 	let rect = markerMainElement.getBoundingClientRect();
 	let yTop = rect.top;
 	let yBottom = rect.bottom;
@@ -4784,12 +5097,6 @@ function setUpIndicator() {
 		{
 		indicatorM = 0;
 		}
-
-	lazyScroll();
-	
-	setTimeout(function() {
-				hideIndicator();
-			}, 1000);
 }
 
 // Mobile, set indicatorElem.top
@@ -4826,6 +5133,9 @@ function scrollIndicator() {
 		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
 		indicatorElem.style.top = newThumbTop + "px";
 		}
+
+	// Sometimes the lines change, reset indicatorM.
+	recalculateIndicatorM();
 }
 
 // Add a scroll listener that hides the 'indicatorPC' box after a few seconds.

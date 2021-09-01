@@ -121,6 +121,9 @@ function onreadystatechangeHandler(evt) {
 // xmlhttprequest, send req=checkFile. If OK, or user confirms overwrite,
 // upload the file with sendXHRequest().
 function uploadTheFile(formData, uri) {
+	// Send an "activity" message.
+	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	
 	showSpinner();
 	let fileElem = document.getElementById('file-id');
 	let fakepath = fileElem.value;

@@ -350,7 +350,7 @@ sub FullFile {
 	$theBody =~ s!_HIGHLIGHTITEMS_!$highlightItems!;
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
 	my $togglePositionButton = '';
-	# Mardown Toggle won't work because ther are no line numbers.
+	# Mardown Toggle won't work because there are no line numbers.
 	if ($filePath !~ m!\.md$!i)
 		{
 		$togglePositionButton = PositionToggle();
@@ -451,6 +451,9 @@ let doubleClickTime = _DOUBLECLICKTIME_;
 <script src="debounce.js"></script>
 <script src="tooltip.js"></script>
 _JAVASCRIPT_
+<script>
+window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+</script>
 </body></html>
 FINIS
 

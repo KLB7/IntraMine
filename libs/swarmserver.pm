@@ -34,7 +34,6 @@ use warnings;
 use utf8;
 use Time::HiRes qw ( time );
 use HTML::Entities;
-use URI::Escape;
 use FileHandle;
 use IO::Socket;
 use IO::Select;
@@ -45,6 +44,7 @@ use File::Slurp;
 use Scalar::Util 'refaddr';
 use Encode;
 use URI::Escape;
+use URI::Encode qw(uri_encode uri_decode);
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 #use lib ".";
@@ -432,6 +432,7 @@ let shortServerName = '_SHORTSERVERNAME_';
 let sseServerShortName = 'SSE_SERVER_SHORT_NAME';
 // Added for talking to the WebSockets server
 let wsShortName = 'WS';
+let ourSSListeningPort = '_OURSSLISTENINGPORT_';
 </script>
 
 FINIS
@@ -442,6 +443,8 @@ FINIS
 	$result =~ s!_THEHOST_!$host!g;
 	$result =~ s!_SHORTSERVERNAME_!$OurShortName!;
 	$result =~ s!SSE_SERVER_SHORT_NAME!$sseServerShortName!;
+	my $port = OurListeningPort();
+	$result =~ s!_OURSSLISTENINGPORT_!$port!;
 
 	return($result);
 	}
@@ -553,28 +556,7 @@ sub MainLoop {
 # (drain all pending WebSockets messages to avoid congestion).
 sub _MainLoop {
 	my ($listener, $readable, $InputLinesH, $timeout, $DoPeriodic) = @_;
-	
-	# We want to force a periodic timeout if none is provided, in order to
-	# remove all pending WebSockets messages for this server. Otherwise, they
-	# can pile up and cause a delay when sending a message, because
-	# WebSocketSend() checks all pending messages when trying to
-	# confirm the message was sent.
-	# If a timeout is provided, we "piggyback" on it to call WebSocketReceiveAllMessages,
-	# and hope the timeout isn't so long that messages pile up too much.
-	# This is perhaps a work in progress. Any timeout longer that about one hour
-	# might cause problems. Putting out a warning message every time  the server
-	# starts might be considered gauche or crass or lazy - but I've decided
-	# to take the hit. How long is too long to wait? Dunno, but I'll
-	# go with 10 minutes for now.
-	if (!defined($timeout))
-		{
-		$timeout = 30; # seconds
-		}
-	elsif ($timeout > 600) # thirty minutes
-		{
-		print("Warning, from (swarmserver.pm _MainLoop): using a MainLooop() timeout of more than 10 minutes may cause a slowdown due to WebSockets congestion.\n");
-		}
-	
+		
 	while(1)
 		{
 		my ($ready) = IO::Select->select($readable, undef, undef, $timeout);
@@ -589,28 +571,7 @@ sub _MainLoop {
 					{
 					$DoPeriodic->();
 					}
-				
-				# Drain all pending WebSockets messages to avoid constipation.
-				# Limit to at most once every 29 seconds.
-				my $elapsed = time - GetLastPeriodicCallTime();
-				if ($elapsed >= 29.0)
-					{
-					my $sname = OurShortName();
-					###print("$sname WSRAM start.\n");
-					my $wsramStart = time;
-					my $numMessagesSeen = WebSocketReceiveAllMessages();
-					my $wsElapsed = time - $wsramStart;
-					if ($wsElapsed > 2.1)
-						{
-						my $ruffElapsed = substr($wsElapsed, 0, 6);
-						print("LONG DELAY |$ruffElapsed| s $sname WSRAM END $numMessagesSeen messages.\n");
-						}
-					else
-						{
-						###print("$sname WSRAM END $numMessagesSeen messages.\n");
-						}
-					}
-				
+								
 				SetLastPeriodicCallTime();
 				}
 			else
@@ -710,25 +671,6 @@ sub _MainLoop {
 				{
 				$DoPeriodic->();
 				}
-			# Drain all pending WebSockets messages to avoid constipation.
-			my $elapsed = time - GetLastPeriodicCallTime();
-			if ($elapsed >= 29.0)
-				{
-				my $sname = OurShortName();
-				###print("Forced $sname WSRAM start.\n");
-				my $wsramStart = time;
-				my $numMessagesSeen = WebSocketReceiveAllMessages();
-				my $wsElapsed = time - $wsramStart;
-				if ($wsElapsed > 2.1)
-					{
-					my $ruffElapsed = substr($wsElapsed, 0, 6);
-					print("LONG DELAY Forced |$ruffElapsed| s $sname WSRAM END $numMessagesSeen messages.\n");
-					}
-				else
-					{
-					###print("$sname WSRAM END $numMessagesSeen messages.\n");
-					}
-				}
 
 			SetLastPeriodicCallTime();
 			}
@@ -813,7 +755,8 @@ sub RespondNormally {
 		delete $InputLinesH->{$sock};
 		}
 
-	ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
+	# Activity reporting is now mostly done in the JS web client.
+	#ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
 	}
 
 sub RespondToUnexpectedClose {
@@ -840,7 +783,9 @@ sub RespondToUnexpectedClose {
 		@{$InputLinesH->{$sock}} = ();
 		delete $InputLinesH->{$sock};
 		}
-	ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
+		
+	# Activity reporting is now mostly done in the JS web client.
+	#ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
 	}
 
 # Send back ResultPage(), with a few headers. Also handle just a request for options.
@@ -2191,17 +2136,17 @@ sub InitWebSocketClient {
 	}
 
 # A server such as intramine_filewatcher.pl might want to send a message 'signal=reindex' etc to
-# all instances running of intramine_fileserver.pl: so it calls this sub, which forwards requestS
+# all instances running of intramine_linker.pl: so it calls this sub, which forwards requestS
 # to the main redirect server intramine_main.pl, which in turn shotguns it out to ALL servers,
 # page and background, including the one making the original request.
 # UNLESS 'name=Search' or 'name=FILEWATCHER' or some other specific page server
 # or background server name is provided, in which case the message just goes to those servers.
 # At present a signal with 'name=Search' will be sent to all Search page
-# servers, both main intramine_search.pl and sub servers intramine_fileserver.pl,
-# intramine_open_with.pl, and intramine_file_editor_ace.pl. 
+# servers, both main intramine_search.pl and sub servers intramine_viewer.pl, intramine_linker.pl,
+# intramine_open_with.pl, and intramine_editor.pl. 
 # Any server using this module is given a default responder DefaultBroadcastHandler()
 # which does nothing in response to a 'signal' message. Anyone wanting to respond to a 'signal'
-# message properly should put an "override" entry in %RequestAction, see eg intramine_fileserver.pl
+# message properly should put an "override" entry in %RequestAction, see eg intramine_linker.pl
 # ($RequestAction{'signal'} = \&HandleBroadcastRequest;);
 # This is fairly tolerant, so it will also send a 'ssinfo=up' back to the main server, as is done
 # near the top of MainLoop() here when a server is properly started.
@@ -2217,6 +2162,7 @@ sub RequestBroadcast {
 #	print "Connected to ", $remote->peerhost,
 #	      " on port: ", $remote->peerport, "\n";
 	
+	$msg = uri_encode($msg);
 	print $remote "GET /?$msg HTTP/1.1\n\n"; # Eg "GET /?signal=reindex&name=Search HTTP/1.1\n\n"
 	close $remote;
 	}
@@ -2237,6 +2183,8 @@ sub BroadcastSSE {
 	}
 
 # Send out an "activity" WebSockets message. This is picked up by statusEvents.js.
+# Note only FileWatcher calls this. Other activity reporting is done in web client JavaScript
+# using websockets.js#wsSendMessage().
 sub ReportActivity {
 	my ($activeShortName) = @_; # ignored
 	

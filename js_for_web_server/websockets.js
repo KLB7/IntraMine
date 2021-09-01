@@ -67,8 +67,6 @@ function wsInit() {
 
 // Connect to the WS (WebSockets) service, and handle open and message received events.
 function wsInitWithPort(wsPort) {
-	window.dispatchEvent(wsInitEvent);
-	
 	let wsURL = 'ws://' + theHost + ':' + wsPort;
 	ws = new WebSocket(wsURL);
 	
@@ -79,7 +77,13 @@ function wsInitWithPort(wsPort) {
 	ws.addEventListener('message', function (event) {
 		//console.log('Message from server ', event.data);
 		handleWsMessage(event.data);
-});
+	});
+	
+	setTimeout(fireInitEvent, 100);
+}
+
+function fireInitEvent() {
+	window.dispatchEvent(wsInitEvent);
 }
 
 function wsSendMessage(message) {

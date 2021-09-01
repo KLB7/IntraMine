@@ -90,6 +90,10 @@ ready(loadPageContent);
 function searchSubmit(oFormElement) {
 	// alert('searchSubmit!');
 	if (!oFormElement.action) { return; }
+	
+	// Send an "activity" message.
+	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	
 	let findThis = '';
 	e1 = document.getElementById('headingAboveContents');
 	e1.innerHTML = "&nbsp;";

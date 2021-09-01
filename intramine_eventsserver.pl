@@ -112,6 +112,9 @@ req=eventscontent which is sent by loadPageContent(). And loadPageContent() JS i
 loaded by 'req=eventsjs'. So goes the dance.
 -->
 <div id="eventscalendars">loading...</div>
+<script>
+window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+</script>
 </body></html>
 FINIS
 

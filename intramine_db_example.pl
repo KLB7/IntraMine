@@ -121,7 +121,7 @@ $RequestAction{'/test/'} = \&SelfTest;	# swarmserver.pm#SelfTest(), ask this ser
 ### and something similar to delete, maybe 'dumpfruit'.
 ##### END ADD AND MODIFY THIS
 
-#### COPY THIS line into your new server too, it does the network request/response handling.
+#### COPY THIS line into your new server too, it does the HTTP request/response handling.
 MainLoop(\%RequestAction);
 #### END COPY THIS line
 

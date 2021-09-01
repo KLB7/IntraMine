@@ -511,6 +511,8 @@ sub StartServerSwarm {
 			} # for BACKGROUND servers
 		} # two $loops
 	
+	# Reget $webSocketPort, in case we are testing (see up around line 605);
+	$webSocketPort = WebSocketServerPort();
 	# Revisit the command lines for all servers and put in " $webSocketPort" at end.
 	for (my $i = 0; $i < @ServerCommandLines; ++$i)
 		{
@@ -603,7 +605,20 @@ sub LoadServerList {
 		
 		# Load the WS service line first and always.
 		my $webSocketLine = '1	WEBSOCKETS			WS			intramine_websockets.pl		WEBSOCKET';
-		LoadOneServer($webSocketLine, \$count, \$pageIndex, \%pageNameSeen);
+		# FOR TESTING ONLY, start the WS service in a separate cmd window if 1.
+		my $runWSServerSeparately = 0;
+		if (!$runWSServerSeparately) # business as usual
+			{
+			LoadOneServer($webSocketLine, \$count, \$pageIndex, \%pageNameSeen);
+			}
+		else # Make sure the names and numbers are right!
+			{
+			$IsWEBSOCKETServer{'WS'} = 1;
+			SetWebSocketServerPort('43140');
+			$PortIsForWEBSOCKETServer{'43140'} = 1;
+			$ShortBackgroundServerNameForPort{'43140'} = 'WS';
+			$PortForShortBackgroundServerName{'WS'} = '43140';
+			}
 		
 		# Aug 2021 the SSE server has been dropped. Don't start it.
 		while ($line = <$fileH>)
@@ -1423,23 +1438,11 @@ sub ReportOnBackgroundServers {
 					# business as usual, probably....
 					if (!ShortServerNameIsUndergoingMaintenance($name))
 						{
-						if (PortIsForWEBSOCKServer($port))
+						my $stillResponding = ServerIsUp($srvrAddr, $port);
+						if (!$stillResponding)
 							{
-							my $stillResponding = WebSocketSend("Main hello WS are you there");
-							if (!$stillResponding)
-								{
-								$serverStatus = 'DEAD';
-								$statusImg = "<div class='led-red'></div>";
-								}
-							}
-						else
-							{
-							my $stillResponding = ServerIsUp($srvrAddr, $port);
-							if (!$stillResponding)
-								{
-								$serverStatus = 'NOT RESPONDING';
-								$statusImg = "<div class='led-red'></div>";
-								}
+							$serverStatus = 'NOT RESPONDING';
+							$statusImg = "<div class='led-red'></div>";
 							}
 						}
 					}

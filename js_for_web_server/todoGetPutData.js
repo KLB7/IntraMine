@@ -118,9 +118,10 @@ function putData(theData) {
 			hideSpinner();
 			
 			// Trigger reload, and ToDo flash in the nav bar
-			// (see todoFlash.js).
+			// (see todoFlash.js). Also send an "activity" message.
 			wsSendMessage("todochanged");
 			wsSendMessage("todoflash");
+			wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
 			
 			let responseTxt = request.responseText;
 			let errorMatch = /^FILE/.exec(responseTxt);

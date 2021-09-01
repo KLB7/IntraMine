@@ -3,7 +3,9 @@ SSE
 
 **OBSOLETE**
 
-As of August 2021 IntraMine **no longer uses Server-Sent Events**. WebSockets are used instead. On or around line 614 of intramine_main.pl you'll find that the intramine_SSE.pl is specifically prevented from running. If you have written anything that depends on SSE you can re-enable the SSE server by:
+As of August 2021 IntraMine **no longer uses Server-Sent Events**. WebSockets are used instead. On or around line 614 of intramine_main.pl you'll find that the intramine_SSE.pl is specifically prevented from running.
+
+If you have written anything that depends on SSE you can re-enable the SSE server by:
  - making a copy of intramine_SSE.pl, at the top of your IntraMine folder
  - changing the copy's name to anything you like, such as intramine_MY_SSE.pl
  - updating the corresponding program name in your data/serverlist.txt file

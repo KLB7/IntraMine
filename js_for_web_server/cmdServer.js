@@ -61,6 +61,9 @@ function runTheCommand(ank) {
 	let properHref = properHref2.replace(localRegex, '');
 	let otherArgs = additionalArgsForCommand(ank);
 	properHref += otherArgs;
+	
+	// Send "activity" message.
+	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 	let e1 = document.getElementById(runMessageDiv);
 	e1.innerHTML = 'Running...';
