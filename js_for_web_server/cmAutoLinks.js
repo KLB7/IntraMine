@@ -14,6 +14,7 @@ let linkOrLineNumForText = new Map();
 // Header mentions are done here in JS, for the others we call back to Perl.
 // We avoid doing the same line more than once, since views are read-only so the links don't change.
 function addAutoLinks() {
+	
 	let tocElement = document.getElementById("scrollContentsList");
 	if (tocElement === null)
 		{
@@ -26,12 +27,26 @@ function addAutoLinks() {
 	let rect = cm.getWrapperElement().getBoundingClientRect();
 	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
+	
 
 	// Go past the window bottom, sometimes linkage removes so much text
 	// that fresh lines come into view. And this makes scrolling smoother.
-	lastVisibleLineNum = Math.floor(lastVisibleLineNum * 2.1);
+	// Later: no it doesn't, not with large files. Possibly this has to do
+	// with CM not loading lines until they become visible.
+	/////lastVisibleLineNum = Math.floor(lastVisibleLineNum * 2.1);
+	if (lastVisibleLineNum > cm.doc.lastLine())
+		{
+		lastVisibleLineNum = cm.doc.lastLine();
+		}
+	
+	// Adjust line range to a block of consecutive lines not seen yet.
+	// Note it's possible all have been seen. In that case,
+	// firstVisibleLineNum will be equal to lastVisibleLineNum, and in lineSeen.
+	let firstLast = adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum);
+	firstVisibleLineNum = firstLast[0];
+	lastVisibleLineNum = firstLast[1];
 
-	if (!allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum))
+	if (!(firstVisibleLineNum in lineSeen))
 		{
 		let visibleText = cm.doc.getRange({
 			line : firstVisibleLineNum,
@@ -39,8 +54,6 @@ function addAutoLinks() {
 		}, {
 			line : lastVisibleLineNum
 		});
-
-		// TODO trim lines already seen, from start and end of visibleText.
 
 		// Mark up local file, image, and web links in visible text.
 		// console.log('Calling requestLinkMarkup');
@@ -122,7 +135,7 @@ function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVis
 										markupArrEntry["columnInText"], len,
 										markupArrEntry["linkPath"], markupArrEntry["linkType"],
 										markupArrEntry["textToMarkUp"]);
-								// Add position of last char to mark, for checking agains jsonResults below.
+								// Add position of last char to mark, for checking against jsonResults below.
 								markupArrEntry["lastColumnInText"] =
 										markupArrEntry["columnInText"] + len;
 								}
@@ -985,3 +998,39 @@ function allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum) {
 
 	return (true);
 }
+
+
+// Trim lines seen from beginning and end of first/last range.
+function adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum) {
+	let adjustedFirst = firstVisibleLineNum;
+	let adjustedLast = lastVisibleLineNum;
+	for (let lineNum = firstVisibleLineNum; lineNum <= lastVisibleLineNum; ++lineNum)
+		{
+		if (lineNum in lineSeen)
+			{
+			adjustedFirst = lineNum;
+			}
+		else
+			{
+			break;
+			}
+		}
+		
+	for (let lineNum = lastVisibleLineNum; lineNum >= firstVisibleLineNum; --lineNum)
+		{
+		if (lineNum in lineSeen)
+			{
+			if (lineNum >= adjustedFirst)
+				{
+				adjustedLast = lineNum;
+				}
+			}
+		else
+			{
+			break;
+			}
+		}
+		
+	return [adjustedFirst, adjustedLast];
+}
+

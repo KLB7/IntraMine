@@ -87,7 +87,8 @@ var todo = todo || {};
                                 data.items = data.items.filter(function(el){return(el != null);});
                              	insertDataItem(object, insertBeforeID);
                              	data.items = cleanAndSort(data.items, 'id', 1);
-                             	putData(JSON.stringify(data));
+                             	putData(data);
+								// was putData(JSON.stringify(data));
 
                                 // Hide Delete Area
                                 $("#" + defaults.deleteDiv).hide();
@@ -116,7 +117,7 @@ var todo = todo || {};
                     delete data.items[id];
                     data.items = data.items.filter(function(el){return(el != null);});
                     data.items = cleanAndSort(data.items, 'id', 1);
-                    putData(JSON.stringify(data));
+                    putData(data);
     				
                     // Hiding Delete Area
                     $("#" + defaults.deleteDiv).hide();
@@ -149,7 +150,7 @@ var todo = todo || {};
             		delete data.items[id];
             		data.items = data.items.filter(function(el){return(el != null);});
             		data.items = cleanAndSort(data.items, 'id', 1);
-            		putData(JSON.stringify(data));
+            		putData(data);
             		$("#" + defaults.deleteDiv).hide();
             		getToDoData();
             	},
@@ -253,7 +254,7 @@ var todo = todo || {};
         data.items[id] = tempData;
         //localStorage.setItem("todoData", JSON.stringify(data));
         data.items = cleanAndSort(data.items, 'id', 1);
-        putData(JSON.stringify(data));
+        putData(data);
 
         // Reset Form
         inputs[0].value = "";
@@ -327,7 +328,7 @@ var todo = todo || {};
         });
         // Reassign id's to be 0..length-1, same as array index. This removes duplicates
         // and fills in missing id's.
-        for (i = 0; i < clone.length; ++i)
+        for (let i = 0; i < clone.length; ++i)
         	{
         	clone[i].id = i;
         	}

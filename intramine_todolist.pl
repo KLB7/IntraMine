@@ -46,6 +46,8 @@ my $CSS_DIR = FullDirectoryPath('CSS_DIR');
 my $JS_DIR = FullDirectoryPath('JS_DIR');
 my $ToDoPath = FullDirectoryPath('TODODATAPATH');
 
+my $OverdueCount = GetOverdueCount(); # $OverdueCount is also set in PutData().
+
 # Master date stamp: time stamp for last save of TODO data.
 my $MasterDateStamp = '';
 
@@ -56,6 +58,8 @@ $RequestAction{'req|js'} = \&GetRequestedFile; 		# req=js
 #$RequestAction{'req|getputdatajs'} = \&GetPutDataJS; # req=getputdatajs - NOT USED
 $RequestAction{'req|getData'} = \&GetData; 			# req=getData
 $RequestAction{'req|getModDate'} = \&DataModDate; 	# req=getModDate
+$RequestAction{'req|overduecount'} = \&OverdueCount; 	# req=overduecount
+
 $RequestAction{'data'} = \&PutData; 				# data=the todo list
 $RequestAction{'signal'} = \&HandleToDoSignal; 		# signal = anything, but for here specifically signal=allServersUp
 #$RequestAction{'req|id'} = \&Identify; 			# req=id - now done by swarmserver.pm#ServerIdentify()
@@ -236,6 +240,12 @@ sub DataModDate {
 	return($MasterDateStamp);
 	}
 
+# Called by AJAX "req=overduecount".
+sub OverdueCount {
+	my ($obj, $formH, $peeraddress) = @_;
+	return($OverdueCount);
+	}
+
 # 'req|getData': return raw contents of the ToDo data file.
 sub GetData {
 	my ($obj, $formH, $peeraddress) = @_;
@@ -286,10 +296,8 @@ sub GetData {
 # Called by todoGetPutData.js#putData().
 # Set $MasterDateStamp, return that or 'FILE ERROR...'.
 # Save all data in $formH->{'data'} to the ToDo data file.
-# Send a Server-Sent Event to all running instances of this page to let them know
-# a reload is needed. In todoEvents.js#requestSSE() a listener is added for
-# "todochanged" SSE's, which calls todoGetPutData.js#getToDoData().
-# (Under the hood, the $formH->{'data'} value is picked up by swarmserver.pm#GrabArguments().)
+# BroadcastOverdueCount() to all running instances of this page to let them know
+# a reload is needed.
 sub PutData {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = '';
@@ -315,8 +323,11 @@ sub PutData {
 		# Set $MasterDateStamp.
 		$MasterDateStamp = GetFileModTimeWide($filePath) . '';
 		$result = $MasterDateStamp;
+		
+		$OverdueCount = GetOverdueCount($data);
+		
 		# Let other servers know if overdue count has changed.
-		BroadcastOverdueCount($data);
+		BroadcastOverdueCount();
 		
 		# SSE handling in IntraMine has been replaced by WebSockets.
 		# See todoGetPutData.js#putData() for the new approach.
@@ -340,56 +351,83 @@ sub PutData {
 #  - IntraMine starts
 #  - all swarm servers notify main when they have fully started
 #  - main sends 'signal=allServersUp' to all running servers, most of which ignore it
-#  - this server reacts here by calculating the number of overdue ToDo items.
-#  - the count is sent back to main, which then (re)broadcasts the count to all running page servers. In this case,
+#  - the overdue count is sent back to main, which then (re)broadcasts the count to all running page servers. In this case,
 #    all (main) page servers are interested, since the overdue count is shown in the top nav for each page
 #  - after that, any new or refreshed page will show the current overdue count in the nav bar.
-# And the overdue count is recalculated and rebroadcasted if we go past midnight into a new day.
+# And the overdue count is recalculated and rebroadcasted if we go past midnight into a new day. In this case, the overdue count might have changed as we ticked over past
+# midnight so we get a fresh overdue count and notify using WebSockets
+# because all open clients need to know immediately.
 sub HandleToDoSignal {
 	my ($obj, $formH, $peeraddress) = @_;
-	if (  defined($formH->{'signal'})
-	  && ($formH->{'signal'} eq 'allServersUp' || $formH->{'signal'} eq 'dayHasChanged') )
+	
+	if (defined($formH->{'signal'}))
 		{
-		BroadcastOverdueCount();
+		if ($formH->{'signal'} eq 'allServersUp')
+			{
+			BroadcastOverdueCount();
+			}
+		elsif ($formH->{'signal'} eq 'dayHasChanged')
+			{
+			$OverdueCount = GetOverdueCount();
+			WebSocketSend("todochanged" . $OverdueCount);
+			}
 		}
 
 	return('OK');	# Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.
 	}
 
 # Ask Main to broadcast an overdue signal to all Page servers.
-sub BroadcastOverdueCount {
-	my ($data) = @_;
-	my $overdueCount = GetOverdueCount($data);
-	
-	RequestBroadcast("signal=todoCount&count=$overdueCount&name=PageServers");
+sub BroadcastOverdueCount {	
+	RequestBroadcast("signal=todoCount&count=$OverdueCount&name=PageServers");
 	}
 
-# NOTE this is fragile, depends on format of /data/ToDo.txt.
+# NOTE this depends on format of /data/ToDo.txt.
 # Return number of pending ("code":"1") items that are due today or earlier.
+# $data should be raw data, read from $ToDoPath with ReadBinFileWide().
 sub GetOverdueCount {
 	my ($data) = @_;
 	my $overdueCount = 0;
 
 	if (!defined($data) || $data eq '')
 		{
-		return(0);
+		$data = ReadBinFileWide($ToDoPath);
+		if ($data eq '')
+			{
+			return(0);
+			}
 		}
 	
 	my $today = DateYYYYMMDD();
-	my $items = decode_json($data);
-	my $itemArr = $$items{'items'};
-	my $numItems = @$itemArr;
-	for (my $i = 0; $i < $numItems; ++$i)
+	my $p  = decode_json $data;
+	my $arr = $p->{'items'};
+	my $len = scalar(@{$arr});
+	for (my $i = 0; $i < $len; ++$i)
 		{
-		my $itemHashRef = $itemArr->[$i];
-		my $code = $$itemHashRef{'code'};
-		my $date = $$itemHashRef{'date'};
+		my $ih = $arr->[$i];
+		my $code = $ih->{"code"};
+		my $date = $ih->{"date"};
 		$date =~ s!/!!g;
 		if ($code == 1 && $date ne "" && $date <= $today)
 			{
 			++$overdueCount;
-			}
+			}		
 		}
+	
+	#my $items = decode_json($data);
+	#my $itemArr = $$items{'items'};
+	#my $numItems = @$itemArr;
+	#for (my $i = 0; $i < $numItems; ++$i)
+	#	{
+	#	my $itemHashRef = $itemArr->[$i];
+	#	my $code = $$itemHashRef{'code'};
+	#	my $date = $$itemHashRef{'date'};
+	#	$date =~ s!/!!g;
+	#	if ($code == 1 && $date ne "" && $date <= $today)
+	#		{
+	#		++$overdueCount;
+	#		}
+	#	}
 
 	return($overdueCount);
 	}
+

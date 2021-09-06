@@ -8,7 +8,17 @@
 // messages "hello" and "hello there" will trigger a callback for that trigger.
 // If you are concerned about accidentally triggering a callback in some other
 // server, put the Short name of your server at the start of the trigger.
-//
+// websockets.js is self-initializing,
+// <script src="websockets.js"></script>
+// is all you need to start the WebSockets connection.
+// For an example of registering a callback to respond to particular
+// "triggers" at the start of messages, see todoFlash.js.
+// To send a message: wsSendMessage("the message");
+// The custom event 'wsinit' is emitted to signal that
+// callbacks can be registered - see todoFlash.js at the bottom for an example.
+// wsSendMessage() will "sleep" for up to a second until the WebSocket
+// connection is established, in the case where a message is sent early
+// in the startup of a web page.
 
 let commandTable = new Object();
 let wsIsConnected = 0;
@@ -86,14 +96,28 @@ function fireInitEvent() {
 	window.dispatchEvent(wsInitEvent);
 }
 
-function wsSendMessage(message) {
+// "sleep" for ms milliseconds.
+function sleepMS(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Send a WebSockets message, without confirmation.
+// "sleep" a little if not connected yet.
+async function wsSendMessage(message) {
+	let i = 0;
+
+	while (!wsIsConnected && ++i < 10)
+		{
+		await sleepMS(100);
+		}
+		
 	if (wsIsConnected)
 		{
 		ws.send(message);
 		}
 	else
 		{
-		console.log("ERROR, WebSockets client is not connected!");
+		console.log("ERROR, WebSockets not connected! Could not send |" + message + "|");
 		}
 }
 

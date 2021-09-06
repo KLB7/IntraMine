@@ -106,8 +106,17 @@ function getModificationDateStamp() {
 
 // POST ToDo data with a "data" request, handled by
 // intramine_todolist.pl#PutData().
-function putData(theData) {
+function putData(rawData) {
 	showSpinner();
+	
+	// Send todochanged out to all WebSockets clients.
+	// The web clients will flash the ToDo item and show
+	// the count of overdue items N, as ToDo [N].
+	overdueCount = getOverDueCount(rawData);
+	wsSendMessage("todochanged " + overdueCount);
+		
+	let theData = JSON.stringify(rawData);
+	
 	let request = new XMLHttpRequest();
 	request.open('post', 'http://' + theHost + ':' + thePort + '/', true);
 
@@ -119,10 +128,9 @@ function putData(theData) {
 			
 			// Trigger reload, and ToDo flash in the nav bar
 			// (see todoFlash.js). Also send an "activity" message.
-			wsSendMessage("todochanged");
 			wsSendMessage("todoflash");
 			wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
-			
+
 			let responseTxt = request.responseText;
 			let errorMatch = /^FILE/.exec(responseTxt);
 			if (errorMatch === null)
@@ -157,6 +165,46 @@ function putData(theData) {
 	theData = encodeURIComponent(theData); // sic
 
 	request.send('data=' + theData);
+}
+
+function getOverDueCount(rawData) {
+	let count = 0;
+	let objArray = rawData.items;
+	if (!Array.isArray(objArray))
+		{
+		return(count);
+		}
+	
+	let now = new Date();
+	let today = YYYYMMDDforDate(now);
+	
+	for (let i = 0; i < objArray.length; ++i)
+		{
+		let date = objArray[i].date;
+		let code = objArray[i].code;
+		if (code === "1" && date != "")
+			{
+			date = date.replace(/\//g, '');
+			let dateNum = parseInt(date, 10);
+			if (dateNum <= today)
+				{
+				++count;
+				}
+			}
+		}
+	
+	return(count);
+}
+
+function YYYYMMDDforDate(date) {
+	let day = date.getDate();
+	let twoDDay = ("0" + day).slice(-2);
+	let month = date.getMonth() + 1;
+	let twoDMonth = ("0" + month).slice(-2);
+	let year = date.getFullYear();
+	
+	let result = parseInt("" + year + twoDMonth + twoDDay, 10);
+	return(result);
 }
 
 // Called after getting the ToDo data, init the ToDo display.
@@ -276,30 +324,35 @@ function newNavTextForCount(text, count) {
 	return(newText);
 }
 
-// Set current "ToDo" nav item's overdue count, if it has changed.
+// Set "ToDo" nav item's overdue count, if it has changed.
 function resetOverdueInNav(count) {
-	let navElem = document.getElementById('nav');
-
-	if (navElem !== null)
+	let navbar = document.getElementById('nav');
+	if (navbar === null)
 		{
-		let navItems = navElem.children;
+		return;
+		}
 
-		for (let i = 0; i < navItems.length; ++i)
-			{
-			let li = navItems[i];
-			if (hasClass(li, "current"))
-				{
-				let ank = li.firstChild;
-				let text = ank.text;
-				let oldCount = oldNavTextCount(text);
+	let aTags = navbar.getElementsByTagName("a");
+    let searchText = "ToDo";
+    let todoElem = null;
 	
-				if (count !== oldCount)
-					{
-					let newText = newNavTextForCount(text, count);
-					ank.text = newText;
-					}
-				break;
-				}
+    for (let i = 0; i < aTags.length; i++)
+        {
+		if (aTags[i].textContent.indexOf(searchText) == 0)
+            {
+            todoElem = aTags[i];
+            break;
+            }
+        }
+	
+	if (todoElem !== null)
+		{
+		let text = todoElem.textContent;
+		let oldCount = oldNavTextCount(text);
+		if (count !== oldCount)
+			{
+			let newText = newNavTextForCount(text, count);
+			todoElem.textContent = newText;
 			}
 		}
 }
