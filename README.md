@@ -28,18 +28,18 @@ IntraMine uses [Elasticsearch](https://www.elastic.co/what-is/elasticsearch) to 
 ### A truly nice Viewer
 View the contents of any source or text file, with search hits highlighted in the text and down the scrollbar if you came from a Search results link.
 
-The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents, and some extras such as automatic linking, image hovers, and hit highlighting. There's a picture up top.
+The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents down the left. And some extras such as automatic linking, image hovers, and selection highlighting (again in the text and down the scrollbar). There's a picture up top.
 
-[CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files. Gloss is fully applied to .txt files, and autolinking is applied to all source and text files (except .md).
+[CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files. Gloss (IntraMine's markdown variant) is fully applied to .txt files, and autolinking is applied to all source and text files (except .md).
 
 ### Autolinks
 Autolinks appear on every reasonable thing in source and text files when using IntraMine's Viewer, mostly with no extra typing. IntraMine introduces link detection algorithms that can automatically link to source and text and image files on your local and NAS storage, as well as jumps to headings, classes, and methods in the same file or in other files.
 
-You need only supply enough of the path to a file to make it unambiguous, with the understanding that if there's a choice then the "closest" file wins.
+You need only supply enough directory names on the path to a file to make it unambiguous, with the understanding that if there's a choice then the "closest" file wins. Autolinking works as well as you would if you memorized all paths to all source and text files in your indexed folders.
 
-For example, if the path fragment project51/main.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\main.cpp uniquely, that's all you need to type in your source or text file. To provide a link that goes directly to the updateFile() method, you could type project51/main.cpp#updateFile, or project51/main.cpp#updateFile() if you want to make it clear it's a method, or "project51/main.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then main.cpp is all you need to link to project51/src/main.cpp, since autolinking will pick the main.cpp that's closest to the document where you've done the typing (your "context").
+For example, if the path fragment project51/files.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\files.cpp uniquely, that's all you need to type in your source or text file. To provide a link that goes directly to the updateFile() method, you could type project51/files.cpp#updateFile, or project51/files.cpp#updateFile() if you want to make it clear it's a method, or "project51/files.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then files.cpp is all you need to link to project51/src/files.cpp, since autolinking will pick the files.cpp that's closest to the document where you've done the typing (your "context").
 
-The upshot is autolinking that's accurate, and trivial to use.
+The upshot is autolinking that's accurate, and very easy to use.
 
 ### Image hovers
 While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
