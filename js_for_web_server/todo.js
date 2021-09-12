@@ -1,467 +1,457 @@
-/*
- * @author Shaumik "Dada" Daityari
+/* todo2.js
+ * original @author Shaumik "Dada" Daityari
  * @copyright December 2013
- * (Modified for use in IntraMine. Requires jQuery.)
+ * (Modified for use in IntraMine. Does not require jQuery.)
  * There is just one ToDo list, for all users. On any change, the todo data is written out
  * and display is refreshed. This isn't bulletproof, two saves in the same few
- * milliseconds by different users might cause a version conflict and loss of an item. But on any
+ * milliseconds by different users might cause a version conflict and loss of an item,
+ * in particular an unsaved item. But on any
  * save, all open views everywhere of the ToDo list are immediately refreshed.
  * see todoGetPutData.js and todoFlash.js for the details on that.
  */
 
+// data.items: an array of ToDo items.
+// In each item:
+//  id : unique int for each item, 0..up
+//  code: string, "1" "2" or"3" indicating column for item
+//  title: title of item
+//  date: yyyy/mm/dd due date
+//  description: text of Description field, as entered
+//  html: Description after Gloss conversion of Description
+// (html is displayed in ToDo columns, description is typed in Add/Edit a Task)
 
-var todo = todo || {};
+// For each data.items[i] item there is a corresponding HTML div displayed.
+// Items are displayed down a column in order by ascending id.
+// Globally, id values run from 1 up without gaps. But the id values in
+// a column can have gaps.
+// id values are re-assigned before saving, by cleanAndSort().
+
+let data = {};
+let o = {};
+//let drake = {};
+
+let defaults = {
+		todoTask: "todo-task",
+		todoHeader: "task-header",
+		todoDate: "task-date",
+		todoDescription: "task-description",
+		taskId: "task-",
+		formId: "todo-form",
+		dataAttribute: "data",
+		deleteDiv: "delete-div"
+	};
+let codes = {
+		"1" : "pending",
+		"2" : "inProgress",
+		"3" : "completed"
+	};
+
+function todoNew(rawData, fullInit, options) {
+	todoInitOptions();
 	
-(function(todo, $) {
-		
-	let data = {};
- 	
-	let defaults = {
-            todoTask: "todo-task",
-            todoHeader: "task-header",
-            todoDate: "task-date",
-            todoDescription: "task-description",
-            taskId: "task-",
-            formId: "todo-form",
-            dataAttribute: "data",
-            deleteDiv: "delete-div"
-        }, codes = {
-            "1" : "#pending",
-            "2" : "#inProgress",
-            "3" : "#completed"
-        };
+	if (options != undefined)
+		{
+		if( options.todoTask != undefined ) o.todoTask = options.todoTask;
+		if( options.todoHeader != undefined ) o.todoHeader = options.todoHeader;
+		if( options.todoDate != undefined ) o.todoDate = options.todoDate;
+		if( options.todoDescription != undefined ) o.todoDescription = options.todoDescription;
+		if( options.taskId != undefined ) o.taskId = options.taskId;
+		if( options.formId != undefined ) o.formId = options.formId;
+		if( options.dataAttribute != undefined ) o.dataAttribute = options.dataAttribute;
+		if( options.deleteDiv != undefined ) o.deleteDiv = options.deleteDiv;
+		}
+	
+	if (fullInit)
+		{
+		let options = {};
+		options.format = 'yyyy/mm/dd';
+		options.autohide = true;
+		options.moves = function(el, source, handle, sibling) { noMoveForAddEdit(el, source, handle, sibling);};
+		let dateHolder = document.getElementById("datepicker");
+		let datePicker = new Datepicker(dateHolder, options);
 
-    todo.init = function (rawData, fullInit, options) {
-
-		data = JSON.parse(rawData);
-		data.items = cleanAndSort(data.items, 'id', 1);
-		
+		dragula([
+			document.getElementById(codes[1]),		// "pending"
+			document.getElementById(codes[2]),		// "inProgress"
+			document.getElementById(codes[3]), 		// "completed"
+			document.getElementById(o.deleteDiv),
+			document.getElementById(o.formId)
+			])
+		  .on('drop', function (el, target, source, sibling) {
+			document.getElementById(o.deleteDiv).style.display = "none";
+			todoOnDrop(el, target, source, sibling);
+			})
+		  .on('cancel', function (el, ontainer, source) {
+			document.getElementById(o.deleteDiv).style.display = "none";
+			})
+		  .on('drag', function (el, source) {
+			document.getElementById(o.deleteDiv).style.display = "block";
+			});
+		}
+	else
+		{
 		removeAllChildrenOfTaskHolders();
-
-        options = options || {};
-        options = $.extend({}, defaults, options);
-
-        $.each(data.items, function (index, params) {
-            generateElement(params);
-        });
-
-        /*generateElement({
-            id: "123",
-            code: "1",
-            title: "asd",
-            date: "22/12/2013",
-            description: "Blah Blah"
-        });*/
-
-        /*removeElement({
-            id: "123",
-            code: "1",
-            title: "asd",
-            date: "22/12/2013",
-            description: "Blah Blah"
-        });*/
-
-        if (fullInit)
-        	{
-            // Adding drop function to each category of task
-            $.each(codes, function (index, value) {
-                $(value).droppable({
-                    drop: function (event, ui) {
-                    	let element = ui.helper,
-                                css_id = element.attr("id"),
-                                id = css_id.replace(options.taskId, ""),
-                                object = data.items[id];
-                            
-                             	let insertBeforeElement = elementToInsertBefore(index, ui);
-                             	let insertBeforeID = 99999;
-                             	if (insertBeforeElement !== null)
-                             		{
-                             		let beforeId = insertBeforeElement.getAttribute("id"); // "task-2"
-                             		let idMatch = /(\d+)/.exec(beforeId);
-        							if (idMatch !== null)
-        								{
-        								insertBeforeID = idMatch[1];
-        								}
-                             		}
-                             	object.code = index;
-                             	delete data.items[id];
-                                data.items = data.items.filter(function(el){return(el != null);});
-                             	insertDataItem(object, insertBeforeID);
-                             	data.items = cleanAndSort(data.items, 'id', 1);
-                             	putData(data);
-								// was putData(JSON.stringify(data));
-
-                                // Hide Delete Area
-                                $("#" + defaults.deleteDiv).hide();
-                                
-                                // Force a full reload. Oddly, flicker is minimal, yay.
-                                $("." + defaults.todoTask).remove();
-                                getToDoData();
-                                
-                        },
-                        hoverClass: "drop-hover"
-                })
-             });
-
-            // Adding drop function to delete div
-            $("#" + options.deleteDiv).droppable({
-                drop: function(event, ui) {
-                	let element = ui.helper,
-                        css_id = element.attr("id"),
-                        id = css_id.replace(options.taskId, ""),
-                        object = data.items[id];
-
-                    // Removing old element
-                    //removeElement(object);
-
-                    // Updating local storage
-                    delete data.items[id];
-                    data.items = data.items.filter(function(el){return(el != null);});
-                    data.items = cleanAndSort(data.items, 'id', 1);
-                    putData(data);
-    				
-                    // Hiding Delete Area
-                    $("#" + defaults.deleteDiv).hide();
-                    // Force a full reload. Oddly, flicker is minimal, yay.
-                    $("." + defaults.todoTask).remove();
-                    getToDoData();
-                },
-                hoverClass: "drop-hover"
-            })
-            
-            // Add drop to Add/Edit a Task
-            $("#" + options.formId).droppable({
-            	drop:  function(event, ui) {
-            		let element = ui.helper,
-                    css_id = element.attr("id"),
-                    id = css_id.replace(options.taskId, ""),
-                    object = data.items[id],
-                    index = object.code;
-            		let inputs = $("#" + defaults.formId + " :input");
-            		
-            		// Set input values from object.
-            		inputs[0].value = object.title;
-                    inputs[1].value = horribleUnescape(object.description);
-            		//inputs[1].value = object.description;
-            		inputs[2].value = object.date;
-            		// 3 is the save button
-            		inputs[4].value = index;
-           		
-            		removeElement(object);
-            		delete data.items[id];
-            		data.items = data.items.filter(function(el){return(el != null);});
-            		data.items = cleanAndSort(data.items, 'id', 1);
-            		putData(data);
-            		$("#" + defaults.deleteDiv).hide();
-            		getToDoData();
-            	},
-            	hoverClass: "drop-hover"
-            })
-        }
-    };
-
-    // Add Task
-    let generateElement = function(params){
-    	let parent = $(codes[params.code]),
-            wrapper;
-
-        if (!parent) {
-            return;
-        }
-
-        wrapper = $("<div />", {
-            "class" : defaults.todoTask,
-            "id" : defaults.taskId + params.id,
-            "data" : params.id
-        }).appendTo(parent);
-
-        $("<div />", {
-            "class" : defaults.todoHeader,
-            "text": params.title
-        }).appendTo(wrapper);
-
-        $("<div />", {
-            "class" : defaults.todoDate,
-            "text": params.date
-        }).appendTo(wrapper);
-
-
-        $("<div />", {
-            "class" : defaults.todoDescription,
-            "html": horribleUnescape(decodeURIComponent(params.html))
-            //"text": params.description
-        }).appendTo(wrapper);
-
-	    wrapper.draggable({
-            start: function() {
-                $("#" + defaults.deleteDiv).show();
-            },
-            stop: function() {
-                $("#" + defaults.deleteDiv).hide();
-            },
-	        revert: "invalid",
-	        revertDuration : 200
-        });
-
-    };
-
-    // Remove task
-    let removeElement = function (params) {
-    	if (params)
-    		{
-            $("#" + defaults.taskId + params.id).remove();
-            //getToDoData();
-            }
-    	else
-    		{
-    		// Something wrong, desperately try to re-init.
-    		$("." + defaults.todoTask).remove();
-    		getToDoData();
-    		}
-    };
-
-    todo.add = function() {
-    	let inputs = $("#" + defaults.formId + " :input"),
-            errorMessage = "Title cannot be empty",
-            id, title, description, date, tempData, index;
-
-        if (inputs.length !== 5) {
-        	generateDialog("todo.js#todo.add() OOOPs inputs.length is , " + inputs.length);
-            return;
-        }
-
-        title = inputs[0].value;
-        description = horribleEscape(inputs[1].value);        
-        date = inputs[2].value;
-        index = inputs[4].value;
-
-        if (!title) {
-            generateDialog(errorMessage);
-            return;
-        }
-
-        //id = new Date().getTime();
-        id = data.items.length;
-
-        tempData = {
-            id : id,
-            code: index,
-            title: title,
-            date: date,
-            description: description
-        };
-
-        // Save to local disk.
-        data.items[id] = tempData;
-        //localStorage.setItem("todoData", JSON.stringify(data));
-        data.items = cleanAndSort(data.items, 'id', 1);
-        putData(data);
-
-        // Reset Form
-        inputs[0].value = "";
-        inputs[1].value = "";
-        inputs[2].value = "";
-        inputs[4].value = "1";
-
-        // Reload
-        $("." + defaults.todoTask).remove();
-        getToDoData();
-        
-        // Generate Todo Element
-        //generateElement(tempData);
-
-    };
-
-    let generateDialog = function (message) {
-    	let responseId = "response-dialog",
-            title = "Ahem",
-            responseDialog = $("#" + responseId),
-            buttonOptions;
-
-        if (!responseDialog.length) {
-            responseDialog = $("<div />", {
-                    title: title,
-                    id: responseId
-            }).appendTo($("body"));
-        }
-
-        responseDialog.html(message);
-
-        buttonOptions = {
-            "Ok" : function () {
-                responseDialog.dialog("close");
-            }
-        };
-
-	    responseDialog.dialog({
-            autoOpen: true,
-            width: 400,
-            modal: true,
-            closeOnEscape: true,
-            buttons: buttonOptions
-        });
-    };
-
-    // NOT UPDATED, not needed.
-//    todo.clear = function () {
-//        data = {};
-//        //localStorage.setItem("todoData", JSON.stringify(data));
-//		  putData(JSON.stringify(data));
-//        $("." + defaults.todoTask).remove();
-//    };
-
-    function cleanAndSort(objArray, prop, direction){
-        if (arguments.length<2) throw new Error("ARRAY, AND OBJECT PROPERTY MINIMUM ARGUMENTS, OPTIONAL DIRECTION");
-        if (!Array.isArray(objArray)) throw new Error("FIRST ARGUMENT NOT AN ARRAY");
-        let clone = objArray.slice(0);
-        // Remove nulls.
-        clone = clone.filter(function(el){return(el != null);});
-        // sort
-        const direct = arguments.length>2 ? arguments[2] : 1; //Default to ascending
-        clone.sort(function(a,b){
-        	if (a !== null && b !== null)
-        		{
-                a = a[prop];
-                b = b[prop];
-                return ( (a < b) ? -1*direct : ((a > b) ? 1*direct : 0) );
-        		}
-        	return(0);
-        });
-        // Reassign id's to be 0..length-1, same as array index. This removes duplicates
-        // and fills in missing id's.
-        for (let i = 0; i < clone.length; ++i)
-        	{
-        	clone[i].id = i;
-        	}
-        return clone;
-    }
-    
-    function  elementToInsertBefore(index, ui)
-    	{
-    	let elemInsBefore = null;
-		let droppedOffTop = ui.offset.top;
-		let draggedID = ui.helper.attr("id");
-		let parentId = codes[index];
-		parentId = parentId.substring(1);
-		let dropParent = document.getElementById(parentId); //$(codes[index]);
-		let children = dropParent.children;
-		
-		for (let i = 0; i < children.length; ++i)
-			{
-			let item = children[i];
-			let nname = item.nodeName;
-			if (nname === "DIV")
-				{
-				let rect = item.getBoundingClientRect();
-				let itemTop = rect.top;
-				if (droppedOffTop < itemTop)
-					{
-					// Avoid comparing dragged item against itself. Penalty for not
-					// doing so: thirty minutes of head scratching.
-					let itemID = item.getAttribute("id");
-					if (draggedID !== itemID)
-						{
-						elemInsBefore = item;
-						break;
-						}
-					}
-				}
-			}
-		
-		return(elemInsBefore);
 		}
 
-    // This should be followed by cleanAndSort() to restore array item id values to be the same as
-    // position in array. Item id values are used as HTML element "id" entries, so here when
-    // inserting a new data item we just ensure the id values are different and in the correct order.
-    function insertDataItem(object, insertBeforeID) {
-    	let newCode = object.code;
-    	let arr = data.items;
-    	let oldCatHighestCode = 0;
-    	for (i = 0; i < arr.length; ++i)
+	todoReload(rawData);
+}
+
+function todoInitOptions() {
+	o.todoTask = "todo-task";
+	o.todoHeader = "task-header";
+	o.todoDate = "task-date";
+	o.todoDescription = "task-description";
+	o.taskId = "task-";
+	o.formId = "todo-form";
+	o.dataAttribute = "data";
+	o.deleteDiv = "delete-div";
+}
+
+function noMoveForAddEdit(el, source, handle, sibling) {
+	return true;
+}
+function todoReload(rawData) {
+	data = JSON.parse(rawData);
+	data.items = cleanAndSort(data.items, 'id', 1);
+
+	for (let i = 0; i < data.items.length; ++i)
+		{
+		generateElement(data.items[i]);
+		}
+	
+	overdueCount = getOverDueCount(data);
+	
+	let message = "todochanged " + overdueCount;
+	setOverdueCount(message);
+	
+	let today = new Date();
+	let el = document.getElementById('pending');
+	colorByDaysToOverdue(el, today, '#FDEDEC'); // light red
+	el = document.getElementById('inProgress');
+	colorByDaysToOverdue(el, today, '#FEF9E7'); // light yellow
+}
+
+// Put a color on items due today or before.
+function colorByDaysToOverdue(el, today, overdueColor) {
+	let dates = el.getElementsByClassName("task-date");
+	for (let i = 0; i < dates.length; i++)
+		{
+		let dateDiv = dates[i];
+		let rawDate = dateDiv.innerHTML;
+		let arrayMatch = /^(\d\d\d\d)\/(\d\d)\/(\d\d)/.exec(rawDate);
+		if (arrayMatch != null)
 			{
-			let item = arr[i];
-			let oldID = item.id;
-			let oldCode = item.code;
-			if (oldCode === newCode && oldCatHighestCode < oldCode)
+			let yyyy = arrayMatch[1];
+			let mm = arrayMatch[2];
+			let dd = arrayMatch[3];
+			let thisDate = new Date(yyyy, mm - 1, dd);
+			let numBetween = daysBetween(thisDate, today);
+			if (numBetween <= 0)
 				{
-				oldCatHighestCode = oldCode;
+				dateDiv.parentNode.style.backgroundColor = overdueColor;
+				}
+			else
+				{
+				dateDiv.parentNode.style.backgroundColor = '#EAFAF1'; // light greenish
 				}
 			}
-    	++oldCatHighestCode;
-    	
-    	let insBeforeSeen = false;
-    	for (i = 0; i < arr.length; ++i)
-    		{
-    		let item = arr[i];
-    		let oldCode = item.code;
-    		if (oldCode === newCode) // in same category
-    			{
-    			if (arr[i].id >= insertBeforeID)
-    				{
-    				arr[i].id = arr[i].id + 1;
-    				}
-    			}
-    		else // in a different category
-    			{
-    			arr[i].id = arr[i].id + oldCatHighestCode;
-    			}
-    		}
-    	
-    	// Append object to array (with new id).
-    	object.id = insertBeforeID;
-    	data.items[arr.length] = object;
-    	}
+		else
+			{
+			dateDiv.parentNode.style.backgroundColor = 'White';
+			}
+		}
+}
 
-//	let parentId = codes[index];
-//	parentId = parentId.substring(1);
+// "el was dropped into target before a sibling element, and originally came from source"
+// Dragula has taken care of the HTML elements, but we want
+// data.items[] to reflect the corresponding positions
+// or remove an item if it was dropped on the trash.
+function todoOnDrop(el, target, source, sibling) {
+	
+	//let id = el.getAttribute('data'); // 'data' attribute is the JSON element id, as an int.
+	let codeName = target.getAttribute("id"); // "pending" etc
+	
+	// Add/Edit
+	if (codeName === o.formId)
+		{
+		todoEditItem(el, target, source, sibling);
+		}
+	// Delete.
+	else if (codeName === o.deleteDiv)
+		{
+		todoDeleteItem(el, target, source, sibling);
+		}
+	else // A move, within or between columns
+		{
+		todoResequenceItem(el, target, source, sibling);
+		}
+}
 
-   function removeAllChildrenOfTaskHolders() {
-	   for (let idx in codes)
-		   {
-		   let theID = codes[idx];
-		   theID = theID.substring(1);
-		   let parent = document.getElementById(theID);
-		   if (parent !== null)
-			   {
-			   // Delete all div children (avoid deleting H3 header).
-			   while (parent.lastChild && parent.lastChild.nodeName === "DIV")
-			   		{
-				   parent.removeChild(parent.lastChild);
-			   		}
-			   }
-		   }
-   		}
+// Put el values in Add/Edit form,
+// Remove el,
+// delete corresponding item from data.
+// Note set [4] value to code representing original column.
+function todoEditItem(el, target, source, sibling) {
+	let id = parseInt(el.getAttribute('data'), 10);
+	let elements = document.getElementById(o.formId).elements;
+	
+	let movedItem = null;
+	
+	for (let i = 0; i < data.items.length; ++i)
+		{
+		if (data.items[i].id === id)
+			{
+			movedItem = data.items[i];
+			break;
+			}
+		}
+	
+	elements.item(0).value = movedItem.title;
+	elements.item(1).value = horribleUnescape(movedItem.description);
+	elements.item(2).value = movedItem.date;
+	elements.item(4).value = movedItem.code;
+	
+	todoDeleteItem(el, target, source, sibling);
+}
 
-    // Interim hack, replace troublesome characters (in description)
-    // with placeholders. These are undone when presenting description for
-    // editing, and also in gloss.pm#Gloss() when applying Gloss to the
-    // description.
-    function horribleEscape(text) {
-        text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-        text = text.replace(/\"/g, '__DQUOTE_REP__');
-        text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-        text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-        text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-        text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-        text = text.replace(/\\t/g, '__TABERINO__');
-        text = text.replace(/\\/g, '__BSINO__');
+// Delete data.items[] corresponding to HTML element.
+// (dropped in trash or onto Add/Edit.)
+function todoDeleteItem(el, target, source, sibling) {
+	let id = parseInt(el.getAttribute('data'), 10);
 
-        return(text);        
-    }
+	for (let i = 0; i < data.items.length; ++i)
+		{
+		if (data.items[i].id === id)
+			{
+			delete data.items[i];
+			break;
+			}
+		}
+		
+	el.parentNode.removeChild(el);
+	
+	data.items = cleanAndSort(data.items, 'id', 1);
+	putData(data);
+}
 
-    // Reverse of horribleEscape just above.
-    function horribleUnescape(text) {
-        text = text.replace(/__EQUALSIGN_REP__/g, '=');
-        text = text.replace(/__DQUOTE_REP__/g, '\"');
-        text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-        text = text.replace(/__PLUSSIGN_REP__/g, '+');
-        text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-        text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-        text = text.replace(/__TABERINO__/g, '\\t');
-        text = text.replace(/__BSINO__/g, '\\');
+// Find movedItem = data.items[] corresponding to the dropped HTML element's "data" attr.
+// Get id of sibling(HTML element following new position of el).
+// Boost all id's >= sibling id by one.
+// Set id of movedItem to old sibling id.
+// Set code of movedItem to column's code.
+// Clean up and save (which will trigger a reload).
+function todoResequenceItem(el, target, source, sibling) {
+	let id = parseInt(el.getAttribute('data'), 10);
+	let movedItem = null;
+	
+	for (let i = 0; i < data.items.length; ++i)
+		{
+		if (data.items[i].id === id)
+			{
+			movedItem = data.items[i];
+			break;
+			}
+		}
+	
+	let codeName = target.getAttribute("id"); // "pending" etc
+	let newCodeIdx = '';
+	for (let i = 1; i <= 3; ++i)
+		{
+		if (codes[i] === codeName)
+			{
+			newCodeIdx = i;
+			break;
+			}
+		}
+	
+	let newCode = '' + newCodeIdx;
+	movedItem.code = newCode;
+	
+	let siblingId = siblingIdToBoost(el, sibling);
+	boostItemIds(siblingId);
+	movedItem.id = siblingId;
+	data.items = cleanAndSort(data.items, 'id', 1);
+	putData(data);
+}
+
+function siblingIdToBoost(el, sibling) {
+	let siblingId = 9999;
+
+	if (sibling === null)
+		{
+		// Get id of sibling before and add one.
+		sibling = el.previousSibling;
+		if (sibling !== null && typeof(sibling.getAttribute) === typeof(Function))
+			{
+			siblingId = sibling.getAttribute('data') + 1;
+			}
+		// else only item in column, just use a big number (9999)
+		}
+	else
+		{
+		siblingId = sibling.getAttribute('data');
+		}
+
+	return(siblingId);
+}
+
+function boostItemIds(minimumID) {
+	let arr = data.items;
+	for (i = 0; i < arr.length; ++i)
+		{
+		let item = arr[i];
+		let oldID = item.id;
+		if (oldID >= minimumID)
+			{
+			item.id = oldID + 1;
+			}
+		}
+}
+
+function todoAddNewItem() {
+	let elements = document.getElementById(o.formId).elements;
+	let id = 9999; // Deliberately higher than any existing id, to avoid conflict.
+	let title = elements.item(0).value;
+	let description = horribleEscape(elements.item(1).value);
+	let date = elements.item(2).value;
+	let idx = elements.item(4).value;
+	let index = '' + idx;
+	
+	if (!title)
+		{
+		let errorElem = document.getElementById("loadError");
+        errorElem.innerHTML = "New item must have a title!";
+		return;
+        }
+	
+	let tempData =
+		{
+		id : id,
+		code: index,
+		title: title,
+		date: date,
+		description: description
+        };
+
+	// Save to local disk.
+	data.items[id] = tempData;
+	//localStorage.setItem("todoData", JSON.stringify(data));
+	data.items = cleanAndSort(data.items, 'id', 1);
+	putData(data);
+	
+	// Reset Form
+	elements.item(0).value = "";
+	elements.item(1).value = "";
+	elements.item(2).value = "";
+	elements.item(4).value = "1";
+
+	// Reload
+	getToDoData();
+	}
+
+function generateElement(params) {
+	let parent = document.getElementById(codes[params.code]);
+	if (parent === undefined || parent === null)
+		{
+		//console.log("ERRROR no parent for " + codes[params.code]);
+		return;
+		}
+	
+	let newElement = document.createElement("div");
+	newElement = parent.appendChild(newElement);
+	addClass(newElement, o.todoTask);
+	newElement.id = o.taskId + params.id;
+	newElement.setAttribute("data", params.id);
+	
+	parent = newElement;
+	newElement = document.createElement("div");
+	newElement = parent.appendChild(newElement);
+	addClass(newElement, o.todoHeader);
+	newElement.innerHTML = params.title;
+	
+	newElement = document.createElement("div");
+	newElement = parent.appendChild(newElement);
+	addClass(newElement, o.todoDate);
+	newElement.innerHTML = params.date;
+	
+	newElement = document.createElement("div");
+	newElement = parent.appendChild(newElement);
+	addClass(newElement, o.todoDescription);
+	newElement.innerHTML = horribleUnescape(decodeURIComponent(params.html));
+}
+
+function cleanAndSort(objArray, prop, direction){
+	if (arguments.length<2) throw new Error("ARRAY, AND OBJECT PROPERTY MINIMUM ARGUMENTS, OPTIONAL DIRECTION");
+	if (!Array.isArray(objArray)) throw new Error("FIRST ARGUMENT NOT AN ARRAY");
+	let clone = objArray.slice(0);
+	// Remove nulls.
+	clone = clone.filter(function(el){return(el != null);});
+	// sort
+	const direct = arguments.length > 2 ? arguments[2] : 1; //Default to ascending
+	clone.sort(function(a,b){
+		if (a !== null && b !== null)
+			{
+			a = a[prop];
+			b = b[prop];
+			return ( (a < b) ? -1*direct : ((a > b) ? 1*direct : 0) );
+			}
+		return(0);
+	});
+	// Reassign id's to be 0..length-1, same as array index. This removes duplicates
+	// and fills in missing id's.
+	for (let i = 0; i < clone.length; ++i)
+		{
+		clone[i].id = i;
+		}
+	return clone;
+}
+
+function removeAllChildrenOfTaskHolders() {
+
+	for (let idx in codes)
+		{
+		let theID = codes[idx];
+		//theID = theID.substring(1); wot???
+		let parent = document.getElementById(theID);
+		if (parent !== null)
+			{
+			// Delete all div children (avoid deleting H3 header).
+			while (parent.lastChild && parent.lastChild.nodeName === "DIV")
+				{
+				parent.removeChild(parent.lastChild);
+				}
+			}
+		}
+	 }
+
+// Interim hack, replace troublesome characters (in description)
+// with placeholders. These are undone when presenting description for
+// editing, and also in gloss.pm#Gloss() when applying Gloss to the
+// description.
+function horribleEscape(text) {
+	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
+	text = text.replace(/\"/g, '__DQUOTE_REP__');
+	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
+	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
+	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
+	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
+	text = text.replace(/\\t/g, '__TABERINO__');
+	text = text.replace(/\\/g, '__BSINO__');
+
+	return(text);        
+}
+
+// Reverse of horribleEscape just above.
+function horribleUnescape(text) {
+	text = text.replace(/__EQUALSIGN_REP__/g, '=');
+	text = text.replace(/__DQUOTE_REP__/g, '\"');
+	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
+	text = text.replace(/__PLUSSIGN_REP__/g, '+');
+	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
+	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
+	text = text.replace(/__TABERINO__/g, '\\t');
+	text = text.replace(/__BSINO__/g, '\\');
 
 
-        return(text);
-    }
-})(todo, jQuery);
+	return(text);
+}

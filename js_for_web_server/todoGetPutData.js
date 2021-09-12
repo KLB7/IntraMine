@@ -31,16 +31,9 @@ function getToDoData() {
 			hideSpinner();
 
 			let theText = decodeURIComponent(request.responseText);
-
-			if (toDoIsStarted)
-				{
-				todo.init(theText, false);
-				}
-			else
-				{
-				startToDoList(theText);
-				toDoIsStarted = true;
-				}
+			
+			todoNew(theText, !toDoIsStarted);
+			toDoIsStarted = true;			
 			}
 		else
 			{
@@ -209,17 +202,28 @@ function YYYYMMDDforDate(date) {
 
 // Called after getting the ToDo data, init the ToDo display.
 function startToDoList(rawData) {
-	$('#datepicker').datepicker({ dateFormat: 'yy/mm/dd'});
-
+	
+	let options = {};
+	options.format = 'yyyy/mm/dd';
+	let dateHolder = document.getElementById("datepicker");
+	let datePicker = new Datepicker(dateHolder);
+	//let datePicker = new Datepicker(dateHolder, options);
+	
+	// for the jQuery v1 version: $('#datepicker').datepicker({ dateFormat: 'yy/mm/dd'});
 	// was 	$("#datepicker").datepicker();
 	//$("#datepicker").datepicker("option", "dateFormat", "yy/mm/dd");
+	
+	// TEMP out
 
-	$(".task-container").droppable();
-	$(".todo-task").draggable({
-		revert : "valid",
-		revertDuration : 200
-	});
-	todo.init(rawData, true);
+	//$(".task-container").droppable();
+	//$(".todo-task").draggable({
+	//	revert : "valid",
+	//	revertDuration : 200
+	//});
+	//todo.init(rawData, true);
+	
+	
+	todoNew(rawData);
 
 	overdueCount = 0;
 	observeTasks();

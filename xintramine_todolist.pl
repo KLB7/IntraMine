@@ -1,4 +1,4 @@
-# intramine_todolist2.pl: a Kanban-style TODO list using a single text (actually JSON) file.
+# intramine_todolist.pl: a Kanban-style TODO list using a single text (actually JSON) file.
 # List is stored in one file (typ. data/ToDo.txt) so everybody sees the same list.
 # Most Save conflicts are avoided with a Server-Sent Event sent to all open ToDo pages
 # when any ToDo page changes (see PutData() below).
@@ -6,9 +6,11 @@
 # Title, Description and Due Date. Overdue items are emphasized with a bit of color.
 # This Perl prog mainly gets things going with an HTML skeleton, and saves and loads data.
 # The interface handling, and Server-Sent Events handling, is done in JavaScript - 
-# see todo.js, todoFlash.js, and todoGetPutData.js. jQuery is NOT used in this "2" version.
+# see todo.js, todoEvents.js, and todoGetPutData.js. jQuery is used.
 
-# perl -c C:\perlprogs\IntraMine\intramine_todolist2.pl
+# Rev May 2021, ToDo items support Gloss-style markdown (most of it anyway).
+
+# perl C:\perlprogs\mine\intramine_todolist.pl  81 43131
 
 use strict;
 use warnings;
@@ -83,10 +85,9 @@ sub ToDoPage {
 <link rel="stylesheet" type="text/css" href="non_cm_text.css" />
 <link rel="stylesheet" type="text/css" href="todo_gloss_tables.css" />
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
-<!-- <link rel="stylesheet" type="text/css" href="jquery-ui.min.css" /> -->
-<link rel="stylesheet" type="text/css" href="dragula.css" />
-<link rel="stylesheet" type="text/css" href="datepicker.css" />
-<link rel="stylesheet" type="text/css" href="todo2.css" />
+<link rel="stylesheet" type="text/css" href="jquery-ui.min.css" />
+
+<link rel="stylesheet" type="text/css" href="todo.css" />
 
 </head>
 <body>
@@ -119,7 +120,7 @@ _TOPNAV_
 				<input type="text" placeholder="Title" />
 				<textarea rows="10" placeholder="Description, optional"></textarea>
 				<input type="text" id="datepicker" placeholder="Due Date (yyyy/mm/dd), optional" />
-				<input type="button" class="btn btn-primary" value="Save" onclick="todoAddNewItem();" />
+				<input type="button" class="btn btn-primary" value="Save" onclick="todo.add();" />
 				<input type="hidden" value="1" />
 			</form>
 
@@ -136,12 +137,10 @@ _TOPNAV_
 </div>
 
 
-<!--
 <script src="jquery.min.js"></script>
 <script src="jquery.ui.min.js"></script>
 
 <script src="jquery.ui.touch-punch.min.js"></script>
--->
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
@@ -167,12 +166,11 @@ if (typeof window.ontouchstart !== 'undefined')
 	}
 
 </script>
-<script src="dragula.min.js"></script>
-<script src="datepicker-full.min.js"></script>
+<script src="todoGetPutData.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
-<script src="todo2.js"></script>
-<script src="todoGetPutData2.js"></script>
+<script src="todo.js"></script>
+<!-- obsolete <script src="todoEvents.js"></script> -->
 <script src="viewerLinks.js" ></script>
 </body></html>
 FINIS
@@ -414,6 +412,21 @@ sub GetOverdueCount {
 			++$overdueCount;
 			}		
 		}
+	
+	#my $items = decode_json($data);
+	#my $itemArr = $$items{'items'};
+	#my $numItems = @$itemArr;
+	#for (my $i = 0; $i < $numItems; ++$i)
+	#	{
+	#	my $itemHashRef = $itemArr->[$i];
+	#	my $code = $$itemHashRef{'code'};
+	#	my $date = $$itemHashRef{'date'};
+	#	$date =~ s!/!!g;
+	#	if ($code == 1 && $date ne "" && $date <= $today)
+	#		{
+	#		++$overdueCount;
+	#		}
+	#	}
 
 	return($overdueCount);
 	}
