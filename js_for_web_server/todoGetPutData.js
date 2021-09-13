@@ -1,4 +1,4 @@
-// todoGetPutData.js: used by intramine_todolist.js to:
+// todoGetPutData.js:
 // get/put todo items as JSON
 // signal the overdue count
 // resize elements (to show/hide scrollbar, mainly)
@@ -102,11 +102,6 @@ function getModificationDateStamp() {
 function putData(rawData) {
 	showSpinner();
 	
-	// Send todochanged out to all WebSockets clients.
-	// The web clients will flash the ToDo item and show
-	// the count of overdue items N, as ToDo [N].
-	overdueCount = getOverDueCount(rawData);
-	wsSendMessage("todochanged " + overdueCount);
 		
 	let theData = JSON.stringify(rawData);
 	
@@ -118,6 +113,12 @@ function putData(rawData) {
 			{
 			// Success! Probably.
 			hideSpinner();
+			
+			// Send todochanged out to all WebSockets clients.
+			// The web clients will flash the ToDo item and show
+			// the count of overdue items N, as ToDo [N].
+			overdueCount = getOverDueCount(rawData);
+			wsSendMessage("todochanged " + overdueCount);
 			
 			// Trigger reload, and ToDo flash in the nav bar
 			// (see todoFlash.js). Also send an "activity" message.
@@ -202,47 +203,10 @@ function YYYYMMDDforDate(date) {
 
 // Called after getting the ToDo data, init the ToDo display.
 function startToDoList(rawData) {
-	
-	let options = {};
-	options.format = 'yyyy/mm/dd';
-	let dateHolder = document.getElementById("datepicker");
-	let datePicker = new Datepicker(dateHolder);
-	//let datePicker = new Datepicker(dateHolder, options);
-	
-	// for the jQuery v1 version: $('#datepicker').datepicker({ dateFormat: 'yy/mm/dd'});
-	// was 	$("#datepicker").datepicker();
-	//$("#datepicker").datepicker("option", "dateFormat", "yy/mm/dd");
-	
-	// TEMP out
-
-	//$(".task-container").droppable();
-	//$(".todo-task").draggable({
-	//	revert : "valid",
-	//	revertDuration : 200
-	//});
-	//todo.init(rawData, true);
-	
-	
+		
 	todoNew(rawData);
 
 	overdueCount = 0;
-	observeTasks();
-
-	// Trigger the observer on load.
-	let pending = document.getElementById('pending');
-	let color = pending.style.color;
-	pending.style.color = 'black';
-	pending.style.color = color;
-	let inprog = document.getElementById('inProgress');
-	color = inprog.style.color;
-	inprog.style.color = 'black';
-	inprog.style.color = color;
-
-	// Periodically (and frequently) check for change to mod date on the data file.
-	// Retired in favour of Server-Sent Events, see todoEvents.js.
-//	window.setInterval(function() {
-//		getModificationDateStamp();
-//	}, 1000);
 }
 
 function daysBetween(one, another) {
@@ -391,41 +355,6 @@ function colorByDaysToOverdue(el, today, overdueColor) {
 			dateDiv.parentNode.style.backgroundColor = 'White';
 			}
 		}
-}
-
-// Much ado about turning overdue items red (if not even started)
-// or yellow (if started but not done).
-function observeTasks() {
-	let observer = new MutationObserver(function(mutations) {
-		let today = new Date();
-
-		let currentOverdueCount = 0;
-		let el = document.getElementById('pending');
-		currentOverdueCount += numOverdue(el, today);
-		colorByDaysToOverdue(el, today, '#FDEDEC'); // light red
-		el = document.getElementById('inProgress');
-		colorByDaysToOverdue(el, today, '#FEF9E7'); // light yellow
-
-		if (overdueCount != currentOverdueCount)
-			{
-			overdueCount = currentOverdueCount;
-			signalOverdueChanged();
-			resetOverdueInNav(overdueCount);
-			}
-
-		doResize();
-	});
-
-	let observerConfig = {
-		// characterData: true,
-		attributes : true,
-		childList : true
-	};
-
-	let targetNode = document.getElementById('pending');
-	observer.observe(targetNode, observerConfig);
-	targetNode = document.getElementById('inProgress');
-	observer.observe(targetNode, observerConfig);
 }
 
 // Once upon a time I thought it would be a Bad Idea to allow a vertical scrollbar

@@ -37,6 +37,7 @@ let defaults = {
 		todoDescription: "task-description",
 		taskId: "task-",
 		formId: "todo-form",
+		addEditId: "addEditTaskContainer",
 		dataAttribute: "data",
 		deleteDiv: "delete-div"
 	};
@@ -57,6 +58,7 @@ function todoNew(rawData, fullInit, options) {
 		if( options.todoDescription != undefined ) o.todoDescription = options.todoDescription;
 		if( options.taskId != undefined ) o.taskId = options.taskId;
 		if( options.formId != undefined ) o.formId = options.formId;
+		if( options.addEditId != undefined ) o.addEditId = options.addEditId;
 		if( options.dataAttribute != undefined ) o.dataAttribute = options.dataAttribute;
 		if( options.deleteDiv != undefined ) o.deleteDiv = options.deleteDiv;
 		}
@@ -66,7 +68,7 @@ function todoNew(rawData, fullInit, options) {
 		let options = {};
 		options.format = 'yyyy/mm/dd';
 		options.autohide = true;
-		options.moves = function(el, source, handle, sibling) { noMoveForAddEdit(el, source, handle, sibling);};
+		//options.moves = function(el, source, handle, sibling) { return noMoveForAddEdit(el, source, handle, sibling); };
 		let dateHolder = document.getElementById("datepicker");
 		let datePicker = new Datepicker(dateHolder, options);
 
@@ -75,13 +77,14 @@ function todoNew(rawData, fullInit, options) {
 			document.getElementById(codes[2]),		// "inProgress"
 			document.getElementById(codes[3]), 		// "completed"
 			document.getElementById(o.deleteDiv),
-			document.getElementById(o.formId)
-			])
+			document.getElementById(o.addEditId)
+			], { revertOnSpill: true, moves: function(el, container, handle) { return noMoveForAddEdit(el, container, handle); } }
+			)
 		  .on('drop', function (el, target, source, sibling) {
 			document.getElementById(o.deleteDiv).style.display = "none";
 			todoOnDrop(el, target, source, sibling);
 			})
-		  .on('cancel', function (el, ontainer, source) {
+		  .on('cancel', function (el, container, source) {
 			document.getElementById(o.deleteDiv).style.display = "none";
 			})
 		  .on('drag', function (el, source) {
@@ -103,13 +106,26 @@ function todoInitOptions() {
 	o.todoDescription = "task-description";
 	o.taskId = "task-";
 	o.formId = "todo-form";
+	o.addEditId = "addEditTaskContainer";
 	o.dataAttribute = "data";
 	o.deleteDiv = "delete-div";
 }
 
-function noMoveForAddEdit(el, source, handle, sibling) {
-	return true;
+// Don't allow Add/Edit to be dragged.
+function noMoveForAddEdit(el, container, handle) {
+	let id = el.getAttribute("id");
+	if (id === null)
+		{
+		id = el.parent.getAttribute("id");
+		}
+	if (id === null)
+		{
+		return true;
+		}
+
+	return(id !== o.formId && id !== o.addEditId);
 }
+
 function todoReload(rawData) {
 	data = JSON.parse(rawData);
 	data.items = cleanAndSort(data.items, 'id', 1);
@@ -172,7 +188,7 @@ function todoOnDrop(el, target, source, sibling) {
 	let codeName = target.getAttribute("id"); // "pending" etc
 	
 	// Add/Edit
-	if (codeName === o.formId)
+	if (codeName === o.addEditId)
 		{
 		todoEditItem(el, target, source, sibling);
 		}
@@ -397,12 +413,14 @@ function cleanAndSort(objArray, prop, direction){
 			}
 		return(0);
 	});
+	
 	// Reassign id's to be 0..length-1, same as array index. This removes duplicates
 	// and fills in missing id's.
 	for (let i = 0; i < clone.length; ++i)
 		{
 		clone[i].id = i;
 		}
+	
 	return clone;
 }
 

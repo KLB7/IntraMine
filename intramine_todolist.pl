@@ -113,7 +113,7 @@ _TOPNAV_
 			<h3>Done</h3>
 		</div>
 
-		<div class="task-list">
+		<div class="task-list" id="addEditTaskContainer">
 			<h3>Add/Edit a Task</h3><p id="addedittasknote">Drag here to edit</p>
 			<form id="todo-form">
 				<input type="text" placeholder="Title" />
