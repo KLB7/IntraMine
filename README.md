@@ -2,8 +2,6 @@
 
 *Fast search and real autolinking for your Windows intranet.*
 
-**Some news**: IntraMine is now compatible with Elasticsearch 7, but IntraMine will continue to support Elasticsearch 6.8 as long as you don't manually update your Search::Elasticsearch module. If you want to upgrade an older version of IntraMine to use Es 7, see "If you already have Elasticsearch" in [Installing Elasticsearch](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Installing%20Elasticsearch.html#If%20you%20already%20have%20Elasticsearch).
-
 *Search results: 125,000 files searched for "FindFileWide", results in 0.09 seconds. No restriction on directory or language.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/Search1.png)
 

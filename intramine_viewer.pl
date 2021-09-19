@@ -1172,9 +1172,10 @@ sub GetPrettyTextContents {
 	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
 	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
 	my $inATable = 0;
+	my $numLines = @lines;
 	
 	# Gloss, aka minimal Markdown.
-	for (my $i = 0; $i < @lines; ++$i)
+	for (my $i = 0; $i < $numLines; ++$i)
 		{
 		# First, remove _INDT_ for all lines, and count how many. These only come from .pod files.
 		my $indentClass = '';
@@ -1245,8 +1246,12 @@ sub GetPrettyTextContents {
 			else
 				{
 				# Convert unordered (bullet) and numbered lists to final form.
-				UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
-				OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
+				# Skip if a heading underline follows.
+				if ($i == $numLines - 1 || $lines[$i + 1] !~ m!^[=~-][=~-][=~-][=~-][=~-]+$!)
+					{
+					UnorderedList(\$lines[$i], \$unorderedListDepth, $indentClass, $doingPOD);
+					OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum, $indentClass);
+					}
 				}
 			
 			if ($doingPOD)
@@ -1844,7 +1849,15 @@ sub PutTablesInText {
 			$idx = DoTableRows($idx, $numLines, $lines_A, $numColumns, \%alignmentString);;
 
 			# Stop/start table on the last line matched.
-			$lines_A->[$idx-1] = $lines_A->[$idx-1] . '</tbody></table><table><tbody>';
+			# No start of new table if we're at the bottom.
+			if ($idx == $numLines)
+				{
+				$lines_A->[$idx-1] = $lines_A->[$idx-1] . '</tbody></table>';
+				}
+			else
+				{
+				$lines_A->[$idx-1] = $lines_A->[$idx-1] . '</tbody></table><table><tbody>';
+				}
 			} # if TABLE
 		} # for (my $i = 0; $i <$numLines; ++$i)
 	}
