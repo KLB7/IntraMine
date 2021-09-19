@@ -551,20 +551,19 @@ sub DeepFindFileWide {
 # See eg intramine_viewer.pl#LoadTextFileContents().
 sub ReadTextFileWide {
 	my ($filePath) = @_;
-	my $result = '';
 	
 	my $fh = GetExistingReadFileHandleWide($filePath);
 	if (!defined($fh))
 		{
 		#carp("GetExistingReadFileHandleWide in ReadTextFileWide FAILED for |$filePath|! error: |$^E|\n");
-		return($result);
+		return(undef);
 		}
 	
 	my $contents = do { local $/; <$fh> };
 	if (!defined($contents))
 		{
 		#carp("RTFW read_file FAILED for |$filePath|\n");
-		return($result);
+		return(undef);
 		}
 	close($fh);
 	

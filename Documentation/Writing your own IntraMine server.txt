@@ -78,10 +78,11 @@ Location		Whazzup
 213	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
 214	websockets.js implements client-side WebSockets. Sending a message is simple, wsSendMessage("Your message here") will do the job. Receiving messages requires setting up a callback - see "IntraMine communications" for details.
 215	todoFlash.js sets up callbacks to handle WebSockets messages involving the ToDo server. In DBX, receiving a "todoflash" messages triggers a "flash" of the ToDo item in the navigation bar. Again, there's more about this below under "IntraMine communications".
-216	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
-217	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
-248		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
-253..293		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
+216	chatFlash.js flashes the "Chat" item in the nav bar for message from the Chat service.
+217	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
+218	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
+249		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
+254..294		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
 
 The main front-end file for DBX is **db_example.js**. Open that up and we'll take a quick tour of the good bits.
 
@@ -200,6 +201,8 @@ Modern browsers are very good at handling WebSockets, so you can pretty much sen
  wsSendMessage("the message");
  somewhere in your JavaScript.
  For ToDo flashing, the call is wsSendMessage("todochanged");, called in todoGetPutData.js#putData() when the changed ToDo data is being POSTed back to the ToDo server.
+
+The Chat service (intramine_chat.pl, chat.js, chatFlash.js, chat.css) offers another example of using WebSockets.
 
 2. Perl server to web client
 -----------------------------

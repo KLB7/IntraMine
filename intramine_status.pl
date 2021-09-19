@@ -120,6 +120,7 @@ let portHolderClass = 'PORT_STATUS_HOLDER_CLASS';
 <script src="websockets.js"></script>
 <script src="statusEvents.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="sortTable.js"></script>
 </body></html>

@@ -171,6 +171,7 @@ if (typeof window.ontouchstart !== 'undefined')
 <script src="datepicker-full.min.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script src="todo.js"></script>
 <script src="todoGetPutData.js"></script>
 <script src="viewerLinks.js" ></script>

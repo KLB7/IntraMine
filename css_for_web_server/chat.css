@@ -1,0 +1,132 @@
+/* chat.css */
+
+.chat-form-field {
+   border: 1px solid #bababa;
+   /*background: #d7d7d7;*/
+   background: #e7e7e7;
+   -webkit-border-radius: 4px;
+   -moz-border-radius: 4px;
+   border-radius: 4px;
+   color: #bababa;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:10px;
+   display: inline;
+   }
+
+.chat-form-field:focus {
+   background: #fff;
+   color: #565656;
+   }
+
+.chat-name-field {
+   width:120px;
+}
+
+.chat-message-field {
+   width:500px;
+ }
+
+.chat-message {
+	width: 800px;
+	background: lightblue;
+	margin: 5px;
+	padding: 5px;
+}
+
+p {
+	margin-block-start: 0;
+    margin-block-end: 0;
+	padding-left: 5px;
+}
+
+/* Borrowed from https://codepen.io/8eni/pen/YWoRGm */
+.speech-wrapper {
+	font-family: Arial, Helvetica, sans-serif;
+	padding-left: 40px;
+	padding-right: 40px;
+	padding-top: 30px;
+	padding-bottom: 10px;
+}
+
+.bubble{
+    width: 650px;
+    height: auto;
+    display: block;
+    background: #f5f5f5;
+    border-radius: 4px;
+    box-shadow: 2px 8px 5px rgba(0, 0, 0, .3);
+    /*position: relative;*/
+    margin: 0 0 25px;
+    }
+
+.other-bubble {
+	margin-left: 30px;
+	background: #e9f5f9;
+}
+
+.txt{
+      padding: 8px 55px 8px 14px;
+}
+
+.name{
+	font-weight: 600;
+	font-size: 12px;
+	margin: 0 0 4px;
+	color: #3498db;
+}
+
+.my-name{
+	font-weight: 600;
+	font-size: 12px;
+	margin: 0 0 4px;
+	color: black;
+}
+
+
+.message{
+	font-size: 16px;
+	padding: 2px 2px 5px 10px;
+	color: #2b2b2b;
+}
+
+.timestamp{
+	font-size: 12px;
+	font-weight: normal;
+	color: #666;
+	padding-left: 30px;
+}
+
+.bubble-arrow {
+	position: absolute;
+	width: 0;
+	bottom:42px;
+	left: -16px;
+	height: 0;
+  }
+
+.bubble-arrow:after {
+	content: "";
+	position: absolute;
+	border: 0 solid transparent;
+	border-top: 9px solid #f5f5f5;
+	border-radius: 0 20px 0;
+	width: 15px;
+	height: 30px;
+	transform: rotate(145deg);
+	}
+
+td .submit-button {
+	margin-bottom: 11px;
+}
+
+/* Newest first / Oldest first radio button horizontal alignment. */
+.center-align {
+	text-align: center;
+}
+
+.radio-content {
+	display: inline-block;
+}

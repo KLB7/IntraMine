@@ -760,6 +760,7 @@ sub CodeMirrorJS {
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script src="isW.js" ></script>
 <script src="cmViewerStart.js" ></script>
 <script src="viewerLinks.js" ></script>
@@ -783,6 +784,7 @@ sub NonCodeMirrorJS {
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script src="isW.js" ></script>
 <script src="mark.min.js" ></script>
 <script src="wordAtInsertionPt.js" ></script>

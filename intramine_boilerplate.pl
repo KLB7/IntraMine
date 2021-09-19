@@ -106,6 +106,7 @@ _TOPNAV_
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script src="boilerplateDemo.js"></script>
 <script src="tooltip.js"></script>
 <script>

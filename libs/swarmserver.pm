@@ -2302,7 +2302,13 @@ sub PutBinFile {
 
 sub GetTextFile {
 	my ($filePath) = @_;
-	return(ReadTextFileWide($filePath));
+	my $result = ReadTextFileWide($filePath);
+	if (!defined($result))
+		{
+		$result = '';
+		}
+	
+	return($result);
 	}
 
 # (This is experimental, use it only if you're bored.)

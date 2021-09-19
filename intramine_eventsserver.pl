@@ -94,6 +94,7 @@ sub EventsPage {
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script type="text/javascript" src="tooltip.js"></script>
 <!-- addtional CSS inserted by intramine_eventsserver.pl -->
 <script type="text/javascript">

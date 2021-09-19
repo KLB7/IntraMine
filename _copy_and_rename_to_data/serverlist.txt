@@ -60,4 +60,5 @@
 1	DBX					DBX			intramine_db_example.pl
 1	Bp					Bp			intramine_boilerplate.pl
 1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
+0	Chat				Chat		intramine_chat.pl
 # OBSOLETE 1	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND

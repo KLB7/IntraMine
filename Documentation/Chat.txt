@@ -1,0 +1,43 @@
+Chat
+===========
+
+Chat.png
+
+IntraMine comes with a chat service, but it's not enabled by default. To enable it, paste the following line
+---
+1	Chat				Chat		intramine_chat.pl
+---
+at the bottom of your data/serverlist.txt file, restart IntraMine, and refresh any IntraMine browser window.
+"Chat" will appear in IntraMine's navigation bar.
+
+The chat service uses IntraMine's WebSockets service (run by intramine_websockets.pl) to send and receive messages.
+
+How to Chat
+==================
+The (nick) name is optional, and if left blank your LAN IP address will be used instead to identify you.
+
+At most 50 messages will be remembered and displayed.
+
+When you click Send, anyone using IntraMine will see the "Chat" item in the navigation bar flash rapidly a few times. And anyone viewing the Chat page will see the new message immediately.
+
+Nothing special needs to be done to refresh the Chat messages, if you're looking at the Chat page then you're seeing the latest messages as they happen.
+
+Sorting the messages by "Newest first" is I think what most people want in a list of chat messages, but you can switch to "Oldest first" if you're coming in late to a conversation and want to view it in a sequence that's more readable.
+
+No frills are supported in the messages, just plain text.
+
+
+Chat files
+=============
+TABLE Chat files
+File                              				What
+intramine_chat.pl	Presents initial HTML page, saves and retrieves messages.
+chat.js				Displays messages, and sends them out over WebSockets.
+chatFlash.js		Used on all IntraMine pages, flashes "Chat" in the navigation bar on message received. For a Chat page, it also displays the new message.
+chat.css			A necessary evil.
+data/Chats.txt		Stores the last 50 chat messages.
+
+---
+contents.txt
+---
+

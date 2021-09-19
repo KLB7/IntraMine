@@ -118,6 +118,7 @@ _LOADANDGO_
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
 <script src="todoFlash.js"></script>
+<script src="chatFlash.js"></script>
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
 </script>
