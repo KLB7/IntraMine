@@ -34,6 +34,7 @@ Bp.txt
 DBX.txt
 FILEWATCHER.txt
 WS.txt
+Chat.txt
 SSE.txt
 Other services.txt
 
