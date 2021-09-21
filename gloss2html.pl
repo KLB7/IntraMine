@@ -75,9 +75,9 @@
 # the file mention in the original text is to the ".txt" version, so your readers will always
 # see the correct HTML link. Gah, I need English lessons, help.
 
-# [This program is a stripped-down version of intramine_fileviewer_cm.pl subs for producing
-# text views, especially intramine_fileviewer_cm.pl#GetPrettyTextContents() and
-# intramine_fileviewer_cm.pl#AddWebAndFileLinksToLine().]
+# [This program is a stripped-down version of intramine_viewer.pl subs for producing
+# text views with links, see intramine_viewer.pl#GetPrettyTextContents() and
+# intramine_linker.pl#GetLinksForText().]
 
 # Usage
 # Example cmd lines for a whole folder, and for one file (change the paths!):

@@ -1046,7 +1046,7 @@ sub DoTextReps {
 			}
 		}
 		
-	# Second pass, just do the replacments.
+	# Second pass, just do the replacements.
 	for (my $i = $numReps - 1; $i >= 0; --$i)
 		{
 		if ($repLen[$i] > 0)
