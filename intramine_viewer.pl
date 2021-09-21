@@ -43,6 +43,14 @@ Encode::Guess->add_suspects(qw/iso-8859-1/);
 
 $|  = 1;
 
+# Some ASCII values, used in AddInternalLinksToPerlLine().
+my $ORD_a = ord('a');
+my $ORD_z = ord('z');
+my $ORD_A = ord('A');
+my $ORD_Z = ord('Z');
+my $ORD_0 = ord('0');
+my $ORD_9 = ord('9');
+
 my $PAGENAME = '';
 my $SHORTNAME = '';
 my $server_port = '';
@@ -3307,7 +3315,7 @@ sub AddInternalLinksToPerlLine {
 			$wordStartPos = $hashPos;
 			}
 		++$wordStartPos; # Skip the space or > or #.
-		
+				
 		my $potentialID = substr($line, $wordStartPos, $wordEndPos - $wordStartPos);
 		# Have we matched a known header with our (potential) ID?
 		if (defined($sectionIdExistsH->{$potentialID}))
@@ -3341,6 +3349,21 @@ sub AddInternalLinksToPerlLine {
 				if ($insideExistingAnchor)
 					{
 					$haveGoodMatch = 0;
+					}
+				else
+					{
+					# Skip if we see \w# before the word, likely meaning that a file name precedes
+					# the word and it's really a link to another file.
+					if ($wordStartPos > 2)
+						{
+						my $charBefore = substr($line, $wordStartPos - 2, 1);
+						my $ordCB = ord($charBefore);
+						my $isExtensionChar = (($ordCB >= $ORD_a && $ordCB <= $ORD_z) || ($ordCB >= $ORD_A && $ordCB <= $ORD_Z) || ($ordCB >= $ORD_0 && $ordCB <= $ORD_9));
+						if ($isExtensionChar)
+							{
+							$haveGoodMatch = 0;
+							}
+						}
 					}
 				}
 			
