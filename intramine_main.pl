@@ -34,7 +34,7 @@
 # port numbers was ever involved in a favorite/bookmark.
 #
 # This server isn't quite a "dumb pipe" since it participates in the handling of signals
-# and Server-Sent Events (see BroadcastSignal() below).
+# (see BroadcastSignal() below).
 # And it also helps coordinate planned maintenance outages, as happens for example when a
 # Linker server decides it needs to go away for a couple of minutes to rebuild its in-memory
 # hash of file names and folder paths in response to a folder rename: when such a signal is
@@ -58,7 +58,8 @@
 # You should allow for needing about 50 ports, if you can. To minimize the number of ports needed,
 # work out how many servers you will actually be running, corresponding to the server and their
 # counts in data/serverlist.txt, and adjust the TOTAL_SWARM_PORTS_TO_MONITOR number in
-# data/intramine_config.txt to that number plus one (that's not slop, the extra one is needed).
+# data/intramine_config.txt to that number plus one (that's not slop, the extra one is needed
+# to communicate with other computers if an application is being used for remote editing).
 #
 # START INTRAMINE
 # It's simplest to start up IntraMine by running bats/START_INTRAMINE.bat. There is no need
@@ -70,7 +71,7 @@
 # and run
 # bats/TEST_INTRAMINE.bat.
 
-# Syntax check:
+# Syntax check (your path is probably different):
 # perl -c C:\perlprogs\IntraMine\intramine_main.pl
 # Command line (see bats/START_INTRAMINE.bat for a handier way to run):
 # perl C:\perlprogs\IntraMine\intramine_main.pl
