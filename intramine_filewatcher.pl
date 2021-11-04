@@ -174,6 +174,7 @@ sub CancelDelayedIndexing {
 my @PathsOfChangedFiles; 		# includes new files
 my @PathsOfChangedFilesFileTimes; # time stamp from filewatcher log for same.
 my %PathsOfCreatedFiles; 		# just new files, also helps when removing erroneous %PathsOfDeletedFiles entries
+my %FileOnPathWasChanged; 		# For detecting a rapid deleted/created/changed - just report changed.
 my %PathsOfDeletedFiles;
 my @RenamedFolderPaths;			# holds full path to folder, with the new folder name
 my @RenamedFilePaths;			# holds full path to renamed file, using the new name
@@ -226,14 +227,26 @@ sub IndexChangedFiles {
 	# Remove %PathsOfDeletedFiles entry if it was also seen as 'created', trying to work around
 	# problem where a file can be reported as deleted (and also created) when it has been created
 	# and not deleted at all whatsoever (unless notepad++ is doing something sneaky).
+	my %FilePathDeletedAndCreated;
 	foreach my $path (keys %PathsOfCreatedFiles)
 		{
 		if (defined($PathsOfDeletedFiles{$path}))
 			{
 			delete $PathsOfDeletedFiles{$path};
+			$FilePathDeletedAndCreated{$path} = 1;
 			}
 		}
 		
+	# Sometimes a file is reported as deleted/created/changed. For this case we just removed the
+	# delete above, also remove from created list.
+	foreach my $path (keys %FileOnPathWasChanged)
+		{
+		if (defined($FilePathDeletedAndCreated{$path}))
+			{
+			delete $PathsOfCreatedFiles{$path};
+			}
+		}
+
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
 	my @OldFilePath; # old names for renamed files
@@ -484,11 +497,19 @@ sub GetLogChanges {
 						{
 						$PathsOfCreatedFiles{$pathProperCased} = 1;
 						}
+					
 					if (!defined($CurrentPathAlreadySeen{$path}))
 						{
 						push @PathsOfChangedFiles, $pathProperCased;
 						push @PathsOfChangedFilesFileTimes, $timestamp;
 						}
+						
+					# If a file  is changed after delete/create, just show it as changed.
+					if ($line =~ m!File or folder changed!i && $path =~ m!\.\w+$!)
+						{
+						$FileOnPathWasChanged{$pathProperCased} = 1;
+						}
+
 					$CurrentPathAlreadySeen{$path} = 1;
 					}
 				else
