@@ -29,6 +29,7 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 my %RequestAction;
 $RequestAction{'req|main'} = \&OurPage;
 $RequestAction{'req|getMessages'} = \&GetMessages;
+$RequestAction{'req|clearMessages'} = \&ClearMessages;
 $RequestAction{'req|peer'} = \&PeerAddress;
 $RequestAction{'data'} = \&SaveMessage;
 
@@ -72,7 +73,10 @@ _TOPNAV_
 	<td><input id="messageSubmitButton" class="submit-button" type="submit" value="Send" /></td>
   </tr>
   <tr>
-  <td colspan="3">
+  <td id="clearButtonCell">
+  <button id="clearButton" type="button" onclick="clearChat();" onmouseOver='showhint("<p>Clears all messages permanently.</p>", this, event, "300px", false);'>Clear</button>
+  </td>
+  <td colspan="2">
   <div class="center-align">
 	<div class="radio-content">
   <input type="radio" id="newestFirst" name="newOld" value="new" onchange="toggleNewOld();"
@@ -190,6 +194,14 @@ sub SaveMessage {
 		}
 
 	return('OK');
+	}
+
+sub ClearMessages {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $filePath = $ChatPath;
+	my $didit = WriteTextFileWide($filePath, "");
+	my $returnMessage = $didit ? 'ok' : 'nuts';
+	return($returnMessage);
 	}
 
 sub PeerAddress {
