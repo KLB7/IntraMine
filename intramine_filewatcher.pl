@@ -243,7 +243,12 @@ sub IndexChangedFiles {
 		{
 		if (defined($FilePathDeletedAndCreated{$path}))
 			{
-			delete $PathsOfCreatedFiles{$path};
+			# Delete from created files list, but only if the number of "created"
+			# is 1. 2 or more means a genuine create.
+			if ($PathsOfCreatedFiles{$path} == 1)
+				{
+				delete $PathsOfCreatedFiles{$path};
+				}
 			}
 		}
 
@@ -495,7 +500,7 @@ sub GetLogChanges {
 						}
 					elsif ($line =~ m!File or folder created!i)
 						{
-						$PathsOfCreatedFiles{$pathProperCased} = 1;
+						$PathsOfCreatedFiles{$pathProperCased} += 1;
 						}
 					
 					if (!defined($CurrentPathAlreadySeen{$path}))
