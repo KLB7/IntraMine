@@ -1373,7 +1373,7 @@ sub GetResultFromFile {
 	
 	# Image: try supplied path first, else look in our web server images folder
 	# eg |/C:/perlprogs/mine/images_for_web_server/110.gif|
-	if ($trimmedObj =~ m!\.(gif|jpe?g|png|ico)$!i)
+	if ($trimmedObj =~ m!\.(gif|jpe?g|png|ico|webp)$!i)
 		{
 		GetImageResult($trimmedObj, $formH, $mimeTypeR, $resultR);
 		}
@@ -1492,7 +1492,7 @@ sub GetHelpFile {
 sub GetImageResult {
 	my ($obj, $formH, $mimeTypeR, $resultR) = @_;
 	
-	$obj =~ m!\.(gif|jpe?g|png|ico)$!i;
+	$obj =~ m!\.(gif|jpe?g|png|ico|webp)$!i;
 	my $ext = lc($1);
 	Output("for image: |$obj|\n");
 	my $filePath = $obj;

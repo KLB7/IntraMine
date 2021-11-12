@@ -501,7 +501,7 @@ sub GetContentBasedOnExtension {
 
 
 	# 1.2 Images: entire "contents" of the page is just an img link.
-	if ($filePath =~ m!\.(png|gif|jpe?g|ico)$!i)
+	if ($filePath =~ m!\.(png|gif|jpe?g|ico|webp)$!i)
 		{
 		# Temp, using $port_listen instead of $server_port to open images.
 		# I'm working on it. Actually, no, I'm just leaving it.
@@ -621,7 +621,7 @@ sub EditButton {
 	my $result = '';
 	
 	# No Edit button if it's an image.
-	my $canEdit = ($filePath !~ m!\.(png|gif|jpe?g|ico)$!i);
+	my $canEdit = ($filePath !~ m!\.(png|gif|jpe?g|ico|webp)$!i);
 	if (!$allowEditing)
 		{
 		$canEdit = 0;

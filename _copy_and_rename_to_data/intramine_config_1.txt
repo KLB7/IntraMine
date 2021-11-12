@@ -1,0 +1,2 @@
+# Mime type for webp image files.
+webp	image/webp

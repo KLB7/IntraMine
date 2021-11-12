@@ -1404,7 +1404,7 @@ sub CheckForTextOrImageFile {
 	
 	my $haveGoodMatch = 0;
 	if (($longestSourcePath ne '' || $commonDirForImageName ne '')
-		&& ($extProper =~ m!txt|(html?)$!i || $extProper =~ m!(png|jpeg|jpg|gif)$!i))
+		&& ($extProper =~ m!txt|(html?)$!i || $extProper =~ m!(png|jpeg|jpg|gif|webp)$!i))
 		{
 		my $linkType = 'file'; # For CodeMirror
 		my $usingCommonImageLocation = 0;
@@ -2122,6 +2122,10 @@ sub ImageLinkQuoted {
 		elsif ($fileName =~ m!\.gif$!i)
 			{
 			$imgType = 'gif';
+			}
+		elsif ($fileName =~ m!\.webp$!i)
+			{
+			$imgType = 'webp';
 			}
 		$$linkR = "<img src=&quot;data:image/$imgType;base64,$enc64&quot;$width$height  />";
 		}

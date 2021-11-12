@@ -71,7 +71,7 @@ sub LoadConfigValues {
 		}
 	else
 		{
-		die("No config file found at |$configFilePath|!\n");
+		die("No config file found at |$configFilePath|! Please see 'IMPORTANT Make your own data folder' in /Documentation/IntraMine initial install.txt (or .html).\n");
 		}
 		
 	# Load any extra config file if it exists, eg data/DBX_config.txt for the DBX server.
@@ -123,6 +123,38 @@ sub LoadNumberedConfigFiles {
 		{
 		my $configFilePath = $dir . $configFileNames[$i];
 		LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $configFilePath, "", 1);
+		}
+	}
+
+# Look in the /_copy_and_rename_to_data folder, copy any files there that
+# aren't yet in the /data folder to the /data folder.
+# Called at intramine_main.pl#118, before any services load config values.
+sub CopyNewConfigFiles {
+	my $scriptFullPath = $0; # path of calling program, normally for intramine_main.pl
+	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $copyFromDirectory = $scriptFullDir . '_copy_and_rename_to_data/';
+	my $destinationDirectory = $scriptFullDir . 'data/';
+	
+	my @allCopyFromItems = FindFileWide($copyFromDirectory);
+	my @existingDestinationItems = FindFileWide($destinationDirectory);
+	
+	my %DestFileNameExists;
+	for (my $i = 0; $i < @existingDestinationItems; ++$i)
+		{
+		$DestFileNameExists{$existingDestinationItems[$i]} = 1;
+		}
+	
+	for (my $i = 0; $i < @allCopyFromItems; ++$i)
+		{
+		my $srcPath = $copyFromDirectory . $allCopyFromItems[$i];
+		if (   !defined($DestFileNameExists{$allCopyFromItems[$i]})
+			&& FileOrDirExistsWide($srcPath) == 1 )
+			{
+			my $destPath = $destinationDirectory . $allCopyFromItems[$i];
+			my $noFailIfExists = 0; # Suppress fail if file exists
+			CopyFileWide($srcPath, $destPath, $noFailIfExists);
+			print("NEW CONFIG FILE |$allCopyFromItems[$i]| copied from _copy_and_rename_to_data/ to data/.\n");
+			}
 		}
 	}
 

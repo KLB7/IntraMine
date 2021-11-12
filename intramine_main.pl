@@ -114,6 +114,9 @@ my $SERVERNAME = 'IM_MAIN';
 
 SetCommonOutput(\&Output); # common.pm
 
+# Copy any new config files from /_copy_and_rename_to_data to /data.
+CopyNewConfigFiles();
+
 # Load data/intramine_config.txt. See eg $IMAGES_DIR just below.
 LoadConfigValues();
 
@@ -2479,7 +2482,7 @@ sub ResultPage {
 	# Image: try supplied path first, else look in our web server images folder
 	# eg |/C:/perlprogs/mine/images_for_web_server/110.gif|
 	# (.ico is needed, all the rest is not needed methinks)
-	elsif ($obj =~ m!\.(gif|jpe?g|png|ico)$!i)
+	elsif ($obj =~ m!\.(gif|jpe?g|png|ico|webp)$!i)
 		{
 		my $ext = lc($1);
 		Output("for image: |$obj|\n");
