@@ -341,7 +341,9 @@ sub AddWebAndFileLinksToLine {
 
 	if (ref($txtR) eq 'SCALAR') # ref to a SCALAR, so doing text
 		{
-		if ($$txtR !~ m!\.\w|http|_RB_!)
+		# Non-CodeMirror text can contain <mark> elements anywhere, even on
+		# a file extension.
+		if ($$txtR !~ m!\.\w|http|_RB_! && $$txtR !~ m!\.(<mark[^>]*>)?\w+!)
 			{
 			return;
 			}
