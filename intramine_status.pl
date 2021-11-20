@@ -29,6 +29,9 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
+# Service names.
+my $VIEWERNAME = CVal('VIEWERSHORTNAME');
+
 my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
 my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
@@ -316,9 +319,17 @@ sub ReloadChangedDeletedFilesList {
 sub FileStatusHTML {
 	my ($obj, $formH, $peeraddress) = @_;
 	
+	# Check if Viewer is available. If so, links will be put on
+	# the New / Changed Files entries.
+	my $viewerIsRunning = ServiceIsRunning('Viewer');
+	
+	my $host  = ServerAddress();
+	my $port = $server_port;
+
 	my $result = '<table><tr><th>New / Changed Files</th></tr>' . "\n";
 	my $numChangedNew = @NewChangedFullPaths;
 	my @ReversedNew = reverse @NewChangedFullPaths;
+		
 	for (my $i = 0; $i < $numChangedNew; ++$i)
 		{
 		my $displayedPath = $ReversedNew[$i];
@@ -329,7 +340,10 @@ sub FileStatusHTML {
 			$displayedTime = $fields[1];
 			$displayedPath = $fields[0];
 			}
-		$displayedPath = encode_utf8($displayedPath);
+			
+		$displayedPath = encode_utf8(LinkForFilePath($displayedPath,
+							$host, $port, $peeraddress, $viewerIsRunning));
+
 		$displayedPath =~ s!%!%25!g;
 		$displayedPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 		$displayedTime = encode_utf8($displayedTime);
@@ -354,3 +368,24 @@ sub FileStatusHTML {
 	$result .= '</table>' . "\n";
 	return($result);
 	}
+
+# Return a link to $path that uses IntraMine's Viewer,
+# or just the path if the Viewer is not running.
+sub LinkForFilePath {
+	my ($path, $host, $port, $peeraddress, $viewerIsRunning) = @_;
+
+	if (!$viewerIsRunning)
+		{
+		return($path);
+		}
+
+	my $viewerLink = $path;
+	if ($viewerIsRunning)
+		{
+		$viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$path\" target=\"_blank\">$path</a>";
+		}
+	my $result = $viewerLink;
+	
+	return($result);
+	}
+

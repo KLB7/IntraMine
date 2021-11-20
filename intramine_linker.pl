@@ -53,8 +53,10 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-# Need for linking, to call the Viewer to open files.
+# Needed for linking, to call a service by its Short name.
 my $VIEWERNAME = CVal('VIEWERSHORTNAME');
+my $EDITORNAME = CVal('EDITORSHORTNAME');
+my $OPENERNAME = CVal('OPENERSHORTNAME');
 
 # Common locations for images.
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
