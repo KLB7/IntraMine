@@ -12,7 +12,7 @@ Moving and renaming your IntraMine folder
 =========================================
 If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.
 
-If you cloned IntraMine, wherever it ended up is fine, no need to move or rename it.
+If you cloned IntraMine, wherever it ended up is ok, no need to move or rename it.
 
 IMPORTANT Make your own data folder
 ===========================
@@ -73,14 +73,31 @@ Now you'll want to grab a few modules.
 
 Installing additional Strawberry Perl modules
 =============================================
-Installing modules for Strawberry Perl is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompts; I had no luck with it.
+
+All at once
+-------------
+Find /bats/install_perl_modules.bat in your new IntraMine folder, and run it at a command prompt. If you don't have a habitual way of bring up a command window, here's one: in the Search box at the left end of your Task Bar, type "cmd" and then select "Command Prompt" from the list that pops up.
+
+And the quickest way to run that .bat file is to find it with File Explorer and then drag it into your Command Prompt window. Press Enter and off it goes.
+
+You can also run it by entering its full path and pressing Enter.
+
+How long will it take? About half an hour depending on the horsepower of you PC and how cranky Windows is on the day.
+
+Kindly note that just before install_perl_modules.bat file finishes it will ask you a question about accepting a licence. Press "y" and Enter to continue. The batch file will then finish within a few seconds.
+
+
+One by one
+------------
+If for some reason you don't want to install the needed Perl modules all at once, you can do them one by one.
+
+Installing modules for Strawberry Perl one at a time is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a command prompt. (cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompt; I had no luck with it.)
 
 cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just thinking hard.
 
 Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a command prompt and press Enter:
 ---
 cpan Search::Elasticsearch
-cpan Date::Business
 cpan ExportAbove
 cpan Win32API::File::Time
 cpan Math::SimpleHisto::XS
@@ -95,7 +112,9 @@ cpan Selenium::Remote::Driver
 cpan Protocol::WebSocket::Client
 cpan Net::WebSocket::Server
 cpan URI::Encode
+cpan Date::Business
 ---
+The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.
 
 Optional modules
 =================
