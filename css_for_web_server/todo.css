@@ -1,4 +1,4 @@
-/* todo2.css: for IntraMine's ToDo service. */
+/* todo.css: for IntraMine's ToDo service. */
 
 /* nanoscrollbar */
 .nano .pane   { background: #888; }
@@ -27,6 +27,10 @@ body {
     font-size: 2em;
 	margin-left: 30px;
     margin-bottom: 15px;
+}
+
+#header > #todoarchive{
+	font-size: 0.8em;
 }
 
 .task-list{
@@ -114,9 +118,31 @@ body {
     font-size: 1.2em;
 }
 
-.todo-task > .task-date{
+.task-date, .task-created{
+    display: inline-block;
+}
+
+.task-date::before{
+	content: "Due ";
+}
+
+.task-created::before{
+	content: "Created ";
+}
+
+.task-date{
     font-size: small;
-    font-style: italic;
+	padding-left: 4px;
+}
+
+.task-date-none{
+	font-size: 0.6em;
+	color: #FFFFFF;
+}
+
+.task-created{
+	font-size: 0.9em;
+	color: #808080;
 }
 
 .todo-task > .task-description{

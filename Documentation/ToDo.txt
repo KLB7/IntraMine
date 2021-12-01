@@ -1,6 +1,6 @@
 ToDo
 =====
-2021-06-09 14_02_16-To Do.png
+2021-11-30 20_45_30-To Do.png
 
 The ToDo server provides a simple Kanban-style todo list, with just enough features to make it useful. Most of it is done in JavaScript.
 
@@ -9,9 +9,8 @@ intramine_todolist.pl
 
 Main JavaScript files:
 todo.js
-todoEvents.js
 todoGetPutData.js
-jquery.min.js
+todoFlash.js
 
 ToDo features
 =============
@@ -19,72 +18,59 @@ Use the "Add/Edit a Task" area to enter the title, description, and date for a n
 
 All tasks can be dragged around, both between lists and within one list. As you start dragging a task a "Drag Here to Delete" box will appear over on the right: drop a task there to delete it.
 
-Simple enough, right? If you enthusiastically add a large number of tasks then the view will scroll, but it's best not to have so many tasks that scrolling is needed.
+If you enthusiastically add a large number of tasks then the view will scroll, but it's best not to have so many tasks that scrolling is needed.
 
 If you make your browser window wider all of the tasks will get wider.
 
-I wrote very little of this on the JavaScript side, and so I'll leave it to you to go through todo.js if you want an understanding of the basic ToDo list.
+I wrote little of this on the JavaScript side (though I did remove jQuery), and so I'll leave it to you to go through todo.js if you want an understanding of the basic ToDo list.
 
-However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoEvents.js, which implements Server-Sent Events so that all open ToDo browser tabs can signal a change has happened, and respond to a change by refreshing the view, as outlined below in "Server-Sent Events for ToDo changes".
+However, there's one problem to address that the original doesn't handle, and that's what to do if one person updates the ToDo list and other people are viewing the ToDo list on other computers at the same time. Ideally the views in all open ToDo browser tabs should refresh when anyone does a Save or even just drags items around. This is handled in todoGetPutData.js#putData(), which sends WebSocket messages so that all open ToDo browser tabs can notice a change has happened, and respond to a change by refreshing the view.
 
 Gloss markdown can be used in ToDo items
 ----------------------------------------
 IntraMine's approach to markdown is called Gloss. It's a minimal approach, targeted at intranet documents. For all the details, see "Gloss.txt".
 
 The ToDo version of Gloss supports:
- - **bold** and *italic*
- - unordered or "bullet" lists, two level
+ - **bold** and *italic*, ***bold italic***, and *!*code fragments*!*
+ - unordered or "bullet" lists, two levels
  - ordered or "numbered" lists, two levels
- - headings (three levels)
+ - headings (three levels with =====, -----, ~~~~~ underlines)
  - special icons (such as FIXED)
- - tables (**but** use \t instead of a real tab as the cell separator)
+ - tables (see below)
  - links (see below).
 
-Links are restricted for ToDo items by comparison with full autolinking as seen with IntraMine's Viewer for text files. Supported links for ToDo:
+If you're typing in a table, use "\t" as the cell separator, since TAB will just advance you to the Due Date field. But you can paste in a regular Gloss table that uses TABs and it will work.
+
+Links are restricted for ToDo items (by comparison with full autolinking as seen with IntraMine's Viewer for text files). Supported links for ToDo:
  - web links, as usual they must start with http: or https:
  - file links, but they must be full paths enclosed in single or double quotes, such as "C:\Common/images/animage.png" or "P:\project51\src/afile.cpp"
  - file links are supported for all source files and text files, and image files
  - you do get the "pop up on hover" for image links, so if you pause your cursor over the image link a (possibly reduced) version of the image will appear.
 
-Full autolinking as seen with the Viewer really isn't appropriate for ToDo, because there's no useful "context" for ToDo items, and because the FILEWATCHER and Linker services might not even be running.
+Full autolinking as seen with the Viewer isn't implemented for ToDo, mainly because there's no useful "context" for ToDo items.
 
 Please see also "Gloss.txt" if you haven't yet, you might enjoy using Gloss for your intranet documentation.
 
-Server-Sent Events for ToDo changes
-===================================
-1. User saves a ToDo item, or drags a ToDo item around.
-2. todo.js calls todoGetPutData.js#putData() to save the changes
-3. putData() calls intramine_todolist.pl#PutData() to write the changed ToDo data to disk
-4. PutData() also calls swarmserver.pm#BroadcastSSE('todochanged'...) when it's done
-5. BroadcastSSE() sends a request to the Server-Sent Events server, SSE (intramine_SSE.pl)
-6. intramine_SSE.pl#HandleBroadcastRequest() is called in response to its only %RequestAction, $RequestAction{'signal'} = \&HandleBroadcastRequest;
-7. HandleBroadcastRequest() requests an SSE broadcast by calling swarmserver.pm#SendEventToClients()
-8. Previously when any ToDo browser page was opened it registered to receive Server-Sent Events, with todEvents.js#getSSEPortAndRequestEvents(). That set up a socket on which the page can receive messages
-9. So SendEventToClients() broadcasts the message out to all clients (browser pages) that have registered to receive Server-Sent Events
-10. The ToDo page's SSE listener, previously set up in getSSEPortAndRequestEvents(), responds to the 'todochanged' message by calling todoGetPutData.js#getToDoData()
-11. getToDoData() calls back to intramine_todolist.pl#GetData() with an XMLHttpRequest containing "req=getData", and refreshes the displayed ToDo page.
-
 API
 =========
-For details on the refresh that is broadcast when the ToDo page changes, see the section just above, "Server-Sent Events for ToDo changes".
 
 Get ToDo items
 ----------------
 **Action**: get JSON for all ToDo items (To Do, Doing, Done)
 **Request**: /?req=getData
-**Response**: full contents of the ToDo data file (JSON)
-**For example**: /?req=getData is it, really
-**See also**: intramine_todolist.pl#GetData(), todo.js
+**Response**: full contents of the ToDo data file (stringified JSON)
+**For example**: see todoGetPutData.js#getToDoData()
+**See also**: intramine_todolist.pl#GetData()
 
 Save ToDo items
 ----------------
 **Action**: save JSON for all ToDo items
-**Request**: POST (no URL)
+**Request**: POST
 with contents
-data=[all ToDo items in JSON format]
+data=[all ToDo items in JSON format converted to text string]
 **Response**: empty string, or error message if data could not be saved
 **For example**: see todoGetPutData.js#putData()
-**See also**: intramine_todolist.pl#PutData(), todo.js
+**See also**: intramine_todolist.pl#PutData()
 
 Broadcast overdue count
 -----------------------
@@ -102,6 +88,16 @@ Get ToDo timestamp
 **Response**: time of last save of the ToDo data file, as returned by libs\win_wide_filepaths.pm#GetFileModTimeWide()
 **For example**: /?req=getModDate is all there is to it
 **See also**: intramine_todolist.pl#DataModDate()
+
+Notify other ToDo pages that contents have changed
+-----------------------------------------------
+**Action**: save or move or delete a ToDo item: todoGetPutData.js#putData() is called in todo.js for these actions
+**Request**: wsSendMessage("todochanged " + overdueCount); is sent to all IntraMine web pages
+**Response**: a frontmost ToDo page will reload all items from disk. Other frontmost pages will refresh the overdue count shown after "ToDo" in the Navigation Bar
+**For example**: see todoFlash.js
+**See also**: todoGetPutData.js, todo.js
+
+
 
 ---
 contents.txt

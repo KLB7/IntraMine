@@ -19,8 +19,10 @@
 //  description: text of Description field, as entered
 //  html: Description after Gloss conversion of Description
 // (html is displayed in ToDo columns, description is typed in Add/Edit a Task)
+// created: date item was created.
 
-// For each data.items[i] item there is a corresponding HTML div displayed.
+// For each data.items[i] item there is a corresponding HTML div displayed
+// that contains a Gloss-rendered version of the text.
 // Items are displayed down a column in order by ascending id.
 // Globally, id values run from 1 up without gaps. But the id values in
 // a column can have gaps.
@@ -34,6 +36,8 @@ let defaults = {
 		todoTask: "todo-task",
 		todoHeader: "task-header",
 		todoDate: "task-date",
+		todoDateNone: "task-date-none",
+		createdDate: "task-created",
 		todoDescription: "task-description",
 		taskId: "task-",
 		formId: "todo-form",
@@ -55,6 +59,8 @@ function todoNew(rawData, fullInit, options) {
 		if( options.todoTask != undefined ) o.todoTask = options.todoTask;
 		if( options.todoHeader != undefined ) o.todoHeader = options.todoHeader;
 		if( options.todoDate != undefined ) o.todoDate = options.todoDate;
+		if( options.todoDateNone != undefined ) o.todoDateNone = options.todoDateNone;
+		if( options.createdDate != undefined ) o.createdDate = options.createdDate;
 		if( options.todoDescription != undefined ) o.todoDescription = options.todoDescription;
 		if( options.taskId != undefined ) o.taskId = options.taskId;
 		if( options.formId != undefined ) o.formId = options.formId;
@@ -103,6 +109,8 @@ function todoInitOptions() {
 	o.todoTask = "todo-task";
 	o.todoHeader = "task-header";
 	o.todoDate = "task-date";
+	o.todoDateNone = "task-date-none";
+	o.createdDate = "task-created";
 	o.todoDescription = "task-description";
 	o.taskId = "task-";
 	o.formId = "todo-form";
@@ -207,6 +215,8 @@ function todoOnDrop(el, target, source, sibling) {
 // Remove el,
 // delete corresponding item from data.
 // Note set [4] value to code representing original column.
+// [5] is creation date.
+// [6] is "1" if editing an existing item, "0" if it's brand new.
 function todoEditItem(el, target, source, sibling) {
 	let id = parseInt(el.getAttribute('data'), 10);
 	let elements = document.getElementById(o.formId).elements;
@@ -226,6 +236,8 @@ function todoEditItem(el, target, source, sibling) {
 	elements.item(1).value = horribleUnescape(movedItem.description);
 	elements.item(2).value = movedItem.date;
 	elements.item(4).value = movedItem.code;
+	elements.item(5).value = movedItem.created;
+	elements.item(6).value = "1"; // meaning item is not new, already exists
 	
 	todoDeleteItem(el, target, source, sibling);
 }
@@ -324,14 +336,24 @@ function boostItemIds(minimumID) {
 		}
 }
 
+// Create a new ToDo item from values in the Add/Edit a Task form.
+// Using a blunt hammer, save items and then completely reload the ToDo page.
+// The new/editied item is saved to the archive file here.
 function todoAddNewItem() {
 	let elements = document.getElementById(o.formId).elements;
 	let id = 9999; // Deliberately higher than any existing id, to avoid conflict.
 	let title = elements.item(0).value;
-	let description = horribleEscape(elements.item(1).value);
+	let rawDescription = elements.item(1).value;
+	let description = horribleEscape(rawDescription);
 	let date = elements.item(2).value;
 	let idx = elements.item(4).value;
 	let index = '' + idx;
+	let createdDate = elements.item(5).value;
+	let itemAlreadyExists = elements.item(6).value;
+	if (createdDate === '' && itemAlreadyExists !== "1")
+		{
+		createdDate = todayYYYYMMDD();
+		}
 	
 	if (!title)
 		{
@@ -346,7 +368,8 @@ function todoAddNewItem() {
 		code: index,
 		title: title,
 		date: date,
-		description: description
+		description: description,
+		created: createdDate
         };
 
 	// Save to local disk.
@@ -354,15 +377,33 @@ function todoAddNewItem() {
 	//localStorage.setItem("todoData", JSON.stringify(data));
 	data.items = cleanAndSort(data.items, 'id', 1);
 	putData(data);
+	tempData.description = rawDescription;
+	archiveOneItem(tempData);
 	
 	// Reset Form
 	elements.item(0).value = "";
 	elements.item(1).value = "";
 	elements.item(2).value = "";
 	elements.item(4).value = "1";
+	elements.item(5).value = "";
+	elements.item(6).value = "0";
 
 	// Reload
 	getToDoData();
+	}
+
+function todayYYYYMMDD() {
+	let d = new Date();
+	let year = d.getFullYear();
+	let month = '' + (d.getMonth() + 1);
+	let day = '' + d.getDate();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('/');
 	}
 
 function generateElement(params) {
@@ -385,11 +426,28 @@ function generateElement(params) {
 	addClass(newElement, o.todoHeader);
 	newElement.innerHTML = params.title;
 	
+	// Put the two date elements in a div wrapper.
+	let datesDiv = document.createElement("div");
+	datesDiv = parent.appendChild(datesDiv);
+	
 	newElement = document.createElement("div");
-	newElement = parent.appendChild(newElement);
+	newElement = datesDiv.appendChild(newElement);
 	addClass(newElement, o.todoDate);
+	if (params.date === "")
+		{
+		addClass(newElement, o.todoDateNone);
+		}
 	newElement.innerHTML = params.date;
 	
+	let textSpacer = document.createElement("span");
+	textSpacer.innerHTML = "&nbsp;&nbsp;&nbsp;";
+	datesDiv.appendChild(textSpacer);
+	
+	newElement = document.createElement("div");
+	newElement = datesDiv.appendChild(newElement);
+	addClass(newElement, o.createdDate);
+	newElement.innerHTML = params.created;
+
 	newElement = document.createElement("div");
 	newElement = parent.appendChild(newElement);
 	addClass(newElement, o.todoDescription);

@@ -1,12 +1,11 @@
-# intramine_todolist2.pl: a Kanban-style TODO list using a single text (actually JSON) file.
+# intramine_todolist.pl: a Kanban-style TODO list using a single text (actually JSON) file.
 # List is stored in one file (typ. data/ToDo.txt) so everybody sees the same list.
-# Most Save conflicts are avoided with a Server-Sent Event sent to all open ToDo pages
-# when any ToDo page changes (see PutData() below).
-# ToDo tracks three categories, To Do, Doing, and Done. There are fields in items for
+# ToDo tracks three categories, To Do, Doing, and Done. There are fillable fields in items for
 # Title, Description and Due Date. Overdue items are emphasized with a bit of color.
 # This Perl prog mainly gets things going with an HTML skeleton, and saves and loads data.
-# The interface handling, and Server-Sent Events handling, is done in JavaScript - 
-# see todo.js, todoFlash.js, and todoGetPutData.js. jQuery is NOT used in this "2" version.
+# The interface handling, and WebSockets handling, are done in JavaScript - 
+# see todo.js, todoFlash.js, and todoGetPutData.js.
+# jQuery is NOT used in this version.
 
 # perl -c C:\perlprogs\IntraMine\intramine_todolist.pl
 
@@ -43,6 +42,11 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 my $CSS_DIR = FullDirectoryPath('CSS_DIR');
 my $JS_DIR = FullDirectoryPath('JS_DIR');
 my $ToDoPath = FullDirectoryPath('TODODATAPATH');
+# $ToDoArchivePath is same as $ToDoPath, with "Archive" added before extension.
+my $ToDoArchivePath = $ToDoPath;
+$ToDoArchivePath =~ s!(\.[^\.]+)!Archive$1!;
+
+MakeArchiveFile(); # We want the archive file to always exist, so the link works.
 
 my $OverdueCount = GetOverdueCount(); # $OverdueCount is also set in PutData().
 
@@ -59,6 +63,7 @@ $RequestAction{'req|getModDate'} = \&DataModDate; 	# req=getModDate
 $RequestAction{'req|overduecount'} = \&OverdueCount; 	# req=overduecount
 
 $RequestAction{'data'} = \&PutData; 				# data=the todo list
+$RequestAction{'saveToArchive'} = \&ArchiveOneItem; 		# saveToArchive=one ToDo item
 $RequestAction{'signal'} = \&HandleToDoSignal; 		# signal = anything, but for here specifically signal=allServersUp
 #$RequestAction{'req|id'} = \&Identify; 			# req=id - now done by swarmserver.pm#ServerIdentify()
 
@@ -92,7 +97,7 @@ sub ToDoPage {
 <body>
 _TOPNAV_
 <div id="scrollAdjustedHeight">
-<div id="header"> To Do List <span id="loadError">&nbsp;<span></div>
+<div id="header"> To Do List <span id="todoarchive">&nbsp;&nbsp;&nbsp;_ARCHIVELINK_</span> <span id="loadError">&nbsp;<span></div>
 <!-- <div id="theTextWithoutJumpList"> -->
 	<div id="container">
 		<div class="task-list task-container" id="pending">
@@ -120,10 +125,10 @@ _TOPNAV_
 				<textarea rows="10" placeholder="Description, optional"></textarea>
 				<input type="text" id="datepicker" placeholder="Due Date (yyyy/mm/dd), optional" />
 				<input type="button" class="btn btn-primary" value="Save" onclick="todoAddNewItem();" />
-				<input type="hidden" value="1" />
+				<input type="hidden" value="1" /> <!-- code, 1==ToDo 2=Doing 3=Done -->
+				<input type="hidden" value="" /> <!-- Created date -->
+				<input type="hidden" value="0" /> <!-- Item existed before editing -->
 			</form>
-
-			<!-- <input type="button" class="btn btn-primary" value="Clear Data" onclick="todo.clear();" /> -->
 
 			<div id="delete-div" class="delete-div-class">
 				Drag Here to Delete
@@ -231,6 +236,11 @@ FINIS
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
 	
+	# Link to archive file holding ToDo items more permanently.
+	my $archiveLink = ArchiveLink();
+	$theBody =~ s!_ARCHIVELINK_!$archiveLink!;
+	
+	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
@@ -249,7 +259,9 @@ sub OverdueCount {
 	return($OverdueCount);
 	}
 
-# 'req|getData': return raw contents of the ToDo data file.
+# 'req|getData': return raw contents of the ToDo data file
+# as "stringified" JSON. The Gloss version of the description
+# is added here, as the "html" field.
 sub GetData {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $filePath = $ToDoPath;
@@ -284,6 +296,12 @@ sub GetData {
 			$gloss =~ s!\%0A!!g;
 
 			$ih->{"html"} = $gloss;
+			
+			# Creation date, add if missing.
+			if (!defined($ih->{"created"}))
+				{
+				$ih->{"created"} = '';
+				}
 			}
 
 		# Convert JSON back to text and return that.
@@ -343,6 +361,90 @@ sub PutData {
 		ReportActivity($SHORTNAME);
 		}
 	return($result);
+	}
+
+# Bring up a Gloss version in the Viewer if it's running,
+# otherwise just a plain text view.
+sub ArchiveLink {
+	my $path = $ToDoArchivePath;
+	my $viewerShortName = CVal('VIEWERSHORTNAME');
+	my $viewerIsRunning = ServiceIsRunning($viewerShortName);
+	
+	my $result = '';
+	if ($viewerIsRunning)
+		{
+		my $host  = ServerAddress();
+		my $port = $server_port;
+		$result = "<a href=\"http://$host:$port/$viewerShortName/?href=$path\" target=\"_blank\">(Archived Items)</a>";
+		}
+	else
+		{
+		#$result = "<a href=\"$path\" target=\"_blank\">Archived Items</a>";
+		$result = "(For archived items see $path)";
+		}
+	
+	return($result);
+	}
+
+# The archive file (nominally data/ToDoArchive.txt) holds a history of
+# ToDo items, with items added here individually as they are created
+# or edited - see todo.js#todoAddNewItem();
+sub ArchiveOneItem {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'ok';
+	my $filePath = $ToDoArchivePath;
+	my $data = $formH->{'saveToArchive'};
+
+	$data = uri_unescape($data);
+	
+	my $item  = decode_json $data;
+	my $title = $item->{"title"};
+	my $description = $item->{"description"};
+	my $dueDate = $item->{"date"};
+	my $created = $item->{"created"};
+	my $code = $item->{"code"};
+	
+	my $itemString = "**$title**\nDue: $dueDate    Created: $created\n$description\n---\n";
+
+	my $didit = AppendToBinFileWide($filePath, $itemString);
+	my $tryCount = 0;
+	while (!$didit && ++$tryCount <= 3)
+		{
+		sleep(1);
+		$didit = AppendToBinFileWide($filePath, $itemString);
+		}
+	
+	if (!$didit)
+		{
+		$result = "FILE ERROR! Could not access todo archive file |$filePath|.\n";
+		}
+	
+	
+	return($result);
+	}
+
+# Make the ToDo archive file if it doesn't exist. This way, the link on the ToDo
+# page to the archive will always work. (FLW)
+sub MakeArchiveFile {
+	my $filePath = $ToDoArchivePath;
+	
+	if (FileOrDirExistsWide($filePath) == 0)
+		{
+		my $helloString = "ToDo items will be archived here when you save them, newest at the bottom.\n\n";
+		my $didit = AppendToBinFileWide($filePath, $helloString);
+		my $tryCount = 0;
+		while (!$didit && ++$tryCount <= 3)
+			{
+			sleep(1);
+			$didit = AppendToBinFileWide($filePath, $helloString);
+			}
+		
+		if (!$didit)
+			{
+			print("FILE ERROR! Could not create todo archive file |$filePath|.\n");
+			}
+		
+		}
 	}
 
 # 'signal' handler, here we are interested in 'signal=allServersUp', and 'dayHasChanged'.

@@ -161,6 +161,42 @@ function putData(rawData) {
 	request.send('data=' + theData);
 }
 
+function archiveOneItem(rawData) {
+	let theData = JSON.stringify(rawData);
+
+	let request = new XMLHttpRequest();
+	request.open('post', 'http://' + theHost + ':' + thePort + '/', true);
+
+	request.onload = function() {
+		if (request.status >= 200 && request.status < 400)
+			{
+			// Success! Probably.
+			//hideSpinner();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(theErrorID);
+			e1.innerHTML = 'Error, server reached but it returned an error!';
+			hideSpinner();
+			}
+	};
+
+	request.onerror = function() {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(theErrorID);
+		e1.innerHTML = 'Connection error!';
+		hideSpinner();
+	};
+
+	
+	theData = theData.replace(/%/g, "%25");
+	theData = encodeURIComponent(theData);
+	theData = encodeURIComponent(theData); // sic
+
+	request.send('saveToArchive=' + theData);
+}
+
 function getOverDueCount(rawData) {
 	let count = 0;
 	let objArray = rawData.items;
