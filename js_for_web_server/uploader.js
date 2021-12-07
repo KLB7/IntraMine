@@ -113,12 +113,12 @@ function onreadystatechangeHandler(evt) {
 		{
 		let status = document.getElementById('upload-status');
 		status.innerHTML = evt.target.responseText;
-		// Spinner gif is in TopNav()
+		// Spinner gif is in swarmserver.pm#TopNav()
 		hideSpinner();
 		}
 }
 
-// xmlhttprequest, send req=checkFile. If OK, or user confirms overwrite,
+// XMLHttpRequest, send req=checkFile. If OK, or user confirms overwrite,
 // upload the file with sendXHRequest().
 function uploadTheFile(formData, uri) {
 	// Send an "activity" message.

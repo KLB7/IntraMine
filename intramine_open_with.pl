@@ -1,7 +1,7 @@
 # intramine_open_with.pl: answer xmlhttprequest for text file opening in 'edit' mode.
 # Call notepad++ (or whatever app is set in intramin_config.txt) to open a text file,
 # return OK or an error message.
-# See IM_CONFIG for details on configuring IntraMine to use your preferred editor, or
+# See "Documentation/Editing documents.html" for details on configuring IntraMine to use your preferred editor, or
 # IntraMine's own editor (or prevent all editing through IntraMine).
 # NOTE requests only come here when a preferred app has been specified as the editor of choice.
 # If IntraMine's Editor has been specified, that's handled in JavaScript directly and

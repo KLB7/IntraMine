@@ -18,7 +18,7 @@ function hasClass(el, className) {
 		return false;
 		}
 	if (el.classList)
-		return el.classList.contains(className)
+		return el.classList.contains(className);
 	else
 	return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
@@ -27,9 +27,9 @@ function addClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.add(className)
+			el.classList.add(className);
 		else if (!hasClass(el, className))
-			el.className += " " + className
+			el.className += " " + className;
 		}
 }
 
@@ -37,11 +37,11 @@ function removeClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.remove(className)
+			el.classList.remove(className);
 		else if (hasClass(el, className))
 			{
-			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
-			el.className = el.className.replace(reg, ' ')
+			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+			el.className = el.className.replace(reg, ' ');
 			}
 		}
 }
@@ -149,7 +149,7 @@ if (info)
 window.addEventListener("load", function() {loadFileIntoCodeMirror(myCodeMirror, theEncodedPath);});
 
 CodeMirror.commands.save = function(cm) {
-	saveFile(theEncodedPath)
+	saveFile(theEncodedPath);
 };
 
 myCodeMirror.on("keyup", maintainButtons);

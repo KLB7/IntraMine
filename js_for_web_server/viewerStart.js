@@ -1,4 +1,4 @@
-// viewerStart.js: used for non-CodeMirror views in intramine_file_viewer_cm.pl.
+// viewerStart.js: used for non-CodeMirror views in intramine_viewer.pl.
 // Manage layout changes on resize, jump to an anchor
 // Put highlight hits in text and on scrollbar.
 // Show/hide any initial search hits provided in highlightitems.
@@ -471,7 +471,7 @@ function toggleInitialSearchHits() {
 }
 
 function noteWasDoubleClick(evt) {
-	let nons = '';
+	//let nons = '';
 	theSelection.isDoubleClick = true;
 }
 

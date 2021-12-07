@@ -28,7 +28,7 @@ function hasClass(el, className) {
 		return false;
 		}
 	if (el.classList)
-		return el.classList.contains(className)
+		return el.classList.contains(className);
 	else
 		return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
@@ -37,9 +37,9 @@ function addClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.add(className)
+			el.classList.add(className);
 		else if (!hasClass(el, className))
-			el.className += " " + className
+			el.className += " " + className;
 		}
 }
 
@@ -47,11 +47,11 @@ function removeClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.remove(className)
+			el.classList.remove(className);
 		else if (hasClass(el, className))
 			{
 			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
-			el.className = el.className.replace(reg, ' ')
+			el.className = el.className.replace(reg, ' ');
 			}
 		}
 }
@@ -144,7 +144,7 @@ function positionAndShowHint() {
 		{
 		if (scaleFactor < 1.0)
 			{
-			let finalScaleFactor = scaleFactor * 0.95;; //temp[bestDirection] * 0.95;
+			let finalScaleFactor = scaleFactor * 0.95; //temp[bestDirection] * 0.95;
 			hintWidth = Math.floor(hintWidth * finalScaleFactor);
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
@@ -159,8 +159,7 @@ function positionAndShowHint() {
 	if (isAnImage)
 		{
 		menucontents =
-				menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight
-						+ "'>";
+			menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
 	dropmenuobj.innerHTML = menucontents;
@@ -286,8 +285,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		{
 		left = x + gap + "px";
 		let top =
-				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
-						- gap;
+			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
 		top = (top < 0) ? "0" : top + "px";
 		}
 	else
@@ -302,8 +300,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 			dropmenuobj.style.left = "0";
 			}
 		let top =
-				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
-						- gap;
+			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
 		top = (top < 0) ? "0" : top + "px";
 		}
 

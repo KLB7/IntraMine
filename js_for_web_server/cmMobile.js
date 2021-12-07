@@ -24,7 +24,7 @@ if (markerMainElement === null)
 
 let indicatorElem = document.getElementById('indicator');
 let indicatorM = 0;
-let lazyMobileScrollIndicator = JD.debounce(scrollMobileIndicator, 100);
+let lazyMobileScrollIndicator = JD.debounce(scrollMobileIndicator, 100); // Unused
 let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
 
 if (onMobile) // iPad only for now....

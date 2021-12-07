@@ -240,6 +240,7 @@ function getMessages() {
 	request.send();
 }
 
+// Unused.
 function autoGrow (oField) {
   if (oField.scrollHeight > oField.clientHeight)
 	{
@@ -266,6 +267,7 @@ function doResize() {
 	el.style.width = windowWidth - 4 + "px";
 	}
 
+// Unused.
 // Show messages in newest-first or oldest-first order.
 // Default is newest first.
 function toggleNewOld() {
@@ -299,6 +301,7 @@ function deleteAllDisplayedMessages() {
 		}
 }
 
+// Unused.
 // Clear all messages in disk file for chat, and clear messages on screen.
 function clearChat() {
 	showSpinner();

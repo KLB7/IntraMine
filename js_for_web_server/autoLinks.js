@@ -1,4 +1,4 @@
-/* autoLinks.js: on-demand file links for non-CodeMirror files.
+/* autoLinks.js: on-demand file links for non-CodeMirror files (.txt, .pl, .pm, .pod etc).
 ** 
 */
 
@@ -17,6 +17,7 @@ function addAutoLinks() {
 			console.log("Error, no text holder found in addAutoLinks!");
 			}
 		}
+	
 	let firstVisibleLineNum = firstVisibleLineNumber(el);
 	let lastVisibleLineNum = lastVisibleLineNumber(el);
 	// Go past the window bottom, sometimes linkage removes so much text

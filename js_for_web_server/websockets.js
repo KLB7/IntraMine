@@ -1,7 +1,7 @@
 // websockets.js
 // Open a WebSocket connection to IntraMine's WS service, register trigger strings
 // and corresponding callbacks.
-// Since the WS (WebSockets) service just echoes any message it received back to all
+// Since the WS (WebSockets) service just echoes any message it receives back to all
 // clients everywhere, no client should respond to a message with another message
 // - unless care is taken, that could cause an endless loop.
 // Triggers are matched on the left, so if the trigger is "hello" then both

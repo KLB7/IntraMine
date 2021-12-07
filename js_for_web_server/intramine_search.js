@@ -87,6 +87,7 @@ ready(loadPageContent);
 // Send "req=results" with all search form fields back to Search (intramine_search.pl).
 // The "req=results" request action calls intramine_search.pl#SearchResults().
 // The oReq.responseText response holds all the hits from the search (with links).
+// For the call, see intramine_search.pl#SearchForm().
 function searchSubmit(oFormElement) {
 	// alert('searchSubmit!');
 	if (!oFormElement.action) { return; }

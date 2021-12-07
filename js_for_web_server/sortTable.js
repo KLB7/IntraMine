@@ -1,7 +1,7 @@
 /**
  * sortTable.js: sort a table by column contents. From
  * https://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript
- *  See intramine_status.pl#refreshServerStatus() for use in IntraMine.
+ *  See intramine_main.pl#ReportOnPageServers() for use in IntraMine.
  */
 
 function sortTable(table_id, sortColumn){

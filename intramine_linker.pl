@@ -1,12 +1,27 @@
-# intramine_linker.pl: pass in plain text, and get back either:
+# intramine_linker.pl: IntraMine's Autolinker (in combination with reverse_filepaths.pm).
+# Pass in plain text containing mentions of other files, and get back either:
 # text with links - see NonCmLinks()
 # or a JSON summary of the links that can be used to create an overlay for CodeMirror
 # - see CmLinks().
 # File and web links are handled, "internal" links within a document are done
 # in intramine_viewer.pl.
-# FullPathForPartial() will return its best guess at a full path, given a partial path.
+# FullPathForPartial() will return its best guess at a full path, given a single partial path
+# (use only when there is no relevant "context").
 #
-# This server is a "second level" server without any displayed interface, and all calls
+# A "partial path" is a file name with extension) preceded by zero or more directory
+# names, in any order, not necessariy consecutive, with slashes after each directory name
+# (and of course a drive name can be supplied). For example, if
+# C:/projects/project51/src/run.cpp
+# is the desired path, then the partial path could be
+# run.cpp or projects/run.cpp or C:/run.cpp or project51/projects.cpp etc.
+#
+# Autolinking also uses the notion of "context directory", the location of the file
+# mentioning the partial path. You might for example be writing
+# in project51/docs/Log_Sept_20201.txt and type in "run.cpp": if there are several
+# run.cpp files in your indexed folders, then the run.cpp closest to the Log_Sept_20201.txt
+# will be chosen for the link - in the above example, that would be project51/src/run.cpp.
+
+# This server is a second level server without any displayed interface, and all calls
 # to retrieve links are done with JavaScript in the Viewer and Files servers.
 # In the Viewer service's front end JavaScript:
 # - To trace CodeMirror autolinks, start with cmAutoLinks.js#addAutoLinks(), which ends up
@@ -80,12 +95,12 @@ StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
-# Actions. Respond to requests for links, from CodeMirror views, text views, and Files.
+# Actions. Respond to requests for links, from CodeMirror views, text views, and the Files page.
 my %RequestAction;
-$RequestAction{'signal'} = \&HandleBroadcastRequest; 	# signal = anything, but for here specifically signal=reindex
-$RequestAction{'req|cmLinks'} = \&CmLinks; 		# req=cmLinks... - linking for CodeMirror files
-$RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 		# req=nonCmLinks... - linking for non-CodeMirror files
-$RequestAction{'req|autolink'} = \&FullPathForPartial; 	# req=autolink&partialpath=...
+$RequestAction{'signal'} = \&HandleBroadcastRequest;# signal=reindex or folderrenamed
+$RequestAction{'req|cmLinks'} = \&CmLinks; 			# req=cmLinks... - linking for CodeMirror files
+$RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 	# req=nonCmLinks... - linking for non-CodeMirror files
+$RequestAction{'req|autolink'} = \&FullPathForPartial; # req=autolink&partialpath=...
 $RequestAction{'/test/'} = \&SelfTest;				# Ask this server to test itself.
 
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
@@ -94,11 +109,13 @@ MainLoop(\%RequestAction, undef, undef, \&callbackInitDirectoryFinder);
 
 ################### subs
 
-# Generic 'signal' handler, here we are especially interested in 'signal=reindex'. Which means for
-# us here that new files have come along, so incorporate them into full path and partial path
+# Generic 'signal' handler, 'signal=reindex' means that
+# new files have come along, so incorporate them into full path and partial path
 # lists, for putting in file links with AddFileWebAndFileLinksToLine() etc.
 # See reverse_filepaths.pm#LoadIncrementalDirectoryFinderLists().
 # The list of new files is in C:/fwws/fullpaths2.log.
+# 'signal=folderrenamed' means a folder has been renamed (and so potentially
+# many full paths could change).
 sub HandleBroadcastRequest {
 	my ($obj, $formH, $peeraddress) = @_;
 	if (defined($formH->{'signal'}))
@@ -181,7 +198,7 @@ sub CmLinks {
 	return($result);
 	}
 
-# For each link, respond JSON for:
+# For each link, respond with JSON for:
 #  - line/col of start of match in text
 #  - text in match to be marked up as link (determines line/col of end of match in text also)
 #  - type of link: 'web', 'file', 'image'
@@ -210,7 +227,7 @@ sub CmGetLinksForText {
 	}
 
 # For non-CodeMirror files.
-# Get links for all local file, image, and web links in $formH->{'text'}.
+# Add links for all local file, image, and web links in $formH->{'text'}.
 # Links are added on demand for visible lines only.
 # Invoked by xmlHttpRequest in autoLinks.js#requestLinkMarkup().
 sub NonCmLinks {
@@ -242,11 +259,9 @@ sub GetLinksForText {
 								$clientIsRemote, $allowEditing, $resultR);
 	}
 
+# Called in response to the %RequestAction req=autolink&partialpath=...
 # Get best full file path matching 'partialpath'. See reverse_filepaths.pm#FullPathInContextNS().
 # This is actually called by the Files page, see files.js#openAutoLinkWithPort().
-# The request is handled by this program because reverse_filepaths.pm can take two minutes
-# to load up a full list of file names and directories, and because one hopes no one will
-# run the Files page without the Search page and supporting Linker service (this program).
 sub FullPathForPartial {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
@@ -314,34 +329,35 @@ my $strippedLen;
 # Replacements for discovered links: For text files where replacement is done directly
 # in the text, these replacements are more easily done in reverse order to avoid throwing off
 # the start/end. For CodeMirror files, reps are done in the JavaScript (using $linksA).
-my @repStr;
-my @repLen;
-my @repStartPos;
-my @repLinkType; # For CodeMirror, 'file', 'web', 'image'
+my @repStr;			# Replacement for original text, or overlay text to put over original
+my @repLen;			# Length of original text to be replaced (not length of repStr)
+my @repStartPos;	# Start position of replacement in original text
+my @repLinkType; 	# For CodeMirror, 'file', 'web', 'image'
 my @linkIsPotentiallyTooLong; # For unquoted links to text headers, we grab 100 chars, which might be too much.
 
-my $longestSourcePath;
-my $bestVerifiedPath;
+my $longestSourcePath; 	# Longest linkable path identified in original text
+my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
 
 # AddWebAndFileLinksToLine: look for file and web address mentions, turn them into links.
 # Does the promised "auto linking", so no quotes etc are needed around file names even if
-# the file name contains spaces, and a partial path is needed only if the file name isn't unique
+# the file name contains spaces, and directories in the path are needed only if the file name isn't unique
 # and the file being mentioned isn't the "closest" one, where distance is measured as the number
 # of directory moves up and down from the referring file to the file being mentioned. So eg
 # mentioning main.cpp is fine if the referring file is proj51/docs/design.txt and the file wanted
 # is proj51/src/main.cpp, but if the referring file is somewhere outside the proj51 folder then
-# it should be mentioned as proj51/src/main.cpp. See Gloss.txt for more about links.
+# it should be mentioned as eg proj51/main.cpp. See Gloss.txt for more about links.
 # One exception, quotes are needed to link to a header within a document. Picking one of my own
 # docs as an example, IntraMine Jan 2019.txt becomes a link, but to link to a header within it
 # quotes are needed: eg "IntraMine Jan 2019.txt#Editor/Opener links in CodeMirror views".
 # OK the quotes aren't really needed, but your resulting links will look better if you use them,
 # since without the quotes an arbitrary 100 characters will be grabbed as the potential
 # header string, leaving it to the receiving end to figure out which header is meant.
+# Adn that leads to a very long underlined link, which looks a bit ugly.
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
 		$currentLineNumber, $linksA) = @_;
 
-	if (ref($txtR) eq 'SCALAR') # ref to a SCALAR, so doing text
+	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
 		{
 		# Non-CodeMirror text can contain <mark> elements anywhere, even on
 		# a file extension.
@@ -365,7 +381,7 @@ sub AddWebAndFileLinksToLine {
 	
 	# Init some of the remaining variables with AutoLink scope.
 	# (For $revLine and $strippedLine see EvaluateLinkCandidates just below.)
-	$contextDir = $theContextDir;
+	$contextDir = $theContextDir;	# Path of directory for file containing the text in $txtR
 	$len = length($line);
 	$host = $theHost;
 	$port = $thePort;
@@ -423,7 +439,7 @@ sub EvaluateLinkCandidates {
 		}
 	
 	# while see quotes or a potential file .extension, or http(s)://
-	# or [text](href) with _LB_ for [ etc.
+	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
 	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
@@ -584,6 +600,8 @@ sub EvaluateLinkCandidates {
 
 # If we can find a valid file mention looking backwards from $startPos, remember its details
 # in @repStr, @repLen etc. We go for the longest valid path.
+# We're searching backwards for the file name and directories when an extension has
+# been spotted.
 sub RememberTextOrImageFileMention {
 	my ($startPos, $previousRevEndPos, $ext, $extProper, $haveQuotation,
 		$haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum) = @_;
@@ -624,7 +642,7 @@ sub RememberTextOrImageFileMention {
 			$pathToCheck = substr($pathToCheck, 0, $pos);
 			}
 		
-		my $verifiedPath = FullPathInContextNS($pathToCheck, $contextDir);
+		my $verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm
 		if ($verifiedPath ne '')
 			{
 			$longestSourcePath = $pathToCheck;
@@ -640,7 +658,7 @@ sub RememberTextOrImageFileMention {
 	
 	# Good break points for hunt are [\\/ ], and [*?"<>|\t] end the hunt.
 	# For image files only, we look in a couple of standard places for just the file name.
-	# This can sometimes be expensive, but we look at the standad locations only until
+	# This can sometimes be expensive, but we look at the standard locations only until
 	# either a slash is seen or a regular mention is found.
 	my $checkStdImageDirs = ($haveImageExtension) ? 1 : 0;
 	my $commonDirForImageName = ''; # Set if image found one of the std image dirs
@@ -669,7 +687,7 @@ sub RememberTextOrImageFileMention {
 		
 		my $repStartPosition = ($haveQuotation) ? $startPos : $startPos - $repLength + $periodPlusAfterLength;
 
-		# We are using the "stripped" line here, so correct replacement start position and length of text
+		# We are using the "stripped" line here, so recover the start position and length of text
 		# to be replaced by adding back the <mark> tags, for use at the displayed link text.
 		($repStartPosition, $repLength) = CorrectedPositionAndLength($repStartPosition, $repLength);
 		my $displayTextForAnchor = substr($line, $repStartPosition, $repLength);
@@ -785,8 +803,8 @@ sub GetLongestGoodPath {
 
 			if ($verifiedPath ne '')
 				{
-				$longestSourcePath = $trimmedCurrentPath;
-				$bestVerifiedPath = $verifiedPath;
+				$longestSourcePath = $trimmedCurrentPath; 	# This is in the original text
+				$bestVerifiedPath = $verifiedPath;			# This is the corresponding full path
 				}
 			elsif ($checkStdImageDirs && $longestSourcePath eq '')
 				{
@@ -828,7 +846,7 @@ sub GetLongestGoodPath {
 		} # while ($currentRevPos >= 0 ...
 	}
 
-# Cook up viewer and editor links for $bestVerifiedPath, put them in $$repStringR.
+# Make viewer and editor links for $bestVerifiedPath, put them in $$repStringR.
 sub GetTextFileRep {
 	my ($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
 		$anchorWithNum, $displayTextForAnchor, $repStringR) = @_;
@@ -947,6 +965,7 @@ sub RememberUrl {
 		}
 	}
 
+# For [text](href) links, present in POD text only.
 # We want the href from the (stripped) $textHref as passed in,
 # and the display text from the corrected version of $textHref.
 # Text comes in here as _LB_ text proper _RB_,

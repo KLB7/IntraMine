@@ -335,7 +335,7 @@ sub SaveIncrementalFullPaths {
 
 # Every now and then, consolidate fullpaths.out and fullpaths2.out, mainly to shrink
 # the size of fullpaths2, which is completely loaded by intramine_fileserver.pl
-# whenever a new file is seen. This can a few seconds. This is a transparent change when
+# whenever a new file is seen. This can take a few seconds. This is a transparent change when
 # called by intramine_filewatcher.pl, no need to notify anyone or restart.
 # Call InitDirectoryFinder() or InitFullPathList() before this. And LoadIncrementalFullPathLists()
 # or dir equiv. And ensure all paths are loaded. Called in intramine_filewatcher.pl.

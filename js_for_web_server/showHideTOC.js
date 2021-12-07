@@ -97,7 +97,7 @@ function addTocToggle(idToggle) {
 // >= elem bounding rect top. On that row, <td n="(\d+)" gives the line number.
 function firstVisibleLineNumber(elem) {
 	let topPos = 0;
-	let undefCounter = 0;
+	//let undefCounter = 0;
 
 	if (usingCM)
 		{
@@ -146,7 +146,7 @@ function quickGetPosition(elem, getTop) {
 		return(0);
 		}
 	
-	let done = false;
+	//let done = false;
 	
 	// If "kids" doesn't have a table, try going down one more level - this is needed
 	// with "index.txt" for example, which has a "special-index-wrapper" holding its one table
@@ -302,7 +302,7 @@ function elementHasTableAsChild(topChildren) {
 // There are two passes, crude (100 row jumps) and fine (10 row jumps).
 function getRowCandidateAbovePosition(table, majorInc, minorInc, enclosingRectTopOrBot) {
 	let wantedRow = 0;
-	let lastRowCheckedInFirstPass = 0;
+	//let lastRowCheckedInFirstPass = 0;
 	let tableBody = getTableBody(table);
 	
 	if (tableBody !== null)
@@ -449,7 +449,7 @@ function rowTopPosition(table, startRow, minorInc, enclosingRectTopOrBot) {
 
 function lastVisibleLineNumber(elem) {
 	let bottomPos = 0;
-	let undefCounter = 0;
+	//let undefCounter = 0;
 	
 	if (usingCM)
 		{
@@ -489,6 +489,7 @@ function getAverageLineHeight(elem) {
 	return(averageHeight);
 }
 
+// Unfinished, unused.
 // Calc a rough value for nonCM, based on average line height in pixels.
 function getNumVisibleLines(elem) {
 	let numVisibleLines = 0;

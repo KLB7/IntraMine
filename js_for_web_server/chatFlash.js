@@ -1,4 +1,6 @@
-// chatFlash.js:
+// chatFlash.js: add WebSockets callbacks to respond to new chat message.
+// If it's not a Chat page, flash Chat in the top navigation bar.
+// If it's a Chat page, also add the new message.
 
 function registerChatCallbacks() {
 	// addToDisplayedMessageList() is only defined for the Chat server.

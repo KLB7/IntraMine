@@ -1,4 +1,5 @@
 // toggle.js: toggle between two positions in a document.
+// This is for non-CodeMirror file views, as presented by IntraMine's Viewer service.
 // Track "proximal" (current) and "distal" (previous) positions
 // in response to all changes in scrolled position.
 // If it's a small move, update the proximal position.

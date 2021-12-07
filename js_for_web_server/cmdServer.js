@@ -6,6 +6,7 @@
 window.addEventListener("load", doResize);
 window.addEventListener("resize", doResize);
 
+//  Unused.
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -47,6 +48,7 @@ function loadPageContent() {
 
 // Call intramine_commandserver.pl's $RequestAction{'req|open'} handler to run a command,
 // optionally set timers to monitor restart or command output.
+// See intramine_commandserver.pl#OneCommandString() for the call to this function.
 function runTheCommand(ank) {
 	let hrefplusRand = ank.href;
 	let arrayMatch = /^([^?]+)\?(.*)$/.exec(hrefplusRand);

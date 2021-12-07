@@ -28,7 +28,6 @@ function addAutoLinks() {
 	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
 	
-
 	// Go past the window bottom, sometimes linkage removes so much text
 	// that fresh lines come into view. And this makes scrolling smoother.
 	// Later: no it doesn't, not with large files. Possibly this has to do
@@ -344,7 +343,7 @@ function addInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum) {
 		return;
 		}
 	let nameOfCSSclass = "cmInternalLink";
-	let charEnd = pos + tok.length
+	let charEnd = pos + tok.length;
 	myCodeMirror.doc.markText({
 		line : lineNum,
 		ch : pos
@@ -501,7 +500,7 @@ function typeAndClass(target, checkForIMG) {
 // user's text selection, if any.
 function cmHandleTouch(cm, evt) {
 	let target = evt.target;
-	let targetName = target.nodeName;
+	//let targetName = target.nodeName;
 	if (target.nodeName === "A")
 		{
 		let targetParent = target.parentNode;
@@ -842,7 +841,7 @@ function fireOneFileLink(linkPath, forEdit) {
 				let hrefEnc = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
 				//window.open(hrefEnc, "_blank");
 				// Replace the "81" with a good Viewer port, call window.open().
-				fireOneViewerLink(hrefEnc)
+				fireOneViewerLink(hrefEnc);
 				}
 			}
 		}
@@ -970,7 +969,7 @@ function createElementFromHTML(htmlString) {
 
 function createSpanElementFromHTML(htmlString, spanClassName) {
 	let div = document.createElement('div');
-	htmlString = "<span class='" + spanClassName + "'>" + htmlString.trim();
+	htmlString = "<span class='" + spanClassName + "'>" + htmlString.trim()
 	+"</span>";
 	div.innerHTML = htmlString;
 
