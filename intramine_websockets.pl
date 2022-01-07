@@ -5,7 +5,13 @@
 # This is a WEBSOCKET server, which is a BACKGROUND server that uses
 # the ws:// protocol rather than http:// for communication.
 # Expects to receive and send strings only, no binary stuff.
-
+#
+# For details on use, see "Writing your own IntraMine server.txt#WebSockets"
+# and the following section, "Writing your own IntraMine server.txt#IntraMine communications".
+#
+# This service is started by intramine_main.pl and needs no entry in data/serverlist.txt
+# ( see "intramine_main.pl#LoadServerList()" ).
+#
 # Solo start without IntraMine (change to your path and preferred port number):
 # perl C:\perlprogs\IntraMine\intramine_websockets.pl WEBSOCKETS WS 81 43140
 

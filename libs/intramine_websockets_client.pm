@@ -61,14 +61,30 @@ sub InitWebSocket {
 # This is called by the first WebSocketSend().
 sub WebSocketStart {
 	
-	$tcp_socket = IO::Socket::INET->new(
-		PeerAddr => $sockHost,
-		PeerPort => "ws($sockPort)",
-		Proto => 'tcp',
-		Blocking => 1,
-		Timeout => 10 #,
-		#Reuse	=> 1
-	) or die "Failed to connect to socket: $@";
+	$tcp_socket = undef;
+	my $tryNewCount = 3;
+	my $attempts = 0;
+	while (++$attempts <= $tryNewCount && !defined($tcp_socket))
+		{
+		$tcp_socket = IO::Socket::INET->new(
+			PeerAddr => $sockHost,
+			PeerPort => "ws($sockPort)",
+			Proto => 'tcp',
+			Blocking => 1,
+			Timeout => 10 #,
+			#Reuse	=> 1
+			);
+			
+		if (!defined($tcp_socket))
+			{
+			print("No websocket yet, retrying...\n");
+			}
+		}
+	
+	if (!defined($tcp_socket))
+		{
+		die "Failed to connect to socket: $@";
+		}
 	
 	# enable read and write timeouts on the socket
 	# DOESN'T WORK.
