@@ -1489,7 +1489,7 @@ function hasClass(el, className) {
 		return false;
 		}
 	if (el.classList)
-		return el.classList.contains(className)
+		return el.classList.contains(className);
 	else
 		return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
@@ -1498,9 +1498,9 @@ function addClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.add(className)
+			el.classList.add(className);
 		else if (!hasClass(el, className))
-			el.className += " " + className
+			el.className += " " + className;
 		}
 }
 
@@ -1508,11 +1508,11 @@ function removeClass(el, className) {
 	if (el !== null)
 		{
 		if (el.classList)
-			el.classList.remove(className)
+			el.classList.remove(className);
 		else if (hasClass(el, className))
 			{
 			let reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
-			el.className = el.className.replace(reg, ' ')
+			el.className = el.className.replace(reg, ' ');
 			}
 		}
 }
@@ -1605,7 +1605,7 @@ function positionAndShowHint() {
 		{
 		if (scaleFactor < 1.0)
 			{
-			let finalScaleFactor = scaleFactor * 0.95;; //temp[bestDirection] * 0.95;
+			let finalScaleFactor = scaleFactor * 0.95; //temp[bestDirection] * 0.95;
 			hintWidth = Math.floor(hintWidth * finalScaleFactor);
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
@@ -1620,8 +1620,7 @@ function positionAndShowHint() {
 	if (isAnImage)
 		{
 		menucontents =
-				menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight
-						+ "'>";
+			menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
 	dropmenuobj.innerHTML = menucontents;
@@ -1747,8 +1746,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		{
 		left = x + gap + "px";
 		let top =
-				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
-						- gap;
+			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
 		top = (top < 0) ? "0" : top + "px";
 		}
 	else
@@ -1763,8 +1761,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 			dropmenuobj.style.left = "0";
 			}
 		let top =
-				(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight
-						- gap;
+			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
 		top = (top < 0) ? "0" : top + "px";
 		}
 
@@ -2628,7 +2625,7 @@ function addAutoLinks() {
 
 </script>
 <script type="text/javascript">
-// viewerStart.js: used for non-CodeMirror views in intramine_file_viewer_cm.pl.
+// viewerStart.js: used for non-CodeMirror views in intramine_viewer.pl.
 // Manage layout changes on resize, jump to an anchor
 // Put highlight hits in text and on scrollbar.
 // Show/hide any initial search hits provided in highlightitems.
@@ -3101,7 +3098,7 @@ function toggleInitialSearchHits() {
 }
 
 function noteWasDoubleClick(evt) {
-	let nons = '';
+	//let nons = '';
 	theSelection.isDoubleClick = true;
 }
 
@@ -3796,7 +3793,7 @@ function addTocToggle(idToggle) {
 // >= elem bounding rect top. On that row, <td n="(\d+)" gives the line number.
 function firstVisibleLineNumber(elem) {
 	let topPos = 0;
-	let undefCounter = 0;
+	//let undefCounter = 0;
 
 	if (usingCM)
 		{
@@ -3845,7 +3842,7 @@ function quickGetPosition(elem, getTop) {
 		return(0);
 		}
 	
-	let done = false;
+	//let done = false;
 	
 	// If "kids" doesn't have a table, try going down one more level - this is needed
 	// with "index.txt" for example, which has a "special-index-wrapper" holding its one table
@@ -4001,7 +3998,7 @@ function elementHasTableAsChild(topChildren) {
 // There are two passes, crude (100 row jumps) and fine (10 row jumps).
 function getRowCandidateAbovePosition(table, majorInc, minorInc, enclosingRectTopOrBot) {
 	let wantedRow = 0;
-	let lastRowCheckedInFirstPass = 0;
+	//let lastRowCheckedInFirstPass = 0;
 	let tableBody = getTableBody(table);
 	
 	if (tableBody !== null)
@@ -4148,7 +4145,7 @@ function rowTopPosition(table, startRow, minorInc, enclosingRectTopOrBot) {
 
 function lastVisibleLineNumber(elem) {
 	let bottomPos = 0;
-	let undefCounter = 0;
+	//let undefCounter = 0;
 	
 	if (usingCM)
 		{
@@ -4188,6 +4185,7 @@ function getAverageLineHeight(elem) {
 	return(averageHeight);
 }
 
+// Unfinished, unused.
 // Calc a rough value for nonCM, based on average line height in pixels.
 function getNumVisibleLines(elem) {
 	let numVisibleLines = 0;
@@ -4572,6 +4570,7 @@ function hideIndicator() {
 </script>
 <script type="text/javascript">
 // toggle.js: toggle between two positions in a document.
+// This is for non-CodeMirror file views, as presented by IntraMine's Viewer service.
 // Track "proximal" (current) and "distal" (previous) positions
 // in response to all changes in scrolled position.
 // If it's a small move, update the proximal position.

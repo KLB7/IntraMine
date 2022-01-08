@@ -59,7 +59,7 @@ For Windows Perl developers, write your own IntraMine services based on the exam
 If you see a use for IntraMine's autolinking algorithms etc in your own work, go right ahead: all original work is covered by an UNLICENSE. (Some software included with or used by IntraMine, such as Perl, CodeMirror and Elasticsearch, is covered by separate license agreements.)
 
 ## Requirements
- - Windows 10.
+ - Windows 10 / 11.
  - Strawberry Perl 5 version 30 or later (install instructions are included).
  - 3-4 GB of RAM for IntraMine (including Elasticsearch)
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected, so that's fine for library files but not your own work.
@@ -68,7 +68,7 @@ If you see a use for IntraMine's autolinking algorithms etc in your own work, go
 If you spot a bug, please do the kindness of sending an email describing it to klb7 at intramine.info. Requests to collaborate on IntraMine are welcome, drop me a line.
 
 ## Limitations and a heads-up
-IntraMine is for use only on an intranet, and provides absolutely no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
+IntraMine is for use only on an intranet, and provides no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
 
 IntraMine's services need to all run on the same PC, and adding/stopping/starting services is not automatic, though it can be done manually on the fly. This works because the load on IntraMine is typically relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
 

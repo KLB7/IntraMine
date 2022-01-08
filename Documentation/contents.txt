@@ -10,6 +10,7 @@ Updating CodeMirror.txt
 Installing universal ctags.txt
 Checks before the first run.txt
 Build your Elasticsearch index and run IntraMine.txt
+Upgrading to Windows 11.txt
 
 *INTRAMINE IMPORTANT BITS*
 Using IntraMine.txt

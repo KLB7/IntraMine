@@ -1,0 +1,48 @@
+Upgrading to Windows 11
+=======================
+
+If you install IntraMine after upgrading to Windows 11, everything should be fine, well as much as anything is ever fine.
+
+If you first install IntraMine and then upgrade to Windows 11 while keeping apps and data, there's a chance you will run into one or two problems. If so, the fixes are detailed below.
+
+Try starting IntraMine after upgrading to 11, and if it doesn't start up properly you can come back here.
+
+The two problems you might encounter are:
+ - WebSockets trouble: you'll see a message such as "Failed to connect to socket: IO::Socket::INET: connect: 10061" and you won't be able to access some or all IntraMine pages
+ - Elasticsearch trouble: you'll see a "no nodes on localhost:9200" message when IntraMine is starting up.
+ 
+Note if you see a "LONG DELAY" message when IntraMine is starting up, this is just a complaint that WebSockets communications are initially a bit slow. If you see "All N servers have started" when startup completes, that means there's no WebSockets problem.
+
+WebSockets fix
+==============
+The symptoms for WebSockets trouble are:
+ - as mentioned, you'll see a message such as "Failed to connect to socket: IO::Socket::INET: connect: 10061" during startup
+ - some or all IntraMine pages will be dead
+ - if you have the Status page running, it will show that the Watcher service is dead
+
+The fix is straightforward, if annoying: completely re-install Strawberry Perl, including all needed modules.
+1. Remove Strawberry Perl using the Apps page under Windows Settings
+2. Follow the details in "IntraMine initial install.txt" to re-install Strawberry Perl. If you don't have an apparent Elasticsearch problem you can restart IntraMine, otherwise do the "Elasticsearch fix" first.
+
+Elasticsearch fix
+==================
+The symptom for Elasticsearch trouble is:
+ - "no nodes on localhost:9200" message during IntraMine startup.
+
+The fix is to re-install Elasticsearch (easy) and rebuild your index (easy but takes a while).
+
+To re-install Elasticsearch, first note the path to your Elasticsearch "bin" folder (which you first discovered when installing IntraMine) and substitute that for "C:\elasticsearch-7.9.2" in the below commands if your location different. Then run these commands in sequence in a command window:
+---
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat install
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat start
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat manager
+(and under the General tab in the resulting dialog window for "manager" set the "Startup type" to "Automatic", Apply and OK.)
+---
+
+I'm recommending that you next rebuild your Elasticsearch index, just to be safe. The full instructions for that are in "Build your Elasticsearch index and run IntraMine.txt". But all you really need to do is run **bats/IM_INIT_INDEX.bat** as found in your IntraMine folder, in a command (or "console") window, using **Run as administrator**. Go away for a while, and when you come back IntraMine should be running happily.
+
+---
+contents.txt
+---
