@@ -272,10 +272,8 @@ sub Save {
 		Output("Saving |$filepath|\n");
 		
 		my $contents = $formH->{'contents'};
-		$contents = encode_utf8($contents);
+		# Does not help, in fact it hurts: $contents = encode_utf8($contents);
 		$contents = uri_unescape($contents);
-#		$contents = uri_unescape($contents);
-#		$contents = encode_utf8($contents);
 		
 		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
 			{
