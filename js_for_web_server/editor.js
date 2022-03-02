@@ -1,6 +1,10 @@
 // editor.js: CodeMirror handling for Edit views. Used in:
 // intramine_editor.pl.
 // Load, Save file, manage content resizing.
+// March 2022, autolinks are now supported.
+
+let debouncedAddLinks; // See makeDebouncedClearAddLinks() at bottom.
+let firstMaintainButtonsCall = true;
 
 function getFileExtension(filename) {
 	let result = '';
@@ -46,7 +50,16 @@ function removeClass(el, className) {
 		}
 }
 
+function removeElementsByClass(className) {
+	let elements = document.getElementsByClassName(className);
+	while (elements.length > 0)
+		{
+		elements[0].parentNode.removeChild(elements[0]);
+		}
+}
+
 window.addEventListener("load", reJump);
+window.addEventListener("load", makeDebouncedClearAddLinks);
 window.addEventListener("resize", JD.debounce(doResize, 100)); // swarmserver.pm#TooltipSource()
 
 function doResize() {
@@ -109,10 +122,6 @@ function positionViewItems() {
 	doResize();
 }
 
-if (!usingCM)
-	{
-	ready(positionViewItems);
-	}
 
 let sve = document.getElementById("save-button");
 addClass(sve, 'disabled-submit-button');
@@ -152,7 +161,7 @@ CodeMirror.commands.save = function(cm) {
 	saveFile(theEncodedPath);
 };
 
-myCodeMirror.on("keyup", maintainButtons);
+myCodeMirror.on("change", onCodeMirrorChange);
 
 // TEST ONLY - not great. Can get option-Z but not cmd or ctrl. 937/184 for option-Z, shift-option-Z.
 // myCodeMirror.on("keypress", testNoticeKeyPress);
@@ -170,6 +179,7 @@ function decodeHTMLEntities(text) {
 }
 
 // Call back to intramine_editor.pl#LoadTheFile() with a req=loadfile request.
+// On success, start clean, resize the text area, and add autolinks.
 function loadFileIntoCodeMirror(cm, path) {
 	path = encodeURIComponent(path);
 	//console.log("path |" + path + "|");
@@ -182,14 +192,11 @@ function loadFileIntoCodeMirror(cm, path) {
 			// Success!
 			let theText = decodeURIComponent(request.responseText);
 			cm.setValue(theText);
-//			cm.setValue(decodeHTMLEntities(request.responseText));
 			cm.markClean();
 			cm.clearHistory();
-			if (usingCM)
-				{
-				doResize();
-				}
+			doResize();
 			myCodeMirror.display.barWidth = 16;
+			addAutoLinks();
 			hideSpinner();
 			}
 		else
@@ -216,13 +223,30 @@ function testNoticeKeyPress(cm, evt) {
 	e1.innerHTML = 'KEYPRESS ' + evt.keyCode;
 }
 
-function maintainButtons() {
+// This is a bit poorly named, but it does maintain the save/undo buttons.
+function onCodeMirrorChange() {
 	let sve = document.getElementById("save-button");
+	
+	if (firstMaintainButtonsCall)
+		{
+		firstMaintainButtonsCall = false;
+		addClass(sve, 'disabled-submit-button');
+		let btn = document.getElementById("undo-button");
+		addClass(btn, 'disabled-submit-button');
+		btn = document.getElementById("redo-button");
+		addClass(btn, 'disabled-submit-button');
+		return;
+		}
+	
 	if (!myCodeMirror.isClean())
 		{
 		removeClass(sve, 'disabled-submit-button');
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '&nbsp;';
+		}
+	else
+		{
+		addClass(sve, 'disabled-submit-button');
 		}
 
 	let ur = myCodeMirror.historySize();
@@ -230,6 +254,11 @@ function maintainButtons() {
 	ur.undo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
 	btn = document.getElementById("redo-button");
 	ur.redo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
+
+	// Restore marks after a couple of seconds or so.
+	// CodeMirror emits a "change" event when text is loaded, we don't need to respond
+	// since loadFileIntoCodeMirror() calls addAutoLinks() directly.
+	debouncedAddLinks();
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
@@ -366,3 +395,38 @@ function oldersaveFile(path) {
 	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
 			+ encodeURIComponent(contents));
 }
+
+function makeDebouncedClearAddLinks() {
+	debouncedAddLinks = JD.debounce(clearAndAddAutoLinks, 2000);
+}
+
+function addClickHandler(id, fn) {
+	let el = document.getElementById(id);
+	if (el !== null)
+		{
+		el.addEventListener('click', fn, false);
+		}
+}
+
+function editorUndo(e) {
+	// e.preventDefault();
+	// myCodeMirror.focus();
+	myCodeMirror.undo();
+	onCodeMirrorChange();
+}
+
+function editorRedo(e) {
+	// e.preventDefault();
+	// myCodeMirror.focus();
+	myCodeMirror.redo();
+	onCodeMirrorChange();
+}
+
+function showSearch(e) {
+	// CodeMirror.commands.findPersistent(myCodeMirror);
+	CodeMirror.commands.find(myCodeMirror);
+}
+
+addClickHandler("undo-button", editorUndo);
+addClickHandler("redo-button", editorRedo);
+addClickHandler("search-button", showSearch);

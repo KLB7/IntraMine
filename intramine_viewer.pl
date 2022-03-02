@@ -441,6 +441,7 @@ let highlightItems = [_HIGHLIGHTITEMS_];
 let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
+let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
 </script>
 <script>
 	// Call fn when ready.

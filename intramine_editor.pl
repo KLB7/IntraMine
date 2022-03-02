@@ -26,6 +26,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use win_wide_filepaths;
+use win_user32_local;
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
@@ -70,6 +71,8 @@ sub FullFile {
 <link rel="stylesheet" type="text/css" media="screen" href="cm_edit.css" />
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 
+<link rel="stylesheet" type="text/css" href="cm_viewer.css" />
+
 <script type="text/javascript" src="tooltip.js"></script>
 
 <script type="text/javascript">
@@ -79,12 +82,29 @@ let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let ourServerPort = '_THEPORT_';
 let errorID = "editor_error";
+
+let weAreRemote = _WEAREREMOTE_;
+let allowEditing = _ALLOW_EDITING_;
+let useAppForEditing = _USE_APP_FOR_EDITING_;
+let clientIPAddress = '_CLIENT_IP_ADDRESS_';
+let viewerShortName = '_VIEWERSHORTNAME_';
+let openerShortName = '_OPENERSHORTNAME_';
+let editorShortName = '_EDITORSHORTNAME_';
+let linkerShortName = '_LINKERSHORTNAME_';
+let peeraddress = '_PEERADDRESS_';	// ip address of client
+let b64ToggleImage = '';
+let doubleClickTime = _DOUBLECLICKTIME_;
+
+let weAreEditing = true; // Don't adjust user selection if editing.
+
+let onMobile = false; // mobile is going away.
+
 </script>
 </head>
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _SEARCH_ _UNDOREDO_ <span id="editor_error">&nbsp;</span>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _UNDOREDO_ _SEARCH_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'><div id='scrollText'></div></div>
 
@@ -107,7 +127,13 @@ _TOPNAV_
 <script src="addon/search/jump-to-line.js"></script>
 <script src="debounce.js"></script>
 <script type="text/javascript" src="editor.js" ></script>
-<script type="text/javascript" src="cmMobile.js" ></script>
+<!-- <script type="text/javascript" src="cmMobile.js" ></script> -->
+
+<script src="isW.js" ></script>
+<script src="viewerLinks.js" ></script>
+<script src="cmTocAnchors.js" ></script>
+<script src="cmAutoLinks.js" ></script>
+<script src="cmEditorHandlers.js" ></script>
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
 </script>
@@ -127,6 +153,14 @@ FINIS
 	my $serverAddr = ServerAddress();
 	my $host = $serverAddr;
 	my $port = $port_listen;
+	
+	my $clientIsRemote = 0;
+	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
+	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
+	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	
+		{
+		$clientIsRemote = 1;
+		}
 	
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
@@ -149,7 +183,7 @@ FINIS
 				 "<img src='up3.png' id='up2' class='img-arrow-up'> " .
 				 "<img src='down3.png' id='down2' class='img-arrow-down'> " .
 				 "<img src='right3.png' id='right2' class='img-arrow-right'> ";
-	# With CodeMirror, I don't think the on-screen arrow keys will be needed:
+	# With CodeMirror, I don't think the on-screen arrow keys or Find will be needed:
 	$theBody =~ s!_ARROWS_!!;
 	#$theBody =~ s!_ARROWS_!$arrows!;
 	my $search = "<input id=\"search-button\" class=\"submit-button\" type=\"submit\" value=\"Find\" />";
@@ -176,8 +210,32 @@ FINIS
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$cmTextHolderName!g;
 	my $usingCM = 'true';
 	$theBody =~ s!_USING_CM_!$usingCM!;
+	
+	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
+	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
+	
+	my $tfAllowEditing = 'true';
+	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
+	
+	my $tfUseAppForEditing = 'false';
+	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
+	
+	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
 
 	$theBody =~ s!_THEPORT_!$port!g;
+	$theBody =~ s!_PEERADDRESS_!$peeraddress!g;
+	
+	my $viewerShortName = CVal('VIEWERSHORTNAME');
+	my $openerShortName = CVal('OPENERSHORTNAME');
+	my $editorShortName = CVal('EDITORSHORTNAME');
+	my $linkerShortName = CVal('LINKERSHORTNAME');
+	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
+	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
+	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
+	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
+
+	my $dtime = DoubleClickTime();
+	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -197,26 +255,6 @@ sub LoadTheFile {
 		{
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
 		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
-		}
-	
-	return($result);		
-	}
-
-# See editor.js#loadFileIntoCodeMirror(), which calls back here with "req=open",
-# which calls this sub, see %RequestAction above.
-# The contents from here are fed into CodeMirror for display.
-sub olderLoadTheFile {
-	my ($obj, $formH, $peeraddress) = @_;
-	my $result = '';
-
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
-	if ($filepath ne '')
-		{
-		my $ctrlSPath = $filepath;
-		$ctrlSPath = encode_utf8($ctrlSPath);
-		$ctrlSPath =~ s!%!%25!g;
-		$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-		$result = GetHtmlEncodedTextFile($filepath);
 		}
 	
 	return($result);		

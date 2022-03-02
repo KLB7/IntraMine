@@ -192,8 +192,6 @@ if (info)
 	CodeMirror.autoLoadMode(myCodeMirror, info.mode);
 	}
 
-myCodeMirror.on("keyup", maintainButtons);
-
 function decodeHTMLEntities(text) {
 	let entities =
 			[ [ 'amp', '&' ], [ 'apos', '\'' ], [ '#x27', '\'' ], [ '#x2F', '/' ], [ '#39', '\'' ],
@@ -263,20 +261,4 @@ function loadFileIntoCodeMirror(cm, path) {
 function testNoticeKeyPress(cm, evt) {
 	let e1 = document.getElementById(errorID);
 	e1.innerHTML = 'KEYPRESS ' + evt.keyCode;
-}
-
-function maintainButtons() {
-	let sve = document.getElementById("save-button");
-	if (!myCodeMirror.isClean())
-		{
-		removeClass(sve, 'disabled-submit-button');
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '&nbsp;';
-		}
-
-	let ur = myCodeMirror.historySize();
-	let btn = document.getElementById("undo-button");
-	ur.undo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
-	btn = document.getElementById("redo-button");
-	ur.redo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
 }

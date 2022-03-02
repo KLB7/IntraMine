@@ -9,16 +9,29 @@
 let lineSeen = {};
 let linkOrLineNumForText = new Map();
 
+// Remember markers (links), for editor only - in the editor, only marks for the
+// currently visible lines are kept.
+const markers = [];
+
+// Editor only, clear all marks before re-marking the autolinks.
+function clearAndAddAutoLinks() {
+	clearMarks();
+	addAutoLinks();
+}
+
 // On "load" or "scroll" add links to visible text. Links can be to a web page, a local file
 // (with special handling for local images), or a mention of some heading in the table of contents.
 // Header mentions are done here in JS, for the others we call back to Perl.
 // We avoid doing the same line more than once, since views are read-only so the links don't change.
 function addAutoLinks() {
 	
-	let tocElement = document.getElementById("scrollContentsList");
-	if (tocElement === null)
+	if (!weAreEditing)
 		{
-		return;
+		let tocElement = document.getElementById("scrollContentsList");
+		if (tocElement === null)
+			{
+			return;
+			}
 		}
 
 	let cm = myCodeMirror;
@@ -44,7 +57,7 @@ function addAutoLinks() {
 	let firstLast = adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum);
 	firstVisibleLineNum = firstLast[0];
 	lastVisibleLineNum = firstLast[1];
-
+	
 	if (!(firstVisibleLineNum in lineSeen))
 		{
 		let visibleText = cm.doc.getRange({
@@ -144,16 +157,22 @@ function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVis
 								}
 							}
 						// Mark up mentions of Table of Contents entries, avoiding other links.
-						markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+						if (!weAreEditing)
+							{
+							markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 								lastVisibleLineNum, jsonResult);
+							}
 						}
 					else
 						{
-						// Maybe there are some TOC mentions, in spite of no file/image/web links.
-						let jsonResult = {};
-						jsonResult.arr = [];
-						markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
-								lastVisibleLineNum, jsonResult);
+						if (!weAreEditing)
+							{
+							// Maybe there are some TOC mentions, in spite of no file/image/web links.
+							let jsonResult = {};
+							jsonResult.arr = [];
+							markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+									lastVisibleLineNum, jsonResult);
+							}
 						}
 
 					// Avoid visiting the same lines twice, we're dealing with a read-only file view.
@@ -437,7 +456,7 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		}
 	else
 		{
-		myCodeMirror.doc.markText({
+		markers.push(myCodeMirror.doc.markText({
 			line : lineNum,
 			ch : chStart
 		}, {
@@ -445,7 +464,7 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 			ch : charEnd
 		}, {
 			className : nameOfCSSclass
-		});
+		}));
 		}
 
 	// Track link for later use.
@@ -596,7 +615,7 @@ function handleFileLinkClicks(evt) {
 		// Note anchor clicks, in an attempt to suppress highlighting changes for clicks in TOC.
 		anchorClicked = true;
 		// Restore user selection, so highlighting doesn't change when link is clicked.
-		if (cmCursorStartPos.line >= 0)
+		if (!weAreEditing && cmCursorStartPos.line >= 0)
 			{
 			myCodeMirror.setSelection(cmCursorStartPos, cmCursorEndPos, {
 				scroll : false
@@ -615,7 +634,7 @@ function handleFileLinkMouseUp(evt) {
 	let linkType = typeClass.theType;
 	//let className = typeClass.theClass;
 	
-	if (linkType === "" && !goingToAnchor)
+	if (!weAreEditing && linkType === "" && !goingToAnchor)
 		{
 		// If nothing selected, expand selection to any word under the cursor.
 		expandEmptySelectionToWord();
@@ -633,7 +652,7 @@ function handleFileLinkMouseUp(evt) {
 // Expand selection to any word under the cursor.
 function expandEmptySelectionToWord() {
 	let selText = myCodeMirror.doc.getSelection();
-	if (selText !== '')
+	if (selText !== '' || weAreEditing)
 		{
 		return;
 		}
@@ -1033,3 +1052,16 @@ function adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum
 	return [adjustedFirst, adjustedLast];
 }
 
+// Remove all mark-related data. For editor only.
+function clearMarks() {
+	markers.forEach(marker => marker.clear());
+	//lineSeen = {};
+	for (var member in lineSeen)
+		{
+		if (lineSeen.hasOwnProperty(member))
+			{
+			delete lineSeen[member];
+			}
+		}
+	linkOrLineNumForText.clear();
+}
