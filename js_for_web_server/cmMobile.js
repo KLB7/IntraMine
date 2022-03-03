@@ -47,10 +47,14 @@ if (onMobile) // iPad only for now....
 else
 	{
 	indicatorElem.style.display = 'none';
-	hideIt("search-button");
-	hideIt("small-tip");
-	hideIt("undo-button");
-	hideIt("redo-button");
+	
+	if (!weAreEditing)
+		{
+		hideIt("search-button");
+		hideIt("small-tip");
+		hideIt("undo-button");
+		hideIt("redo-button");
+		}
 	}
 
 function scrollMobileIndicator() {

@@ -97,14 +97,14 @@ let doubleClickTime = _DOUBLECLICKTIME_;
 
 let weAreEditing = true; // Don't adjust user selection if editing.
 
-let onMobile = false; // mobile is going away.
+//let onMobile = false; // mobile is going away.
 
 </script>
 </head>
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _UNDOREDO_ _SEARCH_<span id="editor_error">&nbsp;</span>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'><div id='scrollText'></div></div>
 
@@ -133,6 +133,8 @@ _TOPNAV_
 <script src="viewerLinks.js" ></script>
 <script src="cmTocAnchors.js" ></script>
 <script src="cmAutoLinks.js" ></script>
+<script src="cmToggle.js" ></script>
+<script src="cmMobile.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
@@ -191,6 +193,15 @@ FINIS
 	my $undoRedo =  "<input id=\"undo-button\" class=\"submit-button\" type=\"submit\" value=\"Undo\" /> " .
 					"<input id=\"redo-button\" class=\"submit-button\" type=\"submit\" value=\"Redo\" />";
 	$theBody =~ s!_UNDOREDO_!$undoRedo!;
+	
+	my $togglePositionButton = '';
+	# Mardown Toggle won't work because there are no line numbers.
+	if ($filePath !~ m!\.md$!i)
+		{
+		$togglePositionButton = PositionToggle();
+		}
+	$theBody =~ s!_TOGGLEPOSACTION_!$togglePositionButton!;
+
 
 	# Full path is unhelpful in the <title>, trim down to just file name.
 	my $fileName = FileNameFromPath($title);
@@ -241,6 +252,11 @@ FINIS
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 	
 	return $theBody;	
+	}
+
+sub PositionToggle {
+	my $result = '<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
+	return($result);
 	}
 
 # See editor.js#loadFileIntoCodeMirror(), which calls back here with "req=open",

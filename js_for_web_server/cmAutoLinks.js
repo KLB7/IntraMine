@@ -58,7 +58,11 @@ function addAutoLinks() {
 	firstVisibleLineNum = firstLast[0];
 	lastVisibleLineNum = firstLast[1];
 	
-	if (!(firstVisibleLineNum in lineSeen))
+	let rowIds = []; // For CodeMirror, rowIds are line numbers
+	getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds);
+	
+	//if (!(firstVisibleLineNum in lineSeen) || !(lastVisibleLineNum in lineSeen))
+	if (!allLinesHaveBeenSeen(rowIds))
 		{
 		let visibleText = cm.doc.getRange({
 			line : firstVisibleLineNum,
@@ -75,6 +79,9 @@ function addAutoLinks() {
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
 function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum) {
+	// TEST ONLY
+	console.log("requestLinkMarkup");
+	
 	let request = new XMLHttpRequest();
 	//let theRequest = 'http://' + mainIP + ':' + theMainPort + '/Viewer/?req=portNumber';
 	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
@@ -175,7 +182,7 @@ function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVis
 							}
 						}
 
-					// Avoid visiting the same lines twice, we're dealing with a read-only file view.
+					// Avoid visiting the same lines twice.
 					rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
 					}
 				else
@@ -1064,4 +1071,23 @@ function clearMarks() {
 			}
 		}
 	linkOrLineNumForText.clear();
+}
+
+function getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds) {
+	for (let row = firstVisibleLineNum; row <= lastVisibleLineNum; ++row)
+		{
+		rowIds.push(row);
+		}
+}
+
+function allLinesHaveBeenSeen(rowIds) {
+	for (let ind = 0; ind < rowIds.length; ++ind)
+		{
+		if (!(rowIds[ind] in lineSeen))
+			{
+			return (false);
+			}
+		}
+
+	return (true);
 }

@@ -6,6 +6,30 @@
 let debouncedAddLinks; // See makeDebouncedClearAddLinks() at bottom.
 let firstMaintainButtonsCall = true;
 
+// Borrowed from cmViewerStart.js, just so the Toggle button will work.
+//let anchorClicked = false;
+let cmCursorStartPos = {
+	line : -1,
+	ch : -1
+};
+let cmCursorEndPos = {
+	line : -1,
+	ch : -1
+};
+
+let cursorFileStartPos = {
+	line: 0,
+	ch: 0,
+};
+
+let cursorFileEndPos = {
+		line: 0,
+		ch: 1,
+	};
+
+cmCursorStartPos = cursorFileStartPos;
+cmCursorEndPos = cursorFileEndPos;
+
 function getFileExtension(filename) {
 	let result = '';
 	let extMatch = /\.(\w+)$/.exec(filename);
