@@ -7,7 +7,7 @@ Options
 ========
 You can choose to:
 1. Not allow editing
-2. Use IntraMine's simple Editor
+2. Use IntraMine's built-in Editor
 3. Use your preferred editing app (Eclipse, Visual Studio, notepad++ etc)
 And you can make your choice separately for editing while working directly on your IntraMine box, versus using a different (remote) PC. However, all remote PCs must use the same choice, including the same path to the editing app if you pick one (eg C:/Program Files (x86)/Notepad++/notepad++.exe). If the preferred editor isn't available on a remote PC then IntraMine's Editor will be used instead.
 
@@ -209,9 +209,7 @@ Assumptions:
 5. Start a PowerShell prompt using Run as administrator, type "C:\PS\Start-Editing.ps1" and press Enter.
 6. Now, on the remote PC, bring up a link to any file in the P:\Projects folder that lives on your IntraMine PC, using IntraMine's Search or Files page. Click on the yellow pencil edit icon to the right of the file name, and the file will open in Atom.
 
-iPad editing
-============
-The iPad is "special" of course (isn't it always) and only no editing or use of IntraMine's simple Editor is possible. For starters, I don't even know how I would specify an app to use on the iPad. So set ALLOW_REMOTE_EDITING to 1 if you want to allow remote editing, including the iPad, and the iPad will always use IntraMine's Editor if so. The contorted English there reflects my feelings about the iPad.
+KINDLY NOTE if you want to do remote editing as described just above on multiple remote PCs then the location of the remote editor must be the same on all the remote PCs. In the example above, REMOTE_OPENER_ATOM will vary from PC to PC due to Atom being in the /Users/Gab2/ directory. Installing Atom in the same directory on all remote PCs, such as "C:\atom\atom.exe" would allow remote editing on all of the PCs.
 
 ---
 contents.html

@@ -9,6 +9,7 @@
 # http://192.168.1.132:43128/Editor/?href=C:/perlprogs/mine/test/googlesuggest.cpp&rddm=49040
 # which triggers the 'href' handler FullFile() via the %RequestAction entry below.
 # editor.js#loadFileIntoCodeMirror() then calls LoadTheFile() here with a 'req=loadfile' request.
+# (March 2022) The Editor also shows autolinks an hover images.
 
 # perl C:\perlprogs\mine\intramine_editor.pl server_port our_listening_port
 
@@ -95,9 +96,9 @@ let peeraddress = '_PEERADDRESS_';	// ip address of client
 let b64ToggleImage = '';
 let doubleClickTime = _DOUBLECLICKTIME_;
 
-let weAreEditing = true; // Don't adjust user selection if editing.
+let weAreEditing = true; // Don't adjust user selection or do internal links if editing.
 
-//let onMobile = false; // mobile is going away.
+//let onMobile = false; // mobile is going away. Too difficult to test.
 
 </script>
 </head>
@@ -305,6 +306,7 @@ sub Save {
 	}
 
 # Called by editor.js#saveFile() (via "req=save").
+# OBSOLETE
 sub olderSave {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
@@ -346,7 +348,7 @@ sub olderSave {
 	return($status);
 	}
 
-# HTML encoded file contents, see LoadTheFile().
+# HTML encoded file contents, NOT USED.
 sub GetHtmlEncodedTextFile {
 	my ($filePath) = @_;
 	my $result = '';

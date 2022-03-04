@@ -1,7 +1,9 @@
 Read Me First
 =============
 
-IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read. Start by opening Documentation/contents.html in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of contents.html is a good place to start.
+IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read. The images in those files, bracketed by yellow hummingbirds, will show if you pause your cursor over their links. They're done that way because otherwise you might not ever see any "image hovers", which can be quite useful in source and text files.
+
+Start by opening Documentation/contents.html in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of contents.html is a good place to start.
 
 IntraMine itself can be found at
 https://github.com/KLB7/IntraMine

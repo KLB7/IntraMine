@@ -1,16 +1,18 @@
 // cmAutoLinks.js: insert links automatically in CodeMirror for local and web files,
-// and mentions of headers in the document. Links are done on demand, when new lines
+// and (Viewer only) mentions of headers in the document. Links are done on demand, when new lines
 // are scrolled into view.
 // Handle clicks on links, too.
-// See intramine_file_viewer_cm.pl#CmLinks(), which is called in response to a req=cmLinks
+// See intramine_linker.pl#CmLinks(), which is called in response to a req=cmLinks
 // request. See requestLinkMarkupWithPort() below, which also adds links to internal headers.
+// Links are started off here with a call to addAutoLinks(), in response to a scroll, load
+// or (for the Editor) and edit.
 
 // Track lines that have been looked at, by line number.
 let lineSeen = {};
 let linkOrLineNumForText = new Map();
 
-// Remember markers (links), for editor only - in the editor, only marks for the
-// currently visible lines are kept.
+// Remember markers (links), for editor only - in the editor,
+// All marks are cleared after an edit (see eg editor.js#onCodeMirrorChange()).
 const markers = [];
 
 // Editor only, clear all marks before re-marking the autolinks.
@@ -20,9 +22,9 @@ function clearAndAddAutoLinks() {
 }
 
 // On "load" or "scroll" add links to visible text. Links can be to a web page, a local file
-// (with special handling for local images), or a mention of some heading in the table of contents.
+// (with special handling for local images), or (Viewer only) a mention of some heading in the table of contents.
 // Header mentions are done here in JS, for the others we call back to Perl.
-// We avoid doing the same line more than once, since views are read-only so the links don't change.
+// We avoid doing the same line more than once.
 function addAutoLinks() {
 	
 	if (!weAreEditing)
@@ -36,7 +38,7 @@ function addAutoLinks() {
 
 	let cm = myCodeMirror;
 
-	// Get the visible text, as one big string with '\n' between lines.
+	// Get line numbers for the first and last visible lines.
 	let rect = cm.getWrapperElement().getBoundingClientRect();
 	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
@@ -61,7 +63,7 @@ function addAutoLinks() {
 	let rowIds = []; // For CodeMirror, rowIds are line numbers
 	getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds);
 	
-	//if (!(firstVisibleLineNum in lineSeen) || !(lastVisibleLineNum in lineSeen))
+	// Get the visible text, as one big string with '\n' between lines.
 	if (!allLinesHaveBeenSeen(rowIds))
 		{
 		let visibleText = cm.doc.getRange({
@@ -83,7 +85,6 @@ function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLine
 	console.log("requestLinkMarkup");
 	
 	let request = new XMLHttpRequest();
-	//let theRequest = 'http://' + mainIP + ':' + theMainPort + '/Viewer/?req=portNumber';
 	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
 	request.open('get', theRequest, true);
 	
@@ -221,8 +222,7 @@ function addClickHandlersForLinkMarkup(className) {
 }
 
 // Mark up mentions of headings (typically functions and classes) within our document.
-function markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum,
-		jsonResult) {
+function markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, jsonResult) {
 	let myLines = visibleText.split("\n");
 	let numLines = lastVisibleLineNum - firstVisibleLineNum + 1;
 	let actualLineNumber = firstVisibleLineNum;
@@ -635,6 +635,7 @@ function handleFileLinkClicks(evt) {
 }
 
 // Get current selection if a link was not clicked.
+// In the Viewer only, for a single click the selection is expanded to a word.
 function handleFileLinkMouseUp(evt) {
 	let target = evt.target;
 	let typeClass = typeAndClass(target, false); // false == don't check for IMG
@@ -873,9 +874,8 @@ function fireOneFileLink(linkPath, forEdit) {
 		}
 }
 
-//Replace the "81" with a good Viewer port, call window.open().
 function fireOneViewerLink(href) {
-	openView(href);
+	openView(href); // See viewerLinks.js#openView()
 }
 
 //Open image in a new browser tab.
@@ -915,7 +915,7 @@ function fireOneInternalLink(targetText, lineNum) {
 	goToAnchor(targetText, lineNum); // cmTocAnchors.js#goToAnchor().
 }
 
-// Show popup if image if we're over class "cmAutoLinkImg".
+// Show popup of image if we're over class "cmAutoLinkImg".
 function handleMouseOver(e) {
 	let className = "cmAutoLinkImg";
 	let target = e.target;

@@ -36,7 +36,7 @@ dir: directory path
 rmt: "true" if caller is a remote PC, "false" if it's the IntraMine PC
 edt: "true" if editing is allowed, "false" otherwise
 app: "true" if user has chosen to use their preferred editor, "false" otherwise
-mobile: "true" if caller is using an iPad (untested for other mobile devices)
+mobile: "false" ("true" if caller is using an iPad, but the iPad is no longer supported alas)
 sort: one of
 	'name_ascending' (default)
 	'name_descending'

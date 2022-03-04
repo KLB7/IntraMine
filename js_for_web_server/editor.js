@@ -247,7 +247,19 @@ function testNoticeKeyPress(cm, evt) {
 	e1.innerHTML = 'KEYPRESS ' + evt.keyCode;
 }
 
-// This is a bit poorly named, but it does maintain the save/undo buttons.
+// Show a confirmation dialog it user wants to leave without saving changes.
+// Note browsers often substitute their own string in place of
+// "You have unsaved changes...".
+// This isn't 100% reliable, but it's close enough for most uses.
+// This listener is only added when needed
+// (see https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event).
+const beforeUnloadListener = (event) => {
+  event.preventDefault();
+  return event.returnValue = "You have unsaved changes. Are you sure you want to leave without saving them? Click Cancel if you want to Save.";
+};
+let unloadListenerAdded = false;
+
+// Maintain the save/undo etc buttons, and redo autolinks.
 function onCodeMirrorChange() {
 	let sve = document.getElementById("save-button");
 	
@@ -259,6 +271,9 @@ function onCodeMirrorChange() {
 		addClass(btn, 'disabled-submit-button');
 		btn = document.getElementById("redo-button");
 		addClass(btn, 'disabled-submit-button');
+		
+		// Note CodeMirror emits a "change" event when text is loaded, we ignore
+		// since loadFileIntoCodeMirror() calls addAutoLinks() directly.
 		return;
 		}
 	
@@ -267,10 +282,21 @@ function onCodeMirrorChange() {
 		removeClass(sve, 'disabled-submit-button');
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '&nbsp;';
+		
+		if (!unloadListenerAdded)
+			{
+			unloadListenerAdded = true;
+			addEventListener("beforeunload", beforeUnloadListener, {capture: true});
+			}
 		}
 	else
 		{
 		addClass(sve, 'disabled-submit-button');
+		if (unloadListenerAdded)
+			{
+			unloadListenerAdded = false;
+			removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+			}
 		}
 
 	let ur = myCodeMirror.historySize();
@@ -279,9 +305,7 @@ function onCodeMirrorChange() {
 	btn = document.getElementById("redo-button");
 	ur.redo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
 
-	// Restore marks after a couple of seconds or so.
-	// CodeMirror emits a "change" event when text is loaded, we don't need to respond
-	// since loadFileIntoCodeMirror() calls addAutoLinks() directly.
+	// Restore marks when editing pauses for a couple of seconds.
 	debouncedAddLinks();
 }
 
@@ -320,6 +344,11 @@ function saveFile(path) {
 				myCodeMirror.markClean();
 				let sve = document.getElementById("save-button");
 				addClass(sve, 'disabled-submit-button');
+				if (unloadListenerAdded)
+					{
+					unloadListenerAdded = false;
+					removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+					}
 				}
 			hideSpinner();
 			}
@@ -347,13 +376,14 @@ function saveFile(path) {
 	path = path.replace(/%/g, "%25");
 	
 	contents = encodeURIComponent(contents);
-	contents = encodeURIComponent(contents);
+	contents = encodeURIComponent(contents); // sic
 	
 	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
 			+ contents);
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
+// OBSOLETE
 function oldersaveFile(path) {
 	let e1 = document.getElementById(errorID);
 	let sve = document.getElementById("save-button");

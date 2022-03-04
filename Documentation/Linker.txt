@@ -1,11 +1,48 @@
 Linker
 ========
 
-The Linker service turns text into hyperlinks on file names or paths, in text and source files. It returns either a new version of the text with links in place, or a JSON summary of the links and where they should go.
+The Linker service turns text into links where possible. It returns either a new version of the text with links in place, or, for CodeMirror-based displays, a JSON summary of the links and where they should go.
 
-This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls. However, it does not display web pages, and has no JavaScript.
+This is an IntraMine service, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls. However, it does not display web pages, and has no JavaScript.
 
-Although the Linker can handle any number of lines of text, it's used by IntraMine's Viewer as an "on demand" service, to add links to text that is newly shown, either when a view of a file is brought up or after a scroll. Typically the view of a source or text file shows under 100 lines at a time, so the load on the Linker is fairly minimal.
+Although the Linker can handle any number of lines of text, it's used by IntraMine's Viewer and Editor as an "on demand" service, to add links to text that is newly shown, either when a view of a file is brought up or after a scroll. Typically the view of a source or text file shows under 100 lines at a time, so the load on the Linker is fairly minimal.
+
+Text that can be turned into a link includes:
+ - a "sufficient path" to a local file (see next section)
+ - the same, with a text heading, function name, or class name added (Viewer only)
+ - quoted mentions of a heading, function, or class in the same file (Viewer only)
+ - a web address starting with http or https
+ - use X::Y in a Perl file (with metacpan or Editor links as appropriate, again Viewer only)
+
+File autolinking works fully for files that are in directories listed in your version of IntraMine's data/search_directories.txt file. If a file hasn't been indexed, then you'll need to use a full path to get a link for it. It's worth repeating though that if a directory is of interest to you then you should include it in your search_directories.txt file. See "Build your Elasticsearch index and run IntraMine.txt" for details on building your Elasticsearch index.
+
+Here we mainly go over local file links. You'll find more about autolinking in "Gloss.txt#Links".
+
+What the Linker does differently
+================================
+IntraMine's Linker knows all file paths of interest on your system, and understands the notion of distance between your "referencing file" where you're typing, and the "target file" that you want to link to. Combined, this means you typically have to type only a file name in order to get a link when using the Viewer or Editor.
+
+Let's get some terminology out of the way first:
+**Referencing file**: the source or text file where you're typing, and want to have a link to a target file.
+**Target file**: is the file you want to link to.
+**Context**: this is the directory that holds the referencing file.
+**File distance**: As you might guess, the "distance" between your referencing file and target file is just the number of directory moves up and down that it takes to go from one file to the other.
+**Sufficient path**: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans). For this to work properly, the file should be in a directory that's been indexed for Elasticsearch (as listed in your data/search_directories.txt file).
+
+Here's an example of IntraMine's autolinking, in three parts.
+1. Let's suppose you have a project folder "E:\projects\project51", and within it there is only one file called "SaveDialog.cpp". But you also have other project folders containing "SaveDialog.cpp" files. And suppose you're typing in a log file in the project51 folder, "E:\projects\project51\logs\Sept 2021.txt" and you enter
+"...as seen in SaveDialog.cpp...".
+Based on your context (the location of the log file) the closest match is the SaveDialog.cpp file in your "project51" folder, so the path to link to is the only SaveDialog.cpp in that folder, which might be "E:\projects\project51\src\ui\SaveDialog.cpp".
+
+2. Now suppose you're still typing in the same log file but you want a link to the SaveDialog.cpp file in the project99 folder instead of the project51 folder, and again there's only one file called "SaveDialog.cpp" in the project99 folder, and there's only one project99 folder across your whole system. Then if you type
+"...by comparison with project99\SaveDialog.cpp we have..."
+it's reasonable to turn that into a link to the one instance of SaveDialog.cpp in the project99 folder, which might be "E:\projects\project99\src\ui\SaveDialog.cpp", or even "P:\older_projects\project99\source\SaveDialog.pp", doesn't matter as long as there's only one SaveDialog.cpp in a project99 folder system wide.
+
+3. And finally, let's suppose there are two project99 folders in your file system, one on the E: drive and one on the P: drive, and you're still typing in the same log file on the E: drive. Then, if you type
+"...by comparison with project99\SaveDialog.cpp we have..."
+there are two potential full paths - but the one on the E: drive is "closer" to where you're typing, so that's the natural choice. If you really do want the P: drive version, then typing "P:\project99\SaveDialog.cpp" will pick that one.
+
+How does IntraMine know all file paths of interest on your system? They're gathered when you index folders for searching. So the whole "instant search with Elasticsearch" thing is sneakily also about being able to do autolinking properly.
 
 Main back-end Perl files
 ========================
@@ -30,7 +67,7 @@ In IntraMine, the Linker is called only through JavaScript. The routine is to ca
 Here's a summary of the main Linker subs and how they are triggered from JavaScript.
 TABLE Linker subs and their JavaScript callers
 Linker subroutine       	Linker %RequestAction	Called by	Purpose						JavaScript example
-CmLinks				req|cmLinks	Viewer	Links for CodeMirror views	cmAutoLinks.js#addAutoLinks()
+CmLinks				req|cmLinks	Viewer / Editor	Links for CodeMirror views	cmAutoLinks.js#addAutoLinks()
 NonCmLinks			req|nonCmLinks		Viewer	Links for .txt and Perl views etc	autoLinks.js#addAutoLinks()
 FullPathForPartial	req|autolink		Files	Single link for a partial path	files.js#openAutoLink()
 
@@ -39,7 +76,7 @@ Under the hood
 
 Autolink sequence overview
 ------------------
-1. New lines of text come into view in a text view of a file generated by IntraMine's Viewer, either on load or after a scroll.
+1. New lines of text come into view in a text view of a file generated by IntraMine's Viewer or Editor, either on load or after a scroll. For the Editor, links are cleared and visible links restored when editing pauses for a couple of seconds.
 2. (JS) addAutoLinks() is called in response, and sends an XMLHttpRequest to retrieve link markup for all visible lines. Note there are two instances of addAutoLinks, one in cmAutoLinks.js for CodeMirror-based displays, and one in autoLinks.js for all other views that can have links.
 2.1 For CodeMirror file displays, cmAutoLinks.js#addAutoLinks() sends a request containing "req=cmLinks". This calls intramine_viewer.pl#CmLinks(), passing all the lines of text received in $formH->{'text'}.
 2.2 For non-CodeMirror displays, autoLinks.js#addAutoLinks() sends a request containing "req=nonCmLinks". This calls intramine_viewer.pl#NonCmLinks(), again passing all the text received.

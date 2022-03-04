@@ -42,9 +42,15 @@ Image hovers: In IntraMine's file views and under the Files page, if you pause y
 
 Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see "Documentation/Supplied services.txt#Viewer".
 
-Partial path: For IntraMine's autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. 
+Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.
+
+Partial path: For IntraMine's autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
 For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+
+Sufficient path: For IntraMine's autolinking, a sufficient path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
+
+For example, "project51/Cpp/main.cpp" would be a sufficient path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
 Run as administrator: You can get a command prompt (console window) by putting a shortcut to "C:/Windows/System32/cmd.exe" on your desktop.
 
@@ -58,9 +64,9 @@ Autolinks, automatic links, automatic linking: Briefly, IntraMine uses a complet
 
 You can also autolink to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
 
-That was a bit brief wasn't it? Please see Gloss.txt in IntraMine's Documentation folder for more details and some examples.
+That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine's Documentation folder for more details and some examples.
 
-Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. In IntraMine, for example, all open ToDo pages request to be notified of "todochanged" events that are sent when any open ToDo page changes, and in response they reload the ToDo page (see js_for_web_server/todoEvents.js), keeping all open ToDo pages synchronized.
+Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.
 
 Command prompt: The flashing insertion point in the window that comes up when you run "C:\\Windows\\System32\cmd.exe"
 
@@ -70,7 +76,7 @@ Navigation bar: "topnav.png".
 
 Status page: "2020-02-27 22_40_46-Status.png".
 
-Context aware, context-aware: IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as "main.cpp" is used for many files, we need some way to pin down which "main.cpp" is meant. IntraMine does this in two ways: you can provide enough of a partial path leading up to the file, such as "project51/src/main.pp", that only one indexed file matches that partial path; or, if you mean the main.cpp that's "closest" to the file where you've mentioned it, then that's the one IntraMine will pick by default, and no partial path is needed.
+Context aware, context-aware: IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as "main.cpp" is used for many files, we need some way to pin down which "main.cpp" is meant. IntraMine does this in two ways: you can provide enough of a sufficient path leading up to the file, such as "project51/src/main.pp", that only one indexed file matches that sufficient path; or, if you mean the main.cpp that's "closest" to the file where you've mentioned it, then that's the one IntraMine will pick by default, and only the file name is needed.
 
 "Closest" uses the folder notion of distance, where a step up to a parent folder or a step down into a child folder counts as one step.
 
@@ -84,6 +90,6 @@ You can convert one file, or a whole folder. Images can be of the "pop up on hov
 
 There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there's an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links; and there are tables, headings, lists etc. See Gloss.txt and gloss2html.pl at the top for more.
 
-WebSockets: like HTTP, but it allows two-way communications, and allows easy communications between web clients.
+WebSockets: like HTTP, but it allows two-way communications, and easy communications between web clients.
 
 CTRL+C: "tenor.gif".

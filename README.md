@@ -31,7 +31,7 @@ The Viewer has standard display features such as syntax highlighting, line numbe
 [CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files. Gloss (IntraMine's markdown variant) is fully applied to .txt files, and autolinking is applied to all source and text files (except .md).
 
 ### Autolinks
-So, you're writing a comment or typing in a log file and you want a link to some other file, say "files.cpp": how do you signal your intent if there are several "files.cpp" files floating around? Well, if you wanted a friend to be able to uniquely identify the correct file, you would add just enough directory names to make the reference unique, not caring about directories left out or even the correct order, because your friend is brilliant. And you would expect them to pick the "closest" matching file in the file system, relative to the one you're typing in, if your provided path is too short to be unique. That's what IntraMine's autolinking does.
+So, you're writing a comment or typing in a log file and you want a link to some other file, say "files.cpp": how do you signal your intent if there are several "files.cpp" files floating around? If you wanted a friend to be able to uniquely identify the correct file, you would add just enough directory names to make the reference unique, not caring about directories left out or even the correct order, because your friend is brilliant. And you would expect them to pick the "closest" matching file in the file system, relative to the one you're typing in, if your provided path is too short to be unique. That's what IntraMine's autolinking does.
 
 For example, if the path fragment project51/files.cpp is enough to identify P:\Cpp\OtherProjects\Project51\src\files.cpp uniquely, that's all you need to type to get the correct link. To provide a link that goes directly to the updateFile() method in files.cpp, you could type project51/files.cpp#updateFile, or project51/files.cpp#updateFile() if you want to make it clear it's a method, or "project51/files.cpp#updateFile()" to make it stand out more in the source. If you're typing in a document in the Project51 folder then files.cpp is all you need to link to project51/src/files.cpp, since autolinking will pick the files.cpp that's closest to the document where you've done the typing (your "context").
 
@@ -39,7 +39,9 @@ Autolinking is applied to any source or text file viewed with IntraMine's Viewer
 
 Autolinking also links up web links, and internal class and function names and (quoted) heading mentions. There's a minimum of "computer friendly" baggage, so for example you don't have to put quotes around a web link, unless you want the link to stand out more in the original text.
 
-A local or NAS file must be in an location that's been indexed for searching in order for autolinking to work. But if a folder has interesting files in it, you should probably index it. You'll discover how to index folders as you go through the installation.
+A local or NAS file must be in a location that's been indexed for searching in order for autolinking to work. But if a folder has interesting files in it, you should probably index it. You'll discover how to index folders as you go through the installation.
+
+As of March 2022, IntraMine's built-in Editor also displays autolinks for file or web mentions.
 
 ### Image hovers
 While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
@@ -70,9 +72,9 @@ If you spot a bug, please do the kindness of sending an email describing it to k
 ## Limitations and a heads-up
 IntraMine is for use only on an intranet, and provides no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
 
-IntraMine's services need to all run on the same PC, and adding/stopping/starting services is not automatic, though it can be done manually on the fly. This works because the load on IntraMine is typically relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files checked out.
+IntraMine's services need to all run on the same PC, and adding/stopping/starting services is not automatic, though it can be done manually on the fly. This works well enough because the load on IntraMine is typically relatively light and predictable, unless your team is huge. And also because it's a viable option to have one instance of IntraMine running on each developer's PC, especially when everyone has a separate personal copy of source files.
 
-And I feel bound to mention that installation of IntraMine, though thoroughly documented to death and partway into the afterlife, requires a bit of time to wade through. Roughly an hour. Not a lot of typing, mostly just waiting while things install one by one. And then there's your first index build, which might take another hour. Put up with the one-time nuisance and you'll have many shiny new toys to play with.
+And I feel bound to mention that installation of IntraMine requires a bit of time to wade through. Roughly an hour. Not a lot of typing, mostly just waiting while things install. And then there's your first index build, which might take another hour. Put up with the one-time nuisance and you'll have many shiny new toys to play with.
 
 ## I'd like more details before diving in please
 See [the documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
@@ -82,4 +84,5 @@ Clone or fork or download the .zip for IntraMine, and open the included Document
 
 After installing IntraMine and starting it up, point your browser to http://localhost:81/Search. (Or whatever port you choose if you can't use 81).
 
-If that gets you interested, skim through the rest of the documentation. Maybe write your own IntraMine service? Put autolinking in your IDE? Fork IntraMine, rename it, and go your own way?
+Enjoy!
+-KLB7 at intramine.info

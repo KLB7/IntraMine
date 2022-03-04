@@ -1,18 +1,28 @@
 Editor
 ========
-This is IntraMine's built-in editor, with intramine_editor.pl on the back end, and editor.js on the front.
+This is about IntraMine's built-in editor, with intramine_editor.pl on the back end, and editor.js on the front.
 
 To configure editing with IntraMine, see "Editing documents.txt".
 
-The Editor is a bare-bones editor, with syntax highlighting and the ability to Save. You can also Undo with CTRL-Z, Redo with SHIFT-CTRL-Z, and Find with CTRL-F. It's useful for making small edits such as correcting a typo or adding a comment.
+The Editor is fairly minimal, with syntax highlighting, autolinks and image hovers, and the ability to Save. There are buttons at the top for Save, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
+TABLE
+Action			Keys
+Save			Ctrl+S
+Undo			Ctrl+Z
+Redo			Ctrl+Shift+Z
+Find			Ctrl+F
+Cut				Ctrl+X
+Copy			Ctrl+C
+Paste			Ctrl+V
+Select All		Ctrl+A
 
 Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top.
 
 *Some pencil links in a read-only View, and a green "Edit" button at the top.*
 2019-12-03 16_38_08-intramine_file_viewer_cm.pl.png
 
-*An Editor view. The "Save" button is enabled because I typed that "x" on line 13.*
-2019-12-03 16_42_48-intramine_file_viewer_cm.pl.png
+*An Editor view. The "Save" button is enabled because I typed that "x" on line 4.*
+2022-03-03 14_09_39-Editor.txt.png
 
 Under the hood
 ==============
@@ -25,6 +35,7 @@ File load sequence
 4. FullFile() returns the basic HTML for the page and includes editor.js and CodeMirror files.
 5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.
 6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax highlighting etc) from then on.
+7. The same sub also calls cmAutoLinks.js#addAutoLinks(), which loads file links, web links, and image hovers for the currently visible text.
 
 API
 =====

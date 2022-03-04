@@ -5,6 +5,7 @@ IntraMine ships with a copy of CodeMirror (version 5.53.0), so it's not necessar
 
 A small iPad problem
 ====================
+[March 2022, alas the iPad is no longer supported at all. This is mainly because I can't find a free way to debug it.]
 NOTE you will lose hit markers in the scroll area for source file views on an iPad if you update CodeMirror. If you don't use an iPad to get at IntraMine, then nothing should be lost.
 
 If you do want to use an iPad, there is a hack that should get the scroll area markers back after updating CodeMirror. After following the install instructions below, look in Codemirror-master\addon\scroll\annotatescrollbar.js in your IntraMine folder, around line 87, for

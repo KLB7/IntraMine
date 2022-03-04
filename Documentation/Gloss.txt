@@ -94,41 +94,45 @@ produces
 
 Links
 -----
-When a source or text file is viewed with IntraMine, file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used.
+When a source or text file is viewed with IntraMine, file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used. For details on how to index folders, see "Configuring folders to index and monitor.txt".
 
 Linking to other files
 ~~~~~~~~~~~~~~~~~~~~~~
 Let's get the novel parts of this out of the way first, and see how IntraMine decides which file to link to, when you have more than one file with the same name. 
 
 This works more easily with a few definitions up front:
- - the "source" file is the file holding the link.
- - the file you want to link to is the "target".
- - the "context" for the link is the location on disk of the source file.
- - the "distance" from one file to another is measured by the leftmost overlap of their paths. For example, C:/project51/docs/notes.txt and C:/project51/src/main.cpp have "C:/project51/" as their overlap.
-For example, if you're reading "C:/Projects/project51/docs/notes.txt", and in it you see "main.cpp": then "notes.txt" is the source, "main.cpp" is the target, and "C:/Projects/project51/docs/" is the context. As a variation, the target you see might be "project999/src/main.cpp" (which might or might not be on the C: drive).
+**Referencing file**: the source or text file where you're typing, and want to have a link to a target file.
+**Target file**: is the file you want to link to.
+**Context**: this is the directory that holds the referencing file.
+**File distance**: As you might guess, the "distance" between your referencing file and target file is just the number of directory moves up and down that it takes to go from one file to the other.
+**Sufficient path**: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans).
 
-Basically, IntraMine decides which file is meant as the target the same way you would, if you memorized the names and locations of all files on your system. It picks the closest one that's compatible with any partial or full path you provide, preferring ones that are closed to your context.
+For example, if you're reading "C:/Projects/project51/docs/notes.txt", and in it you see "main.cpp": then "notes.txt" is the referencing file, "main.cpp" is the target, and "C:/Projects/project51/docs/" is the context. As a variation, the target you see might be "project999/src/main.cpp" (which might or might not be on the C: drive).
 
-So if you see "main.cpp" in "C:/Projects/project51/docs/notes.txt", and the main.cpp closest to that file is "C:/Projects/project51/src/main.cpp", then that's where the link on "main.cpp" will take you. If, in the same project, you also had temp/main.cpp and archived/main.cpp, then you would want to use "src/main.cpp" to signal which of the closest ones you want. IntraMine interprets that as "go to the closest main.cpp that's in a /src/ subfolder"
+Basically, IntraMine decides which file is meant as the target the same way you would, if you memorized the names and locations of all files on your system. It picks the closest one that's compatible with any path you provide, in other words the one that's at a minimum distance from your context.
 
-If instead you wanted to link to the main.cpp in a different project, you would need to provide enough of a partial path, eg project999/src/main.cpp.
+So if you type "...as implemented in main.cpp" in "C:/Projects/project51/docs/notes.txt", and the main.cpp closest to that file is "C:/Projects/project51/src/main.cpp", then that's where the link on "main.cpp" will take you. If, in the same project, you also had temp/main.cpp and archived/main.cpp, then you would want to use "src/main.cpp" to signal which of the closest ones you want. IntraMine interprets that as "go to the closest main.cpp that's in a /src/ subfolder, with /src/ being anywhere in the path".
 
-But, there's no need to include a rightmost-complete partial path: directories can be skipped, or out of order. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp).
+If instead you wanted to link to the main.cpp in a different project, you would need to provide enough of a sufficient path, eg project999/src/main.cpp.
 
-Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed (see Build your Elasticsearch index and run IntraMine.txt). You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
+By the way, even though I've sometimes lazily referred to a "partial path" on occasion, there's no need to include a rightmost-complete partial path: directories can be skipped, or out of order. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp). And if your referencing file is in the project999 folder, then all you need is main.cpp. Not even quotes.
 
-TABLE Link examples
-Target (file to link to)		Source (where you're typing)			What to put as the link
+Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed. You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
+
+TABLE Link examples (assuming only one instance of main.cpp in each project folder)
+Target (file to link to)		Referencing (where you're typing)		What to put as the link
 main.cpp in P:/project51/src	P:/project51/docs/notes.txt				main.cpp
-main.cpp in P:/project999/src	P:/project51/docs/notes.txt				project999/src/main.cpp
-main.cpp in P:/project51/src	P:/project999/docs/notes.txt			project51/src/main.cpp
-main.cpp in P:/project51/src	a file on some other drive				project51/src/main.cpp
-Of course, if you have several copies of the project51 folder floating around, you'll need more of the path in the mention, and in that case you're better off using the whole path (eg P:/project51/src/main.cpp)
+main.cpp in P:/project999/src	P:/project51/docs/notes.txt				project999/main.cpp
+main.cpp in P:/project51/src	P:/project999/docs/notes.txt			project51/main.cpp
+main.cpp in P:/project51/src	a file on some other drive				project51/main.cpp
+Of course, if you have several copies of the project51 folder floating around, you'll need more of the path in the mention, eg Q:/project51/main.cpp if there's only one project51 folder on the Q: drive.
 
-IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/src/main.cpp. Maybe some day....
+IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/main.cpp. Maybe some day....
 
 Linking to headings in other files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Heading links are only fully implemented in IntraMine's Viewer. If you click on the little pencil icon to bring up an Editor for a link that contains a heading, the file will open in the Editor but you won't be scrolled down to the heading.
+
 By "heading" I mean a heading in a text file, or a function or class in a source file, to keep things short.
 
 To link to a heading in a source or text file, put a hash "#" between the file name and heading, and put the whole mention in "double quotes".
@@ -142,7 +146,9 @@ If you click on a link to a heading, the file will open in a new tab and you'll 
 
 Linking to headings in the same file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Again "heading" here means heading in a text file, or a function or class in a source file.
+Heading links are only fully implemented in IntraMine's Viewer. The Editor does not have links to headings within the same file.
+
+Again "heading" here means heading in a text file, or a function or class in a source file. Headings in the same file are linked by the Viewer, but not by IntraMine's Editor.
 
 In a text file:
 To link to a heading in the same text (.txt)file, put it in "double quotes".
@@ -150,7 +156,7 @@ To link to a heading in the same text (.txt)file, put it in "double quotes".
 In a source file:
 The links to functions and classes within the same file will happen on their own. No quotes are needed in either source or comments.
 
-As an example, "Images" will be a link to the section following this one. When you start using IntraMine you'll see same-file links to functions and classes in your source files.
+As an example, "Images" will be a link to a section following this one. When you start using IntraMine you'll see same-file links to functions and classes in your source files.
 
 Web links
 ~~~~~~~~~
@@ -163,7 +169,7 @@ Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file 
 
 On-demand linking
 ~~~~~~~~~~~
-Context-aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking: lines of text are processed only when they become visible, and only once.
+Context-aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking, so that lines of text are processed only when they become visible, and only once. However, the Editor does clear all links and redo the links for visible lines after an editing "spurt" is finished.
 
 Images
 ------

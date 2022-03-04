@@ -1,6 +1,8 @@
 IntraMine on the iPad
 =====================
 
+[March 2022, alas the iPad is no longer supported at all. This is mainly because I can't find a free way to debug it.]
+
 IntraMine is not "officially" supported on the iPad, whatever that means for a free product, but it's ok for doing a quick search or even a minor edit. For best results, use Safari on as physically large an iPad as possible.
 
 Viewing files on the iPad

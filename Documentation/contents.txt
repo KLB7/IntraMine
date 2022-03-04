@@ -49,7 +49,6 @@ Stealing from IntraMine.txt
 Configuring folders to index and monitor.txt
 A note on port numbers.txt
 Elasticsearch with replicas.txt
-IntraMine on the iPad.txt
 Testing with IntraMine.txt
 
 glossary.txt
