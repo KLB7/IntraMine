@@ -30,7 +30,8 @@ function scrollTocEntryIntoView(lineNum, inContent, scrolling) {
 	
 	if (tocElem !== null)
 		{
-		tocElem.scrollIntoView({block: 'center'});
+		tocElem.scrollIntoView();
+		//tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
 }
@@ -46,9 +47,9 @@ function addTocScrollListener() {
 		// Set a timeout to run after scrolling ends
 		scrollingForToc = setTimeout(function() {
 			// Run the callback
-			let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
-			startPos = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
-			scrollTocEntryIntoView(startPos + 1, false, true);
+			let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();				
+			startPos  = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
+			scrollTocEntryIntoView(startPos, false, true);
 		}, 66);
 	});
 }

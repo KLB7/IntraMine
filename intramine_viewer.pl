@@ -586,24 +586,17 @@ sub GetContentBasedOnExtension {
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 		$$customCSS_R = $cssForCM;
-		my $textContents = GetHtmlEncodedTextFile($filePath);
 		my $toc = '';
-		if ($textContents ne '')
+		if ($filePath =~ m!\.css$!i)
 			{
-			# Arg, there must be a better way to count lines. Mind you, I should do it the
-			# right way which is foreach over the hashes....
-			my @lines = split(/\n/, $textContents);
-			my $numLines = @lines;
-			
-			if ($filePath =~ m!\.css$!i)
-				{
-				GetCssCTagsTOCForFile($filePath, $numLines, \$toc);
-				}
-			else
-				{
-				GetCTagsTOCForFile($filePath, $numLines, \$toc);
-				}
+			# CSS is special, can have multiple entries per line.
+			GetCssCTagsTOCForFile($filePath, \$toc);
 			}
+		else
+			{
+			GetCTagsTOCForFile($filePath, \$toc);
+			}
+		
 		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
 		}
 	# 4. CM, no TOC: textile, out, other uncommon formats not supported by ctags.
@@ -2408,7 +2401,7 @@ sub GetGoTOC {
 # Use ctags to generate a Table Of Contents (TOC) for a source file. Ctags are written to
 # a temp file and then read back in, a bit clumsy but it works.
 sub GetCTagsTOCForFile {
-	my ($filePath, $numLines, $tocR) = @_;
+	my ($filePath, $tocR) = @_;
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	my $fileName = FileNameFromPath($filePath);
 
@@ -2423,8 +2416,10 @@ sub GetCTagsTOCForFile {
 	my %classEntryForLine;
 	my %methodEntryForLine;
 	my %methodNameForLine;	# Not currently used.
-	my $itemCount = LoadCtags($ctagsFilePath, \%classEntryForLine, \%methodEntryForLine,
-								\%methodNameForLine, \$errorMsg);
+	my $itemCount = LoadCtags($ctagsFilePath, \%classEntryForLine,
+							\%methodEntryForLine,
+							\%methodNameForLine,
+							\$errorMsg);
 	if ($errorMsg ne '')
 		{
 		$$tocR = "<strong>$errorMsg</strong>\n";
@@ -2436,53 +2431,46 @@ sub GetCTagsTOCForFile {
 	my @methodList;
 	my @methodNames;
 	my %idExists; # used to avoid duplicated anchor id's.
-
-	my $lineNum = 1;
-	for (my $i = 0; $i < $numLines; ++$i)
-		{
-		if (defined($classEntryForLine{$lineNum}))
-			{
-			my $className = $classEntryForLine{$lineNum};
-			my $contentsClass = 'h2';
-			my $id = $className;
-			$id =~ s!\s+!_!g;
-			my $idBump = 2;
-			my $idBase = $id;
-			while ($id eq '' || defined($idExists{$id}))
-				{
-				$id = $idBase . $idBump;
-				++$idBump;
-				}
-			$idExists{$id} = 1;
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-			#my $jlStart = "<li class='$contentsClass'><a onclick='jumpToLine($i);'>";
-			my $jlEnd = "</a></li>";
-			push @classList, $jlStart . $className . $jlEnd;
-			push @classNames, $className;
-			}
-		elsif (defined($methodEntryForLine{$lineNum}))
-			{
-			my $methodName = $methodEntryForLine{$lineNum};
-			my $contentsClass = 'h2';
-			my $id = $methodName;
-			$id =~ s!\s+!_!g;
-			my $idBump = 2;
-			my $idBase = $id;
-			while ($id eq '' || defined($idExists{$id}))
-				{
-				$id = $idBase . $idBump;
-				++$idBump;
-				}
-			$idExists{$id} = 1;
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-			#my $jlStart = "<li class='$contentsClass'><a onclick='jumpToLine($i);'>";
-			my $jlEnd = "</a></li>";
-			push @methodList, $jlStart . $methodName . '()' . $jlEnd;
-			push @methodNames, $methodName;
-			}
-		++$lineNum;
-		}
+	my $jlEnd = "</a></li>";
 	
+	foreach my $lineNum (keys %classEntryForLine)
+		{
+		my $className = $classEntryForLine{$lineNum};
+		my $contentsClass = 'h2';
+		my $id = $className;
+		$id =~ s!\s+!_!g;
+		my $idBump = 2;
+		my $idBase = $id;
+		while ($id eq '' || defined($idExists{$id}))
+			{
+			$id = $idBase . $idBump;
+			++$idBump;
+			}
+		$idExists{$id} = 1;
+		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+		push @classList, $jlStart . $className . $jlEnd;
+		push @classNames, $className;
+		}
+		
+	foreach my $lineNum (keys %methodEntryForLine)
+		{
+		my $methodName = $methodEntryForLine{$lineNum};
+		my $contentsClass = 'h2';
+		my $id = $methodName;
+		$id =~ s!\s+!_!g;
+		my $idBump = 2;
+		my $idBase = $id;
+		while ($id eq '' || defined($idExists{$id}))
+			{
+			$id = $idBase . $idBump;
+			++$idBump;
+			}
+		$idExists{$id} = 1;
+		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+		push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+		push @methodNames, $methodName;
+		}
+
 	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
 	@classList = @classList[@idx];
 	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
@@ -2503,7 +2491,7 @@ sub GetCTagsTOCForFile {
 # Ctags handling, for CSS files. There can be multiple entries per line, and tag can be
 # somewhat modified for use as an anchor.
 sub GetCssCTagsTOCForFile {
-	my ($filePath, $numLines, $tocR) = @_;
+	my ($filePath, $tocR) = @_;
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	my $fileName = FileNameFromPath($filePath);
 	my $contentsClass = 'h2';
@@ -2519,8 +2507,10 @@ sub GetCssCTagsTOCForFile {
 	my %tagEntryForLine;
 	my %tagDisplayedNameForLine;
 	$fileName = lc($fileName);
-	my $itemCount = LoadCssCtags($ctagsFilePath, $fileName, \%tagEntryForLine,
-								\%tagDisplayedNameForLine, \$errorMsg);
+	my $itemCount = LoadCssCtags($ctagsFilePath, $fileName,
+								\%tagEntryForLine,
+								\%tagDisplayedNameForLine,
+								\$errorMsg);
 	if ($errorMsg ne '')
 		{
 		$$tocR = "<strong>$errorMsg</strong>\n";
@@ -2530,34 +2520,19 @@ sub GetCssCTagsTOCForFile {
 	my @anchorList;
 	my @displayedTagNames;
 	my %idExists; # used to avoid duplicated anchor id's.
-	my $lineNum = 1;
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $jlEnd = "</a></li>";
+	foreach my $lineNum (keys %tagEntryForLine)
 		{
-		if (defined($tagEntryForLine{$lineNum}))
+		my $tag = $tagEntryForLine{$lineNum};
+		my $displayedTag = $tagDisplayedNameForLine{$lineNum};
+		if (index($tag, "|") > 0) # multiple entries for line
 			{
-			my $tag = $tagEntryForLine{$lineNum};
-			my $displayedTag = $tagDisplayedNameForLine{$lineNum};
-			if (index($tag, "|") > 0) # multiple entries for line
+			my @tags = split(/\|/, $tag);
+			my @displayedtags = split(/\|/, $displayedTag);
+			for (my $j = 0; $j < @tags; ++$j)
 				{
-				my @tags = split(/\|/, $tag);
-				my @displayedtags = split(/\|/, $displayedTag);
-				for (my $j = 0; $j < @tags; ++$j)
-					{
-					$tag = $tags[$j];
-					$displayedTag = $displayedtags[$j];
-					my $id = $tag;
-					if (!defined($idExists{$id}))
-						{
-						my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-						my $jlEnd = "</a></li>";
-						push @anchorList, $jlStart . $displayedTag . $jlEnd;
-						push @displayedTagNames, $displayedTag;
-						}
-					$idExists{$id} = 1;
-					}
-				}
-			else # single entry for line
-				{
+				$tag = $tags[$j];
+				$displayedTag = $displayedtags[$j];
 				my $id = $tag;
 				if (!defined($idExists{$id}))
 					{
@@ -2569,9 +2544,20 @@ sub GetCssCTagsTOCForFile {
 				$idExists{$id} = 1;
 				}
 			}
-		++$lineNum;
+		else # single entry for line
+			{
+			my $id = $tag;
+			if (!defined($idExists{$id}))
+				{
+				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlEnd = "</a></li>";
+				push @anchorList, $jlStart . $displayedTag . $jlEnd;
+				push @displayedTagNames, $displayedTag;
+				}
+			$idExists{$id} = 1;
+			}
 		}
-		
+	
 	my @idx = sort { $displayedTagNames[$a] cmp $displayedTagNames[$b] } 0 .. $#displayedTagNames;
 	@anchorList = @anchorList[@idx];
 	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" .

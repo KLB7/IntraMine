@@ -73,6 +73,7 @@ sub FullFile {
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 
 <link rel="stylesheet" type="text/css" href="cm_viewer.css" />
+<link rel="stylesheet" type="text/css" href="cm_editor_fix.css" />
 
 <script type="text/javascript" src="tooltip.js"></script>
 

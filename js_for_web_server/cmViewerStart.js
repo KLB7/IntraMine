@@ -83,7 +83,7 @@ function doResize() {
 	updateToggleBigMoveLimit();
 }
 
-// Restor scrolled position after a refresh.
+// Restore scrolled position after a refresh.
 function reJump() {
 	return;
 	let h = location.hash;

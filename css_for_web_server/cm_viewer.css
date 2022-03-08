@@ -11,6 +11,11 @@
 	overflow: visible
 }
 
+/* Tweak nav bar position for CodeMirror. */
+#nav {
+	margin-top: 16px;
+}
+
 /*
 div#indicator {
     position: absolute;

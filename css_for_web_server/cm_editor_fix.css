@@ -1,0 +1,9 @@
+/* cm_editor_fix.css */
+
+/* Restore 8px, the CodeMirror editor doesn't have the same positioning
+ * problem for the nav bar that the Viewer has.
+ */
+/* Tweak nav bar position for CodeMirror. */
+#nav {
+	margin-top: 8px;
+}

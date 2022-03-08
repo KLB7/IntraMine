@@ -81,9 +81,6 @@ function addAutoLinks() {
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
 function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum) {
-	// TEST ONLY
-	console.log("requestLinkMarkup");
-	
 	let request = new XMLHttpRequest();
 	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
 	request.open('get', theRequest, true);
