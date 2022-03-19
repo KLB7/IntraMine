@@ -19,11 +19,11 @@ Most of Gloss is also available in ToDo items - see "ToDo.txt#Gloss markdown can
 
 Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use, as opposed to publishing to the world. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
 
-Since IntraMine is a bit of a tech demo, Gloss processing is fully applied to all .txt files by the Viewer. A subset (including table of contents, automatic linking, and image hovers) is also applied to source files. And gloss2html.pl generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.
+Since IntraMine is a bit of a tech demo, Gloss processing is fully applied to all .txt files by the Viewer. A subset (including table of contents, automatic linking, and image hovers) is also applied to source files. (Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby.) And gloss2html.pl generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.
 
 I sense you want some bullet points. Gloss does
  - "Links": autolinking to local and NAS source and text files, the web, internal headings, images, and links that jump directly to places in other documents (functions, classes, text file headings). Overhead per link: at most two double quotes, and a hash tag '#' between a file name and a heading in the file. File links are context aware, minimizing the need to provide a partial path. Autolinking is applied to all source and text files by the Viewer.
- - an automatically generated "Table of Contents" down the left side, with links to headings, functions, and classes etc.
+ - for supported languages (see just above), an automatically generated "Table of Contents" down the left side, with links to headings, functions, and classes etc.
  - "Headings": h1 h2 h3, done with underlining using at least five ========, ------------, ~~~~~~~~~~~~.
  - "Tables": write "TABLE", put headers on the next line, data on following lines, and separate cells with one or more tabs: the table ends when a line has no tabs. More below, but that's basically it.
  - "Lists", "Emphasis" (**bold** and *italic*).
@@ -38,6 +38,7 @@ Table of Contents
 Gloss generates a Table of Contents (TOC) automatically for:
  - headings in text files (see just below)
  - function, method, class, and struct definitions in source files.
+ - currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby.
  
 The Table of Contents is done alphabetically in source files, and in order of occurrence in text files.
 

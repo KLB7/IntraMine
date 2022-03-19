@@ -138,12 +138,12 @@ if (typeof window.ontouchstart !== 'undefined')
 
 let anchorClicked = false;
 let cmCursorStartPos = {
-	line : -1,
-	ch : -1
+	line : 0,
+	ch : 0
 };
 let cmCursorEndPos = {
-	line : -1,
-	ch : -1
+	line : 0,
+	ch : 0
 };
 
 let cursorFileStartPos = {
@@ -153,7 +153,7 @@ let cursorFileStartPos = {
 
 let cursorFileEndPos = {
 		line: 0,
-		ch: 1,
+		ch: 0,
 	};
 
 cmCursorStartPos = cursorFileStartPos;

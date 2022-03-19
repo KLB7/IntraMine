@@ -5,7 +5,7 @@ The Viewer service provides HTML views of your source and text files. It kicks i
 
 This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.
 
-CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full Gloss treatment ("Gloss.txt"), but all source and text files have a synchronized table of contents, and links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors.
+CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full Gloss treatment including a table of contents (see "Gloss.txt"), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby) - support for other languages is planned.
 
 An attempt has been made to display views of .docx and PDF files, with indifferent results.
 
@@ -70,11 +70,11 @@ CodeMirror generates the syntax highlighting for most files. Perl file highlight
 Table of contents
 -----------------
 2020-03-10 23_48_40-elasticsearcher.pm.png
-Most views have an automatically generated table of contents down the left side. A small double-headed arrow at the top of the table allows collapsing/expanding, without altering your document position. Clicking on a table entry will of course jump you to the corresponding place in the main text, and the selected entry in the table of contents will change to keep up with the heading you're currently under as you scroll through the document.
+As mentioned above, some views have an automatically generated table of contents down the left side. A small double-headed arrow at the top of the table allows collapsing/expanding, without altering your document position. Clicking on a table entry will of course jump you to the corresponding place in the main text, and the selected entry in the table of contents will change to keep up with the heading you're currently under as you scroll through the document.
 
-In source files the entries in the table of contents are alphabetically ordered, and in text files the order is the same as in the document.
+In supported source files the entries in the table of contents are alphabetically ordered, and in text files the order is the same as in the document.
 
-In source files, a click on a method or class etc name in the table of contents will normally take you to the corresponding item but with any leading comments also scrolled into view.
+A click on a method or class etc name in the table of contents will normally take you to the corresponding item but with any leading comments also scrolled into view.
 
 Autolinks
 ----------
@@ -168,7 +168,7 @@ Gloss processing happens in several passes through the text:
  - internal links, referencing headings in the current document.
  - external links (autolinks) are added after the view is loaded to the browser window, see Linker.txt for details.
 
-Non-text files receive limited Gloss processing, mainly autolinks for source, text, image, and web mentions. And most views receive a table of contents, and links on names of functions and classes defined in the file.
+Non-text files receive limited Gloss processing, mainly autolinks for source, text, image, and web mentions. And views for supported languages (see above) receive a table of contents, and links on names of functions and classes defined in the file.
 
 API
 =====

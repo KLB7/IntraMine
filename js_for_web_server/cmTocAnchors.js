@@ -83,13 +83,16 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	}, "local").top;
 	myCodeMirror.scrollTo(null, t);
 	
-	myCodeMirror.setSelection({line: lineNumToShow, ch: 0}, {line: lineNumToShow, ch: 999});
+	myCodeMirror.setSelection({line: lineNum, ch: 0}, {line: lineNum, ch: 999});
+	// Removed, selecting line and then restoring original selection isn't working reliably.
+	//myCodeMirror.setSelection({line: lineNumToShow, ch: 0}, {line: lineNumToShow, ch: 999});
 	
 //	myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 50);
 
 	
 	scrollMobileIndicator();
 
+	// Removed, selecting line and then restoring original selection isn't working reliably.
 	// Restore any highlighted text selection. Doing it on a time delay is the only
 	// way I found that works. Note the "scroll: false" is critical,
 	// to preserve the position jumped to just above.

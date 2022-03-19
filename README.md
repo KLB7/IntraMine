@@ -26,7 +26,7 @@ IntraMine uses [Elasticsearch](https://www.elastic.co/what-is/elasticsearch) to 
 ### A truly nice Viewer
 View the contents of any source or text file, with search hits highlighted in the text and down the scrollbar if you came from a Search results link.
 
-The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents down the left. And some extras such as automatic linking, image hovers, and selection highlighting (again in the text and down the scrollbar). There's a picture up top.
+The Viewer has standard display features such as syntax highlighting, line numbers, and an automatically generated table of contents[^1] down the left. And some extras such as automatic linking, image hovers, and selection highlighting (again in the text and down the scrollbar). There's a picture up top.
 
 [CodeMirror](https://codemirror.net/) is used as the basis for most displays, with custom views for .txt and Perl files. Gloss (IntraMine's markdown variant) is fully applied to .txt files, and autolinking is applied to all source and text files (except .md).
 
@@ -86,3 +86,6 @@ After installing IntraMine and starting it up, point your browser to http://loca
 
 Enjoy!
 -KLB7 at intramine.info
+
+[^1]: A table of contents is currently generated automatically for: Plain text (Gloss), Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, and Ruby.
+

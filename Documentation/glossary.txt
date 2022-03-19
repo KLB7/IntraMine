@@ -40,7 +40,7 @@ Image hover, hover image, hover images: In IntraMine's file views and under the 
 
 Image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.
 
-Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in a Table of Contents, headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. For more see "Documentation/Supplied services.txt#Viewer".
+Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see "Documentation/Supplied services.txt#Viewer".
 
 Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.
 
