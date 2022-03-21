@@ -2799,6 +2799,7 @@ SystemdUnit *.unit *.service *.socket *.device *.mount *.automount *.swap *.targ
 Tcl      *.tcl *.tk *.wish *.exp
 Tex      *.tex
 TTCN     *.ttcn *.ttcn3
+TypeScript  *.ts
 Vera     *.vr *.vri *.vrh
 Verilog  *.v
 SystemVerilog *.sv *.svh *.svi
