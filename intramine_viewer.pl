@@ -2415,10 +2415,8 @@ sub GetCTagsTOCForFile {
 		}
 	my %classEntryForLine;
 	my %methodEntryForLine;
-	my %methodNameForLine;	# Not currently used.
 	my $itemCount = LoadCtags($ctagsFilePath, \%classEntryForLine,
 							\%methodEntryForLine,
-							\%methodNameForLine,
 							\$errorMsg);
 	if ($errorMsg ne '')
 		{
@@ -2923,7 +2921,7 @@ sub MakeCtagsForFile {
 # Ahem: go through a ctags file and pick out entries that declare classes and methods. Poke
 # those into hashes, indexed by line number.
 sub LoadCtags {
-	my ($ctagsFilePath, $classEntryForLineH, $methodEntryForLineH, $methodNameForLineH, $errorMsgR) = @_;
+	my ($ctagsFilePath, $classEntryForLineH, $methodEntryForLineH, $errorMsgR) = @_;
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
@@ -2959,9 +2957,6 @@ sub LoadCtags {
 			elsif ($kind eq 'f')
 				{
 				$methodEntryForLineH->{"$lineNumber"} = $owner . '::' . $tagname; # triggers warning: "$owner::$tagname";
-				# Remember the method/function name, later we see if line proposed for the tag
-				# actually contains the name: often ctags goes a line too far and we need to back up a line.
-				$methodNameForLineH->{"$lineNumber"} = $tagname;
 				++$itemCount;
 				}
 			# else $kind eq 'e' for enum etc - ignore
@@ -2985,7 +2980,6 @@ sub LoadCtags {
 					{
 					#$topScopeFunctionName = $tagname;
 					$methodEntryForLineH->{"$lineNumber"} = $tagname;
-					$methodNameForLineH->{"$lineNumber"} = $tagname;
 					}
 				# This is out mainly because the ctags parser returns nested functions before
 				# the enclosing function, and seems to miss some nested functions too.
