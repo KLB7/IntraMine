@@ -76,6 +76,10 @@ function doResize() {
 			{
 			tocHeight -= 20;
 			}
+		else
+			{
+			tocHeight -= 16;
+			}
 		let newTocHeightPC = (tocHeight / elHeight) * 100;
 		tocMainElement.style.height = newTocHeightPC + "%";
 		}

@@ -1,8 +1,8 @@
 # WORK IN PROGRESS, not useful yet.
-# cm_toc.pm: get Table of Contents, and CSS and JS files,
-# for a source file. NOTE this is only for CodeMirror-based displays.
+# toc_local.pm: generate a Table of Contents, and get lists of CSS and JS files,
+# for a source file.
 #
-# perl -c C:\perlprogs\IntraMine\libs\cm_toc.pm
+# perl -c C:\perlprogs\IntraMine\libs\toc_local.pm
 
 use strict;
 use warnings;

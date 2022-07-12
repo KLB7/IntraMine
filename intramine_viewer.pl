@@ -2414,10 +2414,13 @@ sub GetCTagsTOCForFile {
 		return;
 		}
 	my %classEntryForLine;
+	my %structEntryForLine;
 	my %methodEntryForLine;
-	my $itemCount = LoadCtags($ctagsFilePath, \%classEntryForLine,
-							\%methodEntryForLine,
-							\$errorMsg);
+	my %functionEntryForLine;
+	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
+						\%classEntryForLine,
+						\%structEntryForLine, \%methodEntryForLine,
+						\%functionEntryForLine, \$errorMsg);
 	if ($errorMsg ne '')
 		{
 		$$tocR = "<strong>$errorMsg</strong>\n";
@@ -2426,15 +2429,43 @@ sub GetCTagsTOCForFile {
 	
 	my @classList;
 	my @classNames;
+	my @structList;
+	my @structNames;
 	my @methodList;
 	my @methodNames;
+	my @functionList;
+	my @functionNames;
 	my %idExists; # used to avoid duplicated anchor id's.
 	my $jlEnd = "</a></li>";
 	
+	foreach my $lineNum (keys %structEntryForLine)
+		{
+		my $className = $structEntryForLine{$lineNum};
+		my $contentsClass = 'h2';
+		my $id = $className;
+		$id =~ s!\s+!_!g;
+		my $idBump = 2;
+		my $idBase = $id;
+		while ($id eq '' || defined($idExists{$id}))
+			{
+			$id = $idBase . $idBump;
+			++$idBump;
+			}
+		$idExists{$id} = 1;
+		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+		push @structList, $jlStart . $className . $jlEnd;
+		push @structNames, $className;
+		}
+
 	foreach my $lineNum (keys %classEntryForLine)
 		{
 		my $className = $classEntryForLine{$lineNum};
-		my $contentsClass = 'h2';
+		my $contentsClass = (index($className, ':') > 0) ? 'h3' : 'h2';
+		# And also h3 if entry contains '#' indicating a method (eg Java).
+		if (index($className, '#') > 0)
+			{
+			$contentsClass = 'h3';
+			}
 		my $id = $className;
 		$id =~ s!\s+!_!g;
 		my $idBump = 2;
@@ -2469,14 +2500,102 @@ sub GetCTagsTOCForFile {
 		push @methodNames, $methodName;
 		}
 
-	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
-	@classList = @classList[@idx];
-	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
-	@methodList = @methodList[@idx];
+	foreach my $lineNum (keys %functionEntryForLine)
+		{
+		my $methodName = $functionEntryForLine{$lineNum};
+		my $contentsClass = 'h2';
+		my $id = $methodName;
+		$id =~ s!\s+!_!g;
+		my $idBump = 2;
+		my $idBase = $id;
+		while ($id eq '' || defined($idExists{$id}))
+			{
+			$id = $idBase . $idBump;
+			++$idBump;
+			}
+		$idExists{$id} = 1;
+		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+		push @functionList, $jlStart . $methodName . '()' . $jlEnd;
+		push @functionNames, $methodName;
+		}
+
+	my $numStructs = @structList;
+	my $numClasses = @classList;
+	my $numMethods = @methodList;
+	my $numFunctions = @functionList;
+	my @idx;
+	
+	if ($numStructs)
+		{
+		@idx = sort { $structNames[$a] cmp $structNames[$b] } 0 .. $#structNames;
+		@structList = @structList[@idx];
+		}
+	if ($numClasses)
+		{
+		@idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
+		@classList = @classList[@idx];
+		}
+	if ($numMethods)
+		{
+		@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
+		@methodList = @methodList[@idx];
+		}
+	if ($numFunctions)
+		{
+		@idx = sort { $functionNames[$a] cmp $functionNames[$b] } 0 .. $#functionNames;
+		@functionList = @functionList[@idx];
+		}
+	
 	my $numClassListEntries = @classList;
-	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" .
-				join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	my $typeBreak = ($numClassListEntries > 0) ? '<br>': '';
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n";
+	if ($numStructs)
+		{
+		my $structString = join("\n", @structList);
+		$$tocR .= $structString;
+		}
+	if ($numClasses)
+		{
+		# If the classList contains method/interface'::' tags, remove those
+		# to make the TOC narrower. Also remove method/interface tags
+		# if entry contains '#' indicating a method name.
+		for (my $i = 0; $i < @classList; ++$i)
+			{
+			$classList[$i] =~ s!\w+\:\:!!g;
+			if (index($classList[$i], '#') > 0)
+				{
+				$classList[$i] =~ s!\w+\.!!g;
+				$classList[$i] =~ s!\w+\#!!g;
+				}
+			}
+		my $classString = join("\n", @classList);
+		if ($numStructs)
+			{
+			$classString = $typeBreak . $classString;
+			}
+		$$tocR .= $classString;
+		}
+	if ($numMethods)
+		{
+		my $methodString = join("\n", @methodList);
+		if ($numStructs || $numClasses)
+			{
+			$methodString = $typeBreak . $methodString;
+			}
+		$$tocR .= $methodString;
+		}
+	if ($numFunctions)
+		{
+		my $functionString = join("\n", @functionList);
+		if ($numStructs || $numClasses || $numMethods)
+			{
+			$functionString = $typeBreak . $functionString;
+			}
+		$$tocR .= $functionString;
+		}
+	
+	#$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" .
+	#			join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
 
 	# Get rid of the one or two temp files made while getting ctags.
 	unlink($ctagsFilePath);
@@ -2695,6 +2814,8 @@ sub GetPerlHighlighter {
 } ##### Perl Syntax Highlight
 
 { ##### Exuberant Ctags Support
+# Ctags is used to generate a list of tags and their locations in
+# a source file, which in turn is used to generate a table of contents.
 
 my $CtagsOutputFilePathBase;
 my $CtagsOutputFilePath;
@@ -2920,8 +3041,10 @@ sub MakeCtagsForFile {
 # That incoherent preamble was brought to you by caffeine.
 # Ahem: go through a ctags file and pick out entries that declare classes and methods. Poke
 # those into hashes, indexed by line number.
+# (In progress, individual language are being addressed in order to
+# generate more accurate tables of contents.)
 sub LoadCtags {
-	my ($ctagsFilePath, $classEntryForLineH, $methodEntryForLineH, $errorMsgR) = @_;
+	my ($filePath, $ctagsFilePath, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH, $errorMsgR) = @_;
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
@@ -2940,63 +3063,396 @@ sub LoadCtags {
 	#my $topScopeFunctionName = '';
 	my @lines = split(/\n/, $octets);
 	my $numLines = @lines;
+	
+	# Per-language regex's to extract tags:
+	if ($filePath =~ m!\.ts$!i)
+		{
+		$itemCount = LoadTypeScriptTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
+	elsif ($filePath =~ m!\.java$!i)
+		{
+		$itemCount = LoadJavaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
+	elsif ($filePath =~ m!\.rs$!i)
+		{
+		$itemCount = LoadRustTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
+	elsif ($filePath =~ m!\.(rb|ruby)$!i)
+		{
+		$itemCount = LoadRubyTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
+	else # Default class/struct/function handling
+		{
+		for (my $i = 0; $i < $numLines; ++$i)
+			{
+			# selectUrl\tqfiledialog.cpp\t1085;"\tf\tclass:QFileDialog\ttyperef:typename:void
+			if ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])\t[^:]+:([^\t]+)\t[^\t]+$!)
+				{
+				my $tagname = $1;
+				my $lineNumber = $2;
+				my $kind = $3;
+				my $owner = $4;
+				if ($kind eq 'c')
+					{
+					$classEntryForLineH->{"$lineNumber"} = $tagname;
+					++$itemCount;
+					}
+				elsif ($kind eq 's')
+					{
+					$structEntryForLineH->{"$lineNumber"} = $tagname;
+					++$itemCount;
+					}
+				elsif ($kind eq 'f')
+					{
+					$methodEntryForLineH->{"$lineNumber"} = $owner . '::' . $tagname;
+					# Experiment, put methods in the $classEntryForLineH hash, to group
+					# methods under the owning class/interface. This doesn't work
+					# for C++, there is typically no owning class entry in the .cpp file.
+					#$classEntryForLineH->{"$lineNumber"} = $owner . '::' . $tagname;
+					++$itemCount;
+					}
+				# else $kind eq 'e' for enum etc - ignore
+				}
+			# qt_tildeExpansion\tqfiledialog.cpp\t1100;"\tf\ttyperef:typename:Q_AUTOTEST_EXPORT QString
+			elsif ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])!) # no class or namespace specifier
+				{
+				my $tagname = $1;
+				my $lineNumber = $2;
+				my $kind = $3;
+				if ($kind eq 'c')
+					{
+					$classEntryForLineH->{"$lineNumber"} = $tagname;
+					++$itemCount;
+					}
+				elsif ($kind eq 's')
+					{
+					$structEntryForLineH->{"$lineNumber"} = $tagname;
+					++$itemCount;
+					}
+				elsif ($kind eq 'f')
+					{
+					# A small nuisance, don't list nested functions (eg in JavaScript) separately.
+					# A regular entry ends in 'f', a nested entry is followed by 'function:'.
+					if ($lines[$i] !~ m!\t+f\t+function\:!)
+						{
+						#$topScopeFunctionName = $tagname;
+						$methodEntryForLineH->{"$lineNumber"} = $tagname;
+						}
+					# This is out mainly because the ctags parser returns nested functions before
+					# the enclosing function, and seems to miss some nested functions too.
+	#				else
+	#					{
+	#					$methodEntryForLineH->{"$lineNumber"} = "$topScopeFunctionName.$tagname";
+	#					$methodNameForLineH->{"$lineNumber"} = $tagname;
+	#					# TEST ONLY codathon
+	#					print("N: |$lines[$i]|\n");
+	#					}
+						
+					++$itemCount;
+					}
+				# else $kind eq 'e' for enum etc - ignore
+				}
+			}
+		}
+	
+	return($itemCount);
+	}
+
+# Get tag hashes of class/interface/method/function entries from lines in a TypeScript
+# file. Note struct is ignored.
+# Return count of all tags.
+sub LoadTypeScriptTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		# selectUrl\tqfiledialog.cpp\t1085;"\tf\tclass:QFileDialog\ttyperef:typename:void
-		if ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])\t[^:]+:([^\t]+)\t[^\t]+$!)
+		# Eg (function, function, class, method, interface):
+		# isDeclarationFileInJSOnlyNonConfiguredProject	session.ts	23;"	f	namespace:ts.server
+		# formatMessage	session.ts	130;"	f	namespace:ts.server
+		# MultistepOperation	session.ts	166;"	c	namespace:ts.server
+		# immediate	session.ts	188;"	m	class:ts.server.MultistepOperation
+		# PendingErrorCheck	session.ts	113;"	i	namespace:ts.server
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!)
 			{
 			my $tagname = $1;
 			my $lineNumber = $2;
 			my $kind = $3;
 			my $owner = $4;
-			if ($kind eq 'c' || $kind eq 's')
+			
+			if ($kind eq 'c' || $kind eq 'i')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
-				++$itemCount;
+				}
+			elsif ($kind eq 'm')
+				{
+				my $class = $owner;
+				my $lastPeriodPos = rindex($class, '.');
+				if ($lastPeriodPos >= 0)
+					{
+					$class = substr($class, $lastPeriodPos + 1);
+					}
+				my $lastColonPos = rindex($class, ':');
+				if ($lastColonPos >= 0)
+					{
+					$class = substr($class, $lastColonPos + 1);
+					}
+				# Revision, put methods in the $classEntryForLineH hash, to group
+				# methods under the owning class/interface.
+				#$methodEntryForLineH->{"$lineNumber"} = $class . '::' . $tagname;
+				$classEntryForLineH->{"$lineNumber"} = $class . '::' . $tagname;
 				}
 			elsif ($kind eq 'f')
 				{
-				$methodEntryForLineH->{"$lineNumber"} = $owner . '::' . $tagname; # triggers warning: "$owner::$tagname";
-				++$itemCount;
+				$functionEntryForLineH->{"$lineNumber"} = $tagname;
 				}
-			# else $kind eq 'e' for enum etc - ignore
+			++$itemCount;
 			}
-		# qt_tildeExpansion\tqfiledialog.cpp\t1100;"\tf\ttyperef:typename:Q_AUTOTEST_EXPORT QString
-		elsif ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])!) # no class or namespace specifier
+		}
+	
+	return($itemCount);
+	}
+
+# Get tag hashes of class/interface/method entries for a Java file.
+# Return count of all tags.
+sub LoadJavaTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		# Trailing scope.
+		# ResponseContext	Transport.java	154;"	c	interface:Transport
+		# getNetworkMessageSize	Header.java	40;"	m	class:Header
+		# Connection	Transport.java	92;"	i	interface:Transport
+		# getNode	Transport.java	96;"	m	interface:Transport.Connection
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmi])\t([^\t]+)$!)
 			{
 			my $tagname = $1;
 			my $lineNumber = $2;
 			my $kind = $3;
-			if ($kind eq 'c' || $kind eq 's')
+			my $owner = $4;
+			
+			# Strip "interface" or "class" from start of $owner.
+			my $colonPos = index($owner, ':');
+			if ($colonPos > 0)
+				{
+				$owner = substr($owner, $colonPos + 1);
+				}
+
+			if ($kind eq 'c' || $kind eq 'i')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'm')
+				{
+				# Put in $class hash, prepend $owner so methods will sort with
+				# owner.
+				# NOTE using '#' as separator between $owner and $tagname.
+				if ($owner ne '')
+					{
+					$tagname = $owner . '#' . $tagname;
+					}
+				
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		# No trailing scope.
+		# Header	Header.java	20;"	c
+		# Transport	Transport.java	35;"	i
+		# (I suspect all methods have a trailing scope.)
+		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			
+			if ($kind eq 'c' || $kind eq 'i')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
-				++$itemCount;
+				}
+			elsif ($kind eq 'm')
+				{
+				$methodEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		++$itemCount;
+		}
+	
+	return($itemCount);
+	}
+
+# Do P method, f function, i interface, s struct.
+# Return count of all tags.
+sub LoadRustTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		#Tag examples
+		# Plugin	plugin.rs	21;"	i
+		# name	plugin.rs	23;"	P	interface:Plugin
+		# Builder	plugin.rs	136;"	s
+		# get_menu_ids	tray.rs	23;"	f
+		# Trailing scope.
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([iPsf])\t([^\t]+)$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			my $owner = $4;
+			
+			# Strip "interface" or "class" from start of $owner.
+			my $colonPos = index($owner, ':');
+			if ($colonPos > 0)
+				{
+				$owner = substr($owner, $colonPos + 1);
+				}
+
+			if ($kind eq 's' || $kind eq 'i')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'P' || $kind eq 'f')
+				{
+				# Put in $class hash, prepend $owner so methods will sort with
+				# owner.
+				# NOTE using '#' as separator between $owner and $tagname.
+				if ($owner ne '')
+					{
+					$tagname = $owner . '#' . $tagname;
+					}
+				
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		# No trailing scope.
+		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([iPsf])$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			
+			if ($kind eq 's' || $kind eq 'i')
+				{
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'P' || $kind eq 'f')
+				{
+				$methodEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		++$itemCount;
+		}
+	
+	return($itemCount);
+	}
+
+# Do S singletonMethod, c class, f method, m module. Note ctags doesn't always give
+# an owning class or object for a singleton, so those are listed
+# as unowned methods at the bottom of the TOC.
+# Return count of all tags.
+sub LoadRubyTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		# Tag examples:
+		# wheels	vehicle.rb	16;"	S
+		# Floor	floor.rb	2;"	c	module:RubyWarrior
+		# initialize	floor.rb	6;"	f	class:RubyWarrior.Floor
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([fcSm])\t([^\t]+)$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			my $owner = $4;
+			
+			# Strip "module" or "class" from start of $owner.
+			my $colonPos = index($owner, ':');
+			if ($colonPos > 0)
+				{
+				$owner = substr($owner, $colonPos + 1);
+				}
+
+			if ($kind eq 'c' || $kind eq 'S')
+				{
+				if ($owner ne '')
+					{
+					# For S, separate $owner and $tagname with '#'
+					if ($kind eq 'S')
+						{
+						$tagname = $owner . '#' . $tagname;
+						}
+					else
+						{
+						$tagname = $owner . '.' . $tagname;
+						}
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'm')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			elsif ($kind eq 'f')
 				{
-				# A small nuisance, don't list nested functions (eg in JavaScript) separately.
-				# A regular entry ends in 'f', a nested entry is followed by 'function:'.
-				if ($lines[$i] !~ m!\t+f\t+function\:!)
+				# Put in $class hash, prepend $owner so methods will sort with
+				# owner.
+				# NOTE using '#' as separator between $owner and $tagname.
+				if ($owner ne '')
 					{
-					#$topScopeFunctionName = $tagname;
-					$methodEntryForLineH->{"$lineNumber"} = $tagname;
+					$tagname = $owner . '#' . $tagname;
 					}
-				# This is out mainly because the ctags parser returns nested functions before
-				# the enclosing function, and seems to miss some nested functions too.
-#				else
-#					{
-#					$methodEntryForLineH->{"$lineNumber"} = "$topScopeFunctionName.$tagname";
-#					$methodNameForLineH->{"$lineNumber"} = $tagname;
-#					# TEST ONLY codathon
-#					print("N: |$lines[$i]|\n");
-#					}
-					
-				++$itemCount;
+				
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
-			# else $kind eq 'e' for enum etc - ignore
 			}
+		# No trailing scope. (Orphan S singletons show up here.)
+		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([fcSm])$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			
+			if ($kind eq 'c')
+				{
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'm')
+				{
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'f' || $kind eq 'S')
+				{
+				$methodEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		++$itemCount;
 		}
-	
+		
 	return($itemCount);
 	}
 
