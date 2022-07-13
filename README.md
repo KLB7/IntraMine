@@ -1,6 +1,6 @@
 # IntraMine
 
-*Fast search and real autolinking for your Windows intranet.*
+*Fast search and real autolinking for your Windows local drives and NAS.*
 
 *Search results: 125,000 files searched for "FindFileWide", results in 0.09 seconds. No restriction on directory or language.*
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/Search1.png)
