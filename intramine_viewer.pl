@@ -2438,7 +2438,7 @@ sub GetCTagsTOCForFile {
 	my %idExists; # used to avoid duplicated anchor id's.
 	my $jlEnd = "</a></li>";
 	
-	foreach my $lineNum (keys %structEntryForLine)
+	foreach my $lineNum (sort {$a <=> $b} keys %structEntryForLine)
 		{
 		my $className = $structEntryForLine{$lineNum};
 		my $contentsClass = 'h2';
@@ -2457,7 +2457,7 @@ sub GetCTagsTOCForFile {
 		push @structNames, $className;
 		}
 
-	foreach my $lineNum (keys %classEntryForLine)
+	foreach my $lineNum (sort {$a <=> $b} keys %classEntryForLine)
 		{
 		my $className = $classEntryForLine{$lineNum};
 		my $contentsClass = (index($className, ':') > 0) ? 'h3' : 'h2';
@@ -2481,7 +2481,7 @@ sub GetCTagsTOCForFile {
 		push @classNames, $className;
 		}
 		
-	foreach my $lineNum (keys %methodEntryForLine)
+	foreach my $lineNum (sort {$a <=> $b} keys %methodEntryForLine)
 		{
 		my $methodName = $methodEntryForLine{$lineNum};
 		my $contentsClass = 'h2';
@@ -2500,7 +2500,7 @@ sub GetCTagsTOCForFile {
 		push @methodNames, $methodName;
 		}
 
-	foreach my $lineNum (keys %functionEntryForLine)
+	foreach my $lineNum (sort {$a <=> $b} keys %functionEntryForLine)
 		{
 		my $methodName = $functionEntryForLine{$lineNum};
 		my $contentsClass = 'h2';
@@ -3081,6 +3081,10 @@ sub LoadCtags {
 		{
 		$itemCount = LoadRubyTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
 		}
+	elsif ($filePath =~ m!\.cs$!i)
+		{
+		$itemCount = LoadCSharpTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
 	else # Default class/struct/function handling
 		{
 		for (my $i = 0; $i < $numLines; ++$i)
@@ -3453,6 +3457,84 @@ sub LoadRubyTags {
 		++$itemCount;
 		}
 		
+	return($itemCount);
+	}
+
+# Get tag hashes of c class, m method, p property, s struct, i interface entries for a C# file.
+# Return count of all tags.
+sub LoadCSharpTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		# Trailing scope. C# entries sometimes have a trailing "\tfile:".
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])\t([^\t]+)((\t\w+\:)?)$!)
+		#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])\t([^\t]+)$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			my $owner = $4;
+			
+			# Strip "interface" or "class" from start of $owner.
+			my $colonPos = index($owner, ':');
+			if ($colonPos > 0)
+				{
+				$owner = substr($owner, $colonPos + 1);
+				}
+
+			if ($kind eq 'c' || $kind eq 'i' || $kind eq 's')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'm' || $kind eq 'p')
+				{
+				# Put in $class hash, prepend $owner so methods will sort with
+				# owner.
+				# NOTE using '#' as separator between $owner and $tagname.
+				if ($owner ne '')
+					{
+					$tagname = $owner . '#' . $tagname;
+					}
+				
+				# TEST ONLY
+				if ($tagname eq 'WebSocketSharp.WebSocket#WebSocket')
+					{
+					print("WebSocket p/m: $tagname\n");
+					}
+				
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		# No trailing scope.
+		# Header	Header.java	20;"	c
+		# Transport	Transport.java	35;"	i
+		# (I suspect all methods have a trailing scope.)
+		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])$!)
+			{
+			my $tagname = $1;
+			my $lineNumber = $2;
+			my $kind = $3;
+			
+			if ($kind eq 'c' || $kind eq 'i' || $kind eq 's')
+				{
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'm' || $kind eq 'p')
+				{
+				$methodEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			}
+		++$itemCount;
+		}
+	
 	return($itemCount);
 	}
 
