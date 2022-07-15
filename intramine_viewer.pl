@@ -2969,7 +2969,7 @@ sub IsSupportedByCTags {
 	return($result);
 	}
 
-# Call Exuberant Ctags to generate ctags for $dir . $fileName, to a temp file that only
+# Call Universal Ctags to generate ctags for $dir . $fileName, to a temp file that only
 # one instance of this server uses. Wait until done, then return path to the ctags temp file.
 # LIMITATION this does not work as quickly as it could if $fileName or $dir contain "unicode" characters,
 # since an entire temp copy of the file is made, with a plain ascii name. A better workaround would be
