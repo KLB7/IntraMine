@@ -579,7 +579,22 @@ sub GetContentBasedOnExtension {
 			GetGoTOC(\$textContents, \$toc);
 			}
 		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
-		}		
+		}
+	# 3.1 cont'd, Visual Basic: CM for main view, custom TOC
+	# NOTE at present only .vb and .vbs are supported.
+	elsif ($filePath =~ m!\.(bas|cls|ctl|frm|vbs|vba|vb)$!i)
+		{
+		$$textHolderName_R = 'scrollTextRightOfContents';
+		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
+		$$customCSS_R = $cssForCM;
+		my $textContents = GetHtmlEncodedTextFile($filePath);
+		my $toc = '';
+		if ($textContents ne '')
+			{
+			GetVBTOC(\$textContents, \$toc);
+			}
+		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
+		}
 	# 3.2 CM with TOC, ctag support: cpp, js, etc, and now including .css
 	elsif (IsSupportedByCTags($filePath))
 		{
@@ -2395,7 +2410,148 @@ sub GetGoTOC {
 	@methodList = @methodList[@idx];
 	my $numClassListEntries = @classList;
 	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";;
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	}
+
+# Table of contents for a Visual Basic file.
+sub GetVBTOC {
+	my ($txtR, $tocR) = @_;
+	my @lines = split(/\n/, $$txtR);
+	my @moduleList;
+	my @moduleNames;
+	my @classList;
+	my @classNames;
+	my @methodList;
+	my @methodNames;
+	my %idExists; # used to avoid duplicated anchor id's.
+	
+	# Tag hierarchy.
+	my $currentModule = '';
+	my $currentClass = '';
+	my $currentStructure = '';
+
+	my $numLines = @lines;
+	my $lineNum = 1;
+	my $quotePos = -1;
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		# Crudely remove comments (not perfect, but good enough for us
+		# since we are looking for top level defining instances).
+		$quotePos = index($lines[$i], "'");
+		if ($quotePos >= 0)
+			{
+			$lines[$i] = substr($lines[$i], 0, $quotePos);
+			}
+		# Look for tag on line where defined.
+		if ($lines[$i] =~ m!^(.*?)(module|sub|function|structure|class)\s+(\w+)!i)
+			{
+			my $tagType = lc($2);
+			my $tagName = $3;
+			
+			if ($tagType eq 'module')
+				{
+				$currentModule = $tagName . '.';
+				PushVBTag(\@moduleList, \@moduleNames, \%idExists,
+						  $lineNum, $tagName, 'h2');
+				}
+			elsif ($tagType eq 'class')
+				{
+				$currentClass = $tagName . '.';
+				PushVBTag(\@classList, \@classNames, \%idExists,
+						  $lineNum, $tagName, 'h2');
+				}
+			elsif ($tagType eq 'structure')
+				{
+				$currentStructure = $tagName . '.';
+				PushVBTag(\@classList, \@classNames, \%idExists,
+						  $lineNum, $tagName, 'h2');
+				}
+			elsif ($tagType eq 'sub' || $tagType eq 'function')
+				{
+				my $owner = $currentClass . $currentStructure;
+				# Strip final '.' if any.
+				my $lastDotPos = rindex($owner, ".");
+				if ($lastDotPos > 0)
+					{
+					$owner = substr($owner, 0, $lastDotPos);
+					}
+				
+				if ($owner ne '')
+					{
+					PushVBTag(\@classList, \@classNames, \%idExists,
+						  $lineNum, $owner . '#' . $tagName, 'h3');
+					}
+				else
+					{
+					PushVBTag(\@methodList, \@methodNames, \%idExists,
+						  $lineNum, $tagName, 'h2');
+					}
+				}
+			}
+		# Look for end tag.
+		elsif ($lines[$i] =~ m!^(.*?)end\s+(\w+)!i)
+			{
+			my $tagType = lc($2);
+
+			if ($tagType eq 'module')
+				{
+				$currentModule = '';
+				}
+			elsif ($tagType eq 'class')
+				{
+				$currentClass = '';
+				}
+			elsif ($tagType eq 'structure')
+				{
+				$currentStructure = '';
+				}
+			
+			}
+		++$lineNum;
+		}
+	
+	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
+	@classList = @classList[@idx];
+	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
+	@methodList = @methodList[@idx];
+	@idx = sort { $moduleNames[$a] cmp $moduleNames[$b] } 0 .. $#moduleNames;
+	@moduleList = @moduleList[@idx];
+	
+	my $numModuleEntries = @moduleList;
+	my $moduleBreak = ($numModuleEntries > 0) ? '<br>': '';
+	my $numClassListEntries = @classList;
+	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
+
+	# Trim down sub and function entries in @classList, remove owners.
+	for (my $i = 0; $i < $numClassListEntries; ++$i)
+		{
+		if (index($classList[$i], '#') > 0)
+			{
+			$classList[$i] =~ s!\w+\.!!g;
+			$classList[$i] =~ s!\w+\#!!g;
+			}
+		}
+	
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @moduleList) . $moduleBreak . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	}
+
+sub PushVBTag {
+	my ($listA, $namesA, $idExistsH, $lineNum, $tagName, $contentsClass) = @_;
+
+	my $id = $tagName;
+	$id =~ s!\s+!_!g;
+	my $idBump = 2;
+	my $idBase = $id;
+	while ($id eq '' || defined($idExistsH->{$id}))
+		{
+		$id = $idBase . $idBump;
+		++$idBump;
+		}
+	$idExistsH->{$id} = 1;
+	my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+	my $jlEnd = "</a></li>";
+	push @$listA, $jlStart . $tagName . $jlEnd;
+	push @$namesA, $tagName;
 	}
 
 # Use ctags to generate a Table Of Contents (TOC) for a source file. Ctags are written to
