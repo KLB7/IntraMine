@@ -3031,6 +3031,7 @@ Fortran  *.f *.for *.ftn *.f77 *.f90 *.f95 *.f03 *.f08 *.f15
 Fypp     *.fy
 Gdbinit  .gdbinit *.gdb
 Go       *.go
+Haskell       *.hs
 HTML     *.htm *.html
 Iniconf  *.ini *.conf
 ITcl     *.itcl
