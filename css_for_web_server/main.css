@@ -365,6 +365,11 @@ html[xmlns] #nav {
 	font-size: 1.1em;
 }
 
+#scrollContentsList .h2Disabled {
+	font-size: 1.1em;
+	color: #889988;
+}
+
 /* section marker */
 #scrollContentsList .h2 a:before {
 	font-size: 0.6em;

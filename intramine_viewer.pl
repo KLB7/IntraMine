@@ -2613,7 +2613,10 @@ sub GetCTagsTOCForFile {
 		push @structNames, $className;
 		}
 
-	foreach my $lineNum (sort {$a <=> $b} keys %classEntryForLine)
+	# LineNumComp() strips any initial 'a' from line numbers
+	# before sorting numerically.
+	foreach my $lineNum (sort { LineNumComp($a, $b) } keys %classEntryForLine)
+	# foreach my $lineNum (sort {$a <=> $b} keys %classEntryForLine)
 		{
 		my $className = $classEntryForLine{$lineNum};
 		my $contentsClass = (index($className, ':') > 0) ? 'h3' : 'h2';
@@ -2632,7 +2635,20 @@ sub GetCTagsTOCForFile {
 			++$idBump;
 			}
 		$idExists{$id} = 1;
-		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+		
+		# As a special case, if $lineNum starts with a letter then the
+		# entry is shown "disabled" (gray) and there is no functioning link.
+		# (Needed eg for Julia, see LoadJuliaTags()).
+		my $jlStart;
+		if ($lineNum =~ m!^[a-zA-Z]!)
+			{
+			$jlStart = "<li class='h2Disabled'><a>";
+			#$jlStart = "<li class='h2Disabled'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			}
+		else
+			{
+			$jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			}
 		push @classList, $jlStart . $className . $jlEnd;
 		push @classNames, $className;
 		}
@@ -2759,6 +2775,21 @@ sub GetCTagsTOCForFile {
 		{
 		unlink($tempFilePath);
 		}
+	}
+
+# Sort line numbers, first stripping any initial 'a'.
+sub LineNumComp {
+	my ($numA, $numB) = @_;
+	if (index($numA, 'a') == 0)
+		{
+		$numA = substr($numA, 1);
+		}
+	if (index($numB, 'a') == 0)
+		{
+		$numB = substr($numB, 1);
+		}
+	
+	return($numA <=> $numB);
 	}
 
 # Ctags handling, for CSS files. There can be multiple entries per line, and tag can be
@@ -3039,6 +3070,7 @@ Java     *.java
 JavaProperties *.properties
 JavaScript *.js *.jsx
 JSON     *.json
+Julia     *.jl
 LdScript *.lds *.scr *.ld
 Lisp     *.cl *.clisp *.el *.l *.lisp *.lsp
 Lua      *.lua
@@ -3241,6 +3273,10 @@ sub LoadCtags {
 	elsif ($filePath =~ m!\.cs$!i)
 		{
 		$itemCount = LoadCSharpTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		}
+	elsif ($filePath =~ m!\.jl$!i)
+		{
+		$itemCount = LoadJuliaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
 		}
 	else # Default class/struct/function handling
 		{
@@ -3636,7 +3672,7 @@ sub LoadCSharpTags {
 			my $kind = $3;
 			my $owner = $4;
 			
-			# Strip "interface" or "class" from start of $owner.
+			# Strip "interface:" or "class:" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
 				{
@@ -3690,6 +3726,111 @@ sub LoadCSharpTags {
 				}
 			}
 		++$itemCount;
+		}
+	
+	return($itemCount);
+	}
+
+# Get tag hashes of n module s struct f function entries for a Julia file.
+# Some functions can belong to modules such as Base that are not present
+# in the file - dummy entries are inserted for Base etc if needed.
+# Note a '!' can be part of a function name.
+# Return count of all tags.
+sub LoadJuliaTags {
+	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
+		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my $itemCount = 0;
+	my $numLines = @{$linesA};
+	
+	my $module = ''; # The module name for the file.
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([nsf])\t([^\t]+)((\t\w+\:)?)$!)
+			{
+			my $tagname = $1; 		# NOTE may include '!'
+			my $lineNumber = $2;
+			my $kind = $3;
+			my $owner = $4;
+			
+			# Strip "module:" from start of $owner.
+			my $colonPos = index($owner, ':');
+			if ($colonPos > 0)
+				{
+				$owner = substr($owner, $colonPos + 1);
+				}
+
+			if ($kind eq 'n')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$classEntryForLineH->{"$lineNumber"} = $tagname;				
+				}
+			elsif ($kind eq 's')
+				{
+				if ($owner ne '')
+					{
+					$tagname = $owner . '.' . $tagname;
+					}
+				$structEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 'f')
+				{
+				$classEntryForLineH->{"$lineNumber"} = $owner . '#' . $tagname;
+				}
+			}
+		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([nsf])$!)
+			{
+			my $tagname = $1; 		# NOTE may include '!'
+			my $lineNumber = $2;
+			my $kind = $3;
+			
+			if ($kind eq 'n')
+				{
+				$module = $tagname;
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
+				}
+			elsif ($kind eq 's')
+				{
+				# No owner: use $module if there is one.
+				my $owner = ($module ne '') ? "$module." : '';
+				$structEntryForLineH->{"$lineNumber"} = $tagname . $owner;
+				}
+			elsif ($kind eq 'f')
+				{
+				# No owner: use $module if there is one.
+				my $owner = ($module ne '') ? "$module#" : '';
+				$classEntryForLineH->{"$lineNumber"} = $owner . $tagname;
+				}
+			}
+		++$itemCount;
+		}
+		
+	# In Julia a function can be defined for a module that is not itself
+	# defined in the current file. If a module is not defined, poke in
+	# an entry for it so that functions can be grouped under it - but
+	# the missing module itself will be disabled in the table of contents.
+	my %missingModules;
+	foreach my $lineNum (keys %{$classEntryForLineH})
+		{
+		my $value = $classEntryForLineH->{$lineNum};
+		my $octoPos = index($value, '#');
+		if ($octoPos > 0)
+			{
+			my $ownerName = substr($value, 0, $octoPos);
+			if (!defined($missingModules{$ownerName}) && $ownerName ne $module)
+				{
+				$missingModules{$ownerName} = 'a' . $lineNum;
+				}
+			}
+		}
+	
+	foreach my $missingModule (keys %missingModules)
+		{
+		my $lineNum = $missingModules{$missingModule};
+		$classEntryForLineH->{"$lineNum"} = $missingModule;
 		}
 	
 	return($itemCount);
