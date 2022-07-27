@@ -67,7 +67,7 @@ function addToggleScrollListener() {
 function updateToggleBigMoveLimit() {
 	let cm = myCodeMirror;
 
-	// Get the visible text, as one big string with '\n' between lines.
+	// Get the number of visible lines, add a little bit.
 	let rect = cm.getWrapperElement().getBoundingClientRect();
 	let firstVisibleLineNum = cm.lineAtHeight(rect.top, "window");
 	let lastVisibleLineNum = cm.lineAtHeight(rect.bottom, "window");
