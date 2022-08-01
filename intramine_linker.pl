@@ -45,7 +45,7 @@ use Text::Tabs;
 $tabstop = 4;
 use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL doesn't seem to do much
 use Time::HiRes qw ( time );
-use Win32::Process; # for calling Exuberant ctags.exe
+use Win32::Process; # for calling ctags.exe
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
@@ -97,11 +97,11 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 # Actions. Respond to requests for links, from CodeMirror views, text views, and the Files page.
 my %RequestAction;
-$RequestAction{'signal'} = \&HandleBroadcastRequest;# signal=reindex or folderrenamed
-$RequestAction{'req|cmLinks'} = \&CmLinks; 			# req=cmLinks... - linking for CodeMirror files
-$RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 	# req=nonCmLinks... - linking for non-CodeMirror files
-$RequestAction{'req|autolink'} = \&FullPathForPartial; # req=autolink&partialpath=...
-$RequestAction{'/test/'} = \&SelfTest;				# Ask this server to test itself.
+$RequestAction{'signal'} = \&HandleBroadcastRequest;	# signal=reindex or folderrenamed
+$RequestAction{'req|cmLinks'} = \&CmLinks; 				# req=cmLinks... - linking for CodeMirror files
+$RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 		# req=nonCmLinks... - linking for non-CodeMirror files
+$RequestAction{'req|autolink'} = \&FullPathForPartial; 	# req=autolink&partialpath=...
+$RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
 
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
 # which can take some time.
@@ -230,6 +230,7 @@ sub CmGetLinksForText {
 # Add links for all local file, image, and web links in $formH->{'text'}.
 # Links are added on demand for visible lines only.
 # Invoked by xmlHttpRequest in autoLinks.js#requestLinkMarkup().
+# As opposed to CodeMirror views, links are inserted directly in the returned text.
 sub NonCmLinks {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
@@ -262,6 +263,10 @@ sub GetLinksForText {
 # Called in response to the %RequestAction req=autolink&partialpath=...
 # Get best full file path matching 'partialpath'. See reverse_filepaths.pm#FullPathInContextNS().
 # This is actually called by the Files page, see files.js#openAutoLinkWithPort().
+# Note there is no "context" folder for the provided partial path, so a directory name
+# will be needed more often. Eg "main.cpp" might be adequate in a log file when linking to
+# the closest instance of main.cpp, but when using the File page's Open dialog then something
+# more like project51/main.cpp will be needed.
 sub FullPathForPartial {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
@@ -310,11 +315,11 @@ my $port;
 my $clientIsRemote;
 my $allowEditing;
 
-my $haveRefToText; # For CodeMirror we get the text not a ref, and this is 0.
-my $line;
-my $revLine;
-my $contextDir;
-my $len;
+my $haveRefToText; 	# For CodeMirror we get the text not a ref, and this is 0.
+my $line;			# Full text of a single line being autolinked
+my $revLine;		# $line reversed (used to search backwards from a file extension)
+my $contextDir;		# The directory path to the file wanting links
+my $len;			# Length of $line.
 
 # In non-CodeMirror files there are <mark> tags around Search highlights.
 # We need a version of the line of text that's been stripped of <mark> tags
@@ -339,7 +344,7 @@ my $longestSourcePath; 	# Longest linkable path identified in original text
 my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
 
 # AddWebAndFileLinksToLine: look for file and web address mentions, turn them into links.
-# Does the promised "auto linking", so no quotes etc are needed around file names even if
+# Does the promised "autolinking", so no quotes etc are needed around file names even if
 # the file name contains spaces, and directories in the path are needed only if the file name isn't unique
 # and the file being mentioned isn't the "closest" one, where distance is measured as the number
 # of directory moves up and down from the referring file to the file being mentioned. So eg
@@ -411,6 +416,7 @@ sub AddWebAndFileLinksToLine {
 	}
 
 # Look for all of: single or double quoted text, a potential file extension, or a url.
+# Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
 sub EvaluateLinkCandidates {
 	my $previousEndPos = 0;
 	my $previousRevEndPos = $len;
@@ -419,8 +425,8 @@ sub EvaluateLinkCandidates {
 	
 	# Collect positions of quotes and HTML tags (start and end of both start and end tags).
 	# And <mark> tags, which can interfere with links.
-	GetHtmlTagAndQuotePositions($line);
-	$lineIsStripped = LineHasMarkTags();
+	GetTagAndQuotePositions($line);
+	$lineIsStripped = LineHasMarkTags(); # Stripping <mark> tags happens next.
 
 	# If $line has <mark> tags, create a version stripped of those, for spotting links
 	# without have to use a monstrous regex.
@@ -444,12 +450,12 @@ sub EvaluateLinkCandidates {
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
-		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
+		my $captured = $1;		# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
 
-		my $haveTextHref = (index($ext, '_LB_') == 0);
-		my $textHref = ($haveTextHref) ? $ext : '';
+		my $haveTextHref = (index($captured, '_LB_') == 0);
+		my $textHref = ($haveTextHref) ? $captured : '';
 
-		my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
+		my $haveQuotation = ((index($captured, '"') == 0) || (index($captured, "'") == 0));
 		my $quoteChar = '';
 		my $badQuotation = 0;
 		my $insideID = 0;
@@ -459,7 +465,9 @@ sub EvaluateLinkCandidates {
 			if ($startPos > 0)
 				{
 				my $charBefore = substr($strippedLine, $startPos - 1, 1);
-				if ($charBefore !~ m!\W!)
+				my $num = ord($charBefore);
+				if (!(($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
+				#if ($charBefore !~ m!\W!)
 					{
 					$badQuotation = 1;
 					}
@@ -480,7 +488,9 @@ sub EvaluateLinkCandidates {
 			if ($endPos < $strippedLen)
 				{
 				my $charAfter = substr($strippedLine, $endPos, 1);
-				if ($charAfter !~ m!\W!)
+				my $num = ord($charAfter);
+				if (!(($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
+				#if ($charAfter !~ m!\W!)
 					{
 					$badQuotation = 1;
 					}
@@ -509,9 +519,9 @@ sub EvaluateLinkCandidates {
 			if (!$badQuotation)
 				{
 				# Trim quotes and pick up $quoteChar.
-				$quoteChar =  substr($ext, 0, 1);
-				$ext = substr($ext, 1);
-				$ext = substr($ext, 0, length($ext) - 1);
+				$quoteChar =  substr($captured, 0, 1);
+				$captured = substr($captured, 1);
+				$captured = substr($captured, 0, length($captured) - 1);
 				}
 			}
 		
@@ -528,24 +538,37 @@ sub EvaluateLinkCandidates {
 			}
 		else
 			{
-			my $haveURL = (!$haveTextHref && index($ext, 'http') == 0);
+			my $haveURL = (!$haveTextHref && index($captured, 'http') == 0);
 			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($10)) ? $10 : ''; # includes '#'
 			# Need to sort out actual anchor if we're dealing with a quoted chunk.
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
-				if ($ext =~ m!(\#[^"]+)!)
+				my $hashPos = index($captured, '#');
+				if ($hashPos >= 0)
 					{
-					$anchorWithNum = $1; # includes '#'
+					my $quotePos = index($captured, '"', $hashPos);
+					if ($quotePos != $hashPos + 1)
+						{
+						$anchorWithNum = substr($captured, $hashPos); # includes '#'
+						}
 					}
+
+				#if ($captured =~ m!(\#[^"]+)!)
+				#	{
+				#	$anchorWithNum = $1; # includes '#'
+				#	}
 				}
-			my $url = $haveURL ? $ext : '';
-			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref) ? substr($ext, 1) : '';
+			my $url = $haveURL ? $captured : '';
+			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref) ? substr($captured, 1) : '';
 			# Get file extension if it's a quoted chunk (many won't have an extension).
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
-				if ($ext =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
+				my $foundExtension = ExtensionBeforeHashOrEnd($captured);
+				if ($foundExtension ne '')
+				#if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 					{
-					$extProper = $1;
+					$extProper = $foundExtension;
+					#$extProper = $1;
 					}
 				}
 			if ($anchorWithNum ne '' && !$haveURL && !$haveQuotation && !$haveTextHref)
@@ -564,7 +587,7 @@ sub EvaluateLinkCandidates {
 			# Potentially a text file mention or an image.
 			if ($haveGoodExtension)
 				{
-				$haveGoodMatch = RememberTextOrImageFileMention($startPos, $previousRevEndPos, $ext, $extProper,
+				$haveGoodMatch = RememberTextOrImageFileMention($startPos, $previousRevEndPos, $captured, $extProper,
 							$haveQuotation, $haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum);
 				} # if known extensions
 			elsif ($haveURL)
@@ -597,13 +620,55 @@ sub EvaluateLinkCandidates {
 		} # while another extension or url matched
 	}
 
+# 	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
+# 		$extProper = $1;
+# the hard way (without a regex).
+sub ExtensionBeforeHashOrEnd {
+	my ($ext) = @_;
+	my $numExtCharsMax = 7;
+	my $result = '';
+	my $numGoodChars = 0;
+	
+	if (index($ext, '.') == 0)
+		{
+		my $extLen = length($ext);
+		my $checkLimit = $extLen;
+		#if ($checkLimit > $numExtCharsMax + 1)
+		#	{
+		#	$checkLimit = $numExtCharsMax + 1;
+		#	}
+		for (my $i = 1; $i < $checkLimit; ++$i)
+			{
+			my $num = ord(substr($ext, $i, 1));
+			if (($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95))
+				{
+				++$numGoodChars;
+				}
+			else
+				{
+				last;
+				}
+			}
+		
+		if ($numGoodChars >= 1 && $numGoodChars <= $numExtCharsMax)
+			{
+			if ($extLen == $numGoodChars + 1
+				|| ($extLen > $numGoodChars + 1 && substr($ext, $numGoodChars+1, 1) eq '#'))
+				{
+				$result = substr($ext, 1, $numGoodChars);
+				}
+			}
+		}
+	
+	return($result);
+	}
 
 # If we can find a valid file mention looking backwards from $startPos, remember its details
 # in @repStr, @repLen etc. We go for the longest valid path.
 # We're searching backwards for the file name and directories when an extension has
 # been spotted.
 sub RememberTextOrImageFileMention {
-	my ($startPos, $previousRevEndPos, $ext, $extProper, $haveQuotation,
+	my ($startPos, $previousRevEndPos, $captured, $extProper, $haveQuotation,
 		$haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum) = @_;
 	my $linkIsMaybeTooLong = 0;
 	
@@ -635,7 +700,7 @@ sub RememberTextOrImageFileMention {
 	my $doingQuotedPath = 0;
 	if ($haveQuotation)
 		{
-		my $pathToCheck = $ext;
+		my $pathToCheck = $captured;
 		my $pos = index($pathToCheck, '#');
 		if ($pos > 0)
 			{
@@ -777,7 +842,7 @@ sub GetLongestGoodPath {
 			{
 			# Pick up next reversed term, including space.
 			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $currentRevPos - $prevSubRevPos + 1);
-			# Drop out if we see a double quote or colon.
+			# Drop out if we see a double quote.
 			if (index($nextRevTerm, '"') >= 0)
 				{
 				last;
@@ -1229,7 +1294,7 @@ my @markStartPos;
 my @markLength;
 my @isMarkStart; # <mark...> gets 1, </mark> gets 0.
 
-sub GetHtmlTagAndQuotePositions {
+sub GetTagAndQuotePositions {
 	my ($line) = @_;
 	
 	@htmlTagStartPos = ();
@@ -1402,7 +1467,7 @@ sub CorrectedPositionAndLength {
 	return($correctedStartPos, $repLength);
 	}
 
-# Valid after calling GetHtmlTagAndQuotePositions() above.
+# Valid after calling GetTagAndQuotePositions() above.
 sub LineHasMarkTags {
 	my $numTags = @markStartPos;
 	my $result = ($numTags > 0);
@@ -1467,22 +1532,26 @@ sub WebLink {
 	}
 
 # ext.pm#313 $popularExtensionsForLanguage{'Plain Text'} = 'txt,text,conf,def,list,log';
+# We just do txt, log, bat for linking.
 sub IsTextFileExtension {
 	my ($ext) = @_;
-	return($ext =~ m!\.(txt|log|bat)$!);
-#	return($ext =~ m!^\.(txt|text|conf|def|list|log)$!);
+	return($ext eq ".txt" || $ext eq ".log" || $ext eq ".bat");
+	#return($ext =~ m!\.(txt|log|bat)$!);
 	}
 
 # ext.pm#239 $extensionsForLanguage{'Perl Pod'} = 'pod';
 sub IsPodExtension {
 	my ($ext) = @_;
-	return($ext =~ m!^\.pod$!);
+	return($ext eq ".pod");
+	#return($ext =~ m!^\.pod$!);
 	}
 
-# ext.pm#312 $popularExtensionsForLanguage{'Perl'} = 'pl,pm';
+# ext.pm#312 $popularExtensionsForLanguage{'Perl'} = 'pl,pm,cgi,t,pod';
+# (pod is treated separately.)
 sub IsPerlExtension {
 	my ($ext) = @_;
-	return($ext =~ m!\.(p[lm]|cgi|t)$!);
+	return($ext eq ".pl" || $ext eq ".pm" || $ext eq ".cgi" || $ext eq ".t");
+	#return($ext =~ m!\.(p[lm]|cgi|t)$!);
 	}
 
 # Turn 'use Package::Module;' into a link to cpan. One wrinkle, if it's a local-only module
@@ -1491,7 +1560,7 @@ sub IsPerlExtension {
 sub AddModuleLinkToText {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 
-	# Worth looking only if "use " of "import " appears in the text.
+	# Worth looking only if "use " or "import " appears in the text.
 	if (index($$txtR, "use ") < 0 && index($$txtR, "import ") < 0)
 		{
 		return;
@@ -1675,7 +1744,7 @@ sub ModuleLink {
 			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayText</a>";
 			$result = "$viewerLink$docsLink";
 			}
-		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z]. And skip "use for".
+		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z].
 			{
 			my $firstChar = substr($srcTxt, 0, 1);
 			my $ordVal = ord($firstChar);

@@ -93,8 +93,7 @@ sub InitFullPathList {
 	}
 
 # Associate an integer with each file path.
-# %IntKeysForPartialPath values are a piped list of those integers. The integers are smaller
-# than their corresponding paths, reducing memory needs.
+# The integers are smaller than their corresponding paths, reducing memory needs.
 sub BuildFullPathsForIntegers {
 	my ($fileNameForFullPathH) = @_;
 	
@@ -138,7 +137,7 @@ sub BuildPartialPathList {
 		}	
 	}
 
-# Load additional fullpaths2.out to %FileNameForFullPath.
+# Load additional fullpaths2.out etc to %FileNameForFullPath.
 sub LoadIncrementalFullPathLists {
 	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
@@ -172,7 +171,7 @@ sub LoadIncrementalFullPathLists {
 		}
 	}
 
-# Load additional fullpaths2.out to %FileNameForFullPath, create new partial path entries too.
+# Load additional fullpaths2.out etc to %FileNameForFullPath, create new partial path entries too.
 sub LoadIncrementalDirectoryFinderLists {
 	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
@@ -201,7 +200,6 @@ sub LoadIncrementalDirectoryFinderLists {
 				{
 				keys %newFileNameForFullPath;
 				while (my ($path, $fileName) = each %newFileNameForFullPath)
-
 					{
 					$FileNameForFullPath{$path} = $newFileNameForFullPath{$path};
 					}
@@ -695,8 +693,15 @@ sub DeleteFullPathListFiles {
 	my $ext = $2;
 	my $num = 2;
 	my $fragPath = $base . $num . $ext;
+	
 	unlink($filePath);
-	unlink($fragPath);
+	
+	while (-f $fragPath)
+		{
+		unlink($fragPath);
+		++$num;
+		$fragPath = $base . $num . $ext;
+		}
 	}
 } ##### Directory list
 

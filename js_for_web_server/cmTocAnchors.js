@@ -6,7 +6,7 @@ where "Images::finished" is the name of a method. The anchor is scrolled into vi
 
 let goingToAnchor = false;
 
-// Called by Table of Contents entries. See eg intramine_file_viewer_cm.pl#GetCTagsTOCForFile().
+// Called by Table of Contents entries. See eg intramine_viewer.pl#GetCTagsTOCForFile().
 // And also called for links to internal headings (functions classes etc).
 function goToAnchor(anchorText, lineNum) {
 	goingToAnchor = true;
