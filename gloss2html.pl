@@ -471,7 +471,10 @@ sub GetPrettyText {
 		}
 	else
 		{
-		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		if (defined($lines[0]))
+			{
+			$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+			}
 		unshift @jumpList, "<ul>";
 		if ($isGlossaryFile)
 			{

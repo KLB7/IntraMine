@@ -1068,7 +1068,10 @@ sub GetPrettyPerlFileContents {
 		AddInternalLinksToPerlLine(\${lines[$i]}, \%sectionIdExists);
 		}
 
-	$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+	if (defined($lines[0]))
+		{
+		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		}
 	my @idx = sort { $subNames[$a] cmp $subNames[$b] } 0 .. $#subNames;
 	@jumpList = @jumpList[@idx];
 	@idx = sort { $sectionNames[$a] cmp $sectionNames[$b] } 0 .. $#sectionNames;
@@ -1358,7 +1361,10 @@ sub GetPrettyTextContents {
 		}
 	else
 		{
-		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		if (defined($lines[0]))
+			{
+			$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+			}
 		unshift @jumpList, "<ul>";
 		unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
 		$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
