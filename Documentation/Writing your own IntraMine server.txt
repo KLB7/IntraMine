@@ -74,26 +74,26 @@ Location		Whazzup
 113..116	The **%RequestAction** hash keys hold strings that swarmserver.pm will look for when requests come in, and the values hold addresses of subroutines to call in response. %RequestAction has its own description below.
 116		"$RequestAction{'/test/'} = \&SelfTest;" says this server can run tests. See "Testing" below.
 125		"MainLoop(\%RequestAction);" passes control to swarmserver.pm, which listens for requests and calls corresponding subs as listed in %RequestAction.
-151..249		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
-213	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
-214	websockets.js implements client-side WebSockets. Sending a message is simple, wsSendMessage("Your message here") will do the job. Receiving messages requires setting up a callback - see "IntraMine communications" for details.
-215	todoFlash.js sets up callbacks to handle WebSockets messages involving the ToDo server. In DBX, receiving a "todoflash" messages triggers a "flash" of the ToDo item in the navigation bar. Again, there's more about this below under "IntraMine communications".
-216	chatFlash.js flashes the "Chat" item in the nav bar for message from the Chat service.
-217	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
-218	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
-249		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
-254..294		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
+151..250		OurPage() is called by swarmserver.pm in response to a request to show the DBX page. OurPage() returns the full HTML for the page, including script tags to load some CSS and JavaScript.
+214	spinner.js controls the golden spinning globe that appears on the right of the navigation bar when a page is loading. It turns into a question mark when the page has loaded. Each page controls when this happens, and for DBX it's a call to db_example.js#turnOffTheLoadingSpinner() when the page has loaded.
+215	websockets.js implements client-side WebSockets. Sending a message is simple, wsSendMessage("Your message here") will do the job. Receiving messages requires setting up a callback - see "IntraMine communications" for details.
+216	todoFlash.js sets up callbacks to handle WebSockets messages involving the ToDo server. In DBX, receiving a "todoflash" messages triggers a "flash" of the ToDo item in the navigation bar. Again, there's more about this below under "IntraMine communications".
+217	chatFlash.js flashes the "Chat" item in the nav bar for message from the Chat service.
+218	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
+219	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
+250		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
+255..295		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
 
 The main front-end file for DBX is **db_example.js**. Open that up and we'll take a quick tour of the good bits.
 
 TABLE db_example.js (DBX) lines
 Location		Whazzup
-47..80			The addFruitSubmit() function uses an XMLHttpRequest to POST a new fruit name and rating back to intramine_db_example.pl, where 
+47..76			The addFruitSubmit() function uses an XMLHttpRequest to POST a new fruit name and rating back to intramine_db_example.pl, where 
  	$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;
  	recognizes that it's a POST and calls AddOrUpdateFruit(... $fruitName, $rating).
-85..115			refreshFruitDisplay() is very like addFruitSubmit(), but uses GET as the send method instead of POST.
-138..166		deleteOneFruit() similarly does an XMLHttpRequest using DELETE.
-169..174		When everything is loaded we start things off properly here by resizing the main content div, stopping the load spinner, registering a callback to use if the window is resized, and finally showing the main content with refreshFruitDisplay() - the same function is also called when a fruit is added or deleted.
+81..111			refreshFruitDisplay() is very like addFruitSubmit(), but uses GET as the send method instead of POST.
+134..159		deleteOneFruit() similarly does an XMLHttpRequest using DELETE.
+161..168		When everything is loaded we start things off properly here by resizing the main content div, stopping the load spinner, registering a callback to use if the window is resized, and finally showing the main content with refreshFruitDisplay() - the same function is also called when a fruit is added or deleted.
 
 %RequestAction and subroutine arguments
 -----------------------------------

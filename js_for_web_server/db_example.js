@@ -44,56 +44,56 @@ function turnOffTheLoadingSpinner() {
 // (or update an existing entry).
 // If things go well, we call refreshFruitDisplay() to get and refresh the HTML table
 // displaying all the fruit entries.
-function addFruitSubmit(oFormElement) {
+async function addFruitSubmit(oFormElement) { // oFormElement is not used.
 	let fruitname = document.getElementById("fruitnametext").value;
 	let fruitrating = document.getElementById("fruitratingtext").value;
 	
-	let request = new XMLHttpRequest();
-	
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Success!
-			refreshFruitDisplay();
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server reached but it returned an error adding fruit!</p>';
-			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error while adding fruit!</p>';
-	};
-
+	try {
 	// http://n.n.n.n:81/DBX/fruit/apple/3/
 	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'
 				+ apiName + '/' + fruitname + '/' + fruitrating + '/';
+
+	const response = await fetch(theAction, {
+	  method: "POST"
+	});
 	
-	request.open('POST', theAction, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send('');
+	if (response.ok)
+		{
+		refreshFruitDisplay();
+		}
+	else
+		{
+		// We reached our target server, but it returned an error
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Error, server reached but it returned an error adding fruit ' + fruitname + '!</p>';
+		}
+	}
+	catch(error) {
+	// There was a connection error of some sort
+	let e1 = document.getElementById(errorID);
+	e1.innerHTML = '<p>Connection error while attempting to add fruit ' + fruitname + '!</p>' + error;
+	}
 }
 
 // Call intramine_db_example.pl#GetHTMLforDbContents() via
 // GET  http://n.n.n.n:81/DBX/fruit/,
 // after addFruitSubmit() above successfully adds a fruit with rating.
-function refreshFruitDisplay() {
-	
+async function refreshFruitDisplay() {
 	// Send "activity" message.
 	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+
+	try {
+	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'
+					+ apiName + '/';
 	
-	let request = new XMLHttpRequest();
-	request.onload = function() {
-	if (request.status >= 200 && request.status < 400)
+	const response = await fetch(theAction);
+	
+	if (response.ok)
 		{
+		let text = await response.text();
 		// Success!
 		let fruitTableElement = document.getElementById(fruitTableId);
-		fruitTableElement.innerHTML = request.responseText;
+		fruitTableElement.innerHTML = text;
 		addDeleteButtons();
 		}
 	else
@@ -102,20 +102,12 @@ function refreshFruitDisplay() {
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Error, server reached but it returned an error updating fruit display!</p>';
 		}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error while updating fruit display!</p>';
-	};
-	
-	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'
-					+ apiName + '/';
-	
-	request.open('GET', theAction, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send();
+	}
+	catch(error) {
+	// There was a connection error of some sort
+	let e1 = document.getElementById(errorID);
+	e1.innerHTML = '<p>Connection error while updating fruit display!</p>' + error;
+	}
 }
 
 function addDeleteButtons() {
@@ -139,11 +131,16 @@ function addDeleteButtons() {
 		}
 }
 
-function deleteOneFruit(fruitname) {
-	let request = new XMLHttpRequest();
+async function deleteOneFruit(fruitname) {
+	try {
+	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'
+	+ apiName + '/' + fruitname + '/';
 	
-	request.onload = function() {
-	if (request.status >= 200 && request.status < 400)
+	const response = await fetch(theAction, {
+	method: "DELETE"
+	});
+	
+	if (response.ok)
 		{
 		refreshFruitDisplay();
 		}
@@ -151,23 +148,14 @@ function deleteOneFruit(fruitname) {
 		{
 		// We reached our target server, but it returned an error
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Error, server reached but it returned an error updating fruit display!</p>';
+		e1.innerHTML = '<p>Error, server reached but it returned an error deleting fruit ' + fruitname + '!</p>';
 		}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error while updating fruit display!</p>';
-	};
-	
-
-	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'
-	+ apiName + '/' + fruitname + '/';
-	
-	request.open('DELETE', theAction, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send('');
+	}
+	catch(error) {
+	// There was a connection error of some sort
+	let e1 = document.getElementById(errorID);
+	e1.innerHTML = '<p>Connection error while attempting to delete fruit ' + fruitname + '!</p>' + error;
+	}
 }
 
 ready(doResize);

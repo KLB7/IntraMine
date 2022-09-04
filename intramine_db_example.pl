@@ -165,7 +165,7 @@ sub OurPage {
 <body>
 _TOPNAV_
 <div>(Short name _D_SHORTNAME_, our port _D_OURPORT_, main port _D_MAINPORT_)</div>
-<h2>IntraMine Example Server with db access</h2>
+<h2>IntraMine Example Server with db access<span id="errorid"></span></h2>
 <div id='scrollAdjustedHeight'>
 	<div id='theTextWithoutJumpList'>
 		<!-- Form for adding a fruit, with rating. -->
@@ -206,6 +206,7 @@ _TOPNAV_
 let thePort = '_THEPORT_';
 let apiName = '_APINAME_';
 let fruitTableId = '_FRUIT_TABLE_ID_';
+let errorID = 'errorid';
 </script>
 <!-- intramine_config.js allows loading IntraMine config values into JavaScript.
 Here it's needed in spinner.js for the value of "SPECIAL_INDEX_NAME_HTML". -->
@@ -340,7 +341,11 @@ sub AddOrUpdateFruit {
 sub DeleteFruit {
 	my ($obj, $formH, $peeraddress, $fruitName) = @_;
 
-	$db->delete($fruitName);
+	my $delItem = $db->delete($fruitName);
+	if (!defined($delItem))
+		{
+		return(""); # This will trigger an error message on the web page.
+		}
 	
 	return('OK');
 	}
