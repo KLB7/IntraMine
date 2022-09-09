@@ -686,7 +686,7 @@ a.embedded_image {
 
 #editor_error {
 	display: inline-block;
-	font-size: 0.5em;
+	font-size: 0.8em;
 }
 
 /* For the "edit" pencil image, a bit of space on the left. */
@@ -1373,7 +1373,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R33'><td n='33'></td><td><p class="outdent-unordered-sub">&#9702; <a href='http://host:port/Editor/?href=path' target='_blank'>http://host:port/Editor/?href=path</a> to file</p></td></tr>
 <tr id='R34'><td n='34'></td><td><p class="ol-1">3. "$RequestAction{'href'} = \&amp;FullFile;" near the top of intramine_editor.pl registers FullFile() as the handler for any "href=..." request. This is detected by swarmserver.pm#MainLoop() as usual, which issues a call to FullFile(). The file path is in its $formH->{'href'} argument</p></td></tr>
 <tr id='R35'><td n='35'></td><td><p class="ol-1">4. FullFile() returns the basic HTML for the page and includes <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js and CodeMirror files.</p></td></tr>
-<tr id='R36'><td n='36'></td><td><p class="ol-1">5. When the loading of the new page is complete, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.</p></td></tr>
+<tr id='R36'><td n='36'></td><td><p class="ol-1">5. When the loading of the new page is complete, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#loadFileIntoCodeMirror() sends a fetch() call back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.</p></td></tr>
 <tr id='R37'><td n='37'></td><td><p class="ol-1">6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax highlighting etc) from then on.</p></td></tr>
 <tr id='R38'><td n='38'></td><td><p class="ol-1">7. The same sub also calls cmAutoLinks.js#addAutoLinks(), which loads file links, web links, and <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a> for the currently visible text.</p></td></tr>
 <tr id='R39'><td n='39'></td><td></td></tr>
@@ -1801,7 +1801,7 @@ function showhint(menucontents, obj, e, tipwidth, isAnImage) {
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
 		let arrayMatch = /src='([^']+)'/.exec(menucontents);
@@ -1839,31 +1839,28 @@ function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 						}
 					else
 						{
-						let request = new XMLHttpRequest();
-						let theRequest = 'http://' + ip + ':' + port + '/' +
-											shortName + '/?req=portNumber';
-						request.open('get', theRequest, true);
-						
-						request.onload =
-								function() {
-									if (request.status >= 200 && request.status < 400)
-										{
-										// Success?
-										let resp = request.responseText; // port number for shortName
-										if (!isNaN(resp))
-											{
-											// Replace port with resp in menucontents. And remove
-											// server short name.
-											let rePort = new RegExp(port);
-											menucontents = menucontents.replace(rePort, resp);
-											let reName = new RegExp(shortName + "\/");
-											menucontents = menucontents.replace(reName, "");
-											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-											}
-										}
-								};
-						
-						request.send();
+						try {
+							let theAction = 'http://' + ip + ':' + port + '/' +
+							shortName + '/?req=portNumber';
+							const response = await fetch(theAction);
+							if (response.ok)
+								{
+								let resp = await response.text(); 
+								if (!isNaN(resp))
+									{
+									// Replace port with resp in menucontents. And remove
+									// server short name.
+									let rePort = new RegExp(port);
+									menucontents = menucontents.replace(rePort, resp);
+									let reName = new RegExp(shortName + "\/");
+									menucontents = menucontents.replace(reName, "");
+									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									}
+								}
+							}
+						catch(error) {
+							// console.log('Connection error in showWithFreshPort!);
+							}
 						}
 					}
 				else // use supplied port as-is

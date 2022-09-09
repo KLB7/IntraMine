@@ -27,162 +27,91 @@ function editOpen(href) {
 }
 
 // Request Opener port from main at theMainPort, then call Opener directly using the right port.
-function editWithPreferredApp(href) {
+async function editWithPreferredApp(href) {
 	showSpinner();
-	let request = new XMLHttpRequest();
-//	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/Opener/?req=portNumber';
-	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + openerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
 
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						appEditWithPort(href, resp);
-						}
-					hideSpinner();
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					hideSpinner();
-					}
-			};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
+	try {
+		const port = await fetchPort(mainIP, theMainPort, openerShortName, errorID);
+		if (port !== "")
+			{
+			appEditWithPort(href, port);
+			}
+			hideSpinner();
+	}
+	catch(error) {
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+		e1.innerHTML = 'Connection error while attempting to open file!';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 // Call Opener intramine_open_with.pl to open a file using user's preferred editor
 // (as specified in data/intramine_config.txt, "LOCAL_OPENER_APP" etc).
-function appEditWithPort(href, openerPort) {
-	showSpinner();
-	let request = new XMLHttpRequest();
-	let properHref = href.replace(/^file\:\/\/\//, '');
-
-	let theRequest = 'http://' + mainIP + ':' + openerPort + '/' + openerShortName + '/?req=open&clientipaddress=' + clientIPAddress + '&file=' + properHref;
-	request.open('get', theRequest, true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+async function appEditWithPort(href, openerPort) {
+	try {
+		let properHref = href.replace(/^file\:\/\/\//, '');
+		let theAction = 'http://' + mainIP + ':' + openerPort + '/' + openerShortName + '/?req=open&clientipaddress=' + clientIPAddress + '&file=' + properHref;
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success?
-			let resp = request.responseText;
-			if (resp !== 'OK')
+			let text = await response.text();
+			if (text !== 'OK')
 				{
 				let e1 = document.getElementById(errorID);
-				e1.innerHTML = 'Error, server said ' + resp + '!';
+				e1.innerHTML = 'Error, server said ' + text + '!';
 				}
-			hideSpinner();
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = 'Error, server reached but it could not open the file!';
-			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
+	}
+	catch(error) {
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error while attempting to open file!';
-		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 // Use IntraMine's CodeMirror-based editor (intramine_editor.pl).
-function editWithIntraMine(href) {
+async function editWithIntraMine(href) {
 	showSpinner();
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' + editorShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload = function() {
-		  if (request.status >= 200 && request.status < 400) {
-			// Success?
-			let resp = request.responseText;
-			if (isNaN(resp))
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
-				}
-			else
-				{
-				let properHref = href.replace(/^file\:\/\/\//, '');
-				let url = 'http://' + theHost + ':' + resp + '/' + editorShortName + '/?href=' + properHref + '&rddm=' + String(getRandomInt(1, 65000));
-	
-				window.open(url, "_blank");
-				}
+
+	try {
+		const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
+		if (port !== "")
+			{
 			hideSpinner();
-		  } else {
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server reached but it could not handle request for port number!</p>';
-			hideSpinner();
-		  }
-		};
-		
-		request.onerror = function() {
-			// There was a connection error of some sort
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Connection error while attempting to retrieve port number!</p>';
-			hideSpinner();
-		};
-		
-	request.send();
+			let properHref = href.replace(/^file\:\/\/\//, '');
+			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + '&rddm=' + String(getRandomInt(1, 65000));
+
+			window.open(url, "_blank");
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'Connection error while attempting to open file!';
+		hideSpinner();
+	}
 }
 
 // Viewer links. Get a good port, do a window.open().
 // openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
-function openView(href) {
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' +
-						viewerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					if (!isNaN(resp))
-						{
-						openViewWithPort(href, theMainPort, resp);
-						}
-					}
-			};
-	
-	request.onerror = function() {
+async function openView(href) {
+	try {
+		const port = await fetchPort(mainIP, theMainPort, viewerShortName, errorID);
+		if (port !== "")
+			{
+			openViewWithPort(href, theMainPort, port);
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
-//		let e1 = document.getElementById(errorID);
-//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-//		hideSpinner();
-	};
-	
-	request.send();
+	//		let e1 = document.getElementById(errorID);
+	//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	}
+
 }
 
 // Open a view of a file, using the Viewer (intramine_file_viewer_cm.pl).

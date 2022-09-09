@@ -124,52 +124,45 @@ function addToDisplayedMessageList(name, peer, timestamp, actualMessage, newFirs
 		}
 }
 
-function saveMessage(message) {
+async function saveMessage(message) {
 	showSpinner();
-	
-	// TEST ONLY
-	//console.log("JS saving |" + message + "|");
-	
-	let request = new XMLHttpRequest();
-	request.open('post', 'http://' + theHost + ':' + thePort + '/', true);
-
-		request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Success! Probably.
-			hideSpinner();
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = 'Error, server reached but it returned an error when trying to save message!';
-			hideSpinner();
-			}
-	};
-
-	request.onerror = function() {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/';
+		message = encodeURIComponent(message);
+		const response = await fetch(theAction, {
+			method: 'POST',
+		  body: 'data=' + message
+		});
+	if (response.ok)
+		{
+		// Success! Probably.
+		hideSpinner();
+		}
+	else
+		{
+		// We reached our target server, but it returned an error
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'Error, server reached but it returned an error when trying to save message!';
+		hideSpinner();
+		}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error! Could not reach server when trying to save message.';
 		hideSpinner();
-	};
-
-	message = encodeURIComponent(message);
-	request.send('data=' + message);
+	}
 }
 
 // Retrieve our ip address and refresh display.
-function getChatStarted() {
+async function getChatStarted() {
 	showSpinner();
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=peer', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=peer';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success!
-			peerAddress = decodeURIComponent(request.responseText);
+			peerAddress = decodeURIComponent(await response.text());
 			messageHeight = document.getElementById("messageid").clientHeight;
 			refreshChatDisplay();
 			}
@@ -180,16 +173,13 @@ function getChatStarted() {
 			e1.innerHTML = 'Error, server reached but it returned an error when trying to get peer address!';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error! Could not reach server when trying to get peer address.';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 function refreshChatDisplay() {
@@ -197,25 +187,23 @@ function refreshChatDisplay() {
 	hideSpinner();
 }
 
-function getMessages() {
+async function getMessages() {
 	showSpinner();
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=getMessages', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=getMessages';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
 			// Success!
 			hideSpinner();
-			
-			let theText = decodeURIComponent(request.responseText);
+			let text = decodeURIComponent(await response.text());
 			// No messages? Nothing to do.
-			if (theText === '(none)')
+			if (text === '(none)')
 				{
 				return;
 				}
-
-			let myMessageArr = theText.split("_MS_");
+			
+			let myMessageArr = text.split("_MS_");
 			for (let i = 0; i < myMessageArr.length; ++i)
 				{
 				breakUpAndAddToDisplayedMessageList(myMessageArr[i]);
@@ -228,16 +216,13 @@ function getMessages() {
 			e1.innerHTML = 'Error, server reached but it returned an error when trying to get all messages!';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error! Could not reach server when trying to get all messages.';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 // Unused.
@@ -303,45 +288,45 @@ function deleteAllDisplayedMessages() {
 
 // Unused.
 // Clear all messages in disk file for chat, and clear messages on screen.
-function clearChat() {
-	showSpinner();
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=clearMessages', true);
+// function clearChat() {
+// 	showSpinner();
+// 	let request = new XMLHttpRequest();
+// 	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=clearMessages', true);
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Success!
-			let theText = request.responseText;
-			if (theText !== 'ok')
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = 'Error, could not clear messages on disk!';
-				}
-			else
-				{
-				deleteAllDisplayedMessages();
-				}
-			hideSpinner();
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = 'Error, server reached but it returned an error when trying to clear all messages!';
-			hideSpinner();
-			}
-	};
+// 	request.onload = function() {
+// 		if (request.status >= 200 && request.status < 400)
+// 			{
+// 			// Success!
+// 			let theText = request.responseText;
+// 			if (theText !== 'ok')
+// 				{
+// 				let e1 = document.getElementById(errorID);
+// 				e1.innerHTML = 'Error, could not clear messages on disk!';
+// 				}
+// 			else
+// 				{
+// 				deleteAllDisplayedMessages();
+// 				}
+// 			hideSpinner();
+// 			}
+// 		else
+// 			{
+// 			// We reached our target server, but it returned an error
+// 			let e1 = document.getElementById(errorID);
+// 			e1.innerHTML = 'Error, server reached but it returned an error when trying to clear all messages!';
+// 			hideSpinner();
+// 			}
+// 	};
 
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error! Could not reach server when trying to clear all messages.';
-		hideSpinner();
-	};
+// 	request.onerror = function() {
+// 		// There was a connection error of some sort
+// 		let e1 = document.getElementById(errorID);
+// 		e1.innerHTML = 'Connection error! Could not reach server when trying to clear all messages.';
+// 		hideSpinner();
+// 	};
 
-	request.send();
-}
+// 	request.send();
+// }
 
 // Colour for message, to distinguish different senders slightly.
 function colorForPeerAddress(peer) {

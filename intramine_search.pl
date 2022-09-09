@@ -134,6 +134,7 @@ let errorID = "headingAboveContents";
 <script src="jquery.easing.js"></script>
 -->
 <script src="jqueryFileTree.js"></script>
+<script src="viewerLinks.js"></script>
 <script src="intramine_search.js"></script>
 </body></html>
 FINIS

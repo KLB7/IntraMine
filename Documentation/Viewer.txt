@@ -3,7 +3,7 @@ Viewer
 2020-02-28 16_07_51-elasticsearcher.pm.png
 The Viewer service provides HTML views of your source and text files. It kicks in when you click on a link in Search results, or the Files page, or a link in a view that you're looking at. These are all "regular" links as opposed to the links on the little pencil icons (edit1.png) that follow most regular links - those invoke the editor. 
 
-This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.
+This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.
 
 CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full Gloss treatment including a table of contents (see "Gloss.txt"), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia) - support for other languages is planned.
 
@@ -13,7 +13,7 @@ Links to image files (png gif jpg ico) are also supported. They're bracketed by 
 
 Main back-end Perl files
 -------------------
- - **intramine_viewer.pl** delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" XMLHttpRequest retrieves the file contents, for display by CodeMirror.
+ - **intramine_viewer.pl** delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" fetch() retrieves the file contents, for display by CodeMirror.
  - **win_wide_filepaths.pm** is included here and in many other servers, to properly handle file names and paths that contain non-ASCII characters of the UTF-16 sort that Windows uses.
  
  
@@ -37,7 +37,7 @@ Related servers
 ---------------
 TABLE
 Short name			Main Perl file        		Description
-Linker				intramine_linker.pl		provides links of all sorts, in response to an XMLHttpRequest
+Linker				intramine_linker.pl		provides links of all sorts, in response to a fetch()
 Search				intramine_search.pl		puts links to the Viewer on all of its search hits
 Files				intramine_filetree.pl	shows directory lists, and all source and text files there have links to the Viewer
 Editor				intramine_editor.pl		shows an editable display of a source or text file, brought up when the little pencil icon next to a regular Viewer link is clicked. The display and editing are managed by CodeMirror

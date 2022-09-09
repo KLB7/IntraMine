@@ -56,6 +56,7 @@ function clearStatus() {
 	progress.innerHTML = '&nbsp';
 }
 
+// Note this has been left as an XMLHttpRequest() rather that using fetch.
 function sendXHRequest(formData, uri) {
 	// Get an XMLHttpRequest instance
 	let xhr = new XMLHttpRequest();
@@ -120,7 +121,71 @@ function onreadystatechangeHandler(evt) {
 
 // XMLHttpRequest, send req=checkFile. If OK, or user confirms overwrite,
 // upload the file with sendXHRequest().
-function uploadTheFile(formData, uri) {
+async function uploadTheFile(formData, uri) {
+	// Send an "activity" message.
+	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	
+	showSpinner();
+
+	let fileElem = document.getElementById('file-id');
+	let fakepath = fileElem.value;
+	let arrayMatch = /([^\\]+)$/.exec(fakepath);
+	let fileName = (arrayMatch !== null) ? arrayMatch[1] : '';
+	let dirElem = document.getElementById('other-field-id');
+	let serverDir = dirElem.value;
+
+	if (fileName === "")
+		{
+		let status = document.getElementById('upload-status');
+		status.innerHTML = '<p>Error, missing file name!</p>';
+		hideSpinner();
+		return;
+		}
+
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=checkFile&filename='
+		+ encodeURIComponent(fileName) + '&directory=' + encodeURIComponent(serverDir);
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+
+			if (text.indexOf("OK") === 0)
+				{
+				sendXHRequest(formData, uri);
+				}
+			else
+				{
+				// File exists on server, confirm replacement or cancel.
+				if (confirmReplaceFile(serverDir, fileName))
+					{
+					uri += '&allowOverwrite=1';
+					sendXHRequest(formData, uri);
+					}
+				else
+					{
+					let status = document.getElementById('upload-status');
+					status.innerHTML = '&nbsp;';
+					hideSpinner();
+					}
+				}
+			}
+		else
+			{
+			let status = document.getElementById('upload-status');
+			status.innerHTML = '<p>Error, server reached but it returned an error!</p>';
+			hideSpinner();
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let status = document.getElementById('upload-status');
+		status.innerHTML = '<p>Connection error!</p>';
+		hideSpinner();
+	}
+}
+
+function xuploadTheFile(formData, uri) {
 	// Send an "activity" message.
 	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
 	

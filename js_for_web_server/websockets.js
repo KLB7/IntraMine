@@ -47,32 +47,25 @@ function doCallback(message) {
 }
 
 // First request the WS (WebSockets) port number from Main, then connect to the WS service.
-function wsInit() {
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + wsShortName +  '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					wsInitWithPort(resp);
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					console.log('Error, server reached but it could not handle request for ' + wsShortName + ' port number!');
-					}
-			};
-	
-	request.onerror = function() {
+async function wsInit() {
+	try {
+		let theAction = 'http://' + mainIP + ':' + theMainPort + '/' + wsShortName +  '/?req=portNumber';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			wsInitWithPort(text);
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			console.log('Error, server reached but it could not handle request for ' + wsShortName + ' port number!');
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		console.log('Connection error while attempting to retrieve ' + wsShortName + ' port number!');
-	};
-	
-	request.send();
+	}
 }
 
 // Connect to the WS (WebSockets) service, and handle open and message received events.

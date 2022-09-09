@@ -80,122 +80,94 @@ function addAutoLinks() {
 }
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
-function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum) {
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, resp);
-						}
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					}
-			};
-	
-	request.onerror = function() {
+async function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum) {
+	try {
+		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+		if (port !== "")
+			{
+			requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, port);
+			}
+		// else error, reported by fetchPort().
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-	};
-	
-	request.send();
+	}
 }
 
 // Add link markup to view for newly exposed lines. Remember the lines have been marked up.
-function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
-	let request = new XMLHttpRequest();
+async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
-	
-	request.open('get', 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
-			+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
-			+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
-			+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
-			+ lastVisibleLineNum);
 
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
+		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
+		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
+		+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
+		+ lastVisibleLineNum;
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let resp = await response.text();
+			if (resp != 'nope')
+				{
+				let jsonResult = JSON.parse(resp);
+
+				for (let ind = 0; ind < jsonResult.arr.length; ++ind)
 					{
-					let resp = request.responseText;
-					if (resp != 'nope')
+					let markupArrEntry = jsonResult.arr[ind];
+					let len = markupArrEntry["textToMarkUp"].length;
+
+					if (!(markupArrEntry["lineNumInText"] in lineSeen))
 						{
-						let jsonResult = JSON.parse(resp);
-
-						for (let ind = 0; ind < jsonResult.arr.length; ++ind)
-							{
-							let markupArrEntry = jsonResult.arr[ind];
-							let len = markupArrEntry["textToMarkUp"].length;
-
-							if (!(markupArrEntry["lineNumInText"] in lineSeen))
-								{
-								addLinkMarkup(cm, markupArrEntry["lineNumInText"],
-										markupArrEntry["columnInText"], len,
-										markupArrEntry["linkPath"], markupArrEntry["linkType"],
-										markupArrEntry["textToMarkUp"]);
-								// Add position of last char to mark, for checking against jsonResults below.
-								markupArrEntry["lastColumnInText"] =
-										markupArrEntry["columnInText"] + len;
-								}
-							else
-								{
-								markupArrEntry["lineNumInText"] = -1; // meaning already seen, skip for internal mentions
-								}
-							}
-						// Mark up mentions of Table of Contents entries, avoiding other links.
-						if (!weAreEditing)
-							{
-							markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
-								lastVisibleLineNum, jsonResult);
-							}
+						addLinkMarkup(cm, markupArrEntry["lineNumInText"],
+								markupArrEntry["columnInText"], len,
+								markupArrEntry["linkPath"], markupArrEntry["linkType"],
+								markupArrEntry["textToMarkUp"]);
+						// Add position of last char to mark, for checking against jsonResults below.
+						markupArrEntry["lastColumnInText"] =
+								markupArrEntry["columnInText"] + len;
 						}
 					else
 						{
-						if (!weAreEditing)
-							{
-							// Maybe there are some TOC mentions, in spite of no file/image/web links.
-							let jsonResult = {};
-							jsonResult.arr = [];
-							markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
-									lastVisibleLineNum, jsonResult);
-							}
+						markupArrEntry["lineNumInText"] = -1; // meaning already seen, skip for internal mentions
 						}
-
-					// Avoid visiting the same lines twice.
-					rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
 					}
-				else
+				// Mark up mentions of Table of Contents entries, avoiding other links.
+				if (!weAreEditing)
 					{
-					// We reached server but it returned an error. Bummer, no links.
-					// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
+					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+						lastVisibleLineNum, jsonResult);
 					}
-			};
+				}
+			else
+				{
+				if (!weAreEditing)
+					{
+					// Maybe there are some TOC mentions, in spite of no file/image/web links.
+					let jsonResult = {};
+					jsonResult.arr = [];
+					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
+							lastVisibleLineNum, jsonResult);
+					}
+				}
 
-	request.onerror = function() {
+			// Avoid visiting the same lines twice.
+			rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
+			}
+		else
+			{
+			// We reached server but it returned an error. Bummer, no links.
+			// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort. Double bummer, no links.
 		console.log('requestLinkMarkupWithPort connection error!');
-	};
-
-	request.send();
+	}
 }
 
 // iPad, add poke-a-link handlers. NOT USED.

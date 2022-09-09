@@ -33,7 +33,7 @@ File load sequence
  -- http://host:port/Editor/?href=path to file
 3. "$RequestAction{'href'} = \&FullFile;" near the top of intramine_editor.pl registers FullFile() as the handler for any "href=..." request. This is detected by swarmserver.pm#MainLoop() as usual, which issues a call to FullFile(). The file path is in its $formH->{'href'} argument
 4. FullFile() returns the basic HTML for the page and includes editor.js and CodeMirror files.
-5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends an XMLHttpRequest back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.
+5. When the loading of the new page is complete, editor.js#loadFileIntoCodeMirror() sends a fetch() call back to intramine_editor.pl using "req=loadfile", and intramine_editor.pl responds through LoadTheFile(), which passes back the file contents.
 6. loadFileIntoCodeMirror() drops the response it receives into CodeMirror, which does all the hard work (syntax highlighting etc) from then on.
 7. The same sub also calls cmAutoLinks.js#addAutoLinks(), which loads file links, web links, and image hovers for the currently visible text.
 

@@ -136,6 +136,7 @@ let errorID = "errorMessage";
 <script src="jquery-3.4.1.min.js"></script>
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
+<script src="viewerLinks.js"></script>
 <script src="files.js"></script>
 </body></html>
 FINIS

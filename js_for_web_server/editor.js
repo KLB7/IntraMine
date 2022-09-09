@@ -204,18 +204,15 @@ function decodeHTMLEntities(text) {
 
 // Call back to intramine_editor.pl#LoadTheFile() with a req=loadfile request.
 // On success, start clean, resize the text area, and add autolinks.
-function loadFileIntoCodeMirror(cm, path) {
+async function loadFileIntoCodeMirror(cm, path) {
 	path = encodeURIComponent(path);
-	//console.log("path |" + path + "|");
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path, true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success!
-			let theText = decodeURIComponent(request.responseText);
-			cm.setValue(theText);
+			let text = decodeURIComponent(await response.text());
+			cm.setValue(text);
 			cm.markClean();
 			cm.clearHistory();
 			doResize();
@@ -230,16 +227,13 @@ function loadFileIntoCodeMirror(cm, path) {
 			e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error!</p>';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 function testNoticeKeyPress(cm, evt) {
@@ -310,7 +304,7 @@ function onCodeMirrorChange() {
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
-function saveFile(path) {
+async function saveFile(path) {
 	let e1 = document.getElementById(errorID);
 	let sve = document.getElementById("save-button");
 	if (hasClass(sve, 'disabled-submit-button'))
@@ -325,15 +319,26 @@ function saveFile(path) {
 
 	showSpinner();
 	let contents = myCodeMirror.getValue();
-	let request = new XMLHttpRequest();
-	request.open('post', 'http://' + mainIP + ':' + ourServerPort + '/', true);
-	request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	// '%' needs encoding in contents, to survive the encodeURIComponent() below.
+	contents = contents.replace(/%/g, "%25");
+	// And the same for path.
+	path = path.replace(/%/g, "%25");
+	contents = encodeURIComponent(contents);
+	contents = encodeURIComponent(contents); // sic
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/';
+		const response = await fetch(theAction, {
+			method: 'POST',
+			headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		  },
+		  body: 'req=save&file=' + encodeURIComponent(path) + '&contents='
+		  + contents
+		});
+		if (response.ok)
 			{
-			// Success?
-			let resp = request.responseText;
+			let resp = await response.text();
 			if (resp !== 'OK')
 				{
 				let e1 = document.getElementById("editor_error");
@@ -360,94 +365,14 @@ function saveFile(path) {
 			e1.innerHTML = '<p>Error, server reached but it could not open the file!</p>';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		// TODO make this less vague.
 		let e1 = document.getElementById("editor_error");
 		e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
 		hideSpinner();
-	};
-
-	// '%' needs encoding in contents, to survive the encodeURIComponent() below.
-	contents = contents.replace(/%/g, "%25");
-	// And the same for path.
-	path = path.replace(/%/g, "%25");
-	
-	contents = encodeURIComponent(contents);
-	contents = encodeURIComponent(contents); // sic
-	
-	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
-			+ contents);
-}
-
-//Call back to intramine_editor.pl#Save() with a req=save POST request.
-// OBSOLETE
-function oldersaveFile(path) {
-	let e1 = document.getElementById(errorID);
-	let sve = document.getElementById("save-button");
-	if (hasClass(sve, 'disabled-submit-button'))
-		{
-		e1.innerHTML = '(nothing to save yet)';
-		return;
-		}
-	else
-		{
-		e1.innerHTML = '&nbsp;';
-		}
-
-	showSpinner();
-	let contents = myCodeMirror.getValue();
-	let request = new XMLHttpRequest();
-	request.open('post', 'http://' + mainIP + ':' + ourServerPort + '/', true);
-	request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Success?
-			let resp = request.responseText;
-			if (resp !== 'OK')
-				{
-				let e1 = document.getElementById("editor_error");
-				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
-				}
-			else
-				{
-				myCodeMirror.markClean();
-				let sve = document.getElementById("save-button");
-				addClass(sve, 'disabled-submit-button');
-				}
-			hideSpinner();
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			// TODO make this less offensive.
-			let e1 = document.getElementById("editor_error");
-			e1.innerHTML = '<p>Error, server reached but it could not open the file!</p>';
-			hideSpinner();
-			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		// TODO make this less offensive.
-		let e1 = document.getElementById("editor_error");
-		e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
-		hideSpinner();
-	};
-
-	// '%' needs encoding in contents, to survive the encodeURIComponent() below.
-	contents = contents.replace(/%/g, "%25");
-	// And the same for path.
-	path = path.replace(/%/g, "%25");
-	// which leaves "&" as in "&nbsp;", encode "&" as "&amp;"
-	contents = contents.replace(/\&/g, "&amp;");
-	
-	request.send('req=save&file=' + encodeURIComponent(path) + '&contents='
-			+ encodeURIComponent(contents));
+	}
 }
 
 function makeDebouncedClearAddLinks() {

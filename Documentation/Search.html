@@ -686,7 +686,7 @@ a.embedded_image {
 
 #editor_error {
 	display: inline-block;
-	font-size: 0.5em;
+	font-size: 0.8em;
 }
 
 /* For the "edit" pencil image, a bit of space on the left. */
@@ -1332,7 +1332,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R4'><td n='4'></td><td></td></tr>
 <tr id='R5'><td n='5'></td><td>The Search service provides an interface for <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, to carry out searches and show search results.</td></tr>
 <tr id='R6'><td n='6'></td><td></td></tr>
-<tr id='R7'><td n='7'></td><td>This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.</td></tr>
+<tr id='R7'><td n='7'></td><td>This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.</td></tr>
 <tr id='R8'><td n='8'></td><td></td></tr>
 <tr id='R9'><td n='9'></td><td><h3 id="Main_back-end_Perl_files">Main back-end Perl files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1341,7 +1341,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R13'><td n='13'></td><td></td></tr>
 <tr id='R14'><td n='14'></td><td><h3 id="Main_front-end_JavaScript_files">Main front-end JavaScript files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R16'><td n='16'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_search.js is the main front-end file. It displays the search form and hit results. And it sends an XMLHttpRequest() back to intramine_search.pl to get the contents of the search form, and do a search.</p></td></tr>
+<tr id='R16'><td n='16'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_search.js is the main front-end file. It displays the search form and hit results. And it sends a fetch() back to intramine_search.pl to get the contents of the search form, and do a search.</p></td></tr>
 <tr id='R17'><td n='17'></td><td><p class="outdent-unordered">&nbsp;&bull; jqueryFileTree.js, together with some jquery files, provides the directory picker for the search form.</p></td></tr>
 <tr id='R18'><td n='18'></td><td></td></tr>
 <tr id='R19'><td n='19'></td><td><h3 id="Search_configuration">Search configuration</h3></td></tr>
@@ -1618,7 +1618,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R82'><td n='82'></td><td><p class="ol-1">1. Browser receives request for Search page, eg '<a href='http://localhost:81/Search'' target='_blank'>http://localhost:81/Search'</a></p></td></tr>
 <tr id='R83'><td n='83'></td><td><p class="ol-1">2. Request is received by swarmserver.pm#MainLoop(). A "bare" request with nothing following "/Search" is interpreted as "/Search/?req=main", which invokes the %RequestAction handler SearchPage(). This is registered in intramine_search.pl around line 76 as "$RequestAction{'req|main'} = \&amp;SearchPage;"</p></td></tr>
 <tr id='R84'><td n='84'></td><td><p class="ol-1">3. intramine_search.pl#SearchPage() responds to the browser request with an HTML "skeleton" of the Search page, including links for all needed CSS and JavaScript files</p></td></tr>
-<tr id='R85'><td n='85'></td><td><p class="ol-1">4. When page loading is complete, intramine_search.js#loadPageContent() sends a "/Search/?req=frm" request using XMLHttpRequest(). This is picked up by swarmserver.pm#MainLoop() and triggers a call to SearchForm() which returns the contents of the search form.</p></td></tr>
+<tr id='R85'><td n='85'></td><td><p class="ol-1">4. When page loading is complete, intramine_search.js#loadPageContent() sends a "/Search/?req=frm" request using fetch(). This is picked up by swarmserver.pm#MainLoop() and triggers a call to SearchForm() which returns the contents of the search form.</p></td></tr>
 <tr id='R86'><td n='86'></td><td></td></tr>
 <tr id='R87'><td n='87'></td><td><h3 id="Search_sequence">Search sequence</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1650,7 +1650,7 @@ TTl6yD2PSLI9B2fIjywkSdCSB5/9z/HXCpsh36uAnpzrC7dIJKjsasaniBs//X04Kvj/TebbC3fn
 oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 " width='17' height='12'  /></span></td></tr>
 <tr id='R90'><td n='90'></td><td><p class="ol-1">1. User clicks the <a href="#Search">"Search</a>" button on the Search page</p></td></tr>
-<tr id='R91'><td n='91'></td><td><p class="ol-1">2. intramine_search.js#searchSubmit() sends an XMLHttpRequest containing "req=results"</p></td></tr>
+<tr id='R91'><td n='91'></td><td><p class="ol-1">2. intramine_search.js#searchSubmit() calls fetch() containing "req=results"</p></td></tr>
 <tr id='R92'><td n='92'></td><td><p class="ol-1">3. swarmserver.pm#HandleDefaultPageAction() calls the handler for "req=results", which has been set in intramine_search.pl with "$RequestAction{'req|results'} = \&amp;SearchResults;". Details supplied with the request, such as "findthis=search for these words" are placed in the $formH hash reference supplied as an argument to SearchResults(), as eg $formH{'findthis'} = "search for these words".</p></td></tr>
 <tr id='R93'><td n='93'></td><td><p class="ol-1">4. intramine_search.pl#SearchResults() pulls the search request details out of its "$formH" hash reference and calls $ElasticSearcher->GetSearchResults(...), where $ElasticSearcher is an instance of elasticsearcher (see elasticsearcher.pm).</p></td></tr>
 <tr id='R94'><td n='94'></td><td><p class="ol-1">5. elasticsearcher.pm#GetSearchResults() uses Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to do the search, and returns hits after formatting a bit with FormatHitResults()</p></td></tr>
@@ -2155,7 +2155,7 @@ function showhint(menucontents, obj, e, tipwidth, isAnImage) {
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
 		let arrayMatch = /src='([^']+)'/.exec(menucontents);
@@ -2193,31 +2193,28 @@ function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 						}
 					else
 						{
-						let request = new XMLHttpRequest();
-						let theRequest = 'http://' + ip + ':' + port + '/' +
-											shortName + '/?req=portNumber';
-						request.open('get', theRequest, true);
-						
-						request.onload =
-								function() {
-									if (request.status >= 200 && request.status < 400)
-										{
-										// Success?
-										let resp = request.responseText; // port number for shortName
-										if (!isNaN(resp))
-											{
-											// Replace port with resp in menucontents. And remove
-											// server short name.
-											let rePort = new RegExp(port);
-											menucontents = menucontents.replace(rePort, resp);
-											let reName = new RegExp(shortName + "\/");
-											menucontents = menucontents.replace(reName, "");
-											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-											}
-										}
-								};
-						
-						request.send();
+						try {
+							let theAction = 'http://' + ip + ':' + port + '/' +
+							shortName + '/?req=portNumber';
+							const response = await fetch(theAction);
+							if (response.ok)
+								{
+								let resp = await response.text(); 
+								if (!isNaN(resp))
+									{
+									// Replace port with resp in menucontents. And remove
+									// server short name.
+									let rePort = new RegExp(port);
+									menucontents = menucontents.replace(rePort, resp);
+									let reName = new RegExp(shortName + "\/");
+									menucontents = menucontents.replace(reName, "");
+									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									}
+								}
+							}
+						catch(error) {
+							// console.log('Connection error in showWithFreshPort!);
+							}
 						}
 					}
 				else // use supplied port as-is

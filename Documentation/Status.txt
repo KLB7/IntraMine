@@ -17,13 +17,13 @@ Server status updates sequence
 ------------------------------
 In accordance with proper separation of duties and all that, the Status server doesn't know beans about which servers are running, let alone whether they're alive or not. That's handled by IntraMine's Main server (main file intramine_main.pl). Server status updates are done in conjunction with a refresh of the "New / Changed Files" and "Deleted Files" lists, pulled from the Main server and the Status server respectively. It all starts with a timer going off and calling status.js#refreshStatus():
 1. status.js#refreshServerStatus() calls refreshStatus() through a timer, with refresh interval set by STATUS_REFRESH_MILLISECONDS in data/intramine_config.txt.
-2. status.js#refreshStatus() issues a "req=filestatus" to the Status server via XMLHttpRequest, and awaits response.
+2. status.js#refreshStatus() issues a "req=filestatus" to the Status server via fetch(), and awaits response.
 3. intramine_status.pl has set up a handler for that request when starting,
 $RequestAction{'req|filestatus'} = \&FileStatusHTML;
 and so intramine_status.pl#FileStatusHTML() is called. (As usual, the callback is detected and triggered in swarmserver.pm, see swarmserver.pm#HandleRequestAction().)
 4. FileStatusHTML() returns lists of changed/new and deleted files. These lists are periodically updated by ReloadChangedDeletedFilesList() from a file that is updated by intramine_filewatcher.pl#SaveChangedFilesList().
 5. status.js#refreshStatus() receives and displays the file list, and then calls status.js#refreshServerStatus()
-6. refreshServerStatus() issues an XMLHttpRequest to the Main server (not the Status server), "req=serverstatus"
+6. refreshServerStatus() issues a fetch() call to the Main server (not the Status server), "req=serverstatus"
 7. intramine_main.pl#SetUpRequestActionHandlers() has set up a handler for that,
 $RequestAction{'req|serverstatus'} = \&ServerStatus;
 and so intramine_main.pl#ServerStatus() is called in response to the "req=filestatus" request

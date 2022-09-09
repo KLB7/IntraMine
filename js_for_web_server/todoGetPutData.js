@@ -19,18 +19,19 @@ function getDataAndStartToDoList() {
 
 // Call back to intramine_todolist.pl with "req=getData". The %RequestAction registered there
 // in turn calls intramine_todolist.pl#GetData().
-function getToDoData() {
+async function getToDoData() {
 	showSpinner();
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=getData', true);
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=getData';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
 			// Success!
 			hideSpinner();
 
-			let theText = decodeURIComponent(request.responseText);
+			let text = await response.text();
+			let theText = decodeURIComponent(text);
 			
 			todoNew(theText, !toDoIsStarted);
 			toDoIsStarted = true;			
@@ -42,31 +43,26 @@ function getToDoData() {
 			e1.innerHTML = 'Error, server reached but it returned an error!';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(theErrorID);
 		e1.innerHTML = 'Connection error!';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 // Periodically retrieve date stamp on todo data file. If time stamp has changed, and our
 // masterDateStamp has already been set, reload the todo list data. Always set
 // masterDateStamp if sucessful.
 // See also intramine_todolist.pl#DataModDate().
-function getModificationDateStamp() {
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=getModDate', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+async function getModificationDateStamp() {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=getModDate';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success! Probably.
-			let responseTxt = request.responseText;
+			let responseTxt = await response.text();
 			let newMasterDateStamp = responseTxt;
 			if (masterDateStamp !== newMasterDateStamp)
 				{
@@ -78,7 +74,6 @@ function getModificationDateStamp() {
 				}
 			let e1 = document.getElementById(theErrorID);
 			e1.innerHTML = '';
-
 			}
 		else
 			{
@@ -86,31 +81,36 @@ function getModificationDateStamp() {
 			let e1 = document.getElementById(theErrorID);
 			e1.innerHTML = 'Error, server did not return a data modification date!';
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(theErrorID);
 		e1.innerHTML = 'Connection error in getModificationDateStamp!';
-	};
-
-	request.send();
+	}
 }
 
 // POST ToDo data with a "data" request, handled by
 // intramine_todolist.pl#PutData().
-function putData(rawData) {
+async function putData(rawData) {
 	showSpinner();
-	
-		
-	let theData = JSON.stringify(rawData);
-	
-	let request = new XMLHttpRequest();
-	request.open('post', 'http://' + theHost + ':' + thePort + '/', true);
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/';
+		let theData = JSON.stringify(rawData);
+		theData = theData.replace(/%/g, "%25");
+		theData = encodeURIComponent(theData);
+		theData = encodeURIComponent(theData); // sic
+
+		const response = await fetch(theAction, {
+			method: 'POST',
+			headers: {
+			'Content-Type': 'application/json',
+		  	},
+		  	body: 'data=' + theData,
+		  	});
+		
+		if (response.ok)
+		  	{
 			// Success! Probably.
 			hideSpinner();
 			
@@ -125,7 +125,8 @@ function putData(rawData) {
 			wsSendMessage("todoflash");
 			wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
 
-			let responseTxt = request.responseText;
+			//let responseTxt = request.responseText;
+			let responseTxt = await response.text();
 			let errorMatch = /^FILE/.exec(responseTxt);
 			if (errorMatch === null)
 				{
@@ -136,7 +137,7 @@ function putData(rawData) {
 				let e1 = document.getElementById(theErrorID);
 				e1.innerHTML = responseTxt;
 				}
-			}
+		 	}
 		else
 			{
 			// We reached our target server, but it returned an error
@@ -144,57 +145,47 @@ function putData(rawData) {
 			e1.innerHTML = 'Error, server reached but it returned an error!';
 			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(theErrorID);
 		e1.innerHTML = 'Connection error!';
 		hideSpinner();
-	};
-
-	
-	theData = theData.replace(/%/g, "%25");
-	theData = encodeURIComponent(theData);
-	theData = encodeURIComponent(theData); // sic
-
-	request.send('data=' + theData);
+	}
 }
 
-function archiveOneItem(rawData) {
-	let theData = JSON.stringify(rawData);
+async function archiveOneItem(rawData) {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/';
+		let theData = JSON.stringify(rawData);
+		theData = theData.replace(/%/g, "%25");
+		theData = encodeURIComponent(theData);
+		theData = encodeURIComponent(theData); // sic
 
-	let request = new XMLHttpRequest();
-	request.open('post', 'http://' + theHost + ':' + thePort + '/', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
+		const response = await fetch(theAction, {
+			method: 'POST',
+			headers: {
+			'Content-Type': 'application/json',
+		  	},
+		  	body: 'saveToArchive=' + theData,
+		  	});
+		
+		if (response.ok)
+		  	{
 			// Success! Probably.
-			//hideSpinner();
-			}
+		 	}
 		else
 			{
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(theErrorID);
-			e1.innerHTML = 'Error, server reached but it returned an error!';
-			hideSpinner();
+			e1.innerHTML = 'Archiving error, server reached but it returned an error!';
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(theErrorID);
-		e1.innerHTML = 'Connection error!';
-		hideSpinner();
-	};
-
-	
-	theData = theData.replace(/%/g, "%25");
-	theData = encodeURIComponent(theData);
-	theData = encodeURIComponent(theData); // sic
-
-	request.send('saveToArchive=' + theData);
+		e1.innerHTML = 'Connection error while archiving!';
+	}
 }
 
 function getOverDueCount(rawData) {
@@ -407,29 +398,18 @@ function doResize() {
 	el.style.width = windowWidth - 4 + "px";
 }
 
-function signalOverdueChanged() {
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + theMainPort + '/?signal=todoCount&count='
-			+ overdueCount + '&name=PageServers', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+async function signalOverdueChanged() {
+	try {
+		let theAction = 'http://' + theHost + ':' + theMainPort + '/?signal=todoCount&count='
+		+ overdueCount + '&name=PageServers';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
 			// Success!
 			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			// let e1 = document.getElementById(theErrorID);
-			// e1.innerHTML = 'Error, server reached but it returned an error!';
-			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		// let e1 = document.getElementById(theErrorID);
-		// e1.innerHTML = 'Connection error!';
-	};
-
-	request.send();
+		// else no big deal.
+	}
+	catch(error) {
+		// Also no big deal.
+	}
 }

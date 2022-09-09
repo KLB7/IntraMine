@@ -207,17 +207,18 @@ function decodeHTMLEntities(text) {
 	return text;
 }
 
-function loadFileIntoCodeMirror(cm, path) {
+async function loadFileIntoCodeMirror(cm, path) {
 	path = encodeURIComponent(path);
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path, true);
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success!
-			let theText = decodeURIComponent(request.responseText);
-			cm.setValue(theText);
+			//let text = decodeURIComponent(await response.text());
+			let respText = await response.text();
+			let text = decodeURIComponent(respText);
+			cm.setValue(text);
 			// No good: cm.setValue(decodeHTMLEntities(request.responseText));
 			cm.markClean();
 			cm.clearHistory();
@@ -248,18 +249,15 @@ function loadFileIntoCodeMirror(cm, path) {
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
-			hideSpinner();
+			hideSpinner();			
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error!</p>';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 function testNoticeKeyPress(cm, evt) {

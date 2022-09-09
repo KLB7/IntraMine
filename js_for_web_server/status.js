@@ -1,6 +1,7 @@
 /**
  * status.js: for intramine_status.pl.
- * Periodically call back to Main to get a server status table,
+ * Periodically call back to Main to get a server status table
+ * and a files new/changed/deleted table,
  * manage Start/Stop/Restart and Add buttons,
  * flash server lights in response to Server-Sent Events (see also statusEvents.js).
  */
@@ -70,115 +71,123 @@ function ready(fn) {
 		}
 }
 
-// 'req=filestatus' XMLHttpRequest() request to this server invokes
-// intramine_status.pl#FileStatusHTML()
-// which returns a list of changed files. Followed by a call to
-// refreshServerStatus() which grabs a table showing server status
-// from the main server. Called every statusRefreshMilliseconds (which is initially set
-// in intramine_status.pl#StatusPage()).
-function refreshStatus() {
-	showSpinner();
+// "sleep" for ms milliseconds.
+function sleepForMs(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+ 
+// Refresh lists of new/changed/deleted files and server status,
+// both from the Main server.
+// Repeat every statusRefreshMilliseconds (which is initially set
+// in intramine_status.pl#StatusPage(), and is smaller if any service is STARTING UP).
+async function refreshStatus() {
 	let e1 = document.getElementById(errorID);
 	e1.innerHTML = '&nbsp;';
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=filestatus', true);
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		showSpinner();
+		await refreshFileStatus();
+		await refreshServerStatus();
+		hideSpinner();
+
+		while (true)
 			{
-			// Success
+			try {
+				await sleepForMs(statusRefreshMilliseconds);
+				showSpinner();
+				await refreshFileStatus();
+				await refreshServerStatus();
+				hideSpinner();
+				}
+			catch(error) {
+				statusRefreshMilliseconds = normalStatusRefreshMsecs;
+				hideSpinner();
+				}
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Connection error!</p>';
+		hideSpinner();
+	}
+}
+
+// Send 'req=filestatus' to Main
+// which returns a list of changed files.
+async function refreshFileStatus() {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=filestatus';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '&nbsp;';
-			let resp = request.responseText;
+			let text = await response.text();
 			e1 = document.getElementById(fileContentID);
-			e1.innerHTML = resp;
-			// Update status of all IntraMine servers.
-			refreshServerStatus(true);
+			e1.innerHTML = text;
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '<p>Error, status request failed!</p>';
-			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error!</p>';
-		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
-// Request update status of all IntraMine servers from main server. And set a Timeout
-// to call refreshStatus().
-function refreshServerStatus(doItRepeatedly) {
-	let e1 = document.getElementById(errorID);
-	e1.innerHTML = '&nbsp;';
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + theMainPort + '/?req=serverstatus', true);
+// Send req=serverstatus to Main
+// which returns tables of page and Background servers
+// showing Perl program name, Short name, Port, Status.
+// Services management buttons (Start Stop Restart) are added.
+async function refreshServerStatus() {
+	statusRefreshMilliseconds = normalStatusRefreshMsecs;
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + theHost + ':' + theMainPort + '/?req=serverstatus';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
+			let text = await response.text();
 			// Success
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '&nbsp;';
-			let resp = request.responseText;
 			e1 = document.getElementById(serverStatusContentID);
-			e1.innerHTML = resp;
-
+			e1.innerHTML = text;
 			// Check more often if any server status is 'STARTING UP'
-			if (resp.indexOf('STARTING UP') > 0)
+			// (This rarely happens, most services start very quickly.)
+			if (text.indexOf('STARTING UP') > 0)
 				{
 				statusRefreshMilliseconds = 1000;
 				}
-			else
-				{
-				statusRefreshMilliseconds = normalStatusRefreshMsecs;
-				}
-
 			// Re-sort page and background server tables after refresh.
 			sortTable(pageServerTableId, pageSortColumn);
 			sortTable(backgroundServerTableId, backgroundSortColumn);
 
 			// Explicit doResize, since neither "load" nor "resize" events are triggered here.
 			doResize();
-			hideSpinner();
 
 			// Add buttons to stop/start/restart individual servers.
 			addStartStopRefreshButtons();
-
-			// Do it all again every now and then (default 30 seconds).
-			if (doItRepeatedly)
-				{
-				setTimeout(function() {
-					refreshStatus();
-				}, statusRefreshMilliseconds);
-				}
-
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '<p>Error, server status request failed!</p>';
-			hideSpinner();
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error while contacting main server!</p>';
-		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
 // Add Start/Stop/Restart buttons, to "Page" (non-background) servers.
@@ -266,17 +275,16 @@ function doResize() {
 	el.style.width = windowWidth - 4 + "px";
 }
 
-// Request the little "Add on page server" form and poke it into the "AddServer" element.
-function loadAddServerForm() {
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=addserverform', true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+// Request the little "Add one page server:" form and poke it into the "AddServer" element.
+async function loadAddServerForm() {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=addserverform';
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success!
+			let text = await response.text();
 			let e1 = document.getElementById('addServer');
-			e1.innerHTML = request.responseText;
+			e1.innerHTML = text;
 			}
 		else
 			{
@@ -284,34 +292,28 @@ function loadAddServerForm() {
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '<p>Error, server reached but could not retrieve Add Server form!</p>';
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error, could not retrieve Add Server form!</p>';
-	};
-
-	request.send();
+	}
 }
 
 // Ask Main to add a Page server as selected in the "addOne" dropdown in the Add server form.
 // req=add_one_specific_server&shortname=selectedValue
-function addServerSubmit(oFormElement) {
-
-	if (!oFormElement.action)
-		{
-		return;
-		}
+async function addServerSubmit(oFormElement) {
 	let adder = document.getElementById("addOne");
 	let selectedValue = adder.value;
-	let request = new XMLHttpRequest();
 
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
+	try {
+		let addAction = "&req=add_one_specific_server&shortname=" + selectedValue;
+		let theAction = oFormElement.action + addAction;
+		const response = await fetch(theAction);
+		if (response.ok)
 			{
-			// Success!
-			refreshServerStatus(false);
+			let text = await response.text(); // ignored
+			await refreshServerStatus();
 			}
 		else
 			{
@@ -319,63 +321,46 @@ function addServerSubmit(oFormElement) {
 			let e1 = document.getElementById(errorID);
 			e1.innerHTML = '<p>Error, server reached but it returned an error adding server!</p>';
 			}
-	};
-
-	request.onerror = function() {
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error while adding server!</p>';
-	};
-
-	let addAction = "&req=add_one_specific_server&shortname=" + selectedValue;
-	let theAction = oFormElement.action + addAction;
-
-	request.open('get', theAction, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	request.send();
+	}
 }
 
 // Ask Main to stop/start/restart a Page server.
 // ssrText: 'start_one_specific_server', 'stop_one_specific_server', 'restart_one_specific_server'.
-function startStopRestartSubmit(ssrText, port) {
-	let request = new XMLHttpRequest();
-	let action =
+async function startStopRestartSubmit(ssrText, port) {
+	try {
+		let theAction =
 			"http://" + theHost + ":" + theMainPort + "/?rddm=1" + "&req=" + ssrText
 					+ "&portNumber=" + port;
-	request.open('get', action, true);
-
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success!
-					refreshServerStatus(false);
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'<p>Error, server reached but could not ' + ssrText
-									+ ' server on port ' + port + '!</p>';
-					}
-			};
-
-	request.onerror = function() {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text(); // ignored
+			await refreshServerStatus();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML =
+					'<p>Error, server reached but could not ' + ssrText
+							+ ' server on port ' + port + '!</p>';
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error! Main did not respond.</p>';
-	};
-
-	request.send();
+	}
 }
 
 // Flash an "LED" when there's some IntraMine activity on a port.
 // See statusEvents.js#requestSSE().
 function showActivity(data) {
-	// TEST ONLY
-	console.log("showActivity data: |" + data + "|");
-	
 	// Break data into 'activity' space name space port.
 	let spacePos = data.indexOf(' ');
 	if (spacePos < 1)

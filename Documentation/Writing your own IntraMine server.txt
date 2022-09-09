@@ -20,7 +20,7 @@ There are two example servers you can start from, to write your own server from 
  - intramine_db_example.pl: a simple database example, using Perl's standard DBM::Deep package to put a few entries in a table and display them. (DBM::Deep - a pure Perl multi-level hash/array DBM that supports transactions).
 
 And of course you have the dozen or so other servers provided with IntraMine to steal from. Here are the most promising candidates to build on:
- - intramine_todolist.pl manages a Kanban-style ToDo list. It's fairly small, and relies on JavaScript to do most of the work. todoGetPutData.js (with todo.js) shows how to go from JSON data in a disk file to a web page and back again using XMLHttpRequest().
+ - intramine_todolist.pl manages a Kanban-style ToDo list. It's fairly small, and relies on JavaScript to do most of the work. todoGetPutData.js (with todo.js) shows how to go from JSON data in a disk file to a web page and back again using fetch().
  - intramine_uploader.pl, also fairly small, implements uploading a file to the box where IntraMine is running. Its associated JavaScript file uploader.js shows how to do a POST request to IntraMine using XMLHttpRequest().
  
 Getting started on your own server
@@ -80,7 +80,7 @@ Location		Whazzup
 216	todoFlash.js sets up callbacks to handle WebSockets messages involving the ToDo server. In DBX, receiving a "todoflash" messages triggers a "flash" of the ToDo item in the navigation bar. Again, there's more about this below under "IntraMine communications".
 217	chatFlash.js flashes the "Chat" item in the nav bar for message from the Chat service.
 218	tooltip.js contains showhint(), which can pop up a "tool tip" when the cursor stops over an item it's attached to. It's not used in DBX, but you can find a couple of simple examples of using showhint() in intramine_boilerplate.pl, and it's also used in IntraMine's Viewer to display images ("image hover").
-219	db_example.js contains XMLHttpRequest() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
+219	db_example.js contains fetch() calls to add or delete a fruit, and refresh the display of the fruits table. These all go to the same end point, ".../DBX/fruit/", using the POST, DELETE, or GET method in the usual RESTful way. "HandleFruitRequest()" detects which method was used, see just below.
 250		"PutPortsAndShortnameAtEndOfBody(\$theBody);" injects three JavsScript variables at the bottom of the HTML in $theBody. These are needed in intramine_config.js (line 211), which contains a sub to call back to Perl to retrieve an IntraMine configuration value from its key. For an example call, see spinner.js at the bottom.
 255..295		HandleFruitRequest() handles get/post/delete requests sent to the /DBX/ API entry point for this server, as set up on line 115 with "$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;" where $APINAME is "fruit" by default. A typical post to add a fruit would be "HTTP...POST.../DBX/fruit/Raspberry/3/". Not of course code you need to copy, it's there as an example if you like the RESTful approach.
 
@@ -88,11 +88,11 @@ The main front-end file for DBX is **db_example.js**. Open that up and we'll tak
 
 TABLE db_example.js (DBX) lines
 Location		Whazzup
-47..76			The addFruitSubmit() function uses an XMLHttpRequest to POST a new fruit name and rating back to intramine_db_example.pl, where 
+47..76			The addFruitSubmit() function uses a fetch() to POST a new fruit name and rating back to intramine_db_example.pl, where 
  	$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;
  	recognizes that it's a POST and calls AddOrUpdateFruit(... $fruitName, $rating).
 81..111			refreshFruitDisplay() is very like addFruitSubmit(), but uses GET as the send method instead of POST.
-134..159		deleteOneFruit() similarly does an XMLHttpRequest using DELETE.
+134..159		deleteOneFruit() similarly does a fetch() using DELETE.
 161..168		When everything is loaded we start things off properly here by resizing the main content div, stopping the load spinner, registering a callback to use if the window is resized, and finally showing the main content with refreshFruitDisplay() - the same function is also called when a fruit is added or deleted.
 
 %RequestAction and subroutine arguments
@@ -226,9 +226,9 @@ Perl servers can send WebSockets messages, but with the setup and teardown it ca
 
 3. Web client to Perl server
 ----------------------------
-This is done using HTTP, with an XMLHttpRequest() request on the JavaScript side, and a callback on the Perl server side. If XMLHttpRequest() is new to you, you might enjoy reading "https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest" first.
+This is done using HTTP, with a fetch() request on the JavaScript side, and a callback on the Perl server side. If fetch() is new to you, you might enjoy reading "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch".
 
-3. You'll want HTTP at both ends. In the web client, your JavaScript will use an XMLHttpRequest(). And on the Perl end, you will use a callback sub registered as an entry in the "%RequestAction" hash for your server. As an example, we'll look at the DBX server (DataBase eXample, intramine_db_example.pl and db_example.js), which uses this approach to update the fruit database.
+3. You'll want HTTP at both ends. In the web client, your JavaScript will use a fetch() (or XMLHttpRequest()if you're old-fashioned). And on the Perl end, you use a callback sub registered as an entry in the "%RequestAction" hash for your server. As an example, we'll look at the DBX server (DataBase eXample, intramine_db_example.pl and db_example.js), which uses this approach to update the fruit database.
 3.1 Your approach can be RESTful or not, as you please. The DBX example is RESTful, with a single endpoint handling GET/POST/DELETE requests. Adding a fruit, for example is done with the HTTP request "http://n.n.n.n:81/DBX/fruit/fruitname/fruitrating/", sent with POST. If you read through db_example.js#refreshFruitDisplay(), db_example.js#addFruitSubmit(), db_example.js#deleteOneFruit(), you'll see how to send GET, POST, and DELETE requests from your client.
  (For an example using "thisKey=thatValue" parameters in the request see the next section.)
 3.2 On the Perl server side, you'll need a sub to do the work, and an entry in the %RequestAction hash that triggers your sub.

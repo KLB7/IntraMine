@@ -686,7 +686,7 @@ a.embedded_image {
 
 #editor_error {
 	display: inline-block;
-	font-size: 0.5em;
+	font-size: 0.8em;
 }
 
 /* For the "edit" pencil image, a bit of space on the left. */
@@ -1699,7 +1699,7 @@ function showhint(menucontents, obj, e, tipwidth, isAnImage) {
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
 		let arrayMatch = /src='([^']+)'/.exec(menucontents);
@@ -1737,31 +1737,28 @@ function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 						}
 					else
 						{
-						let request = new XMLHttpRequest();
-						let theRequest = 'http://' + ip + ':' + port + '/' +
-											shortName + '/?req=portNumber';
-						request.open('get', theRequest, true);
-						
-						request.onload =
-								function() {
-									if (request.status >= 200 && request.status < 400)
-										{
-										// Success?
-										let resp = request.responseText; // port number for shortName
-										if (!isNaN(resp))
-											{
-											// Replace port with resp in menucontents. And remove
-											// server short name.
-											let rePort = new RegExp(port);
-											menucontents = menucontents.replace(rePort, resp);
-											let reName = new RegExp(shortName + "\/");
-											menucontents = menucontents.replace(reName, "");
-											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-											}
-										}
-								};
-						
-						request.send();
+						try {
+							let theAction = 'http://' + ip + ':' + port + '/' +
+							shortName + '/?req=portNumber';
+							const response = await fetch(theAction);
+							if (response.ok)
+								{
+								let resp = await response.text(); 
+								if (!isNaN(resp))
+									{
+									// Replace port with resp in menucontents. And remove
+									// server short name.
+									let rePort = new RegExp(port);
+									menucontents = menucontents.replace(rePort, resp);
+									let reName = new RegExp(shortName + "\/");
+									menucontents = menucontents.replace(reName, "");
+									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									}
+								}
+							}
+						catch(error) {
+							// console.log('Connection error in showWithFreshPort!);
+							}
 						}
 					}
 				else // use supplied port as-is

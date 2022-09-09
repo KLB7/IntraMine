@@ -20,10 +20,6 @@ if (onMobile)
 	useAppForEditing = false;
 	}
 
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 // Ask jqueryFileTree.js to cook up two file trees. Called at the bottom of this file.
 function startFileTreeUp() {
 	$('#scrollDriveListLeft').fileTree({
@@ -106,145 +102,6 @@ function dummyCollapse(dir) {
 
 }
 
-// Open file in IntraMine's Editor (intramine_editor.pl).
-function editWithIntraMine(href) {
-	showSpinner();
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/'
-					+ editorShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload = function() {
-		  if (request.status >= 200 && request.status < 400) {
-			// Success?
-			let resp = request.responseText;
-			if (isNaN(resp))
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
-				}
-			else
-				{
-				let properHref = href.replace(/^file\:\/\/\//, '');
-				let url = 'http://' + theHost + ':' + resp + '/' + editorShortName + '/?href=' +
-							properHref + '&rddm=' + String(getRandomInt(1, 65000));
-	
-				window.open(url, "_blank");
-				}
-			hideSpinner();
-		  } else {
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server reached but it could not handle request for port number!</p>';
-			hideSpinner();
-		  }
-		};
-		
-		request.onerror = function() {
-			// There was a connection error of some sort
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Connection error while attempting to retrieve port number!</p>';
-			hideSpinner();
-		};
-		
-	request.send();
-}
-
-// Request Opener port from main at theMainPort, then call Opener service directly using
-// the right port.
-function editWithPreferredApp(href) {
-	let errM = document.getElementById(errorID);
-	errM.innerHTML = '&nbsp;';
-	showSpinner();
-
-	let request = new XMLHttpRequest();
-//	let theRequest = 'http://' + theHost + ':' + theMainPort + '/Opener/?req=portNumber';
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' + openerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						appEditWithPort(href, resp);
-						}
-					hideSpinner();
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					hideSpinner();
-					}
-			};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-		hideSpinner();
-	};
-
-	request.send();
-}
-
-// Punt the edit request to the Opener service (intramine_open_with.pl), which will
-// call the editor specified in data/intramine_config.txt to open the file.
-function appEditWithPort(href, openerPort) {
-	showSpinner();
-	let request = new XMLHttpRequest();
-	let properHref = href.replace(/^file\:\/\/\//, '');
-	
-//	let theRequest =
-//			'http://' + theHost + ':' + openerPort + '/Opener/?req=open&file=' + properHref;
-	let theRequest =
-	'http://' + theHost + ':' + openerPort + '/' + openerShortName + '/?req=open&clientipaddress=' +
-		clientIPAddress + '&file=' + properHref;
-	request.open('get', theRequest, true);
-
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Success?
-			let resp = request.responseText;
-			if (resp !== 'OK')
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = 'Error, server said ' + resp + '!';
-				}
-			hideSpinner();
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = 'Error, server reached but it could not open the file!';
-			hideSpinner();
-			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to open file!';
-		hideSpinner();
-	};
-
-	request.send();
-}
-
-
 // Re-init the tree display if a drive is selected using the drive dropdown at top of window.
 function driveChanged(tree_id, value) {
 	showSpinner();
@@ -321,150 +178,76 @@ function openUserPath(oFormElement) {
 
 // Request Linker port from main at theMainPort, then call Linker directly using
 // the right port to get a fullPath, then get port for Viewer and ask Viewer to open the path.
-function openAutoLink(path) {
+async function  openAutoLink(path) {
 	let errM = document.getElementById(errorID);
 	errM.innerHTML = '&nbsp;';
 	showSpinner();
 
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' +
-						linkerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
+	try {
+		const linkerPort = await fetchPort(theHost, theMainPort, linkerShortName, errorID);
+		if (linkerPort !== "")
+			{
+			hideSpinner();
+			//openAutoLinkWithPort(path, linkerPort);
+			const fullPath = await getFullPath(path, linkerPort);
+			if (fullPath !== "")
+				{
+				const viewerPort = await fetchPort(theHost, theMainPort, viewerShortName, errorID);
+				if (viewerPort !== "")
 					{
-					// Success?
-					let resp = request.responseText; // Linker port number
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						openAutoLinkWithPort(path, resp);
-						}
-					hideSpinner();
+					openFullPathWithViewerPort(fullPath, viewerPort);
 					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					hideSpinner();
-					}
-			};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
+				}
+			else {
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = 'No path found for ' + path;
+				}
+			}
+		else
+			{
+			hideSpinner();
+			}
+	}
+	catch(error) {
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+		e1.innerHTML = 'Connection error while attempting to open file!';
 		hideSpinner();
-	};
-
-	request.send();
+	}
 }
 
-// Ask Linker for full path, call openFullPath to ask Viewer to open it.
-function openAutoLinkWithPort(path, linkerPort) {
-	showSpinner();
-	let oReq = new XMLHttpRequest();
+// Ask Linker to supply full path for partial path.
+async function getFullPath(path, linkerPort) {
+	let fullPath = "";
 
-	oReq.onload =
-			function() {
-				if (oReq.status >= 200 && oReq.status < 400)
-					{
-					// Success! Provided response wasn't 'nope'.
-					let fullPath = oReq.responseText;
-					if (fullPath !== 'nope')
-						{
-						openFullPath(fullPath);
-						}
-					else
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'File not found!';
-						}
-					hideSpinner();
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					hideSpinner();
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML = 'Error, server reached but it could not open the file!';
-					}
-			};
-	oReq.onerror = function() {
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'File not found!';
-		hideSpinner();
-	};
-
-	let theAction =
-	'http://' + theHost + ':' + linkerPort + '/' + linkerShortName + '/?req=autolink&partialpath='
-			+ encodeURIComponent(path);
-	oReq.open('get', theAction, true);
-	oReq.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	oReq.send();
-}
-
-// Get Viewer port, ask Viewer to open fullPath.
-function openFullPath(fullPath) {
-	let errM = document.getElementById(errorID);
-	errM.innerHTML = '&nbsp;';
-	showSpinner();
-	
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' +
-						viewerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText; // Viewer port number
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						openFullPathWithViewerPort(fullPath, resp);
-						}
-					hideSpinner();
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					hideSpinner();
-					}
-			};
-	
-	request.onerror = function() {
+	try {
+		let theAction = 'http://' + theHost + ':' + linkerPort + '/' + linkerShortName +
+		'/?req=autolink&partialpath=' + encodeURIComponent(path);
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			const thePath = await response.text();
+			if (thePath !== 'nope')
+				{
+				fullPath = thePath;
+				}
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = 'Error, server reached but no full path found for ' + path + '!';
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-		hideSpinner();
-	};
-	
-	request.send();
+		e1.innerHTML = 'Connection error: ' + error + '!';
 	}
 
+	return(fullPath);
+}
+
 function openFullPathWithViewerPort(fullPath, viewerPort) {
-	showSpinner();
-//	let oReq = new XMLHttpRequest();
 	let url =
 	'http://' + theHost + ':' + viewerPort + '/' + viewerShortName + '/?href='
 			+ encodeURIComponent(fullPath) + '&rddm='
@@ -480,62 +263,7 @@ function openFullPathWithViewerPort(fullPath, viewerPort) {
 					+ "of this window.");
 			}
 		}
-	
-	
-//	oReq.onload =
-//			function() {
-//				if (oReq.status >= 200 && oReq.status < 400)
-//					{
-//					// Success! Provided response wasn't 'nope'.
-//					let fullPath = oReq.responseText;
-//					if (fullPath !== 'nope')
-//						{
-//						let url =
-//						'http://' + theHost + ':' + viewerPort + '/' + viewerShortName + '/?href='
-//								+ encodeURIComponent(fullPath) + '&rddm='
-//								+ String(getRandomInt(1, 65000));
-//						let didit = window.open(url, "_blank");
-//						if (didit === null)
-//							{
-//							if (typeof window.ontouchstart !== 'undefined')
-//								{
-//								alert("Please turn off your browser's pop-up blocker, with"
-//										+ " Settings->Safari->Block Pop-ups or equivalent. If you're using"
-//										+ "Chrome, you can instead select 'Always show' at the bottom"
-//										+ "of this window.");
-//								}
-//							}
-//						
-//						
-//						}
-//					else
-//						{
-//						let e1 = document.getElementById(errorID);
-//						e1.innerHTML = 'File not found!';
-//						}
-//					hideSpinner();
-//					}
-//				else
-//					{
-//					// We reached our target server, but it returned an error
-//					hideSpinner();
-//					let e1 = document.getElementById(errorID);
-//					e1.innerHTML = 'Error, server reached but it could not open the file!';
-//					}
-//			};
-//	oReq.onerror = function() {
-//		let e1 = document.getElementById(errorID);
-//		e1.innerHTML = 'File not found!';
-//		hideSpinner();
-//	};
-//	
-//	let theAction =
-//	'http://' + theHost + ':' + linkerPort + '/' + linkerShortName + '/?req=autolink&partialpath='
-//			+ encodeURIComponent(path);
-//	oReq.open('get', theAction, true);
-//	oReq.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-//	oReq.send();
-}
+	}
 
 // Shrink/expand the file tree on the right. Initially it is shrunk, most of the time
 // only one tree is wanted. Probably.

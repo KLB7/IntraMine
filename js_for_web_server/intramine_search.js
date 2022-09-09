@@ -33,10 +33,6 @@ function blurTextBox() {
 	document.getElementById("searchtext").blur();
 }
 
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-	}
-
 // Call loader when ready.
 function ready(fn) {
   if (document.readyState != 'loading'){
@@ -48,38 +44,36 @@ function ready(fn) {
 
 // Load and set page content.
 // Mainly a search form. See intramine_search.pl#SearchForm().
-function loadPageContent() {
+async function loadPageContent() {
 	showSpinner();
-	let request = new XMLHttpRequest();
-	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=frm', true);
-	
-	request.onload = function() {
-	  if (request.status >= 200 && request.status < 400) {
-		// Success!
-		let e1 = document.getElementById('searchform');
-		e1.innerHTML = request.responseText;
-		selectAllOrNone(true);
-		setFocusToTextBox();
-		addFormClickListener();
-		initDirectoryDialog();
-		// Delay setting spinner slightly, let the browser build everything up first.
-		setTimeout(hideSpinner, 100);
-	  } else {
-		// We reached our target server, but it returned an error
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
-		hideSpinner();
-	  }
-	};
-	
-	request.onerror = function() {
+	try {
+		let theAction = 'http://' + theHost + ':' + thePort + '/?req=frm';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			let e1 = document.getElementById('searchform');
+			e1.innerHTML = text;
+			selectAllOrNone(true);
+			setFocusToTextBox();
+			addFormClickListener();
+			initDirectoryDialog();
+			hideSpinner();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
+			hideSpinner();
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error!</p>';
 		hideSpinner();
-	};
-	
-	request.send();
+	}
 }
 
 ready(loadPageContent);
@@ -88,8 +82,7 @@ ready(loadPageContent);
 // The "req=results" request action calls intramine_search.pl#SearchResults().
 // The oReq.responseText response holds all the hits from the search (with links).
 // For the call, see intramine_search.pl#SearchForm().
-function searchSubmit(oFormElement) {
-	// alert('searchSubmit!');
+async function searchSubmit(oFormElement) {
 	if (!oFormElement.action) { return; }
 	
 	// Send an "activity" message.
@@ -99,61 +92,7 @@ function searchSubmit(oFormElement) {
 	e1 = document.getElementById('headingAboveContents');
 	e1.innerHTML = "&nbsp;";
 	showSpinner();
-	let oReq = new XMLHttpRequest();
-	
-	oReq.onload = function() {
-	  if (oReq.status >= 200 && oReq.status < 400) {
-		// Success!
-		let resp = oReq.responseText;
-		// Pull elapsed time from beginning of response.
-		let elapsed = '';
-		let firstSpanMatch = /^(<span>[^<]+<\/span>)/.exec(resp);
-		if (firstSpanMatch !== null)
-			{
-			elapsed = firstSpanMatch[1];
-			resp = resp.replace(/^<span>[^<]+<\/span>/, '');
-			}
-		let e1 = document.getElementById('scrollAdjustedHeight');
-		e1.innerHTML = resp;
-		e1 = document.getElementById('headingAboveContents');
-		e1.innerHTML = "Results for: <strong>" + findThis + "</strong>" + elapsed + "<hr>";
-		hideSpinner();
-		setFocusToTextBox();
-		
-		// Reset the random number in action, to force response even when
-		// form fields are unchanged. (Not sure this is needed, really.)
-		let oldAction = String(oFormElement.action);
-		let newAction = oldAction.replace(/rddm=\d+$/, 'rddm=' + String(getRandomInt(1, 65000)));
-		oFormElement.action = newAction;
-		
-		// Reset height of search results after content change.
-		doResize();
-		
-		// Apply preferred current sort order.
-		let sorter = document.getElementById("sortBy");
-		let selectedValue = sorter.value;
-		if (selectedValue !== 'Score')
-			{
-			sortSearchResults(sorter);
-			}
-		
-	  } else {
-		// We reached our target server, but it returned an error
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Error, server reached but it returned an error while searching!</p>';
-		hideSpinner();
-		setFocusToTextBox();
-	  }
-	};
-	
-	oReq.onerror = function() {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error while searching!</p>';
-		hideSpinner();
-		setFocusToTextBox();
-	};
-	
+
 	let oField, sFieldType = "";
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
@@ -161,7 +100,7 @@ function searchSubmit(oFormElement) {
 	let sSearch = "&req=results&remote=" + remoteValue
 		+ "&allowEdit=" + allowEditValue + "&useApp=" + useAppValue;
 
-		for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
+	for (let nItem = 0; nItem < oFormElement.elements.length; nItem++)
 		{
 		oField = oFormElement.elements[nItem];
 		if (!oField.hasAttribute("name")) { continue; }
@@ -193,12 +132,62 @@ function searchSubmit(oFormElement) {
 	// And tack on whether languages or extensions have been selected.
 	let val = document.querySelector('input[name="langExt"]:checked').value;
 	sSearch += "&extFilter=" + val;
-	
-	let theAction = oFormElement.action + sSearch;
-	oReq.open('get', theAction, true);
-	oReq.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-	blurTextBox(); // Remove the darned suggestions select dropdown that sometimes stays up.
-	oReq.send();
+
+	try {
+		let theAction = oFormElement.action + sSearch;
+		blurTextBox(); // Remove the darned suggestions select dropdown that sometimes stays up.
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let resp = await response.text();
+			// Pull elapsed time from beginning of response.
+			let elapsed = '';
+			let firstSpanMatch = /^(<span>[^<]+<\/span>)/.exec(resp);
+			if (firstSpanMatch !== null)
+				{
+				elapsed = firstSpanMatch[1];
+				resp = resp.replace(/^<span>[^<]+<\/span>/, '');
+				}
+			let e1 = document.getElementById('scrollAdjustedHeight');
+			e1.innerHTML = resp;
+			e1 = document.getElementById('headingAboveContents');
+			e1.innerHTML = "Results for: <strong>" + findThis + "</strong>" + elapsed + "<hr>";
+			hideSpinner();
+			setFocusToTextBox();
+			
+			// Reset the random number in action, to force response even when
+			// form fields are unchanged. (Not sure this is needed, really.)
+			let oldAction = String(oFormElement.action);
+			let newAction = oldAction.replace(/rddm=\d+$/, 'rddm=' + String(getRandomInt(1, 65000)));
+			oFormElement.action = newAction;
+			
+			// Reset height of search results after content change.
+			doResize();
+			
+			// Apply preferred current sort order.
+			let sorter = document.getElementById("sortBy");
+			let selectedValue = sorter.value;
+			if (selectedValue !== 'Score')
+				{
+				sortSearchResults(sorter);
+				}
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>Error, server reached but it returned an error while searching!</p>';
+			hideSpinner();
+			setFocusToTextBox();
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Connection error while searching!</p>';
+		hideSpinner();
+		setFocusToTextBox();		
+	}
 }
 
 // Swap Language dropdown with Extensions dropdown when the radio buttons for those are clicked.
@@ -231,168 +220,6 @@ function swapLangExt() {
 		}
 
 }
-
-// Call IntraMine's editor (editWithIntraMine) or a specific app (editWithPreferredApp).
-function editOpen(href) {
-	if (!allowEditing)
-		{
-		return;
-		}
-	
-	if (useAppForEditing && !onMobile)
-		{
-		editWithPreferredApp(href);
-		}
-	else // Use IntraMine's Editor service.
-		{
-		editWithIntraMine(href);
-		}
-}
-
-// Request Opener port from main at theMainPort, then call Opener directly using the right port.
-function editWithPreferredApp(href) {
-	showSpinner();
-	let request = new XMLHttpRequest();
-//	let theRequest = 'http://' + theHost + ':' + theMainPort + '/Opener/?req=portNumber';
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' + openerShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-
-	request.onload = function() {
-		  if (request.status >= 200 && request.status < 400) {
-			// Success?
-			let resp = request.responseText;
-			if (isNaN(resp))
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
-				}
-			else
-				{
-				appEditWithPort(href, resp);
-				}
-			hideSpinner();
-		  } else {
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server reached but it could not handle request for port number!</p>';
-			hideSpinner();
-		  }
-		};
-		
-		request.onerror = function() {
-			// There was a connection error of some sort
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Connection error while attempting to retrieve port number!</p>';
-			hideSpinner();
-		};
-		
-		request.send();
-	}
-
-// Call Opener to open a file with user-specified editing app. This can end up calling
-// the specified local or remote editing app, depending on whether the search results were
-// called up on the IntraMine box itself(local) or on another computing device.
-function appEditWithPort(href, openerPort) {
-	let originalHref = href;
-	showSpinner();
-	let request = new XMLHttpRequest();
-	let properHref = href.replace(/^file\:\/\/\//, '');
-	// TEST ONLY pokemonocle
-	/////properHref = encodeURIComponent(properHref);
-	
-	let theRequest = 'http://' + theHost + ':' + openerPort + '/' + openerShortName +
-						'/?req=open&clientipaddress=' + clientIPAddress + '&file=' + properHref;
-	request.open('get', theRequest, true);
-	
-	request.onload = function() {
-	  if (request.status >= 200 && request.status < 400) {
-		// Success?
-		let resp = request.responseText;
-		if (resp !== 'OK')
-			{
-			console.log("appEditWithPort bad response");
-			editWithIntraMine(originalHref);
-			}
-		else
-			{
-			console.log("appEditWithPort GOOD response");
-			}
-		hideSpinner();
-		// too jumpy: setFocusToTextBox();
-	  } else {
-		// We reached our target server, but it returned an error
-		////let e1 = document.getElementById(errorID);
-		////e1.innerHTML = '<p>Error, server reached but it could not open the file!</p>';
-	  	console.log("appEditWithPort server reached but it could not open the file");
-	  	editWithIntraMine(originalHref);
-		hideSpinner();
-	  }
-	};
-	
-	request.onerror = function() {
-		// There was a connection error of some sort
-		////let e1 = document.getElementById(errorID);
-		////e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
-		console.log("appEditWithPort Connection error while attempting to open file");
-		editWithIntraMine(originalHref);
-		hideSpinner();
-	};
-	
-	request.ontimeout = function (e) {
-		// There was a connection error of some sort
-		////let e1 = document.getElementById(errorID);
-		////e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
-		console.log("appEditWithPort Connection timed out while attempting to open file");
-		editWithIntraMine(originalHref);
-		hideSpinner();
-	};
-	
-	request.send();
-	console.log("Bottom of appEditWithPort");
-	}
-	
-function editWithIntraMine(href) {
-	showSpinner();
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + theHost + ':' + theMainPort + '/' + editorShortName + '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload = function() {
-		  if (request.status >= 200 && request.status < 400) {
-			// Success?
-			let resp = request.responseText;
-			if (isNaN(resp))
-				{
-				let e1 = document.getElementById(errorID);
-				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
-				}
-			else
-				{
-				let properHref = href.replace(/^file\:\/\/\//, '');
-				let url = 'http://' + theHost + ':' + resp + '/' + editorShortName + '/?href=' +
-							properHref + '&rddm=' + String(getRandomInt(1, 65000));
-
-				window.open(url, "_blank");
-				}
-			hideSpinner();
-		  } else {
-			// We reached our target server, but it returned an error
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server reached but it could not handle request for port number!</p>';
-			hideSpinner();
-		  }
-		};
-		
-		request.onerror = function() {
-			// There was a connection error of some sort
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Connection error while attempting to retrieve port number!</p>';
-			hideSpinner();
-		};
-		
-	request.send();
-}
-
 
 // elasticsearcher.pm#FormatHitResults() inserts calls to this, to open a file
 // in the Viewer (intramine_file_viewer_cm.pl).

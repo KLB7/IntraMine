@@ -4,7 +4,7 @@ Search1.png
 
 The Search service provides an interface for Elasticsearch, to carry out searches and show search results.
 
-This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.
+This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.
 
 Main back-end Perl files
 -------------------
@@ -13,7 +13,7 @@ Main back-end Perl files
 
 Main front-end JavaScript files
 --------------------------
- - intramine_search.js is the main front-end file. It displays the search form and hit results. And it sends an XMLHttpRequest() back to intramine_search.pl to get the contents of the search form, and do a search.
+ - intramine_search.js is the main front-end file. It displays the search form and hit results. And it sends a fetch() back to intramine_search.pl to get the contents of the search form, and do a search.
  - jqueryFileTree.js, together with some jquery files, provides the directory picker for the search form.
 
 Search configuration
@@ -82,13 +82,13 @@ Load sequence
 1. Browser receives request for Search page, eg 'http://localhost:81/Search'
 2. Request is received by swarmserver.pm#MainLoop(). A "bare" request with nothing following "/Search" is interpreted as "/Search/?req=main", which invokes the %RequestAction handler SearchPage(). This is registered in intramine_search.pl around line 76 as "$RequestAction{'req|main'} = \&SearchPage;"
 3. intramine_search.pl#SearchPage() responds to the browser request with an HTML "skeleton" of the Search page, including links for all needed CSS and JavaScript files
-4. When page loading is complete, intramine_search.js#loadPageContent() sends a "/Search/?req=frm" request using XMLHttpRequest(). This is picked up by swarmserver.pm#MainLoop() and triggers a call to SearchForm() which returns the contents of the search form.
+4. When page loading is complete, intramine_search.js#loadPageContent() sends a "/Search/?req=frm" request using fetch(). This is picked up by swarmserver.pm#MainLoop() and triggers a call to SearchForm() which returns the contents of the search form.
 
 Search sequence
 ---------------
 2019-11-26 14_21_45-Document1 - Word.png
 1. User clicks the "Search" button on the Search page
-2. intramine_search.js#searchSubmit() sends an XMLHttpRequest containing "req=results"
+2. intramine_search.js#searchSubmit() calls fetch() containing "req=results"
 3. swarmserver.pm#HandleDefaultPageAction() calls the handler for "req=results", which has been set in intramine_search.pl with "$RequestAction{'req|results'} = \&SearchResults;". Details supplied with the request, such as "findthis=search for these words" are placed in the $formH hash reference supplied as an argument to SearchResults(), as eg $formH{'findthis'} = "search for these words".
 4. intramine_search.pl#SearchResults() pulls the search request details out of its "$formH" hash reference and calls $ElasticSearcher->GetSearchResults(...), where $ElasticSearcher is an instance of elasticsearcher (see elasticsearcher.pm).
 5. elasticsearcher.pm#GetSearchResults() uses Search::Elasticsearch to do the search, and returns hits after formatting a bit with FormatHitResults()

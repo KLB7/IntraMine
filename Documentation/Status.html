@@ -686,7 +686,7 @@ a.embedded_image {
 
 #editor_error {
 	display: inline-block;
-	font-size: 0.5em;
+	font-size: 0.8em;
 }
 
 /* For the "edit" pencil image, a bit of space on the left. */
@@ -1329,13 +1329,13 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td>In accordance with proper separation of duties and all that, the Status server doesn't know beans about which servers are running, let alone whether they're alive or not. That's handled by IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> (main file intramine_main.pl). Server status updates are done in conjunction with a refresh of the "New / Changed Files" and "Deleted Files" lists, pulled from the Main server and the Status server respectively. It all starts with a timer going off and calling status.js#refreshStatus():</td></tr>
 <tr id='R19'><td n='19'></td><td><p class="ol-1">1. status.js#refreshServerStatus() calls refreshStatus() through a timer, with refresh interval set by STATUS_REFRESH_MILLISECONDS in data/intramine_config.txt.</p></td></tr>
-<tr id='R20'><td n='20'></td><td><p class="ol-1">2. status.js#refreshStatus() issues a "req=filestatus" to the Status server via XMLHttpRequest, and awaits response.</p></td></tr>
+<tr id='R20'><td n='20'></td><td><p class="ol-1">2. status.js#refreshStatus() issues a "req=filestatus" to the Status server via fetch(), and awaits response.</p></td></tr>
 <tr id='R21'><td n='21'></td><td><p class="ol-1">3. intramine_status.pl has set up a handler for that request when starting,</p></td></tr>
 <tr id='R22'><td n='22'></td><td>$RequestAction{'req|filestatus'} = \&amp;FileStatusHTML;</td></tr>
 <tr id='R23'><td n='23'></td><td>and so intramine_status.pl#FileStatusHTML() is called. (As usual, the callback is detected and triggered in swarmserver.pm, see swarmserver.pm#HandleRequestAction().)</td></tr>
 <tr id='R24'><td n='24'></td><td><p class="ol-1">4. FileStatusHTML() returns lists of changed/new and deleted files. These lists are periodically updated by ReloadChangedDeletedFilesList() from a file that is updated by intramine_filewatcher.pl#SaveChangedFilesList().</p></td></tr>
 <tr id='R25'><td n='25'></td><td><p class="ol-1">5. status.js#refreshStatus() receives and displays the file list, and then calls status.js#refreshServerStatus()</p></td></tr>
-<tr id='R26'><td n='26'></td><td><p class="ol-1">6. refreshServerStatus() issues an XMLHttpRequest to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> (not the Status server), "req=serverstatus"</p></td></tr>
+<tr id='R26'><td n='26'></td><td><p class="ol-1">6. refreshServerStatus() issues a fetch() call to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> (not the Status server), "req=serverstatus"</p></td></tr>
 <tr id='R27'><td n='27'></td><td><p class="ol-1">7. intramine_main.pl#SetUpRequestActionHandlers() has set up a handler for that,</p></td></tr>
 <tr id='R28'><td n='28'></td><td>$RequestAction{'req|serverstatus'} = \&amp;ServerStatus;</td></tr>
 <tr id='R29'><td n='29'></td><td>and so intramine_main.pl#ServerStatus() is called in response to the "req=filestatus" request</td></tr>
@@ -1751,7 +1751,7 @@ function showhint(menucontents, obj, e, tipwidth, isAnImage) {
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
 		let arrayMatch = /src='([^']+)'/.exec(menucontents);
@@ -1789,31 +1789,28 @@ function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 						}
 					else
 						{
-						let request = new XMLHttpRequest();
-						let theRequest = 'http://' + ip + ':' + port + '/' +
-											shortName + '/?req=portNumber';
-						request.open('get', theRequest, true);
-						
-						request.onload =
-								function() {
-									if (request.status >= 200 && request.status < 400)
-										{
-										// Success?
-										let resp = request.responseText; // port number for shortName
-										if (!isNaN(resp))
-											{
-											// Replace port with resp in menucontents. And remove
-											// server short name.
-											let rePort = new RegExp(port);
-											menucontents = menucontents.replace(rePort, resp);
-											let reName = new RegExp(shortName + "\/");
-											menucontents = menucontents.replace(reName, "");
-											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-											}
-										}
-								};
-						
-						request.send();
+						try {
+							let theAction = 'http://' + ip + ':' + port + '/' +
+							shortName + '/?req=portNumber';
+							const response = await fetch(theAction);
+							if (response.ok)
+								{
+								let resp = await response.text(); 
+								if (!isNaN(resp))
+									{
+									// Replace port with resp in menucontents. And remove
+									// server short name.
+									let rePort = new RegExp(port);
+									menucontents = menucontents.replace(rePort, resp);
+									let reName = new RegExp(shortName + "\/");
+									menucontents = menucontents.replace(reName, "");
+									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									}
+								}
+							}
+						catch(error) {
+							// console.log('Connection error in showWithFreshPort!);
+							}
 						}
 					}
 				else // use supplied port as-is

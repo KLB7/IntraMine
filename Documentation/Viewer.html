@@ -686,7 +686,7 @@ a.embedded_image {
 
 #editor_error {
 	display: inline-block;
-	font-size: 0.5em;
+	font-size: 0.8em;
 }
 
 /* For the "edit" pencil image, a bit of space on the left. */
@@ -1363,7 +1363,7 @@ TTl6yD2PSLI9B2fIjywkSdCSB5/9z/HXCpsh36uAnpzrC7dIJKjsasaniBs//X04Kvj/TebbC3fn
 oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 " width='17' height='12'  /></span>) that follow most regular links - those invoke the <a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>. </td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript XMLHttpRequest calls.</td></tr>
+<tr id='R6'><td n='6'></td><td>This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full <a class='glossary' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> treatment including a table of contents (see <a href="./Gloss.html" target="_blank">"Gloss.txt"</a>), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia) - support for other languages is planned.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
@@ -1399,7 +1399,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R13'><td n='13'></td><td></td></tr>
 <tr id='R14'><td n='14'></td><td><h3 id="Main_back-end_Perl_files">Main back-end Perl files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R16'><td n='16'></td><td><p class="outdent-unordered">&nbsp;&bull; <strong>intramine_viewer.pl</strong> delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" XMLHttpRequest retrieves the file contents, for display by CodeMirror.</p></td></tr>
+<tr id='R16'><td n='16'></td><td><p class="outdent-unordered">&nbsp;&bull; <strong>intramine_viewer.pl</strong> delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" fetch() retrieves the file contents, for display by CodeMirror.</p></td></tr>
 <tr id='R17'><td n='17'></td><td><p class="outdent-unordered">&nbsp;&bull; <strong>win_wide_filepaths.pm</strong> is included here and in many other servers, to properly handle file names and paths that contain non-ASCII characters of the UTF-16 sort that Windows uses.</p></td></tr>
 <tr id='R18'><td n='18'></td><td><p class="outdent-unordered-continued"></p></td></tr>
 <tr id='R19'><td n='19'></td><td><p class="outdent-unordered-continued"></p></td></tr>
@@ -1423,7 +1423,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>
 <tr id='R39'><th n='39'></th><th><a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a></th><th>Main Perl file        </th><th>Description</th></tr></thead><tbody>
-<tr id='R40'><td n='40'></td><td>Linker</td><td>intramine_linker.pl</td><td>provides links of all sorts, in response to an XMLHttpRequest</td></tr>
+<tr id='R40'><td n='40'></td><td>Linker</td><td>intramine_linker.pl</td><td>provides links of all sorts, in response to a fetch()</td></tr>
 <tr id='R41'><td n='41'></td><td>Search</td><td>intramine_search.pl</td><td>puts links to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> on all of its search hits</td></tr>
 <tr id='R42'><td n='42'></td><td>Files</td><td>intramine_filetree.pl</td><td>shows directory lists, and all source and text files there have links to the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td></tr>
 <tr id='R43'><td n='43'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a></td><td>intramine_editor.pl</td><td>shows an editable display of a source or text file, brought up when the little pencil icon next to a regular <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> link is clicked. The display and editing are managed by CodeMirror</td></tr>
@@ -2132,7 +2132,7 @@ function showhint(menucontents, obj, e, tipwidth, isAnImage) {
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
 		let arrayMatch = /src='([^']+)'/.exec(menucontents);
@@ -2170,31 +2170,28 @@ function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 						}
 					else
 						{
-						let request = new XMLHttpRequest();
-						let theRequest = 'http://' + ip + ':' + port + '/' +
-											shortName + '/?req=portNumber';
-						request.open('get', theRequest, true);
-						
-						request.onload =
-								function() {
-									if (request.status >= 200 && request.status < 400)
-										{
-										// Success?
-										let resp = request.responseText; // port number for shortName
-										if (!isNaN(resp))
-											{
-											// Replace port with resp in menucontents. And remove
-											// server short name.
-											let rePort = new RegExp(port);
-											menucontents = menucontents.replace(rePort, resp);
-											let reName = new RegExp(shortName + "\/");
-											menucontents = menucontents.replace(reName, "");
-											showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-											}
-										}
-								};
-						
-						request.send();
+						try {
+							let theAction = 'http://' + ip + ':' + port + '/' +
+							shortName + '/?req=portNumber';
+							const response = await fetch(theAction);
+							if (response.ok)
+								{
+								let resp = await response.text(); 
+								if (!isNaN(resp))
+									{
+									// Replace port with resp in menucontents. And remove
+									// server short name.
+									let rePort = new RegExp(port);
+									menucontents = menucontents.replace(rePort, resp);
+									let reName = new RegExp(shortName + "\/");
+									menucontents = menucontents.replace(reName, "");
+									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									}
+								}
+							}
+						catch(error) {
+							// console.log('Connection error in showWithFreshPort!);
+							}
 						}
 					}
 				else // use supplied port as-is

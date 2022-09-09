@@ -39,107 +39,73 @@ function addAutoLinks() {
 }
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
-function requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds) {
-	let request = new XMLHttpRequest();
-	let theRequest = 'http://' + mainIP + ':' + theMainPort + '/' + linkerShortName +  '/?req=portNumber';
-	request.open('get', theRequest, true);
-	
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
-					{
-					// Success?
-					let resp = request.responseText;
-					if (isNaN(resp))
-						{
-						let e1 = document.getElementById(errorID);
-						e1.innerHTML = 'Error, server said ' + resp + '!';
-						}
-					else
-						{
-						requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, resp);
-						}
-					}
-				else
-					{
-					// We reached our target server, but it returned an error
-					let e1 = document.getElementById(errorID);
-					e1.innerHTML =
-							'Error, server reached but it could not handle request for port number!';
-					}
-			};
-	
-	request.onerror = function() {
+async function requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds) {
+	try {
+		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+		if (port !== "")
+			{
+			requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, port);
+			}
+	}
+	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-	};
-	
-	request.send();
+	}
 }
 
 //Add link markup to view for newly exposed lines. Remember the lines have been marked up.
-function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, linkerPort) {
-	let request = new XMLHttpRequest();
+async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, linkerPort) {
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
-	
-	request.open('get', 'http://' + mainIP + ':' + linkerPort + '/?req=nonCmLinks'
-			+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
-			+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
-			+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
-			+ lastVisibleLineNum);
 
-	request.onload =
-			function() {
-				if (request.status >= 200 && request.status < 400)
+	try {
+		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=nonCmLinks'
+		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
+		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
+		+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
+		+ lastVisibleLineNum;
+		const response = await fetch(theAction);
+
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text != 'nope')
+				{
+				let lines = text.split("\n");
+				let len = rowIds.length;
+				if (len > lines.length)
 					{
-					let resp = request.responseText;
-					if (resp != 'nope')
+					len = lines.length;
+					}
+			
+				for (let ind = 0; ind < len; ++ind)
+					{
+					let rowId = rowIds[ind];
+					if (!lineHasBeenSeen(rowId))
 						{
-						let lines = resp.split("\n");
-//						console.log("Expected num lines: " + rowIds.length);
-//						console.log("Response num lines: " + lines.length);
-						let len = rowIds.length;
-						if (len > lines.length)
+						let rowElem = document.getElementById(rowId);
+						if (rowElem !== null)
 							{
-							len = lines.length;
-							}
-					
-						for (let ind = 0; ind < len; ++ind)
-							{
-							let rowId = rowIds[ind];
-							if (!lineHasBeenSeen(rowId))
-								{
-								let rowElem = document.getElementById(rowId);
-								if (rowElem !== null)
-									{
-									rowElem.innerHTML = lines[ind];
-									}
-								}
+							rowElem.innerHTML = lines[ind];
 							}
 						}
-					else
-						{
-						}
-
-					// Avoid visiting the same lines twice, we're dealing with a read-only file view.
-					rememberLinesSeen(rowIds);
 					}
-				else
-					{
-					// We reached server but it returned an error. Bummer, no links.
-					// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
-					}
-			};
-
-	request.onerror = function() {
-		// There was a connection error of some sort. Double bummer, no links.
-		console.log('requestLinkMarkupWithPort connection error!');
-	};
-
-	request.send();
+				}
+			// else 'nope', no links
+			// Avoid visiting the same lines twice, we're dealing with a read-only file view.
+			rememberLinesSeen(rowIds);
+			}
+		else
+			{
+			// We reached server but it returned an error. Bummer, no links.
+			}
+	}
+	catch(error) {
+	// There was a connection error of some sort. Double bummer, no links.
+	console.log('requestLinkMarkupWithPort connection error!');
+	}
 }
 
 let isScrollingAuto = null;
