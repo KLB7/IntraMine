@@ -819,13 +819,21 @@ sub GetLongestGoodPath {
 				if ($currentRevPos >= 0)
 					{
 					my $charSeen = $1;
+					# Check for a second slash in $revStrToSearch, signalling a
+					# \\host\share... or //host/share... location.
 					if ($charSeen eq "/" || $charSeen eq "\\")
 						{
 						$slashSeen = 1;
-						# Check for a second slash in $revStrToSearch, signalling a
-						# \\host\share... or //host/share... location.
 						if ($currentRevPos < $strippedLen - 1
 							&& substr($revStrToSearch, $currentRevPos + 1, 1) eq $charSeen)
+							{
+							++$currentRevPos;
+							}
+						}
+					# Pick up drive letter (if any) when see a ':' before line start.
+					elsif ($charSeen eq ":")
+						{
+						if ($currentRevPos < $strippedLen - 1)
 							{
 							++$currentRevPos;
 							}
@@ -858,7 +866,7 @@ sub GetLongestGoodPath {
 			my $verifiedPath = '';
 			# I know this is a bit awkward, but we want to skip illegal file name characters
 			# and it's best to avoid a nested regex.
-			if (index($trimmedCurrentPath, ':') < 0 && index($trimmedCurrentPath, '<') < 0
+			if (index($trimmedCurrentPath, '<') < 0
 				&& index($trimmedCurrentPath, '>') < 0 && index($trimmedCurrentPath, '|') < 0
 				&& index($trimmedCurrentPath, '?') < 0)
 				{
