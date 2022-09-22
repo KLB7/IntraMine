@@ -269,6 +269,13 @@
 	display: block;
 }
 
+.excerpt {
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 UL.jqueryFileTree {line-height: 2.2em;}
