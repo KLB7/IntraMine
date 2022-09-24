@@ -123,6 +123,7 @@ sub MakeConfigFiles {
 	my ($configFilePath, $entryTemplatePath, $searchDirectoriesPath) = @_;
 	my $configTemplate = LoadConfigTemplate($entryTemplatePath);
 	die("Error, |$entryTemplatePath| is missing or empty!") if ($configTemplate eq '');
+	my %daemonNames; # Avoid duplicate <daemonName> entries in fwatcher.xml
 	my %loadedDirs;
 	my $dirCount = 0;
 	
@@ -190,6 +191,18 @@ sub MakeConfigFiles {
 		
 		if ($name ne '')
 			{
+			# Avoid duplicate names.
+			my $baseName = $name;
+			my $increment = 1;
+			my $newName = $name;
+			while (defined($daemonNames{$newName}))
+				{
+				$newName = $name . '_' . $increment;
+				++$increment;
+				}
+			$name = $newName;
+			$daemonNames{$name} = 1;
+			
 			$currentTemplate =~ s!_NAME_!$name!;
 			$currentTemplate =~ s!_PATH_NO_TS_!$dir!;	# <path> entry, no Trailing Slash
 			push @configEntries, $currentTemplate;
