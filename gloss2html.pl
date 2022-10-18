@@ -3,7 +3,8 @@
 # Convert Gloss files to self-contained HTML. Your Gloss files should have a .txt
 # extension, and they will be converted to standalone .html versions.
 # Supply a single file path To a Gloss .txt file, or a folder holding all of your
-# Gloss files, as the only argument to this program.
+# Gloss files, as an argument to this program. If you want images to be expanded (rather
+# than popping up if you hover over a link) supply a second argument of -i or -inline.
 # A Gloss file is just a .txt file that uses Gloss for markup, see Documentation/Gloss.txt for
 # all the details. Gloss is a Markdown variant emphasizing minimal overhead, and autolinks.
 # "Self contained" means all CSS, JavaScript and even images are jammed into the HTML file,
@@ -27,7 +28,7 @@
 # Gloss's automatic features will be there too: a collapsible Table of Contents down the left side,
 # highlighting of any word you click or phrase you select in the text itself and in the
 # scrollbar, automatic linking (with some restrictions), and image hovers.
-# As far a linking goes, you can link to other Gloss files in your Context folder, and images
+# As far as linking goes, you can link to other Gloss files in your Context folder, and images
 # in either the Context folder or the Context/images/ subfolder. To link to another Gloss
 # file or an image, just mention its name, no partial path is needed. You can put the name in
 # quotes if you like. Quotes are optional, even if the file name contains spaces.
@@ -57,7 +58,7 @@
 # and to the /images/ subfolder. A mention of any file that isn't in your Context folder won't
 # produce a link.
 # NOTE: A link to another file in your Context folder will be generated only if
-# the file name has a .txt or .html or .png/.jpg/.jpeg/.gif extension.
+# the file name has a .txt or .html or .png/.jpg/.jpeg/.gif/.webp extension.
 
 # Using the resulting HTML files
 ################################
