@@ -1,4 +1,4 @@
-# intramine_search.pl: 'Search' page: answer xmlhttprequest for search form, or search results.
+# intramine_search.pl: 'Search' page: answer JavaScript fetch() for search form, or search results.
 # Return search form table, and any search results. This version uses Elasticsearch.
 #  https://www.elastic.co/guide/en/elasticsearch/client/perl-api/current/contents.html
 #

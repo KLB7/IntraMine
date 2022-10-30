@@ -429,7 +429,7 @@ sub EvaluateLinkCandidates {
 	$lineIsStripped = LineHasMarkTags(); # Stripping <mark> tags happens next.
 
 	# If $line has <mark> tags, create a version stripped of those, for spotting links
-	# without have to use a monstrous regex.
+	# without having to use a monstrous regex.
 	if ($lineIsStripped)
 		{
 		$strippedLine = $line;
@@ -451,10 +451,9 @@ sub EvaluateLinkCandidates {
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $captured = $1;		# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
-
 		my $haveTextHref = (index($captured, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $captured : '';
-
+		
 		my $haveQuotation = ((index($captured, '"') == 0) || (index($captured, "'") == 0));
 		my $quoteChar = '';
 		my $badQuotation = 0;
@@ -466,9 +465,11 @@ sub EvaluateLinkCandidates {
 				{
 				my $charBefore = substr($strippedLine, $startPos - 1, 1);
 				my $num = ord($charBefore);
-				if (!(($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
+				if ((($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
 				#if ($charBefore !~ m!\W!)
 					{
+					# TEST ONLY
+					#print("BAD CHAR $charBefore before |$captured|\n");
 					$badQuotation = 1;
 					}
 				else
@@ -489,7 +490,7 @@ sub EvaluateLinkCandidates {
 				{
 				my $charAfter = substr($strippedLine, $endPos, 1);
 				my $num = ord($charAfter);
-				if (!(($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
+				if ((($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
 				#if ($charAfter !~ m!\W!)
 					{
 					$badQuotation = 1;
@@ -620,46 +621,19 @@ sub EvaluateLinkCandidates {
 		} # while another extension or url matched
 	}
 
+# Good extension if period followed by up to 7 word chars
+# and then end of string or a  '#'. I tried to replace this
+# with a loop and substr(), but it got too complicated.
 # 	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 # 		$extProper = $1;
-# the hard way (without a regex).
 sub ExtensionBeforeHashOrEnd {
-	my ($ext) = @_;
-	my $numExtCharsMax = 7;
+	my ($captured) = @_;
 	my $result = '';
-	my $numGoodChars = 0;
 	
-	if (index($ext, '.') == 0)
+	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 		{
-		my $extLen = length($ext);
-		my $checkLimit = $extLen;
-		#if ($checkLimit > $numExtCharsMax + 1)
-		#	{
-		#	$checkLimit = $numExtCharsMax + 1;
-		#	}
-		for (my $i = 1; $i < $checkLimit; ++$i)
-			{
-			my $num = ord(substr($ext, $i, 1));
-			if (($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95))
-				{
-				++$numGoodChars;
-				}
-			else
-				{
-				last;
-				}
-			}
-		
-		if ($numGoodChars >= 1 && $numGoodChars <= $numExtCharsMax)
-			{
-			if ($extLen == $numGoodChars + 1
-				|| ($extLen > $numGoodChars + 1 && substr($ext, $numGoodChars+1, 1) eq '#'))
-				{
-				$result = substr($ext, 1, $numGoodChars);
-				}
-			}
+		$result = $1;
 		}
-	
 	return($result);
 	}
 
@@ -707,7 +681,7 @@ sub RememberTextOrImageFileMention {
 			$pathToCheck = substr($pathToCheck, 0, $pos);
 			}
 		
-		my $verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm
+		my $verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm		
 		if ($verifiedPath ne '')
 			{
 			$longestSourcePath = $pathToCheck;
@@ -789,14 +763,14 @@ sub RememberTextOrImageFileMention {
 sub GetLongestGoodPath {
 	my ($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $currentPath,
 		$imageNameR, $commonDirForImageNameR) = @_;
-
 	my $trimmedCurrentPath = $currentPath;
 	my $slashSeen = 0; 				# stop checking standard locs for image if a dir slash is seen
 	my $checkToEndOfLine = 0;
 	my $currentRevPos = ($doingQuotedPath) ? -1: 0;
 	my $prevSubRevPos = 0;
+	my $revStrLength = length($revStrToSearch);
 	
-	if (!length($revStrToSearch))
+	if (!$revStrLength)
 		{
 		#print("EARLY RETURN, \$revStrToSearch is empty.\n");
 		return;
@@ -848,17 +822,36 @@ sub GetLongestGoodPath {
 		
 		if ($currentRevPos >= 0) 
 			{
-			# Pick up next reversed term, including space.
-			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $currentRevPos - $prevSubRevPos + 1);
+			my $numChars = $currentRevPos - $prevSubRevPos + 1;
+			if ($prevSubRevPos + $numChars > $revStrLength - 1)
+				{
+				$numChars = $revStrLength - $prevSubRevPos - 1;
+				# Drop out after this check.
+				$currentRevPos = -1;
+				}
+
+			# Drop out if there are no more chars to check.
+			if ($numChars <= 0)
+				{
+				last;
+				}
+			# Pick up next reversed term, including space etc if any.
+			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $numChars);
+			
 			# Drop out if we see a double quote.
 			if (index($nextRevTerm, '"') >= 0)
 				{
 				last;
 				}
 			
-			# Reversing puts the matched space at beginning of $nextTerm.
+			# Reversing puts the matched space etc if any at beginning of $nextTerm.
 			my $nextTerm = scalar reverse($nextRevTerm);
 			my $trimOffset = ($checkToEndOfLine) ? 0 : 1;
+			# Trim only "stop" characters, space tab etc.
+			if ($trimOffset && !IsStopCharacter(substr($nextTerm, 0, 1)))
+				{
+				$trimOffset = 0;
+				}
 			my $trimmedNextTerm = substr($nextTerm, $trimOffset); # trim space etc at start, unless checking to end
 			$trimmedCurrentPath = $trimmedNextTerm . $currentPath;
 			$currentPath = $nextTerm . $currentPath;
@@ -917,6 +910,12 @@ sub GetLongestGoodPath {
 			$checkStdImageDirs = 0;
 			}
 		} # while ($currentRevPos >= 0 ...
+	}
+
+# Stop chars limit search for next word to add to the string being tested as a target specifier.
+sub IsStopCharacter {
+	my ($char) = @_;
+	return($char eq ' ' || $char eq "\t" || $char eq '/' || $char eq "\\" || $char eq ',' || $char eq '(' || $char eq '<' || $char eq '>' || $char eq ':' || $char eq '|');
 	}
 
 # Make viewer and editor links for $bestVerifiedPath, put them in $$repStringR.
@@ -1327,10 +1326,10 @@ sub GetTagAndQuotePositions {
 sub GetHtmlStartsAndEnds {
 	my ($line) = @_;
 	
-	while ($line =~ m!(</[^>]+>)!g)
+	while ($line =~ m!(<.+?>)!g)
 		{
-		my $startPos = $-[1];	# beginning of match
-		my $endPos = $+[1];		# one past last matching character
+		my $startPos = $-[1];		# beginning of match
+		my $endPos = $+[1] - 1;		# one past last matching character without the -1
 		push @htmlTagStartPos, $startPos;
 		push @htmlTagEndPos, $endPos;
 		}

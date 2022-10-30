@@ -1495,6 +1495,11 @@ sub GetLongestGoodPath {
 			# Reversing puts the matched space at beginning of $nextTerm.
 			my $nextTerm = scalar reverse($nextRevTerm);
 			my $trimOffset = ($checkToEndOfLine) ? 0 : 1;
+			# Trim only "stop" characters, space tab etc.
+			if ($trimOffset && !IsStopCharacter(substr($nextTerm, 0, 1)))
+				{
+				$trimOffset = 0;
+				}
 			my $trimmedNextTerm = substr($nextTerm, $trimOffset); # trim space etc at start, unless checking to end
 			$trimmedCurrentPath = $trimmedNextTerm . $currentPath;
 			$currentPath = $nextTerm . $currentPath;
@@ -1545,6 +1550,12 @@ sub GetLongestGoodPath {
 			$checkStdImageDirs = 0;
 			}
 		} # while ($currentRevPos >= 0 ...
+	}
+
+# Stop chars limit search for next word to add to the string being tested as a target specifier.
+sub IsStopCharacter {
+	my ($char) = @_;
+	return($char eq ' ' || $char eq "\t" || $char eq '/' || $char eq "\\" || $char eq ',' || $char eq '(' || $char eq '<' || $char eq '>' || $char eq ':' || $char eq '|');
 	}
 
 sub GetTextFileRep {

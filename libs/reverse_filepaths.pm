@@ -27,6 +27,8 @@
 # Then to get the best matching full path for a partial path (which could be a full path) call
 # FullPathInContextNS(): see intramine_linker.pl#FullPathForPartial() for a use.
 # (FullPathInContextTrimmed() is similar, the "Trimmed" version deals with nuisance HTML).
+# For more details see the comment above FullPathFromPartialOrFullPath() below, and
+# Documentation/Linker.html.
 
 package reverse_filepaths;
 require Exporter;
@@ -289,32 +291,6 @@ sub UpdatePathsForFolderRenames {
 	%FileNameForFullPath = %tempFileNameForFullPath;
 	}
 
-# Not needed.
-# Add to %FileNameForFullPath, and create new partial path entries too.
-#sub AddIncrementalNewDirectoryFinderLists {
-#	my ($fileNameForFullPathH) = @_;
-#	my %newFileNameForFullPath;
-#	
-#	keys %$fileNameForFullPathH;
-#	while (my ($path, $fileName) = each %$fileNameForFullPathH)
-#		{
-#		if (!FullPathIsKnown($path))
-#			{
-#			$newFileNameForFullPath{$path} = $fileNameForFullPathH->{$path};
-#			}
-#		}
-#	my $numNewPaths = keys %newFileNameForFullPath;
-#	if ($numNewPaths)
-#		{
-#		keys %newFileNameForFullPath;
-#		while (my ($path, $fileName) = each %newFileNameForFullPath)
-#			{
-#			$FileNameForFullPath{$path} = $newFileNameForFullPath{$path};
-#			}
-#		BuildPartialPathList(\%newFileNameForFullPath);
-#		}	
-#	}
-
 sub SaveIncrementalFullPaths {
 	my ($fileNameForFullPathH) = @_;
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
@@ -418,21 +394,35 @@ sub FullPathInContextTrimmed {
 	}
 
 # FullPathFromPartialOrFullPath
-# -> $partialPath: file name optionally preceded by one or more directory names, without skips
-#    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
-# -> $contextDir: path to the directory of file that wants the link,
-#    eg c:/cpp_projects/gofish/docs/ or P:/project51//notes/.
+# -> $partialPath: in a real program, this would be a string of text
+#  that ends with all or part of a file name, and a file extension. The
+#  challenge is to see if the string corresponds to a "target specifier"
+#  that can be matched to a known full path. A target specifier consists of:
+#  (optional) drive specifier followed by (optional) directory names in any order
+#  followed by a file name with extension. For example, a target specifier for
+#  c:/projects/project51/src/main.cpp
+#  could be any of
+#  main.cpp, c:/main.cpp, src/main.cpp, project51/main.cpp, src/project51/main.cpp etc.
+#  And the $partialPath could include extra words on the left end, such as
+#  "as we see in src/main.cpp" (in which case the $partialPath would be rejected).
+#  For more examples, see "Documentation/Linker.txt"
+# -> $contextDir: path to the directory of file where $partialPath is typed,
+#    eg c:/projects/project51/docs/ or P:/project51/notes/.
+#  A full path's distance from the $contextDir is measured by how many hops
+# up and down it takes to go from the deepest directory in the full path
+# to the $contextDir.
 # <- full path that best matches the partial path in context, or ''.
 # We do five checks:
 # 1. Is $partialPath (pp) a full path? Return  it.
-# 2. Does pp match fully with a full path, and is there some overlap on the left between
-# full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
-# 3. Does pp match fully with a full path, ignoring context? Return first one found.
+# 2. Is there some overlap on the left between some full path and $contextDir? Return the
+#    full path that has best overlap, "closest" to the context directory on a tie.
+# 3. Does pp match fully with the right side of a full path, ignoring context? Return the
+#    full path that has best overlap.
 # 4. Do pp folder names all match those in a full path, regardless of position, with some overlap
 # on the left between full path and context dir? Return the full path that has best overlap,
-# shortest on a tie.
+# "closest" to the context directory on a tie.
 # 5. Do pp folder names all match those in a full path, regardless of position, ignoring context?
-# Return first one found.
+# Return the full path with best overlap.
 # If all of the above checks fail, return ''.
 # Note where the supplied $partialPath is ambiguous, the wrong path can be returned.
 #
@@ -462,7 +452,8 @@ sub FullPathFromPartialOrFullPath {
 			$result = $partialPath;
 			}
 		}
-	else # a truly partial path, perhaps only a file name
+	
+	if ($result eq '') # Check for a partial path (incomplete or scrambled).
 		{
 		my $fileName = basename($partialPath);
 		if (defined($AllIntKeysForFileName{$fileName}))
@@ -490,7 +481,8 @@ sub FullPathFromPartialOrFullPath {
 			# 4., 5.
 			# Relax requirements if no match yet, require full match between full path
 			# and $partialPath, but the directory names in $partialPath don't have to
-			# be complete, some can be omitted.
+			# be complete, some can be omitted. All directory names included in
+			# $partialPath must be found in a full path to count as a match.
 			if ($bestIdx < 0)
 				{
 				my @partialPathParts = split(/\//, $partialPath);
@@ -509,7 +501,7 @@ sub FullPathFromPartialOrFullPath {
 					}
 				
 				if ( ($bestIdx = RelaxedInContext($partialPath, $contextDir, \@paths, \@partialPathParts)) >= 0
-				  || ($bestIdx = RelaxedFullPath($partialPath, \@paths, \@partialPathParts)) >= 0 )
+				  || ($bestIdx = RelaxedFullPath(\@paths, \@partialPathParts)) >= 0 )
 					{
 					$result = $FullPathForInteger{$paths[$bestIdx]};
 					}
@@ -520,22 +512,21 @@ sub FullPathFromPartialOrFullPath {
 	return($result);
 	}
 
-# -> $partialPath: file name optionally preceded by one or more directory names, without skips
-#    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
-# -> $contextDir: path to the directory of file that wants the link,
-#    eg c:/cpp_projects/gofish/docs/ or P:/project51//notes/.
+# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # <- returns index in $pathsA of best match, or -1.
 # For all full paths, if full path contains all of $partialPath it's a match. Among all matches,
 # pick one where full path overlaps most on the left with $contextDir. If there's a tie,
-# pick the shortest full path. Return index of best full path.
+# pick the path that's the fewest number of directory hops from the contextDir. If there's
+# still a tie, pick the shortest full path. Return index of best full path (-1 if no match).
 sub ExactInContext {
 	my ($partialPath, $contextDir, $pathsA) = @_;
 	my $partialLength = length($partialPath);
 	my $numPaths = @$pathsA;
-	my $bestScore = 0;
+	my $bestScore = 0;			# context/full path overlap, higher is better
+	my $bestSlashScore = 999; 	# Slash count in leftoverPath, lower is better
 	my $bestIdx = -1;
-
+	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
 		my $testPath = $FullPathForInteger{$pathsA->[$i]};
@@ -544,19 +535,38 @@ sub ExactInContext {
 		if (($matchPos = index($testPath, $partialPath)) > 0)
 			{
 			my $testLength = length($testPath);
-			if ($testLength == $matchPos + $partialLength)
+			# We want a full match on the $partialPath within $testPath, and to avoid a match
+			# against a partial directory name we need the char preceding the match to be a slash.
+			# (Eg avoid a match of test/file.txt against c:/stuff/bigtest/file.txt)
+			if ($testLength == $matchPos + $partialLength && substr($testPath, $matchPos-1, 1) eq '/')
 				{
 				my $currentScore = LeftOverlapLength($contextDir, $testPath);
+				
 				if ($bestScore < $currentScore)
 					{
+					my $leftoverPath = substr($testPath, $currentScore);
+					my $currentSlashScore = $leftoverPath =~ tr!/!!;
+					$bestSlashScore = $currentSlashScore;
 					$bestScore = $currentScore;
 					$bestIdx = $i;
 					}
-				# On a tie score, prefer the shorter path? Perhaps, you decide....
-				elsif ($bestScore > 0 && $bestScore == $currentScore 
-					&& length($testPath) < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+				elsif ($bestScore > 0 && $bestScore == $currentScore)
 					{
-					$bestIdx = $i;
+					my $leftoverPath = substr($testPath, $currentScore);
+					my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
+					# Fewer slashes means $testPath is closer to context directory.
+					if ($bestSlashScore > $currentSlashScore)
+						{
+						$bestSlashScore = $currentSlashScore;
+						$bestIdx = $i;
+						}
+					elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+						{
+						if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+							{
+							$bestIdx = $i;
+							}
+						}
 					}
 				}
 			}
@@ -565,22 +575,21 @@ sub ExactInContext {
 	return($bestIdx);
 	}
 
-# -> $partialPath: file name optionally preceded by one or more directory names, without skips
-#    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
-# -> $contextDir: path to the directory of file that wants the link,
-#    eg c:/cpp_projects/gofish/docs/ or P:/project51//notes/.
+# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
 #    (file name is excluded).
 # <- returns index in $pathsA of best match, or -1.
-# For all full paths, if full path contains all of the subfolders mentioned in $partialPath
+# For all full paths, if full path contains all of the directory names mentioned in $partialPath
 # regardless of position or order (drive too if provided) then it's a match. Among all matches,
 # pick one where full path overlaps most on the left with $contextDir. If there's a tie,
-# pick the shortest full path. Return index of best full path.
+# pick the path that's the fewest number of directory hops from the $contextDir. If there's
+# still a tie, pick the shortest full path. Return index of best full path (-1 if no match).
 sub RelaxedInContext {
 	my ($partialPath, $contextDir, $pathsA, $partialPathPartsA) = @_;
 	my $numPaths = @$pathsA;
 	my $bestScore = 0;
+	my $bestSlashScore = 999;
 	my $bestIdx = -1;
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
@@ -592,14 +601,30 @@ sub RelaxedInContext {
 			my $currentScore = LeftOverlapLength($contextDir, $testPath);
 			if ($bestScore < $currentScore)
 				{
+				my $leftoverPath = substr($testPath, $currentScore);
+				my $currentSlashScore = $leftoverPath =~ tr!/!!;
+				$bestSlashScore = $currentSlashScore;
 				$bestScore = $currentScore;
 				$bestIdx = $i;
 				}
-			# On a tie score, prefer the shorter path? Perhaps, you decide....
-			elsif ($bestScore > 0 && $bestScore == $currentScore 
-				&& length($testPath) < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+			elsif ($bestScore > 0 && $bestScore == $currentScore)
 				{
-				$bestIdx = $i;
+				my $leftoverPath = substr($testPath, $currentScore);
+				my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
+				# Fewer slashes means $testPath is closer to context directory.
+				if ($bestSlashScore > $currentSlashScore)
+					{
+					$bestSlashScore = $currentSlashScore;
+					$bestIdx = $i;
+					}
+				elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+					{
+					my $testLength = length($testPath);
+					if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+						{
+						$bestIdx = $i;
+						}
+					}
 				}
 			}
 		}
@@ -612,10 +637,12 @@ sub RelaxedInContext {
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # <- returns index in $pathsA of best match, or -1.
 # For all full paths, if full path contains all of $partialPath return its index.
+# On a tie, prefer the shallowest path (fewest directories).
 sub ExactFullPath {
 	my ($partialPath, $pathsA) = @_;
 	my $partialLength = length($partialPath);
 	my $numPaths = @$pathsA;
+	my $bestSlashScore = 999;
 	my $bestIdx = -1;
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
@@ -625,10 +652,14 @@ sub ExactFullPath {
 		if (($matchPos = index($testPath, $partialPath)) > 0)
 			{
 			my $testLength = length($testPath);
-			if ($testLength == $matchPos + $partialLength)
+			if ($testLength == $matchPos + $partialLength && substr($testPath, $matchPos-1, 1) eq '/')
 				{
-				$bestIdx = $i;
-				last;
+				my $currentSlashScore = $testPath =~ tr!/!!;
+				if ($bestSlashScore > $currentSlashScore)
+					{
+					$bestSlashScore = $currentSlashScore;
+					$bestIdx = $i;
+					}
 				}
 			}
 		}
@@ -636,17 +667,17 @@ sub ExactFullPath {
 	return($bestIdx);
 	}
 
-# -> $partialPath: file name optionally preceded by one or more directory names, without skips
-#    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
 #    (file name is excluded).
 # <- returns index in $pathsA of best match, or -1.
 # For all full paths, if full path contains all of the subfolders mentioned in $partialPath
 # regardless of position or order (drive too if provided) then return its index.
+# On a tie, prefer the shallowest path (fewest directories).
 sub RelaxedFullPath {
-	my ($partialPath, $pathsA, $partialPathPartsA) = @_;
+	my ($pathsA, $partialPathPartsA) = @_;
 	my $numPaths = @$pathsA;
+	my $bestSlashScore = 999;
 	my $bestIdx = -1;
 
 	for (my $i = 0; $i < $numPaths; ++$i)
@@ -654,21 +685,27 @@ sub RelaxedFullPath {
 		my $testPath = $FullPathForInteger{$pathsA->[$i]};
 		if (AllPartialPartsAreInTestPath($partialPathPartsA, $testPath))
 			{
-			$bestIdx = $i;
-			last;
+			my $currentSlashScore = $testPath =~ tr!/!!;
+			if ($bestSlashScore > $currentSlashScore)
+				{
+				$bestSlashScore = $currentSlashScore;
+				$bestIdx = $i;
+				}
 			}
 		}
 		
 	return($bestIdx);
 	}
 
+# -> $partialPathPartsA: a list of /directory names/ in the target specifier
+#    (eg for test/esindex/cmAutoLink.js the list would be "/test/", "/esindex/").
 sub AllPartialPartsAreInTestPath {
 	my ($partialPathPartsA, $testPath) = @_;
 	my $result = 1;
 	
 	for (my $i = 0; $i < @$partialPathPartsA; ++$i)
 		{
-		if (index($testPath, $partialPathPartsA->[$i]) != 0)
+		if (index($testPath, $partialPathPartsA->[$i]) < 0)
 			{
 			$result = 0;
 			last;

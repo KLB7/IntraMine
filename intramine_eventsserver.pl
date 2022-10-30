@@ -253,6 +253,9 @@ sub EventsPageContentHTML {
 					{
 					my @fields = split(/\t/, $entries[$i]);
 					my $eventType = $fields[0];
+					my $name = $fields[1];
+					$name =~ s!'!\\'!g;
+					
 					if ($eventType eq 'deadline')
 						{
 						if ($ymd < $todayDate)
@@ -280,29 +283,31 @@ sub EventsPageContentHTML {
 						if (defined($fields[2]) && $fields[2] ne '') # comment
 							{
 							$haveUserComment = 1;
+							my $comment = $fields[2];
+							$comment =~ s!'!\\'!g;
 							if ($tipStr ne '')
 								{
-								$tipStr .= "<br > $fields[2]";
+								$tipStr .= "<br > $comment";
 								}
 							else
 								{
-								$tipStr = "$fields[2]";
+								$tipStr = "$comment";
 								}
 							}
 							
 						if ($haveUserComment)
 							{
 							my $tipMarker = "<div class='tipmarker'><p class='tipmarkeractual'><img src='comment.png' alt='' width='6' height='6' /></p></div>";
-							$cal->addcontent($d, "<div class='$eventType hastip'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$fields[1]</a>$tipMarker</div>");
+							$cal->addcontent($d, "<div class='$eventType hastip'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a>$tipMarker</div>");
 							}
 						else
 							{
-							$cal->addcontent($d, "<p class='$eventType'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$fields[1]</a></p>");
+							$cal->addcontent($d, "<p class='$eventType'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a></p>");
 							}
 						}
 					else # In the past and no comment: no tooltip.
 						{
-						$cal->addcontent($d, "<p class='$eventType'>$fields[1]</p>");
+						$cal->addcontent($d, "<p class='$eventType'>$name</p>");
 						}
 					} # for entries in current calendar events record
 				} # if year and month agree

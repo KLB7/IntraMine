@@ -25,7 +25,7 @@
 # This example service uses the RESTful approach for creating, updating, and reading db entries.
 # The single request action for that is
 # $RequestAction{"/fruit/"} = \&HandleFruitRequest;
-# In db_example.js, xmlHttpRequests are sent back to the "/fruit/" action with for example:
+# In db_example.js, fetch() is sent back to the "/fruit/" action with for example:
 # http://host:port/DBX/fruit/apple/3/ as a POST to create or update the "apple" entry
 #  with a rating of 3;
 # http://host:port/DBX/fruit/ as a GET to retrieve all fruit names and ratings.
@@ -235,7 +235,7 @@ FINIS
 	# Display database table path.
 	$theBody =~ s!_DBPATH_!$dbPath!;
 	
-	# db_examples.js needs this service's IP address and port for XMLHttpRequest() calls.
+	# db_example.js needs this service's IP address and port for fetch() calls.
 	# The IPv4 Address for this server (eg 192.168.0.14):
 	# peeraddress might be eg 192.168.0.17
 	$theBody =~ s!_THEPORT_!$port_listen!; # our port

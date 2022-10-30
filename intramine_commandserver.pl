@@ -423,7 +423,7 @@ sub CommandFilePath {
 # When $proc is done, do one last read and clear $proc: then on the next
 # read request, return '***A-L-L***D-O-N-E***'.
 # If there's a problem, return "***E-R-R-O-R***$errorDescription".
-# We trust the JavaScript xmlhttprequest monitoring function will call this at reasonable
+# We trust the JavaScript fetch() monitoring function will call this at reasonable
 # intervals, at most once per second. This is called in response to 'req=monitor', which
 # in turn is triggered by cmdServer.js#runTheCommand() 'req=open&monitor=1'.
 sub CommandOutput {
