@@ -460,7 +460,7 @@ sub ConsolidateFullPathLists {
 # and no starting slash. UNLESS we see a leading double-slash, which happens
 # in a //host-name/share... link.
 # Used in intramine_file_viewer_cm.pl#AddWebAndFileLinksToLine() etc.
-# See notes below for FullPathFromPartialOrFullPath().
+# See notes below for BestMatchingFullPath().
 sub FullPathInContextNS {
 	my ($partialPath, $contextDir) = @_;
 	
@@ -472,7 +472,7 @@ sub FullPathInContextNS {
 		$partialPath =~ s!^/!!;
 		}
 	
-	return(FullPathFromPartialOrFullPath($partialPath, $contextDir));
+	return(BestMatchingFullPath($partialPath, $contextDir));
 	}
 
 # Full path, given a partial path and context directory.
@@ -484,12 +484,12 @@ sub FullPathInContextNS {
 # dir3/dir2/dir1/file.txt
 # etc
 # or full path to file.txt, C:/dirN/.../dir1/file.txt
-# See notes below for FullPathFromPartialOrFullPath().
+# See notes below for BestMatchingFullPath().
 sub FullPathInContextTrimmed {
 	my ($partialPath, $contextDir) = @_;
 	$partialPath = lc($partialPath);
 	
-	my $result = FullPathFromPartialOrFullPath($partialPath, $contextDir);
+	my $result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		# TEST ONLY
@@ -502,7 +502,7 @@ sub FullPathInContextTrimmed {
 	# NOTE this changes $partialPath for all below.
 	$partialPath =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
 	$partialPath =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
-	$result = FullPathFromPartialOrFullPath($partialPath, $contextDir);
+	$result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		# TEST ONLY
@@ -514,7 +514,7 @@ sub FullPathInContextTrimmed {
 	return('');	
 	}
 
-# FullPathFromPartialOrFullPath
+# BestMatchingFullPath
 # Args: a $partialPath such as src/main.cpp, and a $contextDir (which is
 # the directory holding the file that wants the link) such as c:/cpp_projects/gofish/docs/.
 # $partialPath could in fact be a full path (c:/cpp_projects/gofish/src/main.cpp), in which case we're done.
@@ -537,7 +537,7 @@ sub FullPathInContextTrimmed {
 # produces a different result from the one implemented below, so leading ../'s
 # are stripped off before getting here. EXCEPT for double leading /'s, which
 # signal a potential //host-name/share-name/ link mention.
-sub FullPathFromPartialOrFullPath {
+sub BestMatchingFullPath {
 	my ($partialPath, $contextDir) = @_;
 	my $result = '';
 	

@@ -54,9 +54,9 @@ EvaluateLinkCandidates() loops over a line of text looking for text in quotes, o
 
 For a path to be "valid" it needs to be either a full path or a partial path that's a good match for an indexed path. Expansion of link text being checked to the longest compatible partial path is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it's a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.
 
-reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on FullPathFromPartialOrFullPath(), which does the real work.
+reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work.
 
-In reverse_filepaths.pm#FullPathFromPartialOrFullPath() the work of collecting full paths finally pays off. FullPathFromPartialOrFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
+In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
 1. Is $partialPath (pp) a full path? Return  it.
 2. Does pp match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
 3. Does pp match fully on the right with a full path, ignoring context? Return first one found.
@@ -67,7 +67,7 @@ Note that where the supplied $partialPath is ambiguous, the wrong path can be re
 
 Full path for partial path example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-As an example of that, suppose FullPathFromPartialOrFullPath() is passed
+As an example of that, suppose BestMatchingFullPath() is passed
  - $partialPath: "src\main.cpp"
  - $contextDir: "C:\Projects\Project51\docs\" (because the mention of the partial path is in a file in that docs directory)
 with the possible full paths for "src\main.cpp" being
@@ -81,7 +81,7 @@ Arbitrarily assigned integer	Full path
 The corresponding hash entry is:
 $AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".
 
-FullPathFromPartialOrFullPath() looks at the file name in the passed-in partial path, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
+BestMatchingFullPath() looks at the file name in the passed-in partial path, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
 $AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013"
 
 For each integer in the entry:

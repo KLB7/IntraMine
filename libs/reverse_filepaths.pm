@@ -27,7 +27,7 @@
 # Then to get the best matching full path for a partial path (which could be a full path) call
 # FullPathInContextNS(): see intramine_linker.pl#FullPathForPartial() for a use.
 # (FullPathInContextTrimmed() is similar, the "Trimmed" version deals with nuisance HTML).
-# For more details see the comment above FullPathFromPartialOrFullPath() below, and
+# For more details see the comment above BestMatchingFullPath() below, and
 # Documentation/Linker.html.
 
 package reverse_filepaths;
@@ -343,7 +343,7 @@ sub ConsolidateFullPathLists {
 # and no starting slash. UNLESS we see a leading double-slash, which happens
 # in a //host-name/share... link.
 # Used in intramine_linker.pl#AddWebAndFileLinksToLine() etc.
-# See notes below for FullPathFromPartialOrFullPath().
+# See notes below for BestMatchingFullPath().
 sub FullPathInContextNS {
 	my ($partialPath, $contextDir) = @_;
 	
@@ -355,7 +355,7 @@ sub FullPathInContextNS {
 		$partialPath =~ s!^/!!;
 		}
 	
-	return(FullPathFromPartialOrFullPath($partialPath, $contextDir));
+	return(BestMatchingFullPath($partialPath, $contextDir));
 	}
 
 # Full path, given a partial path and context directory.
@@ -367,12 +367,12 @@ sub FullPathInContextNS {
 # dir3/dir2/dir1/file.txt
 # etc
 # or full path to file.txt, C:/dirN/.../dir1/file.txt
-# See notes below for FullPathFromPartialOrFullPath().
+# See notes below for BestMatchingFullPath().
 sub FullPathInContextTrimmed {
 	my ($partialPath, $contextDir) = @_;
 	$partialPath = lc($partialPath);
 	
-	my $result = FullPathFromPartialOrFullPath($partialPath, $contextDir);
+	my $result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		return($result);
@@ -383,7 +383,7 @@ sub FullPathInContextTrimmed {
 	# NOTE this changes $partialPath for all below.
 	$partialPath =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
 	$partialPath =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
-	$result = FullPathFromPartialOrFullPath($partialPath, $contextDir);
+	$result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		return($result);
@@ -393,7 +393,7 @@ sub FullPathInContextTrimmed {
 	return('');	
 	}
 
-# FullPathFromPartialOrFullPath
+# BestMatchingFullPath
 # -> $partialPath: in a real program, this would be a string of text
 #  that ends with all or part of a file name, and a file extension. The
 #  challenge is to see if the string corresponds to a "target specifier"
@@ -430,7 +430,7 @@ sub FullPathInContextTrimmed {
 # produces a different result from the one implemented below, so leading ../'s
 # should be stripped off before getting here. EXCEPT for double leading /'s, which
 # signal a potential //host-name/share-name/ link mention.
-sub FullPathFromPartialOrFullPath {
+sub BestMatchingFullPath {
 	my ($partialPath, $contextDir) = @_;
 	my $result = '';
 
@@ -512,7 +512,7 @@ sub FullPathFromPartialOrFullPath {
 	return($result);
 	}
 
-# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
+# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # <- returns index in $pathsA of best match, or -1.
 # For all full paths, if full path contains all of $partialPath it's a match. Among all matches,
@@ -575,7 +575,7 @@ sub ExactInContext {
 	return($bestIdx);
 	}
 
-# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
+# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
 #    (file name is excluded).

@@ -91,10 +91,10 @@ sub FindBestLinkFor {
 
 # Find the best full path for a link specifier in context.
 # $contextDir can be "".
-# (In this test version FullPathFromPartialOrFullPath() prints details on how things went.)
+# (In this test version BestMatchingFullPath() prints details on how things went.)
 sub FindBestLinkInContextFor {
 	my ($linkSpecifier, $contextDir) = @_;
-	my $bestFullPath = FullPathFromPartialOrFullPath($linkSpecifier, $contextDir);
+	my $bestFullPath = BestMatchingFullPath($linkSpecifier, $contextDir);
 	}
 
 # Subs below are based on Intramine/libs/reverse_filepaths.pm, see https://github.com/KLB7/IntraMine.
@@ -162,7 +162,7 @@ sub BuildPartialPathList {
 		}	
 	}
 
-# FullPathFromPartialOrFullPath
+# BestMatchingFullPath
 # -> $partialPath: in a real program, this would be a string of text
 #  that ends with all or part of a file name, and a file extension. The
 #  challenge is to see if the string corresponds to a "link specifier"
@@ -199,7 +199,7 @@ sub BuildPartialPathList {
 # produces a different result from the one implemented below, so leading ../'s
 # should be stripped off before getting here. EXCEPT for double leading /'s, which
 # signal a potential //host-name/share-name/ link mention.
-sub FullPathFromPartialOrFullPath {
+sub BestMatchingFullPath {
 	my ($partialPath, $contextDir) = @_;
 	my $result = '';
 	
@@ -293,7 +293,7 @@ sub FullPathFromPartialOrFullPath {
 	return($result); # Not used in this demo, returned full path would become the href for a link.
 	}
 
-# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
+# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # <- returns index in $pathsA of best match, or -1.
 # For all full paths, if full path contains all of $partialPath it's a match. Among all matches,
@@ -363,7 +363,7 @@ sub ExactInContext {
 	return($bestIdx);
 	}
 
-# -> $partialPath, $contextDir: see comment above for FullPathFromPartialOrFullPath().
+# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
 # -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
 #    (file name is excluded).

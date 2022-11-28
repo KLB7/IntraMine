@@ -96,11 +96,11 @@ For a path to be "valid" it needs to be either a full path or a partial path tha
 
 reverse_filepaths.pm#FullPathInContextNS() sequence
 ---------------------------------------------------
-reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on FullPathFromPartialOrFullPath(), which does the real work of identifying the best matching full path.
+reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work of identifying the best matching full path.
 
-reverse_filepaths.pm#FullPathFromPartialOrFullPath() sequence
+reverse_filepaths.pm#BestMatchingFullPath() sequence
 -------------------------------------------------------------
-In reverse_filepaths.pm#FullPathFromPartialOrFullPath() the work of collecting full paths finally pays off. FullPathFromPartialOrFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
+In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
 1. Is $partialPath ($partialPath) a full path? Return  it.
 2. ExactInContext(): Does $partialPath match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
 3. ExactFullPath(): Does $partialPath match fully on the right with a full path, ignoring context? Return first one found.
