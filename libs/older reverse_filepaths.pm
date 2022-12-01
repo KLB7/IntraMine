@@ -14,7 +14,7 @@
 #    Full path: c:\qtStuff\android\third_party\native_app_glue\android_native_app_glue.h
 # Partial path:                                native_app_glue\android_native_app_glue.h
 # FullPathInContextNS() receives two arguments:
-#	$partialPath: partial path for which full path is wanted, eg "main.cpp" or "catclicker/src/main.cpp".
+#	$linkSpecifier: partial path for which full path is wanted, eg "main.cpp" or "catclicker/src/main.cpp".
 #		Typically the source of the partial path is text in a document being viewed.
 #	$contextDir: the directory holding the document being viewed, where the request originated, eg
 #		"C:/projects/catclicker/docs", or "P:/project summaries". In both examples the instance
@@ -160,13 +160,13 @@ sub BuildPartialPathList {
 		
 		# Add entries for partial paths (lines B C etc above);
 		# - skip entries where a period '.' starts the folder name.
-		my $partialPath = $fullPath;
+		my $linkSpecifier = $fullPath;
 		# Trim host/share at start.
 		#$partialPath =~ s!^//[^/]+/[^/]+/!!;
 		# Revision, trim just the host.
-		$partialPath =~ s!^//[^/]+/!!;
+		$linkSpecifier =~ s!^//[^/]+/!!;
 		# Trim the leading drive:/ spec.
-		$partialPath =~ s!^\w:/!!;
+		$linkSpecifier =~ s!^\w:/!!;
 		
 		# Progressively add entries and strip leading dirs until nothing is left.
 		while ($partialPath ne '')
@@ -208,11 +208,11 @@ sub BuildPartialPathList {
 				
 				if ($partialPath !~ m!/!)
 					{
-					$partialPath = '';
+					$linkSpecifier = '';
 					}
 				else
 					{
-					$partialPath =~ s!^[^/]+/!!;
+					$linkSpecifier =~ s!^[^/]+/!!;
 					}
 				}
 			else
@@ -455,7 +455,7 @@ sub ConsolidateFullPathLists {
 
 # The main call for autolinking.
 # Full path given partial path and context directory.
-# Perhaps a bad name, $partialPath is 'normed' here, as opposed to
+# Perhaps a bad name, $linkSpecifier is 'normed' here, as opposed to
 # FullPathInContextTrimmed() which expects only forward slashes
 # and no starting slash. UNLESS we see a leading double-slash, which happens
 # in a //host-name/share... link.
@@ -464,12 +464,12 @@ sub ConsolidateFullPathLists {
 sub FullPathInContextNS {
 	my ($partialPath, $contextDir) = @_;
 	
-	$partialPath = lc($partialPath);
-	$partialPath =~ s!\\!/!g;
+	$linkSpecifier = lc($partialPath);
+	$linkSpecifier =~ s!\\!/!g;
 	
 	if ($partialPath !~ m!^//!)
 		{
-		$partialPath =~ s!^/!!;
+		$linkSpecifier =~ s!^/!!;
 		}
 	
 	return(BestMatchingFullPath($partialPath, $contextDir));
@@ -477,7 +477,7 @@ sub FullPathInContextNS {
 
 # Full path, given a partial path and context directory.
 # For linking with perhaps nuisance HTML prepended. Used in intramine_file_viewer_cm.pl#ModuleLink().
-# $partialPath: for success, one of:
+# $linkSpecifier: for success, one of:
 # file.txt
 # dir1/file.txt
 # dir2/dir1/file.txt
@@ -487,7 +487,7 @@ sub FullPathInContextNS {
 # See notes below for BestMatchingFullPath().
 sub FullPathInContextTrimmed {
 	my ($partialPath, $contextDir) = @_;
-	$partialPath = lc($partialPath);
+	$linkSpecifier = lc($partialPath);
 	
 	my $result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
@@ -499,9 +499,9 @@ sub FullPathInContextTrimmed {
 	
 	# Try again, trim any leading HTML tags or spaces etc.
 	# Eg &nbsp;&nbsp;&bull;&nbsp;<strong>bootstrap.min.css
-	# NOTE this changes $partialPath for all below.
-	$partialPath =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
-	$partialPath =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
+	# NOTE this changes $linkSpecifier for all below.
+	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
+	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
 	$result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
@@ -515,25 +515,25 @@ sub FullPathInContextTrimmed {
 	}
 
 # BestMatchingFullPath
-# Args: a $partialPath such as src/main.cpp, and a $contextDir (which is
+# Args: a $linkSpecifier such as src/main.cpp, and a $contextDir (which is
 # the directory holding the file that wants the link) such as c:/cpp_projects/gofish/docs/.
-# $partialPath could in fact be a full path (c:/cpp_projects/gofish/src/main.cpp), in which case we're done.
-# Otherwise, look for a full path for the $partialPath, and there might be several, separated
+# $linkSpecifier could in fact be a full path (c:/cpp_projects/gofish/src/main.cpp), in which case we're done.
+# Otherwise, look for a full path for the $linkSpecifier, and there might be several, separated
 # by '|' in %IntKeysForPartialPath, for example
 # c:/cpp_projects/gofish/src/main.cpp|c:/cpp_projects/bendit/src/main.cpp|
 # p:/olderprojects/compuserve/main.pp: find the one that best matches the $contextDir.
 # Score is number of matching characters starting from the left.
-# If there are no full paths corresponding to the $partialPath, try stripping any
+# If there are no full paths corresponding to the $linkSpecifier, try stripping any
 # leading dir from the path, eg if gofish/src/main.cpp has nothing then look at src/main.cpp,
 # and continue until a candidate entry is found or wer'e down to just the file name.
-# If $partialPath is ambiguous and $contextDir is pretty much unrelated to any potential full
+# If $linkSpecifier is ambiguous and $contextDir is pretty much unrelated to any potential full
 # path, return the best match anyway, but it could be wrong. Here it's up to the user to
-# provide a longer $partialPath, eg src/main.cpp might be highly ambiguous in an arbitrary
+# provide a longer $linkSpecifier, eg src/main.cpp might be highly ambiguous in an arbitrary
 # context, but gofish/src/main.cpp would pretty much always pin it down.
 # If no candidate full path exists in $IntKeysForPartialPath{$partialPath} for any
 # progressively shorter partial path tried, truly give up and return ''.
 #
-# If $partialPath contains ../ or ../../ , I can't think of a scenario where that
+# If $linkSpecifier contains ../ or ../../ , I can't think of a scenario where that
 # produces a different result from the one implemented below, so leading ../'s
 # are stripped off before getting here. EXCEPT for double leading /'s, which
 # signal a potential //host-name/share-name/ link mention.
@@ -547,7 +547,7 @@ sub BestMatchingFullPath {
 		if (defined($IntKeysForPartialPath{$partialPath})
 		 || FileOrDirExistsWide($partialPath))
 			{
-			$result = $partialPath; # it's actually a full path (probably)
+			$result = $linkSpecifier; # it's actually a full path (probably)
 			}
 		}
 	# For a //host/share UNC, check for a record of the
@@ -556,7 +556,7 @@ sub BestMatchingFullPath {
 		{
 		if (defined($IntKeysForPartialPath{$partialPath}))
 			{
-			$result = $partialPath;
+			$result = $linkSpecifier;
 			}
 		}
 	else
@@ -571,7 +571,7 @@ sub BestMatchingFullPath {
 				# the best candidate. See 'Multipath link resolution.txt' for examples. The key is
 				# how much the $contextDir overlaps with each of the @paths, starting from the left.
 				# This is effectively the same as finding the "shortest path" from the file
-				# in $contextDir that mentions $partialPath to one of the candidates.
+				# in $contextDir that mentions $linkSpecifier to one of the candidates.
 				# So if "C:\Proj1\src\dialog.cpp"" is the file wanting the link, with a context dir
 				# of "C:\Proj1\src", and if it asks for a full path corresponding to
 				# "dialog.h", we should return "C:\Proj1\headers\dialog.h", not some other dialog.h
@@ -734,13 +734,13 @@ sub TestBuildPartialPathList_DB {
 		
 		# Add entries for partial paths (lines B C etc above);
 		# - skip entries where a period '.' starts the folder name.
-		my $partialPath = $fullPath;
+		my $linkSpecifier = $fullPath;
 		# Trim host/share at start.
 		#$partialPath =~ s!^//[^/]+/[^/]+/!!;
 		# Revision, trim just the host.
-		$partialPath =~ s!^//[^/]+/!!;
+		$linkSpecifier =~ s!^//[^/]+/!!;
 		# Trim the leading drive:/ spec.
-		$partialPath =~ s!^\w:/!!;
+		$linkSpecifier =~ s!^\w:/!!;
 		
 		# Progressively add entries and strip leading dirs until nothing is left.
 		while ($partialPath ne '')
@@ -783,11 +783,11 @@ sub TestBuildPartialPathList_DB {
 				#print("BPPL added partialPath |$partialPath|\n");
 				if ($partialPath !~ m!/!)
 					{
-					$partialPath = '';
+					$linkSpecifier = '';
 					}
 				else
 					{
-					$partialPath =~ s!^[^/]+/!!;
+					$linkSpecifier =~ s!^[^/]+/!!;
 					}
 				}
 			else

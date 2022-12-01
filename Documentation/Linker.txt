@@ -8,7 +8,7 @@ This is an IntraMine service, so it uses the swarmserver.pm module together with
 Although the Linker can handle any number of lines of text, it's used by IntraMine's Viewer and Editor as an "on demand" service, to add links to text that is newly shown, either when a view of a file is brought up or after a scroll. Typically the view of a source or text file shows under 100 lines at a time, so the load on the Linker is fairly minimal.
 
 Text that can be turned into a link includes:
- - a "sufficient path" to a local file (see next section)
+ - a "link specifier" to a local file (see next section)
  - the same, with a text heading, function name, or class name added (Viewer only)
  - quoted mentions of a heading, function, or class in the same file (Viewer only)
  - a web address starting with http or https
@@ -27,7 +27,7 @@ Let's get some terminology out of the way first:
 **Target file**: is the file you want to link to.
 **Context**: this is the directory that holds the referencing file.
 **File distance**: As you might guess, the "distance" between your referencing file and target file is just the number of directory moves up and down that it takes to go from one file to the other.
-**Sufficient path**: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans). For this to work properly, the file should be in a directory that's been indexed for Elasticsearch (as listed in your data/search_directories.txt file).
+**Link specifier**: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans). For this to work properly, the file should be in a directory that's been indexed for Elasticsearch (as listed in your data/search_directories.txt file).
 
 Here's an example of IntraMine's autolinking, in three parts.
 1. Let's suppose you have a project folder "E:\projects\project51", and within it there is only one file called "SaveDialog.cpp". But you also have other project folders containing "SaveDialog.cpp" files. And suppose you're typing in a log file in the project51 folder, "E:\projects\project51\logs\Sept 2021.txt" and you enter
@@ -100,14 +100,14 @@ reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestM
 
 reverse_filepaths.pm#BestMatchingFullPath() sequence
 -------------------------------------------------------------
-In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
-1. Is $partialPath ($partialPath) a full path? Return  it.
-2. ExactInContext(): Does $partialPath match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
-3. ExactFullPath(): Does $partialPath match fully on the right with a full path, ignoring context? Return first one found.
-4. RelaxedInContext(): Do $partialPath folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
-5. RelaxedFullPath(): Do $partialPath folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
+In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a partial path in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
+1. Is $linkSpecifier ($linkSpecifier) a full path? Return  it.
+2. ExactPathInContext(): Does $linkSpecifier match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+3. ExactPathNoContext(): Does $linkSpecifier match fully on the right with a full path, ignoring context? Return first one found.
+4. RelaxedPathInContext(): Do $linkSpecifier folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+5. RelaxedPathNoContext(): Do $linkSpecifier folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
 If all of the above checks fail, return ''.
-Note where the supplied $partialPath is ambiguous, the wrong path can be returned.
+Note where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.
 
 For a couple of examples of how links are detected, see
  - "Stealing from IntraMine.txt#Full path for partial path example"
@@ -125,7 +125,7 @@ This request comes from JavaScript, when new lines come into view in a file disp
 Note [01] stands for 0 or 1
 TABLE arguments
 Argument	Description
-remote		1 if request doesn't come from the IntraMinePC
+remote		1 if request doesn't come from the IntraMine PC
 allowEdit	1 if an edit link is wanted as well
 useApp		1 if edit link should use preferred editor instead of IntraMine's
 text		plain text that wants markup with links

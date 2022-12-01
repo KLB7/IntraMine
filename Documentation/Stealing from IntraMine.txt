@@ -4,21 +4,21 @@ Stealing from IntraMine
 
 Those autolinks
 ===============
-First, a definition: a "partial path" to a file consists of the file name and zero or more folders in the path, not necessarily complete or in order. For example, partial paths for "C:Project51\src\main.cpp" are:
+First, a definition: a "link specifier" for a file consists of the file name and zero or more folders in the path, not necessarily complete or in order, and an optional drive letter. For example, link specifiers for "C:Project51\src\main.cpp" are:
  - main.cpp
  - Project51\main.cpp
  - C:\main.cpp
  - src\main.cpp
  - Project51\src\main.cpp
  - C:\Project51\src\main.cpp
-Whether or not a partial path is ambiguous is determined by comparison with full paths to all the files you've instructed Elasticsearch to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the partial path).
+Whether or not a link specifier is ambiguous is determined by comparison with full paths to all the files you've instructed Elasticsearch to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the link specifier).
 
 Here are the needed parts for autolinking:
 1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"
 2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.
 2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg
  $AllIntKeysForFileName{"main.cpp"} = "27|12347|766" (the integers there stand for unique full paths kept in a separate hash, eg $FullPathForInteger{27} = 'C:\Projects\Project51\src\main.cpp')
-3. Code to detect a partial path mentioned in a source or text file, and determine the full path that best satisfies the partial path given the context in which the mention is made.
+3. Code to detect a link specifier mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.
 4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.
 
 Here's how IntraMine implements those.
@@ -34,42 +34,42 @@ This happens in elastic_indexer.pl:
  
 intramine_filewatcher.pl (the FILEWATCHER server) calls reverse_filepath.pm#InitDirectoryFinder() to load fullpaths.out as a hash of all full paths with InitFullPathList(), and build the paths for file names list by calling BuildPartialPathList(), described next.
 
-2. Full paths for all partial paths
------------------------------------
-What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However, the lists of full paths for each partial path can be quite long: for example, the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like:
+2. Full paths for all file names
+--------------------------------
+What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However, the lists of full paths for each file name can be quite long: for example, the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like:
 $AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
 where
 $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.
 
-When InitDirectoryFinder() finishes, full paths for partial paths can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.
+When InitDirectoryFinder() finishes, full paths for link specifiers can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.
 
-3. Code to detect a partial path
---------------------------------
+3. Code to detect a link specifier
+----------------------------------
 IntraMine's Linker, as called by the Viewer, emplaces autolinks on demand, when new lines of text become visible. You'll find an overview in "Viewer.txt#Autolinks" and "Linker.txt#Calling the Linker".
 
 We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.
 AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.
 
-EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest partial path that represents a valid file mention.
+EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest path that represents a valid file mention.
 
-For a path to be "valid" it needs to be either a full path or a partial path that's a good match for an indexed path. Expansion of link text being checked to the longest compatible partial path is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it's a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.
+For a path (link specifier) to be "valid" it needs to be either a full path or a good match for a known path. Expansion of link text being checked to the longest compatible link specifier is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it matches up with a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.
 
 reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work.
 
-In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a partial path in "$partialPath", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a partial path happens in five steps:
-1. Is $partialPath (pp) a full path? Return  it.
-2. Does pp match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
-3. Does pp match fully on the right with a full path, ignoring context? Return first one found.
-4. Do pp folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
-5. Do pp folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
+In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a link specifier in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a link specifier happens in five steps:
+1. Is $linkSpecifier a full path? Return  it.
+2. Does $linkSpecifier match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+3. Does $linkSpecifier match fully on the right with a full path, ignoring context? Return first one found.
+4. Do $linkSpecifier folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.
+5. Do $linkSpecifier folder names all match those in a full path, regardless of position, ignoring context? Return first one found.
 If all of the above checks fail, return ''.
-Note that where the supplied $partialPath is ambiguous, the wrong path can be returned.
+Note that where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.
 
-Full path for partial path example
+Full path for link specifier example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 As an example of that, suppose BestMatchingFullPath() is passed
- - $partialPath: "src\main.cpp"
- - $contextDir: "C:\Projects\Project51\docs\" (because the mention of the partial path is in a file in that docs directory)
+ - $linkSpecifier: "src\main.cpp"
+ - $contextDir: "C:\Projects\Project51\docs\" (because the mention of the link specifier is in a file in that docs directory)
 with the possible full paths for "src\main.cpp" being
 TABLE full paths for "src\main.cpp"
 Arbitrarily assigned integer	Full path
@@ -81,12 +81,12 @@ Arbitrarily assigned integer	Full path
 The corresponding hash entry is:
 $AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".
 
-BestMatchingFullPath() looks at the file name in the passed-in partial path, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
+BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
 $AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013"
 
 For each integer in the entry:
  - grab the corresponding full path from %FullPathForInteger, eg $FullPathForInteger{766} = 'C:\Projects\Project999\test\main.cpp'
- - does the full path overlap completely on the right with the passed-in partial path? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.
+ - does the full path overlap completely on the right with the passed-in link specifier? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.
  - for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:
 TABLE Leftmost overlap of full paths with context directory
 Full path							Context dir					left overlap
@@ -96,14 +96,14 @@ And the first one there is the clear winner.
 
 Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".
 
-Another partial path example, without help from context
+Another link specifier example, without help from context
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Suppose the same circumstances as the example above, but with
- - $partialPath: "Project27\main.cpp"
-Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied partial path it counts as a full match.
+ - $linkSpecifier: "Project27\main.cpp"
+Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied link specifier it counts as a full match.
 
-4. a way of keeping the full paths list and partial paths list up to date
--------------------------------------------------------------------------
+4. a way of keeping the full paths list up to date
+--------------------------------------------------
 The practicality of autolinking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:
  - the 3rd party File Watcher service that you installed ages ago monitors directories and writes a summary of changes to a log file. IntraMine's Watcher checks the log file for changes every 30 seconds, and calls IndexChangedFiles() if the log has changed.
  - data/foldermonitor.ps1 is started by IntraMine's Watcher (intramine_filewatcher.pl), and rather than writing changes to a log when they happen it instead sends an immediate signal to IntraMine's Watcher, of the form "http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE". When the Watcher receives that signal it also calls IndexChangedFiles().

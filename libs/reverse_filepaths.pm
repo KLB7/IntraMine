@@ -8,7 +8,7 @@
 #    Full path: c:\qtStuff\android\third_party\native_app_glue\android_native_app_glue.h
 #    Example partial path:                     native_app_glue\android_native_app_glue.h
 # FullPathInContextNS() receives two arguments:
-#	$partialPath: partial path for which full path is wanted, eg "main.cpp" or "catclicker/src/main.cpp".
+#	$linkSpecifier: partial path for which full path is wanted, eg "main.cpp" or "catclicker/src/main.cpp".
 #		Typically the source of the partial path is text in a document being viewed.
 #	$contextDir: the directory holding the document being viewed, where the request originated, eg
 #		"C:/projects/catclicker/docs", or "P:/project summaries". In both examples the instance
@@ -27,7 +27,7 @@
 # Then to get the best matching full path for a partial path (which could be a full path) call
 # FullPathInContextNS(): see intramine_linker.pl#FullPathForPartial() for a use.
 # (FullPathInContextTrimmed() is similar, the "Trimmed" version deals with nuisance HTML).
-# For more details see the comment above BestMatchingFullPath() below, and
+# For more details see the comment above BestMatchingFullPath() and following subs below, and
 # Documentation/Linker.html.
 
 package reverse_filepaths;
@@ -338,29 +338,29 @@ sub ConsolidateFullPathLists {
 
 # The main call for autolinking.
 # Return full path given partial path and context directory.
-# $partialPath is 'normed' here, as opposed to
+# $linkSpecifier is 'normed' here, as opposed to
 # FullPathInContextTrimmed() which expects only forward slashes
 # and no starting slash. UNLESS we see a leading double-slash, which happens
 # in a //host-name/share... link.
 # Used in intramine_linker.pl#AddWebAndFileLinksToLine() etc.
 # See notes below for BestMatchingFullPath().
 sub FullPathInContextNS {
-	my ($partialPath, $contextDir) = @_;
+	my ($linkSpecifier, $contextDir) = @_;
 	
-	$partialPath = lc($partialPath);
-	$partialPath =~ s!\\!/!g;
+	$linkSpecifier = lc($linkSpecifier);
+	$linkSpecifier =~ s!\\!/!g;
 	
-	if ($partialPath !~ m!^//!)
+	if ($linkSpecifier !~ m!^//!)
 		{
-		$partialPath =~ s!^/!!;
+		$linkSpecifier =~ s!^/!!;
 		}
 	
-	return(BestMatchingFullPath($partialPath, $contextDir));
+	return(BestMatchingFullPath($linkSpecifier, $contextDir));
 	}
 
 # Full path, given a partial path and context directory.
 # For linking with perhaps nuisance HTML prepended. Used in intramine_linker.pl#ModuleLink().
-# $partialPath: for success, one of:
+# $linkSpecifier: for success, one of:
 # file.txt
 # dir1/file.txt
 # dir2/dir1/file.txt
@@ -369,10 +369,10 @@ sub FullPathInContextNS {
 # or full path to file.txt, C:/dirN/.../dir1/file.txt
 # See notes below for BestMatchingFullPath().
 sub FullPathInContextTrimmed {
-	my ($partialPath, $contextDir) = @_;
-	$partialPath = lc($partialPath);
+	my ($linkSpecifier, $contextDir) = @_;
+	$linkSpecifier = lc($linkSpecifier);
 	
-	my $result = BestMatchingFullPath($partialPath, $contextDir);
+	my $result = BestMatchingFullPath($linkSpecifier, $contextDir);
 	if ($result ne '')
 		{
 		return($result);
@@ -380,10 +380,10 @@ sub FullPathInContextTrimmed {
 	
 	# Try again, trim any leading HTML tags or spaces etc.
 	# Eg &nbsp;&nbsp;&bull;&nbsp;<strong>bootstrap.min.css
-	# NOTE this changes $partialPath for all below.
-	$partialPath =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
-	$partialPath =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
-	$result = BestMatchingFullPath($partialPath, $contextDir);
+	# NOTE this changes $linkSpecifier for all below.
+	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
+	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
+	$result = BestMatchingFullPath($linkSpecifier, $contextDir);
 	if ($result ne '')
 		{
 		return($result);
@@ -394,26 +394,26 @@ sub FullPathInContextTrimmed {
 	}
 
 # BestMatchingFullPath
-# -> $partialPath: in a real program, this would be a string of text
+# -> $linkSpecifier: in a real program, this would be a string of text
 #  that ends with all or part of a file name, and a file extension. The
-#  challenge is to see if the string corresponds to a "target specifier"
-#  that can be matched to a known full path. A target specifier consists of:
+#  challenge is to see if the string corresponds to a "link specifier"
+#  that can be matched to a known full path. A link specifier consists of:
 #  (optional) drive specifier followed by (optional) directory names in any order
-#  followed by a file name with extension. For example, a target specifier for
+#  followed by a file name with extension. For example, a link specifier for
 #  c:/projects/project51/src/main.cpp
 #  could be any of
 #  main.cpp, c:/main.cpp, src/main.cpp, project51/main.cpp, src/project51/main.cpp etc.
-#  And the $partialPath could include extra words on the left end, such as
-#  "as we see in src/main.cpp" (in which case the $partialPath would be rejected).
+#  And the $linkSpecifier could include extra words on the left end, such as
+#  "as we see in src/main.cpp" (in which case the $linkSpecifier would be rejected).
 #  For more examples, see "Documentation/Linker.txt"
-# -> $contextDir: path to the directory of file where $partialPath is typed,
+# -> $contextDir: path to the directory of file where $linkSpecifier is typed,
 #    eg c:/projects/project51/docs/ or P:/project51/notes/.
 #  A full path's distance from the $contextDir is measured by how many hops
 # up and down it takes to go from the deepest directory in the full path
 # to the $contextDir.
 # <- full path that best matches the partial path in context, or ''.
 # We do five checks:
-# 1. Is $partialPath (pp) a full path? Return  it.
+# 1. Is $linkSpecifier (pp) a full path? Return  it.
 # 2. Is there some overlap on the left between some full path and $contextDir? Return the
 #    full path that has best overlap, "closest" to the context directory on a tie.
 # 3. Does pp match fully with the right side of a full path, ignoring context? Return the
@@ -424,38 +424,38 @@ sub FullPathInContextTrimmed {
 # 5. Do pp folder names all match those in a full path, regardless of position, ignoring context?
 # Return the full path with best overlap.
 # If all of the above checks fail, return ''.
-# Note where the supplied $partialPath is ambiguous, the wrong path can be returned.
+# Note where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.
 #
-# If $partialPath contains ../ or ../../ , I can't think of a scenario where that
+# If $linkSpecifier contains ../ or ../../ , I can't think of a scenario where that
 # produces a different result from the one implemented below, so leading ../'s
 # should be stripped off before getting here. EXCEPT for double leading /'s, which
 # signal a potential //host-name/share-name/ link mention.
 sub BestMatchingFullPath {
-	my ($partialPath, $contextDir) = @_;
+	my ($linkSpecifier, $contextDir) = @_;
 	my $result = '';
 
 	# 1.
 	# Allow any full path, provided either we have a record of it or the file is on disk.
-	if ($partialPath =~ m!^\w:/!)
+	if ($linkSpecifier =~ m!^\w:/!)
 		{
-		if (FullPathIsKnown($partialPath) || FileOrDirExistsWide($partialPath) == 1)
+		if (FullPathIsKnown($linkSpecifier) || FileOrDirExistsWide($linkSpecifier) == 1)
 			{
-			$result = $partialPath;
+			$result = $linkSpecifier;
 			}
 		}
 	# For a //host/share UNC, check for a record of the
 	# link text in our %IntKeysForPartialPath hash. No checking the drive.
-	elsif ($partialPath =~ m!^//!)
+	elsif ($linkSpecifier =~ m!^//!)
 		{
-		if (FullPathIsKnown($partialPath))
+		if (FullPathIsKnown($linkSpecifier))
 			{
-			$result = $partialPath;
+			$result = $linkSpecifier;
 			}
 		}
 	
 	if ($result eq '') # Check for a partial path (incomplete or scrambled).
 		{
-		my $fileName = basename($partialPath);
+		my $fileName = basename($linkSpecifier);
 		if (defined($AllIntKeysForFileName{$fileName}))
 			{
 			my $allpaths = $AllIntKeysForFileName{$fileName};
@@ -471,21 +471,21 @@ sub BestMatchingFullPath {
 			
 			my $bestIdx = -1;
 			# 2., 3.
-			# First check for a full path that matches $partialPath fully, preferring
+			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestIdx = ExactInContext($partialPath, $contextDir, \@paths)) >= 0
-			  || ($bestIdx = ExactFullPath($partialPath, \@paths)) >= 0 )
+			if ( ($bestIdx = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) >= 0
+			  || ($bestIdx = ExactPathNoContext($linkSpecifier, \@paths)) >= 0 )
 				{
 				$result = $FullPathForInteger{$paths[$bestIdx]};
 				}
 			# 4., 5.
 			# Relax requirements if no match yet, require full match between full path
-			# and $partialPath, but the directory names in $partialPath don't have to
+			# and $linkSpecifier, but the directory names in $linkSpecifier don't have to
 			# be complete, some can be omitted. All directory names included in
-			# $partialPath must be found in a full path to count as a match.
+			# $linkSpecifier must be found in a full path to count as a match.
 			if ($bestIdx < 0)
 				{
-				my @partialPathParts = split(/\//, $partialPath);
+				my @partialPathParts = split(/\//, $linkSpecifier);
 				pop(@partialPathParts); # Remove file name (last entry).
 				# Tack some forward slashes back on for accurate matching with index().
 				for (my $i = 0; $i < @partialPathParts; ++$i)
@@ -500,8 +500,8 @@ sub BestMatchingFullPath {
 						}
 					}
 				
-				if ( ($bestIdx = RelaxedInContext($partialPath, $contextDir, \@paths, \@partialPathParts)) >= 0
-				  || ($bestIdx = RelaxedFullPath(\@paths, \@partialPathParts)) >= 0 )
+				if ( ($bestIdx = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) >= 0
+				  || ($bestIdx = RelaxedPathNoContext(\@paths, \@partialPathParts)) >= 0 )
 					{
 					$result = $FullPathForInteger{$paths[$bestIdx]};
 					}
@@ -512,16 +512,28 @@ sub BestMatchingFullPath {
 	return($result);
 	}
 
-# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
-# -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
+# -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
+# -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # <- returns index in $pathsA of best match, or -1.
-# For all full paths, if full path contains all of $partialPath it's a match. Among all matches,
+# "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
+# file name and directory names and drive name if any in sequence, and no omissions.
+# "InContext" means a candidate full path must overlap to some extent with the
+# context directory $contextDir on the left (so at least the drive letters must agree).
+# For all full paths, if full path contains all of $linkSpecifier it's a match. Among all matches,
 # pick one where full path overlaps most on the left with $contextDir. If there's a tie,
 # pick the path that's the fewest number of directory hops from the contextDir. If there's
 # still a tie, pick the shortest full path. Return index of best full path (-1 if no match).
-sub ExactInContext {
-	my ($partialPath, $contextDir, $pathsA) = @_;
-	my $partialLength = length($partialPath);
+#
+# Example of a good match:
+# Link specifier:                             src/main.cpp
+# Path being tested:    c:/projects/project51/src/main.cpp
+# Context directory:    c:/projects/project51/docs/
+# Context/path overlap: c:/projects/project51/
+# All of the link specifier matches the right end of the path being tested exactly,
+# and the context directory agrees with the path except for the rightmost directory.
+sub ExactPathInContext {
+	my ($linkSpecifier, $contextDir, $pathsA) = @_;
+	my $linkSpecifierLength = length($linkSpecifier);
 	my $numPaths = @$pathsA;
 	my $bestScore = 0;			# context/full path overlap, higher is better
 	my $bestSlashScore = 999; 	# Slash count in leftoverPath, lower is better
@@ -532,13 +544,13 @@ sub ExactInContext {
 		my $testPath = $FullPathForInteger{$pathsA->[$i]};
 		my $matchPos;
 		
-		if (($matchPos = index($testPath, $partialPath)) > 0)
+		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
-			# We want a full match on the $partialPath within $testPath, and to avoid a match
+			# We want a full match on the $linkSpecifier within $testPath, and to avoid a match
 			# against a partial directory name we need the char preceding the match to be a slash.
 			# (Eg avoid a match of test/file.txt against c:/stuff/bigtest/file.txt)
-			if ($testLength == $matchPos + $partialLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
 				{
 				my $currentScore = LeftOverlapLength($contextDir, $testPath);
 				
@@ -575,18 +587,32 @@ sub ExactInContext {
 	return($bestIdx);
 	}
 
-# -> $partialPath, $contextDir: see comment above for BestMatchingFullPath().
-# -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
-# -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
+# -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
+# -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
+# -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
 # <- returns index in $pathsA of best match, or -1.
-# For all full paths, if full path contains all of the directory names mentioned in $partialPath
+# "Relaxed" means all the directory names and drive letter (if supplied)
+# in $linkSpecifier must match those in a candidate full path, but they can be
+# in any order and not all directory names in the candidate full path need to be present
+# in the $linkSpecifier.
+# "InContext" means a candidate full path must overlap to some extent with the
+# context directory $contextDir on the left (so at least the drive letters must agree).
+# For all full paths, if full path contains all of the directory names mentioned in $linkSpecifier
 # regardless of position or order (drive too if provided) then it's a match. Among all matches,
 # pick one where full path overlaps most on the left with $contextDir. If there's a tie,
 # pick the path that's the fewest number of directory hops from the $contextDir. If there's
 # still a tie, pick the shortest full path. Return index of best full path (-1 if no match).
-sub RelaxedInContext {
-	my ($partialPath, $contextDir, $pathsA, $partialPathPartsA) = @_;
+#
+# Example of a good match:
+# Link specifier:                             project51/main.cpp
+# Path being tested:    c:/projects/project51/src/main.cpp
+# Context directory:    c:/projects/project51/docs/
+# Context/path overlap: c:/projects/project51/
+# The directory and file name of the link specifier match parts of the path,
+# and the context directory agrees with the path except for the rightmost directory.
+sub RelaxedPathInContext {
+	my ($linkSpecifier, $contextDir, $pathsA, $partialPathPartsA) = @_;
 	my $numPaths = @$pathsA;
 	my $bestScore = 0;
 	my $bestSlashScore = 999;
@@ -632,15 +658,28 @@ sub RelaxedInContext {
 	return($bestIdx);
 	}
 
-# -> $partialPath: file name optionally preceded by one or more directory names, without skips
+# -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
 #    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
-# -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
+# -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # <- returns index in $pathsA of best match, or -1.
-# For all full paths, if full path contains all of $partialPath return its index.
+# "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
+# file name and directory names and drive name if any in sequence, and no omissions.
+# "NoContext" means there is no check that a candidate full path is near a context directory.
+# For all full paths, if full path contains all of $linkSpecifier return its index.
 # On a tie, prefer the shallowest path (fewest directories).
-sub ExactFullPath {
-	my ($partialPath, $pathsA) = @_;
-	my $partialLength = length($partialPath);
+#
+# Example of a good match:
+# Link specifier:                             src/main.cpp
+# Path being tested:    c:/projects/project51/src/main.cpp
+# (No context directory)
+# There is a match between the link specifier and the right side of the path.
+# However, there may be other matches that do as well, such as
+# c:/projects/project999/src/main.cpp,
+# so it's a good match but using project51/main.cpp would be better.
+# (That would be a good match in RelaxedPathNoContext)
+sub ExactPathNoContext {
+	my ($linkSpecifier, $pathsA) = @_;
+	my $linkSpecifierLength = length($linkSpecifier);
 	my $numPaths = @$pathsA;
 	my $bestSlashScore = 999;
 	my $bestIdx = -1;
@@ -649,10 +688,10 @@ sub ExactFullPath {
 		{
 		my $testPath = $FullPathForInteger{$pathsA->[$i]};
 		my $matchPos;
-		if (($matchPos = index($testPath, $partialPath)) > 0)
+		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
-			if ($testLength == $matchPos + $partialLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
 				{
 				my $currentSlashScore = $testPath =~ tr!/!!;
 				if ($bestSlashScore > $currentSlashScore)
@@ -667,14 +706,27 @@ sub ExactFullPath {
 	return($bestIdx);
 	}
 
-# -> $pathsA: array of full paths where file name in full path matches file name in $partialPath.
-# -> $partialPathPartsA: array holding folder names in $partialPath and drive if any
+# -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
+# -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
 # <- returns index in $pathsA of best match, or -1.
-# For all full paths, if full path contains all of the subfolders mentioned in $partialPath
+# "Relaxed" means all the directory names and drive letter (if supplied)
+# in $linkSpecifier must match those in a candidate full path, but they can be
+# in any order and not all directory names in the candidate full path need to be present
+# in the $linkSpecifier.
+# "NoContext" means there is no check that a candidate full path is near a context directory.
+# For all full paths, if full path contains all of the subfolders mentioned in $linkSpecifier
 # regardless of position or order (drive too if provided) then return its index.
 # On a tie, prefer the shallowest path (fewest directories).
-sub RelaxedFullPath {
+#
+# Example of a good match:
+# Link specifier:                             project51/main.cpp
+# Path being tested:    c:/projects/project51/src/main.cpp
+# (No context directory)
+# The directory and file name of the link specifier match parts of the path.
+# As long as there's no other project51 directory with a main.cpp,
+# or second main.cpp in the project51 directory, this will be the best match.
+sub RelaxedPathNoContext {
 	my ($pathsA, $partialPathPartsA) = @_;
 	my $numPaths = @$pathsA;
 	my $bestSlashScore = 999;
