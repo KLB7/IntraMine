@@ -1,6 +1,6 @@
 # reverse_filepaths.pm: FullPathInContextNS() below implements the "auto" part of "autolink."
-# This is done using a reverse index, which for each file name lists all full paths that
-# end in the file name.
+# This is done using a reverse index %FullPathsForFileName, which for each file name lists
+# all full paths that end in the file name.
 # Given a file name or a partial path that ends in the file name
 # eg file.txt or dir3/dr2/dr1/file.txt, FullPathInContextNS() can be called to determine the full
 # path. Dirs are required if the file name is not unique and the "$contextDir" does not properly
@@ -49,16 +49,11 @@ use win_wide_filepaths;
 { ##### Directory list
 my $FullPathListPath;		# For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
-my $NextFreePathInteger;	# for %FullPathForInteger keys: 1..up
-my %FullPathForInteger;		# eg $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt';
-my %IntegerForFullPath;		# eg $IntegerForFullPath{'C:/dir1/dir2/dir3/file.txt'} = 8397
-# List of all (integer keys for) full paths that end in a given file name:
-my %AllIntKeysForFileName;  # $AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
+my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp';
 
 # Load %IntKeysForPartialPath, and build %IntKeysForPartialPath from it.
 sub InitDirectoryFinder {
 	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-	$NextFreePathInteger = 1;
 	my $pathCount = InitFullPathList($filePath);
 	BuildPartialPathList(\%FileNameForFullPath);
 	LoadIncrementalDirectoryFinderLists($filePath);
@@ -71,16 +66,13 @@ sub ReinitDirectoryFinder {
 	
 	# Empty out %FileNameForFullPath and %IntKeysForPartialPath.
 	%FileNameForFullPath = ();
-	%AllIntKeysForFileName = ();
-	%FullPathForInteger = ();
-	%IntegerForFullPath = ();
-	$NextFreePathInteger = 1;
+	%FullPathsForFileName = ();
 	
 	return(InitDirectoryFinder($filePath));
 	}
 
-# intramine_filewatcher.pl doesn't need the full list of partial paths vs full paths, it just needs the list
-# of file names for full paths in %FileNameForFullPath.
+# Load %FileNameForFullPath.
+# Eg $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
 sub InitFullPathList {
 	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$FullPathListPath = $filePath;
@@ -94,49 +86,29 @@ sub InitFullPathList {
 	return($pathCount);
 	}
 
-# Associate an integer with each file path.
-# The integers are smaller than their corresponding paths, reducing memory needs.
-sub BuildFullPathsForIntegers {
+# From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
+sub BuildFullPathsForFileName {
 	my ($fileNameForFullPathH) = @_;
 	
 	keys %$fileNameForFullPathH; # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
-		$FullPathForInteger{$NextFreePathInteger} = $fullPath;
-		$IntegerForFullPath{$fullPath} = $NextFreePathInteger;
-		++$NextFreePathInteger;
-		}
-	}
-
-# Fill in %AllIntKeysForFileName{'file name'},
-# key is a file name, value is a list of integer keys for one or more full paths
-# that end in the file name, with values separated by '|'.
-# Eg $AllIntKeysForFileName{'file.txt'} = '8397|27|90021'
-# where $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.
-# Called by InitDirectoryFinder() just above, and also incrementally when new files are seen,
-# in intramine_linker.pl#HandleBroadcastRequest() by a call to LoadIncrementalDirectoryFinderLists().
-# Note when called to add entries incrementally, %$fileNameForFullPathH should not duplicate
-# any existing entries. Check first with:
-#  if (defined($fileNameForFullPathH->{$fullPath}))...skip it.
-sub BuildPartialPathList {
-	my ($fileNameForFullPathH) = @_;
-	
-	BuildFullPathsForIntegers($fileNameForFullPathH);
-	
-	keys %$fileNameForFullPathH; # reset iterator
-	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
-		{
-		# Add entry for just file name.
-		my $intKeyForFullPath = $IntegerForFullPath{$fullPath};
-		if (defined($AllIntKeysForFileName{$fileName}))
+		if (defined($FullPathsForFileName{$fileName}))
 			{
-			$AllIntKeysForFileName{$fileName} .= "|$intKeyForFullPath";
+			$FullPathsForFileName{$fileName} .= "|$fullPath";
 			}
 		else
 			{
-			$AllIntKeysForFileName{$fileName} = "$intKeyForFullPath";
+			$FullPathsForFileName{$fileName} = $fullPath;
 			}
-		}	
+		}
+	}
+
+# A bit obsolete, just call BuildFullPathsForFileName() above.
+sub BuildPartialPathList {
+	my ($fileNameForFullPathH) = @_;
+	
+	BuildFullPathsForFileName($fileNameForFullPathH);
 	}
 
 # Load additional fullpaths2.out etc to %FileNameForFullPath.
@@ -453,12 +425,13 @@ sub BestMatchingFullPath {
 			}
 		}
 	
-	if ($result eq '') # Check for a partial path (incomplete or scrambled).
+	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
 		{
 		my $fileName = basename($linkSpecifier);
-		if (defined($AllIntKeysForFileName{$fileName}))
+
+		if (defined($FullPathsForFileName{$fileName}))
 			{
-			my $allpaths = $AllIntKeysForFileName{$fileName};
+			my $allpaths = $FullPathsForFileName{$fileName};
 			my @paths;
 			if ($allpaths =~ m!\|!) # more than one candidate full path
 				{
@@ -469,21 +442,21 @@ sub BestMatchingFullPath {
 				push @paths, $allpaths;
 				}
 			
-			my $bestIdx = -1;
+			my $bestPath = "";
 			# 2., 3.
 			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestIdx = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) >= 0
-			  || ($bestIdx = ExactPathNoContext($linkSpecifier, \@paths)) >= 0 )
+			if ( ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
+			  || ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "" )
 				{
-				$result = $FullPathForInteger{$paths[$bestIdx]};
+				$result = $bestPath;
 				}
 			# 4., 5.
 			# Relax requirements if no match yet, require full match between full path
 			# and $linkSpecifier, but the directory names in $linkSpecifier don't have to
 			# be complete, some can be omitted. All directory names included in
 			# $linkSpecifier must be found in a full path to count as a match.
-			if ($bestIdx < 0)
+			if ($result eq "")
 				{
 				my @partialPathParts = split(/\//, $linkSpecifier);
 				pop(@partialPathParts); # Remove file name (last entry).
@@ -500,10 +473,10 @@ sub BestMatchingFullPath {
 						}
 					}
 				
-				if ( ($bestIdx = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) >= 0
-				  || ($bestIdx = RelaxedPathNoContext(\@paths, \@partialPathParts)) >= 0 )
+				if ( ($bestPath = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
+				  || ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne "" )
 					{
-					$result = $FullPathForInteger{$paths[$bestIdx]};
+					$result = $bestPath;
 					}
 				}
 			} # file name is associated with at least one known full path
@@ -541,7 +514,7 @@ sub ExactPathInContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
@@ -574,7 +547,7 @@ sub ExactPathInContext {
 						}
 					elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
 						{
-						if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+						if ($testLength < length($pathsA->[$bestIdx]))
 							{
 							$bestIdx = $i;
 							}
@@ -584,7 +557,13 @@ sub ExactPathInContext {
 			}
 		}
 	
-	return($bestIdx);
+	my $result = "";
+	if ($bestIdx >= 0)
+		{
+		$result = $pathsA->[$bestIdx];
+		}
+	
+	return($result);
 	}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
@@ -620,7 +599,7 @@ sub RelaxedPathInContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		
 		if (AllPartialPartsAreInTestPath($partialPathPartsA, $testPath))
 			{
@@ -646,7 +625,7 @@ sub RelaxedPathInContext {
 				elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
 					{
 					my $testLength = length($testPath);
-					if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+					if ($testLength < length($pathsA->[$bestIdx]))
 						{
 						$bestIdx = $i;
 						}
@@ -655,7 +634,13 @@ sub RelaxedPathInContext {
 			}
 		}
 	
-	return($bestIdx);
+	my $result = "";
+	if ($bestIdx >= 0)
+		{
+		$result = $pathsA->[$bestIdx];
+		}
+	
+	return($result);
 	}
 
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
@@ -686,7 +671,7 @@ sub ExactPathNoContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
@@ -703,7 +688,13 @@ sub ExactPathNoContext {
 			}
 		}
 	
-	return($bestIdx);
+	my $result = "";
+	if ($bestIdx >= 0)
+		{
+		$result = $pathsA->[$bestIdx];
+		}
+	
+	return($result);
 	}
 
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -734,7 +725,7 @@ sub RelaxedPathNoContext {
 
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		if (AllPartialPartsAreInTestPath($partialPathPartsA, $testPath))
 			{
 			my $currentSlashScore = $testPath =~ tr!/!!;
@@ -746,7 +737,13 @@ sub RelaxedPathNoContext {
 			}
 		}
 		
-	return($bestIdx);
+	my $result = "";
+	if ($bestIdx >= 0)
+		{
+		$result = $pathsA->[$bestIdx];
+		}
+	
+	return($result);
 	}
 
 # -> $partialPathPartsA: a list of /directory names/ in the target specifier

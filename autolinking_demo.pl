@@ -1,4 +1,4 @@
-# autolinking_demo.pl: test some link specifiers against a short list of
+# autolinking_demo_noint.pl: test some link specifiers against a short list of
 # known full paths to see what the suggested full paths are.
 # Link specifiers are tested in a specific "context" and the full path
 # closest to the context is picked when there is a choice.
@@ -14,7 +14,7 @@
 # **Referencing file**: the source or text file where you're typing, and want
 # to have a link to a target file.
 # **Context**: this is the directory that holds the referencing file.
-#* *Link specifier**: a file name, plus optionally enough directory names in any
+# **Link specifier**: a file name, plus optionally enough directory names in any
 # order to uniquely identify a file. Plus optionally a drive letter (placed first
 # so as not to confuse humans). For this to work properly, the file should be in a
 # list of known full paths.
@@ -38,9 +38,9 @@
 # Change the path below to match your installation, and then you can
 # run this program by copying the line below (from "perl" onward)
 # to a command window.
-# perl C:\perlprogs\IntraMine\autolinking_demo.pl
+# perl C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo_noint.pl
 # Syntax check:
-# perl -c C:\perlprogs\IntraMine\autolinking_demo.pl
+# perl -c C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo_noint.pl
 
 
 use strict;
@@ -59,10 +59,12 @@ $FileNameForFullPath{'c:/projects/project999/src/main.cpp'} = 'main.cpp';
 $FileNameForFullPath{'e:/other_projects/sailnav/src/main.cpp'} = 'main.cpp';
 $FileNameForFullPath{'//Desktop-hrj/projects/project88/src/main.cpp'} = 'main.cpp';
 
+
+
 # Build data structures to help search through full paths.
 BuildFullPathTestHashes();
 
-# Link specifiers, as you would type them in a text or source "referencing file".
+# Link specifiers, as you would type them in a text or source referencing file.
 my @TestLinkSpecifiers;
 push @TestLinkSpecifiers, 'main.cpp';
 push @TestLinkSpecifiers, 'project51/main.cpp';
@@ -115,11 +117,7 @@ sub FindBestLinkInContextFor {
 { ##### Directory list
 # Not needed for DEMO: my $FullPathListPath;
 # Moved up top for this DEMO: my %FileNameForFullPath;
-my $NextFreePathInteger;	# for %FullPathForInteger keys: 1..up
-my %FullPathForInteger;		# eg $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt';
-my %IntegerForFullPath;		# eg $IntegerForFullPath{'C:/dir1/dir2/dir3/file.txt'} = 8397
-# List of all (integer keys for) full paths that end in a given file name:
-my %AllIntKeysForFileName;  # $AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
+my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp';
 
 # DEMO ONLY
 my $MatchType; # "NO_MATCH", "FullMatch", "ExactPathInContext", "ExactPathNoContext", "RelaxedPathInContext", "RelaxedPathNoContext"
@@ -128,49 +126,26 @@ my $MatchType; # "NO_MATCH", "FullMatch", "ExactPathInContext", "ExactPathNoCont
 # Build a list of full paths to all files that can be linked to when determining the
 # full path for a link specifier.
 sub BuildFullPathTestHashes {
-	$NextFreePathInteger = 1;
-	
 	# %FileNameForFullPath entries are up above.	
-	
-	BuildPartialPathList(\%FileNameForFullPath);
+	BuildFullPathsForFileName(\%FileNameForFullPath);
 	}
-
-# Associate an integer with each file path.
-# The integers are shorter than their corresponding paths, reducing memory needs.
-sub BuildFullPathsForIntegers {
+	
+# From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
+sub BuildFullPathsForFileName {
 	my ($fileNameForFullPathH) = @_;
 	
 	keys %$fileNameForFullPathH; # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
-		$FullPathForInteger{$NextFreePathInteger} = $fullPath;
-		$IntegerForFullPath{$fullPath} = $NextFreePathInteger;
-		++$NextFreePathInteger;
-		}
-	}
-
-# Make %AllIntKeysForFileName, pipe-separated list of integers that correspond
-# to all full paths for a file name.
-# Eg $AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
-sub BuildPartialPathList {
-	my ($fileNameForFullPathH) = @_;
-	
-	BuildFullPathsForIntegers($fileNameForFullPathH);
-	
-	keys %$fileNameForFullPathH; # reset iterator
-	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
-		{
-		# Add entry for just file name.
-		my $intKeyForFullPath = $IntegerForFullPath{$fullPath};
-		if (defined($AllIntKeysForFileName{$fileName}))
+		if (defined($FullPathsForFileName{$fileName}))
 			{
-			$AllIntKeysForFileName{$fileName} .= "|$intKeyForFullPath";
+			$FullPathsForFileName{$fileName} .= "|$fullPath";
 			}
 		else
 			{
-			$AllIntKeysForFileName{$fileName} = "$intKeyForFullPath";
+			$FullPathsForFileName{$fileName} = $fullPath;
 			}
-		}	
+		}
 	}
 
 # BestMatchingFullPath
@@ -241,13 +216,13 @@ sub BestMatchingFullPath {
 			}
 		}
 	
-	if ($result eq '') # Check for a partial path (incomplete or scrambled).
+	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
 		{
 		my $fileName = basename($linkSpecifier);
 		
-		if (defined($AllIntKeysForFileName{$fileName}))
+		if (defined($FullPathsForFileName{$fileName}))
 			{
-			my $allpaths = $AllIntKeysForFileName{$fileName};
+			my $allpaths = $FullPathsForFileName{$fileName};
 			my @paths;
 			if ($allpaths =~ m!\|!) # more than one candidate full path
 				{
@@ -258,21 +233,21 @@ sub BestMatchingFullPath {
 				push @paths, $allpaths;
 				}
 			
-			my $bestIdx = -1;
+			my $bestPath = "";
 			# 2., 3.
 			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestIdx = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) >= 0
-			  || ($bestIdx = ExactPathNoContext($linkSpecifier, \@paths)) >= 0 )
+			if ( ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
+			  || ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "" )
 				{
-				$result = $FullPathForInteger{$paths[$bestIdx]};
+				$result = $bestPath;
 				}
 			# 4., 5.
 			# Relax requirements if no match yet, require match between full path
 			# and $linkSpecifier, but the directory names in $linkSpecifier don't have to
 			# be complete, some can be omitted. All directory names included in
 			# $linkSpecifier must be found in a full path to count as a match.
-			if ($bestIdx < 0)
+			if ($result eq "")
 				{
 				my @partialPathParts = split(/\//, $linkSpecifier);
 				pop(@partialPathParts); # Remove file name (last entry).
@@ -289,10 +264,10 @@ sub BestMatchingFullPath {
 						}
 					}
 				
-				if ( ($bestIdx = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) >= 0
-				  || ($bestIdx = RelaxedPathNoContext(\@paths, \@partialPathParts)) >= 0 )
+				if ( ($bestPath = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
+				  || ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne "" )
 					{
-					$result = $FullPathForInteger{$paths[$bestIdx]};
+					$result = $bestPath;
 					}
 				}
 			} # file name is associated with at least one known full path
@@ -333,7 +308,7 @@ sub ExactPathInContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
@@ -367,7 +342,7 @@ sub ExactPathInContext {
 						}
 					elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
 						{
-						if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+						if ($testLength < length($pathsA->[$bestIdx]))
 							{
 							$bestIdx = $i;
 							}
@@ -376,14 +351,17 @@ sub ExactPathInContext {
 				}
 			}
 		}
-		
-	# DEMO ONLY
+	
+	my $result = "";
 	if ($bestIdx >= 0)
 		{
+		$result = $pathsA->[$bestIdx];
+		
+		# DEMO ONLY
 		$MatchType = "ExactPathInContext";
 		}
 	
-	return($bestIdx);
+	return($result);
 	}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
@@ -419,7 +397,7 @@ sub RelaxedPathInContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		
 		if (AllPartialPartsAreInTestPath($linkSpecifierPartsA, $testPath))
 			{
@@ -445,7 +423,7 @@ sub RelaxedPathInContext {
 				elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
 					{
 					my $testLength = length($testPath);
-					if ($testLength < length($FullPathForInteger{$pathsA->[$bestIdx]}))
+					if ($testLength < length($pathsA->[$bestIdx]))
 						{
 						$bestIdx = $i;
 						}
@@ -454,13 +432,16 @@ sub RelaxedPathInContext {
 			}
 		}
 	
-	# DEMO ONLY
+	my $result = "";
 	if ($bestIdx >= 0)
 		{
+		$result = $pathsA->[$bestIdx];
+		
+		# DEMO ONLY
 		$MatchType = "RelaxedPathInContext";
 		}
-
-	return($bestIdx);
+	
+	return($result);
 	}
 
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
@@ -491,7 +472,7 @@ sub ExactPathNoContext {
 	
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
@@ -508,13 +489,16 @@ sub ExactPathNoContext {
 			}
 		}
 	
-	# DEMO ONLY
+	my $result = "";
 	if ($bestIdx >= 0)
 		{
+		$result = $pathsA->[$bestIdx];
+		
+		# DEMO ONLY
 		$MatchType = "ExactPathNoContext";
 		}
-
-	return($bestIdx);
+	
+	return($result);
 	}
 
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -545,7 +529,7 @@ sub RelaxedPathNoContext {
 
 	for (my $i = 0; $i < $numPaths; ++$i)
 		{
-		my $testPath = $FullPathForInteger{$pathsA->[$i]};
+		my $testPath = $pathsA->[$i];
 		if (AllPartialPartsAreInTestPath($linkSpecifierPartsA, $testPath))
 			{
 			my $currentSlashScore = $testPath =~ tr!/!!;
@@ -557,13 +541,16 @@ sub RelaxedPathNoContext {
 			}
 		}
 		
-	# DEMO ONLY
+	my $result = "";
 	if ($bestIdx >= 0)
 		{
+		$result = $pathsA->[$bestIdx];
+		
+		# DEMO ONLY
 		$MatchType = "RelaxedPathNoContext";
 		}
-
-	return($bestIdx);
+	
+	return($result);
 	}
 
 # -> $linkSpecifierPartsA: a list of /directory names/ in the link specifier

@@ -1285,15 +1285,15 @@ margin: 3px 8px;
 <li class='h2' im-text-ln='5'><a href='#Those_autolinks'>Those autolinks</a></li>
 <li class='h3' im-text-ln='26'><a href='#1._a_complete_list_of_full_paths_to_all_indexed_files'>1. a complete list of full paths to all indexed files</a></li>
 <li class='h3' im-text-ln='37'><a href='#2._Full_paths_for_all_file_names'>2. Full paths for all file names</a></li>
-<li class='h3' im-text-ln='46'><a href='#3._Code_to_detect_a_link_specifier'>3. Code to detect a link specifier</a></li>
-<li class='h4' im-text-ln='68'><a href='#Full_path_for_link_specifier_example'>Full path for link specifier example</a></li>
-<li class='h4' im-text-ln='99'><a href='#Another_link_specifier_example,_without_help_from_context'>Another link specifier example, without help from context</a></li>
-<li class='h3' im-text-ln='105'><a href='#4._a_way_of_keeping_the_full_paths_list_up_to_date'>4. a way of keeping the full paths list up to date</a></li>
-<li class='h4' im-text-ln='115'><a href='#Folder_renames'>Folder renames</a></li>
-<li class='h2' im-text-ln='125'><a href='#Text_from_Perl_to_JavaScript_and_back'>Text from Perl to JavaScript and back</a></li>
-<li class='h3' im-text-ln='129'><a href='#Edit_load_summary'>Edit load summary</a></li>
-<li class='h3' im-text-ln='144'><a href='#Edit_save_summary'>Edit save summary</a></li>
-<li class='h2' im-text-ln='164'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
+<li class='h3' im-text-ln='44'><a href='#3._Code_to_detect_a_link_specifier'>3. Code to detect a link specifier</a></li>
+<li class='h4' im-text-ln='66'><a href='#Full_path_for_link_specifier_example'>Full path for link specifier example</a></li>
+<li class='h4' im-text-ln='95'><a href='#Another_link_specifier_example,_without_help_from_context'>Another link specifier example, without help from context</a></li>
+<li class='h3' im-text-ln='101'><a href='#4._a_way_of_keeping_the_full_paths_list_up_to_date'>4. a way of keeping the full paths list up to date</a></li>
+<li class='h4' im-text-ln='111'><a href='#Folder_renames'>Folder renames</a></li>
+<li class='h2' im-text-ln='121'><a href='#Text_from_Perl_to_JavaScript_and_back'>Text from Perl to JavaScript and back</a></li>
+<li class='h3' im-text-ln='125'><a href='#Edit_load_summary'>Edit load summary</a></li>
+<li class='h3' im-text-ln='140'><a href='#Edit_save_summary'>Edit save summary</a></li>
+<li class='h2' im-text-ln='160'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>(If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1312,7 +1312,7 @@ margin: 3px 8px;
 <tr id='R17'><td n='17'></td><td><p class="ol-1">1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"</p></td></tr>
 <tr id='R18'><td n='18'></td><td><p class="ol-1">2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.</p></td></tr>
 <tr id='R19'><td n='19'></td><td><p class="ol-1-1">2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg</p></td></tr>
-<tr id='R20'><td n='20'></td><td><p class="ol-1-1-c">$AllIntKeysForFileName{"main.cpp"} = "27|12347|766" (the integers there stand for unique full paths kept in a separate hash, eg $FullPathForInteger{27} = 'C:\Projects\Project51\src\main.cpp')</p></td></tr>
+<tr id='R20'><td n='20'></td><td><p class="ol-1-1-c">$FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'</p></td></tr>
 <tr id='R21'><td n='21'></td><td><p class="ol-1">3. Code to detect a link specifier mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.</p></td></tr>
 <tr id='R22'><td n='22'></td><td><p class="ol-1">4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.</p></td></tr>
 <tr id='R23'><td n='23'></td><td></td></tr>
@@ -1331,176 +1331,172 @@ margin: 3px 8px;
 <tr id='R36'><td n='36'></td><td></td></tr>
 <tr id='R37'><td n='37'></td><td><h3 id="2._Full_paths_for_all_file_names"><p class="ol-1">2. Full paths for all file names</p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R39'><td n='39'></td><td>What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However, the lists of full paths for each file name can be quite long: for example, the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like:</td></tr>
-<tr id='R40'><td n='40'></td><td>$AllIntKeysForFileName{'file.txt'} = '8397|27|90021';</td></tr>
-<tr id='R41'><td n='41'></td><td>where</td></tr>
-<tr id='R42'><td n='42'></td><td>$FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.</td></tr>
+<tr id='R39'><td n='39'></td><td>What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. reverse_filepaths.pm#BuildPartialPathList() builds %FullPathsForFileName, which holds a (pipe-separated) list of all full paths for a given file name. A typical entry looks like:</td></tr>
+<tr id='R40'><td n='40'></td><td>$FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'.</td></tr>
+<tr id='R41'><td n='41'></td><td></td></tr>
+<tr id='R42'><td n='42'></td><td>When InitDirectoryFinder() finishes, full paths for link specifiers can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.</td></tr>
 <tr id='R43'><td n='43'></td><td></td></tr>
-<tr id='R44'><td n='44'></td><td>When InitDirectoryFinder() finishes, full paths for link specifiers can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.</td></tr>
-<tr id='R45'><td n='45'></td><td></td></tr>
-<tr id='R46'><td n='46'></td><td><h3 id="3._Code_to_detect_a_link_specifier"><p class="ol-1">3. Code to detect a link specifier</p></h3></td></tr>
+<tr id='R44'><td n='44'></td><td><h3 id="3._Code_to_detect_a_link_specifier"><p class="ol-1">3. Code to detect a link specifier</p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R48'><td n='48'></td><td>IntraMine's Linker, as called by the <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, emplaces <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a> on demand, when new lines of text become visible. You'll find an overview in <a href="./Viewer.html#Autolinks" target="_blank">"Viewer.txt#Autolinks"</a> and <a href="./Linker.html#Calling the Linker" target="_blank">"Linker.txt#Calling the Linker"</a>.</td></tr>
-<tr id='R49'><td n='49'></td><td></td></tr>
-<tr id='R50'><td n='50'></td><td>We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.</td></tr>
-<tr id='R51'><td n='51'></td><td>AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.</td></tr>
+<tr id='R46'><td n='46'></td><td>IntraMine's Linker, as called by the <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, emplaces <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a> on demand, when new lines of text become visible. You'll find an overview in <a href="./Viewer.html#Autolinks" target="_blank">"Viewer.txt#Autolinks"</a> and <a href="./Linker.html#Calling the Linker" target="_blank">"Linker.txt#Calling the Linker"</a>.</td></tr>
+<tr id='R47'><td n='47'></td><td></td></tr>
+<tr id='R48'><td n='48'></td><td>We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.</td></tr>
+<tr id='R49'><td n='49'></td><td>AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.</td></tr>
+<tr id='R50'><td n='50'></td><td></td></tr>
+<tr id='R51'><td n='51'></td><td>EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest path that represents a valid file mention.</td></tr>
 <tr id='R52'><td n='52'></td><td></td></tr>
-<tr id='R53'><td n='53'></td><td>EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest path that represents a valid file mention.</td></tr>
+<tr id='R53'><td n='53'></td><td>For a path (link specifier) to be "valid" it needs to be either a full path or a good match for a known path. Expansion of link text being checked to the longest compatible link specifier is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it matches up with a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.</td></tr>
 <tr id='R54'><td n='54'></td><td></td></tr>
-<tr id='R55'><td n='55'></td><td>For a path (link specifier) to be "valid" it needs to be either a full path or a good match for a known path. Expansion of link text being checked to the longest compatible link specifier is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it matches up with a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.</td></tr>
+<tr id='R55'><td n='55'></td><td>reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work.</td></tr>
 <tr id='R56'><td n='56'></td><td></td></tr>
-<tr id='R57'><td n='57'></td><td>reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work.</td></tr>
-<tr id='R58'><td n='58'></td><td></td></tr>
-<tr id='R59'><td n='59'></td><td>In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a link specifier in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a link specifier happens in five steps:</td></tr>
-<tr id='R60'><td n='60'></td><td><p class="ol-1">1. Is $linkSpecifier a full path? Return  it.</p></td></tr>
-<tr id='R61'><td n='61'></td><td><p class="ol-1">2. Does $linkSpecifier match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.</p></td></tr>
-<tr id='R62'><td n='62'></td><td><p class="ol-1">3. Does $linkSpecifier match fully on the right with a full path, ignoring context? Return first one found.</p></td></tr>
-<tr id='R63'><td n='63'></td><td><p class="ol-1">4. Do $linkSpecifier folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.</p></td></tr>
-<tr id='R64'><td n='64'></td><td><p class="ol-1">5. Do $linkSpecifier folder names all match those in a full path, regardless of position, ignoring context? Return first one found.</p></td></tr>
-<tr id='R65'><td n='65'></td><td>If all of the above checks fail, return ''.</td></tr>
-<tr id='R66'><td n='66'></td><td>Note that where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.</td></tr>
-<tr id='R67'><td n='67'></td><td></td></tr>
-<tr id='R68'><td n='68'></td><td><h4 id="Full_path_for_link_specifier_example">Full path for link specifier example</h4></td></tr>
+<tr id='R57'><td n='57'></td><td>In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a link specifier in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a link specifier happens in five steps:</td></tr>
+<tr id='R58'><td n='58'></td><td><p class="ol-1">1. Is $linkSpecifier a full path? Return  it.</p></td></tr>
+<tr id='R59'><td n='59'></td><td><p class="ol-1">2. Does $linkSpecifier match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.</p></td></tr>
+<tr id='R60'><td n='60'></td><td><p class="ol-1">3. Does $linkSpecifier match fully on the right with a full path, ignoring context? Return first one found.</p></td></tr>
+<tr id='R61'><td n='61'></td><td><p class="ol-1">4. Do $linkSpecifier folder names all match those in a full path, regardless of position, with some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.</p></td></tr>
+<tr id='R62'><td n='62'></td><td><p class="ol-1">5. Do $linkSpecifier folder names all match those in a full path, regardless of position, ignoring context? Return first one found.</p></td></tr>
+<tr id='R63'><td n='63'></td><td>If all of the above checks fail, return ''.</td></tr>
+<tr id='R64'><td n='64'></td><td>Note that where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.</td></tr>
+<tr id='R65'><td n='65'></td><td></td></tr>
+<tr id='R66'><td n='66'></td><td><h4 id="Full_path_for_link_specifier_example">Full path for link specifier example</h4></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R70'><td n='70'></td><td>As an example of that, suppose BestMatchingFullPath() is passed</td></tr>
-<tr id='R71'><td n='71'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "src\main.cpp"</p></td></tr>
-<tr id='R72'><td n='72'></td><td><p class="outdent-unordered">&nbsp;&bull; $contextDir: "C:\Projects\Project51\docs\" (because the mention of the link specifier is in a file in that docs directory)</p></td></tr>
-<tr id='R73'><td n='73'></td><td>with the possible full paths for "src\main.cpp" being</td></tr>
-<tr id='R74'><td n='74'></td><td></td></tr></tbody></table><table class='bordered'><caption>full paths for "src\main.cpp"</caption><thead>
-<tr id='R75'><th n='75'></th><th>Arbitrarily assigned integer</th><th>Full path</th></tr></thead><tbody>
-<tr id='R76'><td n='76'></td><td>27</td><td>C:\Projects\Project51\src\main.cpp</td></tr>
-<tr id='R77'><td n='77'></td><td>12347</td><td>C:\Projects\Project999\src\main.cpp</td></tr>
-<tr id='R78'><td n='78'></td><td>766</td><td>C:\Projects\Project999\test\main.cpp</td></tr>
-<tr id='R79'><td n='79'></td><td>2013</td><td>P:\MoreProjects\Project27\source\main.cpp</td></tr></tbody></table><table><tbody>
-<tr id='R80'><td n='80'></td><td></td></tr>
-<tr id='R81'><td n='81'></td><td>The corresponding hash entry is:</td></tr>
-<tr id='R82'><td n='82'></td><td>$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".</td></tr>
+<tr id='R68'><td n='68'></td><td>As an example of that, suppose BestMatchingFullPath() is passed</td></tr>
+<tr id='R69'><td n='69'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "src\main.cpp"</p></td></tr>
+<tr id='R70'><td n='70'></td><td><p class="outdent-unordered">&nbsp;&bull; $contextDir: "C:\Projects\Project51\docs\" (because the mention of the link specifier is in a file in that docs directory)</p></td></tr>
+<tr id='R71'><td n='71'></td><td>with the possible full paths for "src\main.cpp" being</td></tr>
+<tr id='R72'><td n='72'></td><td>TABLE</td></tr>
+<tr id='R73'><td n='73'></td><td>Full path</td></tr>
+<tr id='R74'><td n='74'></td><td>C:\Projects\Project51\src\main.cpp</td></tr>
+<tr id='R75'><td n='75'></td><td>C:\Projects\Project999\src\main.cpp</td></tr>
+<tr id='R76'><td n='76'></td><td>C:\Projects\Project999\test\main.cpp</td></tr>
+<tr id='R77'><td n='77'></td><td>P:\MoreProjects\Project27\source\main.cpp</td></tr>
+<tr id='R78'><td n='78'></td><td></td></tr>
+<tr id='R79'><td n='79'></td><td>The corresponding %FullPathsForFileName hash entry is:</td></tr>
+<tr id='R80'><td n='80'></td><td>$FullPathsForFileName{'main.cpp'} = 'C:\Projects\Project51\src\main.cpp|C:\Projects\Project999\src\main.cpp|C:\Projects\Project999\test\main.cpp|P:\MoreProjects\Project27\source\main.cpp'.</td></tr>
+<tr id='R81'><td n='81'></td><td></td></tr>
+<tr id='R82'><td n='82'></td><td>BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %FullPathsForFileName as shown just above.</td></tr>
 <tr id='R83'><td n='83'></td><td></td></tr>
-<tr id='R84'><td n='84'></td><td>BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,</td></tr>
-<tr id='R85'><td n='85'></td><td>$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013"</td></tr>
-<tr id='R86'><td n='86'></td><td></td></tr>
-<tr id='R87'><td n='87'></td><td>For each integer in the entry:</td></tr>
-<tr id='R88'><td n='88'></td><td><p class="outdent-unordered">&nbsp;&bull; grab the corresponding full path from %FullPathForInteger, eg $FullPathForInteger{766} = 'C:\Projects\Project999\test\main.cpp'</p></td></tr>
-<tr id='R89'><td n='89'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in link specifier? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.</p></td></tr>
-<tr id='R90'><td n='90'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:</p></td></tr>
-<tr id='R91'><td n='91'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with context directory</caption><thead>
-<tr id='R92'><th n='92'></th><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
-<tr id='R93'><td n='93'></td><td>C:\Projects\Project51\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>22</td></tr>
-<tr id='R94'><td n='94'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table><tbody>
-<tr id='R95'><td n='95'></td><td>And the first one there is the clear winner.</td></tr>
-<tr id='R96'><td n='96'></td><td></td></tr>
-<tr id='R97'><td n='97'></td><td>Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".</td></tr>
-<tr id='R98'><td n='98'></td><td></td></tr>
-<tr id='R99'><td n='99'></td><td><h4 id="Another_link_specifier_example,_without_help_from_context">Another link specifier example, without help from context</h4></td></tr>
+<tr id='R84'><td n='84'></td><td>For each full path in the entry:</td></tr>
+<tr id='R85'><td n='85'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in link specifier? The entries ending in "src\main.cpp" do match perfectly, but the other two entries, ending in "test\main.cpp" and "source\main.cpp", do not.</p></td></tr>
+<tr id='R86'><td n='86'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:</p></td></tr>
+<tr id='R87'><td n='87'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with context directory</caption><thead>
+<tr id='R88'><th n='88'></th><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
+<tr id='R89'><td n='89'></td><td>C:\Projects\Project51\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>22</td></tr>
+<tr id='R90'><td n='90'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table><tbody>
+<tr id='R91'><td n='91'></td><td>And the first one there is the clear winner.</td></tr>
+<tr id='R92'><td n='92'></td><td></td></tr>
+<tr id='R93'><td n='93'></td><td>Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".</td></tr>
+<tr id='R94'><td n='94'></td><td></td></tr>
+<tr id='R95'><td n='95'></td><td><h4 id="Another_link_specifier_example,_without_help_from_context">Another link specifier example, without help from context</h4></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R101'><td n='101'></td><td>Suppose the same circumstances as the example above, but with</td></tr>
-<tr id='R102'><td n='102'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "Project27\main.cpp"</p></td></tr>
-<tr id='R103'><td n='103'></td><td>Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied link specifier it counts as a full match.</td></tr>
-<tr id='R104'><td n='104'></td><td></td></tr>
-<tr id='R105'><td n='105'></td><td><h3 id="4._a_way_of_keeping_the_full_paths_list_up_to_date"><p class="ol-1">4. a way of keeping the full paths list up to date</p></h3></td></tr>
+<tr id='R97'><td n='97'></td><td>Suppose the same circumstances as the example above, but with</td></tr>
+<tr id='R98'><td n='98'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "Project27\main.cpp"</p></td></tr>
+<tr id='R99'><td n='99'></td><td>Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied link specifier it counts as a full match.</td></tr>
+<tr id='R100'><td n='100'></td><td></td></tr>
+<tr id='R101'><td n='101'></td><td><h3 id="4._a_way_of_keeping_the_full_paths_list_up_to_date"><p class="ol-1">4. a way of keeping the full paths list up to date</p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R107'><td n='107'></td><td>The practicality of autolinking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:</td></tr>
-<tr id='R108'><td n='108'></td><td><p class="outdent-unordered">&nbsp;&bull; the 3rd party File Watcher service that you installed ages ago monitors directories and writes a summary of changes to a log file. IntraMine's Watcher checks the log file for changes every 30 seconds, and calls IndexChangedFiles() if the log has changed.</p></td></tr>
-<tr id='R109'><td n='109'></td><td><p class="outdent-unordered">&nbsp;&bull; data/foldermonitor.ps1 is started by IntraMine's Watcher (intramine_filewatcher.pl), and rather than writing changes to a log when they happen it instead sends an immediate signal to IntraMine's Watcher, of the form "<a href='http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE' target='_blank'>http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE</a>". When the Watcher receives that signal it also calls IndexChangedFiles().</p></td></tr>
+<tr id='R103'><td n='103'></td><td>The practicality of autolinking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:</td></tr>
+<tr id='R104'><td n='104'></td><td><p class="outdent-unordered">&nbsp;&bull; the 3rd party File Watcher service that you installed ages ago monitors directories and writes a summary of changes to a log file. IntraMine's Watcher checks the log file for changes every 30 seconds, and calls IndexChangedFiles() if the log has changed.</p></td></tr>
+<tr id='R105'><td n='105'></td><td><p class="outdent-unordered">&nbsp;&bull; data/foldermonitor.ps1 is started by IntraMine's Watcher (intramine_filewatcher.pl), and rather than writing changes to a log when they happen it instead sends an immediate signal to IntraMine's Watcher, of the form "<a href='http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE' target='_blank'>http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE</a>". When the Watcher receives that signal it also calls IndexChangedFiles().</p></td></tr>
+<tr id='R106'><td n='106'></td><td></td></tr>
+<tr id='R107'><td n='107'></td><td>The File Watcher service log documents a near-complete list of all changes, but doesn't send out any signals when changes happen. The foldermonitor.ps1 script provides nearly immediate notification when changes happen, but provides no details (except for folder renames, details saved to a separate small text file). Notifications are delayed for a second and consolidated, to avoid sending a flurry of signals when several files change in a short interval.</td></tr>
+<tr id='R108'><td n='108'></td><td></td></tr>
+<tr id='R109'><td n='109'></td><td>To finish off, IndexChangedFiles()broadcasts a signal "signal=filechange" to all other running IntraMine servers if any file system changes are detected. IntraMine's Linker is listening for this, and updates its "paths for file names list". The signal is delayed by a couple of seconds before sending, to allow multiple changes to accumulate - if they do, only one "filechange" signal is sent.</td></tr>
 <tr id='R110'><td n='110'></td><td></td></tr>
-<tr id='R111'><td n='111'></td><td>The File Watcher service log documents a near-complete list of all changes, but doesn't send out any signals when changes happen. The foldermonitor.ps1 script provides nearly immediate notification when changes happen, but provides no details (except for folder renames, details saved to a separate small text file). Notifications are delayed for a second and consolidated, to avoid sending a flurry of signals when several files change in a short interval.</td></tr>
-<tr id='R112'><td n='112'></td><td></td></tr>
-<tr id='R113'><td n='113'></td><td>To finish off, IndexChangedFiles()broadcasts a signal "signal=filechange" to all other running IntraMine servers if any file system changes are detected. IntraMine's Linker is listening for this, and updates its "paths for file names list". The signal is delayed by a couple of seconds before sending, to allow multiple changes to accumulate - if they do, only one "filechange" signal is sent.</td></tr>
+<tr id='R111'><td n='111'></td><td><h4 id="Folder_renames">Folder renames</h4></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R113'><td n='113'></td><td>Updating for most file system changes is very fast, and, typically, changed documents will show their updated contents in searches after five seconds. The exception is renaming a folder, which potentially affects all entries in the Linker's hash of full paths for file names. Any key could contain a folder that's been renamed.</td></tr>
 <tr id='R114'><td n='114'></td><td></td></tr>
-<tr id='R115'><td n='115'></td><td><h4 id="Folder_renames">Folder renames</h4></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R117'><td n='117'></td><td>Updating for most file system changes is very fast, and, typically, changed documents will show their updated contents in searches after five seconds. The exception is renaming a folder, which potentially affects all entries in the Linker's hash of full paths for file names. Any key could contain a folder that's been renamed.</td></tr>
+<tr id='R115'><td n='115'></td><td>IntraMine's approach to handling this is to completely rebuild the Linker's hash of full paths for file names. This can take several seconds, and for that period the Linker will be out of service.</td></tr>
+<tr id='R116'><td n='116'></td><td></td></tr>
+<tr id='R117'><td n='117'></td><td>To partially compensate, IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> will direct Linkers to do their maintenance in sequence if at least two Linkers are running. That way, at least one Linker will remain responsive at all times. Search IntraMine's stuff for "MAINTENANCE_SERVER_EVENTS" to see the details.</td></tr>
 <tr id='R118'><td n='118'></td><td></td></tr>
-<tr id='R119'><td n='119'></td><td>IntraMine's approach to handling this is to completely rebuild the Linker's hash of full paths for file names. This can take several seconds, and for that period the Linker will be out of service.</td></tr>
+<tr id='R119'><td n='119'></td><td>If you're doing your own <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a>, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.</td></tr>
 <tr id='R120'><td n='120'></td><td></td></tr>
-<tr id='R121'><td n='121'></td><td>To partially compensate, IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> will direct Linkers to do their maintenance in sequence if at least two Linkers are running. That way, at least one Linker will remain responsive at all times. Search IntraMine's stuff for "MAINTENANCE_SERVER_EVENTS" to see the details.</td></tr>
-<tr id='R122'><td n='122'></td><td></td></tr>
-<tr id='R123'><td n='123'></td><td>If you're doing your own <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a>, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.</td></tr>
+<tr id='R121'><td n='121'></td><td><h2 id="Text_from_Perl_to_JavaScript_and_back">Text from Perl to JavaScript and back</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R123'><td n='123'></td><td>IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a> has an example of sending arbitrary text from Perl to JavaScript and back again. Here's a summary of the essential steps, in intramine_editor.pl and editor.js.</td></tr>
 <tr id='R124'><td n='124'></td><td></td></tr>
-<tr id='R125'><td n='125'></td><td><h2 id="Text_from_Perl_to_JavaScript_and_back">Text from Perl to JavaScript and back</h2></td></tr>
+<tr id='R125'><td n='125'></td><td><h3 id="Edit_load_summary">Edit load summary</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R127'><td n='127'></td><td>IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a> has an example of sending arbitrary text from Perl to JavaScript and back again. Here's a summary of the essential steps, in intramine_editor.pl and editor.js.</td></tr>
-<tr id='R128'><td n='128'></td><td></td></tr>
-<tr id='R129'><td n='129'></td><td><h3 id="Edit_load_summary">Edit load summary</h3></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R131'><td n='131'></td><td>Sequence: Disk -> Perl -> JS -> CodeMirror</td></tr>
-<tr id='R132'><td n='132'></td><td><strong>Perl</strong> (intramine_editor.pl#LoadTheFile())</td></tr>
-<tr id='R133'><td n='133'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R127'><td n='127'></td><td>Sequence: Disk -> Perl -> JS -> CodeMirror</td></tr>
+<tr id='R128'><td n='128'></td><td><strong>Perl</strong> (intramine_editor.pl#LoadTheFile())</td></tr>
+<tr id='R129'><td n='129'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R134'><td n='134'></td><td>$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));</td></tr>
+<tr id='R130'><td n='130'></td><td>$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));</td></tr>
+<tr id='R131'><td n='131'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R132'><td n='132'></td><td>(see also win_wide_filepaths.pm#ReadTextFileDecodedWide())</td></tr>
+<tr id='R133'><td n='133'></td><td></td></tr>
+<tr id='R134'><td n='134'></td><td><strong>JavaScript</strong> (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#loadFileIntoCodeMirror())</td></tr>
 <tr id='R135'><td n='135'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R136'><td n='136'></td><td>(see also win_wide_filepaths.pm#ReadTextFileDecodedWide())</td></tr>
-<tr id='R137'><td n='137'></td><td></td></tr>
-<tr id='R138'><td n='138'></td><td><strong>JavaScript</strong> (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#loadFileIntoCodeMirror())</td></tr>
-<tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R136'><td n='136'></td><td>let theText = decodeURIComponent(request.responseText);</td></tr>
+<tr id='R137'><td n='137'></td><td>cm.setValue(theText);</td></tr>
+<tr id='R138'><td n='138'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R140'><td n='140'></td><td>let theText = decodeURIComponent(request.responseText);</td></tr>
-<tr id='R141'><td n='141'></td><td>cm.setValue(theText);</td></tr>
-<tr id='R142'><td n='142'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R143'><td n='143'></td><td></td></tr>
-<tr id='R144'><td n='144'></td><td><h3 id="Edit_save_summary">Edit save summary</h3></td></tr>
+<tr id='R139'><td n='139'></td><td></td></tr>
+<tr id='R140'><td n='140'></td><td><h3 id="Edit_save_summary">Edit save summary</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R146'><td n='146'></td><td>Sequence: CodeMirror -> JS -> Perl -> disk</td></tr>
-<tr id='R147'><td n='147'></td><td><strong>JavaScript</strong> (see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#saveFile())</td></tr>
-<tr id='R148'><td n='148'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R142'><td n='142'></td><td>Sequence: CodeMirror -> JS -> Perl -> disk</td></tr>
+<tr id='R143'><td n='143'></td><td><strong>JavaScript</strong> (see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>.js#saveFile())</td></tr>
+<tr id='R144'><td n='144'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R149'><td n='149'></td><td>let contents = myCodeMirror.getValue();</td></tr>
-<tr id='R150'><td n='150'></td><td>contents = contents.replace(/%/g, "%25");</td></tr>
-<tr id='R151'><td n='151'></td><td>contents = encodeURIComponent(contents);</td></tr>
-<tr id='R152'><td n='152'></td><td>contents = encodeURIComponent(contents); // sic</td></tr>
-<tr id='R153'><td n='153'></td><td>request.send(... + '&amp;contents=' + contents);</td></tr>
-<tr id='R154'><td n='154'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R145'><td n='145'></td><td>let contents = myCodeMirror.getValue();</td></tr>
+<tr id='R146'><td n='146'></td><td>contents = contents.replace(/%/g, "%25");</td></tr>
+<tr id='R147'><td n='147'></td><td>contents = encodeURIComponent(contents);</td></tr>
+<tr id='R148'><td n='148'></td><td>contents = encodeURIComponent(contents); // sic</td></tr>
+<tr id='R149'><td n='149'></td><td>request.send(... + '&amp;contents=' + contents);</td></tr>
+<tr id='R150'><td n='150'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R155'><td n='155'></td><td></td></tr>
-<tr id='R156'><td n='156'></td><td><strong>Perl</strong> (see intramine_editor.pl#Save())</td></tr>
-<tr id='R157'><td n='157'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R151'><td n='151'></td><td></td></tr>
+<tr id='R152'><td n='152'></td><td><strong>Perl</strong> (see intramine_editor.pl#Save())</td></tr>
+<tr id='R153'><td n='153'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R158'><td n='158'></td><td>my $contents = $formH->{'contents'};</td></tr>
-<tr id='R159'><td n='159'></td><td>$contents = encode_utf8($contents);</td></tr>
-<tr id='R160'><td n='160'></td><td>$contents = uri_unescape($contents);</td></tr>
-<tr id='R161'><td n='161'></td><td>... WriteBinFileWide($filepath, $contents) ...</td></tr>
-<tr id='R162'><td n='162'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R154'><td n='154'></td><td>my $contents = $formH->{'contents'};</td></tr>
+<tr id='R155'><td n='155'></td><td>$contents = encode_utf8($contents);</td></tr>
+<tr id='R156'><td n='156'></td><td>$contents = uri_unescape($contents);</td></tr>
+<tr id='R157'><td n='157'></td><td>... WriteBinFileWide($filepath, $contents) ...</td></tr>
+<tr id='R158'><td n='158'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
+<tr id='R159'><td n='159'></td><td></td></tr>
+<tr id='R160'><td n='160'></td><td><h2 id="UTF16_in_Windows_file_paths">UTF16 in Windows file paths</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R162'><td n='162'></td><td>win_wide_filepaths.pm has subs to deal with most aspects of file and folder handling under Windows (read, write, list dir etc), in a way that handles UTF16 folder and file names properly. Most of the subs there mention an example of use in IntraMine. It does seem that almost everyone avoids "non ASCII" characters in folder and file names under Windows, but it's nice to be able to accept them. The subs in win_wide_filepaths.pm are mostly wrappers that call Win32API::File functions, after converting supplied file or folder paths to "UTF-16LE".</td></tr>
 <tr id='R163'><td n='163'></td><td></td></tr>
-<tr id='R164'><td n='164'></td><td><h2 id="UTF16_in_Windows_file_paths">UTF16 in Windows file paths</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R166'><td n='166'></td><td>win_wide_filepaths.pm has subs to deal with most aspects of file and folder handling under Windows (read, write, list dir etc), in a way that handles UTF16 folder and file names properly. Most of the subs there mention an example of use in IntraMine. It does seem that almost everyone avoids "non ASCII" characters in folder and file names under Windows, but it's nice to be able to accept them. The subs in win_wide_filepaths.pm are mostly wrappers that call Win32API::File functions, after converting supplied file or folder paths to "UTF-16LE".</td></tr>
-<tr id='R167'><td n='167'></td><td></td></tr>
-<tr id='R168'><td n='168'></td><td>If you wanted to port IntraMine to the Linux world, you might start by creating Linux equivalents for all of the subs in win_wide_filepaths.pm, and that would put you well along the path. Pun? What pun?</td></tr>
-<tr id='R169'><td n='169'></td><td></td></tr>
-<tr id='R170'><td n='170'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R164'><td n='164'></td><td>If you wanted to port IntraMine to the Linux world, you might start by creating Linux equivalents for all of the subs in win_wide_filepaths.pm, and that would put you well along the path. Pun? What pun?</td></tr>
+<tr id='R165'><td n='165'></td><td></td></tr>
+<tr id='R166'><td n='166'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R171'><td n='171'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R172'><td n='172'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R167'><td n='167'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R168'><td n='168'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

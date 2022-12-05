@@ -17,7 +17,7 @@ Here are the needed parts for autolinking:
 1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"
 2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.
 2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg
- $AllIntKeysForFileName{"main.cpp"} = "27|12347|766" (the integers there stand for unique full paths kept in a separate hash, eg $FullPathForInteger{27} = 'C:\Projects\Project51\src\main.cpp')
+ $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'
 3. Code to detect a link specifier mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.
 4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.
 
@@ -36,10 +36,8 @@ intramine_filewatcher.pl (the FILEWATCHER server) calls reverse_filepath.pm#Init
 
 2. Full paths for all file names
 --------------------------------
-What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. However, the lists of full paths for each file name can be quite long: for example, the entry for "main.cpp" can run to thousands of paths. To cut down on memory usage, reverse_filepaths.pm first assigns an integer to each full path, which you'll find in the %IntegerForFullPath and %FullPathForInteger hashes. Then reverse_filepaths.pm#BuildPartialPathList() builds %AllIntKeysForFileName, which holds a list of integers for each full path, where the integers represent full paths. A typical entry looks like:
-$AllIntKeysForFileName{'file.txt'} = '8397|27|90021';
-where
-$FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt' etc.
+What we're after in the "paths for file names list" is a list of all full paths that match a particular file name: for example, the entry for key "main.cpp" would contain a list of all full paths that end in /main.cpp. reverse_filepaths.pm#BuildPartialPathList() builds %FullPathsForFileName, which holds a (pipe-separated) list of all full paths for a given file name. A typical entry looks like:
+$FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'.
 
 When InitDirectoryFinder() finishes, full paths for link specifiers can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.
 
@@ -71,22 +69,20 @@ As an example of that, suppose BestMatchingFullPath() is passed
  - $linkSpecifier: "src\main.cpp"
  - $contextDir: "C:\Projects\Project51\docs\" (because the mention of the link specifier is in a file in that docs directory)
 with the possible full paths for "src\main.cpp" being
-TABLE full paths for "src\main.cpp"
-Arbitrarily assigned integer	Full path
-27								C:\Projects\Project51\src\main.cpp
-12347							C:\Projects\Project999\src\main.cpp
-766								C:\Projects\Project999\test\main.cpp
-2013							P:\MoreProjects\Project27\source\main.cpp
+TABLE
+Full path
+C:\Projects\Project51\src\main.cpp
+C:\Projects\Project999\src\main.cpp
+C:\Projects\Project999\test\main.cpp
+P:\MoreProjects\Project27\source\main.cpp
 
-The corresponding hash entry is:
-$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013".
+The corresponding %FullPathsForFileName hash entry is:
+$FullPathsForFileName{'main.cpp'} = 'C:\Projects\Project51\src\main.cpp|C:\Projects\Project999\src\main.cpp|C:\Projects\Project999\test\main.cpp|P:\MoreProjects\Project27\source\main.cpp'.
 
-BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %AllIntKeysForFileName,
-$AllIntKeysForFileName{"main.cpp"} = "27|12347|766|2013"
+BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %FullPathsForFileName as shown just above.
 
-For each integer in the entry:
- - grab the corresponding full path from %FullPathForInteger, eg $FullPathForInteger{766} = 'C:\Projects\Project999\test\main.cpp'
- - does the full path overlap completely on the right with the passed-in link specifier? The entries for 27 and 12347 do match perfectly, but the entry for 766, which ends in "test\main.cpp" rather than the wanted "src\main.cpp", does not, and neither does the full path for 2013.
+For each full path in the entry:
+ - does the full path overlap completely on the right with the passed-in link specifier? The entries ending in "src\main.cpp" do match perfectly, but the other two entries, ending in "test\main.cpp" and "source\main.cpp", do not.
  - for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:
 TABLE Leftmost overlap of full paths with context directory
 Full path							Context dir					left overlap

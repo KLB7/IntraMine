@@ -361,7 +361,7 @@ my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
 		$currentLineNumber, $linksA) = @_;
-
+	
 	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
 		{
 		# Non-CodeMirror text can contain <mark> elements anywhere, even on
@@ -1526,7 +1526,7 @@ sub AddWebAndFileLinksToVisibleLines {
 		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
 								$clientIsRemote, $allowEditing);
 		}
-	
+
 	#$$resultR = join("\n", @lines);
 	$$resultR = encode_utf8(join("\n", @lines));
 	}
