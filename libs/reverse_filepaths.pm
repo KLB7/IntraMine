@@ -29,6 +29,10 @@
 # (FullPathInContextTrimmed() is similar, the "Trimmed" version deals with nuisance HTML).
 # For more details see the comment above BestMatchingFullPath() and following subs below, and
 # Documentation/Linker.html.
+#
+# And autlinking_demo.pl at the top level of the IntraMine folder isolates the functions
+# in this file to show how they work on a small set of paths, reporting which function
+# found a good match.
 
 package reverse_filepaths;
 require Exporter;
@@ -487,7 +491,7 @@ sub BestMatchingFullPath {
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
 # file name and directory names and drive name if any in sequence, and no omissions.
 # "InContext" means a candidate full path must overlap to some extent with the
@@ -570,7 +574,7 @@ sub ExactPathInContext {
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Relaxed" means all the directory names and drive letter (if supplied)
 # in $linkSpecifier must match those in a candidate full path, but they can be
 # in any order and not all directory names in the candidate full path need to be present
@@ -646,7 +650,7 @@ sub RelaxedPathInContext {
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
 #    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
 # file name and directory names and drive name if any in sequence, and no omissions.
 # "NoContext" means there is no check that a candidate full path is near a context directory.
@@ -700,7 +704,7 @@ sub ExactPathNoContext {
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Relaxed" means all the directory names and drive letter (if supplied)
 # in $linkSpecifier must match those in a candidate full path, but they can be
 # in any order and not all directory names in the candidate full path need to be present

@@ -64,7 +64,7 @@ Autolinks, automatic links, automatic linking: Briefly, IntraMine uses a complet
 
 You can also autolink to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
 
-That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine's Documentation folder for more details and some examples.
+That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.
 
 Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.
 
@@ -93,3 +93,10 @@ There are the usual Gloss features. If you click on a word, it will be highlight
 WebSockets: like HTTP, but it allows two-way communications, and easy communications between web clients.
 
 CTRL+C: "tenor.gif".
+
+Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg "main.cpp", "src/main.cpp", "project51/main.cpp", "p:/projects/project51/src/main.cpp". The document holding the link specifier is the "referencing file".
+
+Referencing file: the source or text file where you're typing, and want to have a link to a target file. What you type as shorthand for the target file's full path is the "link specifier". The path to the directory holding the referencing file is the "context directory".
+
+Context directory: the path to the directory holding a referencing file. Eg "p:/projects/project51/docs" or "p:/projects/project99/src".
+

@@ -1,4 +1,8 @@
-# autolinking_demo_noint.pl: test some link specifiers against a short list of
+# autolinking_demo.pl: demonstrate accurately determining the
+# wanted full path for a link given only the file name (and
+# where needed a bit more of the wanted path), aka "link specifier".
+#
+# Test some link specifiers against a short list of
 # known full paths to see what the suggested full paths are.
 # Link specifiers are tested in a specific "context" and the full path
 # closest to the context is picked when there is a choice.
@@ -38,9 +42,9 @@
 # Change the path below to match your installation, and then you can
 # run this program by copying the line below (from "perl" onward)
 # to a command window.
-# perl C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo_noint.pl
+# perl C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo.pl
 # Syntax check:
-# perl -c C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo_noint.pl
+# perl -c C:\perlprogs\IntraMine\programs_do_not_ship\autolinking_demo.pl
 
 
 use strict;
@@ -281,7 +285,7 @@ sub BestMatchingFullPath {
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
 # file name and directory names and drive name if any in sequence, and no omissions.
 # "InContext" means a candidate full path must overlap to some extent with the
@@ -368,7 +372,7 @@ sub ExactPathInContext {
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Relaxed" means all the directory names and drive letter (if supplied)
 # in $linkSpecifier must match those in a candidate full path, but they can be
 # in any order and not all directory names in the candidate full path need to be present
@@ -447,7 +451,7 @@ sub RelaxedPathInContext {
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
 #    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Exact" means a candidate full path in $pathsA must match all of the $linkSpecifier,
 # file name and directory names and drive name if any in sequence, and no omissions.
 # "NoContext" means there is no check that a candidate full path is near a context directory.
@@ -504,7 +508,7 @@ sub ExactPathNoContext {
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
 #    (file name is excluded).
-# <- returns index in $pathsA of best match, or -1.
+# <- returns full path of best match, or "".
 # "Relaxed" means all the directory names and drive letter (if supplied)
 # in $linkSpecifier must match those in a candidate full path, but they can be
 # in any order and not all directory names in the candidate full path need to be present
