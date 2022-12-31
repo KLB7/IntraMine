@@ -1,0 +1,38 @@
+/* Custom CSS for lolight syntax highlighting of code blocks.
+Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
+Some attempt has been made to coordinate the colors with
+highlightjs default.min.css.
+*/
+
+pre {
+    overflow: visible;
+    word-wrap: anywhere;
+    white-space: pre-wrap;
+    padding-left: 0.5em;
+	margin: 0;
+	background: #f3f3f3;
+  }
+
+.ll-nam { /* words */
+    color: black;
+}
+.ll-num { /* numbers */
+    color: #800;
+}
+.ll-str { /* strings */
+    color: #800;
+}
+.ll-rex { /* regular expressions */
+    color: #ab5656;
+}
+.ll-pct { /* operators, punctation */
+    color: #ab5656;
+}
+.ll-key { /* keywords */
+    color: #444;
+    font-weight: bold;
+}
+span.ll-com { /* comments */
+    color: #050;
+    font-style: normal;
+}

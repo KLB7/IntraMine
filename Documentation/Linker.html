@@ -926,7 +926,7 @@ and the entry name in a span with
 	height: 3px;
 	}
 
-/* For Gloss display of POD. */
+/* For Gloss display of *!* wrapped code bits. */
 code {
 	background-color:#ECF6CE;
 }
@@ -1273,6 +1273,47 @@ margin: 3px 8px;
 	border-top-style: hidden;
 }
 </style>
+<style>
+/* Custom CSS for lolight syntax highlighting of code blocks.
+Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
+Some attempt has been made to coordinate the colors with
+highlightjs default.min.css.
+*/
+
+pre {
+    overflow: visible;
+    word-wrap: anywhere;
+    white-space: pre-wrap;
+    padding-left: 0.5em;
+	margin: 0;
+	background: #f3f3f3;
+  }
+
+.ll-nam { /* words */
+    color: black;
+}
+.ll-num { /* numbers */
+    color: #800;
+}
+.ll-str { /* strings */
+    color: #800;
+}
+.ll-rex { /* regular expressions */
+    color: #ab5656;
+}
+.ll-pct { /* operators, punctation */
+    color: #ab5656;
+}
+.ll-key { /* keywords */
+    color: #444;
+    font-weight: bold;
+}
+span.ll-com { /* comments */
+    color: #050;
+    font-style: normal;
+}
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1306,7 +1347,7 @@ margin: 3px 8px;
 <tr id='R8'><td n='8'></td><td>Although the Linker can handle any number of lines of text, it's used by IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> and <a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a> as an "on demand" service, to add links to text that is newly shown, either when a view of a file is brought up or after a scroll. Typically the view of a source or text file shows under 100 lines at a time, so the load on the Linker is fairly minimal.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td>Text that can be turned into a link includes:</td></tr>
-<tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; a "link specifier" to a local file (see next section)</p></td></tr>
+<tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; a "<a class='glossary' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a>" to a local file (see next section)</p></td></tr>
 <tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; the same, with a text heading, function name, or class name added (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> only)</p></td></tr>
 <tr id='R13'><td n='13'></td><td><p class="outdent-unordered">&nbsp;&bull; quoted mentions of a heading, function, or class in the same file (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> only)</p></td></tr>
 <tr id='R14'><td n='14'></td><td><p class="outdent-unordered">&nbsp;&bull; a web address starting with http or https</p></td></tr>
@@ -1318,14 +1359,14 @@ margin: 3px 8px;
 <tr id='R20'><td n='20'></td><td></td></tr>
 <tr id='R21'><td n='21'></td><td><h2 id="What_the_Linker_does_differently">What the Linker does differently</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R23'><td n='23'></td><td>IntraMine's Linker knows all file paths of interest on your system, and understands the notion of distance between your "referencing file" where you're typing, and the "target file" that you want to link to. Combined, this means you typically have to type only a file name in order to get a link when using the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> or <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a>.</td></tr>
+<tr id='R23'><td n='23'></td><td>IntraMine's Linker knows all file paths of interest on your system, and understands the notion of distance between your "<a class='glossary' href="#" onmouseover="showhint('<p>Referencing file: the source or text file where you&#8216;re typing, and want to have a link to a target file. What you type as shorthand for the target file&#8216;s full path is the &quot;link specifier&quot;. The path to the directory holding the referencing file is the &quot;context directory&quot;.</p>', this, event, '500px', false);">referencing file</a>" where you're typing, and the "target file" that you want to link to. Combined, this means you typically have to type only a file name in order to get a link when using the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> or <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a>.</td></tr>
 <tr id='R24'><td n='24'></td><td></td></tr>
 <tr id='R25'><td n='25'></td><td>Let's get some terminology out of the way first:</td></tr>
-<tr id='R26'><td n='26'></td><td><strong>Referencing file</strong>: the source or text file where you're typing, and want to have a link to a target file.</td></tr>
+<tr id='R26'><td n='26'></td><td><strong><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Referencing file: the source or text file where you&#8216;re typing, and want to have a link to a target file. What you type as shorthand for the target file&#8216;s full path is the &quot;link specifier&quot;. The path to the directory holding the referencing file is the &quot;context directory&quot;.</p>', this, event, '500px', false);">Referencing file</a></strong>: the source or text file where you're typing, and want to have a link to a target file.</td></tr>
 <tr id='R27'><td n='27'></td><td><strong>Target file</strong>: is the file you want to link to.</td></tr>
-<tr id='R28'><td n='28'></td><td><strong>Context</strong>: this is the directory that holds the referencing file.</td></tr>
-<tr id='R29'><td n='29'></td><td><strong>File distance</strong>: As you might guess, the "distance" between your referencing file and target file is just the number of directory moves up and down that it takes to go from one file to the other.</td></tr>
-<tr id='R30'><td n='30'></td><td><strong>Link specifier</strong>: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans). For this to work properly, the file should be in a directory that's been indexed for <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> (as listed in your data/search_directories.txt file).</td></tr>
+<tr id='R28'><td n='28'></td><td><strong>Context</strong>: this is the directory that holds the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Referencing file: the source or text file where you&#8216;re typing, and want to have a link to a target file. What you type as shorthand for the target file&#8216;s full path is the &quot;link specifier&quot;. The path to the directory holding the referencing file is the &quot;context directory&quot;.</p>', this, event, '500px', false);">referencing file</a>.</td></tr>
+<tr id='R29'><td n='29'></td><td><strong>File distance</strong>: As you might guess, the "distance" between your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Referencing file: the source or text file where you&#8216;re typing, and want to have a link to a target file. What you type as shorthand for the target file&#8216;s full path is the &quot;link specifier&quot;. The path to the directory holding the referencing file is the &quot;context directory&quot;.</p>', this, event, '500px', false);">referencing file</a> and target file is just the number of directory moves up and down that it takes to go from one file to the other.</td></tr>
+<tr id='R30'><td n='30'></td><td><strong><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">Link specifier</a></strong>: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans). For this to work properly, the file should be in a directory that's been indexed for <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> (as listed in your data/search_directories.txt file).</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
 <tr id='R32'><td n='32'></td><td>Here's an example of IntraMine's autolinking, in three parts.</td></tr>
 <tr id='R33'><td n='33'></td><td><p class="ol-1">1. Let's suppose you have a project folder "E:\projects\project51", and within it there is only one file called "SaveDialog.cpp". But you also have other project folders containing "SaveDialog.cpp" files. And suppose you're typing in a log file in the project51 folder, "E:\projects\project51\logs\Sept 2021.txt" and you enter</p></td></tr>
@@ -1366,7 +1407,7 @@ margin: 3px 8px;
 <tr id='R68'><td n='68'></td><td></td></tr></tbody></table><table class='bordered'><caption>Linker subs and their JavaScript callers</caption><thead>
 <tr id='R69'><th n='69'></th><th>Linker subroutine       </th><th>Linker %RequestAction</th><th>Called by</th><th>Purpose</th><th>JavaScript example</th></tr></thead><tbody>
 <tr id='R70'><td n='70'></td><td>CmLinks</td><td>req|cmLinks</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> / <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a></td><td>Links for CodeMirror views</td><td>cmAutoLinks.js#addAutoLinks()</td></tr>
-<tr id='R71'><td n='71'></td><td>NonCmLinks</td><td>req|nonCmLinks</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td><td>Links for .txt and Perl views etc</td><td><a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#addAutoLinks()</td></tr>
+<tr id='R71'><td n='71'></td><td>NonCmLinks</td><td>req|nonCmLinks</td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a></td><td>Links for .txt and Perl views etc</td><td><a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#addAutoLinks()</td></tr>
 <tr id='R72'><td n='72'></td><td>FullPathForPartial</td><td>req|autolink</td><td>Files</td><td>Single link for a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).</p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a></td><td>files.js#openAutoLink()</td></tr></tbody></table><table><tbody>
 <tr id='R73'><td n='73'></td><td></td></tr>
 <tr id='R74'><td n='74'></td><td><h2 id="Under_the_hood">Under the hood</h2></td></tr>
@@ -1375,13 +1416,13 @@ margin: 3px 8px;
 <tr id='R77'><td n='77'></td><td><h3 id="Autolink_sequence_overview">Autolink sequence overview</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R79'><td n='79'></td><td><p class="ol-1">1. New lines of text come into view in a text view of a file generated by IntraMine's <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> or <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a>, either on load or after a scroll. For the Editor, links are cleared and visible links restored when editing pauses for a couple of seconds.</p></td></tr>
-<tr id='R80'><td n='80'></td><td><p class="ol-1">2. (JS) addAutoLinks() is called in response, and calls fetch() to retrieve link markup for all visible lines. Note there are two instances of addAutoLinks, one in cmAutoLinks.js for CodeMirror-based displays, and one in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js for all other views that can have links.</p></td></tr>
+<tr id='R80'><td n='80'></td><td><p class="ol-1">2. (JS) addAutoLinks() is called in response, and calls fetch() to retrieve link markup for all visible lines. Note there are two instances of addAutoLinks, one in cmAutoLinks.js for CodeMirror-based displays, and one in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js for all other views that can have links.</p></td></tr>
 <tr id='R81'><td n='81'></td><td><p class="ol-1-1">2.1 For CodeMirror file displays, cmAutoLinks.js#addAutoLinks() sends a request containing "req=cmLinks". This calls intramine_viewer.pl#CmLinks(), passing all the lines of text received in $formH->{'text'}.</p></td></tr>
-<tr id='R82'><td n='82'></td><td><p class="ol-1-1">2.2 For non-CodeMirror displays, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#addAutoLinks() sends a request containing "req=nonCmLinks". This calls intramine_viewer.pl#NonCmLinks(), again passing all the text received.</p></td></tr>
+<tr id='R82'><td n='82'></td><td><p class="ol-1-1">2.2 For non-CodeMirror displays, <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#addAutoLinks() sends a request containing "req=nonCmLinks". This calls intramine_viewer.pl#NonCmLinks(), again passing all the text received.</p></td></tr>
 <tr id='R83'><td n='83'></td><td><p class="ol-1">3. Both CmLinks() and nonCmLinks() ultimately call AddWebAndFileLinksToLine(), which in turn eventually calls reverse_filepaths.pm#FullPathInContextNS() on each link candidate, with links constructed if a full path is found.</p></td></tr>
 <tr id='R84'><td n='84'></td><td><p class="ol-1-1">3.1 For CodeMirror displays, the links are returned as JSON and added as a markup overlay on top of the CodeMirror view - see cmAutoLinks.js#requestLinkMarkupWithPort().</p></td></tr>
-<tr id='R85'><td n='85'></td><td><p class="ol-1-1">3.2 For non-CodeMirror displays, the links replace file path mentions in the returned text - see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#requestLinkMarkupWithPort().</p></td></tr>
-<tr id='R86'><td n='86'></td><td><p class="ol-1">4. For all views the line numbers that have received links are remembered, and lines are only marked up or altered once. This is managed by <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#rememberLinesSeen() and cmAutoLinks.js#rememberLinesSeen() etc, using the "lineSeen" array.</p></td></tr>
+<tr id='R85'><td n='85'></td><td><p class="ol-1-1">3.2 For non-CodeMirror displays, the links replace file path mentions in the returned text - see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#requestLinkMarkupWithPort().</p></td></tr>
+<tr id='R86'><td n='86'></td><td><p class="ol-1">4. For all views the line numbers that have received links are remembered, and lines are only marked up or altered once. This is managed by <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#rememberLinesSeen() and cmAutoLinks.js#rememberLinesSeen() etc, using the "lineSeen" array.</p></td></tr>
 <tr id='R87'><td n='87'></td><td></td></tr>
 <tr id='R88'><td n='88'></td><td><h3 id="Stepping_through_text_to_find_links">Stepping through text to find links</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1432,7 +1473,7 @@ margin: 3px 8px;
 <tr id='R134'><td n='134'></td><td>first</td><td>line number for first line in text</td></tr>
 <tr id='R135'><td n='135'></td><td>last</td><td>line number for last line in text</td></tr></tbody></table><table><tbody>
 <tr id='R136'><td n='136'></td><td><strong>Response</strong>: the text, with file mentions replaced by hyperlinks</td></tr>
-<tr id='R137'><td n='137'></td><td><strong>For example</strong>: see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#requestLinkMarkupWithPort()</td></tr>
+<tr id='R137'><td n='137'></td><td><strong>For example</strong>: see <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autoLinks</a>.js#requestLinkMarkupWithPort()</td></tr>
 <tr id='R138'><td n='138'></td><td><strong>See also</strong>: intramine_linker.ps#NonCmLinks(), <a href="./Stealing from IntraMine.html#Those autolinks" target="_blank">"Stealing from IntraMine.txt#Those autolinks"</a></td></tr>
 <tr id='R139'><td n='139'></td><td></td></tr>
 <tr id='R140'><td n='140'></td><td></td></tr>
@@ -1508,6 +1549,7 @@ let highlightItems = [];
 let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFLMAABSzATFtOXUAAAQZSURBVFhH1ZZfTFtVHMd/91/L7VY6/hVG4xgymWUIY5ENkq0jy4wGN3EjMmpI9mCcb0s0PvnnzfiyZCb6YqI+mJCUoRkmc7onXeYSBcxWZkfDMjYR6Ua7Au0dXLn33Hs8pz3BdC1QQpvUT/+l39/J70/POb/+ONggTX1SrQkwBEg/FBgAhcmborEX7CBKvxgAJ4L9+n0mZwXPPrPC/bpwQLTDb3I5NJtWkJi8aagv6rOI+KYxmJwVWRfg9krdWyv4n1s9zU7BSjZuiRlyAfFFfbZ6mpw0Bo3FLOuSVQF7vNK7jh384BHPS/KBbT1MzT3tJb3Q4Tkq01g0JpPXZM0Cmk+DSBx9Xu6Wzr3Q3sXvsrWBai4wa+5ZMmJQbzsIR9uO8WXPiudobJoDM2dk1UvsPgnFgiwNulrkF9t2dUKJ6EroGlbh4vUvITZleEDgYglxsxjY4agRrnUffBMkrighRdE0DN+9AiG/eoU0jJ7VGkbGAnb3WZ6yivj7mlZHU7PrMMicg1kAdFLA9ftDoEYxU3KDXMbBodpuEDkrU8iOkN2+FboKU6PKrWXEHZvo16aZaYW0Ahp6xX0WO3eprq20uq5kH3FoYZYkmDz+MR+vfMslRbydJJSakm4uw+T8Dbg3PB/SFHx8fADdYKYEKasbeqTjshN8dfsrtlTZaomyoS6bNzCYMLs4CZOj0UU1DN7xQf0SM/1XAGldZ4td3PmalhLBLpUztbBQtAhM+RcMZQa/Pe7TP6Ma19EBQni7eL60XjhbWW8DiU9eokJFN1WYvaPC3ITxqfMheodr8IpDlXvFV+0uPu38FSr0Hioz5Fj50Xc8xjCmxck7fZKz9n940VxpzjR34VHAvErO/rS2CJ1bKnmBK/BNwCT/Wb+hK3+ZZ0hH+kSgYiRg3ty2kx9R58yurVW8lUuohYepA4RGkaJG4MTtAfQt1VJ+78ZT4l6xmLtcvV+oFuXC2gqkYgiNGCEUxy8HLiA/k9NvbaPXsoMvwpe3Py80Wh2FUcRyDMOD343Ass51PvlvnDHDei84LKJ0sapFOGJzpi9ZiuC8jBK2igyxwhge3jR+0pB+8o4P0mavVX/inafBYtOlryr2CH2OmtRl4T+MvAxzzudSL19sCkPkttG/JOlv/Pk1aExOYdUCGJz7lPhR6TPCe2W7yVjBVtMC4ve0svFvYC6pbI6G16C0+GlLdKUAsrnRCRPP3zU+Jp3mw6SSmfWGHRy8gN6fmzTOkNaFaAvLN6xNIhLzLZL8B1RKWjKT1bQW9KEv4jO4KzSMHtNWli8SbXIEKfEQfoXGZPKaZD1uBgf0H8jFPfz3r+iBoTIxhyDik/pWH+GOoE//kcnrsqF5mc7i+gLXvhjGY7wAOdsL6ot0mzHq+8l5f20A/gW9of8+fiHTAwAAAABJRU5ErkJggg==';
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
+let useLolight = true;
 //let weAreStandalone = true;
 </script>
 <script type="text/javascript">
@@ -2959,11 +3001,51 @@ function positionViewItems() {
 }
 
 function finishStartup() {
+	if (thePath.match(/\.txt$/))
+		{
+		// use lolight highlighting
+		putInLolightElements();
+		}
+
 	hideIt("search-button");
 	hideIt("small-tip");
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	reJump();
+}
+
+// Code block highlighting with lolight, used
+// by intramine_viewer.pl and gloss2html.pl.
+function putInLolightElements() {
+	document.querySelectorAll('td').forEach((el) => {
+		putInLolightPreAndClass(el);
+	});
+}
+
+function putInLolightPreAndClass(el) {
+	let text = el.innerHTML;
+	let codeMarkerPosition = text.indexOf('_STARTCB_');
+	if (codeMarkerPosition == 0)
+		{
+		// FL = First/Last line of a code block. These are
+		// shrunk down, emptied out, and colored gray.
+		// Other rows starting with 'STARTCB_' are given
+		// a class of 'lolight', and lolight JS styles
+		// them up when the document is ready.
+		if (text.indexOf('_STARTCB_FL_') == 0)
+			{
+			el.innerHTML = '';
+			el.parentNode.classList.add("reallyshrunkrow");
+			el.parentNode.firstElementChild.removeAttribute("n");
+			el.style.backgroundColor = "#d0d0d0";
+			}
+		else
+			{
+			text = text.substring(9);
+			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
+			el.style.backgroundColor = "#f3f3f3";
+			}
+		}
 }
 
 function createElementFromHTML(htmlString) {
@@ -3284,9 +3366,12 @@ function getSelectionText() {
 
 
 // "Too big" means selected text spreads across two or more lines.
+// Or we're in a CODE block and more than a word is selected.
 // Revision, this affects the actual current selection so stop doing it.
+// I can't remember why I wrote the above line.
 function selectionIsTooBig() {
 	let selectionTooBig = false;
+	let withinPRE = false;
 	let currSelection = window.getSelection();
 	let rangeCount = currSelection.rangeCount;
 	if (rangeCount > 0)
@@ -3297,15 +3382,41 @@ function selectionIsTooBig() {
 		
 		while (tdElem !== null && tdElem.nodeName !== "TD")
 			{
+			if (tdElem.nodeName === "PRE")
+				{
+				withinPRE = true;
+				}
 			tdElem = tdElem.parentNode;
 			}
 		if (tdElem === null)
 			{
 			selectionTooBig = true;
 			}
+		else
+			{
+			if (withinPRE)
+				{
+				let text = window.getSelection().toString();
+				if (containsMoreThanOneWord(text))
+					{
+					selectionTooBig = true;
+					}
+				}
+			}
 		}
 
 	return (selectionTooBig);
+}
+
+function containsMoreThanOneWord(text) {
+	let result = false;
+	let nonWordHitPosition = text.search(/\W/);
+	if (nonWordHitPosition >= 0) // more than just a word is there
+		{
+		result = true;
+		}
+
+	return(result);
 }
 
 function currentSelectionTouchesLink() {
@@ -5030,5 +5141,9 @@ window.addEventListener("load", addTocScrollListener);
 //window.addEventListener("load", addTocAndToggleListeners);
 
 
+</script>
+<script type="text/javascript">
+/*! lolight v1.4.0 - https://larsjung.de/lolight/ modified to add 'my' and 'sub' keywords. -KLB */
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):e.lolight=t()}(this,function(){function t(e){if("string"!=typeof e)throw new Error("tok: no string");for(var t=[],n=u.length,o=!1;e;)for(var r=0;r<n;r+=1){var i=u[r][1].exec(e);if(i&&0===i.index){var a=u[r][0];if("rex"!==a||!o){var l=i[0];a===s&&c.test(l)&&(a="key"),"spc"===a?0<=l.indexOf("\n")&&(o=!1):o=a===f||a===s,e=e.slice(l.length),t.push([a,l]);break}}}return t}function e(e,t){if("undefined"!=typeof document)t(document);else if(e)throw new Error("no doc")}function n(o){e(!0,function(n){var e=t(o.textContent);o.innerHTML="",e.forEach(function(e){var t=n.createElement("span");t.className="ll-"+e[0],t.textContent=e[1],o.appendChild(t)})})}function o(t){e(!0,function(e){[].forEach.call(e.querySelectorAll(t||".lolight"),function(e){n(e)})})}var r="_nam#2196f3}_num#ec407a}_str#43a047}_rex#ef6c00}_pct#666}_key#555;font-weight:bold}_com#aaa;font-style:italic}".replace(/_/g,".ll-").replace(/#/g,"{color:#"),c=/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|onst|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do|double|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or(each)?|riend|rom|unc(tion)?)|global|goto|guard|i(f|mp(lements|licit|ort)|n(it|clude(_once)?|line|out|stanceof|t(erface|ernal)?)?|s)|l(ambda|et|ock|ong)|m(odule|utable|y)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|ub)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of))|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|ith)|xor|yield)$/,i="com",s="nam",f="num",u=[[f,/#([0-9a-f]{6}|[0-9a-f]{3})\b/],[i,/(\/\/|#).*?(?=\n|$)/],[i,/\/\*[\s\S]*?\*\//],[i,/<!--[\s\S]*?-->/],["rex",/\/(\\\/|[^\n])*?\//],["str",/(['"`])(\\\1|[\s\S])*?\1/],[f,/[+-]?([0-9]*\.?[0-9]+|[0-9]+\.?[0-9]*)([eE][+-]?[0-9]+)?/],["pct",/[\\.,:;+\-*\/=<>()[\]{}|?!&@~]/],["spc",/\s+/],[s,/[\w$]+/],["unk",/./]];return e(!1,function(e){var t=e.querySelector("head"),n=e.createElement("style");n.textContent=r,t.insertBefore(n,t.firstChild),/^(i|c|loade)/.test(e.readyState)?o():e.addEventListener("DOMContentLoaded",function(){o()})}),o.tok=t,o.el=n,o});
 </script>
 </body></html>

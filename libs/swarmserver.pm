@@ -300,6 +300,7 @@ my $CSS_DIR;
 my $JS_DIR;
 my $FONT_DIR;
 my $JSEDITOR_DIR;
+my $HIGHLIGHT_DIR;
 my $HELP_DIR;
 my $DEFAULT_UPLOAD_DIR;
 my $DefaultDir; # for HTML pages off disk, the dir containing the file
@@ -494,6 +495,7 @@ sub MainLoop {
 	$FONT_DIR =~ s!/$!!;
 	$HELP_DIR = FullDirectoryPath('HELP_DIR');
 	$JSEDITOR_DIR = FullDirectoryPath('JSEDITOR_DIR'); # for the tinymce or ace or codemirror or whatnot editor
+	$HIGHLIGHT_DIR = FullDirectoryPath('HIGHLIGHT_DIR'); # for highlight.js
 	$DEFAULT_UPLOAD_DIR = FullDirectoryPath('DEFAULT_UPLOAD_DIR'); # for file uploads to the server box
 	$DefaultDir = '';
 	$PreviousRefererDir = '';
@@ -1558,45 +1560,17 @@ sub GetImageResult {
 					}
 				}
 			}
-		# Check any "special" directories if still not found.
-		if (!$gotIt)
-			{
-			# $JSEDITOR_DIR
-			my $relativePath = $obj;
-			$relativePath =~ s!^\.?/!!;
-			$stdPath = $JSEDITOR_DIR . $relativePath;
-			$exists = FileOrDirExistsWide($stdPath);
-			if ($exists == 1)
-			#if (-f $stdPath)
-				{
-				$gotIt = 1;
-				$$resultR = GetBinFile($stdPath);
-				}
-			# Try just the supplied file name, look in $JSEDITOR_DIR.
-			if (!$gotIt)
-				{
-				$stdPath = $JSEDITOR_DIR . $fileName;
-				$exists = FileOrDirExistsWide($stdPath);
-				if ($exists == 1)
-				#if (-f $stdPath)
-					{
-					$gotIt = 1;
-					$$resultR = GetBinFile($stdPath);
-					}
-				}
-			}
-			
-		# If there's a referer, try using that.
-		if (!$gotIt && defined($formH->{REFERER_HREF}))
-			{
-			$$resultR = GetResourceUsingReferer($obj, $formH->{REFERER_HREF}, 1); # 1==binary
-			if ($$resultR ne '')
-				{
-				$gotIt = 1;
-				}
-			}
 		}
-	$$mimeTypeR = CVal($ext);
+		
+		# Check any "special" directories if still not found.
+	if (!$gotIt)
+		{
+		$gotIt = LoadFileFromSpecificDirectory($JSEDITOR_DIR, $obj, 1, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
+		}
+	if (!$gotIt)
+		{
+		$gotIt = LoadFileFromSpecificDirectory($HIGHLIGHT_DIR, $obj, 1, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
+		}
 	}
 
 sub GetCssResult {
@@ -1656,42 +1630,12 @@ sub GetCssResult {
 	# Check any "special" directories if still not found.
 	if (!$gotIt)
 		{
-		# $JSEDITOR_DIR
-		my $relativePath = $obj;
-		$relativePath =~ s!^\.?/!!; # Trim leading ./ or just /
-		my $stdPath = $JSEDITOR_DIR . $relativePath;
-		$exists = FileOrDirExistsWide($stdPath);
-		if ($exists == 1)
-		#if (-f $stdPath)
-			{
-			$gotIt = 1;
-			$$resultR = GetTextFile($stdPath);
-			}
-		# Try just the supplied file name, look in $JSEDITOR_DIR.
-		if (!$gotIt)
-			{
-			$stdPath = $JSEDITOR_DIR . $fileName;
-			$exists = FileOrDirExistsWide($stdPath);
-			if ($exists == 1)
-			#if (-f $stdPath)
-				{
-				$gotIt = 1;
-				$$resultR = GetTextFile($stdPath);
-				}
-			}
+		$gotIt = LoadFileFromSpecificDirectory($JSEDITOR_DIR, $obj, 0, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-
-	# If there's a referer, try using that.
-	if (!$gotIt && defined($formH->{REFERER_HREF}))
+	if (!$gotIt)
 		{
-		$$resultR = GetResourceUsingReferer($obj, $formH->{REFERER_HREF}, 0); # 1==binary
-		if ($$resultR ne '')
-			{
-			$gotIt = 1;
-			}
+		$gotIt = LoadFileFromSpecificDirectory($HIGHLIGHT_DIR, $obj, 0, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-
-	$$mimeTypeR = CVal('css');
 	}
 
 sub GetJsResult {
@@ -1750,88 +1694,12 @@ sub GetJsResult {
 		
 	if (!$gotIt)
 		{
-		# $JSEDITOR_DIR
-		my $filePathCopy = $obj;
-		
-		# Try the whole supplied $filePathCopy, then parts of it.
-		my $filePathCopynoS = $filePathCopy;
-		$filePathCopynoS =~ s!^/!!;
-		my $stdPath = $JSEDITOR_DIR . $filePathCopynoS;
-		if (FileOrDirExistsWide($stdPath) == 1)
-			{
-			$gotIt = 1;
-			$$resultR = GetTextFile($stdPath);
-			}
-		
-		if (!$gotIt)
-			{
-			my $partialPath = '';
-			my $fnPosition = rindex($filePathCopy, '/');
-			while ($fnPosition >= 0)
-				{
-				if ($partialPath ne '')
-					{
-					$partialPath = substr($filePathCopy, $fnPosition + 1) . '/' . $partialPath;
-					}
-				else
-					{
-					$partialPath = substr($filePathCopy, $fnPosition + 1);
-					}
-				$filePathCopy = substr($filePathCopy, 0, $fnPosition);
-				my $stdPath = $JSEDITOR_DIR . $partialPath;
-				
-				if (FileOrDirExistsWide($stdPath) == 1)
-					{
-					$gotIt = 1;
-					$$resultR = GetTextFile($stdPath);
-					last;
-					}
-				$fnPosition = rindex($filePathCopy, '/');
-				}
-			}
-		
-		# Try just the supplied file name, look in $JSEDITOR_DIR.
-		if (!$gotIt)
-			{
-			my $stdPath = $JSEDITOR_DIR . $fileName;
-			$exists = FileOrDirExistsWide($stdPath);
-			if ($exists == 1)
-				{
-				$gotIt = 1;
-				$$resultR = GetTextFile($stdPath);
-				}
-			}
+		$gotIt = LoadFileFromSpecificDirectory($JSEDITOR_DIR, $obj, 0, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-
-	# If there's a referer, try using that.
-	if (!$gotIt && defined($formH->{REFERER_HREF}))
-		{
-		$$resultR = GetResourceUsingReferer($obj, $formH->{REFERER_HREF}, 0); # 1==binary
-		if ($$resultR ne '')
-			{
-			$gotIt = 1;
-			}
-		}
-		
-	# Still nothing - try $JS_DIR with just the file name.
 	if (!$gotIt)
 		{
-		my $fileName;
-		my $fnPosition;
-		if (($fnPosition = rindex($obj, '/')) >= 0)
-			{
-			$fileName = substr($obj, $fnPosition + 1);
-			my $filePath = $JS_DIR . "/$fileName";
-			my $exists = FileOrDirExistsWide($filePath);
-			if ($exists == 1)
-				{
-				$gotIt = 1;
-				$$resultR = GetTextFile($filePath);
-				}
-			}
+		$gotIt = LoadFileFromSpecificDirectory($HIGHLIGHT_DIR, $obj, 0, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-	
-	$$mimeTypeR = CVal('js');
 	}
 
 sub GetFontResult {
@@ -1889,40 +1757,12 @@ sub GetFontResult {
 	
 	if (!$gotIt)
 		{
-		# $JSEDITOR_DIR
-		my $relativePath = $obj;
-		$relativePath =~ s!^\.?/!!;
-		my $stdPath = $JSEDITOR_DIR . $relativePath;
-		$exists = FileOrDirExistsWide($stdPath);
-		if ($exists == 1)
-			{
-			$gotIt = 1;
-			$$resultR = GetBinFile($stdPath);
-			}
-		# Try just the supplied file name, look in $JSEDITOR_DIR.
-		if (!$gotIt)
-			{
-			$stdPath = $JSEDITOR_DIR . $fileName;
-			$exists = FileOrDirExistsWide($stdPath);
-			if ($exists == 1)
-				{
-				$gotIt = 1;
-				$$resultR = GetBinFile($stdPath);
-				}
-			}
+		$gotIt = LoadFileFromSpecificDirectory($JSEDITOR_DIR, $obj, 1, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-
-	# If there's a referer, try using that.
-	if (!$gotIt && defined($formH->{REFERER_HREF}))
+	if (!$gotIt)
 		{
-		$$resultR = GetResourceUsingReferer($obj, $formH->{REFERER_HREF}, 1); # 1==binary
-		if ($$resultR ne '')
-			{
-			$gotIt = 1;
-			}
+		$gotIt = LoadFileFromSpecificDirectory($HIGHLIGHT_DIR, $obj, 1, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
 		}
-	
-	$$mimeTypeR = CVal('ttf');
 	}
 
 sub GetUnknownTypeResult {
@@ -2004,6 +1844,119 @@ sub GetResourceUsingReferer {
 		}
 	
 	return($result);
+	}
+
+# Load contents of a file, as binary or text, by
+# looking in a specific directory in the IntraMine folder
+# such as CodeMirror-master/.
+# $referrer is $formH->{REFERER_HREF} if supplied.
+sub LoadFileFromSpecificDirectory {
+	my ($specificDir, $partialPath, $asBinary, $referrer, $mimeTypeR, $resultR) = @_;
+	my $loader = $asBinary ? \&GetBinFile : \&GetTextFile;
+	my $gotIt = 0;
+	
+	# Try the whole supplied $filePathCopy, then parts of it.
+	my $filePathCopy = $partialPath;
+	my $filePathCopynoS = $partialPath;
+	$filePathCopynoS =~ s!^/!!;
+	
+	my $stdPath = $specificDir . $filePathCopynoS;
+	if (FileOrDirExistsWide($stdPath) == 1)
+		{
+		$gotIt = 1;
+		$$resultR = $loader->($stdPath);
+		}
+
+	my $fileName;
+	my $fnPosition;
+	if (($fnPosition = rindex($partialPath, '/')) >= 0)
+		{
+		$fileName = substr($partialPath, $fnPosition + 1);
+		}
+	else
+		{
+		$fileName = $partialPath;
+		}
+
+	if (!$gotIt)
+		{
+		my $partialPath = '';
+		my $fnPosition = rindex($filePathCopy, '/');
+		while ($fnPosition >= 0)
+			{
+			if ($partialPath ne '')
+				{
+				$partialPath = substr($filePathCopy, $fnPosition + 1) . '/' . $partialPath;
+				}
+			else
+				{
+				$partialPath = substr($filePathCopy, $fnPosition + 1);
+				}
+			$filePathCopy = substr($filePathCopy, 0, $fnPosition);
+			my $stdPath = $specificDir . $partialPath;
+			
+			if (FileOrDirExistsWide($stdPath) == 1)
+				{
+				$gotIt = 1;
+				$$resultR = $loader->($stdPath);
+				last;
+				}
+			$fnPosition = rindex($filePathCopy, '/');
+			}
+		}
+
+	# Try just the supplied file name, look in $specificDir.
+	if (!$gotIt)
+		{
+		my $stdPath = $specificDir . $fileName;
+		my $exists = FileOrDirExistsWide($stdPath);
+		if ($exists == 1)
+			{
+			$gotIt = 1;
+			$$resultR = $loader->($stdPath);
+			}
+		}
+
+	# If there's a referer, try using that.
+	if (!$gotIt && defined($referrer))
+		{
+		$$resultR = GetResourceUsingReferer($partialPath, $referrer, $asBinary); # 1==binary
+		if ($$resultR ne '')
+			{
+			$gotIt = 1;
+			}
+		}
+
+	# Still nothing - try $specificDir with just the file name.
+	if (!$gotIt)
+		{
+		my $fileName;
+		my $fnPosition;
+		if (($fnPosition = rindex($partialPath, '/')) >= 0)
+			{
+			$fileName = substr($partialPath, $fnPosition + 1);
+			my $filePath = $specificDir . "/$fileName";
+			my $exists = FileOrDirExistsWide($filePath);
+			if ($exists == 1)
+				{
+				$gotIt = 1;
+				$$resultR = $loader->($filePath);
+				}
+			}
+		}
+
+	# Set mime type
+	if ($partialPath =~ m!\.(\w+)$!)
+		{
+		my $ext = lc($1);
+		$$mimeTypeR = CVal($ext);
+		if ($$mimeTypeR eq '')
+			{
+			$$mimeTypeR = CVal('js');
+			}
+		}
+	
+	return($gotIt);
 	}
 
 # eg /Viewer/?href=C:/perlprogs/mine/docs/domain

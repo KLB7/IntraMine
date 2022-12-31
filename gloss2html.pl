@@ -312,6 +312,7 @@ FINIS
 	$$contents_R .= InlineCssForFile('non_cm_text.css');
 	$$contents_R .= InlineCssForFile('non_cm_tables.css');
 	$$contents_R .= InlineCssForFile('tooltip.css');
+	$$contents_R .= InlineCssForFile('lolight_custom.css');
 	
 	my $htmlBodyTop = <<'ENDIT';
 </head>
@@ -348,13 +349,47 @@ sub GetPrettyText {
 	my $secondOrderListNum = 0;
 	my $unorderedListDepth = 0; # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
-	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
+	# Track whether within TABLE, and skip lists, hr, and heading if so.
 	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
 	my $inATable = 0;
+	my $inACodeBlock = 0; 	# Set if see CODE on a line by itself,
+							# continue until ENDCODE on a line by itself.
 
 	# Gloss, aka quick and easy Markdown.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
+		# See if we're entering or leaving a code block.
+		# A code block starts with 'CODE' on a line by itself,
+		# and ends with 'ENDCODE' on a line by itself.
+		# CODE/ENDCODE is replaced by '_STARTCB_FL_',
+		# and intervening lines have '_STARTCB_' added
+		# at the beginning. Later, viewerStart.js#finishStartup()
+		# will delete the markers and wrap lines in <pre> elements,
+		# and lolight will style them when the page is ready.
+		if (!$inATable)
+			{
+			if ($lines[$i] eq 'CODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 1;
+				}
+			elsif ($lines[$i] eq 'ENDCODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 0;
+				}
+			}
+
+		# Highlight code blocks. Actual highlighting is done by
+		# lolight.js for all class="lolight" elements.
+		if ($inACodeBlock)
+			{
+			if ($lines[$i] ne '_STARTCB_FL_')
+				{
+				$lines[$i] = '_STARTCB_' . $lines[$i];
+				}
+			}
+
 		AddEmphasis(\$lines[$i]);
 
 		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
@@ -1581,7 +1616,7 @@ sub GetTextFileRep {
 		{
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
-		
+	
 	$$repStringR = "<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
 	}
 
@@ -2025,6 +2060,7 @@ let highlightItems = [];
 let b64ToggleImage = '_B64TOGGLEIMAGE';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
+let useLolight = true;
 //let weAreStandalone = true;
 </script>
 <script type="text/javascript">
@@ -2079,6 +2115,7 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('indicator.js');
 	$$contents_R .= InlineJavaScriptForFile('toggle.js');
 	$$contents_R .= InlineJavaScriptForFile('scrollTOC.js');
+	$$contents_R .= InlineJavaScriptForFile('lolight-1.4.0.min.js');
 
 	$$contents_R .= "</body></html>\n";
 	}
@@ -2087,7 +2124,7 @@ sub InlineCssForFile {
 	my ($fileName) = @_;
 	my $result = '';
 	my $contents = ReadTextFileWide($CSS_DIR . $fileName);
-	if ($contents ne '')
+	if (defined($contents) && $contents ne '')
 		{
 		$result = "<style>\n$contents\n</style>\n";
 		}
@@ -2103,7 +2140,7 @@ sub InlineJavaScriptForFile {
 	my ($fileName) = @_;
 	my $result = '';
 	my $contents = ReadTextFileWide($JS_DIR . $fileName);
-	if ($contents ne '')
+	if (defined($contents) && $contents ne '')
 		{
 		$result = "<script type=\"text/javascript\">\n$contents\n</script>\n";
 		}

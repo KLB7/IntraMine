@@ -218,7 +218,7 @@ and the entry name in a span with
 	height: 3px;
 	}
 
-/* For Gloss display of POD. */
+/* For Gloss display of *!* wrapped code bits. */
 code {
 	background-color:#ECF6CE;
 }

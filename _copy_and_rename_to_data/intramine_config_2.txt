@@ -1,0 +1,2 @@
+# Special directory for highlight.js (syntax highlighting for code blocks in .txt files)
+HIGHLIGHT_DIR		lolight/

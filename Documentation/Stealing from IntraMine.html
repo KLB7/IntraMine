@@ -926,7 +926,7 @@ and the entry name in a span with
 	height: 3px;
 	}
 
-/* For Gloss display of POD. */
+/* For Gloss display of *!* wrapped code bits. */
 code {
 	background-color:#ECF6CE;
 }
@@ -1273,6 +1273,47 @@ margin: 3px 8px;
 	border-top-style: hidden;
 }
 </style>
+<style>
+/* Custom CSS for lolight syntax highlighting of code blocks.
+Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
+Some attempt has been made to coordinate the colors with
+highlightjs default.min.css.
+*/
+
+pre {
+    overflow: visible;
+    word-wrap: anywhere;
+    white-space: pre-wrap;
+    padding-left: 0.5em;
+	margin: 0;
+	background: #f3f3f3;
+  }
+
+.ll-nam { /* words */
+    color: black;
+}
+.ll-num { /* numbers */
+    color: #800;
+}
+.ll-str { /* strings */
+    color: #800;
+}
+.ll-rex { /* regular expressions */
+    color: #ab5656;
+}
+.ll-pct { /* operators, punctation */
+    color: #ab5656;
+}
+.ll-key { /* keywords */
+    color: #444;
+    font-weight: bold;
+}
+span.ll-com { /* comments */
+    color: #050;
+    font-style: normal;
+}
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1297,30 +1338,30 @@ margin: 3px 8px;
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>(If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
-<tr id='R5'><td n='5'></td><td><h2 id="Those_autolinks">Those <a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a></h2></td></tr>
+<tr id='R5'><td n='5'></td><td><h2 id="Those_autolinks">Those <a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R7'><td n='7'></td><td>First, a definition: a "link specifier" for a file consists of the file name and zero or more folders in the path, not necessarily complete or in order, and an optional drive letter. For example, link specifiers for "C:Project51\src\main.cpp" are:</td></tr>
+<tr id='R7'><td n='7'></td><td>First, a definition: a "<a class='glossary' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a>" for a file consists of the file name and zero or more folders in the path, not necessarily complete or in order, and an optional drive letter. For example, link specifiers for "C:Project51\src\main.cpp" are:</td></tr>
 <tr id='R8'><td n='8'></td><td><p class="outdent-unordered">&nbsp;&bull; main.cpp</p></td></tr>
 <tr id='R9'><td n='9'></td><td><p class="outdent-unordered">&nbsp;&bull; Project51\main.cpp</p></td></tr>
 <tr id='R10'><td n='10'></td><td><p class="outdent-unordered">&nbsp;&bull; C:\main.cpp</p></td></tr>
 <tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; src\main.cpp</p></td></tr>
 <tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; Project51\src\main.cpp</p></td></tr>
 <tr id='R13'><td n='13'></td><td><p class="outdent-unordered">&nbsp;&bull; C:\Project51\src\main.cpp</p></td></tr>
-<tr id='R14'><td n='14'></td><td>Whether or not a link specifier is ambiguous is determined by comparison with full paths to all the files you've instructed <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the link specifier).</td></tr>
+<tr id='R14'><td n='14'></td><td>Whether or not a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> is ambiguous is determined by comparison with full paths to all the files you've instructed <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the link specifier).</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td>Here are the needed parts for autolinking:</td></tr>
 <tr id='R17'><td n='17'></td><td><p class="ol-1">1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"</p></td></tr>
 <tr id='R18'><td n='18'></td><td><p class="ol-1">2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.</p></td></tr>
 <tr id='R19'><td n='19'></td><td><p class="ol-1-1">2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg</p></td></tr>
 <tr id='R20'><td n='20'></td><td><p class="ol-1-1-c">$FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'</p></td></tr>
-<tr id='R21'><td n='21'></td><td><p class="ol-1">3. Code to detect a link specifier mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.</p></td></tr>
+<tr id='R21'><td n='21'></td><td><p class="ol-1">3. Code to detect a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.</p></td></tr>
 <tr id='R22'><td n='22'></td><td><p class="ol-1">4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.</p></td></tr>
 <tr id='R23'><td n='23'></td><td></td></tr>
 <tr id='R24'><td n='24'></td><td>Here's how IntraMine implements those.</td></tr>
 <tr id='R25'><td n='25'></td><td></td></tr>
 <tr id='R26'><td n='26'></td><td><h3 id="1._a_complete_list_of_full_paths_to_all_indexed_files"><p class="ol-1">1. a complete list of full paths to all indexed files</p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R28'><td n='28'></td><td>A list of full paths is essential for <a class='glossary' href="#" onmouseover="showhint('<p>Automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">automatic linking</a> and <a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a>. IntraMine piggybacks path collection on <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> indexing, banking on the likelihood that files of interest for searching will also be the ones of interest for autolinking. Folders for indexing are listed in data/search_directories.txt, and any files indexed from those folders will also have their full paths collected.</td></tr>
+<tr id='R28'><td n='28'></td><td>A list of full paths is essential for <a class='glossary' href="#" onmouseover="showhint('<p>Automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">automatic linking</a> and <a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a>. IntraMine piggybacks path collection on <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> indexing, banking on the likelihood that files of interest for searching will also be the ones of interest for autolinking. Folders for indexing are listed in data/search_directories.txt, and any files indexed from those folders will also have their full paths collected.</td></tr>
 <tr id='R29'><td n='29'></td><td></td></tr>
 <tr id='R30'><td n='30'></td><td>This happens in elastic_indexer.pl:</td></tr>
 <tr id='R31'><td n='31'></td><td><p class="outdent-unordered">&nbsp;&bull; win_wide_filepaths.pm#DeepFindFileWide() is called on each folder to collect a list of all files, in %rawPathList</p></td></tr>
@@ -1336,20 +1377,20 @@ margin: 3px 8px;
 <tr id='R41'><td n='41'></td><td></td></tr>
 <tr id='R42'><td n='42'></td><td>When InitDirectoryFinder() finishes, full paths for link specifiers can be retrieved with reverse_filepaths.pm#FullPathInContextNS(); more on that next.</td></tr>
 <tr id='R43'><td n='43'></td><td></td></tr>
-<tr id='R44'><td n='44'></td><td><h3 id="3._Code_to_detect_a_link_specifier"><p class="ol-1">3. Code to detect a link specifier</p></h3></td></tr>
+<tr id='R44'><td n='44'></td><td><h3 id="3._Code_to_detect_a_link_specifier"><p class="ol-1">3. Code to detect a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a></p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R46'><td n='46'></td><td>IntraMine's Linker, as called by the <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, emplaces <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a> on demand, when new lines of text become visible. You'll find an overview in <a href="./Viewer.html#Autolinks" target="_blank">"Viewer.txt#Autolinks"</a> and <a href="./Linker.html#Calling the Linker" target="_blank">"Linker.txt#Calling the Linker"</a>.</td></tr>
+<tr id='R46'><td n='46'></td><td>IntraMine's Linker, as called by the <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, emplaces <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a> on demand, when new lines of text become visible. You'll find an overview in <a href="./Viewer.html#Autolinks" target="_blank">"Viewer.txt#Autolinks"</a> and <a href="./Linker.html#Calling the Linker" target="_blank">"Linker.txt#Calling the Linker"</a>.</td></tr>
 <tr id='R47'><td n='47'></td><td></td></tr>
 <tr id='R48'><td n='48'></td><td>We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.</td></tr>
 <tr id='R49'><td n='49'></td><td>AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.</td></tr>
 <tr id='R50'><td n='50'></td><td></td></tr>
 <tr id='R51'><td n='51'></td><td>EvaluateLinkCandidates() loops over a line of text looking for text in quotes, or a potential file extension, or the http etc that can start a web link. Unquoted file links can all be identified easily enough by finding the file extension first, and then working backwards to accumulate the longest path that represents a valid file mention.</td></tr>
 <tr id='R52'><td n='52'></td><td></td></tr>
-<tr id='R53'><td n='53'></td><td>For a path (link specifier) to be "valid" it needs to be either a full path or a good match for a known path. Expansion of link text being checked to the longest compatible link specifier is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it matches up with a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.</td></tr>
+<tr id='R53'><td n='53'></td><td>For a path (<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a>) to be "valid" it needs to be either a full path or a good match for a known path. Expansion of link text being checked to the longest compatible link specifier is handled by RememberTextOrImageFileMention(), which in turn calls GetLongestGoodPath() to extend the link text leftwards from the file extension, calling FullPathInContextNS() at each step to see if it matches up with a good path. GetLongestGoodPath() typically checks as far left as it can, to pick up the longest file mention.</td></tr>
 <tr id='R54'><td n='54'></td><td></td></tr>
 <tr id='R55'><td n='55'></td><td>reverse_filepaths.pm#FullPathInContextNS() is just a "clean up" wrapper on BestMatchingFullPath(), which does the real work.</td></tr>
 <tr id='R56'><td n='56'></td><td></td></tr>
-<tr id='R57'><td n='57'></td><td>In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a link specifier in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a link specifier happens in five steps:</td></tr>
+<tr id='R57'><td n='57'></td><td>In reverse_filepaths.pm#BestMatchingFullPath() the work of collecting full paths finally pays off. BestMatchingFullPath() receives a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> in "$linkSpecifier", and the path of a context folder in "$contextDir", and returns either the best matching full path or an empty string. Recognition of a link specifier happens in five steps:</td></tr>
 <tr id='R58'><td n='58'></td><td><p class="ol-1">1. Is $linkSpecifier a full path? Return  it.</p></td></tr>
 <tr id='R59'><td n='59'></td><td><p class="ol-1">2. Does $linkSpecifier match fully on the right with a full path, and is there some overlap on the left between full path and $contextDir? Return the full path that has best overlap, shortest on a tie.</p></td></tr>
 <tr id='R60'><td n='60'></td><td><p class="ol-1">3. Does $linkSpecifier match fully on the right with a full path, ignoring context? Return first one found.</p></td></tr>
@@ -1358,11 +1399,11 @@ margin: 3px 8px;
 <tr id='R63'><td n='63'></td><td>If all of the above checks fail, return ''.</td></tr>
 <tr id='R64'><td n='64'></td><td>Note that where the supplied $linkSpecifier is ambiguous, the wrong path can be returned.</td></tr>
 <tr id='R65'><td n='65'></td><td></td></tr>
-<tr id='R66'><td n='66'></td><td><h4 id="Full_path_for_link_specifier_example">Full path for link specifier example</h4></td></tr>
+<tr id='R66'><td n='66'></td><td><h4 id="Full_path_for_link_specifier_example">Full path for <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> example</h4></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R68'><td n='68'></td><td>As an example of that, suppose BestMatchingFullPath() is passed</td></tr>
 <tr id='R69'><td n='69'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "src\main.cpp"</p></td></tr>
-<tr id='R70'><td n='70'></td><td><p class="outdent-unordered">&nbsp;&bull; $contextDir: "C:\Projects\Project51\docs\" (because the mention of the link specifier is in a file in that docs directory)</p></td></tr>
+<tr id='R70'><td n='70'></td><td><p class="outdent-unordered">&nbsp;&bull; $contextDir: "C:\Projects\Project51\docs\" (because the mention of the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> is in a file in that docs directory)</p></td></tr>
 <tr id='R71'><td n='71'></td><td>with the possible full paths for "src\main.cpp" being</td></tr>
 <tr id='R72'><td n='72'></td><td>TABLE</td></tr>
 <tr id='R73'><td n='73'></td><td>Full path</td></tr>
@@ -1374,12 +1415,12 @@ margin: 3px 8px;
 <tr id='R79'><td n='79'></td><td>The corresponding %FullPathsForFileName hash entry is:</td></tr>
 <tr id='R80'><td n='80'></td><td>$FullPathsForFileName{'main.cpp'} = 'C:\Projects\Project51\src\main.cpp|C:\Projects\Project999\src\main.cpp|C:\Projects\Project999\test\main.cpp|P:\MoreProjects\Project27\source\main.cpp'.</td></tr>
 <tr id='R81'><td n='81'></td><td></td></tr>
-<tr id='R82'><td n='82'></td><td>BestMatchingFullPath() looks at the file name in the passed-in link specifier, "main.cpp", and sees that it has that entry in %FullPathsForFileName as shown just above.</td></tr>
+<tr id='R82'><td n='82'></td><td>BestMatchingFullPath() looks at the file name in the passed-in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a>, "main.cpp", and sees that it has that entry in %FullPathsForFileName as shown just above.</td></tr>
 <tr id='R83'><td n='83'></td><td></td></tr>
 <tr id='R84'><td n='84'></td><td>For each full path in the entry:</td></tr>
-<tr id='R85'><td n='85'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in link specifier? The entries ending in "src\main.cpp" do match perfectly, but the other two entries, ending in "test\main.cpp" and "source\main.cpp", do not.</p></td></tr>
-<tr id='R86'><td n='86'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the context directory, starting from the left? For the two candidates, we have:</p></td></tr>
-<tr id='R87'><td n='87'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with context directory</caption><thead>
+<tr id='R85'><td n='85'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a>? The entries ending in "src\main.cpp" do match perfectly, but the other two entries, ending in "test\main.cpp" and "source\main.cpp", do not.</p></td></tr>
+<tr id='R86'><td n='86'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the <a class='glossary' href="#" onmouseover="showhint('<p>Context directory: the path to the directory holding a referencing file. Eg &quot;p:/projects/project51/docs&quot; or &quot;p:/projects/project99/src&quot;.</p>', this, event, '500px', false);">context directory</a>, starting from the left? For the two candidates, we have:</p></td></tr>
+<tr id='R87'><td n='87'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Context directory: the path to the directory holding a referencing file. Eg &quot;p:/projects/project51/docs&quot; or &quot;p:/projects/project99/src&quot;.</p>', this, event, '500px', false);">context directory</a></caption><thead>
 <tr id='R88'><th n='88'></th><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
 <tr id='R89'><td n='89'></td><td>C:\Projects\Project51\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>22</td></tr>
 <tr id='R90'><td n='90'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table><tbody>
@@ -1387,11 +1428,11 @@ margin: 3px 8px;
 <tr id='R92'><td n='92'></td><td></td></tr>
 <tr id='R93'><td n='93'></td><td>Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".</td></tr>
 <tr id='R94'><td n='94'></td><td></td></tr>
-<tr id='R95'><td n='95'></td><td><h4 id="Another_link_specifier_example,_without_help_from_context">Another link specifier example, without help from context</h4></td></tr>
+<tr id='R95'><td n='95'></td><td><h4 id="Another_link_specifier_example,_without_help_from_context">Another <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> example, without help from context</h4></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R97'><td n='97'></td><td>Suppose the same circumstances as the example above, but with</td></tr>
 <tr id='R98'><td n='98'></td><td><p class="outdent-unordered">&nbsp;&bull; $linkSpecifier: "Project27\main.cpp"</p></td></tr>
-<tr id='R99'><td n='99'></td><td>Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the context directory either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied link specifier it counts as a full match.</td></tr>
+<tr id='R99'><td n='99'></td><td>Running through the full path entries for main.cpp, all exact rightmost matches fail and there's no help from the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Context directory: the path to the directory holding a referencing file. Eg &quot;p:/projects/project51/docs&quot; or &quot;p:/projects/project99/src&quot;.</p>', this, event, '500px', false);">context directory</a> either. A "relaxed" match against file name and supplied directories, as done in step 5. described above, gives "P:\MoreProjects\Project27\source\main.cpp" as the only candidate path that mentions "Project27", and since that's the only directory mentioned in the supplied <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Link specifier: a file name, plus optional directory names in any order to uniquely identify a file. And optionally a drive letter (placed first so as not to confuse humans). Eg &quot;main.cpp&quot;, &quot;src/main.cpp&quot;, &quot;project51/main.cpp&quot;, &quot;p:/projects/project51/src/main.cpp&quot;. The document holding the link specifier is the &quot;referencing file&quot;.</p>', this, event, '500px', false);">link specifier</a> it counts as a full match.</td></tr>
 <tr id='R100'><td n='100'></td><td></td></tr>
 <tr id='R101'><td n='101'></td><td><h3 id="4._a_way_of_keeping_the_full_paths_list_up_to_date"><p class="ol-1">4. a way of keeping the full paths list up to date</p></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1411,7 +1452,7 @@ margin: 3px 8px;
 <tr id='R116'><td n='116'></td><td></td></tr>
 <tr id='R117'><td n='117'></td><td>To partially compensate, IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> will direct Linkers to do their maintenance in sequence if at least two Linkers are running. That way, at least one Linker will remain responsive at all times. Search IntraMine's stuff for "MAINTENANCE_SERVER_EVENTS" to see the details.</td></tr>
 <tr id='R118'><td n='118'></td><td></td></tr>
-<tr id='R119'><td n='119'></td><td>If you're doing your own <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a>, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.</td></tr>
+<tr id='R119'><td n='119'></td><td>If you're doing your own <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a>, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.</td></tr>
 <tr id='R120'><td n='120'></td><td></td></tr>
 <tr id='R121'><td n='121'></td><td><h2 id="Text_from_Perl_to_JavaScript_and_back">Text from Perl to JavaScript and back</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1517,6 +1558,7 @@ let highlightItems = [];
 let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAFLMAABSzATFtOXUAAAQZSURBVFhH1ZZfTFtVHMd/91/L7VY6/hVG4xgymWUIY5ENkq0jy4wGN3EjMmpI9mCcb0s0PvnnzfiyZCb6YqI+mJCUoRkmc7onXeYSBcxWZkfDMjYR6Ua7Au0dXLn33Hs8pz3BdC1QQpvUT/+l39/J70/POb/+ONggTX1SrQkwBEg/FBgAhcmborEX7CBKvxgAJ4L9+n0mZwXPPrPC/bpwQLTDb3I5NJtWkJi8aagv6rOI+KYxmJwVWRfg9krdWyv4n1s9zU7BSjZuiRlyAfFFfbZ6mpw0Bo3FLOuSVQF7vNK7jh384BHPS/KBbT1MzT3tJb3Q4Tkq01g0JpPXZM0Cmk+DSBx9Xu6Wzr3Q3sXvsrWBai4wa+5ZMmJQbzsIR9uO8WXPiudobJoDM2dk1UvsPgnFgiwNulrkF9t2dUKJ6EroGlbh4vUvITZleEDgYglxsxjY4agRrnUffBMkrighRdE0DN+9AiG/eoU0jJ7VGkbGAnb3WZ6yivj7mlZHU7PrMMicg1kAdFLA9ftDoEYxU3KDXMbBodpuEDkrU8iOkN2+FboKU6PKrWXEHZvo16aZaYW0Ahp6xX0WO3eprq20uq5kH3FoYZYkmDz+MR+vfMslRbydJJSakm4uw+T8Dbg3PB/SFHx8fADdYKYEKasbeqTjshN8dfsrtlTZaomyoS6bNzCYMLs4CZOj0UU1DN7xQf0SM/1XAGldZ4td3PmalhLBLpUztbBQtAhM+RcMZQa/Pe7TP6Ma19EBQni7eL60XjhbWW8DiU9eokJFN1WYvaPC3ITxqfMheodr8IpDlXvFV+0uPu38FSr0Hioz5Fj50Xc8xjCmxck7fZKz9n940VxpzjR34VHAvErO/rS2CJ1bKnmBK/BNwCT/Wb+hK3+ZZ0hH+kSgYiRg3ty2kx9R58yurVW8lUuohYepA4RGkaJG4MTtAfQt1VJ+78ZT4l6xmLtcvV+oFuXC2gqkYgiNGCEUxy8HLiA/k9NvbaPXsoMvwpe3Py80Wh2FUcRyDMOD343Ass51PvlvnDHDei84LKJ0sapFOGJzpi9ZiuC8jBK2igyxwhge3jR+0pB+8o4P0mavVX/inafBYtOlryr2CH2OmtRl4T+MvAxzzudSL19sCkPkttG/JOlv/Pk1aExOYdUCGJz7lPhR6TPCe2W7yVjBVtMC4ve0svFvYC6pbI6G16C0+GlLdKUAsrnRCRPP3zU+Jp3mw6SSmfWGHRy8gN6fmzTOkNaFaAvLN6xNIhLzLZL8B1RKWjKT1bQW9KEv4jO4KzSMHtNWli8SbXIEKfEQfoXGZPKaZD1uBgf0H8jFPfz3r+iBoTIxhyDik/pWH+GOoE//kcnrsqF5mc7i+gLXvhjGY7wAOdsL6ot0mzHq+8l5f20A/gW9of8+fiHTAwAAAABJRU5ErkJggg==';
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
+let useLolight = true;
 //let weAreStandalone = true;
 </script>
 <script type="text/javascript">
@@ -2968,11 +3010,51 @@ function positionViewItems() {
 }
 
 function finishStartup() {
+	if (thePath.match(/\.txt$/))
+		{
+		// use lolight highlighting
+		putInLolightElements();
+		}
+
 	hideIt("search-button");
 	hideIt("small-tip");
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	reJump();
+}
+
+// Code block highlighting with lolight, used
+// by intramine_viewer.pl and gloss2html.pl.
+function putInLolightElements() {
+	document.querySelectorAll('td').forEach((el) => {
+		putInLolightPreAndClass(el);
+	});
+}
+
+function putInLolightPreAndClass(el) {
+	let text = el.innerHTML;
+	let codeMarkerPosition = text.indexOf('_STARTCB_');
+	if (codeMarkerPosition == 0)
+		{
+		// FL = First/Last line of a code block. These are
+		// shrunk down, emptied out, and colored gray.
+		// Other rows starting with 'STARTCB_' are given
+		// a class of 'lolight', and lolight JS styles
+		// them up when the document is ready.
+		if (text.indexOf('_STARTCB_FL_') == 0)
+			{
+			el.innerHTML = '';
+			el.parentNode.classList.add("reallyshrunkrow");
+			el.parentNode.firstElementChild.removeAttribute("n");
+			el.style.backgroundColor = "#d0d0d0";
+			}
+		else
+			{
+			text = text.substring(9);
+			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
+			el.style.backgroundColor = "#f3f3f3";
+			}
+		}
 }
 
 function createElementFromHTML(htmlString) {
@@ -3293,9 +3375,12 @@ function getSelectionText() {
 
 
 // "Too big" means selected text spreads across two or more lines.
+// Or we're in a CODE block and more than a word is selected.
 // Revision, this affects the actual current selection so stop doing it.
+// I can't remember why I wrote the above line.
 function selectionIsTooBig() {
 	let selectionTooBig = false;
+	let withinPRE = false;
 	let currSelection = window.getSelection();
 	let rangeCount = currSelection.rangeCount;
 	if (rangeCount > 0)
@@ -3306,15 +3391,41 @@ function selectionIsTooBig() {
 		
 		while (tdElem !== null && tdElem.nodeName !== "TD")
 			{
+			if (tdElem.nodeName === "PRE")
+				{
+				withinPRE = true;
+				}
 			tdElem = tdElem.parentNode;
 			}
 		if (tdElem === null)
 			{
 			selectionTooBig = true;
 			}
+		else
+			{
+			if (withinPRE)
+				{
+				let text = window.getSelection().toString();
+				if (containsMoreThanOneWord(text))
+					{
+					selectionTooBig = true;
+					}
+				}
+			}
 		}
 
 	return (selectionTooBig);
+}
+
+function containsMoreThanOneWord(text) {
+	let result = false;
+	let nonWordHitPosition = text.search(/\W/);
+	if (nonWordHitPosition >= 0) // more than just a word is there
+		{
+		result = true;
+		}
+
+	return(result);
 }
 
 function currentSelectionTouchesLink() {
@@ -5039,5 +5150,9 @@ window.addEventListener("load", addTocScrollListener);
 //window.addEventListener("load", addTocAndToggleListeners);
 
 
+</script>
+<script type="text/javascript">
+/*! lolight v1.4.0 - https://larsjung.de/lolight/ modified to add 'my' and 'sub' keywords. -KLB */
+!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):e.lolight=t()}(this,function(){function t(e){if("string"!=typeof e)throw new Error("tok: no string");for(var t=[],n=u.length,o=!1;e;)for(var r=0;r<n;r+=1){var i=u[r][1].exec(e);if(i&&0===i.index){var a=u[r][0];if("rex"!==a||!o){var l=i[0];a===s&&c.test(l)&&(a="key"),"spc"===a?0<=l.indexOf("\n")&&(o=!1):o=a===f||a===s,e=e.slice(l.length),t.push([a,l]);break}}}return t}function e(e,t){if("undefined"!=typeof document)t(document);else if(e)throw new Error("no doc")}function n(o){e(!0,function(n){var e=t(o.textContent);o.innerHTML="",e.forEach(function(e){var t=n.createElement("span");t.className="ll-"+e[0],t.textContent=e[1],o.appendChild(t)})})}function o(t){e(!0,function(e){[].forEach.call(e.querySelectorAll(t||".lolight"),function(e){n(e)})})}var r="_nam#2196f3}_num#ec407a}_str#43a047}_rex#ef6c00}_pct#666}_key#555;font-weight:bold}_com#aaa;font-style:italic}".replace(/_/g,".ll-").replace(/#/g,"{color:#"),c=/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|onst|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do|double|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or(each)?|riend|rom|unc(tion)?)|global|goto|guard|i(f|mp(lements|licit|ort)|n(it|clude(_once)?|line|out|stanceof|t(erface|ernal)?)?|s)|l(ambda|et|ock|ong)|m(odule|utable|y)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|ub)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of))|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|ith)|xor|yield)$/,i="com",s="nam",f="num",u=[[f,/#([0-9a-f]{6}|[0-9a-f]{3})\b/],[i,/(\/\/|#).*?(?=\n|$)/],[i,/\/\*[\s\S]*?\*\//],[i,/<!--[\s\S]*?-->/],["rex",/\/(\\\/|[^\n])*?\//],["str",/(['"`])(\\\1|[\s\S])*?\1/],[f,/[+-]?([0-9]*\.?[0-9]+|[0-9]+\.?[0-9]*)([eE][+-]?[0-9]+)?/],["pct",/[\\.,:;+\-*\/=<>()[\]{}|?!&@~]/],["spc",/\s+/],[s,/[\w$]+/],["unk",/./]];return e(!1,function(e){var t=e.querySelector("head"),n=e.createElement("style");n.textContent=r,t.insertBefore(n,t.firstChild),/^(i|c|loade)/.test(e.readyState)?o():e.addEventListener("DOMContentLoaded",function(){o()})}),o.tok=t,o.el=n,o});
 </script>
 </body></html>

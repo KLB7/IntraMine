@@ -240,11 +240,51 @@ function positionViewItems() {
 }
 
 function finishStartup() {
+	if (thePath.match(/\.txt$/))
+		{
+		// use lolight highlighting
+		putInLolightElements();
+		}
+
 	hideIt("search-button");
 	hideIt("small-tip");
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	reJump();
+}
+
+// Code block highlighting with lolight, used
+// by intramine_viewer.pl and gloss2html.pl.
+function putInLolightElements() {
+	document.querySelectorAll('td').forEach((el) => {
+		putInLolightPreAndClass(el);
+	});
+}
+
+function putInLolightPreAndClass(el) {
+	let text = el.innerHTML;
+	let codeMarkerPosition = text.indexOf('_STARTCB_');
+	if (codeMarkerPosition == 0)
+		{
+		// FL = First/Last line of a code block. These are
+		// shrunk down, emptied out, and colored gray.
+		// Other rows starting with 'STARTCB_' are given
+		// a class of 'lolight', and lolight JS styles
+		// them up when the document is ready.
+		if (text.indexOf('_STARTCB_FL_') == 0)
+			{
+			el.innerHTML = '';
+			el.parentNode.classList.add("reallyshrunkrow");
+			el.parentNode.firstElementChild.removeAttribute("n");
+			el.style.backgroundColor = "#d0d0d0";
+			}
+		else
+			{
+			text = text.substring(9);
+			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
+			el.style.backgroundColor = "#f3f3f3";
+			}
+		}
 }
 
 function createElementFromHTML(htmlString) {
@@ -565,9 +605,12 @@ function getSelectionText() {
 
 
 // "Too big" means selected text spreads across two or more lines.
+// Or we're in a CODE block and more than a word is selected.
 // Revision, this affects the actual current selection so stop doing it.
+// I can't remember why I wrote the above line.
 function selectionIsTooBig() {
 	let selectionTooBig = false;
+	let withinPRE = false;
 	let currSelection = window.getSelection();
 	let rangeCount = currSelection.rangeCount;
 	if (rangeCount > 0)
@@ -578,15 +621,41 @@ function selectionIsTooBig() {
 		
 		while (tdElem !== null && tdElem.nodeName !== "TD")
 			{
+			if (tdElem.nodeName === "PRE")
+				{
+				withinPRE = true;
+				}
 			tdElem = tdElem.parentNode;
 			}
 		if (tdElem === null)
 			{
 			selectionTooBig = true;
 			}
+		else
+			{
+			if (withinPRE)
+				{
+				let text = window.getSelection().toString();
+				if (containsMoreThanOneWord(text))
+					{
+					selectionTooBig = true;
+					}
+				}
+			}
 		}
 
 	return (selectionTooBig);
+}
+
+function containsMoreThanOneWord(text) {
+	let result = false;
+	let nonWordHitPosition = text.search(/\W/);
+	if (nonWordHitPosition >= 0) // more than just a word is there
+		{
+		result = true;
+		}
+
+	return(result);
 }
 
 function currentSelectionTouchesLink() {

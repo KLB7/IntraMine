@@ -280,6 +280,11 @@ sub FullFile {
 	$theBody =~ s!_CSS_!$customCSS!;
 	$theBody =~ s!_TEXTTABLECSS_!$textTableCSS!;	
 	my $customJS = ($usingCM eq 'true') ? CodeMirrorJS() : NonCodeMirrorJS();
+	# Add lolight JS for .txt files only.
+	if ($filePath =~ m!\.txt$!)
+		{
+		$customJS .= "\n" . '<script src="lolight-1.4.0.min.js"></script>';
+		}
 	$theBody =~ s!_JAVASCRIPT_!$customJS!;
 	
 	# Full path is unhelpful in the <title>, trim down to just file name.
@@ -371,7 +376,7 @@ sub FullFile {
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-
+	
 	# Keep this last, else a casual mention of _TITLE_ etc in the file contents
 	# could get replaced by one of the above substitutions.
 	$theBody =~ s!_FILECONTENTS_!$fileContents!;
@@ -553,8 +558,13 @@ sub GetContentBasedOnExtension {
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
+		# Code block syntax highlighting with lolight, only for .txt files:
+		if ($filePath =~ m!\.txt|$!)
+			{
+			$cssForNonCm .= "\n" . '<link rel="stylesheet" href="lolight_custom.css" />';
+			}
 		$$customCSS_R = $cssForNonCm;
-		$$textTableCSS_R = $cssForNonCmTables;
+		$$textTableCSS_R = $cssForNonCmTables;		
 		}
 	# 2.1 custom, no TOC: md (Markdown)
 	elsif ($filePath =~ m!\.md$!i)
@@ -1165,7 +1175,7 @@ sub GetPrettyTextContents {
 	# GetPrettyPod calls this sub with loaded source.
 	# Pod sends a lot of placeholders such as _A_, _POLB_, _ALB_ etc
 	# that are removed or replaced below if $doingPOD is set
-	# - see gloss2hmtl.pm for details on why they are needed.
+	# - see html2gloss.pm for details on why they are needed.
 	if (defined($sourceR))
 		{
 		$doingPOD = 1;
@@ -1192,12 +1202,46 @@ sub GetPrettyTextContents {
 	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
 	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
 	my $inATable = 0;
+	my $inACodeBlock = 0; 	# Set if see CODE on a line by itself,
+							# continue until ENDCODE on a line by itself.
 	my $numLines = @lines;
 	
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		# First, remove _INDT_ for all lines, and count how many. These only come from .pod files.
+		# See if we're entering or leaving a code block.
+		# A code block starts with 'CODE' on a line by itself,
+		# and ends with 'ENDCODE' on a line by itself.
+		# CODE/ENDCODE is replaced by '_STARTCB_FL_',
+		# and intervening lines have '_STARTCB_' added
+		# at the beginning. Later, viewerStart.js#finishStartup()
+		# will delete the markers and wrap lines in <pre> elements,
+		# and lolight will style them when the page is ready.
+		if (!$doingPOD && !$inATable)
+			{
+			if ($lines[$i] eq 'CODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 1;
+				}
+			elsif ($lines[$i] eq 'ENDCODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 0;
+				}
+			}
+		
+		# Highlight code blocks. Actual highlighting is done by
+		# viewerStart.js#finishStartup().
+		if ($inACodeBlock)
+			{
+			if ($lines[$i] ne '_STARTCB_FL_')
+				{
+				$lines[$i] = '_STARTCB_' . $lines[$i];
+				}
+			}
+		
+		# Rmove _INDT_ for all lines, and count how many. These only come from .pod files.
 		my $indentClass = '';
 		if ($doingPOD && (my $indentPos = index($lines[$i], '_INDT_')) >= 0)
 			{

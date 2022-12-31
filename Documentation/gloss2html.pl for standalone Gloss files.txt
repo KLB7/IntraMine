@@ -5,31 +5,31 @@ gloss2html.pl will convert text files written using Gloss syntax into HTML files
 
 You can convert a whole folder at once or a single file.
 
-If you've arrived at this file by clicking the big golden question4-44.png in IntraMine's navigation bar then you're seeing IntraMine's Viewer version, which applies Gloss processing on the fly. To see the standalone version, open the .html version of this file in the Documentation folder using a browser.
+Automatic linking to .txt or HTML files in the same folder is supported, but other links are not, simply because the resulting document could end up anywhere. If you use IntraMine's Viewer to display the original .txt file then you will see all links to files in folders that you have indexed.
 
 Running gloss2html.pl
 =======================
 There are two command line arguments you can supply to gloss2html.pl
 
- - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to provide links to the images, and have the images pop up when the cursor stops over an image link
+ - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to have the images pop up when the cursor stops over an image link
  - the path to a file or folder (required). The path can be to a single text file, or to a folder holding several text files and optionally images. More below.
  
 Examples (as always, adjust the path to gloss2html.pl, and substitute your own document paths):
----
+CODE
 perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
----
+ENDCODE
 will convert all text files in "Documentation" to standalone HTML files. Images can be at the top level of "Documentation" or in a "Documentation/images" subfolder.
 
----
+CODE
 perl C:\perlprogs\mine\gloss2html.pl "C:\projects\project51\docs\Read Me First.txt"
----
+ENDCODE
 will convert "Read Me First.txt" to standalone HTML. If there are images mentioned in the text file they will be looked for in the "docs" folder or in "docs/images". Glossary entries from any docs\glossary.txt file will also be put in as popups on the corresponding text.
 
----
+CODE
 perl -i C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
 or
 perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -inline
----
+ENDCODE
 Including "-i" or "-inline" on the command line will result in all images being fully shown in the text, rather than having a link to the image with a popup view of it when the cursor stops over the link.
 
 Full image display versus image hovers
