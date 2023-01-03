@@ -15,6 +15,7 @@ Cut				Ctrl+X
 Copy			Ctrl+C
 Paste			Ctrl+V
 Select All		Ctrl+A
+In addition, a datestamp like "9:18 PM Monday, January 02, 2023" can be inserted by pressing F4.
 
 Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top.
 

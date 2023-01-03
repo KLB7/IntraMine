@@ -34,3 +34,7 @@ div#indicator {
 	overflow: auto;
 	height: 100%;
 }
+
+.CodeMirror:not(.CodeMirror-focused) .CodeMirror-cursors {
+  visibility: visible !important;
+}

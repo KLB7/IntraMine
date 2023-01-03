@@ -406,6 +406,55 @@ function showSearch(e) {
 	CodeMirror.commands.find(myCodeMirror);
 }
 
+function pasteDateTimeOnF4() {
+	window.addEventListener("keydown", (e) => {
+		if (e.key === "F4" && myCodeMirror.hasFocus()) {
+			let dateTimeString = nowDateTime();
+			insertInCodeMirror(dateTimeString);
+		}
+}, false);
+}
+
+//Pad given value to the left with "0"
+function AddZero(num) {
+    return (num >= 0 && num < 10) ? "0" + num : num + "";
+}
+
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+
+function nowDateTime() {
+    let now = new Date();
+	let amPm = 'AM';
+	let hours = now.getHours();
+	if (hours >= 12)
+		{
+		hours -= 12;
+		amPm = 'PM';
+		}
+	let strDateTime = hours + ":" + AddZero(now.getMinutes()) + " " + amPm +
+						" " + days[now.getDay()] + ", " + monthNames[now.getMonth()] +
+						" " + AddZero(now.getDate()) + ", " + now.getFullYear();
+    return(strDateTime);
+}
+
+
+function insertInCodeMirror(textToInsert) {
+    var doc = myCodeMirror.getDoc();
+    var cursor = doc.getCursor();
+
+    var pos = {
+        line: cursor.line,
+        ch: cursor.ch
+    }
+
+    doc.replaceRange(textToInsert, pos);
+}
+
+pasteDateTimeOnF4();
 addClickHandler("undo-button", editorUndo);
 addClickHandler("redo-button", editorRedo);
 addClickHandler("search-button", showSearch);
