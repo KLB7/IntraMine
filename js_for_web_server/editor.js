@@ -432,8 +432,15 @@ function nowDateTime() {
 	let hours = now.getHours();
 	if (hours >= 12)
 		{
-		hours -= 12;
+		if (hours > 12)
+			{
+			hours -= 12;
+			}
 		amPm = 'PM';
+		}
+	else if (hours == 0)
+		{
+		hours = 12;
 		}
 	let strDateTime = hours + ":" + AddZero(now.getMinutes()) + " " + amPm +
 						" " + days[now.getDay()] + ", " + monthNames[now.getMonth()] +
