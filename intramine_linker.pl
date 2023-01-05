@@ -446,7 +446,7 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
-	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
@@ -948,8 +948,50 @@ sub GetTextFileRep {
 			}
 		}
 	
+	# FOr C++, shorten constructor/destructor anchors.
+	if ($extProper eq 'cpp' || $extProper eq 'cxx' ||
+		$extProper eq 'hpp' || $extProper eq 'h' ||
+		$extProper eq 'hh' || $extProper eq 'hxx')
+		{
+		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
+		}
+	
 	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
+	}
+
+# "C" being a class name, remove "C::" from #C::C or #C::C() or #C::~C or #C::C().
+# Leave other anchors alone.
+sub ShortenedClassAnchor {
+	my ($anchorWithNum) = @_;
+	my $firstColonPos = index($anchorWithNum, ':');
+	
+	if ($firstColonPos > 0)
+		{
+		my $secondColonPos = index($anchorWithNum, ':', $firstColonPos + 1);
+		if ($secondColonPos == $firstColonPos + 1)
+			{
+			my $firstWord = substr($anchorWithNum, 1, $firstColonPos - 1);
+			my $secondWord = substr($anchorWithNum, $secondColonPos + 1);
+			my $parensPos = index($secondWord, '(');
+			if ($parensPos > 0)
+				{
+				$secondWord = substr($secondWord, 0, length($secondWord) - 2);
+				}
+			my $secondWordToTest = $secondWord;
+			if (index($secondWordToTest, '~') == 0)
+				{
+				$secondWordToTest = substr($secondWordToTest, 1);
+				}
+			
+			if ($firstWord eq $secondWordToTest)
+				{
+				$anchorWithNum = '#' . $secondWord;
+				}
+			}
+		}
+		
+	return($anchorWithNum);
 	}
 
 # Do up a view/hover link for image in $bestVerifiedPath, put that in $$repStringR.
