@@ -30,7 +30,7 @@
 # For more details see the comment above BestMatchingFullPath() and following subs below, and
 # Documentation/Linker.html.
 #
-# And autlinking_demo.pl at the top level of the IntraMine folder isolates the functions
+# And autolinking_demo.pl at the top level of the IntraMine folder isolates the functions
 # in this file to show how they work on a small set of paths, reporting which function
 # found a good match.
 
