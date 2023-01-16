@@ -1,6 +1,7 @@
 # intramine_uploader.pl: a file uploader for those remote people. Upload a file from
-# user's computer to IntraMine server's box. This is, needless to say, somewhat risky
-# if your intranet isn't locked down, or you don't trust the person sitting next to you:).
+# user's computer to IntraMine server's box. NOTE this works only for source
+# and text files. "Binary" files (such as images and executables) will
+# be rejected. Some day I would like to allow images.
 # Server name: "Upload".
 # To enable, uncomment the line
 #1	Upload				Upload		intramine_uploader.pl
@@ -11,13 +12,14 @@
 use strict;
 use warnings;
 use utf8;
-#use HTML::Entities;
 use Win32::Process;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use win_wide_filepaths;
+# Added Jan 2023, check to see if file to be copied has a known file extension.
+use ext;
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
@@ -62,6 +64,7 @@ sub UploadPage {
 </head>
 <body>
 _TOPNAV_
+<p>Note this uploader only works for source and text files with known extensions.</p>
 <div id='upload-status'>&nbsp;</div>
 
 <div id="searchform">
@@ -121,8 +124,11 @@ FINIS
 # $formH->{'directory'} . $formH->{'filename'}.
 # OkToSave() should be called before this, via JavaScript request with req=checkFile,
 # to allow/deny overwrite, as indicated by $formH->{'allowOverwrite'}.
+# NOTE only source and text files will be uploaded. If the file extension is not
+# recognized as source or text, there will just be an ERROR message returned.
 sub UploadTheFile {
 	my ($obj, $formH, $peeraddress) = @_;
+	my $fullPath = '';
 	my $result = 'OK';
 	
 	if (defined($formH->{'filename'}) && defined($formH->{'contents'}) && defined($formH->{'directory'}))
@@ -133,23 +139,34 @@ sub UploadTheFile {
 			{
 			$dir .= '/';
 			}
-		my $fullPath = $dir . $formH->{'filename'};
+		$fullPath = $dir . $formH->{'filename'};
 		
 		$fullPath = decode("utf8", $fullPath);
 		$dir = decode("utf8", $dir);
+		
+		# Reject if extension is not for a source or text file.
+		my $fileName = FileNameFromPath($fullPath);
+		my ($fileNameProper, $extWithPeriod) = FileNameProperAndExtensionFromFileName($fileName);
+		my $ext = substr($extWithPeriod, 1);
+		if (!IsTextExtensionNoPeriod($ext))
+			{
+			$result = "ERROR, |.$ext| not recognized as a source or text file extension, no copy made.";
+			return($result);
+			}
+
 		
 		# Make directories in the path if they don't exist yet.
 		MakeAllDirsWide($fullPath);
 				
 		if (FileOrDirExistsWide($dir) == 2)
 			{
-			# Use binary mode. So this won't work well if client is Linux/Mac and file is text.
-			# But most editors can cope with that. The problem is, at the moment I don't have code
-			# to detect text vs binary if the file path contains "wide" characters. Sigh.
+			# Write $formH->'contents'} to the destination path. Note at the moment this
+			# only works properly for source or text files, not binaries such as images
+			# or executables.
 			if (FileOrDirExistsWide($fullPath) == 0 || defined($formH->{'allowOverwrite'}))
 				{
-				$result = WriteBinFileWide($fullPath, $formH->{'contents'});
-				if (!$result)
+				my $writeResult = WriteBinFileWide($fullPath, $formH->{'contents'});
+				if (!$writeResult)
 					{
 					$result = "ERROR, could not write to |$fullPath|!";
 					}
@@ -172,7 +189,7 @@ sub UploadTheFile {
 			}
 		elsif (!defined($formH->{'contents'}))
 			{
-			$result = 'ERROR missing contents!';
+			$result = 'ERROR missing contents! File must contain at least one character.';
 			}
 		else
 			{

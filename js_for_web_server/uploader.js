@@ -105,21 +105,22 @@ function onreadystatechangeHandler(evt) {
 		readyState = evt.target.readyState;
 		text = evt.target.responseText;
 		status = evt.target.status;
-		} catch (e)
+		}
+	catch (e)
 		{
 		return;
 		}
 
-	if (readyState == 4 && status == '200' && evt.target.responseText)
+	if (readyState === XMLHttpRequest.DONE && (status == '200' || status === 0) && text !== '')
 		{
-		let status = document.getElementById('upload-status');
-		status.innerHTML = evt.target.responseText;
+		let statusElem = document.getElementById('upload-status');
+		statusElem.innerHTML = text;
 		// Spinner gif is in swarmserver.pm#TopNav()
 		hideSpinner();
 		}
 }
 
-// XMLHttpRequest, send req=checkFile. If OK, or user confirms overwrite,
+// Send req=checkFile. If 'OK', or user confirms overwrite,
 // upload the file with sendXHRequest().
 async function uploadTheFile(formData, uri) {
 	// Send an "activity" message.
@@ -183,67 +184,6 @@ async function uploadTheFile(formData, uri) {
 		status.innerHTML = '<p>Connection error!</p>';
 		hideSpinner();
 	}
-}
-
-function xuploadTheFile(formData, uri) {
-	// Send an "activity" message.
-	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
-	
-	showSpinner();
-	let fileElem = document.getElementById('file-id');
-	let fakepath = fileElem.value;
-	let arrayMatch = /([^\\]+)$/.exec(fakepath);
-	let fileName = (arrayMatch !== null) ? arrayMatch[1] : '';
-	let dirElem = document.getElementById('other-field-id');
-	let serverDir = dirElem.value;
-
-	let request = new XMLHttpRequest();
-	request.onload = function() {
-		if (request.status >= 200 && request.status < 400)
-			{
-			// Response holds OK, or ERROR if file already exists.
-			let resp = request.responseText;
-
-			if (resp.indexOf("OK") === 0)
-				{
-				sendXHRequest(formData, uri);
-				}
-			else
-				{
-				// File exists on server, confirm replacement or cancel.
-				if (confirmReplaceFile(serverDir, fileName))
-					{
-					uri += '&allowOverwrite=1';
-					sendXHRequest(formData, uri);
-					}
-				else
-					{
-					let status = document.getElementById('upload-status');
-					status.innerHTML = '&nbsp;';
-					hideSpinner();
-					}
-				}
-			}
-		else
-			{
-			let status = document.getElementById('upload-status');
-			status.innerHTML = '<p>Error, server reached but it returned an error!</p>';
-			hideSpinner();
-			}
-	};
-
-	request.onerror = function() {
-		// There was a connection error of some sort
-		let status = document.getElementById('upload-status');
-		status.innerHTML = '<p>Connection error!</p>';
-		hideSpinner();
-	};
-
-	// Call OkToSave(), returns OK if file does not exist yet, ERROR if file does exist
-	// and confirmation is needed to replace it.
-	request.open('GET', 'http://' + theHost + ':' + thePort + '/?req=checkFile&filename='
-			+ encodeURIComponent(fileName) + '&directory=' + encodeURIComponent(serverDir), true);
-	request.send();
 }
 
 // Ask user if file on server should be replaced.
