@@ -178,7 +178,7 @@ function getElementForHash(h) {
 	return(el);
 }
 
-// Scroll a line into view, based on line number.
+// Scroll a line into view, based on line number. Synch the TOC too.
 function reJumpToLineNumber(h) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum <= 0)
@@ -203,6 +203,9 @@ function reJumpToLineNumber(h) {
 				scrollMobileIndicator(); // if mobile
 				}
 			}
+
+		// Restore Table of Contents scrolled position and highlight.
+		restoreTocSelection(lineNum);
 		}
 }
 

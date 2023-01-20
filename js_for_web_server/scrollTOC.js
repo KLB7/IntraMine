@@ -33,6 +33,9 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			{
 			tocElem = getTocElemForLineNumber(lineNum);
 			}
+
+		// For restoring scrolled position after a reload.
+		location.hash = lineNum.toString();
 		}
 		
 	if (tocElem !== null)
@@ -42,6 +45,23 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		}
 }
 
+// Restore scrolled position of Table of Contents.
+// Called by  viewerStart.js#reJumpToLineNumber().
+function restoreTocSelection(lineNum) {
+	let tocElem = null;
+	let el = document.getElementById(cmTextHolderName);
+	let limitLineNum = lastVisibleLineNumber(el) + 1;
+	tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+	if (tocElem === null)
+		{
+		tocElem = getTocElemForLineNumber(lineNum);
+		}
+	if (tocElem !== null)
+		{
+		tocElem.scrollIntoView({block: 'center'});
+		updateTocHighlight(tocElem);
+		}
+}
 
 // Get text line number for current selection anchor, or -1.
 function lineNumberforAnchor() {
