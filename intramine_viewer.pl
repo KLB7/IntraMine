@@ -768,7 +768,7 @@ sub PositionToggle {
 
 # CodeMirror JavaScript and non-CodeMirror JS are rather different, especially in the way that
 # such things as links and highlights are handled. For non-CodeMirror, links and highlights
-# are put right in the HTML, whereas CodeMirror links an highlights are handled with
+# are put right in the HTML, whereas CodeMirror links and highlights are handled with
 # overlay markers (for an overview of that, see https://codemirror.net/doc/manual.html#markText).
 sub CodeMirrorJS {
 	my $jsFiles = <<'FINIS';
