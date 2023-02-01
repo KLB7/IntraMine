@@ -604,13 +604,13 @@ sub BestGuessAtOldFolderPath {
 				
 				if ($numParts >= 2)
 					{
-					my $oldPath = lc($oldnew[0]);
-					$oldPath =~ s!\\!/!g;
 					my $newPath = lc($oldnew[1]);
 					$newPath =~ s!\\!/!g;
 					
 					if (!$foundIt && $newPath eq $newFolderPath)
 						{
+						my $oldPath = $oldnew[0]; # Note keeping original case
+						$oldPath =~ s!\\!/!g;
 						$oldFolderPath = $oldPath;
 						$foundIt = 1;
 						}

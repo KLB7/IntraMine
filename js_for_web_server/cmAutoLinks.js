@@ -364,6 +364,10 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		{
 		nameOfCSSclass = "cmAutoLinkNoEdit";
 		}
+	else if (linkType === "directory")
+		{
+		nameOfCSSclass = "cmAutoLinkDirectory";
+		}
 
 	let charEnd = chStart + len;
 
@@ -457,6 +461,11 @@ function typeAndClass(target, checkForIMG) {
 		{
 		linkType = "file";
 		className = "cmAutoLink";
+		}
+	else if (hasClass(target, "cmAutoLinkDirectory"))
+		{
+		linkType = "directory";
+		className = "cmAutoLinkDirectory";
 		}
 	else if (hasClass(target, "cmAutoLinkMobile"))
 		{
@@ -773,6 +782,10 @@ function fireOneLink(target, linkType, className, forEdit) {
 			{
 			fireOneFileLink(linkPath, forEdit);
 			}
+		else if (linkType === "directory")
+			{
+			fireOneDirectoryLink(linkPath);
+			}
 		else if (linkType === "image")
 			{
 			fireOneImageLink(linkPath, className);
@@ -845,6 +858,17 @@ function fireOneFileLink(linkPath, forEdit) {
 
 function fireOneViewerLink(href) {
 	openView(href); // See viewerLinks.js#openView()
+}
+
+// linkPath: |<a href="c:/perlprogs/intramine/docs/" onclick="openDirectory(this.href); return false;">"docs"</a>|
+function fireOneDirectoryLink(linkPath) {
+	let hrefMatch = /href\=\"([^"]+)\"/.exec(linkPath);
+	if (hrefMatch !== null)
+		{
+		let href = hrefMatch[1];
+		href = encodeURIComponent(href);
+		openDirectory(href); // viewerLinks.js#openDirectory()
+		}
 }
 
 //Open image in a new browser tab.

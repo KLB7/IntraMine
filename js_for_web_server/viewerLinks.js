@@ -1,7 +1,7 @@
 /**
  * viewerLinks.js: handle links in file views. Used in intramine_viewer.pl
  *  for both CodeMirror and non-CodeMirror source and text files.
- *  See eg intramine_file_viewer_cm.pl#GetTextFileRep().
+ *  See eg intramine_linker.pl#GetTextFileRep().
  * Also used in gloss2html.pl, which generates HTML files from .txt.
  */
 
@@ -111,7 +111,6 @@ async function openView(href) {
 	//		let e1 = document.getElementById(errorID);
 	//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
 	}
-
 }
 
 // Open a view of a file, using the Viewer (intramine_file_viewer_cm.pl).
@@ -119,4 +118,73 @@ function openViewWithPort(href, port, viewerPort) {
 	let rePort = new RegExp(port);
 	href = href.replace(rePort, viewerPort);
 	window.open(href, "_blank");
+}
+
+// Call back to IntraMine's Viewer
+async function openDirectory(href) {
+	try {
+		const port = await fetchPort(mainIP, theMainPort, viewerShortName, errorID);
+		if (port !== "")
+			{
+			openDirectoryWithPort(href, theMainPort, port);
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+	//		let e1 = document.getElementById(errorID);
+	//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	}
+}
+
+// Call back to Files service, which will open up a new browser tab
+// and show an expanded view of the requested directory in href.
+// If the Files service is not available,
+// call back to Viewer, which will use
+// system('start', '', $dirPath);
+// to open a view of the directory with Windows File Explorer.
+async function openDirectoryWithPort(href, port, viewerPort) {
+	let useFilesService = false;
+
+	try {
+		const filesPort = await fetchPort(mainIP, port, filesShortName, errorID);
+		if (filesPort !== "")
+			{
+			useFilesService = true;
+			let theAction = 'http://' + mainIP + ':' + filesPort + '/' + filesShortName + '/?req=main' + '&directory=' + href;
+			window.open(theAction, "_blank");
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+	//		let e1 = document.getElementById(errorID);
+	//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	}
+
+	if (useFilesService)
+		{
+		return;
+		}
+	
+	try {
+		let theAction = 'http://' + mainIP + ':' + viewerPort + '/' + viewerShortName + '/?req=openDirectory' + '&dir=' + href;
+
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== 'OK')
+				{
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = 'Error, server said ' + text + '!';
+				}
+			}
+		else
+			{
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = 'Error, server reached but it could not open the directory!';
+			}
+	}
+	catch(error) {
+		// Connection error.
+	}
 }

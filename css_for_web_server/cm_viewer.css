@@ -37,8 +37,8 @@ div#indicator {
   font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 }
 
-/* File and web links. This is a span, we would like it to look and act like a link. */
-.cmAutoLink {
+/* File, directory, and web links. This is a span, we would like it to look and act like a link. */
+.cmAutoLink, .cmAutoLinkDirectory {
 	text-decoration: underline;
 	cursor: pointer;
 }

@@ -59,6 +59,14 @@ function startFileTreeUp() {
 	}, function() {
 		doResize();
 	});
+
+	if (typeof initialDirectoryPath !== 'undefined')
+		{
+		if (initialDirectoryPath !== '')
+			{
+			showDirectory(initialDirectoryPath);
+			}
+		}
 }
 
 // Link clicked, respond by opening the file in IntraMine's Viewer or an editor, depending
@@ -394,6 +402,77 @@ function depthForDir(dir) {
 	return(depth);
 	}
 
+// After starting up, expand left directory list to show
+// the contents of the directory path in dirPath. This is done
+// by simulating clicks on the directory names as we drill down.
+async function showDirectory(dirPath) {
+	// Decode: this goes with
+	// $initialDirectory = uri_encode($initialDirectory);
+	// near bottom of intramine_filetree.pl#FileTreePage().
+	dirPath = decodeURIComponent(dirPath);
+
+	let leftList = document.getElementById("scrollDriveListLeft");
+	let openRels = [];
+	let lastSlashIndex = dirPath.lastIndexOf("/");
+	let dirPathLength = dirPath.length;
+	if (lastSlashIndex === dirPathLength - 1)
+		{
+		dirPath = dirPath.substring(0, lastSlashIndex);
+		}
+	let spuriousFilesIndex = dirPath.indexOf("file:///");
+	if (spuriousFilesIndex === 0)
+		{
+		dirPath = dirPath.substring(8); // 8 == length of file:///
+		}
+	const dirPathParts = dirPath.split("/");
+	let progressivelyDeeperPath = '';
+
+	for (let j = 0; j < dirPathParts.length; ++j)
+		{
+		progressivelyDeeperPath += dirPathParts[j] + "/";
+		openRels.push(progressivelyDeeperPath);
+		}
+	
+	// Handle drive first.
+	await delay(300);
+	driveChanged('scrollDriveListLeft', openRels[0]);
+	let theDrive = openRels[0];
+	theDrive = theDrive.substring(0, theDrive.length - 1);
+	let eid = document.getElementById('driveselector_1');
+	eid.value = openRels[0];
+
+	for (let i = 1; i < openRels.length; ++i)
+		{
+		let relval = openRels[i];
+		let relQuery = '[rel=' + '"' + relval + '"]';
+		await delay(300);
+		
+		let ank = leftList.querySelectorAll(relQuery)[0];
+
+		if (typeof ank !== 'undefined')
+			{
+			ank.click();
+			if (i == openRels.length - 1)
+				{
+				ank.scrollIntoView();
+				}
+			}
+		else
+			{
+			break;
+			}
+		}
+	
+}
+
+function setSelectBoxByText(id, etxt) {
+	let eid = document.getElementById(id);
+     for (var i = 0; i < eid.options.length; ++i) {
+        if (eid.options[i].text === etxt) {
+			eid.options[i].selected = true;
+			}
+		}
+}
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 window.addEventListener("load", startFileTreeUp);

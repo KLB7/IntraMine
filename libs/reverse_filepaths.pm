@@ -52,8 +52,10 @@ use win_wide_filepaths;
 
 { ##### Directory list
 my $FullPathListPath;		# For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
-my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp';
+my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{c:/dir1/dir2/dir3/file.txt} = 'file.txt';
+my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
+my %FullDirectoryPathsForDirName; # Eg $FullDirectoryPathsForDirName{'docs'} = '|c:/proj1/docs|c:/p2/docs|';
+my %LastDirForFullDirPath; # $LastDirForFullDirPath{'c:/proj1/docs'} = 'docs';
 
 # Load %IntKeysForPartialPath, and build %IntKeysForPartialPath from it.
 sub InitDirectoryFinder {
@@ -68,9 +70,11 @@ sub InitDirectoryFinder {
 sub ReinitDirectoryFinder {
 	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	
-	# Empty out %FileNameForFullPath and %IntKeysForPartialPath.
+	# Empty out %FileNameForFullPath etc.
 	%FileNameForFullPath = ();
 	%FullPathsForFileName = ();
+	%FullDirectoryPathsForDirName = ();
+	%LastDirForFullDirPath = ();
 	
 	return(InitDirectoryFinder($filePath));
 	}
@@ -91,6 +95,7 @@ sub InitFullPathList {
 	}
 
 # From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
+# and also %FullDirectoryPathsForDirName for directory matching.
 sub BuildFullPathsForFileName {
 	my ($fileNameForFullPathH) = @_;
 	
@@ -104,6 +109,42 @@ sub BuildFullPathsForFileName {
 		else
 			{
 			$FullPathsForFileName{$fileName} = $fullPath;
+			}
+		AddToDirectoryPaths($fullPath);
+		}
+	}
+
+# From the full file path in $fullPath, build up dir paths
+# progressively from left to right and add entries to both
+# dir hashes. All dir paths end in a '/'.
+sub AddToDirectoryPaths {
+	my ($fullPath) = @_;
+	# Remove the file name and last '/'.
+	if (index($fullPath, "/") >= 0)
+		{
+		my $lastSlashPos = rindex($fullPath, "/");
+		$fullPath = substr($fullPath, 0, $lastSlashPos);
+		}
+	
+	my @dirNames = split(/\//, $fullPath);
+	# Add back the last slash.
+	$fullPath = $fullPath . '/';
+	
+	my $partialDirPath = '';
+	for (my $i = 0; $i < @dirNames; ++$i)
+		{
+		$partialDirPath .= $dirNames[$i] . '/';
+		if (!defined($LastDirForFullDirPath{$partialDirPath}))
+			{
+			$LastDirForFullDirPath{$partialDirPath} = $dirNames[$i];
+			if (defined($FullDirectoryPathsForDirName{$dirNames[$i]}))
+				{
+				$FullDirectoryPathsForDirName{$dirNames[$i]} .= "$partialDirPath|";
+				}
+			else
+				{
+				$FullDirectoryPathsForDirName{$dirNames[$i]} = "|$partialDirPath|";
+				}
 			}
 		}
 	}
@@ -210,24 +251,33 @@ sub AddIncrementalNewPaths {
 		while (my ($path, $fileName) = each %newFileNameForFullPath)
 			{
 			$FileNameForFullPath{$path} = $newFileNameForFullPath{$path};
+			AddToDirectoryPaths($path);
 			}
 		}
 	}
 
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
-# All paths should be lowercase and use forward slashes.
+# All paths are lowercase and use forward slashes.
 sub UpdatePathsForFolderRenames {
 	my ($numRenames, $renamedFolderPathsA, $oldFolderPathA, $newPathForOldPathH) = @_;
 	my @oldFolderPathCopy = @$oldFolderPathA;
 	my @renamedFolderPathsCopy = @$renamedFolderPathsA;
 	my %tempFileNameForFullPath = %FileNameForFullPath;
+		
+	for (my $i = 0; $i < @oldFolderPathCopy; ++$i)
+		{
+		$oldFolderPathCopy[$i] = lc($oldFolderPathCopy[$i]);
+		}
+	for (my $i = 0; $i < @renamedFolderPathsCopy; ++$i)
+		{
+		$renamedFolderPathsCopy[$i] = lc($renamedFolderPathsCopy[$i]);
+		}
 	
 	if ($numRenames == 1)
 		{
 		my $oldFolderPath = $oldFolderPathCopy[0];
-		my $newFolderPath = $renamedFolderPathsCopy[0];
-		
+		my $newFolderPath = $renamedFolderPathsCopy[0];		
 		keys %FileNameForFullPath;
 		while (my ($path, $fileName) = each %FileNameForFullPath)
 			{
@@ -235,11 +285,9 @@ sub UpdatePathsForFolderRenames {
 				{
 				my $newPath = $newFolderPath . substr($path, length($oldFolderPath));
 				my $oldEntry = $FileNameForFullPath{$path};
-				$newPathForOldPathH->{$path} = $newPath;
 				delete($tempFileNameForFullPath{$path});
 				$tempFileNameForFullPath{$newPath} = $oldEntry;
-				# TEST ONLY
-				#print("Renamed: |$newPath| was |$path|\n");
+				$newPathForOldPathH->{$path} = $newPath;
 				}
 			}
 		}
@@ -420,7 +468,7 @@ sub BestMatchingFullPath {
 			}
 		}
 	# For a //host/share UNC, check for a record of the
-	# link text in our %IntKeysForPartialPath hash. No checking the drive.
+	# link text in our %FileNameForFullPath hash. No checking the drive.
 	elsif ($linkSpecifier =~ m!^//!)
 		{
 		if (FullPathIsKnown($linkSpecifier))
@@ -774,6 +822,222 @@ sub FullPathIsKnown {
 	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1: 0;
 
 	return($result);
+	}
+
+# Return 1 if directory path in $fullDir is recognized.
+# $fullDir should start with a drive letter and be complete
+# with dirs in correct order, using '/' only.
+sub FullDirPathIsKnown {
+	my ($fullDir) = @_;
+	# Put '/' on end of $fullDir if missing: all entries in
+	# %LastDirForFullDirPath end in '/'.
+	my $lastSlashPos = rindex($fullDir, '/');
+	if ($lastSlashPos != length($fullDir) - 1)
+		{
+		$fullDir .= '/';
+		}
+	my $result = (defined($LastDirForFullDirPath{$fullDir})) ? 1: 0;
+
+	return($result);	
+	}
+
+# Much like BestMatchingFullPath above, but for directory paths.
+# Requires $linkSpecifier "normalized": no leading or trailing slash,
+# only forward slashes, lowercase.
+sub BestMatchingFullDirectoryPath {
+	my ($linkSpecifier, $contextDir) = @_;
+	my $result = '';
+	
+	# 1.
+	# Allow any full dir path, provided either we have a record of it or the file is on disk.
+	if ($linkSpecifier =~ m!^\w:/!)
+		{
+		if (FullDirPathIsKnown($linkSpecifier) || FileOrDirExistsWide($linkSpecifier) == 2)
+			{
+			$result = $linkSpecifier;
+			}
+		}
+	# For a //host/share UNC, check for a record of the
+	# link text in our %LastDirForFullDirPath. No checking the drive.
+	elsif ($linkSpecifier =~ m!^//!)
+		{
+		if (FullDirPathIsKnown($linkSpecifier))
+			{
+			$result = $linkSpecifier;
+			}
+		}
+	
+	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
+		{
+		# Pull last dir from a $linkSpecifier:
+		my $bottomDir = '';
+		my $lastSlashPos = rindex($linkSpecifier, "/");
+		if ($lastSlashPos > 0)
+			{
+			$bottomDir = substr($linkSpecifier, $lastSlashPos + 1);
+			}
+		else
+			{
+			$bottomDir = $linkSpecifier;
+			}
+		
+		if (defined($FullDirectoryPathsForDirName{$bottomDir}))
+			{
+			my $allpaths = $FullDirectoryPathsForDirName{$bottomDir};
+			my @paths;
+			# Remove leading and trailing pipes.
+			$allpaths = substr($allpaths, 1);
+			$allpaths = substr($allpaths, 0, -1);
+			if ($allpaths =~ m!\|!) # more than one candidate full path
+				{
+				@paths = split(/\|/, $allpaths);
+				}
+			else
+				{
+				push @paths, $allpaths;
+				}
+			
+			my $bestPath = "";
+			# 2., 3.
+			# First check for a full path that matches $linkSpecifier fully, preferring
+			# some match on the left between full path and context directory.
+			if ( ($bestPath = ExactDirectoryPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
+			  || ($bestPath = ExactDirectoryPathNoContext($linkSpecifier, \@paths)) ne "" )
+				{
+				$result = $bestPath;
+				}
+			# 4., 5.
+			# Relax requirements if no match yet, require full match between full path
+			# and $linkSpecifier, but the directory names in $linkSpecifier don't have to
+			# be complete, some can be omitted. All directory names included in
+			# $linkSpecifier must be found in a full path to count as a match.
+			if ($result eq "")
+				{
+				my @partialPathParts = split(/\//, $linkSpecifier);
+				# Tack some forward slashes back on for accurate matching with index().
+				for (my $i = 0; $i < @partialPathParts; ++$i)
+					{
+					if (index($partialPathParts[$i], ':') > 0) # drive letter
+						{
+						$partialPathParts[$i] .= '/';
+						}
+					else
+						{
+						$partialPathParts[$i] = '/' . $partialPathParts[$i] . '/';
+						}
+					}
+				if ( ($bestPath = RelaxedDirectoryPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
+				  || ($bestPath = RelaxedDirectoryPathNoContext(\@paths, \@partialPathParts)) ne "" )
+					{
+					$result = $bestPath;
+					}				
+				}
+			} # directory name is associated with at least one known full path
+		} # partial directory path
+	
+	return($result);
+	}
+
+# Just a punt, ExactPathInContext() above works for directories too.
+sub ExactDirectoryPathInContext {
+	my ($linkSpecifier, $contextDir, $pathsA) = @_;
+	return(ExactPathInContext($linkSpecifier . '/', $contextDir, $pathsA));
+	}
+
+# ExactPathNoContext() above works for directories too.
+sub ExactDirectoryPathNoContext {
+	my ($linkSpecifier, $pathsA) = @_;
+	return(ExactPathNoContext($linkSpecifier . '/', $pathsA));
+	}
+
+# If the directories in a FILE path are out of order, the key for the
+# list of associated full file paths doesn't change, because the key
+# is the file name (and that must always be rightmost to work).
+# However if the directory names in a directory $linkSpecifier are
+# permuted then we don't know which directory name if any is the
+# right key to use in %FullDirectoryPathsForDirName, so we
+# try all  directory names in $linkSpecifier in turn until
+# a corresponding directory is found.
+sub RelaxedDirectoryPathInContext {
+	my ($linkSpecifier, $contextDir, $pathsA, $partialPathPartsA) = @_;
+	my $bestPath = RelaxedPathInContext($linkSpecifier . '/', $contextDir, $pathsA, $partialPathPartsA);
+	
+	if ($bestPath eq '')
+		{
+		my $numPartialParts = @$partialPathPartsA;
+		for (my $i = 0; $i < $numPartialParts - 1; ++$i)
+			{
+			my $bottomDir = $partialPathPartsA->[$i];
+			# Strip leading and trailing slashes.
+			$bottomDir = substr($bottomDir, 1);
+			$bottomDir = substr($bottomDir, 0, -1);
+
+			if (defined($FullDirectoryPathsForDirName{$bottomDir}))
+				{
+				my $allpaths = $FullDirectoryPathsForDirName{$bottomDir};
+				my @paths;
+				# Remove leading and trailing slashes.
+				$allpaths = substr($allpaths, 1);
+				$allpaths = substr($allpaths, 0, -1);
+				if ($allpaths =~ m!\|!) # more than one candidate full path
+					{
+					@paths = split(/\|/, $allpaths);
+					}
+				else
+					{
+					push @paths, $allpaths;
+					}
+				$bestPath = RelaxedPathInContext($linkSpecifier . '/', $contextDir, \@paths, $partialPathPartsA);
+				if ($bestPath ne '')
+					{
+					last;
+					}
+				}
+			}
+		}
+	
+	return($bestPath);
+	}
+
+# See comment just above for RelaxedDirectoryPathInContext.
+sub RelaxedDirectoryPathNoContext {
+	my ($pathsA, $partialPathPartsA) = @_;
+	my $bestPath = RelaxedPathNoContext($pathsA, $partialPathPartsA);
+	
+	if ($bestPath eq '')
+		{
+		my $numPartialParts = @$partialPathPartsA;
+		for (my $i = 0; $i < $numPartialParts - 1; ++$i)
+			{
+			my $bottomDir = $partialPathPartsA->[$i];
+			# Strip leading and trailing slashes.
+			$bottomDir = substr($bottomDir, 1);
+			$bottomDir = substr($bottomDir, 0, -1);
+			if (defined($FullDirectoryPathsForDirName{$bottomDir}))
+				{
+				my $allpaths = $FullDirectoryPathsForDirName{$bottomDir};
+				my @paths;
+				# Remove leading and trailing slashes.
+				$allpaths = substr($allpaths, 1);
+				$allpaths = substr($allpaths, 0, -1);
+				if ($allpaths =~ m!\|!) # more than one candidate full path
+					{
+					@paths = split(/\|/, $allpaths);
+					}
+				else
+					{
+					push @paths, $allpaths;
+					}
+				$bestPath = RelaxedPathNoContext(\@paths, $partialPathPartsA);
+				if ($bestPath ne '')
+					{
+					last;
+					}
+				}
+			}
+		}
+	
+	return($bestPath);
 	}
 
 sub DeleteFullPathListFiles {

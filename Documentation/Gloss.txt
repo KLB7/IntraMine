@@ -120,7 +120,7 @@ By the way, even though I've sometimes lazily referred to a "partial path" on oc
 Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed. You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
 
 TABLE Link examples (assuming only one instance of main.cpp in each project folder)
-Target (file to link to)		Referencing (where you're typing)		What to put as the link
+File to link to		Referencing file (where you're typing)		What to type
 main.cpp in P:/project51/src	P:/project51/docs/notes.txt				main.cpp
 main.cpp in P:/project999/src	P:/project51/docs/notes.txt				project999/main.cpp
 main.cpp in P:/project51/src	P:/project999/docs/notes.txt			project51/main.cpp
@@ -128,6 +128,29 @@ main.cpp in P:/project51/src	a file on some other drive				project51/main.cpp
 Of course, if you have several copies of the project51 folder floating around, you'll need more of the path in the mention, eg Q:/project51/main.cpp if there's only one project51 folder on the Q: drive.
 
 IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/main.cpp. Maybe some day....
+
+Linking to directories
+~~~~~~~~~~~~~~~~~~~~~~
+You might have directories that you want to check in on now and then, or provide a link to the whole directory for others to use. Perhaps a directory called "Changes" or "Notes" or "Docs" or "Latest Updates" or "To Do". With IntraMine, you can have links to local directories too. (By "local" is meant storage attached directly to your computer or available on a mapped drive on your Local Area Network.)
+
+IntraMine's Viewer and Editor will show automatic directory links. When clicked, an expanded view of the directory appears in a new browser tab, displayed with IntraMine's Files service. If the Files service isn't running, the directory will be shown using Windows File Explorer.
+
+Automatic directory links work much like the automatic file links described just above. The one big difference is you need to put your directory specifier in 'single' or "double" quotes. Put your wanted directory name in quotes, and precede it with a directory or two (or a drive specifier) if you don't want the closest instance of the directory. Separate names with forward or backward slashes, as you please. Leading or trailing slashes are not required. The directory path, if more than one directory name is included, doesn't have to be complete and the directory names don't have to be in order (although a drive letter if present has to be leftmost). The directory names are not case sensitive.
+
+Automatic directory links are implemented in IntraMine's Viewer and Editor.
+
+In the rare case where a directory and a heading (in a text file) have the same name, the heading will win out. If you really want the directory, add a second directory name to the path. For example, if "Docs" takes you to the section called "Docs" instead of a listing for C:/Project51/Docs/, put in "Project51/Docs" and you'll get your directory link.
+
+Here are some examples:
+TABLE Automatic directory link examples (with one instance of /Changes/ in each project folder)
+Directory to link to	Referencing file (where you're typing)		What to type
+C:/Projects/proj1/Changes/	C:/Projects/proj1/notes/Jan_2023.txt	"changes"
+C:/Projects/proj99/Changes/	C:/Projects/proj99/notes/Jan_2023.txt	"changes"
+C:/Projects/proj99/Changes/	C:/Projects/proj1/notes/Jan_2023.txt	"proj99/changes"
+
+As an example of possible variations, "proj99/changes" could also be entered as "/Proj99/CHANGES/" or "changes\PROJ99" or "C:/projects/proj99/changes/".
+
+Since this is a somewhat new feature, you're encouraged to think up new uses for it. Any directories you'd like to get at with a single click? Now you can.
 
 Linking to headings in other files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

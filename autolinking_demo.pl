@@ -210,7 +210,7 @@ sub BestMatchingFullPath {
 			}
 		}
 	# For a //host/share UNC, check for a record of the
-	# link text in our %IntKeysForPartialPath hash. No checking the drive.
+	# link text in our %FileNameForFullPath hash. No checking the drive.
 	elsif ($linkSpecifier =~ m!^//!)
 		{
 		if (FullPathIsKnown($linkSpecifier))

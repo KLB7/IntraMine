@@ -72,6 +72,7 @@ SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 my $VIEWERNAME = CVal('VIEWERSHORTNAME');
 my $EDITORNAME = CVal('EDITORSHORTNAME');
 my $OPENERNAME = CVal('OPENERSHORTNAME');
+my $FILESNAME = CVal('FILESSHORTNAME');
 
 # Common locations for images.
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
@@ -162,7 +163,8 @@ sub callbackInitDirectoryFinder {
 	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 	
-	my $filePathCount = InitDirectoryFinder($fullFilePathListPath); # reverse_filepaths.pm#InitDirectoryFinder()	
+	# reverse_filepaths.pm#InitDirectoryFinder()
+	my $filePathCount = InitDirectoryFinder($fullFilePathListPath);
 	}
 	
 # Completely reload list of all files and directories. Called by HandleBroadcastRequest() above.
@@ -365,21 +367,23 @@ sub AddWebAndFileLinksToLine {
 	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
 		{
 		# Non-CodeMirror text can contain <mark> elements anywhere, even on
-		# a file extension.
-		if ($$txtR !~ m!\.\w|http|_RB_! && $$txtR !~ m!\.(<mark[^>]*>)?\w+!)
-			{
-			return;
-			}
+		# a file extension. Revised, this isn't needed for speed and there's
+		# no simple pattern to check for a "directory" specifier since
+		# every line contains double quotes in the HTML, <td n="27"> sort of thing.
+		#if ($$txtR !~ m!\.\w|http|_RB_! && $$txtR !~ m!\.(<mark[^>]*>)?\w+!)
+		#	{
+		#	return;
+		#	}
 		$haveRefToText = 1;
 		$line = $$txtR;
 		}
 	else # not a ref (at least it shouldn't be), so doing CodeMirror
 		{
 		# Return if nothing on the line looks roughly like a link.
-		if ($txtR !~ m!\.\w|http|_LB_!)
-			{
-			return;
-			}
+		#if ($txtR !~ m!\.\w|http|_LB_!)
+		#	{
+		#	return;
+		#	}
 		$haveRefToText = 0;
 		$line = $txtR;
 		}
@@ -446,42 +450,62 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
-	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"(.+?)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $captured = $1;		# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
 		my $haveTextHref = (index($captured, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $captured : '';
+		my $haveDirSpecifier = 0;
+		
+		# $9, $10: (\"[^"]+\")|(\'[^']+\')
+		# These are checked for after other quote patterns, and if triggered
+		# we're dealing with a potential directory specifier.
+		if (defined($9) || defined($10))
+			{
+			$haveDirSpecifier = 1;
+			}
+
 		
 		my $haveQuotation = ((index($captured, '"') == 0) || (index($captured, "'") == 0));
-		my $quoteChar = '';
 		my $badQuotation = 0;
 		my $insideID = 0;
-		if ($haveQuotation)
+		
+		my $quoteChar = '';
+		if ($haveQuotation || $haveDirSpecifier)
 			{
 			# Check for non-word or BOL before first quote, non-word or EOL after second.
 			if ($startPos > 0)
 				{
 				my $charBefore = substr($strippedLine, $startPos - 1, 1);
-				my $num = ord($charBefore);
-				if ((($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
-				#if ($charBefore !~ m!\W!)
+				# Reject if char before first quote is a word char or '='
+				# (as in class="...", as found in syntax highlighting etc).
+				if ($charBefore !~ m!\W|! || $charBefore eq '=')
 					{
-					# TEST ONLY
-					#print("BAD CHAR $charBefore before |$captured|\n");
 					$badQuotation = 1;
 					}
 				else
 					{
 					# Check we aren't inside a generated header id such as
 					# <h3 id="gloss2html.pl#AddWebAndFileLinksToLine()_refactor"...
-					if ($haveRefToText && $startPos >= 7)
+					if ($haveRefToText)
 						{
-						if (substr($strippedLine, $startPos - 3, 3) eq "id=")
+						if ($startPos >= 7)
 							{
-							$badQuotation = 1;
-							$insideID = 1;
+							if (substr($strippedLine, $startPos - 3, 3) eq "id=")
+								{
+								$badQuotation = 1;
+								$insideID = 1;
+								}
+							}
+						elsif ($startPos >= 5) # Perl line numbers, <td n="1">
+							{
+							if (substr($strippedLine, $startPos - 2, 2) eq "n=")
+								{
+								$badQuotation = 1;
+								$insideID = 1;
+								}
 							}
 						}
 					}
@@ -489,9 +513,9 @@ sub EvaluateLinkCandidates {
 			if ($endPos < $strippedLen)
 				{
 				my $charAfter = substr($strippedLine, $endPos, 1);
-				my $num = ord($charAfter);
-				if ((($num >= 48 && $num <= 57) || ($num >= 65 && $num <= 90) || ($num >= 97 && $num <= 122) || ($num == 95)))
-				#if ($charAfter !~ m!\W!)
+				# Reject if char after is a word char or '>'
+				# (as in class="quoted">).
+				if ($charAfter !~ m!\W! || $charAfter eq '>')
 					{
 					$badQuotation = 1;
 					}
@@ -517,7 +541,7 @@ sub EvaluateLinkCandidates {
 					}
 				}
 			
-			if (!$badQuotation)
+			if (!$badQuotation && !$haveDirSpecifier)
 				{
 				# Trim quotes and pick up $quoteChar.
 				$quoteChar =  substr($captured, 0, 1);
@@ -540,7 +564,7 @@ sub EvaluateLinkCandidates {
 		else
 			{
 			my $haveURL = (!$haveTextHref && index($captured, 'http') == 0);
-			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($10)) ? $10 : ''; # includes '#'
+			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($12)) ? $12 : ''; # includes '#'
 			# Need to sort out actual anchor if we're dealing with a quoted chunk.
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
@@ -560,7 +584,7 @@ sub EvaluateLinkCandidates {
 				#	}
 				}
 			my $url = $haveURL ? $captured : '';
-			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref) ? substr($captured, 1) : '';
+			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref && !$haveDirSpecifier) ? substr($captured, 1) : '';
 			# Get file extension if it's a quoted chunk (many won't have an extension).
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
@@ -605,6 +629,10 @@ sub EvaluateLinkCandidates {
 				{
 				RememberTextHref($startPos, $textHref);
 				$haveGoodMatch = 1;
+				}
+			elsif ($haveDirSpecifier)
+				{
+				$haveGoodMatch = RememberDirMention($startPos, $captured);
 				}
 			
 			if ($haveGoodMatch)
@@ -747,6 +775,54 @@ sub RememberTextOrImageFileMention {
 		push @repLen, $repLength;
 		push @repStartPos, $repStartPosition;
 		push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
+		if (!$haveRefToText)
+			{
+			push @repLinkType, $linkType;
+			}
+		$haveGoodMatch = 1;
+		}
+	
+	return($haveGoodMatch);
+	}
+
+# If $captured text in quotes can be associated with a full directory path
+# by reverse_filepaths.pm#BestMatchingFullDirectoryPath(),
+# push a link for it into @repStr etc.
+sub RememberDirMention {
+	my ($startPos, $captured) = @_;
+	my $repLength = length($captured);
+
+	# Adjust position and length of URL as displayed to include any <mark> tags that were stripped.
+	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
+
+	# Re-get $captured directory for display (including any <mark> elements).
+	my $displayedDir = substr($line, $startPos, $repLength); # was = $url;
+	$repLength = length($displayedDir);
+	my $haveGoodMatch = 0;
+	
+	my $trimmedDirPath = $captured;
+	# Trim quotes
+	$trimmedDirPath = substr($trimmedDirPath, 1);
+	$trimmedDirPath = substr($trimmedDirPath, 0, -1);
+	# Change \ to /.
+	$trimmedDirPath =~ s!\\!/!g;
+	# Remove any starting or trailing slashes.
+	$trimmedDirPath =~ s!^/!!;
+	$trimmedDirPath =~ s!/$!!;
+	# Lower case
+	$trimmedDirPath = lc($trimmedDirPath);
+	
+	my $directoryPath = BestMatchingFullDirectoryPath($trimmedDirPath, $contextDir);
+	
+	if ($directoryPath ne '')
+		{
+		my $linkType = 'directory'; # For CodeMirror
+		my $repString = "<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\">$displayedDir</a>";
+		
+		push @repStr, $repString;
+		push @repLen, $repLength;
+		push @repStartPos, $startPos;
+		push @linkIsPotentiallyTooLong, 0;
 		if (!$haveRefToText)
 			{
 			push @repLinkType, $linkType;
@@ -1692,7 +1768,7 @@ sub AddModuleLinkToText {
 # TODO this picks up the occasional spurious "use" mention, though not very often.
 sub AddModuleLinkToPerl {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
-
+		
 	# Worth looking only if "use" appears in the text.
 	if (index($$txtR, "use") < 0)
 		{

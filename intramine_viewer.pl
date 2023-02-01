@@ -82,11 +82,12 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 # This service has no default action. For file display either 'href=path'
 # or the more RESTful '.../file/path' can be used. See eg intramine_search.js#viewerOpenAnchor()
-# (a call to that is inserted by elasticsearcer.pm#FormatHitResults() among others).
+# (a call to that is inserted by elasticsearcher.pm#FormatHitResults() among others).
 my %RequestAction;
-$RequestAction{'href'} = \&FullFile; 					# href = anything
+$RequestAction{'href'} = \&FullFile; 					# Open file, href = anything
 $RequestAction{'/file/'} = \&FullFile; 					# RESTful alternative, /file/is followed by file path in $obj
 $RequestAction{'req|loadfile'} = \&LoadTheFile; 		# req=loadfile
+$RequestAction{'req|openDirectory'} = \&OpenDirectory; 		# req=openDirectory
 # The following two callbacks are needed if any css/js files
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
 $RequestAction{'req|css'} = \&GetRequestedFile; 		# req=css  see swarmserver.pm#GetRequestedFile()
@@ -335,10 +336,12 @@ sub FullFile {
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
+	my $filesShortName = CVal('FILESSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
+	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
 	#$theBody =~ s!_FILESERVERPORT_!$fileServerPort!g;
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
@@ -440,6 +443,7 @@ let viewerShortName = '_VIEWERSHORTNAME_';
 let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
+let filesShortName = '_FILESSHORTNAME_';
 let peeraddress = '_PEERADDRESS_';	// ip address of client
 let errorID = "editor_error";
 let highlightItems = [_HIGHLIGHTITEMS_];
@@ -846,6 +850,29 @@ sub LoadTheFile {
 		}
 	
 	return($result);		
+	}
+
+# Open a directory link using Windows File Explorer.
+sub OpenDirectory {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'OK';
+	my $dirPath = defined($formH->{'dir'})? $formH->{'dir'}: '';
+	if ($dirPath eq '')
+		{
+		$result = 'ERROR, no directory supplied!';
+		}
+	else
+		{
+		$dirPath =~ s!^file\:///!!g;
+		
+		# DAAAMM this is ugly.
+		# https://www.perlmonks.org/?node_id=1162804
+		$dirPath = Encode::encode("CP1252", $dirPath);
+		
+		system('start', '', $dirPath);
+		}
+	
+	return($result);
 	}
 
 # "req=loadfile" handling. For CodeMirror views, the text is loaded by JavaScript after the
@@ -3747,12 +3774,6 @@ sub LoadCSharpTags {
 					$tagname = $owner . '#' . $tagname;
 					}
 				
-				# TEST ONLY
-				if ($tagname eq 'WebSocketSharp.WebSocket#WebSocket')
-					{
-					print("WebSocket p/m: $tagname\n");
-					}
-				
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			}
@@ -4065,7 +4086,7 @@ sub EvaluateInternalLinkCandidates {
 				{
 				$haveGoodMatch = 1;
 				my $repStartPosition = $currentMatchStartPos;
-				my $repLength = $currentMatchEndPos - $currentMatchStartPos;
+				my $repLength = $currentMatchEndPos - $currentMatchStartPos + 1;
 
 				# <a href="#Header_within_doc">Header within doc</a>
 				# At this point, $repString is just the anchor $potentialID.

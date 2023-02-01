@@ -41,13 +41,17 @@ Autolinking also links up web links, and internal class and function names and (
 
 A local or NAS file must be in a location that's been indexed for searching in order for autolinking to work. But if a folder has interesting files in it, you should probably index it. You'll discover how to index folders as you go through the installation.
 
-As of March 2022, IntraMine's built-in Editor also displays autolinks for file or web mentions.
+IntraMine's built-in Editor also displays autolinks.
+
+IntraMine's Viewer and Editor also display automatic directory links, so typing a directory mention like "Change Logs" in a source or text file generates a link to the closest /Change Logs/ directory when viewed with IntraMine's Viewer or Editor. One click, and the directory is expanded for viewing in a new browser tab using IntraMine's Files service. Directory mentions must be in 'single' or "double" quotes. If you don't want the nearest instance, add a directory that pins down the one you want, eg 'project51/change logs'. As with file links, you can leave out intermediate directory names that aren't need to pin down the location, the directory names don't have to be in order, and you can use a drive specifier such as 'c:/project51/change logs', just put it first.
+
+For autolinking details, see [Gloss links](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Gloss.html#Links).
 
 ### Image hovers
 While using IntraMine's Viewer, pause your mouse over an image name and the image pops up. This works in source and text files, no extra typing required, so you can painlessly use screenshots and whiteboard grabs, or UML diagrams for example. You're invited to experiment. There are some examples in IntraMine's [documentation](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/contents.html).
 
 ### Gloss
-Gloss is a minimal memorable markdown variant specialized for intranet use (autolinks, auto table of contents, simple tables, and the other usual stuff you would want for in-house documentation). It's implemented by IntraMine's Viewer, and most of it can be used with the included gloss2html.pl program which produces completely standalone HTML versions of your Gloss-marked text documents. All of IntraMine's documentation was generated with gloss2html.pl.
+[Gloss](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Gloss.html) is a minimal memorable markdown variant specialized for intranet use (autolinks, auto table of contents, simple tables, and the other usual stuff you would want for in-house documentation). It's implemented by IntraMine's Viewer, and most of it can be used with the included gloss2html.pl program which produces completely standalone HTML versions of your Gloss-marked text documents. All of IntraMine's documentation was generated with gloss2html.pl.
 
 Here's how to do a simple table in a .txt file with Gloss:
  - type TABLE at the beginning of a line, followed by an optional caption

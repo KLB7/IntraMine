@@ -262,12 +262,16 @@ sub ShortServerNameForMaintenanceSignal {
 
 sub StartShortServerNameMaintenance {
 	my ($shortName) = @_;
+	# TEST ONLY
+	print("Start of maintenance for $shortName.\n");
 	$ServerShortNameIsUnderMaintenance{$shortName} = 1;
 	$MaintenanceIndexForShortServerName{$shortName} = -1; # pre-incremented by NextPort... below.
 	}
 
 sub EndShortServerNameMaintenance {
 	my ($shortName) = @_;
+	# TEST ONLY
+	print("END of maintenance for $shortName.\n");
 	$ServerShortNameIsUnderMaintenance{$shortName} = 0;
 	}
 
@@ -2568,18 +2572,6 @@ sub DoMaintenance {
 	# to "drain" all pending WebSockets messages.
 	#print("About to call WebSocketReceiveAllMessages\n");
 	my $numMessagesSeen = WebSocketReceiveAllMessages();
-	
-	
-	#
-	## TEST ONLY
-	#if ($numMessagesSeen)
-	#	{
-	#	print("MAIN saw $numMessagesSeen WebSockets messages.\n");
-	#	}
-	#else
-	#	{
-	#	print("zip\n");
-	#	}
 	}
 
 sub HandleDateChange {

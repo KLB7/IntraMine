@@ -126,6 +126,7 @@ let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
 let contentID = 'scrollAdjustedHeight';
 let errorID = "errorMessage";
+let initialDirectoryPath = '_INITIALDIR_';
 </script>
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
@@ -194,6 +195,14 @@ FINIS
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
+	
+	my $initialDirectory = defined($formH->{'directory'}) ? $formH->{'directory'}: '';
+	# Encode: this goes with decodeURIComponent at top of files.js#showDirectory().
+	$initialDirectory = uri_encode($initialDirectory);
+	# The Files page will open to the $initialDirectory if provided. This is used
+	# when opening directory links (see intramine_viewer.pl#OpenDirectory() etc).
+	$theBody =~ s!_INITIALDIR_!$initialDirectory!;
+	
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
