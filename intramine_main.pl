@@ -90,6 +90,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
+use win_wide_filepaths;
 use intramine_websockets_client;
 
 # "-t" on the command line means we are testing.
@@ -218,7 +219,7 @@ sub CheckNeededFoldersExist {
 # the maintenance one by one, and not asked to service a request while doing the maintenance.
 # Any server doing such maintenance should do a
 # RequestBroadcast('signal=backinservice&sender=SenderShortServerName')
-# when back in service. Of course, this is of no help if only one instance of the service is running.
+# when back in service. Of course, this does nothing if only one instance of the service is running.
 my %ServerShortNameForSignal; # $ServerShortNameForSignal{'folderrenamed'} = 'Linker';
 # Track server short names under maintenance: cleared when all server instances are done.
 my %ServerShortNameIsUnderMaintenance; # $ServerShortNameIsUnderMaintenance{'Linker'} = 1;
@@ -439,7 +440,7 @@ my $MainSelfTest;
 
 # Start all servers listed in data/serverlist.txt. The "Count" field in serverlist.txt
 # determines how many of each server to start.
-# First create CMd lines for all servers, then start them.
+# First create cmd lines for all servers, then start them.
 sub StartServerSwarm {
 	my ($startingPort) = @_;
 	$SwarmServerStartingPort = $startingPort;
@@ -455,6 +456,15 @@ sub StartServerSwarm {
 
 	my $scriptFullPath = $0;
 	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	
+	CreateCommandLinesForServers(\$currentPort, $scriptFullDir, \$webSocketPort);
+
+	StartAllServers($currentPort);
+	}
+
+sub CreateCommandLinesForServers {
+	my ($currentPort_R, $scriptFullDir, $webSocketPort_R) = @_;
+
 	# Command for page server [$pgIdx][$srv] (including PERSISTENT).
 	for (my $pgIdx = 0; $pgIdx < $NumServerPages; ++$pgIdx)
 		{
@@ -463,23 +473,23 @@ sub StartServerSwarm {
 		for (my $srv = 0; $srv < $numServersForPage; ++$srv)
 			{
 			my $shortName = $ShortServerNames[$pgIdx][$srv];
-			$ShortServerNameForPort{$currentPort} = $shortName;
+			$ShortServerNameForPort{$$currentPort_R} = $shortName;
 			$PageNameForShortServerName{$shortName} = $pageName;
-			my $cmdLine = "$scriptFullDir$PageServerNames[$pgIdx][$srv] $pageName $shortName $port_listen $currentPort";
+			my $cmdLine = "$scriptFullDir$PageServerNames[$pgIdx][$srv] $pageName $shortName $port_listen $$currentPort_R";
 			push @ServerCommandLines, $cmdLine;
 			push @ServerCommandProgramNames, $PageServerNames[$pgIdx][$srv];
-			push @ServerCommandPorts, $currentPort;
+			push @ServerCommandPorts, $$currentPort_R;
 			
 			push @ServerCommandLinePageNames, $pageName;
 			my $cmdIdx = @ServerCommandLines - 1;
 			$PageIndexForCommandLineIndex[$cmdIdx] = $pgIdx;
 			
 			# For redirects, remember port list for each short server name.
-			push @{$PortsForShortServerNames{$shortName}}, $currentPort;
+			push @{$PortsForShortServerNames{$shortName}}, $$currentPort_R;
 			$CurrentlyUsedIndexForShortServerNames{$shortName} = 0;
 			# Set server on current port as running (perhaps optimistic).
-			SetServerPortIsRunning($currentPort, 1);
-			++$currentPort;
+			SetServerPortIsRunning($$currentPort_R, 1);
+			++$$currentPort_R;
 			}
 		}
 	
@@ -494,44 +504,47 @@ sub StartServerSwarm {
 			if (   ($loop == 1 && ShortNameIsForWEBSOCKServer($shortName))
 				|| ($loop == 2 && !ShortNameIsForWEBSOCKServer($shortName)) )
 				{
-				$ShortBackgroundServerNameForPort{$currentPort} = $shortName;
-				$PortForShortBackgroundServerName{$shortName} = $currentPort;
+				$ShortBackgroundServerNameForPort{$$currentPort_R} = $shortName;
+				$PortForShortBackgroundServerName{$shortName} = $$currentPort_R;
 				# A background server doesn't have a "page" name since it isn't associated with
 				# a page, it just lurks in the background. So we send the $shortName in place of
 				# the page name, just to keep the interface simple.
-				my $cmdLine = "$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $currentPort";
+				my $cmdLine = "$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $$currentPort_R";
 				push @BackgroundCommandLines, $cmdLine;
 				push @BackgroundCommandProgramNames, $BackgroundServerNames[$idx];		
-				push @BackgroundCommandPorts, $currentPort;
+				push @BackgroundCommandPorts, $$currentPort_R;
 				push @BackgroundCommandLineNames, $BackgroundNames[$idx];
 				# Set server on current port as running (perhaps optimistic).
-				SetServerPortIsRunning($currentPort, 1);
+				SetServerPortIsRunning($$currentPort_R, 1);
 		
 				if (ShortNameIsForWEBSOCKServer($shortName))
 					{
-					$PortIsForWEBSOCKETServer{$currentPort} = 1;
-					$webSocketPort = $currentPort;
-					SetWebSocketServerPort($currentPort);
+					$PortIsForWEBSOCKETServer{$$currentPort_R} = 1;
+					$$webSocketPort_R = $$currentPort_R;
+					SetWebSocketServerPort($$currentPort_R);
 					}
 			
-				++$currentPort;
+				++$$currentPort_R;
 				} # if first $loop and WEBSOCKET, or second $loop
 			} # for BACKGROUND servers
 		} # two $loops
 	
-	# Reget $webSocketPort, in case we are testing (see up around line 605);
-	$webSocketPort = WebSocketServerPort();
-	# Revisit the command lines for all servers and put in " $webSocketPort" at end.
+	# Reget $$webSocketPort_R, in case we are testing (see up around line 605);
+	$$webSocketPort_R = WebSocketServerPort();
+	# Revisit the command lines for all servers and put in " $$webSocketPort_R" at end.
 	for (my $i = 0; $i < @ServerCommandLines; ++$i)
 		{
-		$ServerCommandLines[$i] .= " $webSocketPort";
+		$ServerCommandLines[$i] .= " $$webSocketPort_R";
 		}
 	for (my $i = 0; $i < @BackgroundCommandLines; ++$i)
 		{
-		$BackgroundCommandLines[$i] .= " $webSocketPort";
+		$BackgroundCommandLines[$i] .= " $$webSocketPort_R";
 		}
-	
-	
+	}
+
+sub StartAllServers {
+	my ($currentPort) = @_;
+
 	# Postpone 'persistent' (command) server starts if any are running.
 	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
 	
@@ -589,8 +602,7 @@ sub SwarmServerFirstPort {
 # fourth entry is the name of associated Perl program that runs the server for the page.
 # "intramine_search.pl" shows the Search page, with search form and (Elasticsearch) search results.
 # "intramine_viewer.pl" shows read-only views of files, mostly using codemirror (cm).
-# "intramine_fileopener" opens files using notepad++ etc.
-# "intramine_editor.pl" opens an editable view of a file using the cm editor.
+# "intramine_editor.pl" opens an editable view of a file using the CodeMirror editor etc.
 # The "Cmd" page is special, associated server can stay running response to a restart request so that
 # it can continue monitoring during the restart. The serverlist.txt entry for it is
 # Cmd	Cmd		intramine_commandserver.pl	PERSISTENT
@@ -1842,7 +1854,7 @@ sub ServiceIsRunning {
 	return($result);
 	}
 
-# A couple of helpers for WEBSOCKET servers.
+# Some helpers for WEBSOCKET servers.
 sub ShortNameIsForWEBSOCKServer {
 	my ($shortName) = @_;
 	my $result = defined($IsWEBSOCKETServer{$shortName}) ? 1 : 0;
@@ -2481,12 +2493,26 @@ sub ResultPage {
 		{
 		$$mimeTypeR = CVal('html');
 		}
+	else
+		{
+		GetResultFromFile($obj, \$result, \$mimeTypeR);
+		}
 	
-	# CSS JS images. For testing purposes. Hey what's your favicon, got a favicon? No? THEN DIE!
+	Output("ResultPage bottom, Raw \$obj: |$obj|\n");
+	return $result;	
+	}
+
+# CSS JS images.
+# Note this version of GetResultFromFile() doesn't try as hard as
+# swarmserver.pm#GetResultFromFile(), there should be very few
+# file requests that go through Main.
+sub GetResultFromFile {
+	my ($obj, $result_R, $mimeTypeR_R) = @_;
+
 	# Image: try supplied path first, else look in our web server images folder
 	# eg |/C:/perlprogs/mine/images_for_web_server/110.gif|
 	# (.ico is needed, all the rest is not needed methinks)
-	elsif ($obj =~ m!\.(gif|jpe?g|png|ico|webp)$!i)
+	if ($obj =~ m!\.(gif|jpe?g|png|ico|webp)$!i)
 		{
 		my $ext = lc($1);
 		Output("for image: |$obj|\n");
@@ -2498,7 +2524,7 @@ sub ResultPage {
 			{
 			#print("Got it!\n");
 			$gotIt = 1;
-			$result = GetBinFile($filePath);
+			$$result_R = GetBinFile($filePath);
 			}
 		
 		if (!$gotIt)
@@ -2506,37 +2532,34 @@ sub ResultPage {
 			#print("Image open of |$filePath| FAILED, falling back to images folder\n");
 			$obj =~ m!/([^/]+)$!;
 			my $filePath = $IMAGES_DIR . $1;
-			$result = GetBinFile($filePath);
+			$$result_R = GetBinFile($filePath);
 			}
-		$$mimeTypeR = CVal($ext);
+		$$$mimeTypeR_R = CVal($ext);
 		}
 	elsif ($obj =~ m!\.css$!i)
 		{
 		Output(" for CSS.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $CSS_DIR . $1;
-		$result = GetTextFile($filePath);
-		$$mimeTypeR = CVal('css');
+		$$result_R = GetTextFile($filePath);
+		$$$mimeTypeR_R = CVal('css');
 		}
 	elsif ($obj =~ m!\.js$!i)
 		{
 		Output(" for JS.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $JS_DIR . $1;
-		$result = GetTextFile($filePath);
-		$$mimeTypeR = CVal('js');
+		$$result_R = GetTextFile($filePath);
+		$$$mimeTypeR_R = CVal('js');
 		}
 	elsif ($obj =~ m!\.ttf$!i)
 		{
 		Output(" for FONT.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $FONT_DIR . $1;
-		$result = GetBinFile($filePath);
-		$$mimeTypeR = CVal('ttf');
+		$$result_R = GetBinFile($filePath);
+		$$$mimeTypeR_R = CVal('ttf');
 		}
-	
-	Output("ResultPage bottom, Raw \$obj: |$obj|\n");
-	return $result;	
 	}
 
 sub Identify {
@@ -2598,43 +2621,18 @@ sub BroadcastDateHasChanged {
 
 sub GetBinFile {
 	my ($filePath) = @_;
-
-	my $result = '';
-	my $fh = FileHandle->new("$filePath") or return $result;
-	$fh->binmode();
-	my $n = 0;
-	my $buf = '';
-	while (($n = $fh->read($buf, 65535)) > 0)
-		{
-		$result .= $buf;
-		}
-	close($fh);
-
-	return $result;
-	}
-
-sub PutBinFile {
-	my ($result, $filePath) = @_;
-	my $fh = FileHandle->new(">$filePath") or return;
-	$fh->binmode();
-	print $fh "$result";
-	close($fh);
+	return(ReadBinFileWide($filePath));
 	}
 
 sub GetTextFile {
 	my ($filePath) = @_;
-	
-	my $result = '';
-	my $fh = FileHandle->new("$filePath") or return $result;
-	my $line = '';
-	while ($line=<$fh>)
+	my $result = ReadTextFileWide($filePath);
+	if (!defined($result))
 		{
-		chomp $line;
-		$result .= "$line\n";
+		$result = '';
 		}
-	close($fh);
 	
-	return $result;
+	return($result);
 	}
 
 sub RedirectTemplateForShortName {
