@@ -126,6 +126,8 @@ cpan Tk::BrowseEntry
 ---
 You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.
 
+NOTE as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see "EM.txt".
+
 Verifying module installation
 =============================
 When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.

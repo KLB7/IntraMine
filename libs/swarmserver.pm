@@ -2265,7 +2265,7 @@ sub GetTextFile {
 	}
 
 # (This is experimental, use it only if you're bored.)
-# GetStandardPageLoader(): see eg intramine_daysserver.pl#DaysPage() for an example.
+# GetStandardPageLoader(): see eg intramine_eventsserver.pl#EventsPage() for an example.
 # Generic LoadHeaderFilesAndGo(), replaces _LOADANDGO_ at top of result page.
 # _LOADITEMS_, _ERRORID_, _THEHOST_, _THEPORT_ below are replaced here by supplied args.
 # $loadItems should contain at most one 'req=content'.

@@ -1,0 +1,38 @@
+EM
+===========
+The "EM" service supplies an "Extract Method" refactor for Perl code. "Extract Method" is the generic name for this refactor: for Perl, it can extract a method or a sub.
+
+2023-03-04 11_00_28-Extract Method.png
+
+Running the EM service
+======================
+In your data/serverlist.txt file, put the line
+1	EM					EM			intramine_EM.pl
+
+Using the EM service
+=====================
+You'll see instructions at the top of the web page when you switch to the "EM" tab:
+---
+1. Copy some Perl code that you want to turn into a separate sub.
+2. Paste your code in the box just below.
+3. Set how parameters should be passed and new sub name in the dialog that appears.
+4. Click the "Extract" button.
+5. Copy your new sub or example call from the results at bottom.
+---
+
+What EM does
+==============
+When you paste your code, missing variable declarations are detected. Those variables will be shown to you in a dialog, with the options of setting the parameters to be passed by value, by reference, or omitted (if the variable is declared in a wider scope).
+
+After you click the "Extract" button, your new sub or method will be shown in the bottom text area, with an example call just above it in a separate text area.
+
+From there, you can copy the resulting code in the usual way (click in a text area, CTRL+A to select all, CTRL+C to copy).
+
+If you change your mind about how a parameter should be passed, fix it up in the dialog and click "Extract" again - there's no need to completely start over. However, if you do want to start over then hitting your browser's Refresh button is the easiest way.
+
+Two things to watch out for
+==============
+The Perl code you paste should be copied from a file that passes a Perl syntax check, otherwise the generated code will probably be garbage.
+
+And if you want something returned from your new sub you'll most likely have to touch up the code a bit after it's extracted since EM won't add a "return" for you.
+

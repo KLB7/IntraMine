@@ -1,4 +1,4 @@
-/* todo2.js
+/* todo.js
  * original @author Shaumik "Dada" Daityari
  * @copyright December 2013
  * (Modified for use in IntraMine. Does not require jQuery.)

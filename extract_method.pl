@@ -1,3 +1,11 @@
+# DEPRECATED, this version doesn't do Unicode and doesn't default to passing an
+# obvious reference by value. Also, it can only be run on the host computer.
+# Use the EM service instead (see IntraMine's Documentation/EM.txt)
+# if you want to extract Perl subs or methods. The EM service handles
+# Unicode well, defaults to passing obvious references by value, and can
+# be accessed from anywhere on your intranet that IntraMine can be accessed.
+# (An obvious reference begins with '$$' eg $$fileCountR += 1;).
+#
 # extract_method.pl: "Extract Method" refactoring for Perl, a variation on
 # http://www.bofh.org.uk/2006/09/21/crossing-the-rubicon-again
 # by Piers Cawley and Jesse Vincent.
@@ -149,13 +157,14 @@ else
 
 sub extract_method {
 	my $code = shift;
-	write_file($code);
-	my $err	 = 1;
-	my @args = ();
-	
+
 	$kTempCodePath =~ m!^(.+)(/|\\)[^\\/]+$!;
 	my $directoryOnPath = $1;
 	mkpath($directoryOnPath);
+
+	write_file($code);
+	my $err	 = 1;
+	my @args = ();
 	
 	my $loopLimiter = 0; # anti-lock breaking
 	while ($err && ++$loopLimiter <= 100)

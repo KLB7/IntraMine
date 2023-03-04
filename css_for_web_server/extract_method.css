@@ -1,0 +1,53 @@
+/* CSS for intramine_EM.pl (Extract Method for Perl) */
+body {
+    /* Override bootstrap properties */
+    background-color: #ffffff !important;
+    border: 0 !important;
+    /*margin: 8px;*/
+}
+
+#container{
+    margin: 0 auto;
+    width: 98%;
+    height: 100%;
+    background-color: transparent;
+    border: 0;
+    overflow: auto;
+}
+
+.paramContainer {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+}
+
+textarea {
+    -moz-tab-size : 4;
+    -o-tab-size : 4;
+    tab-size : 4;
+    width: 822px;
+}
+
+.toTheRight {
+    text-align: right;
+}
+
+p#errorid {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h1 {
+    margin-top: 3px;
+    margin-bottom: 3px;
+ 
+}
+
+ol {
+    margin-top: 0;
+    margin-bottom: 6px; 
+}
+
+.textareaLabel {
+    margin-top: 6px;
+    margin-bottom: 3px;
+}

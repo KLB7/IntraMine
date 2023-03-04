@@ -38,7 +38,8 @@
 #
 # Count indicates how many of each server to start.
 # Note the Status page has buttons to add, stop, start, and restart Page servers
-# for the current session only. To add a Page server permanently in a way that survives a
+# for the current session only. Only instances of servers that were initially running
+# can be added. To add a Page server permanently in a way that survives a
 # restart of Intramine, adjust the Count field for it here.
 #
 # To remove a server, comment out its line with an initial '#' or set the first Count field to 0.
@@ -61,4 +62,5 @@
 1	Bp					Bp			intramine_boilerplate.pl
 1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
 0	Chat				Chat		intramine_chat.pl
+1	EM					EM			intramine_EM.pl
 # OBSOLETE 1	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND

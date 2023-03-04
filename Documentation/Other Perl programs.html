@@ -1328,12 +1328,12 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='14'><a href='#echo1.pl'>echo1.pl</a></li>
 <li class='h3' im-text-ln='18'><a href='#es_bigfile_lister.pl'>es_bigfile_lister.pl</a></li>
 <li class='h3' im-text-ln='22'><a href='#extract_method.pl'>extract_method.pl</a></li>
-<li class='h3' im-text-ln='53'><a href='#intramine_all_stop.pl'>intramine_all_stop.pl</a></li>
-<li class='h3' im-text-ln='57'><a href='#intramine_stop.pl'>intramine_stop.pl</a></li>
-<li class='h3' im-text-ln='61'><a href='#list_missing_Perl_modules.pl'>list_missing_Perl_modules.pl</a></li>
-<li class='h3' im-text-ln='67'><a href='#make_filewatcher_config.pl'>make_filewatcher_config.pl</a></li>
-<li class='h3' im-text-ln='71'><a href='#max_folder_depth.pl'>max_folder_depth.pl</a></li>
-<li class='h3' im-text-ln='75'><a href='#verify_module_installation.pl'>verify_module_installation.pl</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Other_Perl_programs">Other Perl programs</h1></td></tr>
+<li class='h3' im-text-ln='57'><a href='#intramine_all_stop.pl'>intramine_all_stop.pl</a></li>
+<li class='h3' im-text-ln='61'><a href='#intramine_stop.pl'>intramine_stop.pl</a></li>
+<li class='h3' im-text-ln='65'><a href='#list_missing_Perl_modules.pl'>list_missing_Perl_modules.pl</a></li>
+<li class='h3' im-text-ln='71'><a href='#make_filewatcher_config.pl'>make_filewatcher_config.pl</a></li>
+<li class='h3' im-text-ln='75'><a href='#max_folder_depth.pl'>max_folder_depth.pl</a></li>
+<li class='h3' im-text-ln='79'><a href='#verify_module_installation.pl'>verify_module_installation.pl</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Other_Perl_programs">Other Perl programs</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>These are non-server scripts included with IntraMine, all at the <a class='glossary' href="#" onmouseover="showhint('<p>Top level: A service is &quot;top level&quot; and has an entry in the top navigation bar if its Page name and Short name are the same in data/serverlist.txt, and it&#8216;s not marked there as a &quot;BACKGROUND&quot; service. A top level service will show up in IntraMine&#8216;s top navigation bar.</p><p>The number of instances of a top level service to run is set by its &quot;Count&quot; field in serverlist.txt.</p><p>A top-level service can have second level services that it hands off to for specific tasks. For example, the Search page presents a list of hits with file links, and hands off to either the Viewer or Editor service when a link is clicked. The Viewer and Editor services are also called in response to clicks on the Files page links.</p>', this, event, '500px', false);">top level</a>. For the <a class='glossary' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> to standalone HTML program see <a href="./gloss2html.pl for standalone Gloss files.html" target="_blank">"gloss2html.pl for standalone Gloss files.txt"</a></td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1356,68 +1356,72 @@ span.ll-com { /* comments */
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td><h3 id="extract_method.pl">extract_method.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R24'><td n='24'></td><td>Copy some Perl code to your clipboard, run this program, and the code will be packaged up as a subroutine complete with example call and put on the clipboard ready for pasting. Along the way, extract_method.pl will show a dialog letting you pick whether each undeclared variable should be passed by value or reference, or ignored (it it's global).</td></tr>
+<tr id='R24'><td n='24'></td><td>This is the original "Extract Method" refactor for Perl, and it runs as a separate program as explained below.</td></tr>
 <tr id='R25'><td n='25'></td><td></td></tr>
-<tr id='R26'><td n='26'></td><td><span class='notabene'>NOTE </span>this program requires installing Tk plus a bit beforehand, by running</td></tr>
-<tr id='R27'><td n='27'></td><td>cpan Tk::BrowseEntry</td></tr>
-<tr id='R28'><td n='28'></td><td>at a <a class='glossary' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>.</td></tr>
+<tr id='R26'><td n='26'></td><td>More recently, a new service called "EM" is supplied with IntraMine: it can be used from anywhere on your intranet, handles Unicode fairly well, and does not require the installation of Tk or other additional modules. To use the "EM" service instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
+<tr id='R27'><td n='27'></td><td></td></tr>
+<tr id='R28'><td n='28'></td><td>Copy some Perl code to your clipboard, run this program, and the code will be packaged up as a subroutine complete with example call and put on the clipboard ready for pasting. Along the way, extract_method.pl will show a dialog letting you pick whether each undeclared variable should be passed by value or reference, or ignored (it it's global).</td></tr>
 <tr id='R29'><td n='29'></td><td></td></tr>
-<tr id='R30'><td n='30'></td><td>To add extract_method.pl to Eclipse:</td></tr>
-<tr id='R31'><td n='31'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->External Tools Configurations...</p></td></tr>
-<tr id='R32'><td n='32'></td><td><p class="outdent-unordered">&nbsp;&bull; New configuration</p></td></tr>
-<tr id='R33'><td n='33'></td><td><p class="outdent-unordered-sub">&#9702; Name: Extract Method</p></td></tr>
-<tr id='R34'><td n='34'></td><td><p class="outdent-unordered-sub">&#9702; Location: C:\Strawberry\perl\bin\perl.exe (adjust path if needed)</p></td></tr>
-<tr id='R35'><td n='35'></td><td><p class="outdent-unordered-sub">&#9702; Arguments: C:\perlprogs\mine\extract_method.pl (adjust path if needed)</p></td></tr>
-<tr id='R36'><td n='36'></td><td><p class="outdent-unordered">&nbsp;&bull; Apply</p></td></tr>
-<tr id='R37'><td n='37'></td><td><p class="outdent-unordered">&nbsp;&bull; Close</p></td></tr>
-<tr id='R38'><td n='38'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->Organize Favorites</p></td></tr>
-<tr id='R39'><td n='39'></td><td><p class="outdent-unordered-sub">&#9702; Add...</p></td></tr>
-<tr id='R40'><td n='40'></td><td><p class="outdent-unordered">&nbsp;&bull; Select "Extract Method" and OK</p></td></tr>
-<tr id='R41'><td n='41'></td><td><p class="outdent-unordered">&nbsp;&bull; OK again.</p></td></tr>
-<tr id='R42'><td n='42'></td><td></td></tr>
-<tr id='R43'><td n='43'></td><td>To test that:</td></tr>
-<tr id='R44'><td n='44'></td><td><p class="outdent-unordered">&nbsp;&bull; Select some Perl</p></td></tr>
-<tr id='R45'><td n='45'></td><td><p class="outdent-unordered">&nbsp;&bull; Copy</p></td></tr>
-<tr id='R46'><td n='46'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->Extract Method</p></td></tr>
-<tr id='R47'><td n='47'></td><td><p class="outdent-unordered">&nbsp;&bull; Fine tune your params in the resulting dialog</p></td></tr>
-<tr id='R48'><td n='48'></td><td><p class="outdent-unordered">&nbsp;&bull; OK</p></td></tr>
-<tr id='R49'><td n='49'></td><td><p class="outdent-unordered">&nbsp;&bull; Paste results somewhere and take a look.</p></td></tr>
-<tr id='R50'><td n='50'></td><td></td></tr>
-<tr id='R51'><td n='51'></td><td>extract_method.pl can be added to other editors of course; each one has its own approach though so I'll leave that to you to explore.</td></tr>
-<tr id='R52'><td n='52'></td><td></td></tr>
-<tr id='R53'><td n='53'></td><td><h3 id="intramine_all_stop.pl">intramine_all_stop.pl</h3></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R55'><td n='55'></td><td>Stops all IntraMine servers including Main and Cmd. It's more easily called by running bats/STOP_INTRAMINE.bat.</td></tr>
+<tr id='R30'><td n='30'></td><td><span class='notabene'>NOTE </span>this program requires installing Tk plus a bit beforehand, by running</td></tr>
+<tr id='R31'><td n='31'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R32'><td n='32'></td><td>at a <a class='glossary' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>.</td></tr>
+<tr id='R33'><td n='33'></td><td></td></tr>
+<tr id='R34'><td n='34'></td><td>To add extract_method.pl to Eclipse:</td></tr>
+<tr id='R35'><td n='35'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->External Tools Configurations...</p></td></tr>
+<tr id='R36'><td n='36'></td><td><p class="outdent-unordered">&nbsp;&bull; New configuration</p></td></tr>
+<tr id='R37'><td n='37'></td><td><p class="outdent-unordered-sub">&#9702; Name: Extract Method</p></td></tr>
+<tr id='R38'><td n='38'></td><td><p class="outdent-unordered-sub">&#9702; Location: C:\Strawberry\perl\bin\perl.exe (adjust path if needed)</p></td></tr>
+<tr id='R39'><td n='39'></td><td><p class="outdent-unordered-sub">&#9702; Arguments: C:\perlprogs\mine\extract_method.pl (adjust path if needed)</p></td></tr>
+<tr id='R40'><td n='40'></td><td><p class="outdent-unordered">&nbsp;&bull; Apply</p></td></tr>
+<tr id='R41'><td n='41'></td><td><p class="outdent-unordered">&nbsp;&bull; Close</p></td></tr>
+<tr id='R42'><td n='42'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->Organize Favorites</p></td></tr>
+<tr id='R43'><td n='43'></td><td><p class="outdent-unordered-sub">&#9702; Add...</p></td></tr>
+<tr id='R44'><td n='44'></td><td><p class="outdent-unordered">&nbsp;&bull; Select "Extract Method" and OK</p></td></tr>
+<tr id='R45'><td n='45'></td><td><p class="outdent-unordered">&nbsp;&bull; OK again.</p></td></tr>
+<tr id='R46'><td n='46'></td><td></td></tr>
+<tr id='R47'><td n='47'></td><td>To test that:</td></tr>
+<tr id='R48'><td n='48'></td><td><p class="outdent-unordered">&nbsp;&bull; Select some Perl</p></td></tr>
+<tr id='R49'><td n='49'></td><td><p class="outdent-unordered">&nbsp;&bull; Copy</p></td></tr>
+<tr id='R50'><td n='50'></td><td><p class="outdent-unordered">&nbsp;&bull; Run->External Tools->Extract Method</p></td></tr>
+<tr id='R51'><td n='51'></td><td><p class="outdent-unordered">&nbsp;&bull; Fine tune your params in the resulting dialog</p></td></tr>
+<tr id='R52'><td n='52'></td><td><p class="outdent-unordered">&nbsp;&bull; OK</p></td></tr>
+<tr id='R53'><td n='53'></td><td><p class="outdent-unordered">&nbsp;&bull; Paste results somewhere and take a look.</p></td></tr>
+<tr id='R54'><td n='54'></td><td></td></tr>
+<tr id='R55'><td n='55'></td><td>extract_method.pl can be added to other editors of course; each one has its own approach though so I'll leave that to you to explore.</td></tr>
 <tr id='R56'><td n='56'></td><td></td></tr>
-<tr id='R57'><td n='57'></td><td><h3 id="intramine_stop.pl">intramine_stop.pl</h3></td></tr>
+<tr id='R57'><td n='57'></td><td><h3 id="intramine_all_stop.pl">intramine_all_stop.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R59'><td n='59'></td><td>Stops all IntraMine servers, except any running "Persistent" server such as Cmd. This isn't really needed and you can safely ignore it.</td></tr>
+<tr id='R59'><td n='59'></td><td>Stops all IntraMine servers including Main and Cmd. It's more easily called by running bats/STOP_INTRAMINE.bat.</td></tr>
 <tr id='R60'><td n='60'></td><td></td></tr>
-<tr id='R61'><td n='61'></td><td><h3 id="list_missing_Perl_modules.pl">list_missing_Perl_modules.pl</h3></td></tr>
+<tr id='R61'><td n='61'></td><td><h3 id="intramine_stop.pl">intramine_stop.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R63'><td n='63'></td><td>This is intended for use under ActivePerl. It tries to note missing modules  for a Perl program or all programs in a folder, and cooks up "ppm install" lines for any missing modules. It works by asking Perl to do a syntax check on each file, and then checks for "Can't locate (module name)" messages. extract_method.pl above does much the same thing, but it pays attention to messages about undefined variables.</td></tr>
+<tr id='R63'><td n='63'></td><td>Stops all IntraMine servers, except any running "Persistent" server such as Cmd. This isn't really needed and you can safely ignore it.</td></tr>
 <tr id='R64'><td n='64'></td><td></td></tr>
-<tr id='R65'><td n='65'></td><td>To verify that IntraMine has all its modules, use verify_module_installation.pl (see below) instead of this program.</td></tr>
-<tr id='R66'><td n='66'></td><td></td></tr>
-<tr id='R67'><td n='67'></td><td><h3 id="make_filewatcher_config.pl">make_filewatcher_config.pl</h3></td></tr>
+<tr id='R65'><td n='65'></td><td><h3 id="list_missing_Perl_modules.pl">list_missing_Perl_modules.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R69'><td n='69'></td><td>This is described in <a href="./Installing File Watcher.html" target="_blank">"Installing File Watcher.txt"</a>.</td></tr>
+<tr id='R67'><td n='67'></td><td>This is intended for use under ActivePerl. It tries to note missing modules  for a Perl program or all programs in a folder, and cooks up "ppm install" lines for any missing modules. It works by asking Perl to do a syntax check on each file, and then checks for "Can't locate (module name)" messages. extract_method.pl above does much the same thing, but it pays attention to messages about undefined variables.</td></tr>
+<tr id='R68'><td n='68'></td><td></td></tr>
+<tr id='R69'><td n='69'></td><td>To verify that IntraMine has all its modules, use verify_module_installation.pl (see below) instead of this program.</td></tr>
 <tr id='R70'><td n='70'></td><td></td></tr>
-<tr id='R71'><td n='71'></td><td><h3 id="max_folder_depth.pl">max_folder_depth.pl</h3></td></tr>
+<tr id='R71'><td n='71'></td><td><h3 id="make_filewatcher_config.pl">make_filewatcher_config.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R73'><td n='73'></td><td>Finds the deepest subfolder in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> indexed folders. I needed this when deciding how many index fields to put in IntraMine's index of the "folderN" sort, where N is an integer from 1 up to just past maximum folder depth. This is described in <a href="./Search.html#Fast folder searches" target="_blank">"Search.txt#Fast folder searches"</a>.</td></tr>
+<tr id='R73'><td n='73'></td><td>This is described in <a href="./Installing File Watcher.html" target="_blank">"Installing File Watcher.txt"</a>.</td></tr>
 <tr id='R74'><td n='74'></td><td></td></tr>
-<tr id='R75'><td n='75'></td><td><h3 id="verify_module_installation.pl">verify_module_installation.pl</h3></td></tr>
+<tr id='R75'><td n='75'></td><td><h3 id="max_folder_depth.pl">max_folder_depth.pl</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R77'><td n='77'></td><td>Verifies that IntraMine has all its needed <a class='glossary' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> modules, as described in <a href="./IntraMine initial install.html#	Verifying module installation" target="_blank">"IntraMine initial install.txt#	Verifying module installation"</a>.</td></tr>
+<tr id='R77'><td n='77'></td><td>Finds the deepest subfolder in <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> indexed folders. I needed this when deciding how many index fields to put in IntraMine's index of the "folderN" sort, where N is an integer from 1 up to just past maximum folder depth. This is described in <a href="./Search.html#Fast folder searches" target="_blank">"Search.txt#Fast folder searches"</a>.</td></tr>
 <tr id='R78'><td n='78'></td><td></td></tr>
-<tr id='R79'><td n='79'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R79'><td n='79'></td><td><h3 id="verify_module_installation.pl">verify_module_installation.pl</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R81'><td n='81'></td><td>Verifies that IntraMine has all its needed <a class='glossary' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> modules, as described in <a href="./IntraMine initial install.html#	Verifying module installation" target="_blank">"IntraMine initial install.txt#	Verifying module installation"</a>.</td></tr>
+<tr id='R82'><td n='82'></td><td></td></tr>
+<tr id='R83'><td n='83'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R80'><td n='80'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R81'><td n='81'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R84'><td n='84'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R85'><td n='85'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

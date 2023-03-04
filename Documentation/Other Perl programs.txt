@@ -21,6 +21,10 @@ Goes through the directories listed in data/search_directories.txt and lists all
 
 extract_method.pl
 ------------------
+This is the original "Extract Method" refactor for Perl, and it runs as a separate program as explained below.
+
+More recently, a new service called "EM" is supplied with IntraMine: it can be used from anywhere on your intranet, handles Unicode fairly well, and does not require the installation of Tk or other additional modules. To use the "EM" service instead, see "EM.txt".
+
 Copy some Perl code to your clipboard, run this program, and the code will be packaged up as a subroutine complete with example call and put on the clipboard ready for pasting. Along the way, extract_method.pl will show a dialog letting you pick whether each undeclared variable should be passed by value or reference, or ignored (it it's global).
 
 NOTE this program requires installing Tk plus a bit beforehand, by running

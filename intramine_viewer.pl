@@ -3244,6 +3244,7 @@ sub MakeCtagsForFile {
 	my ($dir, $fileName, $errorMsgR) = @_;
 	my $result = '';
 	my $tempFilePath = '';
+	my $tempDir = '';
 	my $proc;
 	
 	# Trouble with "wide" file names. Towards a workaround, copy the file being processed to
@@ -3259,7 +3260,7 @@ sub MakeCtagsForFile {
 			}
 		my $randomInteger = random_int_between(1001, 60000);
 		$tempFilePath = 'temp_code_copy_' . $port_listen . time . $randomInteger . ".$ext";
-		my $tempDir = $LogDir . 'temp/';
+		$tempDir = $LogDir . 'temp/';
 		#print("Copying |$dir$fileName| to |$tempDir$tempFilePath|\n");
 		if (CopyFileWide($dir . $fileName, $tempDir . $tempFilePath, 0))
 			{
@@ -3293,7 +3294,7 @@ sub MakeCtagsForFile {
 		$result = $CtagsOutputFilePath;
 		}
 	
-	return($result, $tempFilePath);
+	return($result, $tempDir . $tempFilePath);
 	}
 
 #http://ctags.sourceforge.net/FORMAT
