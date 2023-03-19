@@ -28,8 +28,6 @@ This is easy enough, but building your initial file index will probably take a w
 4. IntraMine will start up when the indexing is complete.
 5. You can stop or start IntraMine by running bats/STOP_INTRAMINE.bat or bats/START_INTRAMINE.bat. More about starting and stopping in "Using IntraMine.txt".
 
-NOTE there is a bug somewhere (I don't think it's in IntraMine) that causes the command prompt window to mess up line feeds, so feedback from IntraMine all shows up on one line. If this happens to you, CTRL+C and restart IntraMine. This problem doesn't recur predictably. If you have an idea of what the problem is, please let me know (KLB7 at intramine.info).
-
 When IntraMine is running, it will keep your index up to date in near real time. For a single file edit, the lag is five seconds. If you add a hundred files, the lag will be slightly longer. If you plan on adding **thousands** of files at once to a folder that's already being indexed, you should stop IntraMine beforehand and then selectively re-index as described in "Using IntraMine.txt#Adding files to indexed folders".
 
 Problem starting IntraMine?

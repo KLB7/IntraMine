@@ -21,7 +21,7 @@ my %blockTag;
 # an <li> continuation paragraph (of which there may be several).
 # Anchors and <pre> also get some special handling.
 # But there are only two top-level types of text,
-# remembered in in $self->{'TEXT_TYPE'}:
+# remembered in $self->{'TEXT_TYPE'}:
 my $kMain = 1; # Anything not in a <li> item at any depth
 my $kLi = 2;
 

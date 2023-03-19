@@ -71,7 +71,7 @@ If you see a use for IntraMine's autolinking algorithms etc in your own work, go
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected, so that's fine for library files but not your own work.
 
 ## Bugs?
-If you spot a bug, please do the kindness of sending an email describing it to klb7 at intramine.info. Requests to collaborate on IntraMine are welcome, drop me a line.
+If you spot a bug, please do the kindness of sending an email describing it to klb7@intramine.info.
 
 ## Limitations and a heads-up
 IntraMine is for use only on an intranet, and provides no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.

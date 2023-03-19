@@ -559,7 +559,7 @@ sub AddEmphasis {
 	
 	$$lineR =~ s!(TODO)!<span class='notabene'>\&#127895;$1</span>!;		
 	$$lineR =~ s!(REMINDERS?)!<span class='notabene'>\&#127895;$1</span>!;
-	$$lineR =~ s!(NOTE\W)!<span class='notabene'>$1</span>!;
+	$$lineR =~ s!(NOTE)(\W)!<span class='notabene'>$1</span>$2!;
 	$$lineR =~ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><span class='notabene'>$1</span>!;
 	$$lineR =~ s!^\=\>!<span class='textSymbol' style='color: Green;'>\&#9755;</span>!; 			# White is \&#9758; but it's hard to see.
 	$$lineR =~ s!^( )+\=\>!$1<span class='textSymbol' style='color: Green;'>\&#9755;</span>!;

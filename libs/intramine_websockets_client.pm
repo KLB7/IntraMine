@@ -4,7 +4,7 @@
 # Note a Perl program using this module can only send messages
 # (using WebSocketSend()).
 # There is no monitoring loop to receive other messages.
-# (However on the browser client side, websockets,js can receive messages).
+# (However on the browser client side, websockets.js can receive messages).
 
 package intramine_websockets_client;
 require Exporter;
@@ -52,7 +52,6 @@ sub InitWebSocket {
 	$sockHost = $host;
 	$sockPort = $port;
 	
-	# TEST ONLY
 	ChattyPrint("Host: |$sockHost|\n");
 	ChattyPrint("Port: |$sockPort|\n");
 }

@@ -9,5 +9,5 @@ IntraMine itself can be found at
 https://github.com/KLB7/IntraMine
 
 Enjoy!
--KLB7 at intramine.info
+-KLB7@intramine.info
 
