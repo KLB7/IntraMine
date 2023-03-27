@@ -1323,168 +1323,196 @@ span.ll-com { /* comments */
 <div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <ul>
 <li class='h1' im-text-ln='1'><a href='#Installing_Elasticsearch'>Installing Elasticsearch</a></li>
-<li class='h2' im-text-ln='4'><a href='#About_Java'>About Java</a></li>
-<li class='h2' im-text-ln='19'><a href='#Elasticsearch_installation'>Elasticsearch installation</a></li>
-<li class='h3' im-text-ln='22'><a href='#If_you_already_have_Elasticsearch'>If you already have Elasticsearch</a></li>
-<li class='h3' im-text-ln='38'><a href='#Getting_Elasticsearch'>Getting Elasticsearch</a></li>
-<li class='h3' im-text-ln='52'><a href='#Add_the_needed_tokenizer'>Add the needed tokenizer</a></li>
-<li class='h3' im-text-ln='60'><a href='#Install_and_start_Elasticsearch'>Install and start Elasticsearch</a></li>
-<li class='h3' im-text-ln='77'><a href='#Verify'>Verify</a></li>
-<li class='h2' im-text-ln='83'><a href='#Elasticsearch_service_management'>Elasticsearch service management</a></li>
-<li class='h2' im-text-ln='103'><a href='#Onwards'>Onwards</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Installing_Elasticsearch">Installing <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h1></td></tr>
+<li class='h2' im-text-ln='4'><a href='#CORRECTION'>CORRECTION</a></li>
+<li class='h2' im-text-ln='17'><a href='#Updating_to_Elasticsearch_8'>Updating to Elasticsearch 8</a></li>
+<li class='h2' im-text-ln='26'><a href='#Elasticsearch_installation'>Elasticsearch installation</a></li>
+<li class='h3' im-text-ln='29'><a href='#If_you_already_have_Elasticsearch'>If you already have Elasticsearch</a></li>
+<li class='h3' im-text-ln='41'><a href='#Getting_Elasticsearch'>Getting Elasticsearch</a></li>
+<li class='h3' im-text-ln='55'><a href='#Modify_the_Elasticsearch_config_file'>Modify the Elasticsearch config file</a></li>
+<li class='h3' im-text-ln='66'><a href='#Add_the_needed_tokenizer'>Add the needed tokenizer</a></li>
+<li class='h3' im-text-ln='74'><a href='#Install_and_start_Elasticsearch'>Install and start Elasticsearch</a></li>
+<li class='h3' im-text-ln='91'><a href='#Verify'>Verify</a></li>
+<li class='h2' im-text-ln='97'><a href='#Elasticsearch_service_management'>Elasticsearch service management</a></li>
+<li class='h2' im-text-ln='117'><a href='#Onwards'>Onwards</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Installing_Elasticsearch">Installing <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
-<tr id='R4'><td n='4'></td><td><h2 id="About_Java">About Java</h2></td></tr>
+<tr id='R4'><td n='4'></td><td><h2 id="CORRECTION">CORRECTION</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td></td></tr>
-<tr id='R7'><td n='7'></td><td>IntraMine uses <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to index source and text files. Elasticsearch is Java based, but comes with its own version of Java. However, this internal version is used only if you don't already have a Java JDK installed. If you do have one installed, Elasticsearch will use it - but it must be version 11 or higher. So, if you don't have a Java JDK installed, no worries. And if you do, make sure it's JDK 11 or higher. You can see your Java version in the JAVA_HOME system environment variable.</td></tr>
-<tr id='R8'><td n='8'></td><td></td></tr>
-<tr id='R9'><td n='9'></td><td>If you fall in the "gray" area, where you have an older Java JDK installed and would like to upgrade, you could try</td></tr>
-<tr id='R10'><td n='10'></td><td><a href='https://adoptopenjdk.net/releases.html' target='_blank'>https://adoptopenjdk.net/releases.html</a> (the Windows x64 release). Or you could try oracle.com directly if you're brave - I couldn't see immediately how to get a working free Java JDK for Windows, but you're probably smarter than I am.</td></tr>
-<tr id='R11'><td n='11'></td><td></td></tr>
-<tr id='R12'><td n='12'></td><td>If you do use your own copy of the JDK, check that your JAVA_HOME system environment variable is set to point to a version of the JDK that's at least 11, otherwise <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> won't work. Well, I beat that to death.</td></tr>
-<tr id='R13'><td n='13'></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td>[ To get to system variables: Control Panel -> System -> Advanced system settings -> Environment Variables.</td></tr>
-<tr id='R15'><td n='15'></td><td>Or</td></tr>
-<tr id='R16'><td n='16'></td><td>Settings -> System -> About -> System Info (at top right) -> Advanced system settings -> Environment Variables.</td></tr>
-<tr id='R17'><td n='17'></td><td>]</td></tr>
-<tr id='R18'><td n='18'></td><td></td></tr>
-<tr id='R19'><td n='19'></td><td><h2 id="Elasticsearch_installation"><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> installation</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R21'><td n='21'></td><td></td></tr>
-<tr id='R22'><td n='22'></td><td><h3 id="If_you_already_have_Elasticsearch">If you already have <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R24'><td n='24'></td><td>If you installed IntraMine, and with it <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, before October 2020 then you are using the older 6.8.0 version of Elasticsearch. That's fine, IntraMine is still compatible with 6.8.0. The only limitation is that you should not upgrade your version of the Search::Elasticsearch module. If you decide you'd rather keep up with the latest, then you will need to:</td></tr>
-<tr id='R25'><td n='25'></td><td><p class="outdent-unordered">&nbsp;&bull; remove your current version of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> (see just below)</p></td></tr>
-<tr id='R26'><td n='26'></td><td><p class="outdent-unordered">&nbsp;&bull; install version 7.9.2 of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, as described in <a href="#Getting_Elasticsearch">"Getting Elasticsearch</a>" below</p></td></tr>
-<tr id='R27'><td n='27'></td><td><p class="outdent-unordered">&nbsp;&bull; update your Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> Perl module, at a <a class='glossary' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> with</p></td></tr>
-<tr id='R28'><td n='28'></td><td><p class="outdent-unordered-continued">---</p></td></tr>
-<tr id='R29'><td n='29'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
-<tr id='R30'><td n='30'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R6'><td n='6'></td><td>IMPORTANT if you installed <a class='glossary' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> while installing IntraMine between December 29 2022 and March 26 2023, you will need to remove <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 7.9.2 and upgrade to Elasticsearch 8. To remove Elasticsearch 7.9.2, at a <a class='glossary' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> run these two commands (adjust to your ES path):</td></tr>
+<tr id='R7'><td n='7'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R31'><td n='31'></td><td><p class="outdent-unordered">&nbsp;&bull; and rebuild your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> index, as described in <a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">"Build your Elasticsearch index and run IntraMine.txt"</a>. To save you re-reading that, at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> (using <a class='glossary' href="#" onmouseover="showhint('<p>Run as administrator: You can get a command prompt (console window) by putting a shortcut to &quot;C:/Windows/System32/cmd.exe&quot; on your desktop.</p><p>For a single run, right-click on the shortcut and select &quot;Run as administrator&quot;.</p><p>And you can set it to always &quot;Run as administrator&quot; by right-clicking on the shortcut for Properties, and then clicking on the &quot;Run as administrator&quot; checkbox under the Shortcut tab&#8216;s Advanced... button.</p>', this, event, '500px', false);">Run as administrator</a>) run bats/IM_INIT_INDEX.bat, and then go away for an hour or two.</p></td></tr>
-<tr id='R32'><td n='32'></td><td></td></tr>
-<tr id='R33'><td n='33'></td><td>To remove your current version of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, run these two commands at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>:</td></tr>
-<tr id='R34'><td n='34'></td><td>(change the "6.8.0" if your old version isn't 6.8.0).</td></tr>
-<tr id='R35'><td n='35'></td><td>C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat stop</td></tr>
-<tr id='R36'><td n='36'></td><td>C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat remove</td></tr>
-<tr id='R37'><td n='37'></td><td></td></tr>
-<tr id='R38'><td n='38'></td><td><h3 id="Getting_Elasticsearch">Getting <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
+<tr id='R8'><td n='8'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop</td></tr>
+<tr id='R9'><td n='9'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove</td></tr>
+<tr id='R10'><td n='10'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R11'><td n='11'></td><td>and then install <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8 as described below.</td></tr>
+<tr id='R12'><td n='12'></td><td></td></tr>
+<tr id='R13'><td n='13'></td><td>More precisely, you will need to upgrade to <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8 if you:</td></tr>
+<tr id='R14'><td n='14'></td><td><p class="outdent-unordered">&nbsp;&bull; did a new install of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> between December 29 2022 and March 26 2023</p></td></tr>
+<tr id='R15'><td n='15'></td><td><p class="outdent-unordered">&nbsp;&bull; or updated your Perl Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> module in the same time frame.</p></td></tr>
+<tr id='R16'><td n='16'></td><td></td></tr>
+<tr id='R17'><td n='17'></td><td><h2 id="Updating_to_Elasticsearch_8">Updating to <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R40'><td n='40'></td><td>Currently I'm recommending version <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 7.9.2, which is compatible with the latest version of the Search::Elasticsearch module.</td></tr>
-<tr id='R41'><td n='41'></td><td></td></tr>
-<tr id='R42'><td n='42'></td><td>To download <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> version 7.9.2, head to</td></tr>
-<tr id='R43'><td n='43'></td><td><a href='https://www.elastic.co/downloads/past-releases/elasticsearch-7-9-2' target='_blank'>https://www.elastic.co/downloads/past-releases/elasticsearch-7-9-2</a></td></tr>
-<tr id='R44'><td n='44'></td><td>On the resulting page, click on "WINDOWS" near the top to start your download. You'll be downloading a file called "elasticsearch-7.9.2-windows-x86_64.zip".</td></tr>
-<tr id='R45'><td n='45'></td><td></td></tr>
-<tr id='R46'><td n='46'></td><td>Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-7.9.2", then that's the one to copy, rather than the top folder.</td></tr>
-<tr id='R47'><td n='47'></td><td></td></tr>
-<tr id='R48'><td n='48'></td><td>Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-7.9.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the <a class='glossary' href="#" onmouseover="showhint('<p>Top level: A service is &quot;top level&quot; and has an entry in the top navigation bar if its Page name and Short name are the same in data/serverlist.txt, and it&#8216;s not marked there as a &quot;BACKGROUND&quot; service. A top level service will show up in IntraMine&#8216;s top navigation bar.</p><p>The number of instances of a top level service to run is set by its &quot;Count&quot; field in serverlist.txt.</p><p>A top-level service can have second level services that it hands off to for specific tasks. For example, the Search page presents a list of hits with file links, and hands off to either the Viewer or Editor service when a link is clicked. The Viewer and Editor services are also called in response to clicks on the Files page links.</p>', this, event, '500px', false);">top level</a> in that folder.</td></tr>
-<tr id='R49'><td n='49'></td><td></td></tr>
-<tr id='R50'><td n='50'></td><td>If you can't put the "elasticsearch-7.9.2" at the top of your C: drive, you can still do this, but note where you have placed your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> folder and substitute your location for "C:\elasticsearch-7.9.2" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.</td></tr>
-<tr id='R51'><td n='51'></td><td></td></tr>
-<tr id='R52'><td n='52'></td><td><h3 id="Add_the_needed_tokenizer">Add the needed tokenizer</h3></td></tr>
+<tr id='R19'><td n='19'></td><td>If you installed IntraMine before December 29 2022 and would like to upgrade to <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8 just to keep up:</td></tr>
+<tr id='R20'><td n='20'></td><td><p class="ol-1">1. remove your older <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 7 or 6 as described just above</p></td></tr>
+<tr id='R21'><td n='21'></td><td><p class="ol-1">2. At a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> run</p></td></tr>
+<tr id='R22'><td n='22'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
+<tr id='R23'><td n='23'></td><td>to update that Perl module to handle <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8</td></tr>
+<tr id='R24'><td n='24'></td><td><p class="ol-1">3. Install <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8 and rebuild your index as described next.</p></td></tr>
+<tr id='R25'><td n='25'></td><td></td></tr>
+<tr id='R26'><td n='26'></td><td><h2 id="Elasticsearch_installation"><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> installation</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R54'><td n='54'></td><td>At a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> run</td></tr>
-<tr id='R55'><td n='55'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R56'><td n='56'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-plugin.bat install analysis-icu</td></tr>
-<tr id='R57'><td n='57'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R58'><td n='58'></td><td>to install the needed special tokenizer (it helps with unicode).</td></tr>
-<tr id='R59'><td n='59'></td><td></td></tr>
-<tr id='R60'><td n='60'></td><td><h3 id="Install_and_start_Elasticsearch">Install and start <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
+<tr id='R28'><td n='28'></td><td></td></tr>
+<tr id='R29'><td n='29'></td><td><h3 id="If_you_already_have_Elasticsearch">If you already have <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R62'><td n='62'></td><td>Install and start <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> with</td></tr>
-<tr id='R63'><td n='63'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R31'><td n='31'></td><td>If you installed IntraMine, and with it <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, before March 26 2023 then you are using an older 6 or 7 version of Elasticsearch. If, in the meantime, you have re-installed <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a> or updated your Search::Elasticsearch module, then you will need to:</td></tr>
+<tr id='R32'><td n='32'></td><td><p class="outdent-unordered">&nbsp;&bull; remove your current version of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> (see just below)</p></td></tr>
+<tr id='R33'><td n='33'></td><td><p class="outdent-unordered">&nbsp;&bull; install a version 8 of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, as described in <a href="#Getting_Elasticsearch">"Getting Elasticsearch</a>" below</p></td></tr>
+<tr id='R34'><td n='34'></td><td><p class="outdent-unordered">&nbsp;&bull; and rebuild your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> index, as described in <a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">"Build your Elasticsearch index and run IntraMine.txt"</a>. To save you re-reading that, at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> (using <a class='glossary' href="#" onmouseover="showhint('<p>Run as administrator: You can get a command prompt (console window) by putting a shortcut to &quot;C:/Windows/System32/cmd.exe&quot; on your desktop.</p><p>For a single run, right-click on the shortcut and select &quot;Run as administrator&quot;.</p><p>And you can set it to always &quot;Run as administrator&quot; by right-clicking on the shortcut for Properties, and then clicking on the &quot;Run as administrator&quot; checkbox under the Shortcut tab&#8216;s Advanced... button.</p>', this, event, '500px', false);">Run as administrator</a>) run bats/IM_INIT_INDEX.bat, and then go away for a while.</p></td></tr>
+<tr id='R35'><td n='35'></td><td></td></tr>
+<tr id='R36'><td n='36'></td><td>To remove your current version of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, run two commands at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>.</td></tr>
+<tr id='R37'><td n='37'></td><td>(change the "7.9.2" if your old version is 6.8.0).</td></tr>
+<tr id='R38'><td n='38'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop</td></tr>
+<tr id='R39'><td n='39'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove</td></tr>
+<tr id='R40'><td n='40'></td><td></td></tr>
+<tr id='R41'><td n='41'></td><td><h3 id="Getting_Elasticsearch">Getting <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R43'><td n='43'></td><td>Currently I'm recommending version <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> 8.6.2, which is compatible with the latest version of the Search::Elasticsearch module. However, any later version 8 should also work.</td></tr>
+<tr id='R44'><td n='44'></td><td></td></tr>
+<tr id='R45'><td n='45'></td><td>To download <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> version 8.6.2 or later, head to</td></tr>
+<tr id='R46'><td n='46'></td><td><a href='https://www.elastic.co/downloads/elasticsearch' target='_blank'>https://www.elastic.co/downloads/elasticsearch</a></td></tr>
+<tr id='R47'><td n='47'></td><td>On the resulting page, click on the blue and white "Windows" button near the top to start your download. You'll be downloading a file called something like "elasticsearch-8.6.2-windows-x86_64.zip".</td></tr>
+<tr id='R48'><td n='48'></td><td></td></tr>
+<tr id='R49'><td n='49'></td><td>Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-8.6.2", then that's the one to copy, rather than the top folder.</td></tr>
+<tr id='R50'><td n='50'></td><td></td></tr>
+<tr id='R51'><td n='51'></td><td>Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-8.6.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the <a class='glossary' href="#" onmouseover="showhint('<p>Top level: A service is &quot;top level&quot; and has an entry in the top navigation bar if its Page name and Short name are the same in data/serverlist.txt, and it&#8216;s not marked there as a &quot;BACKGROUND&quot; service. A top level service will show up in IntraMine&#8216;s top navigation bar.</p><p>The number of instances of a top level service to run is set by its &quot;Count&quot; field in serverlist.txt.</p><p>A top-level service can have second level services that it hands off to for specific tasks. For example, the Search page presents a list of hits with file links, and hands off to either the Viewer or Editor service when a link is clicked. The Viewer and Editor services are also called in response to clicks on the Files page links.</p>', this, event, '500px', false);">top level</a> in that folder.</td></tr>
+<tr id='R52'><td n='52'></td><td></td></tr>
+<tr id='R53'><td n='53'></td><td>If you can't put the "elasticsearch-8.6.2" folder at the top of your C: drive, note where you have placed your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> folder and substitute your location for "C:\elasticsearch-8.6.2" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.</td></tr>
+<tr id='R54'><td n='54'></td><td></td></tr>
+<tr id='R55'><td n='55'></td><td><h3 id="Modify_the_Elasticsearch_config_file">Modify the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> config file</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R57'><td n='57'></td><td><span class='notabene'>NOTE</span> if you are upgrading your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> install this is a new step!</td></tr>
+<tr id='R58'><td n='58'></td><td></td></tr>
+<tr id='R59'><td n='59'></td><td>In your new "C:\elasticsearch-8.6.2" folder open config/<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">elasticsearch</a>.yml and at the bottom add the line:</td></tr>
+<tr id='R60'><td n='60'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R64'><td n='64'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat install</td></tr>
-<tr id='R65'><td n='65'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R61'><td n='61'></td><td>xpack.security.enabled: false</td></tr>
+<tr id='R62'><td n='62'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R66'><td n='66'></td><td>followed by</td></tr>
-<tr id='R67'><td n='67'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R68'><td n='68'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat start</td></tr>
+<tr id='R63'><td n='63'></td><td>Save that, and you're done configuring <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>.</td></tr>
+<tr id='R64'><td n='64'></td><td></td></tr>
+<tr id='R65'><td n='65'></td><td></td></tr>
+<tr id='R66'><td n='66'></td><td><h3 id="Add_the_needed_tokenizer">Add the needed tokenizer</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R68'><td n='68'></td><td>At a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> run</td></tr>
 <tr id='R69'><td n='69'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R70'><td n='70'></td><td></td></tr>
-<tr id='R71'><td n='71'></td><td>Then run</td></tr>
-<tr id='R72'><td n='72'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R70'><td n='70'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-plugin.bat install analysis-icu</td></tr>
+<tr id='R71'><td n='71'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R73'><td n='73'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat manager</td></tr>
-<tr id='R74'><td n='74'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R72'><td n='72'></td><td>to install the needed special tokenizer (it helps with unicode).</td></tr>
+<tr id='R73'><td n='73'></td><td></td></tr>
+<tr id='R74'><td n='74'></td><td><h3 id="Install_and_start_Elasticsearch">Install and start <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R76'><td n='76'></td><td>Install and start <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> with</td></tr>
+<tr id='R77'><td n='77'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R75'><td n='75'></td><td>and under the General tab in the resulting dialog window set the "Startup type" to "Automatic", Apply and OK.</td></tr>
-<tr id='R76'><td n='76'></td><td></td></tr>
-<tr id='R77'><td n='77'></td><td><h3 id="Verify">Verify</h3></td></tr>
+<tr id='R78'><td n='78'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat install</td></tr>
+<tr id='R79'><td n='79'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R80'><td n='80'></td><td>followed by</td></tr>
+<tr id='R81'><td n='81'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R82'><td n='82'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat start</td></tr>
+<tr id='R83'><td n='83'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R84'><td n='84'></td><td></td></tr>
+<tr id='R85'><td n='85'></td><td>Then run</td></tr>
+<tr id='R86'><td n='86'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R87'><td n='87'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat manager</td></tr>
+<tr id='R88'><td n='88'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R89'><td n='89'></td><td>and under the General tab in the resulting dialog window set the "Startup type" to "Automatic", Apply and OK.</td></tr>
+<tr id='R90'><td n='90'></td><td></td></tr>
+<tr id='R91'><td n='91'></td><td><h3 id="Verify">Verify</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R79'><td n='79'></td><td>To verify things went well, go to</td></tr>
-<tr id='R80'><td n='80'></td><td><a href='http://localhost:9200/_cluster/health/?pretty' target='_blank'>http://localhost:9200/_cluster/health/?pretty</a></td></tr>
-<tr id='R81'><td n='81'></td><td>and you should see "status" : "green" near the top of the result.</td></tr>
-<tr id='R82'><td n='82'></td><td></td></tr>
-<tr id='R83'><td n='83'></td><td><h2 id="Elasticsearch_service_management"><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> service management</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R85'><td n='85'></td><td>Here are some simple commands to manage <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, again using the "7.9.2" version as an example:</td></tr>
-<tr id='R86'><td n='86'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat install</td></tr>
-<tr id='R87'><td n='87'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat start</td></tr>
-<tr id='R88'><td n='88'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop</td></tr>
-<tr id='R89'><td n='89'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove</td></tr>
-<tr id='R90'><td n='90'></td><td>C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat manager</td></tr>
-<tr id='R91'><td n='91'></td><td>("manager" is mainly useful for setting the startup type to Automatic.)</td></tr>
-<tr id='R92'><td n='92'></td><td></td></tr>
-<tr id='R93'><td n='93'></td><td>To check in on <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>:</td></tr>
+<tr id='R93'><td n='93'></td><td>To verify things went well, go to</td></tr>
 <tr id='R94'><td n='94'></td><td><a href='http://localhost:9200/_cluster/health/?pretty' target='_blank'>http://localhost:9200/_cluster/health/?pretty</a></td></tr>
-<tr id='R95'><td n='95'></td><td>gives a simple overview.</td></tr>
+<tr id='R95'><td n='95'></td><td>and you should see "status" : "green" near the top of the result.</td></tr>
 <tr id='R96'><td n='96'></td><td></td></tr>
-<tr id='R97'><td n='97'></td><td>Once you have built an index for IntraMine, you can check it with</td></tr>
-<tr id='R98'><td n='98'></td><td><a href='http://localhost:9200/intramine/_stats/?pretty' target='_blank'>http://localhost:9200/intramine/_stats/?pretty</a></td></tr>
-<tr id='R99'><td n='99'></td><td></td></tr>
-<tr id='R100'><td n='100'></td><td><a href='http://localhost:9200/_cat/health?v' target='_blank'>http://localhost:9200/_cat/health?v</a></td></tr>
-<tr id='R101'><td n='101'></td><td>will give you a one-line summary of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> health.</td></tr>
-<tr id='R102'><td n='102'></td><td></td></tr>
-<tr id='R103'><td n='103'></td><td><h2 id="Onwards">Onwards</h2></td></tr>
+<tr id='R97'><td n='97'></td><td><h2 id="Elasticsearch_service_management"><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> service management</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R105'><td n='105'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> is now ready for use. Just a few more steps (including building your first Elasticsearch index) and then you can fire up IntraMine.</td></tr>
+<tr id='R99'><td n='99'></td><td>Here are some simple commands to manage <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>, again using the "8.6.2" version as an example:</td></tr>
+<tr id='R100'><td n='100'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat install</td></tr>
+<tr id='R101'><td n='101'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat start</td></tr>
+<tr id='R102'><td n='102'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat stop</td></tr>
+<tr id='R103'><td n='103'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat remove</td></tr>
+<tr id='R104'><td n='104'></td><td>C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat manager</td></tr>
+<tr id='R105'><td n='105'></td><td>("manager" is mainly useful for setting the startup type to Automatic.)</td></tr>
 <tr id='R106'><td n='106'></td><td></td></tr>
-<tr id='R107'><td n='107'></td><td>If you are just upgrading <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to version 7.9.2, you can skip along to rebuilding your Elasticsearch index, as shown in <a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">"Build your Elasticsearch index and run IntraMine.txt"</a>.</td></tr>
-<tr id='R108'><td n='108'></td><td></td></tr>
-<tr id='R109'><td n='109'></td><td>Next: <a href="./Installing File Watcher.html" target="_blank">"Installing File Watcher.txt"</a></td></tr>
+<tr id='R107'><td n='107'></td><td>To check in on <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>:</td></tr>
+<tr id='R108'><td n='108'></td><td><a href='http://localhost:9200/_cluster/health/?pretty' target='_blank'>http://localhost:9200/_cluster/health/?pretty</a></td></tr>
+<tr id='R109'><td n='109'></td><td>gives a simple overview.</td></tr>
 <tr id='R110'><td n='110'></td><td></td></tr>
-<tr id='R111'><td n='111'></td><td></td></tr>
-<tr id='R112'><td n='112'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R111'><td n='111'></td><td>Once you have built an index for IntraMine, you can check it with</td></tr>
+<tr id='R112'><td n='112'></td><td><a href='http://localhost:9200/intramine/_stats/?pretty' target='_blank'>http://localhost:9200/intramine/_stats/?pretty</a></td></tr>
+<tr id='R113'><td n='113'></td><td></td></tr>
+<tr id='R114'><td n='114'></td><td><a href='http://localhost:9200/_cat/health?v' target='_blank'>http://localhost:9200/_cat/health?v</a></td></tr>
+<tr id='R115'><td n='115'></td><td>will give you a one-line summary of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> health.</td></tr>
+<tr id='R116'><td n='116'></td><td></td></tr>
+<tr id='R117'><td n='117'></td><td><h2 id="Onwards">Onwards</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R119'><td n='119'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> is now ready for use. Just a few more steps (including building your first Elasticsearch index) and then you can fire up IntraMine.</td></tr>
+<tr id='R120'><td n='120'></td><td></td></tr>
+<tr id='R121'><td n='121'></td><td>If you are just upgrading <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to version 8.6.2, you can skip along to rebuilding your Elasticsearch index, as shown in <a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">"Build your Elasticsearch index and run IntraMine.txt"</a>.</td></tr>
+<tr id='R122'><td n='122'></td><td></td></tr>
+<tr id='R123'><td n='123'></td><td>Next: <a href="./Installing File Watcher.html" target="_blank">"Installing File Watcher.txt"</a></td></tr>
+<tr id='R124'><td n='124'></td><td></td></tr>
+<tr id='R125'><td n='125'></td><td></td></tr>
+<tr id='R126'><td n='126'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R113'><td n='113'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R114'><td n='114'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R127'><td n='127'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R128'><td n='128'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==

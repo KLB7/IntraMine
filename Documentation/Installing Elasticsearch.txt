@@ -1,59 +1,73 @@
 Installing Elasticsearch
 ========================
 
-About Java
-===========
+CORRECTION
+==============
+IMPORTANT if you installed Strawberry Perl while installing IntraMine between December 29 2022 and March 26 2023, you will need to remove Elasticsearch 7.9.2 and upgrade to Elasticsearch 8. To remove Elasticsearch 7.9.2, at a command prompt run these two commands (adjust to your ES path):
+---
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove
+---
+and then install Elasticsearch 8 as described below.
 
-IntraMine uses Elasticsearch to index source and text files. Elasticsearch is Java based, but comes with its own version of Java. However, this internal version is used only if you don't already have a Java JDK installed. If you do have one installed, Elasticsearch will use it - but it must be version 11 or higher. So, if you don't have a Java JDK installed, no worries. And if you do, make sure it's JDK 11 or higher. You can see your Java version in the JAVA_HOME system environment variable.
+More precisely, you will need to upgrade to Elasticsearch 8 if you:
+ - did a new install of Strawberry Perl between December 29 2022 and March 26 2023
+ - or updated your Perl Search::Elasticsearch module in the same time frame.
 
-If you fall in the "gray" area, where you have an older Java JDK installed and would like to upgrade, you could try
-https://adoptopenjdk.net/releases.html (the Windows x64 release). Or you could try oracle.com directly if you're brave - I couldn't see immediately how to get a working free Java JDK for Windows, but you're probably smarter than I am.
-
-If you do use your own copy of the JDK, check that your JAVA_HOME system environment variable is set to point to a version of the JDK that's at least 11, otherwise Elasticsearch won't work. Well, I beat that to death.
-
-[ To get to system variables: Control Panel -> System -> Advanced system settings -> Environment Variables.
-Or
-Settings -> System -> About -> System Info (at top right) -> Advanced system settings -> Environment Variables.
-]
+Updating to Elasticsearch 8
+=============================
+If you installed IntraMine before December 29 2022 and would like to upgrade to Elasticsearch 8 just to keep up:
+1. remove your older Elasticsearch 7 or 6 as described just above
+2. At a command prompt run
+cpan Search::Elasticsearch
+to update that Perl module to handle Elasticsearch 8
+3. Install Elasticsearch 8 and rebuild your index as described next.
 
 Elasticsearch installation
 ==========================
 
 If you already have Elasticsearch
 ---------------------------------
-If you installed IntraMine, and with it Elasticsearch, before October 2020 then you are using the older 6.8.0 version of Elasticsearch. That's fine, IntraMine is still compatible with 6.8.0. The only limitation is that you should not upgrade your version of the Search::Elasticsearch module. If you decide you'd rather keep up with the latest, then you will need to:
+If you installed IntraMine, and with it Elasticsearch, before March 26 2023 then you are using an older 6 or 7 version of Elasticsearch. If, in the meantime, you have re-installed Strawberry Perl or updated your Search::Elasticsearch module, then you will need to:
  - remove your current version of Elasticsearch (see just below)
- - install version 7.9.2 of Elasticsearch, as described in "Getting Elasticsearch" below
- - update your Search::Elasticsearch Perl module, at a command prompt with
- ---
-cpan Search::Elasticsearch
----
- - and rebuild your Elasticsearch index, as described in "Build your Elasticsearch index and run IntraMine.txt". To save you re-reading that, at a command prompt (using Run as administrator) run bats/IM_INIT_INDEX.bat, and then go away for an hour or two.
+ - install a version 8 of Elasticsearch, as described in "Getting Elasticsearch" below
+ - and rebuild your Elasticsearch index, as described in "Build your Elasticsearch index and run IntraMine.txt". To save you re-reading that, at a command prompt (using Run as administrator) run bats/IM_INIT_INDEX.bat, and then go away for a while.
 
-To remove your current version of Elasticsearch, run these two commands at a command prompt:
-(change the "6.8.0" if your old version isn't 6.8.0).
-C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat stop
-C:\elasticsearch-6.8.0\bin\elasticsearch-service.bat remove
+To remove your current version of Elasticsearch, run two commands at a command prompt.
+(change the "7.9.2" if your old version is 6.8.0).
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop
+C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove
 
 Getting Elasticsearch
 ----------------------
-Currently I'm recommending version Elasticsearch 7.9.2, which is compatible with the latest version of the Search::Elasticsearch module.
+Currently I'm recommending version Elasticsearch 8.6.2, which is compatible with the latest version of the Search::Elasticsearch module. However, any later version 8 should also work.
 
-To download Elasticsearch version 7.9.2, head to
-https://www.elastic.co/downloads/past-releases/elasticsearch-7-9-2
-On the resulting page, click on "WINDOWS" near the top to start your download. You'll be downloading a file called "elasticsearch-7.9.2-windows-x86_64.zip".
+To download Elasticsearch version 8.6.2 or later, head to
+https://www.elastic.co/downloads/elasticsearch
+On the resulting page, click on the blue and white "Windows" button near the top to start your download. You'll be downloading a file called something like "elasticsearch-8.6.2-windows-x86_64.zip".
 
-Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-7.9.2", then that's the one to copy, rather than the top folder.
+Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-8.6.2", then that's the one to copy, rather than the top folder.
 
-Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-7.9.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the top level in that folder.
+Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-8.6.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the top level in that folder.
 
-If you can't put the "elasticsearch-7.9.2" at the top of your C: drive, you can still do this, but note where you have placed your Elasticsearch folder and substitute your location for "C:\elasticsearch-7.9.2" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.
+If you can't put the "elasticsearch-8.6.2" folder at the top of your C: drive, note where you have placed your Elasticsearch folder and substitute your location for "C:\elasticsearch-8.6.2" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.
+
+Modify the Elasticsearch config file
+------------------------------------
+NOTE if you are upgrading your Elasticsearch install this is a new step!
+
+In your new "C:\elasticsearch-8.6.2" folder open config/elasticsearch.yml and at the bottom add the line:
+---
+xpack.security.enabled: false
+---
+Save that, and you're done configuring Elasticsearch.
+
 
 Add the needed tokenizer
 ------------------------
 At a command prompt run
 ---
-C:\elasticsearch-7.9.2\bin\elasticsearch-plugin.bat install analysis-icu
+C:\elasticsearch-8.6.2\bin\elasticsearch-plugin.bat install analysis-icu
 ---
 to install the needed special tokenizer (it helps with unicode).
 
@@ -61,16 +75,16 @@ Install and start Elasticsearch
 -------------------------------
 Install and start Elasticsearch at a command prompt with
 ---
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat install
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat install
 ---
 followed by
 ---
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat start
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat start
 ---
 
 Then run
 ---
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat manager
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat manager
 ---
 and under the General tab in the resulting dialog window set the "Startup type" to "Automatic", Apply and OK.
 
@@ -82,12 +96,12 @@ and you should see "status" : "green" near the top of the result.
 
 Elasticsearch service management
 ========================
-Here are some simple commands to manage Elasticsearch, again using the "7.9.2" version as an example:
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat install
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat start
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat stop
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove
-C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat manager
+Here are some simple commands to manage Elasticsearch, again using the "8.6.2" version as an example:
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat install
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat start
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat stop
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat remove
+C:\elasticsearch-8.6.2\bin\elasticsearch-service.bat manager
 ("manager" is mainly useful for setting the startup type to Automatic.)
 
 To check in on Elasticsearch:
@@ -104,7 +118,7 @@ Onwards
 ========
 Elasticsearch is now ready for use. Just a few more steps (including building your first Elasticsearch index) and then you can fire up IntraMine.
 
-If you are just upgrading Elasticsearch to version 7.9.2, you can skip along to rebuilding your Elasticsearch index, as shown in "Build your Elasticsearch index and run IntraMine.txt".
+If you are just upgrading Elasticsearch to version 8.6.2, you can skip along to rebuilding your Elasticsearch index, as shown in "Build your Elasticsearch index and run IntraMine.txt".
 
 Next: "Installing File Watcher.txt"
 

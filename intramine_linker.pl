@@ -41,21 +41,13 @@ use Encode;
 use Encode::Guess;
 use HTML::Entities;
 use URI::Escape;
-use Text::Tabs;
-$tabstop = 4;
-use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL doesn't seem to do much
 use Time::HiRes qw ( time );
-use Win32::Process; # for calling ctags.exe
-use JSON::MaybeXS qw(encode_json);
-use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use reverse_filepaths;
-use pod2thml_intramine;
 use win_wide_filepaths;
-use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
