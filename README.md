@@ -89,7 +89,7 @@ Clone or fork or download the .zip for IntraMine, and open the included Document
 After installing IntraMine and starting it up, point your browser to http://localhost:81/Search. (Or whatever port you choose if you can't use 81).
 
 Enjoy!
--KLB7 at intramine.info
+- klb7@intramine.info
 
 [^1]: A table of contents is currently generated automatically for: Plain text (Gloss), Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia.
 

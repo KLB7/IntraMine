@@ -79,6 +79,19 @@
 # [This program is a stripped-down version of intramine_viewer.pl subs for producing
 # text views with links, see intramine_viewer.pl#GetPrettyTextContents() and
 # intramine_linker.pl#GetLinksForText().]
+#
+# Special features
+##################
+# Table of contents: if you're converting several documents in a folder, you might want a
+# table of contents listing all of them, perhaps with section headings.
+# For details see "gloss2html.pl for standalone Gloss files.txt#Adding a table of contents file"
+# Note you can have a simple look or an "antique" look as described there.
+#
+# A glossary: if you have special words or phrases that could benefit from a definition
+# shown in the document, you can add a glossary without much effort. Terms defined in
+# the glossary will show a popup definition when the cursor is paused over the term,
+# and terms receive a subtle underline.
+# For details see "gloss2html.pl for standalone Gloss files.txt#Adding a glossary"
 
 # Usage
 # Example cmd lines for a whole folder, and for one file (change the paths!):
@@ -326,7 +339,7 @@ ENDIT
 	$$contents_R .= $htmlBodyTop;
 	}
 
-# This is a variant version of intramine_fileviewer_cm.pl#GetPrettyTextContents().
+# This is a variant version of intramine_viewer.pl#GetPrettyTextContents().
 sub GetPrettyText {
 	my ($context, $filePath, $contents_R) = @_;
 	my $isGlossaryFile = IsGlossaryPath($filePath);
@@ -350,12 +363,12 @@ sub GetPrettyText {
 	my $unorderedListDepth = 0; # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
 	# Track whether within TABLE, and skip lists, hr, and heading if so.
-	# We are in a table from seeing a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
+	# We are in a table from seeing a line that starts with TABLE[_ \t:.-]? until a line with no tabs.
 	my $inATable = 0;
 	my $inACodeBlock = 0; 	# Set if see CODE on a line by itself,
 							# continue until ENDCODE on a line by itself.
 
-	# Gloss, aka quick and easy Markdown.
+	# Gloss, aka minimal memorable Markdown for your intranet.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
 		# See if we're entering or leaving a code block.
@@ -445,7 +458,7 @@ sub GetPrettyText {
 					#####AddModuleLinkToText(\${lines[$i]}, $dir, $serverAddr, $port_listen, $clientIsRemote);
 					}
 					
-				# Put contents in table, separate cells for line number and line proper.
+				# Put contents in table, use separate cells for line number and line proper.
 				my $rowID = 'R' . $lineNum;
 				$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
 				$justDidHeadingOrHr = 0;
@@ -1213,7 +1226,7 @@ sub ClearPlaceholdersAndGetTimestamp {
 	$Timestamp = DateTimeForFileName();
 }
 
-# This is a simplified version of intramine_fileviewer_cm.pl#AddWebAndFileLinksToLine().
+# This is a simplified version of intramine_linker.pl#AddWebAndFileLinksToLine().
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $lineNumber, $theContextDir, $isGlossaryFile) = @_;
 
@@ -2291,7 +2304,6 @@ sub LoadGlossary {
 	
 	my @lines = split(/\n/, $octets);
 	
-	#my $currentTerm = '';
 	my @currentTerms;
 	for (my $i = 0; $i < @lines; ++$i)
 		{
@@ -2476,7 +2488,7 @@ sub GetLineWordStartsAndEnds {
 
 # Return the full glossary definition, in an anchor element.
 # If the entry is just an image, put in the image as the hint.
-# If the entry has synonyms, remove them from the term being defined as show them
+# If the entry has synonyms, remove them from the term being defined and show them
 # as "Alt: " in a new paragraph at the bottom of the hint.
 sub GetReplacementHint {
 	my ($term, $originalText, $definitionAlreadySeen, $context) = @_;
@@ -2504,7 +2516,7 @@ sub GetReplacementHint {
 	else
 		{
 		# If a glossary entry has synonyms, show just the relevant one at start of the
-		# $gloss entry, and show al synonyms in a new para at bottom of the entry.
+		# $gloss entry, and show all synonyms in a new para at bottom of the entry.
 		if ($gloss =~ m!^<p>([^:]+)\:!)
 			{
 			my $terms = $1;
