@@ -42,6 +42,7 @@ use Encode::Guess;
 use HTML::Entities;
 use URI::Escape;
 use Time::HiRes qw ( time );
+use JSON::MaybeXS qw(encode_json);
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
