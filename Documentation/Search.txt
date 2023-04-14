@@ -47,6 +47,8 @@ Both file contents and file name are searched, and for scoring purposes a slight
 2019-11-23 17_55_38-Full Text Search.png
 You can use the "Directory" picker (three dots on a green background) to limit your search to a particular directory. Beside it, the "Subdirectories too" box is checked by default, because searching all subdirectories with IntraMine is not slower than searching just the top directory.
 
+The Directory field has a dropdown list of up to six recent directories that were used when searching. To see the full list of recent directories, clear the Directory field first.
+
 Search3.png
 The "Language" dropdown menu allows picking specific file extensions, grouped by language, or by specific extensions. Under the "Language" version the commonest suspects (plain text, Perl, C/C++ etc) are listed first, followed by an alphabetical list of less common languages. Click on the "Extension" radio button to select from all file extensions in alphabetical order. There are 226 extensions, grouped into 136 languages.
 
