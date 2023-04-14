@@ -135,6 +135,7 @@ let errorID = "headingAboveContents";
 -->
 <script src="jqueryFileTree.js"></script>
 <script src="viewerLinks.js"></script>
+<script src="lru.js"></script>
 <script src="intramine_search.js"></script>
 </body></html>
 FINIS
@@ -282,9 +283,11 @@ ENDIT
 <div id="form_3_1">_DOCCOUNT_</div>
 
 <div id="form_1_2" class="formItemTitle"><h2>Directory&nbsp;</h2>
-<input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path, hit the dots->, or leave blank for all dirs' /></div>
+<input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path, hit the dots->, or leave blank for all dirs' list="dirlist" /></div>
 <div id="form_2_2"><div id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></div></div>
 <div id="form_3_2"><label><input type='checkbox' id="subDirCheck" name='subdirs' value='yes'_CHECKEDBYDEFAULT_>Subdirectories too</label></div>
+<datalist id="dirlist">
+</datalist>
 
 <div id="form_1_3" class="formItemTitle">
 <div id="languageGrid">

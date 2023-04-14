@@ -9,6 +9,8 @@ window.addEventListener("load", doResize);
 window.addEventListener("resize", doResize);
 window.addEventListener("resize", doDirectoryPickerResize);
 
+let directoryCache;
+
 let onMobile = false; // Set below, true if we have touch events.
 if (typeof window.ontouchstart !== 'undefined')
 	{
@@ -45,6 +47,7 @@ function ready(fn) {
 // Load and set page content.
 // Mainly a search form. See intramine_search.pl#SearchForm().
 async function loadPageContent() {
+
 	showSpinner();
 	try {
 		let theAction = 'http://' + theHost + ':' + thePort + '/?req=frm';
@@ -58,6 +61,11 @@ async function loadPageContent() {
 			setFocusToTextBox();
 			addFormClickListener();
 			initDirectoryDialog();
+
+			directoryCache = new LRUCache(6);
+			loadDirCache();
+			rebuildDirList();
+		
 			hideSpinner();
 			}
 		else
@@ -127,6 +135,12 @@ async function searchSubmit(oFormElement) {
 		{
 		dirValue = 'ALL';
 		}
+	else
+		{
+		directoryCache.set(dirValue, dirValue);
+		rebuildDirList();
+		saveDirCache();
+		}
 	sSearch += "&directory=" + dirValue;
 
 	// And tack on whether languages or extensions have been selected.
@@ -189,6 +203,62 @@ async function searchSubmit(oFormElement) {
 		setFocusToTextBox();		
 	}
 }
+
+function rebuildDirList() {
+	let dirListElem = document.getElementById("dirlist");
+	typeof (dirListElem !== 'undefined')
+		{
+		dirListElem.innerHTML = '';
+		dirInnerHTML = '';
+		
+		// We need to reverse the keys in directoryCache.cache
+		// to show the most recently used first.
+		let keysArr = Array.from(directoryCache.cache.keys() );
+		for (let key of keysArr.reverse()) {
+			//console.log(key);
+			let dirValue = decodeURIComponent(key);
+			let dirChild = "<option value='" + dirValue + "'>";
+			dirInnerHTML += dirChild;
+			}
+		
+		if (dirInnerHTML !== '')
+			{
+			dirListElem.innerHTML = dirInnerHTML;
+			}
+		}
+}
+
+function saveDirCache() {
+	let keysArr = Array.from(directoryCache.cache.keys() );
+	let dirString = '';
+	for (let key of keysArr.reverse()) {
+		if (dirString === '')
+			{
+			dirString = key;
+			}
+		else
+			{
+			dirString += '|' + key;
+			}
+		}
+	
+	if (dirString !== '')
+		{
+		localStorage.setItem("dirCache", dirString);
+		}
+	}
+
+function loadDirCache() {
+	if (!localStorage.getItem("dirCache")) {
+		return;
+		}
+		
+	let dirString = localStorage.getItem("dirCache");
+	const keysArr = dirString.split("|");
+	for (let key of keysArr) {
+		directoryCache.cache.set(key, key);
+		}
+	}
 
 // Swap Language dropdown with Extensions dropdown when the radio buttons for those are clicked.
 function swapLangExt() {
