@@ -704,7 +704,7 @@ sub GetHtmlEncodedTextFileWide {
 		if ($decoderName =~ m!iso-8859-\d+!)
 			{
 			$octets = $decoder->decode($octets);
-			print("\n---8859---! for |$filePath|\n");
+			#print("\n---8859---! for |$filePath|\n");
 			}
 		}
 

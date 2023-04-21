@@ -31,12 +31,30 @@
 }
 
 #driveSelectorRight {
-	
+}
+
+/* position: relative to allow z-index to work. Typical CSS. */
+#driveselector_2 {
+	position: relative;
+	z-index: 15;
 }
 
 #tocShrinkExpand {
 	cursor: pointer;
+	position: relative;
+	left: -80px;
+	top: -2px;
 }
+
+/* position: absolute so that #fileTreeRight isn't pushed down. 
+By coincidence the #tocShrinkExpandDiv div ends up in the same
+place as #driveselector_2, so the z-index of 1 puts it behind the
+drive selector (z-index 15). */
+#tocShrinkExpandDiv {
+	position: absolute;
+	z-index: 1;
+}
+
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {

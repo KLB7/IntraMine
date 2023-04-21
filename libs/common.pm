@@ -254,6 +254,53 @@ sub SaveKeyTabValueHashToFile {
     close $hfileH;
     }
 
+#
+sub SizeInBytesString {
+	my ($sizeBytes) = @_;
+	my $exp = 0;
+	my $sizeStr = '';
+	for (@$FILESIZEUNITS)
+		{
+		last if $sizeBytes < 1024;
+		$sizeBytes /= 1024;
+		$exp++;
+		}
+	if ($exp == 0)
+		{
+		$sizeStr = sprintf("%d %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+		}
+	else
+		{
+		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
+		}
+		
+	return($sizeStr);
+	}
+
+# Date and time from a file $modDate.
+# <- my $modDate = GetFileModTimeWide($filePath);
+# -> YYYY-MM-DD HH:MM:SS
+sub DateTimeString {
+	my ($modDate) = @_;
+	my $dateStr = localtime($modDate)->datetime; # eg 2010-06-24T11:02:06
+	my $result = '';
+	
+	if ($dateStr =~ m!^(\d+\-\d+-\d+)T(\d\d)\:(\d\d)\:(\d\d)$!)
+		{
+		my $date = $1;
+		my $hr = $2;
+		my $min = $3;
+		my $sec = $4;
+		$result = "$date $hr:$min:$sec";
+		}
+	else
+		{
+		$result = $dateStr;
+		}
+	
+	return($result);
+	}
+
 # Eg  <span>YYYY-MM-DDThh:mm:ss 123 KB</span>.
 # Usage:
 #	my $modDate = GetFileModTimeWide($filePath);
