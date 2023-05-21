@@ -4,9 +4,9 @@
  * This notice MUST stay intact for legal use 
  * Visit http://www.dynamicdrive.com/ for this script and 100s more.
  **********************************************************************************************/
-// (Significantly modified from the original 2018-19 for use with IntraMine.)
+// (Significantly modified from the original 2018-19 and 2023 for use with IntraMine.)
 // IntraMine use, see eg showhint() calls in
-// intramine_file_viewer_cm.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+// intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
 let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
 let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
@@ -105,25 +105,25 @@ function getPosition(el) {
 let ie = document.all;
 let ns6 = document.getElementById && !document.all;
 
-let dropmenuobj = {};
-let loadParams = {};
+let hintElement = {};
+let hintParams = {};
 
 function positionAndShowHint() {
 	"use strict";
-	let menucontents = loadParams.menucontents;
-	let x = loadParams.x;
-	let y = loadParams.y;
-	let tipwidth = loadParams.tipwidth;
-	let isAnImage = loadParams.isAnImage;
+	let hintContents = hintParams.hintContents;
+	let x = hintParams.x;
+	let y = hintParams.y;
+	let tipwidth = hintParams.tipwidth;
+	let isAnImage = hintParams.isAnImage;
 	let gap = 10; // gap between cursor and tip
 	let windowHeight = window.innerHeight - gap;
 	let windowWidth = window.innerWidth - gap;
 	let hintWidth = 450;
-	let hintHeight = dropmenuobj.offsetHeight;
+	let hintHeight = hintElement.offsetHeight;
 	if (isAnImage)
 		{
-		hintWidth = loadParams.theImage.width;
-		hintHeight = loadParams.theImage.height;
+		hintWidth = hintParams.theImage.width;
+		hintHeight = hintParams.theImage.height;
 		}
 	else
 		{
@@ -153,30 +153,30 @@ function positionAndShowHint() {
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
-	dropmenuobj.style.top = tl.top;
-	dropmenuobj.style.left = tl.left;
+	hintElement.style.top = tl.top;
+	hintElement.style.left = tl.left;
 	
 	if (isAnImage)
 		{
-		menucontents =
-			menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintContents =
+			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
-	dropmenuobj.innerHTML = menucontents;
+	hintElement.innerHTML = hintContents;
 
 	// Set width and height for an image. For text, set the desired width and let it flow.
-	// dropmenuobj.style.width = hintWidth + "px";
+	// hintElement.style.width = hintWidth + "px";
 	if (isAnImage)
 		{
-		dropmenuobj.style.height = hintHeight + "px";
-		dropmenuobj.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		hintElement.style.width = hintWidth + "px";
 		}
 	else
 		{
-		dropmenuobj.style.height = '';
+		hintElement.style.height = '';
 		}
 
-	dropmenuobj.style.visibility = "visible";
+	hintElement.style.visibility = "visible";
 
 }
 
@@ -297,7 +297,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 			}
 		else
 			{
-			dropmenuobj.style.left = "0";
+			hintElement.style.left = "0";
 			}
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
@@ -311,35 +311,35 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
-function showhint(menucontents, obj, e, tipwidth, isAnImage) {
+function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
 	setTimeout(function() {
-	showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage);
+	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
 	}, 100);
 }
 
-// Special handling for some images: if menucontents looks like
+// Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
 // the "Viewer" spot as a Short name. Then call back to the Main port requesting a free
-// port for the Short name, and replace the "81" in menucontents with the free port number.
+// port for the Short name, and replace the "81" in hintContents with the free port number.
 // Also strip out the Short name, it was needed only to tell Main which server we wanted.
 // For other img src values, just pass them along to showhinAfterDelay unchanged.
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	if (isAnImage)
 		{
-		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		let arrayMatch = /src='([^']+)'/.exec(hintContents);
 		if (arrayMatch === null)
 			{
-			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			arrayMatch = /src="([^"]+)"/.exec(hintContents);
 			}
 		if (arrayMatch === null)
 			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(hintContents);
 			}
 		if (arrayMatch !== null)
 			{
@@ -360,10 +360,10 @@ async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 					if (shOnMobile && port === shMainPort && shOurServerPort !== 0)
 						{
 						let rePort = new RegExp(port);
-						menucontents = menucontents.replace(rePort, shOurServerPort);
+						hintContents = hintContents.replace(rePort, shOurServerPort);
 						let reName = new RegExp(shortName + "\/");
-						menucontents = menucontents.replace(reName, "");
-						showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+						hintContents = hintContents.replace(reName, "");
+						showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 						}
 					else
 						{
@@ -376,13 +376,13 @@ async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 								let resp = await response.text(); 
 								if (!isNaN(resp))
 									{
-									// Replace port with resp in menucontents. And remove
+									// Replace port with resp in hintContents. And remove
 									// server short name.
 									let rePort = new RegExp(port);
-									menucontents = menucontents.replace(rePort, resp);
+									hintContents = hintContents.replace(rePort, resp);
 									let reName = new RegExp(shortName + "\/");
-									menucontents = menucontents.replace(reName, "");
-									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									hintContents = hintContents.replace(reName, "");
+									showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 									}
 								}
 							}
@@ -393,43 +393,43 @@ async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 					}
 				else // use supplied port as-is
 					{
-					showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+					showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 					}
 				}
 			else
 				{
-				showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+				showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 				}
 			}
 		else
 			{
-			showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+			showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 			}
 		}
 	else
 		{
-		showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+		showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 		}
 	}
 
-function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
+function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
 	let image_url = "";
 	if (isAnImage)
 		{
-		let arrayMatch = /src='([^']+)'/.exec(menucontents);
+		let arrayMatch = /src='([^']+)'/.exec(hintContents);
 		if (arrayMatch === null)
 			{
-			arrayMatch = /src="([^"]+)"/.exec(menucontents);
+			arrayMatch = /src="([^"]+)"/.exec(hintContents);
 			}
 		if (arrayMatch === null)
 			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
+			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(hintContents);
 			}
 		if (arrayMatch === null)
 			{
-			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(menucontents);
+			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(hintContents);
 			}
 		if (arrayMatch !== null)
 			{
@@ -437,8 +437,8 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 			}
 		}
 
-	dropmenuobj = document.getElementById("hintbox");
-	dropmenuobj.innerHTML = menucontents;
+	hintElement = document.getElementById("hintbox");
+	hintElement.innerHTML = hintContents;
 	
 	if (overAnchorTimer !== null)
 		{
@@ -460,36 +460,36 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 
 		if (!stillOver)
 			{
-			dropmenuobj.style.visibility = "hidden";
-			dropmenuobj.style.left = "-500px";
+			hintElement.style.visibility = "hidden";
+			hintElement.style.left = "-500px";
 			removeClass(obj, anchorClassName);
 			return;
 			}
 
-		dropmenuobj.style.left = "-500px";
-		dropmenuobj.style.top = "-500px";
+		hintElement.style.left = "-500px";
+		hintElement.style.top = "-500px";
 		if (tipwidth === "")
 			{
 			tipwidth = "300px";
 			}
-		dropmenuobj.widthobj = dropmenuobj.style;
-		if (dropmenuobj.innerHTML.indexOf('<img') == 0)
+		hintElement.widthobj = hintElement.style;
+		if (hintElement.innerHTML.indexOf('<img') == 0)
 			{
-			dropmenuobj.style.backgroundColor = 'lightyellow';
-			dropmenuobj.style.border = 'thin dotted black';
+			hintElement.style.backgroundColor = 'lightyellow';
+			hintElement.style.border = 'thin dotted black';
 			}
-		dropmenuobj.style.width = tipwidth;
+		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{
 			// Reset height to 'auto'.
-			dropmenuobj.style.height = '';
+			hintElement.style.height = '';
 			}
 
-		loadParams.menucontents = menucontents;
-		loadParams.x = e.clientX;
-		loadParams.y = e.clientY;
-		loadParams.tipwidth = tipwidth;
-		loadParams.isAnImage = isAnImage;
+		hintParams.hintContents = hintContents;
+		hintParams.x = e.clientX;
+		hintParams.y = e.clientY;
+		hintParams.tipwidth = tipwidth;
+		hintParams.isAnImage = isAnImage;
 		
 		if (image_url !== "")
 			{
@@ -498,7 +498,7 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 				positionAndShowHint();
 			};
 			my_image.src = image_url;
-			loadParams.theImage = my_image;
+			hintParams.theImage = my_image;
 			}
 		else
 			{
@@ -544,8 +544,8 @@ function mouseStillOverTipOwner(obj) {
 }
 
 function hidetip(e) {
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -557,8 +557,8 @@ function hidetip(e) {
 }
 
 function touchhidetip(e) {
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 }
 
 function createhintbox() {
@@ -566,13 +566,13 @@ function createhintbox() {
 	divblock.setAttribute("id", "hintbox");
 	document.body.appendChild(divblock);
 
-	dropmenuobj = document.getElementById("hintbox");
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement = document.getElementById("hintbox");
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 	
 	if (shOnMobile)
 		{
-		dropmenuobj.addEventListener("touchstart", function(e) {touchhidetip();});
+		hintElement.addEventListener("touchstart", function(e) {touchhidetip();});
 		}
 }
 
