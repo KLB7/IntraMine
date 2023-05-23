@@ -8,13 +8,23 @@
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
+// Where to place the hint, relative to cursor position.
+const DIRECTION_BELOW = 0;
+const DIRECTION_ABOVE = 1;
+const DIRECTION_RIGHT = 2;
+const DIRECTION_LEFT = 3;
+
 let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
 let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
 let overAnchorTimer = null;
 let shMainPort = 0; // See setMainPort() just below.
 let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
+let hintElement = {}; // The HTML element holding the hint
+let hintParams = {};  // hint HTML, position, width, whether it's an image
 
+
+// Set the main IntraMine port, 81 by default.
 function setMainPort() {
 	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
 	}
@@ -66,7 +76,7 @@ function isDescendant(parent, child) {
 	}
 	return false;
 }
-// Helper function to get an element's exact position
+// Helper function to get an element's exact position.
 function getPosition(el) {
 	"use strict";
 	let rect = el.getBoundingClientRect();
@@ -102,11 +112,6 @@ function getPosition(el) {
 	};
 }
 
-let ie = document.all;
-let ns6 = document.getElementById && !document.all;
-
-let hintElement = {};
-let hintParams = {};
 
 function positionAndShowHint() {
 	"use strict";
@@ -177,11 +182,10 @@ function positionAndShowHint() {
 		}
 
 	hintElement.style.visibility = "visible";
-
 }
 
-//Calculate tip all four ways, pick the way that produces least shrinkage.
-//Preference order: below, above, right, left.
+// Calculate tip all four ways, pick the way that produces least shrinkage.
+// Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
 	// Below:
 	let heightAvailable = windowHeight - y;
@@ -216,11 +220,11 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 	
 	// Largest scaleFactor wins, preferring in order below, above, right, left where
 	// there's a tie or values are above 1.0.
-	let temp = [];
-	temp[0] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
-	temp[1] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
-	temp[2] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
-	temp[3] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
+	let directionalScale = [];
+	directionalScale[DIRECTION_BELOW] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
+	directionalScale[DIRECTION_ABOVE] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
+	directionalScale[DIRECTION_RIGHT] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
+	directionalScale[DIRECTION_LEFT] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
 	// bestDirection:
 	// 0 == show hint below cursor x,y
 	// 1 == show hint above
@@ -228,23 +232,23 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 	// 3 == show hint to left of cursor
 	let bestDirection = -1;
 	let i = 0;
-	for (i = temp.length - 1; i >= 0; i -= 1)
+	for (i = directionalScale.length - 1; i >= 0; i -= 1)
 		{
-		if (temp[i] >= 1.0)
+		if (directionalScale[i] >= 1.0)
 			{
 			bestDirection = i;
 			}
 		}
 	
-	if (bestDirection < 0) // all temp[] are < 1.0
+	if (bestDirection < 0) // all directionalScale[] are < 1.0
 		{
-		let curValue = temp[0];
+		let curValue = directionalScale[0];
 		bestDirection = 0;
-		for (i = 1; i < temp.length; i++)
+		for (i = 1; i < directionalScale.length; i++)
 			{
-			if (temp[i] > curValue)
+			if (directionalScale[i] > curValue)
 				{
-				curValue = temp[i];
+				curValue = directionalScale[i];
 				bestDirection = i;
 				}
 			}
@@ -252,7 +256,7 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 
 	let ds = {};
 	ds.bestDirection = bestDirection;
-	ds.scaleFactor = temp[bestDirection];
+	ds.scaleFactor = directionalScale[bestDirection];
 	return(ds);
 }
 
@@ -262,13 +266,13 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	let left = 0;
 	let top = 0;
 	
-	if (bestDirection === 0) // below
+	if (bestDirection === DIRECTION_BELOW) // below
 		{
 		top = y + gap + "px";
 		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
 		left = (left < 0) ? "0" : left + "px";
 		}
-	else if (bestDirection === 1) // above
+	else if (bestDirection === DIRECTION_ABOVE) // above
 		{
 		if (y - hintHeight - gap >= 0)
 			{
@@ -281,7 +285,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
 		left = (left < 0) ? "0" : left + "px";
 		}
-	else if (bestDirection === 2) // right
+	else if (bestDirection === DIRECTION_RIGHT) // right
 		{
 		left = x + gap + "px";
 		let top =
@@ -289,7 +293,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		top = (top < 0) ? "0" : top + "px";
 		}
 	else
-		// if (bestDirection === 3) // left
+		// if (bestDirection === DIRECTION_LEFT) // left
 		{
 		if (x - hintWidth - gap >= 0)
 			{
@@ -297,7 +301,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 			}
 		else
 			{
-			hintElement.style.left = "0";
+			left = "0";
 			}
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
@@ -330,20 +334,16 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
 async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
+	let hintShown = false;
+	let image_url = "";
+
 	if (isAnImage)
 		{
-		let arrayMatch = /src='([^']+)'/.exec(hintContents);
-		if (arrayMatch === null)
+		image_url = srcURL(hintContents);
+
+		if (image_url !== "")
 			{
-			arrayMatch = /src="([^"]+)"/.exec(hintContents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(hintContents);
-			}
-		if (arrayMatch !== null)
-			{
-			let image_url = arrayMatch[1];
+			// Match eg http://192.168.1.132:81/Viewer/...
 			let urlMatch = /^http\:\/\/([0-9\.]+)\:(\d+)\/([A-Za-z_]+)\/(.+?)$/.exec(image_url);
 			if (urlMatch !== null)
 				{
@@ -352,8 +352,9 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 				let shortName = urlMatch[3];
 				let path = urlMatch[4];
 				
-				if (port === shMainPort) // request good port number from shMainPort
+				if (port === shMainPort) // Request good port number from shMainPort
 					{
+					hintShown = true; // Give up if we can't show it here.
 					// However, if we're on an iPad (shOnMobile), try to use our current server's
 					// port rather than asking Main to supply a fresh one - Apple really doesn't
 					// like any hanky panky with the port number.
@@ -370,10 +371,12 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 						try {
 							let theAction = 'http://' + ip + ':' + port + '/' +
 							shortName + '/?req=portNumber';
+
 							const response = await fetch(theAction);
 							if (response.ok)
 								{
 								let resp = await response.text(); 
+
 								if (!isNaN(resp))
 									{
 									// Replace port with resp in hintContents. And remove
@@ -387,26 +390,15 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 								}
 							}
 						catch(error) {
-							// console.log('Connection error in showWithFreshPort!);
+							console.log('Connection error in showWithFreshPort!');
 							}
 						}
 					}
-				else // use supplied port as-is
-					{
-					showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
-					}
 				}
-			else
-				{
-				showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
-				}
-			}
-		else
-			{
-			showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 			}
 		}
-	else
+	
+	if (!hintShown)
 		{
 		showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 		}
@@ -415,39 +407,17 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
-	let image_url = "";
-	if (isAnImage)
-		{
-		let arrayMatch = /src='([^']+)'/.exec(hintContents);
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src="([^"]+)"/.exec(hintContents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(hintContents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(hintContents);
-			}
-		if (arrayMatch !== null)
-			{
-			image_url = arrayMatch[1];
-			}
-		}
-
-	hintElement = document.getElementById("hintbox");
-	hintElement.innerHTML = hintContents;
-	
 	if (overAnchorTimer !== null)
 		{
 		window.clearTimeout(overAnchorTimer);
 		overAnchorTimer = null;
 		}
 
-	if (document.getElementById("hintbox"))
+	if (document.getElementById("hintbox") !== null)
 		{
+		hintElement = document.getElementById("hintbox");
+		hintElement.innerHTML = hintContents;
+
 		if (!hasClass(obj, hitAnchorClassName))
 			{
 			addClass(obj, hitAnchorClassName);
@@ -491,6 +461,8 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintParams.tipwidth = tipwidth;
 		hintParams.isAnImage = isAnImage;
 		
+		// Note we re-get the image_url since it might have changed.
+		let image_url = srcURL(hintContents);
 		if (image_url !== "")
 			{
 			let my_image = new Image();
@@ -514,6 +486,23 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}, 1000);
 			}
 		}
+}
+
+// If see src="something", return something, else "".
+// The something should be in single or double quotes of some sort.
+function srcURL(hintContents) {
+	let image_url = "";
+	let arrayMatch = null;
+
+	if ((arrayMatch = /src='([^']+?)'/.exec(hintContents)) ||
+		(arrayMatch = /src="([^"]+?)"/.exec(hintContents)) ||
+		(arrayMatch = /src=\&quot\;(.+?)\&quot\;/.exec(hintContents)) ||
+		(arrayMatch = /src=\&apos\;(.+?)\&apos\;/.exec(hintContents)) )
+		{
+		image_url = arrayMatch[1];
+		}
+
+	return(image_url);
 }
 
 function hideTipIfMouseHasLeft(obj) {
@@ -578,6 +567,7 @@ function createhintbox() {
 
 // For remote iPad "debugging" since remotedebug_ios_webkit_adapter has stopped working.
 // For Viewer, errorID element is up near the top of the window.
+// (iPad has been abandoned, too hard to debug.)
 function writeMessageToWindow(str) {
 	let errorElem = document.getElementById(errorID);
 	if (errorElem !== null)
