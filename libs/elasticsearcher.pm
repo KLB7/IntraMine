@@ -59,6 +59,11 @@ sub GetSearchResults {
 	my $e = $self->{SEARCHER};
 	my $rawResults;
 	my $matchExactPhrase = 0;
+
+	# TEST ONLY
+	# my $info = $e->info();
+	# my $vnumber = $info->{version}->{number};
+	# print("$vnumber\n");
 	
 	# For colons add quotes to force phrase match if there aren't any yet.
 	if (index($rawquery, ':') > 0)
@@ -195,7 +200,7 @@ sub GetWordHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -238,7 +243,7 @@ sub GetWordHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -283,7 +288,7 @@ sub GetWordHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -333,7 +338,7 @@ sub GetWordHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -389,7 +394,7 @@ sub GetPhraseHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -432,7 +437,7 @@ sub GetPhraseHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -477,7 +482,7 @@ sub GetPhraseHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}
@@ -527,7 +532,7 @@ sub GetPhraseHits {
 						post_tags => ['</strong>'],
 						fields => {
 							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150, force_source => 'true'
+								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
 							}
 						}
 					}

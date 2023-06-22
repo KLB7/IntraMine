@@ -224,24 +224,30 @@ sub BaseDirectory {
 	}
 
 # Save extra value(s) to a specially named config file.
-# Eg SaveExtraConfigValues('MAIN', $h) with $h->{'SERVER_ADDRESS'} = 1.2.3.4
+# Eg SaveExtraConfigValues('SRVR', $h) with $h->{'SERVER_ADDRESS'} = 1.2.3.4
 # will save the $h hash to data/MAIN_config.txt.
-# And LoadConfigValues('MAIN') will read the 'SERVER_ADDRESS' key/value into %ConfigValues.
+# And LoadConfigValues('SRVR') will read the 'SERVER_ADDRESS' key/value into %ConfigValues.
 sub SaveExtraConfigValues {
 	my ($extraConfigName, $h) = @_;
 	my $scriptFullPath = $0; # path of calling program
 	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
 	my $configFilePath = $ScriptFullDirTS . "data/$extraConfigName" . '_config.txt';
-	
-	# First load any existing values from the file.
 	my %extraValues = %$h;
-	LoadKeyMultiTabValueHashFromFile(\%extraValues, $configFilePath, "", 1);
-	# Write out the new values (plus existing unchanged values).
-	SaveKeyTabValueHashToFile(\%extraValues, $configFilePath, '');
-	# Put extra values in %ConfigValues.
+
+	# First load any existing values from the file.
+	my %allValues;
+	LoadKeyMultiTabValueHashFromFile(\%allValues, $configFilePath, "", 1);
+	# Add in the new values.
 	foreach my $key (sort(keys %extraValues))
 		{
-		$ConfigValues{$key} = $extraValues{$key};
+		$allValues{$key} = $extraValues{$key};
+		}
+	# Write out the new values (plus existing unchanged values).
+	SaveKeyTabValueHashToFile(\%allValues, $configFilePath, '');
+	# Put all values in %ConfigValues.
+	foreach my $key (sort(keys %allValues))
+		{
+		$ConfigValues{$key} = $allValues{$key};
 		}
 	}
 } ##### Config values
