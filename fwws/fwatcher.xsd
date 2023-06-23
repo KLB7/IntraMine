@@ -1,0 +1,115 @@
+<?xml version="1.0" standalone="yes"?>
+<xs:schema id="fWatcherConfig" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xs:element name="fWatcherConfig" msdata:IsDataSet="true" msdata:Locale="">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="config">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="daemonName" type="xs:string" />
+              <xs:element name="startDaemon" type="xs:boolean" />
+              <xs:element name="displayFileSystemChange" type="xs:boolean" />
+              <xs:element name="logFileSystemChange" type="xs:boolean" />
+              <xs:element name="logFileSystemSearchError" type="xs:boolean" />
+              <xs:element name="displayFileSystemSearchError" type="xs:boolean" />
+              <xs:element name="logFileSystemSearchProgress" type="xs:boolean" />
+              <xs:element name="displayFileSystemSearchProgress" type="xs:boolean" />
+              <xs:element name="path">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="247" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="filter" type="xs:string" />
+              <xs:element name="generateFileSystemEventsAtStartup" type="xs:boolean" />
+              <xs:element name="generatedEventFileNameRegularExpressionFilter" type="xs:string" />
+              <xs:element name="changedRegularExpressionFilter" type="xs:string" />
+              <xs:element name="createdRegularExpressionFilter" type="xs:string" />
+              <xs:element name="deletedRegularExpressionFilter" type="xs:string" />
+              <xs:element name="renamedRegularExpressionFilter" type="xs:string" />
+              <xs:element name="includeSubdirectories" type="xs:boolean" />
+              <xs:element name="internalBufferSize" type="xs:int" />
+              <xs:element name="subscribeToBufferErrorEvent" type="xs:boolean" />
+              <xs:element name="subscribeToChangedEvent" type="xs:boolean" />
+              <xs:element name="subscribeToCreatedEvent" type="xs:boolean" />
+              <xs:element name="subscribeToDeletedEvent" type="xs:boolean" />
+              <xs:element name="subscribeToRenamedEvent" type="xs:boolean" />
+              <xs:element name="notifyAttribute" type="xs:boolean" />
+              <xs:element name="notifyCreationTime" type="xs:boolean" />
+              <xs:element name="notifyDirectoryName" type="xs:boolean" />
+              <xs:element name="notifyFileName" type="xs:boolean" />
+              <xs:element name="notifyLastAccess" type="xs:boolean" />
+              <xs:element name="notifyLastWrite" type="xs:boolean" />
+              <xs:element name="notifySecurity" type="xs:boolean" />
+              <xs:element name="notifySize" type="xs:boolean" />
+              <xs:element name="startProcess" type="xs:boolean" />
+              <xs:element name="logProcessStart" type="xs:boolean" />
+              <xs:element name="logProcessEnd" type="xs:boolean" />
+              <xs:element name="processFileName">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="247" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="processArguments">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2003" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="processUseFileNameAsArgument" type="xs:boolean" />
+              <xs:element name="processArgumentsFileNameEscapeString" type="xs:string" />
+              <xs:element name="processUseOldFileNameAsArgument" type="xs:boolean" />
+              <xs:element name="processArgumentsOldFileNameEscapeString" type="xs:string" />
+              <xs:element name="processUseChangeTypeAsArgument" type="xs:boolean" />
+              <xs:element name="processArgumentsChangeTypeEscapeString" type="xs:string" />
+              <xs:element name="processVerb" type="xs:string" />
+              <xs:element name="processWorkingDirectory">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="247" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="processUseShellExecute" type="xs:boolean" />
+              <xs:element name="processCreateNoWindow" type="xs:boolean" />
+              <xs:element name="processWindowStyle" type="xs:string" />
+              <xs:element name="processSynchronizedExecution" type="xs:boolean" />
+              <xs:element name="processMaxWaitTime" type="xs:int" />
+              <xs:element name="processRedirectStandardError" type="xs:boolean" />
+              <xs:element name="processRedirectStandardOutput" type="xs:boolean" />
+              <xs:element name="processLoadUserProfile" type="xs:boolean" />
+              <xs:element name="processDomain" type="xs:string" />
+              <xs:element name="processUserName" type="xs:string" />
+              <xs:element name="processPassword" type="xs:string" />
+              <xs:element name="processBatchSize" type="xs:int" />
+              <xs:element name="processFileMustExist" type="xs:boolean" />
+              <xs:element name="processDelay" type="xs:int" />
+              <xs:element name="processLockFile" type="xs:boolean" />
+              <xs:element name="processLockFileLastWriteDelay" type="xs:int" />
+              <xs:element name="processLockFileRetries" type="xs:int" />
+              <xs:element name="processLockFileRetriesQueueLimit" type="xs:int" />
+              <xs:element name="callService" type="xs:boolean" />
+              <xs:element name="streamFile" type="xs:boolean" />
+              <xs:element name="tryRenameFile" type="xs:boolean" />
+              <xs:element name="tryRenameFileRetries" type="xs:int" />
+              <xs:element name="filteredMode" type="xs:boolean" />
+              <xs:element name="filteredModeFilterTimeout" type="xs:int" />
+              <xs:element name="pollDirectory" type="xs:boolean" />
+              <xs:element name="directoryPollInterval" type="xs:int" />
+              <xs:element name="recycleFileWatcher" type="xs:boolean" />
+              <xs:element name="recycleInterval" type="xs:int" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1">
+      <xs:selector xpath=".//config" />
+      <xs:field xpath="daemonName" />
+    </xs:unique>
+  </xs:element>
+</xs:schema>

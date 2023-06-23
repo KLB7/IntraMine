@@ -11,52 +11,62 @@ What can you monitor? Only folders on **locally attached storage**. At this time
 
 This means you can use IntraMine happily for searching if all your important source and text files that can change are on locally attached storage. IntraMine will still be 100% useful to you if you need to index folders on NAS, provided the source and text files in those folders that are important to you do not change. That could be a gigantic "Qt" folder for example, and it doesn't matter if such a folder contains files that change, as long as they aren't files that you want to be indexed for searching. Binary files or precompiled headers that change on NAS for example, aren't important for searching.
 
-Here we'll install the File Watcher service, and do some quick basic configuration. Configuring which folders to monitor, and starting the service, are left for the last step "Build your Elasticsearch index and run IntraMine.txt" but it wouldn't hurt to start thinking now about which folders you'd like to index and monitor.
+Here we'll install the File Watcher service, and set up the service to run automatically. Configuring which folders to monitor, and starting the service, are left for the last step "Build your Elasticsearch index and run IntraMine.txt" but it wouldn't hurt to start thinking now about which folders you'd like to index and monitor.
 
-Download File Watcher
-=====================
-Off you go then, to
-https://sourceforge.net/projects/fwutilities/files/
+Install the File Watcher service
+================================
+First, copy the "fwws" folder from the top of your IntraMine folder to the top of your C: drive, ending up with C:\fwws. **If for some reason you can't do that**, skip down to "Putting File Watcher elsewhere".
 
-Click on "fwws" (note the two w's, we don't want "fws"), then on "NET_45", 	and then finally on "fwws_4.3.0.0_bin_45.zip" to start the download to your downloads folder.
-Here's a direct link to start the download, if you're feeling lucky:
+Then, at a command prompt, using **Run as administrator**, run the following commands one by one:
 ---
-https://sourceforge.net/projects/fwutilities/files/fwws/NET_45/fwws_4.3.0.0_bin_45.zip/download
+sc create "File Watcher Windows Service" binPath= C:\fwws\FileWatcherWindowsService.exe
+sc description "File Watcher Windows Service" "Watches for file system changes in the system."
+sc config "File Watcher Windows Service" start=auto
 ---
- 
-Unzip the download, and move and rename it
-========================================
-Unzip "fwws_4.3.0.0_bin_45.zip" (using 7-zip of course), copy the resulting folder to your C: drive, and rename it to "fwws". As a check, at the top level of your **C:\fwws** folder you should see a "Help" subfolder, and "FileWatcherWindowsService.exe.config".
 
-NOTE if you can't for some reason use C:\fwws as the name of your File Watcher folder, you can still do this - take note of the name you've actually used, and use it in place of C:\fwws in everything that follows below. Also, and this is just as important, open data/intramine_config.txt in your IntraMine folder, and update the following three configuration entries (line numbers "l.31" etc might be off):
+Note we're not starting File Watcher just yet. The File Watcher service also requires its own separate configuration file listing which folders to monitor. We'll get to both of those in the last step, "Build your Elasticsearch index and run IntraMine.txt".
+
+We're done installing File Watcher, and you can move on to: "Updating CodeMirror.txt".
+
+Putting File Watcher elsewhere
+===============================
+If you can't put the "fwws" folder at the top of your C: drive, you can put it elsewhere but there's a bit more work involved.
+
+First, copy the "fwws" folder from the top of the IntraMine folder to the location you want. Take note of the full path to the copy, and use it in place of "C:\fwws" in everything that follows below. Let's call that the "copy path" for short.
+
+Open data/intramine_config.txt in your IntraMine folder, and update the following three configuration entries to use your copy path (line numbers "l.31" etc might be slightly off):
 ---
 around l.31: FOLDERMONITOR_OLDNEWBASEPATH	C:/fwws/oldnew
 around l.118: FILEWATCHERDIRECTORY	C:/fwws/
 around l.122: FWWS_CONFIG	C:/fwws/fwatcher.xml
 ---
 
-Configure the service a bit
-===========================
-Open C:\fwws\FileWatcherWindowsService.exe.config, scroll to the bottom, and replace the corresponding three <appSettings> entries there with the following:
+Open FileWatcherWindowsService.exe.config in your copy of "fwws", scroll to the bottom, and replace the corresponding three <appSettings> entries there with the following (using your copy path in place of "C:\fwws"):
 ---
     <add key="xmlConfigurationFilePath" value="C:\fwws\fwatcher.xml"/>
     <add key="xmlSchemaConfigurationFilePath" value="C:\fwws\fwatcher.xsd"/>
     <add key="logFilePath" value="C:\fwws\fwatcher.log"/>
 	(leave the "queueTrimInterval" as-is)
 ---
+
 Save that, we're done with FileWatcherWindowsService.exe.config.
 
-Install the File Watcher service
-================================
-At a command prompt, using **Run as administrator**, run the following commands one by one (you can skip the first two if you're sure you don't already have the File Watcher service installed):
-
-sc stop "File Watcher Windows Service"
-sc delete "File Watcher Windows Service"
+And finally, install File Watcher as a service. At a command prompt, using **Run as administrator**, run the following commands one by one (where "binPath" in the first command should be changed to your copy path):
+---
 sc create "File Watcher Windows Service" binPath= C:\fwws\FileWatcherWindowsService.exe
 sc description "File Watcher Windows Service" "Watches for file system changes in the system."
 sc config "File Watcher Windows Service" start=auto
+---
 
-Note we're not starting File Watcher just yet. The File Watcher service also requires its own separate configuration file listing which folders to monitor. As mentioned, we'll get to both of those in the last step, "Build your Elasticsearch index and run IntraMine.txt".
+We're done installing File Watcher, and you can move on to: "Updating CodeMirror.txt".
+
+Deleting the File Watcher service
+==================================
+Use
+---
+sc stop "File Watcher Windows Service"
+sc delete "File Watcher Windows Service"
+---
 
 
 Next: "Updating CodeMirror.txt"
