@@ -960,6 +960,24 @@ sub BroadcastSignal {
 	# %portSignalled: avoid sending signal twice to same port. Might be needed some day....
 	my %portSignalled; # $portSignalled{portnumber} = 1 if signal sent to it.
 	# Page servers.
+	SignalPageServers($name, \%portSignalled, $msg, $srvrAddr);
+
+	# Also broadcast to a specific page server short name.
+	# There can be more than one server with the same short name (running on different ports).
+	SignalShortNamePageServers($name, \%portSignalled, $msg, $srvrAddr);
+
+	# Background servers too
+	SignalBackgroundServers($name, \%portSignalled, $msg, $srvrAddr);
+
+	# Also broadast to a specific background server short name $PortForShortBackgroundServerName{$shortName}
+	SignalShortNameBackgroundServers($name, \%portSignalled, $msg, $srvrAddr);
+	
+	return("OK");
+	}
+
+sub SignalPageServers {
+	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
+
 	my $numServers = @ServerCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
@@ -971,14 +989,18 @@ sub BroadcastSignal {
 			my $shortName = $ShortServerNameForPort{$port};
 			if (!ShortServerNameIsUndergoingMaintenance($shortName))
 				{
-				$portSignalled{$port} = 1;
+				$portSignalled_H->{$port} = 1;
 				my $message = $msg;
 				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
 				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
-	# Also broadcast to a specific page server short name.
+	}
+
+sub SignalShortNamePageServers {
+	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
+
 	my $numEntriesForShortName = NumServersTotalForShortName($name);
 	if ($numEntriesForShortName)
 		{
@@ -989,9 +1011,9 @@ sub BroadcastSignal {
 				{
 				my $port = $proposedPort;
 				my $shortName = $name;
-				if (!ShortServerNameIsUndergoingMaintenance($shortName) && !defined($portSignalled{$port}))
+				if (!ShortServerNameIsUndergoingMaintenance($shortName) && !defined($portSignalled_H->{$port}))
 					{
-					$portSignalled{$port} = 1;
+					$portSignalled_H->{$port} = 1;
 					my $message = $msg;
 					$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
 					SendOneSignal($port, $srvrAddr, $message);
@@ -999,9 +1021,12 @@ sub BroadcastSignal {
 				}
 			}
 		}
+	}
 
-	# Background servers too
-	$numServers = @BackgroundCommandLines;
+sub SignalBackgroundServers {
+	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
+
+	my $numServers = @BackgroundCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $backgroundName = $BackgroundCommandLineNames[$i];
@@ -1011,34 +1036,36 @@ sub BroadcastSignal {
 			# Append short name of server to all signals going out.
 			my $shortName = $ShortBackgroundServerNameForPort{$port};
 			if (   !ShortServerNameIsUndergoingMaintenance($shortName)
-				&& !defined($portSignalled{$port})
+				&& !defined($portSignalled_H->{$port})
 				&& !PortIsForWEBSOCKServer($port) )
 				{
-				$portSignalled{$port} = 1;
+				$portSignalled_H->{$port} = 1;
 				my $message = $msg;
 				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";			
 				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
-	# Also broadast to a specific background server short name $PortForShortBackgroundServerName{$shortName}
+	}
+
+sub SignalShortNameBackgroundServers {
+	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
+
 	if (defined($PortForShortBackgroundServerName{$name}))
 		{
 		my $port = $PortForShortBackgroundServerName{$name};
 		# Append short name of server to all signals going out.
 		my $shortName = $name;
 		if (   !ShortServerNameIsUndergoingMaintenance($shortName)
-			&& !defined($portSignalled{$port})
+			&& !defined($portSignalled_H->{$port})
 			&& !PortIsForWEBSOCKServer($port) )
 			{
-			$portSignalled{$port} = 1;
+			$portSignalled_H->{$port} = 1;
 			my $message = $msg;
 			$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
 			SendOneSignal($port, $srvrAddr, $message);
 			}
 		}
-	
-	return("OK");
 	}
 
 sub HandleMaintenanceSignal {

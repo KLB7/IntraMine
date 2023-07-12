@@ -6,29 +6,20 @@
 # A call to TopNav() will build the top navigation bar for a standard IntraMine web page,
 # see eg intramine_boilerplate.pl#ThePage().
 # Most of this module deals with the tedium of listening for and responding to HTTP requests.
-# If you look at a couple of the supplied servers, such as the aforemention "boiler plate" and
+# If you look at a couple of the supplied servers, such as the aforementioned "boiler plate" and
 # intramine_db_example.pl you'll see how to use this module.
 # Then later if you decide to do something heroic like port IntraMine to go, well I've tried to
 # make the code below readable. I really did try.
 # [If this is a bit new to you and you're wondering how to send a request to another server,
-# local or world wide web, that's best done in JavaScript using XMLHttpRequest(). If you
+# local or world wide web, that's best done in JavaScript using fetch(). If you
 # search through IntraMine's /js_for_web_server/ folder, you'll find about 14 examples.]
-#
-# At some point I should address a coding quirk of the Perl code for IntraMine, namely that
-# variables needed across several subs are often scoped by putting them in {} braces,
-# along with the subs that need them. More properly this should be done using bona fide
-# modules. All scopes of that sort begin with a space and five '#' hash marks after the
-# opening '{', followed by a name for the scope, eg "{ ##### Server address". If you
-# view one of IntraMine's Perl files using IntraMine, you'll find these scopes listed
-# in the table of contents. Anyone who hates this notion should feel free to refactor
-# them out into module files. Refactoring code is a good way to grok it anyway, right?
+
  
-# perl -c C:/perlprogs/mine/libs/swarmserver.pm
+# perl -c C:/perlprogs/IntraMine/libs/swarmserver.pm
 
 package swarmserver;
 require Exporter;
 use Exporter qw(import);
-
 use strict;
 use warnings;
 use utf8;
@@ -105,18 +96,20 @@ my $TopNavTemplate;
 # top navigation bar.
 # If Page has more than one associated program then the main program should be listed first,
 # followed on separate lines by associated program names, with the Page name repeated, eg
-# Search		intramine_search.pl
-# Search		intramine_fileserver.pl
-# Search		intramine_open_with.pl
+# 1	Search				Search		intramine_search.pl
+# 1	Search				Viewer		intramine_viewer.pl
+# 1	Search				Linker		intramine_linker.pl
+# 1	Search				Opener		intramine_open_with.pl
+# 1	Search				Editor		intramine_editor.pl
 # The "Cmd" page is special, the associated server is not shut down in response to a routine
 # restart request (EXITEXITEXIT) so that it can continue monitoring during the restart.
 # This "feature" however can be safely ignored.
 # The serverlist.txt entry for it is
-# Cmd			intramine_commandserver.pl	PERSISTENT
+# 1	Cmd					Cmd			intramine_commandserver.pl	PERSISTENT
 # with the (optional) 'PERSISTENT' signalling that it should be treated specially.
 # See $CommandServerHasBeenNotified etc.
 # An entry with trailing 'BACKGROUND' signals a server that has no top navigation entry. Eg
-# FILEWATCHER	intramine_filewatcher.pl	BACKGROUND
+# 1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
 # There can be only one of each BACKGROUND server, and it can't be stopped using the Status page.
 sub LoadServerList {
 	if (NumPages())
@@ -292,7 +285,7 @@ my $OutputLog = undef;
 # For background server, this is the 'short name'.
 my $OurPageName;
 # A (fairly) distinctive name for the current server,
-# eg 'Viewer' for intramine_file_viewer_ace.pl under the 'Search' page.
+# eg 'Viewer' for intramine_viewer.pl under the 'Search' page.
 my $OurShortName;
 my $IMAGES_DIR;
 my $COMMON_IMAGES_DIR;
@@ -554,8 +547,6 @@ sub MainLoop {
 # Listen forever, until an "EXIT" request.
 # Handle GET, POST and OPTIONS requests. When things go well, RespondNormally()
 # handles the request and returns a response.
-# A timeout is forced if none is provided, to handle WbSockets maintenance
-# (drain all pending WebSockets messages to avoid congestion).
 sub _MainLoop {
 	my ($listener, $readable, $InputLinesH, $timeout, $DoPeriodic) = @_;
 		
@@ -743,20 +734,17 @@ sub RespondNormally {
 	Output("-----------------\n");
 		
 	my $reportShortName = '';
-	my $isSSERequest = 0;
-	Respond(\$reportShortName, \$isSSERequest, $readable, $sock, \@{$InputLinesH->{$sock}},
+	Respond(\$reportShortName, $readable, $sock, \@{$InputLinesH->{$sock}},
 			$posted, $multiPartFormPostBoundary);
-	if (!$isSSERequest && !SocketIsInUseBySSE($sock))
-		{
-		Output("Normal connection close after response\n");
-		$$closedR = 1;
-		$readable->remove($sock);
-		$sock->close;
-		# Delete {$sock} array
-		@{$InputLinesH->{$sock}} = ();
-		delete $InputLinesH->{$sock};
-		}
-
+	
+	Output("Normal connection close after response\n");
+	$$closedR = 1;
+	$readable->remove($sock);
+	$sock->close;
+	# Delete {$sock} array
+	@{$InputLinesH->{$sock}} = ();
+	delete $InputLinesH->{$sock};
+	
 	# Activity reporting is now mostly done in the JS web client.
 	#ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
 	}
@@ -766,25 +754,23 @@ sub RespondToUnexpectedClose {
 	
 	Output("UNEXPECTED END OF INPUT, responding and closing anyway\n");
 	my $reportShortName = '';
-	my $isSSERequest = 0;
-	Respond(\$reportShortName, \$isSSERequest, $readable, $sock, \@{$InputLinesH->{$sock}},
+	Respond(\$reportShortName, $readable, $sock, \@{$InputLinesH->{$sock}},
 			$posted, $multiPartFormPostBoundary);
-	if (!$isSSERequest && !SocketIsInUseBySSE($sock))
+	
+	$$closedR = 1;
+	$readable->remove($sock);
+	$sock->close;
+	Output("UNEXPECTED END OF INPUT, copy of received lines after close:\n-----------------\n");
+	my $numLines = defined($InputLinesH->{$sock}[0]) ?  @{$InputLinesH->{$sock}}: 0;
+	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		$$closedR = 1;
-		$readable->remove($sock);
-		$sock->close;
-		Output("UNEXPECTED END OF INPUT, copy of received lines after close:\n-----------------\n");
-		my $numLines = defined($InputLinesH->{$sock}[0]) ?  @{$InputLinesH->{$sock}}: 0;
-		for (my $i = 0; $i < $numLines; ++$i)
-			{
-			Output("|$InputLinesH->{$sock}[$i]|");
-			}
-		Output("-----------------\n");
-		# Delete {$sock} array
-		@{$InputLinesH->{$sock}} = ();
-		delete $InputLinesH->{$sock};
+		Output("|$InputLinesH->{$sock}[$i]|");
 		}
+	Output("-----------------\n");
+	# Delete {$sock} array
+	@{$InputLinesH->{$sock}} = ();
+	delete $InputLinesH->{$sock};
+	
 		
 	# Activity reporting is now mostly done in the JS web client.
 	#ReportActivity($reportShortName) if ($ActivityMonitorShortName ne '' && $reportShortName ne '');
@@ -793,7 +779,7 @@ sub RespondToUnexpectedClose {
 # Send back ResultPage(), with a few headers. Also handle just a request for options.
 # Server-Sent Events for a socket are also initialized.
 sub Respond {
-	my ($reportItR, $isSSERequestR, $readable, $s, $arr, $posted, $multiPartFormPostBoundary) = @_;
+	my ($reportItR, $readable, $s, $arr, $posted, $multiPartFormPostBoundary) = @_;
 	Output("Responding\n");
 	
 	my $mimeType = '';
@@ -804,7 +790,7 @@ sub Respond {
 		my %form;
 		my $isOptionsRequest = 0;
 		#my $isSSERequest = 0;
-		GrabArguments($arr, $posted, $multiPartFormPostBoundary, \%form, \$isOptionsRequest, $isSSERequestR);
+		GrabArguments($arr, $posted, $multiPartFormPostBoundary, \%form, \$isOptionsRequest);
 		
 		if (!($IgnoreExitRequest && defined($form{'EXITEXITEXIT'})))
 			{
@@ -820,25 +806,6 @@ sub Respond {
 #				print $s "Access-Control-Allow-Methods: GET,POST,OPTIONS,DELETE,HEAD\r\n";
 				print $s "Access-Control-Allow-Origin: *\r\n";
 				print $s "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n";
-				}
-			elsif ($$isSSERequestR)
-				{
-				my $clientId = (defined($form{'statusid'})) ? $form{'statusid'}: '';
-				if ($clientId ne '')
-					{
-					if (defined($socketForClientId{$clientId}))
-						{
-						my $socket = $socketForClientId{$clientId};
-						if (refaddr($socket) != refaddr($s))
-							{
-							$readable->remove($socket);
-							$socket->close;		
-							}
-						}
-					$socketForClientId{$clientId} = $s;
-					$s->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 1);
-					SendInitialSSEResponseToOneClient($readable, $s, $clientId, 'activity', 'INITIAL_RESPONSE');
-					}
 				}
 			#else # use this instead of the elsif if you want HEAD requests
 			elsif (!(defined($form{'METHOD'}) && $form{'METHOD'} =~ m!head!i))
@@ -926,7 +893,7 @@ sub Respond {
 # or
 # POST /path HTTP/1.0 blankline one=two&three=another
 sub GrabArguments {
-	my ($arr, $posted, $multiPartFormPostBoundary, $formH, $isOptionsR, $isSSERequestR) = @_;
+	my ($arr, $posted, $multiPartFormPostBoundary, $formH, $isOptionsR) = @_;
 	my $obj = $arr->[1];
 	
 	# Grab Referer href if any, and headers in general.
@@ -945,27 +912,7 @@ sub GrabArguments {
 		# Look for Referer href=path.
 		if ($value =~ m!Referer:!)
 			{
-			if ($value =~ m!href=!)
-				{
-				$value = encode_utf8($value);
-				$value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-				$value = decode_utf8($value);
-				$value =~ m!href=([^&]+)!;
-				my $referer = $1; # 
-				if ($referer =~ m!^[a-z]:/!i)
-					{
-					$formH->{REFERER_HREF} = $referer;
-					$PreviousRefererDir = $formH->{REFERER_HREF};
-					}
-				else
-					{
-					$formH->{REFERER_HREF} = $PreviousRefererDir; # This is a bit dicey
-					}
-				}
-			else
-				{
-				$formH->{REFERER_HREF} = $PreviousRefererDir; # This is a bit dicey
-				}
+			GetReferer($value, $formH);
 			}
 		}
 	
@@ -973,9 +920,6 @@ sub GrabArguments {
 	my @parts = split(" ", $obj);
 	if (@parts == 3)
 		{
-		# TEST ONLY
-		#print("Grab obj |$obj|\n");
-		
 		$formH->{METHOD} = $parts[0];
 		$formH->{OBJECT} = $parts[1];
 		my $arguments = '';
@@ -1008,12 +952,6 @@ sub GrabArguments {
 			{
 			my $pastQidx = index($parts[1], '?') + 1;
 			$arguments = ($pastQidx > 0) ? substr($parts[1], $pastQidx) : '';
-			# Is it an SSE request?
-			my $sseIndex = index($parts[1], '/IMCHAT/');
-			if ($sseIndex > 0 && ($pastQidx < 0 || $sseIndex < $pastQidx))
-				{
-				$$isSSERequestR = 1;
-				}
 			}
 		
 		if ($arguments ne '')
@@ -1026,6 +964,32 @@ sub GrabArguments {
 		my $numParts = @parts;
 		Output("ERROR num parts is $numParts!\n");
 		Output(" - obj received was |$obj|\n");
+		}
+	}
+
+sub GetReferer {
+	my ($value, $formH) = @_;
+
+	if ($value =~ m!href=!)
+		{
+		$value = encode_utf8($value);
+		$value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+		$value = decode_utf8($value);
+		$value =~ m!href=([^&]+)!;
+		my $referer = $1; # 
+		if ($referer =~ m!^[a-z]:/!i)
+			{
+			$formH->{REFERER_HREF} = $referer;
+			$PreviousRefererDir = $formH->{REFERER_HREF};
+			}
+		else
+			{
+			$formH->{REFERER_HREF} = $PreviousRefererDir; # This is a bit dicey
+			}
+		}
+	else
+		{
+		$formH->{REFERER_HREF} = $PreviousRefererDir; # This is a bit dicey
 		}
 	}
 
@@ -1499,18 +1463,14 @@ sub GetImageResult {
 	Output("for image: |$obj|\n");
 	my $filePath = $obj;
 	$filePath =~ s!^/!!; # vs substr($obj, 1);
-	#print("Image file path: |$filePath|\n");
 	my $gotIt = 0;
-	my $thumbWanted = 0;
-	my $exists = FileOrDirExistsWide($filePath);
-	if ($exists == 1)
-	#if (-f $filePath)
+
+	if (FileOrDirExistsWide($filePath) == 1)
 		{
 		$gotIt = 1;
 		$$resultR = GetBinFile($filePath);
 		}
-	
-	if (!$gotIt)
+	else
 		{
 		my $fileName;
 		my $fnPosition;
@@ -1525,9 +1485,7 @@ sub GetImageResult {
 		
 		my $stdPath = $IMAGES_DIR . $fileName;
 		
-		$exists = FileOrDirExistsWide($stdPath);
-		if ($exists == 1)
-		#if (-f $stdPath)
+		if (FileOrDirExistsWide($stdPath) == 1)
 			{
 			$gotIt = 1;
 			$$resultR = GetBinFile($stdPath);
@@ -1535,9 +1493,7 @@ sub GetImageResult {
 		elsif ($COMMON_IMAGES_DIR ne '')
 			{
 			$stdPath = $COMMON_IMAGES_DIR . $fileName;
-			$exists = FileOrDirExistsWide($stdPath);
-			if ($exists == 1)
-			#if (-f $stdPath)
+			if (FileOrDirExistsWide($stdPath) == 1)
 				{
 				$gotIt = 1;
 				$$resultR = GetBinFile($stdPath);
@@ -1553,7 +1509,7 @@ sub GetImageResult {
 					}
 				
 				$stdPath = $actualDir . $filePath;
-				if (-f $stdPath)
+				if (FileOrDirExistsWide($stdPath) == 1)
 					{
 					$gotIt = 1;
 					$$resultR = GetBinFile($stdPath);
@@ -1562,7 +1518,7 @@ sub GetImageResult {
 			}
 		}
 		
-		# Check any "special" directories if still not found.
+	# Check any "special" directories if still not found.
 	if (!$gotIt)
 		{
 		$gotIt = LoadFileFromSpecificDirectory($JSEDITOR_DIR, $obj, 1, $formH->{REFERER_HREF}, $mimeTypeR, $resultR);
@@ -2211,21 +2167,6 @@ sub SendActivityEventToOneClient {
 		print $s "data: $shortName $port\r\n\r\n";
 		}
 	
-	return($result);
-	}
-
-sub SocketIsInUseBySSE {
-	my ($s) = @_;
-	my $result = 0;
-	foreach my $clientId (keys %socketForClientId)
-		{
-		if (refaddr( $socketForClientId{$clientId}) == refaddr($s))
-			{
-			$result = 1;
-			last;
-			}
-		}
-		
 	return($result);
 	}
 
