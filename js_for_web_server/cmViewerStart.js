@@ -1,5 +1,11 @@
 // cmViewerStart.js: CodeMirror handling. Used in: intramine_file_viewer_cm.pl for read-only
 // CodeMirror views.
+
+let startingUp = 2;
+
+// Remember if table of contents (TOC) has been frozen in width.
+let tocWidthIsFrozen = false;
+
 // Load contents, handle resize, maintain buttons.
 
 function getFileExtension(filename) {
@@ -83,13 +89,17 @@ function doResize() {
 		let newTocHeightPC = (tocHeight / elHeight) * 100;
 		tocMainElement.style.height = newTocHeightPC + "%";
 		}
-	
+
+	// Prevent first line number from changing during a resize.
+	rememberTopLine = false;
+	reJump();
+	rememberTopLine = true;
+
 	updateToggleBigMoveLimit();
 }
 
 // Restore scrolled position after a refresh.
 function reJump() {
-	return;
 	let h = location.hash;
 	if (h.length > 1)
 		{
@@ -100,6 +110,10 @@ function reJump() {
 		if (el !== null)
 			{
 			el.scrollIntoView();
+			}
+		else // perhaps it's a line number
+			{
+			cmQuickRejumpToLine();
 			}
 		}
 }
@@ -220,6 +234,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 			let text = decodeURIComponent(respText);
 			cm.setValue(text);
 			// No good: cm.setValue(decodeHTMLEntities(request.responseText));
+			// Add divider between table of contents and text.
+			addDragger && addDragger();
+
 			cm.markClean();
 			cm.clearHistory();
 			if (usingCM)
@@ -243,6 +260,10 @@ async function loadFileIntoCodeMirror(cm, path) {
 			
 			// Startup done, hide the pacifier in the nav bar.
 			hideSpinner();
+			if (usingCM)
+				{
+				rememberTopLine = true;
+				}
 			}
 		else
 			{
@@ -264,3 +285,4 @@ function testNoticeKeyPress(cm, evt) {
 	let e1 = document.getElementById(errorID);
 	e1.innerHTML = 'KEYPRESS ' + evt.keyCode;
 }
+

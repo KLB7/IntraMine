@@ -1,14 +1,9 @@
 /* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
 
 #scrollTextRightOfContents {
-	/*height: 100%;*/
 	padding-right: 0;
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	position: absolute;
-	top: 0; left: 24%; right: 0; bottom: 0;
+	top: 0; right: 0; bottom: 0;
 
 	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
 	
@@ -19,8 +14,6 @@
 }
 
 #scrollText { /* Replaces #theTextWithoutJumpList */
-	/*height: 100%;*/
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0;

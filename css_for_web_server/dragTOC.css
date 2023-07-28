@@ -1,0 +1,12 @@
+/* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
+Table of Contents to be changed by dragging. */
+
+.panes-separator {
+    width: 3px;
+    background: #aaaaaa;
+    cursor: col-resize;
+    }
+
+.dragCursor {
+    cursor: col-resize;
+    }

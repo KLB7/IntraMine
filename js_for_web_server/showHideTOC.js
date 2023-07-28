@@ -7,6 +7,9 @@
 // and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
 
 // Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
+// If toggleElem is null then shrinkIt will be false and the TOC will expand. This is
+// currently called with null by dragTOC.js#addDragger() since for some unknown reason the
+// TOC pane is coming up too narrow.
 function toggleTOC(toggleElem) {
 	// Avoid spurious highlighting after TOC toggle causes redraw.
 	if (document.activeElement !== null)
@@ -22,26 +25,36 @@ function toggleTOC(toggleElem) {
 		let theTopPos = firstVisibleLineNumber(textElement);
 		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
 		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
-		let widthTOC = parseInt(widthStrTOC, 10);
-		let widthParent = parseInt(widthStrParent, 10);
+		let widthTOC = parseFloat(widthStrTOC);
+		let widthParent = parseFloat(widthStrParent);
 		let oldTocWidthPC = 100 * widthTOC / widthParent;
+		let paneSep = document.getElementById('panes-separator');;
+		let widthPaneSep = 3; // pixels
+		if (paneSep !== null)
+			{
+			let widthStrSep = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+			widthPaneSep = parseFloat(widthStrSep); // pixels
+			}
+		let newWidthPaneSep = widthPaneSep / widthParent * 100;
+		
 		let shrinkIt = (oldTocWidthPC < 10) ? false : true;
-		let newWidthTOCPC, newWidthTextPC, newTextLeftPC;
+		if (toggleElem === null)
+			{
+			shrinkIt = false;
+			}
+		let newWidthTOCPC, newWidthTextPC;
 		if (shrinkIt)
 			{
 			newWidthTOCPC = 5;
-			newWidthTextPC = 93.5;
-			newTextLeftPC = 6;
 			}
 		else
 			{
 			newWidthTOCPC = 23;
-			newWidthTextPC = 75.5;
-			newTextLeftPC = 24;
 			}
+		newWidthTextPC = 100 - newWidthPaneSep - newWidthTOCPC;
+
 		elementToAdjust.style.width = newWidthTOCPC + "%";
 		textElement.style.width = newWidthTextPC + "%";
-		textElement.style.left = newTextLeftPC + "%";
 		restoreTopPosition(textElement, theTopPos);
 
 		// Especially for CodeMirror, force a recalc.
@@ -54,6 +67,22 @@ function toggleTOC(toggleElem) {
 			highlightInitialItems();
 			}
 
+		// Also redo scroll bar markers for selection hits in the scroll bar.
+		if (!usingCM)
+			{
+			removeAllScrollbarHighlights(scrollMarkerClass);
+			markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+			}
+		
+		// Remember current TOC width in pixels.
+		if (toggleElem !== null) // Not first call
+			{
+			let leftPaneStr = elementToAdjust.style.width;
+			let leftPanePC = parseFloat(leftPaneStr);
+			let leftPanePixels = leftPanePC * widthParent / 100;
+			let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+			localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+			}
 		}
 
 	return (false);

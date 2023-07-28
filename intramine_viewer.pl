@@ -412,6 +412,7 @@ _META_CHARSET_
 _CSS_
 _TEXTTABLECSS_
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
+<link rel="stylesheet" type="text/css" href="dragTOC.css" />
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -802,6 +803,7 @@ sub CodeMirrorJS {
 <script src="cmShowSearchItems.js" ></script>
 <script src="cmToggle.js" ></script>
 <script src="cmScrollTOC.js" ></script>
+<script src="dragTOC.js" ></script>
 <script src="cmHandlers.js" ></script>
 FINIS
 
@@ -828,6 +830,7 @@ sub NonCodeMirrorJS {
 <script src="indicator.js" ></script>
 <script src="toggle.js" ></script>
 <script src="scrollTOC.js" ></script>
+<script src="dragTOC.js" ></script>
 <script>
 hideSpinner();
 </script>

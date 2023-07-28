@@ -34,7 +34,7 @@ td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 4em; /* enough for 99999 one hopes */
+	min-width: 3em; /* enough for 99999 one hopes */
 }
 
 th {

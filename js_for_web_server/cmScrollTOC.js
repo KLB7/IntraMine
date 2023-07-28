@@ -13,10 +13,6 @@ function scrollTocEntryIntoView(lineNum, inContent, scrolling) {
 		{
 		tocElem = getTocElemForLineNumber(lineNum); // cmTocAnchors.js#getTocElemForLineNumber()
 		}
-//	else // mouse or touch in scroll - ignore, "scrolling" handles that
-//		{
-//		tocElem = getTocElemAfterLineNumber(lineNum); // cmTocAnchors.js#getTocElemAfterLineNumber()
-//		}
 	else if (scrolling)
 		{
 		let el = document.getElementById(cmTextHolderName);

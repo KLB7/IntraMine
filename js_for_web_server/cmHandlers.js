@@ -29,7 +29,8 @@ function addHintboxListener() {
 		}
 }
 
-window.addEventListener("resize", JD.debounce(resizeAndRedrawMarkers, 100)); // swarmserver.pm#TooltipSource()
+window.addEventListener("resize", JD.debounce(resizeAndRedrawMarkers, 100));
+window.addEventListener("mouseup", generalMouseUp);
 window.addEventListener("load", cmLoad);
 myCodeMirror.on("scroll", onScroll);
 myCodeMirror.on("scroll", JD.debounce(addAutoLinks, 250));

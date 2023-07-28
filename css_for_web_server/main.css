@@ -281,22 +281,14 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
-/* ipadfix */
-#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
-	/* ipadfix in */
-	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
-	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
-	
-	/* ipadfix out
-	position: absolute;
-	top: 200px;
-	*/
-	
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker {
+	display: flex;
+	width: 100%;
 	height: 60%;
+	overflow: hidden;
 }
 
-#scrollContentsList { /* Replaces CLASS .jumplist */
-	float: left;
+#scrollContentsList {
 	width: 22.5%;
 	overflow: auto;
 	height: 100%;
@@ -309,7 +301,6 @@ html[xmlns] #nav {
 
 #scrollContentsList a {
 	text-decoration: none;
-	/*font-size: 1.1em;*/
 }
 
 #scrollContentsList li, #scrollContentsList ul {
@@ -327,17 +318,12 @@ html[xmlns] #nav {
 	cursor: pointer;
 }
 
-#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
-	float: left;
-	width: 75.5%;
+#scrollTextRightOfContents {
+	flex: auto;
+	padding-left: 0; /* was 1em */
 	overflow: auto;
 	-moz-tab-size: 4;
 	tab-size: 4;
-/*	height: 100%;
-	padding: 4px;
-	padding-right: 0;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollText {
@@ -345,12 +331,6 @@ html[xmlns] #nav {
 	width: 100%;
 	-moz-tab-size: 4;
 	tab-size: 4;
-	/*overflow: auto;*/
-/* height 100% does not play well with ace editor.
-	height: 100%;
-	padding: 4px;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
@@ -487,9 +467,6 @@ html[xmlns] #nav {
 	height: 100%;
 	padding: 4px;
 	padding-right: 0;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 #theTextWithoutJumpList {
@@ -498,16 +475,12 @@ html[xmlns] #nav {
 	overflow: auto;
 	height: 100%;
 	padding: 4px;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 .theText {
 	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	font-size: 9pt;
 	line-height: 12pt;
-	
 	float: none;
 	width: 100%;
 }

@@ -6,6 +6,9 @@ where "Images::finished" is the name of a method. The anchor is scrolled into vi
 
 let goingToAnchor = false;
 
+// Remember first displayed line number when scrolling, but not resizing.
+let rememberTopLine = false;
+
 // Called by Table of Contents entries. See eg intramine_viewer.pl#GetCTagsTOCForFile().
 // And also called for links to internal headings (functions classes etc).
 function goToAnchor(anchorText, lineNum) {
@@ -135,6 +138,32 @@ function cmRejumpToAnchor() {
 		}
 }
 
+// Restore first line of text shown. This is like above jumpToLine
+// but doesn't affect the selected text.
+function cmQuickRejumpToLine() {
+	let anchor = location.hash;
+	if (anchor.length > 1)
+		{
+		anchor = anchor.replace(/^#/, '');
+		if (isNaN(anchor))
+			{
+			return;
+			}
+
+		let lineNum = parseInt(anchor, 10);
+		quickJumpToLine(lineNum);
+		}
+}
+
+function quickJumpToLine(lineNum) {
+	let lineNumToShow = lineNum - 1;
+	let t = myCodeMirror.charCoords({
+		line : lineNumToShow,
+		ch : 0
+	}, "local").top;
+	myCodeMirror.scrollTo(null, t);
+}
+
 // Find the line number for an anchor, by looking through tocEntries[] for text that
 // matches the entry in the supplied anchor.
 function lineNumberForAnchor(anchor) {
@@ -250,6 +279,13 @@ function linkForInternalAnchor(anchor) {
 // Get line number at top of view, store it in location.hash. We are not goingToAnchor (going
 // to line number instead).
 function onScroll() {
+	// rememberTopLine is false when resizing, set true again on mouseup.
+	if (!rememberTopLine || startingUp > 0)
+		{
+		--startingUp; // We arrive here twice during startup.
+		return;
+		}
+
 	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
 	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
 	// let fromTo = myCodeMirror.getViewport();
@@ -271,6 +307,10 @@ function onScroll() {
 	
 	// Too soon - this is now done in cmAutoLinks.js#handleFileLinkMouseUp().
 	// goingToAnchor = false;
+}
+
+function generalMouseUp(el) {
+	rememberTopLine = true;
 }
 
 // Hash holding line numbers for TOC entries, used in cmAutoLinks.js#markUpInternalHeadersOnOneLine().

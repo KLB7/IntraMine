@@ -26,12 +26,6 @@ if (typeof window.ontouchstart !== 'undefined')
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
-//let doingStandalone = false;
-//if (typeof weAreStandalone !== 'undefined')
-//	{
-//	doingStandalone = weAreStandalone;
-//	}
-
 // Adjust some element heights so scrolling works properly.
 function doResize() {
 	let rule = document.getElementById("rule_above_editor");
@@ -82,8 +76,9 @@ function doResize() {
 
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
-// See intramine_file_viewer_cm.pl#InitialHighlightItems().
+// See intramine_viewer.pl#InitialHighlightItems().
 function reJumpAndHighlight() {
+	addDragger && addDragger(); // dragTOC.js#addDragger()
 	reJump();
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
