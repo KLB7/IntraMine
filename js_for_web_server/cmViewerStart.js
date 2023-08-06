@@ -1,10 +1,12 @@
 // cmViewerStart.js: CodeMirror handling. Used in: intramine_file_viewer_cm.pl for read-only
 // CodeMirror views.
 
-let startingUp = 2;
-
 // Remember if table of contents (TOC) has been frozen in width.
 let tocWidthIsFrozen = false;
+// Remember top line, restore it during and after resize.
+let topLineForResize = -999;
+// Delay scrolling a little, to help resize preserve first text line number.
+let lazyOnScroll;
 
 // Load contents, handle resize, maintain buttons.
 
@@ -60,7 +62,30 @@ function removeElementsByClass(className) {
 		}
 }
 
+function rememberTopLineForResize() {
+	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+	let lineNumber = parseInt(myStartLine.toString(), 10);
+	if (lineNumber > 0)
+		{
+		lineNumber += 2;
+		}
+	else
+		{
+		lineNumber = 1;
+		}
+	
+	topLineForResize = lineNumber.toString();
+
+	// TEST ONLY
+	//console.log("rememberTopLineForResize: " + topLineForResize);
+}
+
 function doResize() {
+	// TEST ONLY
+	//console.log("doResize");
+
+	resizing = true;
 	let rule = document.getElementById("rule_above_editor");
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
@@ -91,12 +116,34 @@ function doResize() {
 		}
 
 	// Prevent first line number from changing during a resize.
-	rememberTopLine = false;
-	reJump();
-	rememberTopLine = true;
+	// rememberTopLine = false;
+	// reJump();
+	// rememberTopLine = true;
+
+	if (topLineForResize >= 0)
+		{
+		location.hash = topLineForResize;
+		reJump();
+		}
+	// setTimeout(function() {
+	// 	//myCodeMirror.refresh();
+	// 	if (topLineForResize >= 0)
+	// 		{
+	// 		location.hash = topLineForResize;
+	// 		reJump();
+	// 		}
+	// }, 100);
+
+	lazyMouseUp();
 
 	updateToggleBigMoveLimit();
 }
+
+// TEST ONLY
+function onWindowResize() {
+	console.log("ONWINDOWRESIZE");
+}
+window.addEventListener("resize", onWindowResize);
 
 // Restore scrolled position after a refresh.
 function reJump() {
@@ -241,7 +288,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 			cm.clearHistory();
 			if (usingCM)
 				{
+				resizing = true;
 				doResize();
+				resizing = false;
 				}
 			myCodeMirror.display.barWidth = 16;
 			//cm.focus();
@@ -252,18 +301,16 @@ async function loadFileIntoCodeMirror(cm, path) {
 			// Complete startup by adding links and jumping to any requested location.
 			getLineNumberForTocEntries();
 			addAutoLinks();
-			cmRejumpToAnchor();
+			//cmRejumpToAnchor();
 			//decodeSpecialWordCharacters();
 			highlightInitialItems();
 			updateToggleBigMoveLimit();
 			updateTogglePositions();
-			
-			// Startup done, hide the pacifier in the nav bar.
+			reJump();
+			lazyOnScroll = JD.debounce(onScroll, 100);
+			cm.on("scroll", lazyOnScroll);
+			//cm.on("scroll", onScroll);
 			hideSpinner();
-			if (usingCM)
-				{
-				rememberTopLine = true;
-				}
 			}
 		else
 			{

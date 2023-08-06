@@ -96,8 +96,7 @@ sub ToDoPage {
 </head>
 <body>
 _TOPNAV_
-<div id="scrollAdjustedHeight">
-<div id="header"> To Do List <span id="todoarchive">&nbsp;&nbsp;&nbsp;_ARCHIVELINK_</span> <span id="loadError">&nbsp;<span></div>
+<div id="header"> To Do List <span id="todoarchive">&nbsp;&nbsp;&nbsp;_ARCHIVELINK_</span> <span id="loadError">&nbsp;<span></div><div id="scrollAdjustedHeight">
 <!-- <div id="theTextWithoutJumpList"> -->
 	<div id="container">
 		<div class="task-list task-container" id="pending">

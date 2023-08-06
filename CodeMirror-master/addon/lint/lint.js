@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -199,10 +199,6 @@
       var anns = annotations[line];
       if (!anns) continue;
 
-      // filter out duplicate messages
-      var message = [];
-      anns = anns.filter(function(item) { return message.indexOf(item.message) > -1 ? false : message.push(item.message) });
-
       var maxSeverity = null;
       var tipLabel = state.hasGutter && document.createDocumentFragment();
 
@@ -220,9 +216,8 @@
           __annotation: ann
         }));
       }
-      // use original annotations[line] to show multiple messages
       if (state.hasGutter)
-        cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, annotations[line].length > 1,
+        cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, anns.length > 1,
                                                        options.tooltips));
 
       if (options.highlightLines)

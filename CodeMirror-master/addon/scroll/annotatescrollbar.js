@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -91,11 +91,6 @@
     }
 
     var lastLine = cm.lastLine()
-    // HORRIBLE TEMPORARY HACK!
-    if (typeof window.ontouchstart !== 'undefined')
-      {
-      cm.display.barWidth = 17;
-      }
     if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
       if (ann.to.line > lastLine) continue;

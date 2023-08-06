@@ -17,12 +17,13 @@ function toggleTOC(toggleElem) {
 		document.activeElement.blur();
 		}
 
+	rememberLocation();
+	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
 	let divContainer = elementToAdjust.parentElement;
 	if (elementToAdjust !== null && textElement !== null)
 		{
-		let theTopPos = firstVisibleLineNumber(textElement);
 		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
 		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
 		let widthTOC = parseFloat(widthStrTOC);
@@ -55,10 +56,34 @@ function toggleTOC(toggleElem) {
 
 		elementToAdjust.style.width = newWidthTOCPC + "%";
 		textElement.style.width = newWidthTextPC + "%";
-		restoreTopPosition(textElement, theTopPos);
 
-		// Especially for CodeMirror, force a recalc.
-		window.dispatchEvent(new Event('resize'));
+		// location.hash = topLineNumber;
+		// cmQuickRejumpToLine();
+
+		// if (usingCM)
+		// 	{
+		// 	}
+		// else
+		// 	{
+		// 	let theTopPos = firstVisibleLineNumber(textElement);
+		// 	restoreTopPosition(textElement, theTopPos);
+		// 	}
+
+
+		location.hash = topLineNumber;
+
+		if (usingCM)
+			{
+			// Especially for CodeMirror, force a recalc.
+			window.dispatchEvent(new Event('resize'));
+			cmQuickRejumpToLine();
+			}
+		else
+			{
+			// TEST ONLY experimental
+			reJumpToLineNumber(topLineNumber);
+			///// was restoreTopPosition(textElement, theTopPos);
+			}
 
 		// Redo initial scrollbar markers
 		if (initialSearchHitsAreShowing)

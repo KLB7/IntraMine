@@ -10,7 +10,7 @@ let paneSep; // 'panes-separator', eventually (see below)
 let topLineNumber; // for restoring scrolled position when the separator is dragged.
 
 // This is done in viewerStart.js#reJumpAndHighlight(). Doing it earlier there
-// results in a stable first text line number.
+// results in a stable first line number for the text.
 /////window.addEventListener("load", addDragger);
 
 function addDragger() {
@@ -22,10 +22,6 @@ function addDragger() {
     let paneSepString = "<div class='panes-separator' id='panes-separator'></div>";
     let paneSeparator = createElementFromHTML(paneSepString);
     panesContainer.insertBefore(paneSeparator, rightPane);
-
-    // TOC pane is too narrow on first draw. Calling toggleTOC with null
-    // makes the TOC pane expand to its proper initial size.
-    /////toggleTOC(null);
 
     paneSep = document.getElementById('panes-separator');
     let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
@@ -56,33 +52,40 @@ function addDragger() {
     rightPane.style.width = right + '%';
 
     paneSep.addEventListener('mousedown', startDraggingSeparator);
-
-    window.addEventListener('mouseup', function (e) {
-        window.removeEventListener('mousemove', moveSeparator);
-        window.removeEventListener('selectstart', disableSelect);
-        document.body.style.cursor = '';
-
-        if (usingCM)
-            {
-            let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
-            let startPos  = myCodeMirror.lineAtHeight(rect.top, "window");
-            scrollTocEntryIntoView(startPos, false, true);
-            location.hash = topLineNumber;
-            cmQuickRejumpToLine(); // Restores first text line in contents
-            }
-
-        // Remember left pane (TOC) width.
-        let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
-        let widthPanesContainer = parseFloat(panesContainerWidthStr);
-        let leftPaneStr = leftPane.style.width;
-        let leftPanePC = parseFloat(leftPaneStr);
-        let leftPanePixels = leftPanePC * widthPanesContainer / 100;
-        let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
-        localStorage.setItem(leftPaneWidthKey, leftPanePixels);
-     });
 }
 
-// Poke top line number of text into location.hash, for restoring scrolled position.
+function separatorMouseUp() {
+    window.removeEventListener('mousemove', moveSeparator);
+    window.removeEventListener('selectstart', disableSelect);
+    document.body.style.cursor = '';
+
+    if (usingCM)
+        {
+        let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        let startPos  = myCodeMirror.lineAtHeight(rect.top, "window");
+        scrollTocEntryIntoView(startPos, false, true);
+
+        if (typeof topLineNumber !== 'undefined')
+            {
+            location.hash = topLineNumber;
+            }
+        cmQuickRejumpToLine(); // Restores first text line in contents
+        }
+
+    // Remember left pane (TOC) width.
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+    let leftPaneStr = leftPane.style.width;
+    let leftPanePC = parseFloat(leftPaneStr);
+    let leftPanePixels = leftPanePC * widthPanesContainer / 100;
+    let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+    localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+    
+    // Remove this function from mouseup, otherwise it's called for any mouseup.
+    window.removeEventListener('mouseup', separatorMouseUp);
+}
+
+// Poke top line number of text into topLineNumber, for restoring scrolled position.
 function rememberLocation() {
 	if (usingCM)
 		{
@@ -112,6 +115,7 @@ function startDraggingSeparator(e) {
     document.body.style.cursor = 'col-resize';
     window.addEventListener('mousemove', moveSeparator);
     window.addEventListener('selectstart', disableSelect);
+    window.addEventListener('mouseup', separatorMouseUp);
 }
 
 function moveSeparator(e) {
@@ -151,9 +155,11 @@ function moveSeparator(e) {
         }
     else
         {
-        let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
-        let startPos  = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
+        //let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        //let startPos  = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
         location.hash = topLineNumber;
+        myCodeMirror.refresh();
+        reJump();
         }
 }
 

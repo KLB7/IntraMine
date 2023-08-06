@@ -6,8 +6,8 @@ where "Images::finished" is the name of a method. The anchor is scrolled into vi
 
 let goingToAnchor = false;
 
-// Remember first displayed line number when scrolling, but not resizing.
-let rememberTopLine = false;
+// Notice we are resizing. Set true in doResize().
+let resizing = false;
 
 // Called by Table of Contents entries. See eg intramine_viewer.pl#GetCTagsTOCForFile().
 // And also called for links to internal headings (functions classes etc).
@@ -78,8 +78,6 @@ function jumpToLine(lineNum, adjustToShowComment) {
 			}
 		}
 	
-	//console.log("jumpToLine " + lineNumToShow);
-	
 	let t = myCodeMirror.charCoords({
 		line : lineNumToShow,
 		ch : 0
@@ -90,7 +88,7 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	// Removed, selecting line and then restoring original selection isn't working reliably.
 	//myCodeMirror.setSelection({line: lineNumToShow, ch: 0}, {line: lineNumToShow, ch: 999});
 	
-//	myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 50);
+//	myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 0);
 
 	
 	scrollMobileIndicator();
@@ -162,6 +160,8 @@ function quickJumpToLine(lineNum) {
 		ch : 0
 	}, "local").top;
 	myCodeMirror.scrollTo(null, t);
+
+	//myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 0);
 }
 
 // Find the line number for an anchor, by looking through tocEntries[] for text that
@@ -279,17 +279,14 @@ function linkForInternalAnchor(anchor) {
 // Get line number at top of view, store it in location.hash. We are not goingToAnchor (going
 // to line number instead).
 function onScroll() {
-	// rememberTopLine is false when resizing, set true again on mouseup.
-	if (!rememberTopLine || startingUp > 0)
+	// resizing is true when resizing, set false on mouseup.
+	if (resizing)
 		{
-		--startingUp; // We arrive here twice during startup.
 		return;
 		}
 
 	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
 	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
-	// let fromTo = myCodeMirror.getViewport();
-	// let myStartLine = fromTo.from;
 
 	if (!goingToAnchor)
 		{
@@ -310,8 +307,20 @@ function onScroll() {
 }
 
 function generalMouseUp(el) {
-	rememberTopLine = true;
+	if (resizing)
+		{
+		if (typeof topLineForResize !== 'undefined' && topLineForResize >= 0)
+			{
+			location.hash = topLineForResize;
+			cmQuickRejumpToLine(); // Restores first text line in contents
+			myCodeMirror.refresh();
+			//console.log("GENERALMOUSEUP when resizing");
+			}
+		}
+	resizing = false;
 }
+
+let lazyMouseUp = JD.debounce(generalMouseUp, 1000);
 
 // Hash holding line numbers for TOC entries, used in cmAutoLinks.js#markUpInternalHeadersOnOneLine().
 let lineNumberForTocEntry = {};

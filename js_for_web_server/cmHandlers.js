@@ -29,13 +29,17 @@ function addHintboxListener() {
 		}
 }
 
-window.addEventListener("resize", JD.debounce(resizeAndRedrawMarkers, 100));
-window.addEventListener("mouseup", generalMouseUp);
-window.addEventListener("load", cmLoad);
-myCodeMirror.on("scroll", onScroll);
-myCodeMirror.on("scroll", JD.debounce(addAutoLinks, 250));
+//let lazyResize = JD.debounce(resizeAndRedrawMarkers, 100);
+//document.addEventListener("resize", lazyResize);
+//document.addEventListener("resize", resizeAndRedrawMarkers);
+myCodeMirror.on("refresh", resizeAndRedrawMarkers);
 
+document.addEventListener("mouseup", generalMouseUp);
+window.addEventListener("load", cmLoad);
+//myCodeMirror.on("scroll", onScroll);
+myCodeMirror.on("scroll", JD.debounce(addAutoLinks, 250));
 //myCodeMirror.on("click", synchTableOfContents);
+document.addEventListener("mousedown", rememberTopLineForResize);
 
 if (onMobile)
 	{
