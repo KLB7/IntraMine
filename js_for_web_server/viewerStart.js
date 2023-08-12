@@ -28,6 +28,8 @@ window.addEventListener("resize", JD.debounce(doResize, 100));
 
 // Adjust some element heights so scrolling works properly.
 function doResize() {
+	restoreColumnWidths();
+
 	let rule = document.getElementById("rule_above_editor");
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
@@ -71,7 +73,11 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
+	reJump();
+	
 	updateToggleBigMoveLimit();
+
+	repositionTocToggle();
 }
 
 // On "load", scroll any location.hash position into view, and put highlights on any
@@ -79,6 +85,7 @@ function doResize() {
 // See intramine_viewer.pl#InitialHighlightItems().
 function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
+	
 	reJump();
 	updateToggleBigMoveLimit();
 	updateTogglePositions();

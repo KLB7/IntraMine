@@ -57,30 +57,16 @@ function toggleTOC(toggleElem) {
 		elementToAdjust.style.width = newWidthTOCPC + "%";
 		textElement.style.width = newWidthTextPC + "%";
 
-		// location.hash = topLineNumber;
-		// cmQuickRejumpToLine();
-
-		// if (usingCM)
-		// 	{
-		// 	}
-		// else
-		// 	{
-		// 	let theTopPos = firstVisibleLineNumber(textElement);
-		// 	restoreTopPosition(textElement, theTopPos);
-		// 	}
-
-
 		location.hash = topLineNumber;
 
 		if (usingCM)
 			{
 			// Especially for CodeMirror, force a recalc.
-			window.dispatchEvent(new Event('resize'));
+			myCodeMirror.refresh();
 			cmQuickRejumpToLine();
 			}
 		else
 			{
-			// TEST ONLY experimental
 			reJumpToLineNumber(topLineNumber);
 			///// was restoreTopPosition(textElement, theTopPos);
 			}
@@ -128,7 +114,7 @@ function addTocToggle(idToggle) {
 			{
 			toggleElem = createElementFromHTML("<img src='707788g4.png' id='" + idToggle + "'>");
 			}
-		// scrollContentsElement.insertBefore(toggleElem, elementToAdjust.childNodes[0]);
+		
 		document.body.insertBefore(toggleElem, document.body.firstChild);
 		toggleElem.addEventListener('click', function() {
 			toggleTOC(toggleElem);
@@ -144,6 +130,21 @@ function addTocToggle(idToggle) {
 
 		toggleElem.style.top = toggleTop + "px";
 		}
+}
+
+// If the nav bar wraps and grows taller, or shrinks back down,
+// it's nice to reposition the green double-headed arrow.
+function repositionTocToggle() {
+	let toggleElem = document.getElementById("tocShrinkExpand");
+	let rule = document.getElementById("rule_above_editor");
+	if (toggleElem === null || rule === null)
+		{
+		return;
+		}
+	let pos = getPosition(rule);
+	let toggleTop = pos.y + 4;
+
+	toggleElem.style.top = toggleTop + "px";
 }
 
 // Get line number of first visible line in text.
@@ -624,6 +625,60 @@ function restoreTopPositionNonCM(elem, topPos) {
 			break;
 			}
 		}
+}
+
+// Handle Table of Contents (TOC) width in views. The goal is to keep the
+// same TOC width in pixels as much as possible.
+
+function rememberTocWidthPixels() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	if (leftPane === null)
+		{
+		return;
+		}
+	let leftPaneWidthStr = window.getComputedStyle(leftPane, null).getPropertyValue('width');
+	let widthLeftPane = parseFloat(leftPaneWidthStr);
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+}
+
+// Return width in pixels of table of contents column from localStorage,
+// also set localStorage value if that hasn't been done yet.
+function getTocWidthPixels() {
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	let widthLeftPane; // pixels
+	if (!localStorage.getItem(leftPaneWidthKey))
+		{
+		rememberTocWidthPixels(); // sets leftPaneWidthKey in localStorage
+		}
+	
+	let leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
+	widthLeftPane = parseFloat(leftPaneWidthStr);
+	
+	return(widthLeftPane);
+}
+
+// Use width in pixels of table of contents column as last save
+// to set widths of table of contents and text in percentages.
+function restoreColumnWidths() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	let panesContainer = document.getElementById('scrollAdjustedHeight');
+	let paneSep = document.getElementById('panes-separator');
+	if (leftPane === null || panesContainer === null || paneSep === null)
+		{
+		return;
+		}
+
+	let widthLeftPane = getTocWidthPixels();
+	let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+	let widthPanesContainer = parseFloat(panesContainerWidthStr);
+	let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+	let paneSepWidth = parseFloat(paneSepWidthStr);
+	let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+	let leftPanePC = widthLeftPane / widthPanesContainer * 100;
+	leftPane.style.width = leftPanePC + '%';
+	let right = (100-leftPanePC-separatorPercent);
+	rightPane.style.width = right + '%';
 }
 
 window.addEventListener("load", function() {

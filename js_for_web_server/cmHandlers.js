@@ -1,4 +1,4 @@
-// cmHandlers.js: Set up "load" and "scroll" handlers for CodeMirror views.
+// cmHandlers.js: Set up "load" and "scroll" handlers etc for CodeMirror views.
 
 function cmLoad() {
 	loadFileIntoCodeMirror(myCodeMirror, theEncodedPath);
@@ -10,7 +10,7 @@ function cmScroll() {
 }
 
 function resizeAndRedrawMarkers() {
-	doResize();
+	//doResize();
 	if (initialSearchHitsAreShowing)
 		{
 		removeInitialHighlights();
@@ -29,17 +29,9 @@ function addHintboxListener() {
 		}
 }
 
-//let lazyResize = JD.debounce(resizeAndRedrawMarkers, 100);
-//document.addEventListener("resize", lazyResize);
-//document.addEventListener("resize", resizeAndRedrawMarkers);
 myCodeMirror.on("refresh", resizeAndRedrawMarkers);
-
-document.addEventListener("mouseup", generalMouseUp);
 window.addEventListener("load", cmLoad);
-//myCodeMirror.on("scroll", onScroll);
 myCodeMirror.on("scroll", JD.debounce(addAutoLinks, 250));
-//myCodeMirror.on("click", synchTableOfContents);
-document.addEventListener("mousedown", rememberTopLineForResize);
 
 if (onMobile)
 	{

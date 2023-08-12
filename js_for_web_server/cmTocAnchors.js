@@ -93,7 +93,6 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	
 	scrollMobileIndicator();
 
-	// Removed, selecting line and then restoring original selection isn't working reliably.
 	// Restore any highlighted text selection. Doing it on a time delay is the only
 	// way I found that works. Note the "scroll: false" is critical,
 	// to preserve the position jumped to just above.
@@ -160,8 +159,6 @@ function quickJumpToLine(lineNum) {
 		ch : 0
 	}, "local").top;
 	myCodeMirror.scrollTo(null, t);
-
-	//myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 0);
 }
 
 // Find the line number for an anchor, by looking through tocEntries[] for text that
@@ -279,7 +276,7 @@ function linkForInternalAnchor(anchor) {
 // Get line number at top of view, store it in location.hash. We are not goingToAnchor (going
 // to line number instead).
 function onScroll() {
-	// resizing is true when resizing, set false on mouseup.
+	// resizing is true when resizing, set false by finishWindowResize().
 	if (resizing)
 		{
 		return;
@@ -306,21 +303,19 @@ function onScroll() {
 	// goingToAnchor = false;
 }
 
-function generalMouseUp(el) {
+function finishWindowResize(el) {
 	if (resizing)
 		{
 		if (typeof topLineForResize !== 'undefined' && topLineForResize >= 0)
 			{
 			location.hash = topLineForResize;
 			cmQuickRejumpToLine(); // Restores first text line in contents
-			myCodeMirror.refresh();
-			//console.log("GENERALMOUSEUP when resizing");
 			}
 		}
 	resizing = false;
 }
 
-let lazyMouseUp = JD.debounce(generalMouseUp, 1000);
+let lazyMouseUp = JD.debounce(finishWindowResize, 1000);
 
 // Hash holding line numbers for TOC entries, used in cmAutoLinks.js#markUpInternalHeadersOnOneLine().
 let lineNumberForTocEntry = {};

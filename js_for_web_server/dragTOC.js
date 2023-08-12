@@ -36,9 +36,10 @@ function addDragger() {
     let cur;
     if (!localStorage.getItem(leftPaneWidthKey))
         {
-        leftPaneWidthStr = window.getComputedStyle(leftPane, null).getPropertyValue('width');
-        widthLeftPane = parseFloat(leftPaneWidthStr);
-        cur = widthLeftPane / widthPanesContainer * 100;
+        cur = 23; // toc width default is 23%
+        widthLeftPane = cur * widthPanesContainer / 100;
+        localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+        leftPane.style.width = cur + '%';
         }
     else
         {
