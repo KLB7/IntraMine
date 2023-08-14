@@ -595,6 +595,20 @@ sub GetContentBasedOnExtension {
 			}
 		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
 		}
+	# 3.1 cont'd Fortran: CM for main view, custom TOC
+	elsif ($filePath =~ m!\.(f|f77|f90|f95|f03|for)$!i)
+		{
+		$$textHolderName_R = 'scrollTextRightOfContents';
+		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
+		$$customCSS_R = $cssForCM;
+		my $textContents = GetHtmlEncodedTextFile($filePath);
+		my $toc = '';
+		if ($textContents ne '')
+			{
+			GetFortranTOC(\$textContents, \$toc);
+			}
+		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
+		}
 	# 3.1 cont'd, Visual Basic: CM for main view, custom TOC
 	# NOTE at present only .vb and .vbs are supported.
 	elsif ($filePath =~ m!\.(bas|cls|ctl|frm|vbs|vba|vb)$!i)
@@ -2484,6 +2498,79 @@ sub GetGoTOC {
 		++$lineNum;
 		}
 	
+	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
+	@classList = @classList[@idx];
+	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
+	@methodList = @methodList[@idx];
+	my $numClassListEntries = @classList;
+	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	}
+
+# Table of contents for a Fortan file. Types, and procedures (subroutines and functions).
+sub GetFortranTOC {
+	my ($txtR, $tocR) = @_;
+	my @lines = split(/\n/, $$txtR);
+	my @classList;
+	my @classNames;
+	my @methodList;
+	my @methodNames;
+	my %idExists; # used to avoid duplicated anchor id's.
+	
+	my $numLines = @lines;
+	my $lineNum = 1;
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ( $lines[$i] =~ m!^[^\!]*?type\s+(\w+)!
+		  || $lines[$i] =~ m!^[^\!]*?type\s*,[^\:]+\:\:\s+(\w+)!)
+			{
+			if ($lines[$i] !~ m!end\s+type!)
+				{
+				$lines[$i] =~ m!type\s+(\w+)!;
+				my $className = $1; # Really should be $typeName, sorry
+				my $contentsClass = 'h2';
+				my $id = $className;
+				$id =~ s!\s+!_!g;
+				my $idBump = 2;
+				my $idBase = $id;
+				while ($id eq '' || defined($idExists{$id}))
+					{
+					$id = $idBase . $idBump;
+					++$idBump;
+					}
+				$idExists{$id} = 1;
+				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlEnd = "</a></li>";
+				push @classList, $jlStart . $className . $jlEnd;
+				push @classNames, $className;
+				}
+			}
+		elsif ($lines[$i] =~ m!^[^\!]*?(function|subroutine)\s+(\w+)!)
+			{
+			if ($lines[$i] !~ m!end\s+(function|subroutine)!)
+				{
+				$lines[$i] =~ m!(function|subroutine)\s+(\w+)!;
+				my $methodName = $2; # Really should be $procedureName, sorry
+				my $contentsClass = 'h2';
+				my $id = $methodName;
+				$id =~ s!\s+!_!g;
+				my $idBump = 2;
+				my $idBase = $id;
+				while ($id eq '' || defined($idExists{$id}))
+					{
+					$id = $idBase . $idBump;
+					++$idBump;
+					}
+				$idExists{$id} = 1;
+				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlEnd = "</a></li>";
+				push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+				push @methodNames, $methodName;
+				}
+			}
+		++$lineNum;
+		}
+		
 	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
 	@classList = @classList[@idx];
 	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;

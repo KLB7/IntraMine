@@ -290,22 +290,14 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
-/* ipadfix */
-#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
-	/* ipadfix in */
-	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
-	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
-	
-	/* ipadfix out
-	position: absolute;
-	top: 200px;
-	*/
-	
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker {
+	display: flex;
+	width: 100%;
 	height: 60%;
+	overflow: hidden;
 }
 
-#scrollContentsList { /* Replaces CLASS .jumplist */
-	float: left;
+#scrollContentsList {
 	width: 22.5%;
 	overflow: auto;
 	height: 100%;
@@ -318,7 +310,6 @@ html[xmlns] #nav {
 
 #scrollContentsList a {
 	text-decoration: none;
-	/*font-size: 1.1em;*/
 }
 
 #scrollContentsList li, #scrollContentsList ul {
@@ -336,17 +327,12 @@ html[xmlns] #nav {
 	cursor: pointer;
 }
 
-#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
-	float: left;
-	width: 75.5%;
+#scrollTextRightOfContents {
+	flex: auto;
+	padding-left: 0; /* was 1em */
 	overflow: auto;
 	-moz-tab-size: 4;
 	tab-size: 4;
-/*	height: 100%;
-	padding: 4px;
-	padding-right: 0;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollText {
@@ -354,12 +340,6 @@ html[xmlns] #nav {
 	width: 100%;
 	-moz-tab-size: 4;
 	tab-size: 4;
-	/*overflow: auto;*/
-/* height 100% does not play well with ace editor.
-	height: 100%;
-	padding: 4px;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
@@ -496,9 +476,6 @@ html[xmlns] #nav {
 	height: 100%;
 	padding: 4px;
 	padding-right: 0;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 #theTextWithoutJumpList {
@@ -507,16 +484,12 @@ html[xmlns] #nav {
 	overflow: auto;
 	height: 100%;
 	padding: 4px;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 .theText {
 	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	font-size: 9pt;
 	line-height: 12pt;
-	
 	float: none;
 	width: 100%;
 }
@@ -709,14 +682,9 @@ a.embedded_image {
 /* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
 
 #scrollTextRightOfContents {
-	/*height: 100%;*/
 	padding-right: 0;
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	position: absolute;
-	top: 0; left: 24%; right: 0; bottom: 0;
+	top: 0; right: 0; bottom: 0;
 
 	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
 	
@@ -727,8 +695,6 @@ a.embedded_image {
 }
 
 #scrollText { /* Replaces #theTextWithoutJumpList */
-	/*height: 100%;*/
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0;
@@ -975,7 +941,7 @@ td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 4em; /* enough for 99999 one hopes */
+	min-width: 3em; /* enough for 99999 one hopes */
 }
 
 th {
@@ -1272,6 +1238,21 @@ margin: 3px 8px;
 .invisiblehintanchor:hover {
 	border-top-style: hidden;
 }
+</style>
+<style>
+/* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
+Table of Contents to be changed by dragging. */
+
+.panes-separator {
+    width: 3px;
+    background: #aaaaaa;
+    cursor: col-resize;
+    }
+
+.dragCursor {
+    cursor: col-resize;
+    }
+
 </style>
 <style>
 /* Custom CSS for lolight syntax highlighting of code blocks.
@@ -2694,14 +2675,10 @@ if (typeof window.ontouchstart !== 'undefined')
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
-//let doingStandalone = false;
-//if (typeof weAreStandalone !== 'undefined')
-//	{
-//	doingStandalone = weAreStandalone;
-//	}
-
 // Adjust some element heights so scrolling works properly.
 function doResize() {
+	restoreColumnWidths();
+
 	let rule = document.getElementById("rule_above_editor");
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
@@ -2745,13 +2722,19 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
+	reJump();
+	
 	updateToggleBigMoveLimit();
+
+	repositionTocToggle();
 }
 
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
-// See intramine_file_viewer_cm.pl#InitialHighlightItems().
+// See intramine_viewer.pl#InitialHighlightItems().
 function reJumpAndHighlight() {
+	addDragger && addDragger(); // dragTOC.js#addDragger()
+	
 	reJump();
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -3816,6 +3799,9 @@ ready(finishStartup);
 // and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
 
 // Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
+// If toggleElem is null then shrinkIt will be false and the TOC will expand. This is
+// currently called with null by dragTOC.js#addDragger() since for some unknown reason the
+// TOC pane is coming up too narrow.
 function toggleTOC(toggleElem) {
 	// Avoid spurious highlighting after TOC toggle causes redraw.
 	if (document.activeElement !== null)
@@ -3823,38 +3809,59 @@ function toggleTOC(toggleElem) {
 		document.activeElement.blur();
 		}
 
+	rememberLocation();
+	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
 	let divContainer = elementToAdjust.parentElement;
 	if (elementToAdjust !== null && textElement !== null)
 		{
-		let theTopPos = firstVisibleLineNumber(textElement);
 		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
 		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
-		let widthTOC = parseInt(widthStrTOC, 10);
-		let widthParent = parseInt(widthStrParent, 10);
+		let widthTOC = parseFloat(widthStrTOC);
+		let widthParent = parseFloat(widthStrParent);
 		let oldTocWidthPC = 100 * widthTOC / widthParent;
+		let paneSep = document.getElementById('panes-separator');;
+		let widthPaneSep = 3; // pixels
+		if (paneSep !== null)
+			{
+			let widthStrSep = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+			widthPaneSep = parseFloat(widthStrSep); // pixels
+			}
+		let newWidthPaneSep = widthPaneSep / widthParent * 100;
+		
 		let shrinkIt = (oldTocWidthPC < 10) ? false : true;
-		let newWidthTOCPC, newWidthTextPC, newTextLeftPC;
+		if (toggleElem === null)
+			{
+			shrinkIt = false;
+			}
+		let newWidthTOCPC, newWidthTextPC;
 		if (shrinkIt)
 			{
 			newWidthTOCPC = 5;
-			newWidthTextPC = 93.5;
-			newTextLeftPC = 6;
 			}
 		else
 			{
 			newWidthTOCPC = 23;
-			newWidthTextPC = 75.5;
-			newTextLeftPC = 24;
 			}
+		newWidthTextPC = 100 - newWidthPaneSep - newWidthTOCPC;
+
 		elementToAdjust.style.width = newWidthTOCPC + "%";
 		textElement.style.width = newWidthTextPC + "%";
-		textElement.style.left = newTextLeftPC + "%";
-		restoreTopPosition(textElement, theTopPos);
 
-		// Especially for CodeMirror, force a recalc.
-		window.dispatchEvent(new Event('resize'));
+		location.hash = topLineNumber;
+
+		if (usingCM)
+			{
+			// Especially for CodeMirror, force a recalc.
+			myCodeMirror.refresh();
+			cmQuickRejumpToLine();
+			}
+		else
+			{
+			reJumpToLineNumber(topLineNumber);
+			///// was restoreTopPosition(textElement, theTopPos);
+			}
 
 		// Redo initial scrollbar markers
 		if (initialSearchHitsAreShowing)
@@ -3863,6 +3870,22 @@ function toggleTOC(toggleElem) {
 			highlightInitialItems();
 			}
 
+		// Also redo scroll bar markers for selection hits in the scroll bar.
+		if (!usingCM)
+			{
+			removeAllScrollbarHighlights(scrollMarkerClass);
+			markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+			}
+		
+		// Remember current TOC width in pixels.
+		if (toggleElem !== null) // Not first call
+			{
+			let leftPaneStr = elementToAdjust.style.width;
+			let leftPanePC = parseFloat(leftPaneStr);
+			let leftPanePixels = leftPanePC * widthParent / 100;
+			let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+			localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+			}
 		}
 
 	return (false);
@@ -3883,7 +3906,7 @@ function addTocToggle(idToggle) {
 			{
 			toggleElem = createElementFromHTML("<img src='707788g4.png' id='" + idToggle + "'>");
 			}
-		// scrollContentsElement.insertBefore(toggleElem, elementToAdjust.childNodes[0]);
+		
 		document.body.insertBefore(toggleElem, document.body.firstChild);
 		toggleElem.addEventListener('click', function() {
 			toggleTOC(toggleElem);
@@ -3899,6 +3922,21 @@ function addTocToggle(idToggle) {
 
 		toggleElem.style.top = toggleTop + "px";
 		}
+}
+
+// If the nav bar wraps and grows taller, or shrinks back down,
+// it's nice to reposition the green double-headed arrow.
+function repositionTocToggle() {
+	let toggleElem = document.getElementById("tocShrinkExpand");
+	let rule = document.getElementById("rule_above_editor");
+	if (toggleElem === null || rule === null)
+		{
+		return;
+		}
+	let pos = getPosition(rule);
+	let toggleTop = pos.y + 4;
+
+	toggleElem.style.top = toggleTop + "px";
 }
 
 // Get line number of first visible line in text.
@@ -4379,6 +4417,60 @@ function restoreTopPositionNonCM(elem, topPos) {
 			break;
 			}
 		}
+}
+
+// Handle Table of Contents (TOC) width in views. The goal is to keep the
+// same TOC width in pixels as much as possible.
+
+function rememberTocWidthPixels() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	if (leftPane === null)
+		{
+		return;
+		}
+	let leftPaneWidthStr = window.getComputedStyle(leftPane, null).getPropertyValue('width');
+	let widthLeftPane = parseFloat(leftPaneWidthStr);
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+}
+
+// Return width in pixels of table of contents column from localStorage,
+// also set localStorage value if that hasn't been done yet.
+function getTocWidthPixels() {
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	let widthLeftPane; // pixels
+	if (!localStorage.getItem(leftPaneWidthKey))
+		{
+		rememberTocWidthPixels(); // sets leftPaneWidthKey in localStorage
+		}
+	
+	let leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
+	widthLeftPane = parseFloat(leftPaneWidthStr);
+	
+	return(widthLeftPane);
+}
+
+// Use width in pixels of table of contents column as last save
+// to set widths of table of contents and text in percentages.
+function restoreColumnWidths() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	let panesContainer = document.getElementById('scrollAdjustedHeight');
+	let paneSep = document.getElementById('panes-separator');
+	if (leftPane === null || panesContainer === null || paneSep === null)
+		{
+		return;
+		}
+
+	let widthLeftPane = getTocWidthPixels();
+	let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+	let widthPanesContainer = parseFloat(panesContainerWidthStr);
+	let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+	let paneSepWidth = parseFloat(paneSepWidthStr);
+	let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+	let leftPanePC = widthLeftPane / widthPanesContainer * 100;
+	leftPane.style.width = leftPanePC + '%';
+	let right = (100-leftPanePC-separatorPercent);
+	rightPane.style.width = right + '%';
 }
 
 window.addEventListener("load", function() {
@@ -5071,6 +5163,177 @@ window.addEventListener("load", addTocScrollListener);
 //window.addEventListener("load", addTocAndToggleListeners);
 
 
+</script>
+<script type="text/javascript">
+// dragTOC.js: drag pane-separator to vary width of Table of Contents.
+// localStorage is used to remember and restore the TOC width.
+// See also dragTOC.css.
+// Used by intramine_viewer.pl.
+
+let leftPane = document.getElementById('scrollContentsList'); // 'left-pane'
+let rightPane = document.getElementById('scrollTextRightOfContents'); // 'right-pane'
+let panesContainer = document.getElementById('scrollAdjustedHeight'); // 'panes-container'
+let paneSep; // 'panes-separator', eventually (see below)
+let topLineNumber; // for restoring scrolled position when the separator is dragged.
+
+// This is done in viewerStart.js#reJumpAndHighlight(). Doing it earlier there
+// results in a stable first line number for the text.
+/////window.addEventListener("load", addDragger);
+
+function addDragger() {
+    if (leftPane === null || rightPane === null || panesContainer === null)
+        {
+        return;
+        }
+    
+    let paneSepString = "<div class='panes-separator' id='panes-separator'></div>";
+    let paneSeparator = createElementFromHTML(paneSepString);
+    panesContainer.insertBefore(paneSeparator, rightPane);
+
+    paneSep = document.getElementById('panes-separator');
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+    let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+    let paneSepWidth = parseFloat(paneSepWidthStr);
+    let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+    // Retrieve left pane width from localStorage if possible, else leave width alone.
+    let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+    let leftPaneWidthStr;
+    let widthLeftPane;
+    let cur;
+    if (!localStorage.getItem(leftPaneWidthKey))
+        {
+        cur = 23; // toc width default is 23%
+        widthLeftPane = cur * widthPanesContainer / 100;
+        localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+        leftPane.style.width = cur + '%';
+        }
+    else
+        {
+        leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
+        widthLeftPane = parseFloat(leftPaneWidthStr);
+        cur = widthLeftPane / widthPanesContainer * 100;
+        leftPane.style.width = cur + '%';
+        }
+    
+    let right = (100-cur-separatorPercent);
+    rightPane.style.width = right + '%';
+
+    paneSep.addEventListener('mousedown', startDraggingSeparator);
+}
+
+function separatorMouseUp() {
+    window.removeEventListener('mousemove', moveSeparator);
+    window.removeEventListener('selectstart', disableSelect);
+    document.body.style.cursor = '';
+
+    if (usingCM)
+        {
+        let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        let startPos  = myCodeMirror.lineAtHeight(rect.top, "window");
+        scrollTocEntryIntoView(startPos, false, true);
+
+        if (typeof topLineNumber !== 'undefined')
+            {
+            location.hash = topLineNumber;
+            }
+        cmQuickRejumpToLine(); // Restores first text line in contents
+        }
+
+    // Remember left pane (TOC) width.
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+    let leftPaneStr = leftPane.style.width;
+    let leftPanePC = parseFloat(leftPaneStr);
+    let leftPanePixels = leftPanePC * widthPanesContainer / 100;
+    let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+    localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+    
+    // Remove this function from mouseup, otherwise it's called for any mouseup.
+    window.removeEventListener('mouseup', separatorMouseUp);
+}
+
+// Poke top line number of text into topLineNumber, for restoring scrolled position.
+function rememberLocation() {
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lineNumber = parseInt(myStartLine.toString(), 10);
+		if (lineNumber > 0)
+			{
+			lineNumber += 2;
+			}
+		else
+			{
+			lineNumber = 1;
+			}
+        topLineNumber = lineNumber.toString();
+		}
+	else // text mainly
+		{
+		let el = document.getElementById(cmTextHolderName);
+		let lineNumber = firstVisibleLineNumber(el);
+        topLineNumber = lineNumber.toString();
+		}
+	}
+
+function startDraggingSeparator(e) {
+    rememberLocation();
+    document.body.style.cursor = 'col-resize';
+    window.addEventListener('mousemove', moveSeparator);
+    window.addEventListener('selectstart', disableSelect);
+    window.addEventListener('mouseup', separatorMouseUp);
+}
+
+function moveSeparator(e) {
+    let sepLeft = e.clientX - 20;
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+
+    let leftPanePC = sepLeft / widthPanesContainer * 100;
+    if (leftPanePC < 5)
+        {
+        leftPanePC = 5;
+        }
+    else if (leftPanePC > 90)
+        {
+        leftPanePC = 90;
+        }
+    leftPane.style.width = leftPanePC + '%';
+    let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+    let paneSepWidth = parseFloat(paneSepWidthStr);
+    let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+    let right = (100-leftPanePC-separatorPercent);
+    rightPane.style.width = right + '%';
+
+    if (initialSearchHitsAreShowing)
+        {
+        removeInitialHighlights();
+        highlightInitialItems();
+        }
+
+    // Also redo scroll bar markers for selection hits in the scroll bar.
+    if (!usingCM)
+        {
+        removeAllScrollbarHighlights(scrollMarkerClass);
+        markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+        location.hash = topLineNumber;
+        reJump();
+        }
+    else
+        {
+        //let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        //let startPos  = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
+        location.hash = topLineNumber;
+        myCodeMirror.refresh();
+        reJump();
+        }
+}
+
+function disableSelect(event) {
+    event.preventDefault();
+}
 </script>
 <script type="text/javascript">
 /*! lolight v1.4.0 - https://larsjung.de/lolight/ modified to add 'my' and 'sub' keywords. -KLB */

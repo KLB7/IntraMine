@@ -325,6 +325,7 @@ FINIS
 	$$contents_R .= InlineCssForFile('non_cm_text.css');
 	$$contents_R .= InlineCssForFile('non_cm_tables.css');
 	$$contents_R .= InlineCssForFile('tooltip.css');
+	$$contents_R .= InlineCssForFile('dragTOC.css');
 	$$contents_R .= InlineCssForFile('lolight_custom.css');
 	
 	my $htmlBodyTop = <<'ENDIT';
@@ -2128,6 +2129,7 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('indicator.js');
 	$$contents_R .= InlineJavaScriptForFile('toggle.js');
 	$$contents_R .= InlineJavaScriptForFile('scrollTOC.js');
+	$$contents_R .= InlineJavaScriptForFile('dragTOC.js');
 	$$contents_R .= InlineJavaScriptForFile('lolight-1.4.0.min.js');
 
 	$$contents_R .= "</body></html>\n";

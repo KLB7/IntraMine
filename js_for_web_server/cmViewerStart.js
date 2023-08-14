@@ -14,6 +14,13 @@ function getFileExtension(filename) {
 	if (extMatch !== null)
 		{
 		result = extMatch[1];
+		
+		// Try to fool CodeMirror into treating the modern
+		// f03 file extension as f90, since it doesn't know f03.
+		if (result === "f03")
+			{
+			result = "f90";
+			}
 		}
 	return (result);
 }

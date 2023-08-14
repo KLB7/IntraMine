@@ -290,22 +290,14 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
-/* ipadfix */
-#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker { /* Replaces #searchresults, #cmdresults, #jumpsandtext */
-	/* ipadfix in */
-	/*height:calc(100% - 1px); width:100%; margin-top: 200px; z-index: 1;*/
-	/* ipadfix not appropriate: overflow-y: scroll; -webkit-overflow-scrolling: touch; */
-	
-	/* ipadfix out
-	position: absolute;
-	top: 200px;
-	*/
-	
+#scrollAdjustedHeight, #scrollAdjustedHeightDirPicker {
+	display: flex;
+	width: 100%;
 	height: 60%;
+	overflow: hidden;
 }
 
-#scrollContentsList { /* Replaces CLASS .jumplist */
-	float: left;
+#scrollContentsList {
 	width: 22.5%;
 	overflow: auto;
 	height: 100%;
@@ -318,7 +310,6 @@ html[xmlns] #nav {
 
 #scrollContentsList a {
 	text-decoration: none;
-	/*font-size: 1.1em;*/
 }
 
 #scrollContentsList li, #scrollContentsList ul {
@@ -336,17 +327,12 @@ html[xmlns] #nav {
 	cursor: pointer;
 }
 
-#scrollTextRightOfContents { /* Replaces CLASS .theTextWithJumpList */
-	float: left;
-	width: 75.5%;
+#scrollTextRightOfContents {
+	flex: auto;
+	padding-left: 0; /* was 1em */
 	overflow: auto;
 	-moz-tab-size: 4;
 	tab-size: 4;
-/*	height: 100%;
-	padding: 4px;
-	padding-right: 0;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollText {
@@ -354,12 +340,6 @@ html[xmlns] #nav {
 	width: 100%;
 	-moz-tab-size: 4;
 	tab-size: 4;
-	/*overflow: auto;*/
-/* height 100% does not play well with ace editor.
-	height: 100%;
-	padding: 4px;
-	font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-*/
 }
 
 #scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
@@ -496,9 +476,6 @@ html[xmlns] #nav {
 	height: 100%;
 	padding: 4px;
 	padding-right: 0;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 #theTextWithoutJumpList {
@@ -507,16 +484,12 @@ html[xmlns] #nav {
 	overflow: auto;
 	height: 100%;
 	padding: 4px;
-	/*font-family: Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	font-size: 9pt;
-	line-height: 12pt;*/
 }
 
 .theText {
 	font-family: Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	font-size: 9pt;
 	line-height: 12pt;
-	
 	float: none;
 	width: 100%;
 }
@@ -709,14 +682,9 @@ a.embedded_image {
 /* non_cm_test.css: formatting for non-CodeMirror displays presented by the Viewer service. */
 
 #scrollTextRightOfContents {
-	/*height: 100%;*/
 	padding-right: 0;
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	/*font: normal 10pt/13pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
-	/*font: normal 9pt/12pt Hack, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
-	position: absolute;
-	top: 0; left: 24%; right: 0; bottom: 0;
+	top: 0; right: 0; bottom: 0;
 
 	/* https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/*/
 	
@@ -727,8 +695,6 @@ a.embedded_image {
 }
 
 #scrollText { /* Replaces #theTextWithoutJumpList */
-	/*height: 100%;*/
-	/*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
 	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 	position: absolute;
 	top: 0; left: 0; right: 0; bottom: 0;
@@ -975,7 +941,7 @@ td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 4em; /* enough for 99999 one hopes */
+	min-width: 3em; /* enough for 99999 one hopes */
 }
 
 th {
@@ -1274,6 +1240,21 @@ margin: 3px 8px;
 }
 </style>
 <style>
+/* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
+Table of Contents to be changed by dragging. */
+
+.panes-separator {
+    width: 3px;
+    background: #aaaaaa;
+    cursor: col-resize;
+    }
+
+.dragCursor {
+    cursor: col-resize;
+    }
+
+</style>
+<style>
 /* Custom CSS for lolight syntax highlighting of code blocks.
 Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
 Some attempt has been made to coordinate the colors with
@@ -1442,9 +1423,15 @@ JD.debounce = function(func, wait, immediate) {
  * This notice MUST stay intact for legal use 
  * Visit http://www.dynamicdrive.com/ for this script and 100s more.
  **********************************************************************************************/
-// (Significantly modified from the original 2018-19 for use with IntraMine.)
+// (Significantly modified from the original 2018-19 and 2023 for use with IntraMine.)
 // IntraMine use, see eg showhint() calls in
-// intramine_file_viewer_cm.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+// intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+
+// Where to place the hint, relative to cursor position.
+const DIRECTION_BELOW = 0;
+const DIRECTION_ABOVE = 1;
+const DIRECTION_RIGHT = 2;
+const DIRECTION_LEFT = 3;
 
 let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
 let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
@@ -1452,7 +1439,11 @@ let overAnchorTimer = null;
 let shMainPort = 0; // See setMainPort() just below.
 let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
+let hintElement = {}; // The HTML element holding the hint
+let hintParams = {};  // hint HTML, position, width, whether it's an image
 
+
+// Set the main IntraMine port, 81 by default.
 function setMainPort() {
 	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
 	}
@@ -1504,7 +1495,7 @@ function isDescendant(parent, child) {
 	}
 	return false;
 }
-// Helper function to get an element's exact position
+// Helper function to get an element's exact position.
 function getPosition(el) {
 	"use strict";
 	let rect = el.getBoundingClientRect();
@@ -1540,28 +1531,23 @@ function getPosition(el) {
 	};
 }
 
-let ie = document.all;
-let ns6 = document.getElementById && !document.all;
-
-let dropmenuobj = {};
-let loadParams = {};
 
 function positionAndShowHint() {
 	"use strict";
-	let menucontents = loadParams.menucontents;
-	let x = loadParams.x;
-	let y = loadParams.y;
-	let tipwidth = loadParams.tipwidth;
-	let isAnImage = loadParams.isAnImage;
+	let hintContents = hintParams.hintContents;
+	let x = hintParams.x;
+	let y = hintParams.y;
+	let tipwidth = hintParams.tipwidth;
+	let isAnImage = hintParams.isAnImage;
 	let gap = 10; // gap between cursor and tip
 	let windowHeight = window.innerHeight - gap;
 	let windowWidth = window.innerWidth - gap;
 	let hintWidth = 450;
-	let hintHeight = dropmenuobj.offsetHeight;
+	let hintHeight = hintElement.offsetHeight;
 	if (isAnImage)
 		{
-		hintWidth = loadParams.theImage.width;
-		hintHeight = loadParams.theImage.height;
+		hintWidth = hintParams.theImage.width;
+		hintHeight = hintParams.theImage.height;
 		}
 	else
 		{
@@ -1591,35 +1577,34 @@ function positionAndShowHint() {
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
-	dropmenuobj.style.top = tl.top;
-	dropmenuobj.style.left = tl.left;
+	hintElement.style.top = tl.top;
+	hintElement.style.left = tl.left;
 	
 	if (isAnImage)
 		{
-		menucontents =
-			menucontents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintContents =
+			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
-	dropmenuobj.innerHTML = menucontents;
+	hintElement.innerHTML = hintContents;
 
 	// Set width and height for an image. For text, set the desired width and let it flow.
-	// dropmenuobj.style.width = hintWidth + "px";
+	// hintElement.style.width = hintWidth + "px";
 	if (isAnImage)
 		{
-		dropmenuobj.style.height = hintHeight + "px";
-		dropmenuobj.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		hintElement.style.width = hintWidth + "px";
 		}
 	else
 		{
-		dropmenuobj.style.height = '';
+		hintElement.style.height = '';
 		}
 
-	dropmenuobj.style.visibility = "visible";
-
+	hintElement.style.visibility = "visible";
 }
 
-//Calculate tip all four ways, pick the way that produces least shrinkage.
-//Preference order: below, above, right, left.
+// Calculate tip all four ways, pick the way that produces least shrinkage.
+// Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
 	// Below:
 	let heightAvailable = windowHeight - y;
@@ -1654,11 +1639,11 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 	
 	// Largest scaleFactor wins, preferring in order below, above, right, left where
 	// there's a tie or values are above 1.0.
-	let temp = [];
-	temp[0] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
-	temp[1] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
-	temp[2] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
-	temp[3] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
+	let directionalScale = [];
+	directionalScale[DIRECTION_BELOW] = (belowScaleFactor > 1.0) ? 1.0 : belowScaleFactor;
+	directionalScale[DIRECTION_ABOVE] = (aboveScaleFactor > 1.0) ? 1.0 : aboveScaleFactor;
+	directionalScale[DIRECTION_RIGHT] = (rightScaleFactor > 1.0) ? 1.0 : rightScaleFactor;
+	directionalScale[DIRECTION_LEFT] = (leftScaleFactor > 1.0) ? 1.0 : leftScaleFactor;
 	// bestDirection:
 	// 0 == show hint below cursor x,y
 	// 1 == show hint above
@@ -1666,23 +1651,23 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 	// 3 == show hint to left of cursor
 	let bestDirection = -1;
 	let i = 0;
-	for (i = temp.length - 1; i >= 0; i -= 1)
+	for (i = directionalScale.length - 1; i >= 0; i -= 1)
 		{
-		if (temp[i] >= 1.0)
+		if (directionalScale[i] >= 1.0)
 			{
 			bestDirection = i;
 			}
 		}
 	
-	if (bestDirection < 0) // all temp[] are < 1.0
+	if (bestDirection < 0) // all directionalScale[] are < 1.0
 		{
-		let curValue = temp[0];
+		let curValue = directionalScale[0];
 		bestDirection = 0;
-		for (i = 1; i < temp.length; i++)
+		for (i = 1; i < directionalScale.length; i++)
 			{
-			if (temp[i] > curValue)
+			if (directionalScale[i] > curValue)
 				{
-				curValue = temp[i];
+				curValue = directionalScale[i];
 				bestDirection = i;
 				}
 			}
@@ -1690,7 +1675,7 @@ function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowH
 
 	let ds = {};
 	ds.bestDirection = bestDirection;
-	ds.scaleFactor = temp[bestDirection];
+	ds.scaleFactor = directionalScale[bestDirection];
 	return(ds);
 }
 
@@ -1700,13 +1685,13 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	let left = 0;
 	let top = 0;
 	
-	if (bestDirection === 0) // below
+	if (bestDirection === DIRECTION_BELOW) // below
 		{
 		top = y + gap + "px";
 		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
 		left = (left < 0) ? "0" : left + "px";
 		}
-	else if (bestDirection === 1) // above
+	else if (bestDirection === DIRECTION_ABOVE) // above
 		{
 		if (y - hintHeight - gap >= 0)
 			{
@@ -1719,7 +1704,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
 		left = (left < 0) ? "0" : left + "px";
 		}
-	else if (bestDirection === 2) // right
+	else if (bestDirection === DIRECTION_RIGHT) // right
 		{
 		left = x + gap + "px";
 		let top =
@@ -1727,7 +1712,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 		top = (top < 0) ? "0" : top + "px";
 		}
 	else
-		// if (bestDirection === 3) // left
+		// if (bestDirection === DIRECTION_LEFT) // left
 		{
 		if (x - hintWidth - gap >= 0)
 			{
@@ -1735,7 +1720,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 			}
 		else
 			{
-			dropmenuobj.style.left = "0";
+			left = "0";
 			}
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
@@ -1749,39 +1734,35 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
-function showhint(menucontents, obj, e, tipwidth, isAnImage) {
+function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
 	setTimeout(function() {
-	showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage);
+	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
 	}, 100);
 }
 
-// Special handling for some images: if menucontents looks like
+// Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
 // the "Viewer" spot as a Short name. Then call back to the Main port requesting a free
-// port for the Short name, and replace the "81" in menucontents with the free port number.
+// port for the Short name, and replace the "81" in hintContents with the free port number.
 // Also strip out the Short name, it was needed only to tell Main which server we wanted.
 // For other img src values, just pass them along to showhinAfterDelay unchanged.
 // (The fancy footwork with the port is an attempt to get the port number of a service that is
 // running and not under maintenance. This allows showhint to show the image if there are two
 // or more instances of a service running, even if one is doing maintenance.)
-async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
+async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
+	let hintShown = false;
+	let image_url = "";
+
 	if (isAnImage)
 		{
-		let arrayMatch = /src='([^']+)'/.exec(menucontents);
-		if (arrayMatch === null)
+		image_url = srcURL(hintContents);
+
+		if (image_url !== "")
 			{
-			arrayMatch = /src="([^"]+)"/.exec(menucontents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
-			}
-		if (arrayMatch !== null)
-			{
-			let image_url = arrayMatch[1];
+			// Match eg http://192.168.1.132:81/Viewer/...
 			let urlMatch = /^http\:\/\/([0-9\.]+)\:(\d+)\/([A-Za-z_]+)\/(.+?)$/.exec(image_url);
 			if (urlMatch !== null)
 				{
@@ -1790,93 +1771,60 @@ async function showWithFreshPort(menucontents, obj, e, tipwidth, isAnImage) {
 				let shortName = urlMatch[3];
 				let path = urlMatch[4];
 				
-				if (port === shMainPort) // request good port number from shMainPort
+				if (port === shMainPort) // Request good port number from shMainPort
 					{
+					hintShown = true; // Give up if we can't show it here.
 					// However, if we're on an iPad (shOnMobile), try to use our current server's
 					// port rather than asking Main to supply a fresh one - Apple really doesn't
 					// like any hanky panky with the port number.
 					if (shOnMobile && port === shMainPort && shOurServerPort !== 0)
 						{
 						let rePort = new RegExp(port);
-						menucontents = menucontents.replace(rePort, shOurServerPort);
+						hintContents = hintContents.replace(rePort, shOurServerPort);
 						let reName = new RegExp(shortName + "\/");
-						menucontents = menucontents.replace(reName, "");
-						showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+						hintContents = hintContents.replace(reName, "");
+						showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 						}
 					else
 						{
 						try {
 							let theAction = 'http://' + ip + ':' + port + '/' +
 							shortName + '/?req=portNumber';
+
 							const response = await fetch(theAction);
 							if (response.ok)
 								{
 								let resp = await response.text(); 
+
 								if (!isNaN(resp))
 									{
-									// Replace port with resp in menucontents. And remove
+									// Replace port with resp in hintContents. And remove
 									// server short name.
 									let rePort = new RegExp(port);
-									menucontents = menucontents.replace(rePort, resp);
+									hintContents = hintContents.replace(rePort, resp);
 									let reName = new RegExp(shortName + "\/");
-									menucontents = menucontents.replace(reName, "");
-									showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+									hintContents = hintContents.replace(reName, "");
+									showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 									}
 								}
 							}
 						catch(error) {
-							// console.log('Connection error in showWithFreshPort!);
+							console.log('Connection error in showWithFreshPort!');
 							}
 						}
 					}
-				else // use supplied port as-is
-					{
-					showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-					}
 				}
-			else
-				{
-				showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
-				}
-			}
-		else
-			{
-			showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
 			}
 		}
-	else
+	
+	if (!hintShown)
 		{
-		showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage);
+		showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 		}
 	}
 
-function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
+function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
-	
-	let image_url = "";
-	if (isAnImage)
-		{
-		let arrayMatch = /src='([^']+)'/.exec(menucontents);
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src="([^"]+)"/.exec(menucontents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&quot\;(.+)\&quot\;/.exec(menucontents);
-			}
-		if (arrayMatch === null)
-			{
-			arrayMatch = /src=\&apos\;(.+)\&apos\;/.exec(menucontents);
-			}
-		if (arrayMatch !== null)
-			{
-			image_url = arrayMatch[1];
-			}
-		}
-
-	dropmenuobj = document.getElementById("hintbox");
-	dropmenuobj.innerHTML = menucontents;
 	
 	if (overAnchorTimer !== null)
 		{
@@ -1884,8 +1832,11 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 		overAnchorTimer = null;
 		}
 
-	if (document.getElementById("hintbox"))
+	if (document.getElementById("hintbox") !== null)
 		{
+		hintElement = document.getElementById("hintbox");
+		hintElement.innerHTML = hintContents;
+
 		if (!hasClass(obj, hitAnchorClassName))
 			{
 			addClass(obj, hitAnchorClassName);
@@ -1898,37 +1849,39 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 
 		if (!stillOver)
 			{
-			dropmenuobj.style.visibility = "hidden";
-			dropmenuobj.style.left = "-500px";
+			hintElement.style.visibility = "hidden";
+			hintElement.style.left = "-500px";
 			removeClass(obj, anchorClassName);
 			return;
 			}
 
-		dropmenuobj.style.left = "-500px";
-		dropmenuobj.style.top = "-500px";
+		hintElement.style.left = "-500px";
+		hintElement.style.top = "-500px";
 		if (tipwidth === "")
 			{
 			tipwidth = "300px";
 			}
-		dropmenuobj.widthobj = dropmenuobj.style;
-		if (dropmenuobj.innerHTML.indexOf('<img') == 0)
+		hintElement.widthobj = hintElement.style;
+		if (hintElement.innerHTML.indexOf('<img') == 0)
 			{
-			dropmenuobj.style.backgroundColor = 'lightyellow';
-			dropmenuobj.style.border = 'thin dotted black';
+			hintElement.style.backgroundColor = 'lightyellow';
+			hintElement.style.border = 'thin dotted black';
 			}
-		dropmenuobj.style.width = tipwidth;
+		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{
 			// Reset height to 'auto'.
-			dropmenuobj.style.height = '';
+			hintElement.style.height = '';
 			}
 
-		loadParams.menucontents = menucontents;
-		loadParams.x = e.clientX;
-		loadParams.y = e.clientY;
-		loadParams.tipwidth = tipwidth;
-		loadParams.isAnImage = isAnImage;
+		hintParams.hintContents = hintContents;
+		hintParams.x = e.clientX;
+		hintParams.y = e.clientY;
+		hintParams.tipwidth = tipwidth;
+		hintParams.isAnImage = isAnImage;
 		
+		// Note we re-get the image_url since it might have changed.
+		let image_url = srcURL(hintContents);
 		if (image_url !== "")
 			{
 			let my_image = new Image();
@@ -1936,7 +1889,7 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 				positionAndShowHint();
 			};
 			my_image.src = image_url;
-			loadParams.theImage = my_image;
+			hintParams.theImage = my_image;
 			}
 		else
 			{
@@ -1952,6 +1905,23 @@ function showhintAfterDelay(menucontents, obj, e, tipwidth, isAnImage) {
 			}, 1000);
 			}
 		}
+}
+
+// If see src="something", return something, else "".
+// The something should be in single or double quotes of some sort.
+function srcURL(hintContents) {
+	let image_url = "";
+	let arrayMatch = null;
+
+	if ((arrayMatch = /src='([^']+?)'/.exec(hintContents)) ||
+		(arrayMatch = /src="([^"]+?)"/.exec(hintContents)) ||
+		(arrayMatch = /src=\&quot\;(.+?)\&quot\;/.exec(hintContents)) ||
+		(arrayMatch = /src=\&apos\;(.+?)\&apos\;/.exec(hintContents)) )
+		{
+		image_url = arrayMatch[1];
+		}
+
+	return(image_url);
 }
 
 function hideTipIfMouseHasLeft(obj) {
@@ -1982,8 +1952,8 @@ function mouseStillOverTipOwner(obj) {
 }
 
 function hidetip(e) {
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -1995,8 +1965,8 @@ function hidetip(e) {
 }
 
 function touchhidetip(e) {
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 }
 
 function createhintbox() {
@@ -2004,18 +1974,19 @@ function createhintbox() {
 	divblock.setAttribute("id", "hintbox");
 	document.body.appendChild(divblock);
 
-	dropmenuobj = document.getElementById("hintbox");
-	dropmenuobj.style.visibility = "hidden";
-	dropmenuobj.style.left = "-500px";
+	hintElement = document.getElementById("hintbox");
+	hintElement.style.visibility = "hidden";
+	hintElement.style.left = "-500px";
 	
 	if (shOnMobile)
 		{
-		dropmenuobj.addEventListener("touchstart", function(e) {touchhidetip();});
+		hintElement.addEventListener("touchstart", function(e) {touchhidetip();});
 		}
 }
 
 // For remote iPad "debugging" since remotedebug_ios_webkit_adapter has stopped working.
 // For Viewer, errorID element is up near the top of the window.
+// (iPad has been abandoned, too hard to debug.)
 function writeMessageToWindow(str) {
 	let errorElem = document.getElementById(errorID);
 	if (errorElem !== null)
@@ -2627,14 +2598,10 @@ if (typeof window.ontouchstart !== 'undefined')
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
-//let doingStandalone = false;
-//if (typeof weAreStandalone !== 'undefined')
-//	{
-//	doingStandalone = weAreStandalone;
-//	}
-
 // Adjust some element heights so scrolling works properly.
 function doResize() {
+	restoreColumnWidths();
+
 	let rule = document.getElementById("rule_above_editor");
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
@@ -2678,13 +2645,19 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
+	reJump();
+	
 	updateToggleBigMoveLimit();
+
+	repositionTocToggle();
 }
 
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
-// See intramine_file_viewer_cm.pl#InitialHighlightItems().
+// See intramine_viewer.pl#InitialHighlightItems().
 function reJumpAndHighlight() {
+	addDragger && addDragger(); // dragTOC.js#addDragger()
+	
 	reJump();
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -3749,6 +3722,9 @@ ready(finishStartup);
 // and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
 
 // Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
+// If toggleElem is null then shrinkIt will be false and the TOC will expand. This is
+// currently called with null by dragTOC.js#addDragger() since for some unknown reason the
+// TOC pane is coming up too narrow.
 function toggleTOC(toggleElem) {
 	// Avoid spurious highlighting after TOC toggle causes redraw.
 	if (document.activeElement !== null)
@@ -3756,38 +3732,59 @@ function toggleTOC(toggleElem) {
 		document.activeElement.blur();
 		}
 
+	rememberLocation();
+	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
 	let divContainer = elementToAdjust.parentElement;
 	if (elementToAdjust !== null && textElement !== null)
 		{
-		let theTopPos = firstVisibleLineNumber(textElement);
 		let widthStrTOC = window.getComputedStyle(elementToAdjust, null).getPropertyValue('width');
 		let widthStrParent = window.getComputedStyle(divContainer, null).getPropertyValue('width');
-		let widthTOC = parseInt(widthStrTOC, 10);
-		let widthParent = parseInt(widthStrParent, 10);
+		let widthTOC = parseFloat(widthStrTOC);
+		let widthParent = parseFloat(widthStrParent);
 		let oldTocWidthPC = 100 * widthTOC / widthParent;
+		let paneSep = document.getElementById('panes-separator');;
+		let widthPaneSep = 3; // pixels
+		if (paneSep !== null)
+			{
+			let widthStrSep = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+			widthPaneSep = parseFloat(widthStrSep); // pixels
+			}
+		let newWidthPaneSep = widthPaneSep / widthParent * 100;
+		
 		let shrinkIt = (oldTocWidthPC < 10) ? false : true;
-		let newWidthTOCPC, newWidthTextPC, newTextLeftPC;
+		if (toggleElem === null)
+			{
+			shrinkIt = false;
+			}
+		let newWidthTOCPC, newWidthTextPC;
 		if (shrinkIt)
 			{
 			newWidthTOCPC = 5;
-			newWidthTextPC = 93.5;
-			newTextLeftPC = 6;
 			}
 		else
 			{
 			newWidthTOCPC = 23;
-			newWidthTextPC = 75.5;
-			newTextLeftPC = 24;
 			}
+		newWidthTextPC = 100 - newWidthPaneSep - newWidthTOCPC;
+
 		elementToAdjust.style.width = newWidthTOCPC + "%";
 		textElement.style.width = newWidthTextPC + "%";
-		textElement.style.left = newTextLeftPC + "%";
-		restoreTopPosition(textElement, theTopPos);
 
-		// Especially for CodeMirror, force a recalc.
-		window.dispatchEvent(new Event('resize'));
+		location.hash = topLineNumber;
+
+		if (usingCM)
+			{
+			// Especially for CodeMirror, force a recalc.
+			myCodeMirror.refresh();
+			cmQuickRejumpToLine();
+			}
+		else
+			{
+			reJumpToLineNumber(topLineNumber);
+			///// was restoreTopPosition(textElement, theTopPos);
+			}
 
 		// Redo initial scrollbar markers
 		if (initialSearchHitsAreShowing)
@@ -3796,6 +3793,22 @@ function toggleTOC(toggleElem) {
 			highlightInitialItems();
 			}
 
+		// Also redo scroll bar markers for selection hits in the scroll bar.
+		if (!usingCM)
+			{
+			removeAllScrollbarHighlights(scrollMarkerClass);
+			markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+			}
+		
+		// Remember current TOC width in pixels.
+		if (toggleElem !== null) // Not first call
+			{
+			let leftPaneStr = elementToAdjust.style.width;
+			let leftPanePC = parseFloat(leftPaneStr);
+			let leftPanePixels = leftPanePC * widthParent / 100;
+			let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+			localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+			}
 		}
 
 	return (false);
@@ -3816,7 +3829,7 @@ function addTocToggle(idToggle) {
 			{
 			toggleElem = createElementFromHTML("<img src='707788g4.png' id='" + idToggle + "'>");
 			}
-		// scrollContentsElement.insertBefore(toggleElem, elementToAdjust.childNodes[0]);
+		
 		document.body.insertBefore(toggleElem, document.body.firstChild);
 		toggleElem.addEventListener('click', function() {
 			toggleTOC(toggleElem);
@@ -3832,6 +3845,21 @@ function addTocToggle(idToggle) {
 
 		toggleElem.style.top = toggleTop + "px";
 		}
+}
+
+// If the nav bar wraps and grows taller, or shrinks back down,
+// it's nice to reposition the green double-headed arrow.
+function repositionTocToggle() {
+	let toggleElem = document.getElementById("tocShrinkExpand");
+	let rule = document.getElementById("rule_above_editor");
+	if (toggleElem === null || rule === null)
+		{
+		return;
+		}
+	let pos = getPosition(rule);
+	let toggleTop = pos.y + 4;
+
+	toggleElem.style.top = toggleTop + "px";
 }
 
 // Get line number of first visible line in text.
@@ -4312,6 +4340,60 @@ function restoreTopPositionNonCM(elem, topPos) {
 			break;
 			}
 		}
+}
+
+// Handle Table of Contents (TOC) width in views. The goal is to keep the
+// same TOC width in pixels as much as possible.
+
+function rememberTocWidthPixels() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	if (leftPane === null)
+		{
+		return;
+		}
+	let leftPaneWidthStr = window.getComputedStyle(leftPane, null).getPropertyValue('width');
+	let widthLeftPane = parseFloat(leftPaneWidthStr);
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+}
+
+// Return width in pixels of table of contents column from localStorage,
+// also set localStorage value if that hasn't been done yet.
+function getTocWidthPixels() {
+	let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+	let widthLeftPane; // pixels
+	if (!localStorage.getItem(leftPaneWidthKey))
+		{
+		rememberTocWidthPixels(); // sets leftPaneWidthKey in localStorage
+		}
+	
+	let leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
+	widthLeftPane = parseFloat(leftPaneWidthStr);
+	
+	return(widthLeftPane);
+}
+
+// Use width in pixels of table of contents column as last save
+// to set widths of table of contents and text in percentages.
+function restoreColumnWidths() {
+	let leftPane = document.getElementById('scrollContentsList'); // TOC column
+	let panesContainer = document.getElementById('scrollAdjustedHeight');
+	let paneSep = document.getElementById('panes-separator');
+	if (leftPane === null || panesContainer === null || paneSep === null)
+		{
+		return;
+		}
+
+	let widthLeftPane = getTocWidthPixels();
+	let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+	let widthPanesContainer = parseFloat(panesContainerWidthStr);
+	let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+	let paneSepWidth = parseFloat(paneSepWidthStr);
+	let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+	let leftPanePC = widthLeftPane / widthPanesContainer * 100;
+	leftPane.style.width = leftPanePC + '%';
+	let right = (100-leftPanePC-separatorPercent);
+	rightPane.style.width = right + '%';
 }
 
 window.addEventListener("load", function() {
@@ -5004,6 +5086,177 @@ window.addEventListener("load", addTocScrollListener);
 //window.addEventListener("load", addTocAndToggleListeners);
 
 
+</script>
+<script type="text/javascript">
+// dragTOC.js: drag pane-separator to vary width of Table of Contents.
+// localStorage is used to remember and restore the TOC width.
+// See also dragTOC.css.
+// Used by intramine_viewer.pl.
+
+let leftPane = document.getElementById('scrollContentsList'); // 'left-pane'
+let rightPane = document.getElementById('scrollTextRightOfContents'); // 'right-pane'
+let panesContainer = document.getElementById('scrollAdjustedHeight'); // 'panes-container'
+let paneSep; // 'panes-separator', eventually (see below)
+let topLineNumber; // for restoring scrolled position when the separator is dragged.
+
+// This is done in viewerStart.js#reJumpAndHighlight(). Doing it earlier there
+// results in a stable first line number for the text.
+/////window.addEventListener("load", addDragger);
+
+function addDragger() {
+    if (leftPane === null || rightPane === null || panesContainer === null)
+        {
+        return;
+        }
+    
+    let paneSepString = "<div class='panes-separator' id='panes-separator'></div>";
+    let paneSeparator = createElementFromHTML(paneSepString);
+    panesContainer.insertBefore(paneSeparator, rightPane);
+
+    paneSep = document.getElementById('panes-separator');
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+    let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+    let paneSepWidth = parseFloat(paneSepWidthStr);
+    let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+    // Retrieve left pane width from localStorage if possible, else leave width alone.
+    let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+    let leftPaneWidthStr;
+    let widthLeftPane;
+    let cur;
+    if (!localStorage.getItem(leftPaneWidthKey))
+        {
+        cur = 23; // toc width default is 23%
+        widthLeftPane = cur * widthPanesContainer / 100;
+        localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+        leftPane.style.width = cur + '%';
+        }
+    else
+        {
+        leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
+        widthLeftPane = parseFloat(leftPaneWidthStr);
+        cur = widthLeftPane / widthPanesContainer * 100;
+        leftPane.style.width = cur + '%';
+        }
+    
+    let right = (100-cur-separatorPercent);
+    rightPane.style.width = right + '%';
+
+    paneSep.addEventListener('mousedown', startDraggingSeparator);
+}
+
+function separatorMouseUp() {
+    window.removeEventListener('mousemove', moveSeparator);
+    window.removeEventListener('selectstart', disableSelect);
+    document.body.style.cursor = '';
+
+    if (usingCM)
+        {
+        let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        let startPos  = myCodeMirror.lineAtHeight(rect.top, "window");
+        scrollTocEntryIntoView(startPos, false, true);
+
+        if (typeof topLineNumber !== 'undefined')
+            {
+            location.hash = topLineNumber;
+            }
+        cmQuickRejumpToLine(); // Restores first text line in contents
+        }
+
+    // Remember left pane (TOC) width.
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+    let leftPaneStr = leftPane.style.width;
+    let leftPanePC = parseFloat(leftPaneStr);
+    let leftPanePixels = leftPanePC * widthPanesContainer / 100;
+    let leftPaneWidthKey = thePath + '?' + "leftPaneWidth";
+    localStorage.setItem(leftPaneWidthKey, leftPanePixels);
+    
+    // Remove this function from mouseup, otherwise it's called for any mouseup.
+    window.removeEventListener('mouseup', separatorMouseUp);
+}
+
+// Poke top line number of text into topLineNumber, for restoring scrolled position.
+function rememberLocation() {
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lineNumber = parseInt(myStartLine.toString(), 10);
+		if (lineNumber > 0)
+			{
+			lineNumber += 2;
+			}
+		else
+			{
+			lineNumber = 1;
+			}
+        topLineNumber = lineNumber.toString();
+		}
+	else // text mainly
+		{
+		let el = document.getElementById(cmTextHolderName);
+		let lineNumber = firstVisibleLineNumber(el);
+        topLineNumber = lineNumber.toString();
+		}
+	}
+
+function startDraggingSeparator(e) {
+    rememberLocation();
+    document.body.style.cursor = 'col-resize';
+    window.addEventListener('mousemove', moveSeparator);
+    window.addEventListener('selectstart', disableSelect);
+    window.addEventListener('mouseup', separatorMouseUp);
+}
+
+function moveSeparator(e) {
+    let sepLeft = e.clientX - 20;
+    let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
+    let widthPanesContainer = parseFloat(panesContainerWidthStr);
+
+    let leftPanePC = sepLeft / widthPanesContainer * 100;
+    if (leftPanePC < 5)
+        {
+        leftPanePC = 5;
+        }
+    else if (leftPanePC > 90)
+        {
+        leftPanePC = 90;
+        }
+    leftPane.style.width = leftPanePC + '%';
+    let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+    let paneSepWidth = parseFloat(paneSepWidthStr);
+    let separatorPercent = paneSepWidth / widthPanesContainer * 100;
+    let right = (100-leftPanePC-separatorPercent);
+    rightPane.style.width = right + '%';
+
+    if (initialSearchHitsAreShowing)
+        {
+        removeInitialHighlights();
+        highlightInitialItems();
+        }
+
+    // Also redo scroll bar markers for selection hits in the scroll bar.
+    if (!usingCM)
+        {
+        removeAllScrollbarHighlights(scrollMarkerClass);
+        markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
+        location.hash = topLineNumber;
+        reJump();
+        }
+    else
+        {
+        //let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+        //let startPos  = myCodeMirror.lineAtHeight(rect.top, "window") + 2;
+        location.hash = topLineNumber;
+        myCodeMirror.refresh();
+        reJump();
+        }
+}
+
+function disableSelect(event) {
+    event.preventDefault();
+}
 </script>
 <script type="text/javascript">
 /*! lolight v1.4.0 - https://larsjung.de/lolight/ modified to add 'my' and 'sub' keywords. -KLB */
