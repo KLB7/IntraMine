@@ -21,6 +21,11 @@ function getFileExtension(filename) {
 			{
 			result = "f90";
 			}
+		// Ditto for COBOL
+		else if (result === "cbl")
+			{
+			result = "cpy";
+			}
 		}
 	return (result);
 }

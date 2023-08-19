@@ -100,7 +100,7 @@ MainLoop(\%RequestAction);
 
 ################### subs
 
-# A browser view of a file. Text, source (226 languages currently), PDF, HTML, Word.
+# A browser view of a file. Text, source (226 extensions currently), PDF, HTML, Word.
 # Most views are created using CodeMirror.
 # pl, pm, pod, txt, log, bat, cgi, and t extensions have "custom" views generated below, rather
 # than using CodeMirror.
@@ -111,8 +111,7 @@ MainLoop(\%RequestAction);
 # See eg https://codemirror.net/doc/manual.html#markText.
 # In the custom views, the link is inserted directly into the displayed HTML.
 # Because creating overlay markers for all links in a large file is moderately expensive,
-# the markers are created on demand, when new lines are scrolled into view. Text file and
-# other custom views have links directly inserted all at once in the HTML returned here.
+# the markers are created on demand, when new lines are scrolled into view.
 # The real work is done by GetContentBasedOnExtension() below.
 # 2020-02-28 15_55_57-reverse_filepaths.pm.png
 sub FullFile {
@@ -609,6 +608,21 @@ sub GetContentBasedOnExtension {
 			}
 		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
 		}
+	# 3.1 cont'd, COBOL: CM for main view, custom TOC
+	elsif ($filePath =~ m!\.(cob|cpy|cbl)$!i)
+		{
+		$$textHolderName_R = 'scrollTextRightOfContents';
+		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
+		$$customCSS_R = $cssForCM;
+		my $textContents = GetHtmlEncodedTextFile($filePath);
+		my $toc = '';
+		if ($textContents ne '')
+			{
+			GetCOBOLTOC(\$textContents, \$toc);
+			}
+		$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
+		}
+
 	# 3.1 cont'd, Visual Basic: CM for main view, custom TOC
 	# NOTE at present only .vb and .vbs are supported.
 	elsif ($filePath =~ m!\.(bas|cls|ctl|frm|vbs|vba|vb)$!i)
@@ -1005,6 +1019,21 @@ sub GetWordAsText {
 	
 	$$contentsR = "";
 	$$contentsR .= "<div id='scrollText'><table><tbody>" . $contents . '</tbody></table></div>';
+	}
+
+sub UniqueTocID {
+	my ($id, $idExists_H) = @_;
+
+	my $idBump = 2;
+	my $idBase = $id;
+	while ($id eq '' || defined($idExists_H->{$id}))
+		{
+		$id = $idBase . $idBump;
+		++$idBump;
+		}
+	$idExists_H->{$id} = 1;
+
+	return($id);
 	}
 
 # Table Of Contents (TOC) on the left, highlighted Perl on the right.
@@ -2453,14 +2482,7 @@ sub GetGoTOC {
 			my $contentsClass = 'h2';
 			my $id = $className;
 			$id =~ s!\s+!_!g;
-			my $idBump = 2;
-			my $idBase = $id;
-			while ($id eq '' || defined($idExists{$id}))
-				{
-				$id = $idBase . $idBump;
-				++$idBump;
-				}
-			$idExists{$id} = 1;
+			$id = UniqueTocID($id, \%idExists);
 			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
 			push @classList, $jlStart . $className . $jlEnd;
@@ -2480,14 +2502,7 @@ sub GetGoTOC {
 				my $contentsClass = 'h2';
 				my $id = $methodName;
 				$id =~ s!\s+!_!g;
-				my $idBump = 2;
-				my $idBase = $id;
-				while ($id eq '' || defined($idExists{$id}))
-					{
-					$id = $idBase . $idBump;
-					++$idBump;
-					}
-				$idExists{$id} = 1;
+				$id = UniqueTocID($id, \%idExists);
 				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
 				push @methodList, $jlStart . $methodName . '()' . $jlEnd;
@@ -2531,14 +2546,7 @@ sub GetFortranTOC {
 				my $contentsClass = 'h2';
 				my $id = $className;
 				$id =~ s!\s+!_!g;
-				my $idBump = 2;
-				my $idBase = $id;
-				while ($id eq '' || defined($idExists{$id}))
-					{
-					$id = $idBase . $idBump;
-					++$idBump;
-					}
-				$idExists{$id} = 1;
+				$id = UniqueTocID($id, \%idExists);
 				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
 				push @classList, $jlStart . $className . $jlEnd;
@@ -2554,14 +2562,7 @@ sub GetFortranTOC {
 				my $contentsClass = 'h2';
 				my $id = $methodName;
 				$id =~ s!\s+!_!g;
-				my $idBump = 2;
-				my $idBase = $id;
-				while ($id eq '' || defined($idExists{$id}))
-					{
-					$id = $idBase . $idBump;
-					++$idBump;
-					}
-				$idExists{$id} = 1;
+				$id = UniqueTocID($id, \%idExists);
 				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
 				push @methodList, $jlStart . $methodName . '()' . $jlEnd;
@@ -2578,6 +2579,230 @@ sub GetFortranTOC {
 	my $numClassListEntries = @classList;
 	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
 	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	}
+
+# COBOL table of contents entries. Divisions, sections, procedures, records, file descriptors.
+sub GetCOBOLTOC {
+	my ($txtR, $tocR) = @_;
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n";
+	my @lines = split(/\n/, $$txtR);
+	my $numLines = @lines;
+	my $numCalls = 0;
+	my %idExists; # used to avoid duplicated anchor id's.
+
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ($lines[$i] =~ m!^(\d{6}.)?\s*identification\s+division!i)
+			{
+			++$numCalls;
+			$i = GetOneProgramCOBOLTOC(\@lines, $numLines, $i, $numCalls, \%idExists, $tocR);
+			}
+		}
+
+	$$tocR .= "</ul>\n";
+	}
+
+sub GetOneProgramCOBOLTOC {
+	my ($lines_A, $numLines, $i, $numCalls, $idExists_H, $tocR) = @_;
+	my $identificationCounter = 0;
+	if ($lines_A->[$i] !~ m!^(\d{6}.)?\s*identification\s+division!i)
+		{
+		return($numLines);
+		}
+
+	my @classList;
+	my @classNames;
+	my @methodList;
+	my @methodNames;
+
+	my %sortLetterForDivision;
+	$sortLetterForDivision{'IDENTIFICATION'} = 'a ';
+	$sortLetterForDivision{'ENVIRONMENT'} = 'b ';
+	$sortLetterForDivision{'DATA'} = 'c ';
+	$sortLetterForDivision{'PROCEDURE'} = 'd ';
+	
+	my $divisionName = '';
+	my $divisionNameUC = ''; 	# Uppercase division name
+	#my $sectionName = '';
+	my $sectionNameUC = '';
+	my $inDeclaratives = 0; 	# DECLARATIVES in PROCEDURE division, skip
+	my %varNames; 				# Remember variable names from WORKING-STORAGE etc
+	my %topLevelVars;			# Variables displayed in the TOC under DATA
+	my $topLevelIndentLength = -1; # Pick up only record names with the least indent, based on first seen.
+	for (; $i < $numLines; ++$i)
+		{
+		my $lineNum = $i + 1;
+		# DIVISION
+		if ($lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\s+division!i)
+			{
+			my $className = defined($2) ? $2 : $1; # Really should be $divisionName, sorry
+			$divisionName = $className;
+			$divisionNameUC = uc($divisionName);
+
+			# Move on to next subprogram if we see a second IDENTIFICATION DIVISION
+			if ($divisionNameUC eq 'IDENTIFICATION')
+				{
+				++$identificationCounter;
+				if ($identificationCounter >= 2)
+					{
+					last;
+					}
+				}
+			my $contentsClass = 'h2';
+			my $id = $className;
+			$id =~ s!\s+!_!g;
+			$id = UniqueTocID($id, $idExists_H);
+			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlEnd = "</a></li>";
+			push @classList, $jlStart . $divisionNameUC . $jlEnd;
+			my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
+			push @classNames, $sortLetter . uc($className);
+			}
+		# PROGRAM-ID in IDENTIFICATION division
+		elsif ($lines_A->[$i] =~ m!^(\d{6}.)?\s*program-id\.?\s+([a-zA-Z0-9-]+)!i)
+			{
+			my $programID = defined($2) ? $2 : $1;
+			# Use "PROGRAM-ID $programID" as a section name under current division (identification)
+			my $className = $divisionNameUC . ' ' . "PROGRAM-ID " . $programID;
+			my $contentsClass = 'h3';
+			my $id = $className;
+			$id =~ s!\s+!_!g;
+			$id = UniqueTocID($id, $idExists_H);
+			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlEnd = "</a></li>";
+			push @classList, $jlStart . "PROGRAM-ID " . $programID . $jlEnd;
+			#push @classList, $jlStart . $className . $jlEnd;
+			my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
+			push @classNames, $sortLetter . uc($className);
+			}
+		# SECTION
+		elsif ($divisionNameUC ne 'PROCEDURE' && $lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\s+section!i)
+			{
+			my $sectionName = defined($2) ? $2 : $1;
+			$sectionNameUC = uc($sectionName);
+			# Use division-section as the name.
+			my $className = $divisionNameUC . ' ' . $sectionName;
+			my $contentsClass = 'h3';
+			my $id = $className;
+			$id =~ s!\s+!_!g;
+			$id = UniqueTocID($id, $idExists_H);
+			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlEnd = "</a></li>";
+			push @classList, $jlStart . $sectionName . $jlEnd;
+			#push @classList, $jlStart . $className . $jlEnd;
+			my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
+			push @classNames, $sortLetter .uc($className);
+			}
+		# DATA variables and records (top level only)
+		elsif ( $divisionNameUC eq 'DATA'
+			 && $lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\s+([a-zA-Z0-9-]+)!)
+			{
+			my $varName = defined($3) ? $3 : $2;
+			my $prefix = defined($3) ? $2 : $1; # Eg "01" or "FD"
+			if (!defined($2)) # Shouldn't happen with compilable code
+				{
+				$varName = $1;
+				$prefix = '';
+				}
+			$varNames{$varName} += 1;
+
+			if ($prefix !~ m!^\d+$! && $prefix !~ m!^[a-zA-Z][a-zA-Z]$!)
+				{
+				++$lineNum; # This is why I don't like doing "next;"
+				next;
+				}
+
+			# Pick up top level vars. This is mainly done by matching the indentation
+			# level of the first variable seen in all subsequent matches (except 01 vars).
+			$lines_A->[$i] =~ m!^((\d{6}.)?\s*)!;
+			my $indent = $1;
+			my $indentLength = length($indent);
+			if ($topLevelIndentLength < 0)
+				{
+				$topLevelIndentLength = $indentLength;
+				}
+			if ($topLevelIndentLength >= 0)
+				{
+				if ($indentLength == $topLevelIndentLength || $prefix eq "01" || $prefix eq "1")
+					{
+					my $className = $divisionNameUC . ' ' . $sectionNameUC . ' ' . $varName;
+					my $contentsClass = 'h4';
+					my $id = $className;
+					$id =~ s!\s+!_!g;
+					$id = UniqueTocID($id, $idExists_H);
+					my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+					my $jlEnd = "</a></li>";
+					push @classList, $jlStart . $varName . $jlEnd;
+					#push @classList, $jlStart . $className . $jlEnd;
+					my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
+					push @classNames, $sortLetter . uc($className);
+					}
+				}
+			}
+		# Procedures
+		elsif ($divisionNameUC eq 'PROCEDURE') # procedure division, procedure
+			{
+			if ($lines_A->[$i] =~ m!DECLARATIVES!i)
+				{
+				if ($lines_A->[$i] =~ m!END\s+DECLARATIVES!i)
+					{
+					$inDeclaratives = 0;
+					}
+				else
+					{
+					$inDeclaratives = 1;
+					}
+				}
+			
+			if ( !$inDeclaratives
+			  && ( $lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\.?\s*$!
+			    || $lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\s+SECTION!i))
+				{
+				my $methodName = defined($2) ? $2 : $1;
+				if (!isCobolKeyWord($methodName) && !defined($varNames{$methodName}))
+					{
+					my $contentsClass = 'h3';
+					my $id = $methodName;
+					$id =~ s!\s+!_!g;
+					$id = UniqueTocID($id, $idExists_H);
+					my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+					my $jlEnd = "</a></li>";
+					push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+					push @methodNames, uc($methodName);
+					}
+				}
+			}
+		
+		++$lineNum;
+		}
+
+	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
+	@classList = @classList[@idx];
+	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
+	@methodList = @methodList[@idx];
+	my $numClassListEntries = @classList;
+	my $programBreak = ($numCalls > 1) ? '<br>': '';
+	#my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
+	$$tocR .= $programBreak . join("\n", @classList) . join("\n", @methodList);
+	
+	if ($i > 0)
+		{
+		--$i; # Step back a line, for loop in caller will step ahead one.
+		}
+	
+	return($i);
+	}
+
+# Pick up on keywords and name fragments that might look like a "procedure" name but aren't.
+sub isCobolKeyWord {
+	my ($name) = @_;
+	my $result = 0;
+	if ($name =~ m!^END\-!i || $name =~ m!^EXIT!i || $name =~ m!^\-EXIT$!i || $name =~ m!^GOBACK!i)
+		{
+		$result = 1;
+		}
+	
+	return($result);
 	}
 
 # Table of contents for a Visual Basic file.
@@ -2707,14 +2932,7 @@ sub PushVBTag {
 
 	my $id = $tagName;
 	$id =~ s!\s+!_!g;
-	my $idBump = 2;
-	my $idBase = $id;
-	while ($id eq '' || defined($idExistsH->{$id}))
-		{
-		$id = $idBase . $idBump;
-		++$idBump;
-		}
-	$idExistsH->{$id} = 1;
+	$id = UniqueTocID($id, $idExistsH);
 	my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 	my $jlEnd = "</a></li>";
 	push @$listA, $jlStart . $tagName . $jlEnd;
@@ -2767,14 +2985,7 @@ sub GetCTagsTOCForFile {
 		my $contentsClass = 'h2';
 		my $id = $className;
 		$id =~ s!\s+!_!g;
-		my $idBump = 2;
-		my $idBase = $id;
-		while ($id eq '' || defined($idExists{$id}))
-			{
-			$id = $idBase . $idBump;
-			++$idBump;
-			}
-		$idExists{$id} = 1;
+		$id = UniqueTocID($id, \%idExists);
 		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 		push @structList, $jlStart . $className . $jlEnd;
 		push @structNames, $className;
@@ -2794,14 +3005,7 @@ sub GetCTagsTOCForFile {
 			}
 		my $id = $className;
 		$id =~ s!\s+!_!g;
-		my $idBump = 2;
-		my $idBase = $id;
-		while ($id eq '' || defined($idExists{$id}))
-			{
-			$id = $idBase . $idBump;
-			++$idBump;
-			}
-		$idExists{$id} = 1;
+		$id = UniqueTocID($id, \%idExists);
 		
 		# As a special case, if $lineNum starts with a letter then the
 		# entry is shown "disabled" (gray) and there is no functioning link.
@@ -2826,14 +3030,7 @@ sub GetCTagsTOCForFile {
 		my $contentsClass = 'h2';
 		my $id = $methodName;
 		$id =~ s!\s+!_!g;
-		my $idBump = 2;
-		my $idBase = $id;
-		while ($id eq '' || defined($idExists{$id}))
-			{
-			$id = $idBase . $idBump;
-			++$idBump;
-			}
-		$idExists{$id} = 1;
+		$id = UniqueTocID($id, \%idExists);
 		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 		push @methodList, $jlStart . $methodName . '()' . $jlEnd;
 		push @methodNames, $methodName;
@@ -2845,14 +3042,7 @@ sub GetCTagsTOCForFile {
 		my $contentsClass = 'h2';
 		my $id = $methodName;
 		$id =~ s!\s+!_!g;
-		my $idBump = 2;
-		my $idBase = $id;
-		while ($id eq '' || defined($idExists{$id}))
-			{
-			$id = $idBase . $idBump;
-			++$idBump;
-			}
-		$idExists{$id} = 1;
+		$id = UniqueTocID($id, \%idExists);
 		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
 		push @functionList, $jlStart . $methodName . '()' . $jlEnd;
 		push @functionNames, $methodName;
