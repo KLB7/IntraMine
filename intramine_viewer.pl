@@ -38,6 +38,7 @@ use win_user32_local;
 use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 use html2gloss;
+use cobol_keywords;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -50,6 +51,18 @@ my $ORD_A = ord('A');
 my $ORD_Z = ord('Z');
 my $ORD_0 = ord('0');
 my $ORD_9 = ord('9');
+
+# Circled letters, used in tables of contents.
+my $C_icon = '<span class="circle_green">C</span>'; 	# Class
+my $S_icon = '<span class="circle_green">S</span>';		# Struct
+my $M_icon = '<span class="circle_green">M</span>';		# Module
+my $T_icon = '<span class="circle_blue">T</span>';		# Type
+my $D_icon = '<span class="circle_blue">D</span>';		# Data
+my $m_icon = '<span class="circle_red">m</span>';		# method
+my $f_icon = '<span class="circle_red">f</span>';		# function
+my $s_icon = '<span class="circle_red">s</span>';		# subroutine
+
+LoadCobolKeywords();
 
 my $PAGENAME = '';
 my $SHORTNAME = '';
@@ -1088,7 +1101,7 @@ sub GetPrettyPerlFileContents {
 			my $destAnchorStart = "<span id='$id'>";
 			my $destAnchorEnd = "</span>";
 			my $displayedSubName = $subName;
-			push @jumpList, $jlStart . $displayedSubName . '()' . $jlEnd;
+			push @jumpList, $jlStart . $s_icon . $displayedSubName . '()' . $jlEnd;
 			push @subNames, $subName;
 			my $anki = $i;
 			# Look for highest comment above sub.
@@ -1130,7 +1143,7 @@ sub GetPrettyPerlFileContents {
 			my $jlEnd = "</strong></a></li>";
 			my $destAnchorStart = "<span id='$id'>";
 			my $destAnchorEnd = "</span>";
-			push @sectionList, $jlStart . $sectionName . $jlEnd;
+			push @sectionList, $jlStart . $S_icon . $sectionName . $jlEnd;
 			push @sectionNames, $sectionName;
 			$lines[$i] =~ s!$sectionName!$destAnchorStart$sectionName$destAnchorEnd!;			
 			}
@@ -2483,9 +2496,9 @@ sub GetGoTOC {
 			my $id = $className;
 			$id =~ s!\s+!_!g;
 			$id = UniqueTocID($id, \%idExists);
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
-			push @classList, $jlStart . $className . $jlEnd;
+			push @classList, $jlStart . $S_icon . $className . $jlEnd;
 			push @classNames, $className;
 			}
 		# and functions:
@@ -2503,9 +2516,9 @@ sub GetGoTOC {
 				my $id = $methodName;
 				$id =~ s!\s+!_!g;
 				$id = UniqueTocID($id, \%idExists);
-				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
-				push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+				push @methodList, $jlStart . $f_icon . $methodName . '()' . $jlEnd;
 				push @methodNames, $methodName;
 				}
 			}
@@ -2519,7 +2532,7 @@ sub GetGoTOC {
 	@methodList = @methodList[@idx];
 	my $numClassListEntries = @classList;
 	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
 	}
 
 # Table of contents for a Fortan file. Types, and procedures (subroutines and functions).
@@ -2536,36 +2549,38 @@ sub GetFortranTOC {
 	my $lineNum = 1;
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ( $lines[$i] =~ m!^[^\!]*?type\s+(\w+)!
-		  || $lines[$i] =~ m!^[^\!]*?type\s*,[^\:]+\:\:\s+(\w+)!)
+		if ( $lines[$i] =~ m!^[^\!]*?type\s+(\w+)!i
+		  || $lines[$i] =~ m!^[^\!]*?type\s*,[^\:]+\:\:\s+(\w+)!i)
 			{
 			if ($lines[$i] !~ m!end\s+type!)
 				{
-				$lines[$i] =~ m!type\s+(\w+)!;
+				$lines[$i] =~ m!type\s+(\w+)!i;
 				my $className = $1; # Really should be $typeName, sorry
 				my $contentsClass = 'h2';
 				my $id = $className;
 				$id =~ s!\s+!_!g;
 				$id = UniqueTocID($id, \%idExists);
-				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
-				push @classList, $jlStart . $className . $jlEnd;
+				push @classList, $jlStart . $T_icon . $className . $jlEnd;
 				push @classNames, $className;
 				}
 			}
-		elsif ($lines[$i] =~ m!^[^\!]*?(function|subroutine)\s+(\w+)!)
+		elsif ($lines[$i] =~ m!^[^\!]*?(function|subroutine)\s+(\w+)!i)
 			{
 			if ($lines[$i] !~ m!end\s+(function|subroutine)!)
 				{
 				$lines[$i] =~ m!(function|subroutine)\s+(\w+)!;
+				my $callType = lc($1);
 				my $methodName = $2; # Really should be $procedureName, sorry
 				my $contentsClass = 'h2';
 				my $id = $methodName;
 				$id =~ s!\s+!_!g;
 				$id = UniqueTocID($id, \%idExists);
-				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
-				push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+				my $icon = ($callType eq 'function') ? $f_icon : $s_icon;
+				push @methodList, $jlStart . $icon . $methodName . '()' . $jlEnd;
 				push @methodNames, $methodName;
 				}
 			}
@@ -2578,13 +2593,13 @@ sub GetFortranTOC {
 	@methodList = @methodList[@idx];
 	my $numClassListEntries = @classList;
 	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
 	}
 
 # COBOL table of contents entries. Divisions, sections, procedures, records, file descriptors.
 sub GetCOBOLTOC {
 	my ($txtR, $tocR) = @_;
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n";
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n";
 	my @lines = split(/\n/, $$txtR);
 	my $numLines = @lines;
 	my $numCalls = 0;
@@ -2595,7 +2610,39 @@ sub GetCOBOLTOC {
 		if ($lines[$i] =~ m!^(\d{6}.)?\s*identification\s+division!i)
 			{
 			++$numCalls;
-			$i = GetOneProgramCOBOLTOC(\@lines, $numLines, $i, $numCalls, \%idExists, $tocR);
+
+			# Look ahead a bit to see if we're dealing with Object Oriented COBOL
+			my $isOOCOBOL = 0;
+			my $lookAheadLimit = $i + 10;
+			if ($lookAheadLimit > $numLines)
+				{
+				$lookAheadLimit = $numLines;
+				}
+			for (my $j = $i + 1; $j < $lookAheadLimit; ++$j)
+				{
+				if ($lines[$j] =~ m!^(\d{6}.)?\s*class-id[.\s]*([a-zA-Z0-9-]+)!i)
+					{
+					$isOOCOBOL = 1;
+					$i = $j;
+					last;
+					}
+				}
+
+			if ($isOOCOBOL)
+				{
+				$i = getOneOOCOBOLTOC(\@lines, $numLines, $i, $numCalls, \%idExists, $tocR);
+				}
+			else
+				{
+				$i = GetOneProgramCOBOLTOC(\@lines, $numLines, $i, $numCalls, \%idExists, $tocR);
+				}
+			}
+		else # not id, look for class-id only
+			{
+			if ($lines[$i] =~ m!^(\d{6}.)?\s*class-id[.\s]*([a-zA-Z0-9-]+)!i)
+				{
+				$i = getOneOOCOBOLTOC(\@lines, $numLines, $i, $numCalls, \%idExists, $tocR);
+				}
 			}
 		}
 
@@ -2616,10 +2663,10 @@ sub GetOneProgramCOBOLTOC {
 	my @methodNames;
 
 	my %sortLetterForDivision;
-	$sortLetterForDivision{'IDENTIFICATION'} = 'a ';
-	$sortLetterForDivision{'ENVIRONMENT'} = 'b ';
-	$sortLetterForDivision{'DATA'} = 'c ';
-	$sortLetterForDivision{'PROCEDURE'} = 'd ';
+	$sortLetterForDivision{'IDENTIFICATION'} = 'A ';
+	$sortLetterForDivision{'ENVIRONMENT'} = 'B ';
+	$sortLetterForDivision{'DATA'} = 'C ';
+	$sortLetterForDivision{'PROCEDURE'} = 'D ';
 	
 	my $divisionName = '';
 	my $divisionNameUC = ''; 	# Uppercase division name
@@ -2652,7 +2699,7 @@ sub GetOneProgramCOBOLTOC {
 			my $id = $className;
 			$id =~ s!\s+!_!g;
 			$id = UniqueTocID($id, $idExists_H);
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
 			push @classList, $jlStart . $divisionNameUC . $jlEnd;
 			my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
@@ -2668,7 +2715,7 @@ sub GetOneProgramCOBOLTOC {
 			my $id = $className;
 			$id =~ s!\s+!_!g;
 			$id = UniqueTocID($id, $idExists_H);
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
 			push @classList, $jlStart . "PROGRAM-ID " . $programID . $jlEnd;
 			#push @classList, $jlStart . $className . $jlEnd;
@@ -2686,9 +2733,9 @@ sub GetOneProgramCOBOLTOC {
 			my $id = $className;
 			$id =~ s!\s+!_!g;
 			$id = UniqueTocID($id, $idExists_H);
-			my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
-			push @classList, $jlStart . $sectionName . $jlEnd;
+			push @classList, $jlStart . $S_icon . $sectionName . $jlEnd;
 			#push @classList, $jlStart . $className . $jlEnd;
 			my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
 			push @classNames, $sortLetter .uc($className);
@@ -2723,16 +2770,17 @@ sub GetOneProgramCOBOLTOC {
 				}
 			if ($topLevelIndentLength >= 0)
 				{
-				if ($indentLength == $topLevelIndentLength || $prefix eq "01" || $prefix eq "1")
+				if ($indentLength == $topLevelIndentLength ||
+					$prefix eq "01" || $prefix eq "1" || $prefix eq "77")
 					{
 					my $className = $divisionNameUC . ' ' . $sectionNameUC . ' ' . $varName;
 					my $contentsClass = 'h4';
 					my $id = $className;
 					$id =~ s!\s+!_!g;
 					$id = UniqueTocID($id, $idExists_H);
-					my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+					my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 					my $jlEnd = "</a></li>";
-					push @classList, $jlStart . $varName . $jlEnd;
+					push @classList, $jlStart . $D_icon . $varName . $jlEnd;
 					#push @classList, $jlStart . $className . $jlEnd;
 					my $sortLetter = defined($sortLetterForDivision{$divisionNameUC}) ? $sortLetterForDivision{$divisionNameUC}: 'Z';
 					push @classNames, $sortLetter . uc($className);
@@ -2765,9 +2813,9 @@ sub GetOneProgramCOBOLTOC {
 					my $id = $methodName;
 					$id =~ s!\s+!_!g;
 					$id = UniqueTocID($id, $idExists_H);
-					my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+					my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 					my $jlEnd = "</a></li>";
-					push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+					push @methodList, $jlStart . $f_icon . $methodName . '()' . $jlEnd;
 					push @methodNames, uc($methodName);
 					}
 				}
@@ -2793,16 +2841,148 @@ sub GetOneProgramCOBOLTOC {
 	return($i);
 	}
 
-# Pick up on keywords and name fragments that might look like a "procedure" name but aren't.
-sub isCobolKeyWord {
-	my ($name) = @_;
-	my $result = 0;
-	if ($name =~ m!^END\-!i || $name =~ m!^EXIT!i || $name =~ m!^\-EXIT$!i || $name =~ m!^GOBACK!i)
-		{
-		$result = 1;
-		}
+# Table of Contents for a COBOL class (Object Oriented COBOL).
+# Because I decided to do a COBOL TOC, so might as well finish the job.
+sub getOneOOCOBOLTOC {
+	my ($lines_A, $numLines, $i, $numCalls, $idExists_H, $tocR) = @_;
+	my $ooClassName = '';
+
+	my @classList;
+	my @classNames;
+	my @methodList;
+	my @methodNames;
+
+	my %sortLetterForDivision;
+	$sortLetterForDivision{'IDENTIFICATION'} = 'A ';
+	$sortLetterForDivision{'ENVIRONMENT'} = 'B ';
+	$sortLetterForDivision{'DATA'} = 'C ';
+	$sortLetterForDivision{'PROCEDURE'} = 'D ';
 	
-	return($result);
+	my $divisionName = '';
+	my $divisionNameUC = ''; 	# Uppercase division name
+	#my $sectionName = '';
+	my $sectionNameUC = '';
+	my $inDeclaratives = 0; 	# DECLARATIVES in PROCEDURE division, skip
+	my %varNames; 				# Remember variable names from WORKING-STORAGE etc
+	my %topLevelVars;			# Variables displayed in the TOC under DATA
+	my $topLevelIndentLength = -1; # Pick up only record names with the least indent, based on first seen.
+	my $inObject = 0;
+
+	if ($lines_A->[$i] =~ m!^(\d{6}.)?\s*CLASS-ID[.\s]*([a-zA-Z0-9-]+)!i)
+		{
+		$ooClassName = defined($2) ? $2 : $1;
+		++$i;
+
+		my $lineNum = $i;
+		my $className = $ooClassName;
+		my $contentsClass = 'h2';
+		my $id = $className;
+		$id =~ s!\s+!_!g;
+		$id = UniqueTocID($id, $idExists_H);
+		my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+		my $jlEnd = "</a></li>";
+		push @classList, $jlStart . $C_icon . $ooClassName . $jlEnd;
+		push @classNames, $sortLetterForDivision{'IDENTIFICATION'} . uc($className);
+		}
+	else # No class, no TOC. Maintenance error probably.
+		{
+		return($numLines);
+		}
+
+	for (; $i < $numLines; ++$i)
+		{
+		my $lineNum = $i + 1;
+
+		# Methods: pick up the name and skip to END.
+		if ($lines_A->[$i] =~ m!^(\d{6}.)?\s*METHOD-ID\.?\s+([a-zA-Z0-9-]+)!i)
+			{
+			my $methodName = defined($2) ? $2 : $1;
+			my $contentsClass = 'h3';
+			my $id = $methodName;
+			$id =~ s!\s+!_!g;
+			$id = UniqueTocID($id, $idExists_H);
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+			my $jlEnd = "</a></li>";
+			if ($methodName =~ m!^new$!i)
+				{
+				push @methodList, $jlStart . $m_icon . "<strong>" . $methodName . "</strong>" . '()' . $jlEnd;
+				}
+			else
+				{
+				push @methodList, $jlStart . $m_icon. $methodName . '()' . $jlEnd;
+				}
+			push @methodNames, uc($methodName);
+
+			# Skip to END METHOD.
+			++$i;
+			while ($i < $numLines
+				&& $lines_A->[$i] !~ m!^(\d{6}.)?\s*END\s+METHOD!i)
+				{
+				++$i;
+				}
+			}
+		# Drop out if we see "END CLASS".
+		elsif ($lines_A->[$i] =~ m!^(\d{6}.)?\s*END\s+CLASS!i)
+			{
+			last;
+			}
+
+		# Are we in an OBJECT?
+		elsif ($lines_A->[$i] =~ m!^(\d{6}.)?\s*OBJECT[^-]*!i)
+			{
+			$inObject = 1;
+			}
+		elsif ($lines_A->[$i] =~ m!^(\d{6}.)?\s*END\s+OBJECT!i)
+			{
+			$inObject = 0;
+			#last;
+			}
+		# Pick up top level vars, just 01 and 77.
+		elsif ($lines_A->[$i] =~ m!^(\d{6}.)?\s*([a-zA-Z0-9-]+)\s+([a-zA-Z0-9-]+)!)
+			{
+			my $varName = defined($3) ? $3 : $2;
+			my $prefix = defined($3) ? $2 : $1; # Eg "01" or "FD"
+			if (!defined($2)) # Shouldn't happen with compilable code
+				{
+				$varName = $1;
+				$prefix = '';
+				}
+			$varNames{$varName} += 1;
+
+			if ($prefix !~ m!^\d+$! && $prefix !~ m!^[a-zA-Z][a-zA-Z]$!)
+				{
+				++$lineNum; # This is why I don't like doing "next;"
+				next;
+				}
+
+			if ($prefix eq "01" || $prefix eq "1" || $prefix eq "77"
+				|| $prefix =~ m!^[a-zA-Z][a-zA-Z]$!)
+				{
+				my $className = $ooClassName . ' ' . $varName;
+				my $contentsClass = 'h3';
+				my $id = $className;
+				$id =~ s!\s+!_!g;
+				$id = UniqueTocID($id, $idExists_H);
+				my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlEnd = "</a></li>";
+				push @classList, $jlStart . $D_icon. $varName . $jlEnd;
+				push @classNames, uc($className);
+				}
+			}
+		++$lineNum;
+		}
+
+	my @idx = sort { $classNames[$a] cmp $classNames[$b] } 0 .. $#classNames;
+	@classList = @classList[@idx];
+	@idx = sort { $methodNames[$a] cmp $methodNames[$b] } 0 .. $#methodNames;
+	@methodList = @methodList[@idx];
+	my $numClassListEntries = @classList;
+	my $programBreak = ($numCalls > 1) ? '<br>': '';
+	my $classBreak = ($numClassListEntries > 0) ? '<br>': '';
+	$$tocR .= $programBreak . join("\n", @classList) . $classBreak . join("\n", @methodList);
+
+	# We don't need to step back a line.
+	return($i);
 	}
 
 # Table of contents for a Visual Basic file.
@@ -2844,19 +3024,19 @@ sub GetVBTOC {
 				{
 				$currentModule = $tagName . '.';
 				PushVBTag(\@moduleList, \@moduleNames, \%idExists,
-						  $lineNum, $tagName, 'h2');
+						  $lineNum, $tagName, 'h2', $M_icon);
 				}
 			elsif ($tagType eq 'class')
 				{
 				$currentClass = $tagName . '.';
 				PushVBTag(\@classList, \@classNames, \%idExists,
-						  $lineNum, $tagName, 'h2');
+						  $lineNum, $tagName, 'h2', $C_icon);
 				}
 			elsif ($tagType eq 'structure')
 				{
 				$currentStructure = $tagName . '.';
 				PushVBTag(\@classList, \@classNames, \%idExists,
-						  $lineNum, $tagName, 'h2');
+						  $lineNum, $tagName, 'h2', $S_icon);
 				}
 			elsif ($tagType eq 'sub' || $tagType eq 'function')
 				{
@@ -2871,12 +3051,12 @@ sub GetVBTOC {
 				if ($owner ne '')
 					{
 					PushVBTag(\@classList, \@classNames, \%idExists,
-						  $lineNum, $owner . '#' . $tagName, 'h3');
+						  $lineNum, $owner . '#' . $tagName, 'h3', $m_icon);
 					}
 				else
 					{
 					PushVBTag(\@methodList, \@methodNames, \%idExists,
-						  $lineNum, $tagName, 'h2');
+						  $lineNum, $tagName, 'h2', $f_icon);
 					}
 				}
 			}
@@ -2924,18 +3104,18 @@ sub GetVBTOC {
 			}
 		}
 	
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @moduleList) . $moduleBreak . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" . join("\n", @moduleList) . $moduleBreak . join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
 	}
 
 sub PushVBTag {
-	my ($listA, $namesA, $idExistsH, $lineNum, $tagName, $contentsClass) = @_;
+	my ($listA, $namesA, $idExistsH, $lineNum, $tagName, $contentsClass, $icon) = @_;
 
 	my $id = $tagName;
 	$id =~ s!\s+!_!g;
 	$id = UniqueTocID($id, $idExistsH);
-	my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+	my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 	my $jlEnd = "</a></li>";
-	push @$listA, $jlStart . $tagName . $jlEnd;
+	push @$listA, $jlStart . $icon . $tagName . $jlEnd;
 	push @$namesA, $tagName;
 	}
 
@@ -2986,8 +3166,8 @@ sub GetCTagsTOCForFile {
 		my $id = $className;
 		$id =~ s!\s+!_!g;
 		$id = UniqueTocID($id, \%idExists);
-		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-		push @structList, $jlStart . $className . $jlEnd;
+		my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+		push @structList, $jlStart . $S_icon . $className . $jlEnd;
 		push @structNames, $className;
 		}
 
@@ -3014,13 +3194,13 @@ sub GetCTagsTOCForFile {
 		if ($lineNum =~ m!^[a-zA-Z]!)
 			{
 			$jlStart = "<li class='h2Disabled'><a>";
-			#$jlStart = "<li class='h2Disabled'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			#$jlStart = "<li class='h2Disabled'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			}
 		else
 			{
-			$jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+			$jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			}
-		push @classList, $jlStart . $className . $jlEnd;
+		push @classList, $jlStart . $C_icon . $className . $jlEnd;
 		push @classNames, $className;
 		}
 		
@@ -3031,8 +3211,8 @@ sub GetCTagsTOCForFile {
 		my $id = $methodName;
 		$id =~ s!\s+!_!g;
 		$id = UniqueTocID($id, \%idExists);
-		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-		push @methodList, $jlStart . $methodName . '()' . $jlEnd;
+		my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+		push @methodList, $jlStart . $m_icon . $methodName . '()' . $jlEnd;
 		push @methodNames, $methodName;
 		}
 
@@ -3043,8 +3223,8 @@ sub GetCTagsTOCForFile {
 		my $id = $methodName;
 		$id =~ s!\s+!_!g;
 		$id = UniqueTocID($id, \%idExists);
-		my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
-		push @functionList, $jlStart . $methodName . '()' . $jlEnd;
+		my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+		push @functionList, $jlStart . $f_icon . $methodName . '()' . $jlEnd;
 		push @functionNames, $methodName;
 		}
 
@@ -3077,7 +3257,7 @@ sub GetCTagsTOCForFile {
 	
 	my $numClassListEntries = @classList;
 	my $typeBreak = ($numClassListEntries > 0) ? '<br>': '';
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n";
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n";
 	if ($numStructs)
 		{
 		my $structString = join("\n", @structList);
@@ -3095,6 +3275,8 @@ sub GetCTagsTOCForFile {
 				{
 				$classList[$i] =~ s!\w+\.!!g;
 				$classList[$i] =~ s!\w+\#!!g;
+				# Fix the icon
+				$classList[$i] =~ s!$C_icon!$m_icon!;
 				}
 			}
 		my $classString = join("\n", @classList);
@@ -3123,7 +3305,7 @@ sub GetCTagsTOCForFile {
 		$$tocR .= $functionString;
 		}
 	
-	#$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" .
+	#$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" .
 	#			join("\n", @classList) . $classBreak . join("\n", @methodList) . "</ul>\n";
 
 	# Get rid of the one or two temp files made while getting ctags.
@@ -3197,7 +3379,7 @@ sub GetCssCTagsTOCForFile {
 				my $id = $tag;
 				if (!defined($idExists{$id}))
 					{
-					my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+					my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 					my $jlEnd = "</a></li>";
 					push @anchorList, $jlStart . $displayedTag . $jlEnd;
 					push @displayedTagNames, $displayedTag;
@@ -3210,7 +3392,7 @@ sub GetCssCTagsTOCForFile {
 			my $id = $tag;
 			if (!defined($idExists{$id}))
 				{
-				my $jlStart = "<li class='$contentsClass'><a onclick='goToAnchor(\"$id\", $lineNum);'>";
+				my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 				my $jlEnd = "</a></li>";
 				push @anchorList, $jlStart . $displayedTag . $jlEnd;
 				push @displayedTagNames, $displayedTag;
@@ -3221,7 +3403,7 @@ sub GetCssCTagsTOCForFile {
 	
 	my @idx = sort { $displayedTagNames[$a] cmp $displayedTagNames[$b] } 0 .. $#displayedTagNames;
 	@anchorList = @anchorList[@idx];
-	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onclick='jumpToLine(1, false);'>TOP</a></li>\n" .
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" .
 				join("\n", @anchorList) . "</ul>\n";
 
 	# Get rid of the one or two temp files made while getting ctags.
@@ -4561,4 +4743,3 @@ sub AddInternalLinksToPerlLine {
 		$$txtR = $line;
 		}
 	}
-

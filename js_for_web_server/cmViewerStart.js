@@ -198,13 +198,22 @@ if (typeof window.ontouchstart !== 'undefined')
 
 let anchorClicked = false;
 let cmCursorStartPos = {
-	line : 0,
-	ch : 0
+	line : -1,
+	ch : -1
 };
 let cmCursorEndPos = {
-	line : 0,
-	ch : 0
+	line : -1,
+	ch : -1
 };
+
+// let cmCursorStartPos = {
+// 	line : 0,
+// 	ch : 0
+// };
+// let cmCursorEndPos = {
+// 	line : 0,
+// 	ch : 0
+// };
 
 let cursorFileStartPos = {
 	line: 0,

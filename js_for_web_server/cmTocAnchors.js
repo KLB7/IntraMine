@@ -96,6 +96,7 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	// Restore any highlighted text selection. Doing it on a time delay is the only
 	// way I found that works. Note the "scroll: false" is critical,
 	// to preserve the position jumped to just above.
+	// TEST ONLY OUT
 	if (cmCursorStartPos.line >= 0)
 		{
 		setTimeout(function() {
@@ -341,7 +342,13 @@ function getLineNumberForTocEntries() {
 		// <a onclick="goToAnchor(&quot;QFutureWatcher&quot;, 115);">QFutureWatcher</a>
 		// <a onclick="goToAnchor(&quot;~QFutureWatcher2&quot;, 191);">~QFutureWatcher()</a>
 		let fullAnchor = tocEntries[i].innerHTML;
+		//let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
 		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			}
+
 		if (mtch !== null)
 			{
 			let anchorText = mtch[1];
@@ -388,7 +395,13 @@ function getTocElemForLineNumber(lineNum) {
 	for (let i = 0; i < tocEntries.length; i++)
 		{
 		let fullAnchor = tocEntries[i].innerHTML;
+		//let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
 		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			}
+
 		if (mtch !== null)
 			{
 			let anchorText = mtch[1];
@@ -455,6 +468,11 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 		{
 		let fullAnchor = tocEntries[i].innerHTML;
 		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			}
+
 		if (mtch !== null)
 			{
 			let anchorText = mtch[1];
