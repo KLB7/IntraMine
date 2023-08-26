@@ -6,13 +6,38 @@ where "Images::finished" is the name of a method. The anchor is scrolled into vi
 
 let goingToAnchor = false;
 
+// To determine if jumpToLine will trigger a scroll, compare previous first visible
+// line number with current first visible line number.
+let previousFirstLineNumber = -1;
+
 // Notice we are resizing. Set true in doResize().
 let resizing = false;
+
+// Line number tracking, determines which TOC entry to highlight
+// based on the line number of the corresponding source heading (class, function etc);
+let lineNumberForToc = -1;
+
+function setLineNumberForToc(lineNum) {
+	lineNumberForToc = lineNum;
+	}
+
+function getLineNumberForToc() {
+	let lineNum = lineNumberForToc;
+	clearLineNumberForToc();
+	return(lineNum);
+}
+
+function clearLineNumberForToc() {
+	lineNumberForToc = -1;
+}
 
 // Called by Table of Contents entries. See eg intramine_viewer.pl#GetCTagsTOCForFile().
 // And also called for links to internal headings (functions classes etc).
 function goToAnchor(anchorText, lineNum) {
 	goingToAnchor = true;
+
+	setLineNumberForToc(lineNum);
+
 	// Set location.hash to remember anchor, in case of a refresh.
 	location.hash = anchorText;
 	
@@ -77,26 +102,30 @@ function jumpToLine(lineNum, adjustToShowComment) {
 			++lineNumToShow;
 			}
 		}
-	
+		
 	let t = myCodeMirror.charCoords({
 		line : lineNumToShow,
 		ch : 0
 	}, "local").top;
 	myCodeMirror.scrollTo(null, t);
 	
-	myCodeMirror.setSelection({line: lineNum, ch: 0}, {line: lineNum, ch: 999});
-	// Removed, selecting line and then restoring original selection isn't working reliably.
-	//myCodeMirror.setSelection({line: lineNumToShow, ch: 0}, {line: lineNumToShow, ch: 999});
-	
-//	myCodeMirror.scrollIntoView({line: lineNumToShow, ch: 0}, 0);
+	let willScroll = true;
+	let currentFirstLineNumber = getFirstVisibleLineNumber();
+	if ( currentFirstLineNumber === previousFirstLineNumber)
+		{
+		willScroll = false;
+		}
+	let previousPreviousFirstLineNumber = previousFirstLineNumber;
 
+	previousFirstLineNumber = currentFirstLineNumber;
+
+	myCodeMirror.setSelection({line: lineNum, ch: 0}, {line: lineNum, ch: 999});
 	
 	scrollMobileIndicator();
 
 	// Restore any highlighted text selection. Doing it on a time delay is the only
 	// way I found that works. Note the "scroll: false" is critical,
 	// to preserve the position jumped to just above.
-	// TEST ONLY OUT
 	if (cmCursorStartPos.line >= 0)
 		{
 		setTimeout(function() {
@@ -104,6 +133,40 @@ function jumpToLine(lineNum, adjustToShowComment) {
 				scroll : false
 			});
 		}, 800);
+		}
+
+	if (!willScroll)
+		{
+		let el = document.getElementById(cmTextHolderName);
+		let limitLineNum = lastVisibleLineNumber(el);
+		let tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.
+		if (tocElem === null)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+
+		if (tocElem !== null)
+			{
+			updateTocHighlight(tocElem);
+			}
+		}
+	else if (previousPreviousFirstLineNumber < 0)
+		{
+		// Initial load, call update the TOC highlight after a delay.
+		let el = document.getElementById(cmTextHolderName);
+		let limitLineNum = lastVisibleLineNumber(el);
+		let tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.
+		if (tocElem === null)
+			{
+			tocElem = getTocElemForLineNumber(lineNum);
+			}
+
+		if (tocElem !== null)
+			{
+			setTimeout(function() {
+				updateTocHighlight(tocElem);
+				}, 1200);
+			}
 		}
 }
 
@@ -341,14 +404,23 @@ function getLineNumberForTocEntries() {
 		// <a onclick="goToAnchor(&quot;QFutureWatcherBase::isStarted&quot;, 249);">QFutureWatcherBase::isStarted()</a>
 		// <a onclick="goToAnchor(&quot;QFutureWatcher&quot;, 115);">QFutureWatcher</a>
 		// <a onclick="goToAnchor(&quot;~QFutureWatcher2&quot;, 191);">~QFutureWatcher()</a>
+		// <a onmousedown="goToAnchor(&quot;New&quot;, 11);"><span class="circle_red">m</span><strong>New</strong>()</a>
 		let fullAnchor = tocEntries[i].innerHTML;
 		//let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
-		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+
+		// First try: goToAnchor with a letter in a circle (in a <span>) before text.
+		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+		// Second try: no letter in circle.
 		if (mtch === null)
 			{
-			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
 			}
-
+		// Third try: letter in circle and >strong> around displayed text.
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>\<strong\>([^<]+)\</.exec(fullAnchor);
+			}
+		
 		if (mtch !== null)
 			{
 			let anchorText = mtch[1];
@@ -386,6 +458,13 @@ function getTocElemForLineNumber(lineNum) {
 		return(null);
 		}
 	
+	// Use the line number from jumpToLine() if there is one.
+	let tocLineNumber = getLineNumberForToc();
+	if (tocLineNumber >= 0)
+		{
+		lineNum = tocLineNumber;
+		}
+
 	let tocElem = null;
 	let previousTocElem = null;
 	let previousTocElemLineNum = 0;
@@ -396,10 +475,14 @@ function getTocElemForLineNumber(lineNum) {
 		{
 		let fullAnchor = tocEntries[i].innerHTML;
 		//let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
-		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
 		if (mtch === null)
 			{
-			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+			}
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>\<strong\>([^<]+)\</.exec(fullAnchor);
 			}
 
 		if (mtch !== null)
@@ -458,6 +541,13 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 		return(null);
 		}
 	
+	// Use the line number from jumpToLine() if there is one.
+	let tocLineNumber = getLineNumberForToc();
+	if (tocLineNumber >= 0)
+		{
+		lineNum = tocLineNumber;
+		}
+	
 	let tocElem = null;
 	let nextTocElem = null;
 	let nextTocElemLineNum = 999999;
@@ -467,10 +557,14 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 	for (let i = 0; i < tocEntries.length; i++)
 		{
 		let fullAnchor = tocEntries[i].innerHTML;
-		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+		let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
 		if (mtch === null)
 			{
-			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+			}
+		if (mtch === null)
+			{
+			mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>\<strong\>([^<]+)\</.exec(fullAnchor);
 			}
 
 		if (mtch !== null)

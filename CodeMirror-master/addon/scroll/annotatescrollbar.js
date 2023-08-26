@@ -91,7 +91,12 @@
     }
 
     var lastLine = cm.lastLine()
-    if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
+ 	// HORRIBLE TEMPORARY HACK!
+   if (typeof window.ontouchstart !== 'undefined')
+    {
+    cm.display.barWidth = 17;
+    }
+  if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
       if (ann.to.line > lastLine) continue;
       var top = nextTop || getY(ann.from, true) * hScale;

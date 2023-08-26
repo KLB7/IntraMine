@@ -206,15 +206,6 @@ let cmCursorEndPos = {
 	ch : -1
 };
 
-// let cmCursorStartPos = {
-// 	line : 0,
-// 	ch : 0
-// };
-// let cmCursorEndPos = {
-// 	line : 0,
-// 	ch : 0
-// };
-
 let cursorFileStartPos = {
 	line: 0,
 	ch: 0,
@@ -228,6 +219,14 @@ let cursorFileEndPos = {
 cmCursorStartPos = cursorFileStartPos;
 cmCursorEndPos = cursorFileEndPos;
 
+let xt = getFileExtension(theEncodedPath);
+let XT = xt.toUpperCase();
+let isCOBOL = false;
+if (XT === "COB" || XT === "CPY" || XT === "CBL")
+	{
+	isCOBOL = true;
+	}
+
 let cfg = new Object();
 cfg.lineNumbers = true;
 cfg.viewportMargin = Infinity;
@@ -239,8 +238,15 @@ cfg.extraKeys = {
 	}
 };
 let highlightSelectionMatches = new Object();
-highlightSelectionMatches.showToken = true;
-//highlightSelectionMatches.showToken = /\w/;
+if (isCOBOL)
+	{
+	highlightSelectionMatches.showToken = /[a-zA-Z0-9-]/;
+	}
+else
+	{
+	highlightSelectionMatches.showToken = true;
+	}
+
 highlightSelectionMatches.annotateScrollbar = true;
 cfg.highlightSelectionMatches = highlightSelectionMatches;
 // For the viewer, no editing.
@@ -252,7 +258,7 @@ cfg.path = 'BOGUS/';
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
 
-let xt = getFileExtension(theEncodedPath);
+
 let info = CodeMirror.findModeByExtension(xt);
 if (info)
 	{
@@ -306,7 +312,10 @@ async function loadFileIntoCodeMirror(cm, path) {
 			highlightInitialItems();
 			updateToggleBigMoveLimit();
 			updateTogglePositions();
-			cmRejumpToAnchor();
+			// Too soon: cmRejumpToAnchor();
+			setTimeout(function() {
+				cmRejumpToAnchor();
+				}, 600);
 			lazyOnScroll = JD.debounce(onScroll, 100);
 			cm.on("scroll", lazyOnScroll);
 			hideSpinner();

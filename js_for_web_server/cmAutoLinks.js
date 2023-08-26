@@ -216,6 +216,11 @@ function markUpInternalHeadersOnOneLine(cm, lineText, lineNum, jsonResult) {
 
 	// Search for and look at tokens.
 	let regex = /([$_~A-Za-z0-9]+)/g;
+	if (isCOBOL)
+		{
+		regex = /([A-Za-z0-9-]+)/g;
+		}
+
 	let currentResult = {};
 	while ((currentResult = regex.exec(lineText)))
 		{
@@ -623,7 +628,9 @@ function handleFileLinkMouseUp(evt) {
 	if (!weAreEditing && linkType === "" && !goingToAnchor)
 		{
 		// If nothing selected, expand selection to any word under the cursor.
-		expandEmptySelectionToWord();
+		// Removed, CM does this already - see cmViewerStart.js#245 or so.
+		//expandEmptySelectionToWord();
+
 		// Get current selection (for restoration later if a link is clicked).
 		let startPos = myCodeMirror.doc.getCursor("anchor");
 		cmCursorStartPos = startPos;
@@ -633,6 +640,11 @@ function handleFileLinkMouseUp(evt) {
 	// Reset goingToAnchor - it was used here to avoid setting the selection if goingToAnchor,
 	// because goToAnchor() will restore the selection after jumping to the anchor.
 	goingToAnchor = false;
+
+	// Clear any remembered line number for table of contents use.
+	setTimeout(function() {
+        clearLineNumberForToc();
+        }, 500);
 }
 
 // Expand selection to any word under the cursor.
@@ -1004,19 +1016,6 @@ function rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum) {
 		lineSeen[lineNumber] = 1;
 		}
 }
-
-function allLinesHaveBeenSeen(firstVisibleLineNum, lastVisibleLineNum) {
-	for (let lineNum = firstVisibleLineNum; lineNum <= lastVisibleLineNum; ++lineNum)
-		{
-		if (!(lineNum in lineSeen))
-			{
-			return (false);
-			}
-		}
-
-	return (true);
-}
-
 
 // Trim lines seen from beginning and end of first/last range.
 function adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum) {

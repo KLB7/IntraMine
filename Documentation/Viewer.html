@@ -68,6 +68,10 @@ color: #333;
 border-bottom: 1px solid #333;
 }
 
+#scrollContentsList a:link {
+	border-bottom: 0;
+}
+
 /* File tree displays, suppress underlines on links. */
 UL.jqueryFileTree A {
 	border-bottom: none;
@@ -354,15 +358,46 @@ html[xmlns] #nav {
 	font-size: 1.1em;
 }
 
+#scrollContentsList .h3 {
+	font-size: 1.0em;
+	font-style: italic;
+	font-variant: normal;
+}
+
+
+#scrollContentsList .h4 {
+	font-size: .9em;
+}
+
 #scrollContentsList .h2Disabled {
 	font-size: 1.1em;
 	color: #889988;
 }
 
-/* section marker */
 #scrollContentsList .h2 a:before {
 	font-size: 0.6em;
-	content: "\25B0  "; /* "\00A7  " */
+	content: "\00a0";
+	padding-left: 0;
+}
+
+#scrollContentsList .h3 a:before {
+	font-size: 0.6em;
+	content: "\00a0\00a0";
+	padding-left: 8px;
+}
+
+#scrollContentsList .h4 a:before {
+	font-size: 0.4em;
+	content: "\00a0\00a0\00a0";
+	padding-left: 24px;
+}
+
+
+/* section marker */
+/*
+#scrollContentsList .h2 a:before {
+	font-size: 0.6em;
+	content: "\25B0  ";
 	padding-left: 0;
 	color: #667766;
 }
@@ -370,31 +405,70 @@ html[xmlns] #nav {
 
 #scrollContentsList .h3 a:before {
 	font-size: 0.6em;
-	content: "\25B0  "; /* "\25B0  " */
+	content: "\25B0  ";
 	padding-left: 8px;
 	color: #889988;
 }
 
-#scrollContentsList .h3 {
-	font-size: 1.0em;
-	font-style: italic;
-	font-variant: normal;
-}
-
 #scrollContentsList .h4 a:before {
 	font-size: 0.4em;
-	content: "\25B0  "; /* "\25B0\25B0  " */
+	content: "\25B0  ";
 	padding-left: 24px;
 	color: #889988;
 }
-
-#scrollContentsList .h4 {
-	font-size: .9em;
-}
+*/
 
 #details {
 	height: 100%;
 }
+
+/* Circled letters, for table of contents display by intramine_viewer.pl. */
+.circle_red {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #FAA;
+	border: 1px solid #FAA;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+  .circle_green {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #7E7;
+	border: 1px solid #7E7;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+  .circle_blue {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #CCF;
+	border: 1px solid #CCF;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+
 
 /* A bit of formatting for text. */
 .Comment_Normal {color: #004221;}
@@ -1387,7 +1461,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R5'><td n='5'></td><td></td></tr>
 <tr id='R6'><td n='6'></td><td>This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
-<tr id='R8'><td n='8'></td><td>CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full <a class='glossary' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> treatment including a table of contents (see <a href="./Gloss.html" target="_blank">"Gloss.txt"</a>), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran) - support for other languages is planned.</td></tr>
+<tr id='R8'><td n='8'></td><td>CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full <a class='glossary' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> treatment including a table of contents (see <a href="./Gloss.html" target="_blank">"Gloss.txt"</a>), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL) - support for other languages is planned.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td>An attempt has been made to display views of .docx and PDF files, with indifferent results.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
@@ -5272,6 +5346,7 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 // Called by  viewerStart.js#reJumpToLineNumber().
 function restoreTocSelection(lineNum) {
 	let tocElem = null;
+
 	let el = document.getElementById(cmTextHolderName);
 	let limitLineNum = lastVisibleLineNumber(el) + 1;
 	tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
@@ -5607,6 +5682,32 @@ function rememberLocation() {
         topLineNumber = lineNumber.toString();
 		}
 	}
+
+function getFirstVisibleLineNumber() {
+    let firstLineNumber = -1;
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lineNumber = parseInt(myStartLine.toString(), 10);
+		if (lineNumber > 0)
+			{
+			lineNumber += 2;
+			}
+		else
+			{
+			lineNumber = 1;
+			}
+        firstLineNumber = lineNumber;
+ 		}
+	else // text mainly
+		{
+		let el = document.getElementById(cmTextHolderName);
+		firstLineNumber = firstVisibleLineNumber(el);
+ 		}
+
+    return(firstLineNumber);
+}
 
 function startDraggingSeparator(e) {
     rememberLocation();

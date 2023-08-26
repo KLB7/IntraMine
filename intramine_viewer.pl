@@ -3270,7 +3270,13 @@ sub GetCTagsTOCForFile {
 		# if entry contains '#' indicating a method name.
 		for (my $i = 0; $i < @classList; ++$i)
 			{
-			$classList[$i] =~ s!\w+\:\:!!g;
+			if (index($classList[$i], ':') > 0)
+				{
+				$classList[$i] =~ s!\w+\:\:!!g;
+				# Fix the icon
+				$classList[$i] =~ s!$C_icon!$m_icon!;
+				}
+			
 			if (index($classList[$i], '#') > 0)
 				{
 				$classList[$i] =~ s!\w+\.!!g;

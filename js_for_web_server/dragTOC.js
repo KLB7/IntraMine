@@ -111,6 +111,32 @@ function rememberLocation() {
 		}
 	}
 
+function getFirstVisibleLineNumber() {
+    let firstLineNumber = -1;
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lineNumber = parseInt(myStartLine.toString(), 10);
+		if (lineNumber > 0)
+			{
+			lineNumber += 2;
+			}
+		else
+			{
+			lineNumber = 1;
+			}
+        firstLineNumber = lineNumber;
+ 		}
+	else // text mainly
+		{
+		let el = document.getElementById(cmTextHolderName);
+		firstLineNumber = firstVisibleLineNumber(el);
+ 		}
+
+    return(firstLineNumber);
+}
+
 function startDraggingSeparator(e) {
     rememberLocation();
     document.body.style.cursor = 'col-resize';

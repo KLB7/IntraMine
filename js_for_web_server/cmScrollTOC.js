@@ -17,7 +17,7 @@ function scrollTocEntryIntoView(lineNum, inContent, scrolling) {
 		{
 		let el = document.getElementById(cmTextHolderName);
 		let limitLineNum = lastVisibleLineNumber(el);
-		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.js#getTocElemAfterLineNumber()
+		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.		
 		if (tocElem === null)
 			{
 			tocElem = getTocElemForLineNumber(lineNum);
@@ -27,7 +27,6 @@ function scrollTocEntryIntoView(lineNum, inContent, scrolling) {
 	if (tocElem !== null)
 		{
 		tocElem.scrollIntoView();
-		//tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
 }

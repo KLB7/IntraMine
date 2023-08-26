@@ -68,6 +68,10 @@ color: #333;
 border-bottom: 1px solid #333;
 }
 
+#scrollContentsList a:link {
+	border-bottom: 0;
+}
+
 /* File tree displays, suppress underlines on links. */
 UL.jqueryFileTree A {
 	border-bottom: none;
@@ -354,15 +358,46 @@ html[xmlns] #nav {
 	font-size: 1.1em;
 }
 
+#scrollContentsList .h3 {
+	font-size: 1.0em;
+	font-style: italic;
+	font-variant: normal;
+}
+
+
+#scrollContentsList .h4 {
+	font-size: .9em;
+}
+
 #scrollContentsList .h2Disabled {
 	font-size: 1.1em;
 	color: #889988;
 }
 
-/* section marker */
 #scrollContentsList .h2 a:before {
 	font-size: 0.6em;
-	content: "\25B0  "; /* "\00A7  " */
+	content: "\00a0";
+	padding-left: 0;
+}
+
+#scrollContentsList .h3 a:before {
+	font-size: 0.6em;
+	content: "\00a0\00a0";
+	padding-left: 8px;
+}
+
+#scrollContentsList .h4 a:before {
+	font-size: 0.4em;
+	content: "\00a0\00a0\00a0";
+	padding-left: 24px;
+}
+
+
+/* section marker */
+/*
+#scrollContentsList .h2 a:before {
+	font-size: 0.6em;
+	content: "\25B0  ";
 	padding-left: 0;
 	color: #667766;
 }
@@ -370,31 +405,70 @@ html[xmlns] #nav {
 
 #scrollContentsList .h3 a:before {
 	font-size: 0.6em;
-	content: "\25B0  "; /* "\25B0  " */
+	content: "\25B0  ";
 	padding-left: 8px;
 	color: #889988;
 }
 
-#scrollContentsList .h3 {
-	font-size: 1.0em;
-	font-style: italic;
-	font-variant: normal;
-}
-
 #scrollContentsList .h4 a:before {
 	font-size: 0.4em;
-	content: "\25B0  "; /* "\25B0\25B0  " */
+	content: "\25B0  ";
 	padding-left: 24px;
 	color: #889988;
 }
-
-#scrollContentsList .h4 {
-	font-size: .9em;
-}
+*/
 
 #details {
 	height: 100%;
 }
+
+/* Circled letters, for table of contents display by intramine_viewer.pl. */
+.circle_red {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #FAA;
+	border: 1px solid #FAA;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+  .circle_green {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #7E7;
+	border: 1px solid #7E7;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+  .circle_blue {
+	display: inline-block;
+	vertical-align: text-top;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	margin: 0 4px 0 0;
+	padding: 1px 1px 1px 1px;
+	background: #CCF;
+	border: 1px solid #CCF;
+	color: #000;
+	text-align: center;
+	font: 9px Arial, sans-serif;
+	/*font-size: 10px;*/
+}
+
 
 /* A bit of formatting for text. */
 .Comment_Normal {color: #004221;}
@@ -5612,6 +5686,7 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 // Called by  viewerStart.js#reJumpToLineNumber().
 function restoreTocSelection(lineNum) {
 	let tocElem = null;
+
 	let el = document.getElementById(cmTextHolderName);
 	let limitLineNum = lastVisibleLineNumber(el) + 1;
 	tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
@@ -5947,6 +6022,32 @@ function rememberLocation() {
         topLineNumber = lineNumber.toString();
 		}
 	}
+
+function getFirstVisibleLineNumber() {
+    let firstLineNumber = -1;
+	if (usingCM)
+		{
+		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+		let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+		let lineNumber = parseInt(myStartLine.toString(), 10);
+		if (lineNumber > 0)
+			{
+			lineNumber += 2;
+			}
+		else
+			{
+			lineNumber = 1;
+			}
+        firstLineNumber = lineNumber;
+ 		}
+	else // text mainly
+		{
+		let el = document.getElementById(cmTextHolderName);
+		firstLineNumber = firstVisibleLineNumber(el);
+ 		}
+
+    return(firstLineNumber);
+}
 
 function startDraggingSeparator(e) {
     rememberLocation();

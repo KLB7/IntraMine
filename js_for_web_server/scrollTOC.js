@@ -49,6 +49,7 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 // Called by  viewerStart.js#reJumpToLineNumber().
 function restoreTocSelection(lineNum) {
 	let tocElem = null;
+
 	let el = document.getElementById(cmTextHolderName);
 	let limitLineNum = lastVisibleLineNumber(el) + 1;
 	tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
