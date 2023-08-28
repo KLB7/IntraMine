@@ -3918,13 +3918,15 @@ sub LoadTypeScriptTags {
 		# MultistepOperation	session.ts	166;"	c	namespace:ts.server
 		# immediate	session.ts	188;"	m	class:ts.server.MultistepOperation
 		# PendingErrorCheck	session.ts	113;"	i	namespace:ts.server
-		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!)
+		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!
+			|| $linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])$!)
+		#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!)
 			{
 			my $tagname = $1;
 			my $lineNumber = $2;
 			my $kind = $3;
-			my $owner = $4;
-			
+			my $owner = defined($4)? $4: '';
+
 			if ($kind eq 'c' || $kind eq 'i')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
