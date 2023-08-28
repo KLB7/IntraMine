@@ -4655,7 +4655,7 @@ sub AddInternalLinksToPerlLine {
 			$wordEndPos = rindex($line, '>', $wordEndPos) unless $wordEndPos < 0;
 			$wordEndPos = rindex($line, '<', $wordEndPos) unless $wordEndPos < 0;
 			}
-		#else assume sub name is immediately before the '('.
+		#else assume subroutine name is immediately before the '('.
 		# If no word end, keep going.
 		if ($wordEndPos < 0)
 			{
