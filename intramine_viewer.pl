@@ -4631,7 +4631,7 @@ sub AddInternalLinksToPerlLine {
 	my ($txtR, $sectionIdExistsH) = @_;
 	
 	# Skip any line that does have a '(', or is a sub definition.
-	if (index($$txtR, '(') < 0 || index($$txtR, 'sub<') > 0)
+	if ((index($$txtR, '(') < 0 && index($$txtR, '&amp;') < 0) || index($$txtR, 'sub<') > 0)
 		{
 		return;
 		}
@@ -4739,6 +4739,39 @@ sub AddInternalLinksToPerlLine {
 		++$currentMatchEndPos;
 		} # while ($currentMatchEndPos = (index($line, '(', $currentMatchEndPos)) > 0)
 		
+	# Also look for \&Subname. In practice, &Subname should do.
+	# (Note & is &amp; in the HTML.)
+	my $currentMatchStartPos = 0;
+	while ( ($currentMatchStartPos = index($line, '&amp;', $currentMatchStartPos)) > 0 )
+		{
+		# If chars following the '&' form a word, look it up in TOC entries.
+		my $wordStartPos = $currentMatchStartPos + 5;
+		my $wordEndPos = $wordStartPos;
+		my $nextChar = substr($line, $wordEndPos, 1);
+		my $ordNC = ord($nextChar);
+		while (($ordNC >= $ORD_a && $ordNC <= $ORD_z) || ($ordNC >= $ORD_A && $ordNC <= $ORD_Z) || ($ordNC >= $ORD_0 && $ordNC <= $ORD_9))
+			{
+			++$wordEndPos;
+			$nextChar = substr($line, $wordEndPos, 1);
+			$ordNC = ord($nextChar);
+			}
+		if ($wordEndPos > $wordStartPos)
+			{
+			my $potentialID = substr($line, $wordStartPos, $wordEndPos - $wordStartPos);
+			if (defined($sectionIdExistsH->{$potentialID}))
+				{
+				push @repStr, "<a href=\"#$potentialID\">$potentialID</a>";
+				push @repStartPos, $wordStartPos;
+				push @repLen, $wordEndPos - $wordStartPos;
+				}
+			$currentMatchStartPos += ($wordEndPos - $wordStartPos);
+			}
+		else
+			{
+			$currentMatchStartPos += 5;
+			}
+		}
+
 	# Do all reps in reverse order at end.
 	my $numReps = @repStr;
 	if ($numReps)

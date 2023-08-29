@@ -146,6 +146,17 @@ function doResize() {
 	let windowWidth = window.innerWidth;
 	el.style.width = windowWidth - 4 + "px";
 	
+	// Temp, try adjusting fileTreeLeft and fileTreeRight height as well.
+	el = document.getElementById('fileTreeLeft');
+	pos = getPosition(el);
+	elHeight = windowHeight - pos.y;
+	el.style.height = elHeight - 20 + "px";
+
+	el = document.getElementById('fileTreeRight');
+	pos = getPosition(el);
+	elHeight = windowHeight - pos.y;
+	el.style.height = elHeight - 20 + "px";
+
 	// Hide the spinner, and replace it with the help question mark.
 	hideSpinner();
 }
@@ -405,6 +416,8 @@ function depthForDir(dir) {
 // After starting up, expand left directory list to show
 // the contents of the directory path in dirPath. This is done
 // by simulating clicks on the directory names as we drill down.
+// Typical URL:
+// http://192.168.40.8:43130/Files/?req=main&directory=file:///C:/perlprogs/intramine/test/
 async function showDirectory(dirPath) {
 	// Decode: this goes with
 	// $initialDirectory = uri_encode($initialDirectory);
@@ -434,35 +447,70 @@ async function showDirectory(dirPath) {
 		}
 	
 	// Handle drive first.
-	await delay(300);
 	driveChanged('scrollDriveListLeft', openRels[0]);
 	let theDrive = openRels[0];
 	theDrive = theDrive.substring(0, theDrive.length - 1);
 	let eid = document.getElementById('driveselector_1');
 	eid.value = openRels[0];
 
+	await delay(500);
+
 	for (let i = 1; i < openRels.length; ++i)
 		{
 		let relval = openRels[i];
 		let relQuery = '[rel=' + '"' + relval + '"]';
-		await delay(300);
+		//await delay(1000);
 		
 		let ank = leftList.querySelectorAll(relQuery)[0];
 
 		if (typeof ank !== 'undefined')
 			{
+			directoryExpansionFinished = false;
+
 			ank.click();
+
+			let antiBreakCount = 0;
+			while (!directoryExpansionFinished && ++antiBreakCount < 20)
+				{
+				await delay(100);
+				}
+			directoryExpansionFinished = false;
+			if (antiBreakCount >= 20)
+				{
+				console.log("Directory expansion is taking too long, giving up.");
+				break;
+				}
+		
 			if (i == openRels.length - 1)
 				{
-				ank.scrollIntoView();
+				scrollFolderIntoView(leftList, ank);
 				}
 			}
 		else
 			{
+			console.log("Error, could not open " + relval);
 			break;
 			}
 		}
-	
+}
+
+// Scroll the left list of folders so that the folder associated
+// with element "ank" is scrolled into view.
+// From
+// https://stackoverflow.com/questions/635706/how-to-scroll-to-an-element-inside-a-div
+// with a little fine tuning since leftList is not at the top of the page.
+function scrollFolderIntoView(leftList, ank) {
+	let topPos = ank.offsetTop;
+	let listTop = getPosition(leftList);
+	let newTop = topPos - listTop.y;
+	if (newTop >= 0)
+		{
+		leftList.scrollTop = newTop;
+		}
+	else
+		{
+		leftList.scrollTop = topPos;
+		}
 }
 
 function setSelectBoxByText(id, etxt) {

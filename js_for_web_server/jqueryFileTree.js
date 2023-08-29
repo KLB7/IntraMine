@@ -34,6 +34,12 @@
 // and selectDirectories.
 // And the memorable "h" function has been renamed to "action". I might have also added the
 // "resizeUs", a couple of years ago, sorry I forget.
+
+// Added for files.js#showDirectory() which simulates click on the file tree
+// to show a subdirectory: this can take a few milliseconds, so showDirectory
+// waits until directoryExpansionFinished is true.
+let directoryExpansionFinished = false;
+
 if(jQuery) (function($){
 	
 	$.extend($.fn, {
@@ -75,6 +81,7 @@ if(jQuery) (function($){
 						if( o.root == t ) $(c).find('UL:hidden').show(); else $(c).find('UL:hidden').slideDown({ duration: o.expandSpeed, easing: o.expandEasing });
 						bindTree(c);
 						resizeUs();
+						directoryExpansionFinished = true;
 					});
 				}
 				
@@ -90,7 +97,7 @@ if(jQuery) (function($){
 									$(this).parent().parent().find('LI.directory').removeClass('expanded').addClass('collapsed');
 								}
 								$(this).parent().find('UL').remove(); // cleanup
-								showTree( $(this).parent(), escape($(this).attr('rel').match( /.*\// )) );
+								showTree( $(this).parent(), encodeURIComponent($(this).attr('rel').match( /.*\// )) );
 								$(this).parent().removeClass('collapsed').addClass('expanded');
 								
 								if (o.selectDirectories)
@@ -122,7 +129,7 @@ if(jQuery) (function($){
 				// Loading message
 				$(this).html('<ul class="jqueryFileTree start"><li class="wait">' + o.loadMessage + '<li></ul>');
 				// Get the initial file list
-				showTree( $(this), escape(o.root) );
+				showTree( $(this), encodeURIComponent(o.root) );
 			});
 		}
 	});
