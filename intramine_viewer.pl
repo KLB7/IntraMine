@@ -4622,15 +4622,15 @@ sub InsideExistingAnchor {
 # are examined for a match against a TOC entry, and word must be followed immediately by '('
 # (possibly with intervening span markup),
 # which limits links to sub() mentions, in code or comments.
+# Or preceded by '&', meaning a subrouting reference.
 # OUTSIDE of a comment, a sub call looks like:
 #		<span class="Subroutine">MakeDirectoriesForFile</span>\s*<span class="Symbol">(</span>....
 # INSIDE of a comment, it's just
 # 		MakeDirectoriesForFile(....
-# TODO this misses the FullFile() callback in "$RequestAction{'href'} = \&FullFile;"
 sub AddInternalLinksToPerlLine {
 	my ($txtR, $sectionIdExistsH) = @_;
 	
-	# Skip any line that does have a '(', or is a sub definition.
+	# Skip any line that does have a '(' or '&amp;' or is a sub definition.
 	if ((index($$txtR, '(') < 0 && index($$txtR, '&amp;') < 0) || index($$txtR, 'sub<') > 0)
 		{
 		return;
