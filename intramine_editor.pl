@@ -137,6 +137,8 @@ _TOPNAV_
 <script src="cmAutoLinks.js" ></script>
 <script src="cmToggle.js" ></script>
 <script src="cmMobile.js" ></script>
+<script src="diff_match_patch_uncompressed.js" ></script>
+<script src="restore_edits.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
@@ -216,7 +218,8 @@ FINIS
 
 	# Watch out for apostrophe in path, it's a killer in the JS above.
 	$filePath =~ s!'!\\'!g;
-	$theBody =~ s!_PATH_!$filePath!g;
+
+	$theBody =~ s!_PATH_!$ctrlSPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 	
 	my $cmTextHolderName = 'scrollText';
@@ -272,6 +275,7 @@ sub LoadTheFile {
 	if ($filepath ne '')
 		{
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		#$result = encode_utf8(ReadTextFileDecodedWide($filepath));
 		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
 		}
 	
