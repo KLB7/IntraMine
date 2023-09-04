@@ -256,7 +256,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 
 function adviseUserEditsWereRestored() {
 	let e1 = document.getElementById(errorID);
-	e1.innerHTML = "<strong>NOTE unsaved changes have been restored. Undo if you don't want them</strong>";
+	e1.innerHTML = "<strong>NOTE unsaved changes have been restored. Revert if you don't want them</strong>";
 }
 
 function testNoticeKeyPress(cm, evt) {
@@ -294,6 +294,8 @@ function onCodeMirrorChange() {
 		addClass(btn, 'disabled-submit-button');
 		btn = document.getElementById("redo-button");
 		addClass(btn, 'disabled-submit-button');
+		btn = document.getElementById("revert-button");
+		addClass(btn, 'disabled-submit-button');
 		
 		// Note CodeMirror emits a "change" event when text is loaded, we ignore
 		// since loadFileIntoCodeMirror() calls addAutoLinks() directly.
@@ -303,6 +305,9 @@ function onCodeMirrorChange() {
 	if (!myCodeMirror.doc.isClean())
 		{
 		removeClass(sve, 'disabled-submit-button');
+		let btn = document.getElementById("revert-button");
+		removeClass(btn, 'disabled-submit-button');
+
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '&nbsp;';
 		
@@ -320,6 +325,9 @@ function onCodeMirrorChange() {
 	else
 		{
 		addClass(sve, 'disabled-submit-button');
+		let btn = document.getElementById("revert-button");
+		addClass(btn, 'disabled-submit-button');
+
 		if (unloadListenerAdded)
 			{
 			unloadListenerAdded = false;
@@ -418,6 +426,14 @@ async function saveFile(path) {
 		e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
 		hideSpinner();
 	}
+}
+
+function revertFile(path) {
+	clearSavedDiffs();
+	firstMaintainButtonsCall = true;
+	let e1 = document.getElementById(errorID);
+	e1.innerHTML = "&nbsp;";
+	loadFileIntoCodeMirror(myCodeMirror, path);
 }
 
 function makeDebouncedClearAddLinks() {

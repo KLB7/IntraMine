@@ -106,7 +106,7 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_<span id="editor_error">&nbsp;</span>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'><div id='scrollText'></div></div>
 
@@ -185,6 +185,8 @@ FINIS
 	# Buttons:
 	my $saveAction = "<input onclick=\"saveFile('$ctrlSPath');\" id=\"save-button\" class=\"submit-button\" type=\"submit\" value=\"Save\" />";
 	$theBody =~ s!_SAVEACTION_!$saveAction!;
+	my $revert = "<input onclick=\"revertFile('$ctrlSPath');\" id=\"revert-button\" class=\"submit-button\" type=\"submit\" value=\"Revert\" title=\"Revert to last saved version\" />";
+	$theBody =~ s!_REVERT_!$revert!;
 	my $arrows = "<img src='left3.png' id='left2' class='img-arrow-left'> " .
 				 "<img src='up3.png' id='up2' class='img-arrow-up'> " .
 				 "<img src='down3.png' id='down2' class='img-arrow-down'> " .
