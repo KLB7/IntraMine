@@ -93,6 +93,7 @@ let viewerShortName = '_VIEWERSHORTNAME_';
 let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
+let filesShortName = '_FILESSHORTNAME_';
 let peeraddress = '_PEERADDRESS_';	// ip address of client
 let b64ToggleImage = '';
 let doubleClickTime = _DOUBLECLICKTIME_;
@@ -212,7 +213,9 @@ FINIS
 	# Full path is unhelpful in the <title>, trim down to just file name.
 	my $fileName = FileNameFromPath($title);
 	$fileName = &HTML::Entities::encode($fileName);
-	$theBody =~ s!_TITLE_!$fileName!;
+	my $displayedTitle = '&#128393' . $fileName; # "lower left pencil"
+	$theBody =~ s!_TITLE_!$displayedTitle!;
+	# $theBody =~ s!_TITLE_!$fileName!;
 	# Flip the slashes for file path in _TITLEHEADER_ at top of the page, for the "traditional" look.
 	$title =~ s!/!\\!g;
 	$title = &HTML::Entities::encode($title);
@@ -247,10 +250,12 @@ FINIS
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
+	my $filesShortName = CVal('FILESSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
+	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
 
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;

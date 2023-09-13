@@ -21,6 +21,7 @@
 // in the startup of a web page.
 
 let commandTable = new Object();
+let initializing = true;
 let wsIsConnected = 0;
 let ws;
 
@@ -36,12 +37,18 @@ function addCallback(trigger, callback) {
 //	commandTable[trigger] = function() { callback(); };
 	}
 
+// Messages have the form "MG_trigger stuff_MG_" and there
+// can be several messages received at once, many not
+// containing a trigger word that we're interested in here.
 function doCallback(message) {
 	for (const trigger in commandTable)
 		{
-		if (message.indexOf(trigger) == 0)
+		let regex = new RegExp('_MG_(' + trigger + '.*?)_MG_', "g");
+		let currentResult = {};
+		while ((currentResult = regex.exec(message)) !== null)
 			{
-			commandTable[trigger](message);
+			let relevantMessage = currentResult[1];
+			commandTable[trigger](relevantMessage);
 			}
 		}
 }
@@ -77,6 +84,10 @@ function wsInitWithPort(wsPort) {
     wsIsConnected = 1;
 	});
 
+	ws.addEventListener('close', function (event) {
+		wsIsConnected = 0;
+		});
+	
 	ws.addEventListener('message', function (event) {
 		//console.log('Message from server ', event.data);
 		handleWsMessage(event.data);
@@ -99,14 +110,25 @@ function sleepMS(ms) {
 async function wsSendMessage(message) {
 	let i = 0;
 
-	while (!wsIsConnected && ++i < 10)
+	if (initializing)
 		{
-		await sleepMS(100);
+		while (!wsIsConnected && ++i < 10)
+			{
+			await sleepMS(100);
+			}
 		}
 		
+	if (!wsIsConnected && !initializing)
+		{
+		wsInit();
+		await sleepMS(500);
+		}
+
+	initializing = false;
+
 	if (wsIsConnected)
 		{
-		ws.send(message);
+		ws.send('_MG_' + message + '_MG_');
 		}
 	else
 		{

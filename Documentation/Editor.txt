@@ -1,10 +1,10 @@
 Editor
 ========
-This is about IntraMine's built-in editor, with intramine_editor.pl on the back end, and editor.js on the front.
+This is about IntraMine's built-in Editor, with intramine_editor.pl on the back end, and editor.js on the front.
 
-To configure editing with IntraMine, see "Editing documents.txt".
+To configure editing with IntraMine, see "Editing documents.txt". Basically you can set things up so that clicking on a "pencil" icon next to a file name will bring up either IntraMine's Editor (the default), or the editor of your choice.
 
-The Editor is fairly minimal, with syntax highlighting, autolinks and image hovers, and the ability to Save. There are buttons at the top for Save, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
+The Editor is fairly minimal, but includes syntax highlighting, autolinks and image hovers, and of course the ability to Save. There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
 TABLE
 Action			Keys
 Save			Ctrl+S
@@ -15,15 +15,26 @@ Cut				Ctrl+X
 Copy			Ctrl+C
 Paste			Ctrl+V
 Select All		Ctrl+A
-In addition, a datestamp like "9:18 PM Monday, January 02, 2023" can be inserted by pressing F4.
+Indent			Ctrl+] (add a tab to selected lines)
+Indent			Tab (same as above)
+Outdent			Ctrl+[ (remove a tab from selected lines)
+Outdent			Shift+Tab (same as above)
 
-Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top.
+In addition, a date-time stamp can be inserted by pressing either F4 or Ctrl-Space.
+F4: 			11:34 AM Monday, September 11, 2023
+Ctrl-Space: 	Mon Sep 11 2023 11:34:58
 
-*Some pencil links in a read-only View, and a green "Edit" button at the top.*
+Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon edit1.png that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top.
+
+*Some pencil links in the Viewer, and a green "Edit" button at the top.*
 2019-12-03 16_38_08-intramine_file_viewer_cm.pl.png
 
 *An Editor view. The "Save" button is enabled because I typed that "x" on line 4.*
 2022-03-03 14_09_39-Editor.txt.png
+
+Auto-refresh
+---------------
+Files displayed with IntraMine's Viewer will auto-refresh when changed by IntraMine's Editor, scrolling to the line where the Editor's cursor is. The refresh is pretty much instant. This is mainly handy when you're creating your own in-house documentation or log files using Gloss.
 
 Under the hood
 ==============

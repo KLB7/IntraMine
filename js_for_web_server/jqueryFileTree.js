@@ -38,6 +38,7 @@
 // Added for files.js#showDirectory() which simulates click on the file tree
 // to show a subdirectory: this can take a few milliseconds, so showDirectory
 // waits until directoryExpansionFinished is true.
+// Sloppily, this signals expansion OR collapse finished, sorry.
 let directoryExpansionFinished = false;
 
 if(jQuery) (function($){
@@ -109,6 +110,7 @@ if(jQuery) (function($){
 								$(this).parent().find('UL').slideUp({ duration: o.collapseSpeed, easing: o.collapseEasing });
 								$(this).parent().removeClass('expanded').addClass('collapsed');
 								collapseAction($(this).attr('rel'));
+								directoryExpansionFinished = true;
 							}
 						} else {
 						if (o.selectDirectories)

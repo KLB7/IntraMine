@@ -845,6 +845,7 @@ sub CodeMirrorJS {
 <script src="cmToggle.js" ></script>
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="viewer_auto_refresh.js" ></script>
 <script src="cmHandlers.js" ></script>
 FINIS
 
@@ -871,6 +872,7 @@ sub NonCodeMirrorJS {
 <script src="indicator.js" ></script>
 <script src="toggle.js" ></script>
 <script src="scrollTOC.js" ></script>
+<script src="viewer_auto_refresh.js" ></script>
 <script src="dragTOC.js" ></script>
 <script>
 hideSpinner();

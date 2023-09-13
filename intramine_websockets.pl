@@ -39,6 +39,8 @@ ListenForWSConnections();
 # rebroadcast to all listeners (including the original sender).
 # Except for an exit message, for which just print good-bye and exit.
 sub ListenForWSConnections {
+	my $MessageGuard = '_MG_';
+	
 	# TEST ONLY
 	print("$short_name is listening on port |$port_listen|\n");
 	
@@ -56,9 +58,9 @@ sub ListenForWSConnections {
 	                my ($conn, $msg) = @_;
 	                # TEST ONLY
 	                #print("utf8: |$msg|\n");
-	                
-	                if (   $msg =~ m!^(..)?FORCEEXIT(..)?$!
-	                	|| $msg =~ m!^(..)?EXITEXITEXIT(..)?$! )
+					if ($msg =~ m!$MessageGuard(FORCEEXIT|EXITEXITEXIT)$MessageGuard!)	                
+	                # if (   $msg =~ m!^(..)?FORCEEXIT(..)?$!
+	                # 	|| $msg =~ m!^(..)?EXITEXITEXIT(..)?$! )
 	                	{
 	                	print("WS EXIT bye!\n");
 	                	exit(0);

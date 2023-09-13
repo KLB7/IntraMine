@@ -82,7 +82,9 @@ sub WebSocketStart {
 	
 	if (!defined($tcp_socket))
 		{
-		die "Failed to connect to socket: $@";
+		$isConnected = 0;
+		return;
+		#Clogs things up on exit sometimes: die "Failed to connect to socket: $@";
 		}
 	
 	# enable read and write timeouts on the socket
@@ -142,7 +144,7 @@ sub WebSocketStart {
 	while ($tcp_socket->connected && ++$tryCount <= 10)
 		{
 		my $recv_data;
-		my $bytes_read = $tcp_socket->sysread($recv_data, 8000);
+		my $bytes_read = $tcp_socket->sysread($recv_data, 16384); # was 8000
 		if (!defined $bytes_read) { ChattyPrint("sysread on tcp_socket failed!\n"); last; }
 		elsif ($bytes_read == 0) { ChattyPrint("No bytes read. \$isConnected is |$isConnected|\n"); last; }
 		else
@@ -170,6 +172,8 @@ sub WebSocketStart {
 sub WebSocketSend {
 	my ($msg, $disconnect) = @_;	
 	$disconnect ||= 0;
+
+	my $MessageGuard = '_MG_';
 	
 	if ($disconnect)
 		{
@@ -198,8 +202,12 @@ sub WebSocketSend {
 		}
 	
 	ChattyPrint("About to call \$client->write |$msg|.\n");
-	$client->write($msg);
-	
+
+	# TEST ONLY
+	#print("Sending: |$msg|\n");
+
+	$client->write($MessageGuard . $msg . $MessageGuard);
+
 	my $result = 0;
 	
 	# Confirm the send by reading the same message back from the WebSockets server.
@@ -210,7 +218,7 @@ sub WebSocketSend {
 	
 	# TEST ONLY
 	#print("Confirming |$msg|...\n");
-	
+
 	while (1)
 		{
 		my $recv_data;
@@ -225,13 +233,20 @@ sub WebSocketSend {
 			
 			if (defined($recv_data) && length($recv_data) > 0)
 				{
-				# A control character is often present at the start of the message,
-				# hence the \W*.
-				if ($recv_data =~ m!^\W*$msg$!i)
+				# A spurious character is often present at the start of the message,
+				# in addition to other messages, hence the .*.
+				#if ($recv_data =~ m!^.*$msg$!i)
+				# Rev, just check for the $msg.
+				if ($recv_data =~ m!$MessageGuard$msg$MessageGuard!i)
 					{
 					#print("WebSocketSend MESSAGE CONFIRMED.\n");
 					$result = 1;
 					last;
+					}
+				# TEST ONLY
+				else
+					{
+					#print("Other message received: |$recv_data|\n");
 					}
 				}
 			else
@@ -251,18 +266,18 @@ sub WebSocketSend {
 	my $wsElapsed = time - $wsStart;
 	if ($wsElapsed > 2.1)
 		{
-		#my $ruffElapsed = substr($wsElapsed, 0, 6);
-		print("LONG DELAY |$wsElapsed| s WebSocketSend end.\n");
+		my $ruffElapsed = substr($wsElapsed, 0, 6);
+		print("LONG DELAY |$wsElapsed| s WebSocketSend for message |$msg|.\n");
 		}
 	else
 		{
-		###print("WebSocketSend end.\n");
+		#print("WebSocketSend end.\n");
 		}
 
 	# TEST ONLY
 	if (!$result)
 		{
-		print("WS message |$msg$| NOT CONFIRMED!\n");
+		print("WS message |$msg| NOT CONFIRMED!\n");
 		}
 		
 	# This was a one-shot connection, to avoid message constipation
@@ -282,7 +297,8 @@ sub WebSocketSendNoConfirm {
 		return(0);
 		}
 
-	$client->write($msg);
+	my $MessageGuard = '_MG_';
+	$client->write($MessageGuard . $msg . $MessageGuard);
 	
 	return(1);
 	}

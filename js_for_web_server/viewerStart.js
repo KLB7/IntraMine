@@ -5,6 +5,8 @@
 // Preserve user selection when marking, by remembering selection range, removing selected
 // text before marking, then restoring text and selection range after marking (patent not pending).
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 let markerMainElement = document.getElementById(cmTextHolderName);
 if (markerMainElement === null)
 	{
@@ -86,7 +88,7 @@ function doResize() {
 function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
-	reJump();
+	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
 	highlightInitialItems();
@@ -103,7 +105,12 @@ function resetTopNavPosition() {
 }
 
 // Scroll element into view, based on ID named in location.hash.
-function reJump() {
+function reJump(delayMsec) {
+	if (delayMsec === undefined)
+		{
+		delayMsec = 0;
+		}
+	
 	let h = location.hash;
 	if (h.length > 1)
 		{
@@ -130,7 +137,7 @@ function reJump() {
 			}
 		else
 			{
-			reJumpToLineNumber(h);
+			reJumpToLineNumber(h, delayMsec);
 			}
 		}
 }
@@ -181,20 +188,58 @@ function getElementForHash(h) {
 }
 
 // Scroll a line into view, based on line number. Synch the TOC too.
-function reJumpToLineNumber(h) {
-	let lineNum = parseInt(h, 10) - 1;
-	if (lineNum <= 0)
+async function reJumpToLineNumber(h, delayMsec) {
+	if (delayMsec === undefined)
 		{
+		delayMsec = 0;
+		}
+
+	let lineNum = parseInt(h, 10) - 1;
+	if (lineNum < 0)
+		{
+		console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
+	
 	// Look for row number lineNum.
 	let rows = markerMainElement.getElementsByTagName('tr');
-	if (lineNum < rows.length)
+	if (lineNum >= rows.length)
+		{
+		lineNum = rows.length - 1;
+		}
+	
+	if (lineNum >= 0)
 		{
 		let el = rows[lineNum];
+		if (el === null)
+			{
+			// Currently the Editor saves and shows blank lines at the bottom
+			// but some Viewers suppress them. Back up the lineNum until
+			// we hit an actual existing row. This probably isn't needed
+			// thanks to the limit on lineNum above, but I've left it in.
+			let revCounter = 0;
+			while (el === null && ++revCounter <= 100 && --lineNum >= 0)
+				{
+				el = rows[lineNum];
+				if (el !== null)
+					{
+					break;
+					}
+				}
+			}
+		
+		if (lineNum < 0)
+			{
+			lineNum = 0;
+			}
+		
 		if (el !== null)
 			{
-			el.scrollIntoView();
+			if (delayMsec > 0)
+				{
+				await delay(delayMsec);
+				}
+			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
 				{

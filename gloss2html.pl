@@ -2123,8 +2123,8 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('LightRange.min.js');
 	$$contents_R .= InlineJavaScriptForFile('commonEnglishWords.js');
 	$$contents_R .= InlineJavaScriptForFile('glossstubs.js');
-	$$contents_R .= InlineJavaScriptForFile('viewerStart.js');
 	$$contents_R .= InlineJavaScriptForFile('showHideTOC.js');
+	$$contents_R .= InlineJavaScriptForFile('viewerStart.js');
 	#$$contents_R .= InlineJavaScriptForFile('viewerLinks.js');
 	$$contents_R .= InlineJavaScriptForFile('indicator.js');
 	$$contents_R .= InlineJavaScriptForFile('toggle.js');

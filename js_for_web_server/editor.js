@@ -170,9 +170,21 @@ cfg.extraKeys = {
 	"Alt-F" : "findPersistent",
 	"Ctrl-Z" : function(cm) {
 		cm.undo();
-	}
+	},
+	"Ctrl-Space": function(cm) {
+		insertTimeStamp(cm);
+	},
+	"Shift-Tab" : "indentLess"
 };
+// cfg.extraKeys = {
+// 	"Alt-F" : "findPersistent",
+// 	"Ctrl-Z" : function(cm) {
+// 		cm.undo();
+// 	}
+// };
 cfg.highlightSelectionMatches = true;
+cfg.indentUnit = 4;
+cfg.indentWithTabs = true;
 
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
@@ -236,6 +248,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 			doResize();
 			myCodeMirror.display.barWidth = 16;
 			addAutoLinks();
+			setTimeout(function() {
+				cmEditorRejumpToAnchor();
+				}, 600);
 			hideSpinner();
 			}
 		else
@@ -370,6 +385,7 @@ async function saveFile(path) {
 	contents = contents.replace(/%/g, "%25");
 	// And the same for path.
 	path = path.replace(/%/g, "%25");
+	path = encodeURIComponent(path);
 	contents = encodeURIComponent(contents);
 	contents = encodeURIComponent(contents); // sic
 
@@ -380,7 +396,7 @@ async function saveFile(path) {
 			headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		  },
-		  body: 'req=save&file=' + encodeURIComponent(path) + '&contents='
+		  body: 'req=save&file=' + path + '&contents='
 		  + contents
 		});
 		if (response.ok)
@@ -405,8 +421,10 @@ async function saveFile(path) {
 						}
 					}
 				
-				clearSavedDiffs();
+				onCodeMirrorChange();
+				//clearSavedDiffs();
 				setSavedText(myCodeMirror.doc.getValue());
+				notifyFileChangedAndRememberCursorLine(path);
 				}
 			hideSpinner();
 			}
@@ -436,6 +454,19 @@ function revertFile(path) {
 	loadFileIntoCodeMirror(myCodeMirror, path);
 }
 
+// WebSockets, send cursor line number and file path on a Save.
+// For next load, remember the cursor position.
+function notifyFileChangedAndRememberCursorLine(path) {
+	// In the Viewer go to the line where the cursor is.
+	// Seems more useful that going to the top line displayed in the Editor.
+	let lineNumber = myCodeMirror.getCursor().line.toString();
+
+	location.hash = lineNumber;
+
+	let msg = 'changeDetected ' + lineNumber + ' ' + path;
+	wsSendMessage(msg);
+}
+
 function makeDebouncedClearAddLinks() {
 	debouncedAddLinks = JD.debounce(clearAndAddAutoLinks, 2000);
 }
@@ -446,6 +477,18 @@ function addClickHandler(id, fn) {
 		{
 		el.addEventListener('click', fn, false);
 		}
+}
+
+// Eg "Sun Sep 10 2023 08:37:40".
+// Currently fired by Ctrl-Space.
+function insertTimeStamp(cm) {
+	let dateTimeStr = Date().toLocaleString();
+	let gmtIndex = dateTimeStr.indexOf(" GMT");
+	if (gmtIndex > 0)
+		{
+		dateTimeStr = dateTimeStr.substring(0, gmtIndex);
+		}
+	cm.replaceSelection(dateTimeStr);
 }
 
 function editorUndo(e) {
@@ -523,6 +566,32 @@ function insertInCodeMirror(textToInsert) {
     }
 
     doc.replaceRange(textToInsert, pos);
+}
+
+function cmEditorRejumpToAnchor() {
+	let anchor = location.hash;
+	if (anchor.length > 1)
+		{
+		anchor = anchor.replace(/^#/, '');
+		if (!isNaN(anchor))
+			{
+			let lineNum = parseInt(anchor, 10);
+			cmEditorRejumpToLine(lineNum);
+			}
+		}
+}
+
+function cmEditorRejumpToLine(lineNum) {
+	if (lineNum > 0)
+		{
+		--lineNum; // off by one, cm line numbers are 0-based for API calls.
+		}
+
+	let t = myCodeMirror.charCoords({
+		line : lineNum,
+		ch : 0
+	}, "local").top;
+	myCodeMirror.scrollTo(null, t);
 }
 
 pasteDateTimeOnF4();

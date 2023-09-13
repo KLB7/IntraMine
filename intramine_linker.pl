@@ -892,9 +892,10 @@ sub GetLongestGoodPath {
 		if ($currentRevPos >= 0) 
 			{
 			my $numChars = $currentRevPos - $prevSubRevPos + 1;
+			#print("|$revStrLength| |$currentRevPos| |$prevSubRevPos| |$numChars|\n");
 			if ($prevSubRevPos + $numChars > $revStrLength - 1)
 				{
-				$numChars = $revStrLength - $prevSubRevPos - 1;
+				$numChars = $revStrLength - $prevSubRevPos;
 				# Drop out after this check.
 				$currentRevPos = -1;
 				}

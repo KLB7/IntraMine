@@ -364,7 +364,6 @@ const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
 			}
 		}
 
-	// Collapse/expand directories to force the new sort order.
 	for (let lIndex = 0; lIndex < 2; ++lIndex)
 		{
 		let openRels = (lIndex == 0) ? openRels1: openRels2;
@@ -375,25 +374,55 @@ const reSortExpandedDirectoriesOnSortChange = async (relQuery, depth) => {
 			let depth = nestingLevel[i];
 			let relQuery = '[rel=' + '"' + relval + '"]';
 	
-			await delay(500);
-	
 			let ank = fileLists[lIndex].querySelectorAll(relQuery)[0];
+			let ankAntiBreakCount = 0;
+			while (typeof ank === 'undefined' && ++ankAntiBreakCount < 40)
+				{
+				await delay(100);
+				ank = fileLists[lIndex].querySelectorAll(relQuery)[0];
+				}
+	
 			
 			if (ank !== null)
 				{
 				// Click at least once on all dirs that want expansion.
 				// Click a second time on top level dirs (depth 0).
+				directoryExpansionFinished = false;
+
 				ank.click();
+
+				let antiBreakCount = 0;
+				while (!directoryExpansionFinished && ++antiBreakCount < 20)
+					{
+					await delay(100);
+					}
+				directoryExpansionFinished = false;
+				if (antiBreakCount >= 20)
+					{
+					console.log("Directory expansion is taking too long, giving up.");
+					break;
+					}
+			
 				if (depth == 0)
 					{
-					await delay(300);
+					directoryExpansionFinished = false;
 					ank.click();
+					let antiBreakCount = 0;
+					while (!directoryExpansionFinished && ++antiBreakCount < 20)
+						{
+						await delay(100);
+						}
+					directoryExpansionFinished = false;
+					if (antiBreakCount >= 20)
+						{
+						console.log("Directory expansion is taking too long, giving up.");
+						break;
+						}
 					}
 				}
 			}
 		}
-	
-	await delay(500);
+
 	leftList.scrollTop = leftTop;
 	rightList.scrollTop = rightTop;
 	}
@@ -459,9 +488,15 @@ async function showDirectory(dirPath) {
 		{
 		let relval = openRels[i];
 		let relQuery = '[rel=' + '"' + relval + '"]';
-		//await delay(1000);
+		
 		
 		let ank = leftList.querySelectorAll(relQuery)[0];
+		let ankAntiBreakCount = 0;
+		while (typeof ank === 'undefined' && ++ankAntiBreakCount < 40)
+			{
+			await delay(100);
+			ank = leftList.querySelectorAll(relQuery)[0];
+			}
 
 		if (typeof ank !== 'undefined')
 			{
@@ -470,7 +505,7 @@ async function showDirectory(dirPath) {
 			ank.click();
 
 			let antiBreakCount = 0;
-			while (!directoryExpansionFinished && ++antiBreakCount < 20)
+			while (!directoryExpansionFinished && ++antiBreakCount < 60)
 				{
 				await delay(100);
 				}

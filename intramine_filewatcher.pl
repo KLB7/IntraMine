@@ -252,6 +252,10 @@ sub IndexChangedFiles {
 			}
 		}
 
+	# Send out messages via WebSockets for changed files, so the Viewer can update.
+	# (This needs more work, sometimes the WebSockets message doesn't go through.)
+	SendFileContentsChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles);
+
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
 	my @OldFilePath; # old names for renamed files
@@ -317,6 +321,45 @@ sub IndexChangedFiles {
 	
 	# Make the Status light flash for this server.
 	ReportActivity($SHORTNAME);
+	}
+
+# Use WebSockets to send 'changeDetected' messages out to everyone, in particular
+# so that the Viewer can refresh the view.
+sub SendFileContentsChanged {
+	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH) = @_;
+	my $CHANGED_BROADCAST_LIMIT = 3; # or 5 or 10?
+	my @pathsOfChangedNotNewFiles;
+	my $numChangedNew = @$pathsOfChangedFilesA;
+	for (my $i = 0; $i < $numChangedNew; ++$i)
+		{
+		if ($pathsOfChangedFilesA->[$i] ne '')
+			{
+			my $isAChange = (defined($pathsOfCreatedFilesH->{$pathsOfChangedFilesA->[$i]})) ? 0 : 1;
+			if ($isAChange)
+				{
+				push @pathsOfChangedNotNewFiles, $pathsOfChangedFilesA->[$i];
+				}
+			}
+		}
+		
+	my $numChanged = @pathsOfChangedNotNewFiles;
+	if ($numChanged <= $CHANGED_BROADCAST_LIMIT)
+		{
+		for (my $i = 0; $i < $numChanged; ++$i)
+			{
+			SendOneFileContentsChanged($pathsOfChangedNotNewFiles[$i]);
+			}
+		}
+	}
+
+sub SendOneFileContentsChanged {
+	my ($filePath) = @_;
+	# Sept 2023 disabled for now, this is too slow, takes 3-5 seconds.
+	return;
+	
+	$filePath =~ s!%!%25!g;
+	$filePath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+	WebSocketSend('changeDetected ' . '0 ' . $filePath);
 	}
 
 sub ReportMissingFileWatcherLog {

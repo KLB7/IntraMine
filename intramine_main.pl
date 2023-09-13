@@ -761,21 +761,35 @@ sub StopAllSwarmServers {
 
 	my $srvrAddr = ServerAddress();
 	
-	# Background servers.
-	my $numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
-		{
-		my $port = $BackgroundCommandPorts[$i];
-		AskSwarmServerToExit($port, $srvrAddr);
-		}
-
 	# Page servers.
-	$numServers = @ServerCommandLines;
+	my $numServers = @ServerCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
 		AskSwarmServerToExit($port, $srvrAddr);
 		}
+	
+	# Background servers.
+	$numServers = @BackgroundCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $BackgroundCommandPorts[$i];
+		if (!PortIsForWEBSOCKServer($port))
+			{
+			AskSwarmServerToExit($port, $srvrAddr);
+			}
+		}
+
+	# Do the WebSockets server last.
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $BackgroundCommandPorts[$i];
+		if (PortIsForWEBSOCKServer($port))
+			{
+			AskSwarmServerToExit($port, $srvrAddr);
+			}
+		}
+
 	}
 
 sub AskSwarmServerToExit {
@@ -830,27 +844,39 @@ sub AskSwarmServerToExit {
 
 # This "ForceStop" will stop all swarm servers, including Cmd page intramine_commandserver.pl servers.
 sub ForceStopAllSwarmServers {
-	# TEST ONLY
 	print("Forcing all servers to stop.\n");
 
 	my $srvrAddr = ServerAddress();
 	
-	# Background servers.
-	my $numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
-		{
-		my $port = $BackgroundCommandPorts[$i];
-		print("Forcing stop of background server on port $port\n");
-		ForceStopServer($port, $srvrAddr);
-		}
-
 	# Page servers.
-	$numServers = @ServerCommandLines;
+	my $numServers = @ServerCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
-		print("Forcing stop of page server on port $port\n");
+		print("Forcing stop of Page server on port $port\n");
 		ForceStopServer($port, $srvrAddr);
+		}
+	# Background servers.
+	$numServers = @BackgroundCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $BackgroundCommandPorts[$i];
+		if (!PortIsForWEBSOCKServer($port))
+			{
+			print("Forcing stop of BACKGROUND server on port $port\n");
+			ForceStopServer($port, $srvrAddr);
+			}
+		}
+
+	# Do the WebSockets server last.
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $BackgroundCommandPorts[$i];
+		if (PortIsForWEBSOCKServer($port))
+			{
+			print("Forcing stop of WebSockets server on port $port\n");
+			ForceStopServer($port, $srvrAddr);
+			}
 		}
 	}
 
