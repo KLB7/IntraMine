@@ -45,6 +45,7 @@ use FileHandle;
 use File::Basename;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
+# For syntax check only: use lib path($0)->absolute->parent->parent->child('libs')->stringify;
 #use lib ".";
 use common;
 use win_wide_filepaths;
@@ -358,6 +359,13 @@ sub ConsolidateFullPathLists {
 	        }
 	    close $fileH;
 		}
+	}
+
+# Return pipe-separated string holding all full paths for $fileName.
+sub GetAllPathsForFileName {
+	my ($fileName) = @_;
+	my $result = defined($FullPathsForFileName{$fileName}) ? $FullPathsForFileName{$fileName} : '';
+	return($result);
 	}
 
 # The main call for autolinking.

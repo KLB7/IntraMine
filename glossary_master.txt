@@ -1,0 +1,26 @@
+This is an example of an IntraMine "glossary master" file that will be used to show popup definitions for terms in all source and text files when they are displayed by IntraMine's Viewer or Editor. You can have several "glossary_mster.txt" files in different folders if you want, just make sure they are in indexed locations and all terms in them will be picked up. To be specific, "glossary_master.txt" files must be within a directory (or contained subdirectory) listed in IntraMine's data/search_directories.txt. All definitions in all "glossary_master.txt" files will be combined into one list when presenting the popup hints.
+
+For more on glossaries, see Documentation/Glossaries.txt (or .html).
+
+Format of entries here is the term being defined, at the start of a new line, followed by a colon, and then what follows the colon is the definition for the term. The term being defined can consist of up to four words. The definition can go on for more than one paragraph, but remember it has to fit in a "tooltip" window. If there are synonyms, you can put them all together at the start of the line, separated by commas (see for example "Autolinks" below). Entries don't have to be in alphabetical order. To see them in order, view this file using IntraMine's Viewer.
+
+The definition part after the colon can consist of plain text, which can run on until the next paragraph with a colon is seen as in the "Autolinks" example below, or can be the partial path of a single image in double quotes such as "tenor.gif" below. A mix of text and images is not currently supported.
+
+
+**STRONGLY RECOMMENDED**, don't put your glossary terms in this file. Instead, create your own "glossary_master.txt" file somewhere outside your IntraMine folder, but in an indexed directory as mentioned above. That way there will be no conflict when you update your IntraMine installation. If IntraMine is running when you create or save any "glossary_master.txt" file then the updated entries will be instantly available, but you'll need to refresh your browser to see the new popup definitions in any Viewer window. The Editor will pick up any new glossary term popups two seconds after you stop editing, otherwise you can refresh the window.
+
+
+Note if you want a backslash, use two of them in a row.
+
+And now here are three example glossary entries. (No colon has been used up to this point, so no glossary entries have been picked up yet.)
+
+Autolinks, automatic links, automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
+
+You can also autolink to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
+
+That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.
+
+Swarm server: A service written to run under IntraMine. A server is a "swarm" server if it uses "swarmserver.pm" to answer HTTP requests, and communicate with other services, including IntraMine's main service.
+
+CTRL+C: "tenor.gif".
+

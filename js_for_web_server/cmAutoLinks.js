@@ -373,6 +373,10 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		{
 		nameOfCSSclass = "cmAutoLinkDirectory";
 		}
+	else if (linkType === "glossary")
+		{
+		nameOfCSSclass = "cmAutoLinkGlossary";
+		}
 
 	let charEnd = chStart + len;
 
@@ -502,6 +506,7 @@ function typeAndClass(target, checkForIMG) {
 		linkType = "file";
 		className = "cmAutoLink";
 		}
+	// glossary, return linkType "" since it doesn't respond to clicks.
 	return {theType: linkType, theClass: className};
 }
 
@@ -923,8 +928,9 @@ function fireOneInternalLink(targetText, lineNum) {
 // Show popup of image if we're over class "cmAutoLinkImg".
 function handleMouseOver(e) {
 	let className = "cmAutoLinkImg";
+	let classNameGlossary = "cmAutoLinkGlossary";
 	let target = e.target;
-	if (hasClass(target, className))
+	if (hasClass(target, className) || hasClass(target, classNameGlossary))
 		{
 		let targetText = target.textContent;
 		if (targetText === "")
@@ -962,7 +968,7 @@ function handleMouseOver(e) {
 		let linkPath = linkOrLineNumForText.get(targetText);
 		if (typeof linkPath !== 'undefined')
 			{
-			showHoverImage(e, target, linkPath);
+			callShowHint(e, target, linkPath);
 			}
 		}
 }
@@ -971,23 +977,81 @@ function handleMouseOver(e) {
 // "showhint('<img src=&quot;http://192.168.1.132:81/c:/perlprogs/mine/images_for_web_server/ser
 // ver-128x128 60.png&quot;>', this, event, '500px', true);"
 // Call showhint() to pop up a (possibly reduced) view of the image.
-function showHoverImage(e, target, linkPath) {
+function callShowHint(e, target, linkPath) {
+	callShowHintWithCorrectPort(e, target, linkPath);
+}
+
+function callShowHintWithCorrectPort(e, target, linkPath) {
 	// Pull args for showhint() and call it.
 	let showHintMatch =
-			/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
+			/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
 					.exec(linkPath);
+	if (showHintMatch === null)
+		{
+		showHintMatch =
+				/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
+						.exec(linkPath);
+		}
 	if (showHintMatch !== null)
 		{
-		let img = showHintMatch[1];
+		let hintContent = showHintMatch[1];
 		let thismatch = showHintMatch[2];
 		let evyMatch = showHintMatch[3];
 		let widthMatch = showHintMatch[4];
 		let isImgMatch = showHintMatch[5];
+		let shouldDecodeMatch = showHintMatch[6];
+		if (shouldDecodeMatch === null)
+			{
+			shouldDecodeMatch = false;
+			}
 
-		img = img.replace(/&quot;/g, '"');
+		if (shouldDecodeMatch)
+			{
+			hintContent = decodeURIComponent(hintContent);
+			}
+		hintContent = hintContent.replace(/&quot;/g, '"');
+		hintContent = updatePortInHintContent(hintContent);
+		widthMatch = widthMatch.replace(/'/g, ""); // get rid of single quotes
+		if (shouldDecodeMatch)
+			{
+			// TEST ONLY
+			//console.log("hintContent before re-encoding: " + hintContent);
+			hintContent = encodeURIComponent(hintContent);
+			// TEST ONLY
+			//console.log("hintContent after: " + hintContent);
+			}
 		
-		showhint(img, target, e, widthMatch, true); // tooltip.js#showhint()
+		showhint(hintContent, target, e, widthMatch, isImgMatch, shouldDecodeMatch); // tooltip.js#showhint()
 		}
+	// else
+	// 	{
+	// 	console.log("showHintMatch is null!");
+	// 	}
+}
+
+// Change http://mainIP:theMainPort/Viewer to http://mainIP:port everywhere.
+// Strip the short server name (eg Viewer or Editor), it's not wanted.
+function updatePortInHintContent(hintContent) {
+	// TEST ONLY
+	//testPortUpdate(ourSSListeningPort);
+
+	const regex = new RegExp("http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex, "http://" + mainIP + ":" + ourSSListeningPort);
+	//hintContent = hintContent.replace(regex, "http://" + mainIP + ":" + port);
+	return(hintContent);
+}
+
+function testPortUpdate(port) {
+	console.log("Main IP: " + mainIP);
+	console.log("The main port: " + theMainPort);
+	console.log("Viewer port: " + port);
+	let testStr = '<img src="http://192.168.40.8:81/Viewer/c:/common/images/2016-06-29 18_27_10-ouray mine shaft close full (760×570) -%2520 too.png">';
+	console.log("testStr BEFORE: |" + testStr + "|");
+	const regex = new RegExp("http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	testStr = testStr.replace(regex, "http://" + mainIP + ":" + ourSSListeningPort);
+	//testStr = testStr.replace(regex, "http://" + mainIP + ":" + port);
+	//testStr = testStr.replace(/http\:\/\/mainIP\:theMainPort/g, "http://" + mainIP + ":" + port);
+	console.log("testStr AFTER: |" + testStr + "|");
 }
 
 function createElementFromHTML(htmlString) {

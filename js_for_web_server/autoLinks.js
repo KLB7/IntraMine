@@ -88,6 +88,8 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 						let rowElem = document.getElementById(rowId);
 						if (rowElem !== null)
 							{
+							// TEST ONY
+							//rowElem.innerHTML = decodeURIComponentSafe(lines[ind]);
 							rowElem.innerHTML = lines[ind];
 							}
 						}
@@ -106,6 +108,13 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 	// There was a connection error of some sort. Double bummer, no links.
 	console.log('requestLinkMarkupWithPort connection error!');
 	}
+}
+
+function decodeURIComponentSafe(s) {
+    if (!s) {
+        return s;
+    }
+    return decodeURIComponent(s.replace(/%(?![0-9a-fA-F]+)/g, '%25'));
 }
 
 let isScrollingAuto = null;

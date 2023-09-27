@@ -46,6 +46,15 @@ my $ToDoPath = FullDirectoryPath('TODODATAPATH');
 my $ToDoArchivePath = $ToDoPath;
 $ToDoArchivePath =~ s!(\.[^\.]+)!Archive$1!;
 
+# Common locations for images.
+my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
+my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
+if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
+	{
+	#print("No common images dir, setting \$COMMON_IMAGES_DIR to ''\n");
+	$COMMON_IMAGES_DIR = '';
+	}
+
 MakeArchiveFile(); # We want the archive file to always exist, so the link works.
 
 my $OverdueCount = GetOverdueCount(); # $OverdueCount is also set in PutData().
@@ -288,7 +297,8 @@ sub GetData {
 
 			# Generate html version of text, with Gloss markdown.
 			my $gloss;
-			Gloss($desc, $serverAddr, $mainServerPort, \$gloss);
+			# The last arg, context directory, does not apply and so is''.
+			Gloss($desc, $serverAddr, $mainServerPort, \$gloss, 1, $IMAGES_DIR, $COMMON_IMAGES_DIR, '');
 			$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.

@@ -1283,14 +1283,17 @@ position:absolute;
 top: 0;
 background-color: lightyellow;
 width: 150px; /*Default width of hint.*/ 
-padding: 3px;
-border:1px solid black;
-font:normal 11px Verdana;
+padding: 6px;
+/*border:1px solid black;*/
+font:normal 13px Verdana;
 line-height:18px;
 z-index:100;
-border-right: 3px solid black;
-border-bottom: 3px solid black;
+/*border-right: 3px solid black;
+border-bottom: 3px solid black;*/
 visibility: hidden;
+	
+border: none;
+/*box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);*/
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1312,6 +1315,294 @@ margin: 3px 8px;
 .invisiblehintanchor:hover {
 	border-top-style: hidden;
 }
+
+/* Additions for Gloss display of tooltips. */
+#hintbox td:nth-child(1) {
+	background-color: lightyellow;
+	color: #000;
+	min-width: auto;
+	text-align: left;
+}
+
+/* hintgloss.css, temp CSS for showhint with Gloss */
+/* gloss_tables.css: for table display by the ToDo service. */
+
+#hintbox table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+#hintbox table, #hintbox tr, #hintbox td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+#hintbox td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+#hintbox thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+#hintbox td.vam {
+	vertical-align: middle;
+}
+
+
+#hintbox th {
+	text-align: left;
+}
+
+
+#hintbox h1, #hintbox h2, #hintbox h3, #hintbox h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+#hintbox h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+#hintbox h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+#hintbox .outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+#hintbox .outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+#hintbox .ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.2em;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.4em;
+	padding-left: 3.6em;
+	}
+
+#hintbox .ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.0em;
+	}
+
+#hintbox .ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.7em;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.1em;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.2em;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.8em;
+	padding-left: 4.5em;
+	}
+
+#hintbox .ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.5em;
+	}
+
+
+/* Data tables in text */
+#hintbox .bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+#hintbox .bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+#hintbox .bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+#hintbox .bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+
+#hintbox .bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+#hintbox .bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+#hintbox .bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+#hintbox .bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+#hintbox .bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+
+#hintbox .bordered td.centered_cell, #hintbox .bordered th.centered_cell {
+	text-align: center;
+}
+
+#hintbox .bordered td.left_cell, #hintbox .bordered th.left_cell {
+	text-align: left;
+}
+
+#hintbox .bordered td.right_cell, #hintbox .bordered th.right_cell {
+	text-align: right;
+}
+
+#hintbox .shrunkrow {
+	height: 3pt;
+	}
+	
+#hintbox .reallyshrunkrow {
+	background: #888;
+}
+
+#hintbox .reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+#hintbox .codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+
+#hintbox td {
+	padding-bottom: 8px;
+}
+
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -1433,7 +1724,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R9'><td n='9'></td><td><h3 id="Main_back-end_Perl_files">Main back-end Perl files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_search.pl: the main file. It delivers the Search HTML page, and calls <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to do searches, sending hit results back to the Search page.</p></td></tr>
-<tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; elasticsearcher.pm uses the "Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>" module to carry out test searches, and formats hit results, complete with <a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinks</a>.</p></td></tr>
+<tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; elasticsearcher.pm uses the "Search::<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a>" module to carry out test searches, and formats hit results, complete with <a class='glossary' href="#" onmouseover="showhint('<p>Autolinks: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: automatic links, automatic linking, autolinking</p>', this, event, '500px', false);">autolinks</a>.</p></td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
 <tr id='R14'><td n='14'></td><td><h3 id="Main_front-end_JavaScript_files">Main front-end JavaScript files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1612,7 +1903,7 @@ TTl6yD2PSLI9B2fIjywkSdCSB5/9z/HXCpsh36uAnpzrC7dIJKjsasaniBs//X04Kvj/TebbC3fn
 oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 " width='17' height='12'  /></span></td></tr>
 <tr id='R60'><td n='60'></td><td></td></tr>
-<tr id='R61'><td n='61'></td><td>If you click on a "regular" link in the Search hit results, IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> will display the file in a new browser tab. Your search words (or phrase) will be highlighted - and there's a Show/Hide Initial Hits button at the top of the view.</td></tr>
+<tr id='R61'><td n='61'></td><td>If you click on a "regular" link in the Search hit results, IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> will display the file in a new browser tab. Your search words (or phrase) will be highlighted - and there's a Show/Hide Initial Hits button at the top of the view.</td></tr>
 <tr id='R62'><td n='62'></td><td></td></tr>
 <tr id='R63'><td n='63'></td><td>If you click on the pencil icon (<span href='./C:/perlprogs/IntraMine/images_for_web_server/edit1.png' onmouseOver="showhint('<img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALDwAACw8BkvkDpQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS41ZEdYUgAAAgFJREFUOE9jIBb8Dw7W+5+QHPovLy/nX2mp17/Jk4X////PBJUmCFgXTavX2bVp/YIrCxff+1lQ8OB/SdmNv729u35PmOAMVYMb7Oxm4H54TM/3zpmIOQf31Z05sHbyq6szZ///PwWIGxv//ysrS4YqxQ7u7bWUv3c8OPXt/ewtH58Vfnh8ze3huSNud3dtr/10bUHX7TclJTs+pxY6QpUjwH8GBsZbixn47h3W1n9+LbL8zb3aO1/etP79+6Ps/9/XBv+fX+L5fGKX8pH1Kx3KO6fNUY+v/88B1QoB9fUMTLe2ccrcO2kQ+vx6xLaPz3Le/vlW+/f/V5//357w/3l2gefnme18F3YskYya0aIhCdWGACADvj5ikH521av61Z3Mqz8+Lfny92fjv//vRf5/ecDy/8ZB7i/HNwt1rZgmb9ENDCegFkaITij4d+eO2Pm17t5nVugve3Qh/u7Xd4W//3/y/P//rer/dze4/1/ex3F2/0rBkpVzhbTS0oxZodpQweVFxb5bWvx7V1fbfjo8z+b/7QOG/z/fFvz/4iLby9PbRBZtXSgePq1bSQyolBmiAwtoT/co7EhwXj8lye7/glz1/8tr+N4fX8197MJe/tbVs5S1VVQ82KFKcQNdLd2QRA+91oZI/bMN4Xqn6kO0Z7UmaTpPrBfigyqhB2BgAACDIvih7pI6RAAAAABJRU5ErkJggg==&quot;  />', this, event, '500px', true);"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAAAd0SU1FB9kKDwIHIwWU3GsAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5l
@@ -1677,7 +1968,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R72'><td n='72'></td><td><p class="outdent-unordered">&nbsp;&bull; as mentioned, IntraMine's Elasticsearch-based search is always case insensitive.</p></td></tr>
 <tr id='R73'><td n='73'></td><td><p class="outdent-unordered">&nbsp;&bull; operators are not indexed. For example you can't search for "++$hitCounter" exactly, and in fact you'll get better results if you search for just "$hitCounter".</p></td></tr>
-<tr id='R74'><td n='74'></td><td><p class="outdent-unordered">&nbsp;&bull; the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> always renders HTML views rather than showing the raw HTML/CSS/JavaScript source, so such things as JavaScript variables can be searched for, but hits will not be highlighted in the view that results from clicking on a link in the Search hit results.</p></td></tr>
+<tr id='R74'><td n='74'></td><td><p class="outdent-unordered">&nbsp;&bull; the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> always renders HTML views rather than showing the raw HTML/CSS/JavaScript source, so such things as JavaScript variables can be searched for, but hits will not be highlighted in the view that results from clicking on a link in the Search hit results.</p></td></tr>
 <tr id='R75'><td n='75'></td><td><p class="outdent-unordered">&nbsp;&bull; text (.txt) files are processed by <a class='glossary' href="#" onmouseover="showhint('<p>Gloss: Gloss resembles Markdown, and is certainly inspired by it, but the focus is on easy markup that produces HTML intranet documents rather than tolerable markup that produces HTML Internet documents. It&#8216;s a combination of conventions for marking up your text and an HTML view generator. The Viewer service supplied with IntraMine applies Gloss fully to text (.txt) files, and to source files as much as it can. See Documentation/Gloss.txt for more.</p>', this, event, '500px', false);">Gloss</a> before display. This means that searches which include words that Gloss will remove (mainly "TABLE" at the beginning of a line) will not be highlighted properly in resulting views.</p></td></tr>
 <tr id='R76'><td n='76'></td><td><p class="outdent-unordered">&nbsp;&bull; if "Match Exact Phrase" is selected, the phrase will be matched only if all words occur on the same line.</p></td></tr>
 <tr id='R77'><td n='77'></td><td><p class="outdent-unordered">&nbsp;&bull; there is no regular-expression mode.</p></td></tr>
@@ -2242,12 +2533,36 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 
 function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
-	
-	setTimeout(function() {
-	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-	}, 100);
-}
 
+	if (typeof isAnImage === "string")
+		{
+		if (isAnImage.toLowerCase() === "true")
+			{
+			isAnImage = true;
+			}
+		else
+			{
+			isAnImage = false;
+			}
+		}
+	
+	// setTimeout(function() {
+	// showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+	// }, 100);
+	setTimeout(function() {
+		showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+		}, 100);
+	}
+
+function decodeHint(text) {
+	text = decodeURIComponent(text);
+	//text = text.replace(/&amp;quot;/g, '"');
+	text = text.replace(/&amp;/g, '&');
+ 	text = text.replace(/&amp;#8216;/g, "'");
+	// TEST ONLY
+	//console.log(text);
+	return(text);
+}
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -2368,11 +2683,11 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			tipwidth = "300px";
 			}
 		hintElement.widthobj = hintElement.style;
-		if (hintElement.innerHTML.indexOf('<img') == 0)
-			{
-			hintElement.style.backgroundColor = 'lightyellow';
-			hintElement.style.border = 'thin dotted black';
-			}
+		// if (hintElement.innerHTML.indexOf('<img') == 0)
+		// 	{
+		// 	hintElement.style.backgroundColor = 'lightyellow';
+		// 	hintElement.style.border = 'thin dotted black';
+		// 	}
 		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{

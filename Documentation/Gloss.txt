@@ -355,7 +355,7 @@ Wider columns
 ~~~~~~~~~~~~~
 IntraMine's tables rely on the browser to sort out column widths, but sometimes a column can end up being too narrow, especially if the browser window isn't very wide. To force a column to be wider, add spaces or non-breaking spaces at the end of the heading for the column. Regular spaces seem to do the trick too sometimes, but not always.
 
-To type a non-breaking space on a Windows box, hold down the ALT key and type 0160. The numbers 0160 must be typed on the **numeric keypad** for this to work. My record for remembering that is, I think, about five years.
+To type a non-breaking space on a Windows box, hold down the ALT key and type 0160. The numbers 0160 must be typed on the **numeric keypad** for this to work. And NumLock must also be on. My record for remembering that is, I think, about five years.
 
 Lists
 -----

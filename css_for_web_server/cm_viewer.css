@@ -92,6 +92,11 @@
 	cursor: pointer;
 }
 
+.cmAutoLinkGlossary {
+	text-decoration: underline dotted #CCC;
+	cursor: pointer;
+}
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;

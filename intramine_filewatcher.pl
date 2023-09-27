@@ -61,6 +61,7 @@ my $FileWatcherLogPath = $FileWatcherDir . CVal('FILEWATCHER_LOG');
 my $FileWatcherLogPathModDate = 0;
 my $TimeStampPath = $FileWatcherDir . CVal('FWTIMESTAMPFILE');
 my $CudPath = $FileWatcherDir . CVal('FWCURRENTCHANGESFILE');	# Changed Updated Deleted path
+my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
 
 # filewatcher.pl responds to common default requests (id, signal),
 # and also signal=FILESYSTEMCHANGE, a request to re-index Elasticsearch and rebuild file paths list.
@@ -310,6 +311,9 @@ sub IndexChangedFiles {
 			}
 		}
 	
+	# Notify Linker if any glossary files have changed.
+	BroadcastGlossaryFilesChangedOrNew(\@PathsOfChangedFiles, \%NewPaths);
+
 	# For displaying a list of changed files in monitored folders, save a list
 	# of changed (plus new) and deleted files, blowing away any old list.
 	if ($numIndexedPaths || $numDeleted)
@@ -928,6 +932,49 @@ sub SaveLastTimeStamp {
 	print $fileH "$LastTimeStampChecked\n";
 	close($fileH);
 	return(1);
+	}
+
+sub IsGlossaryFile {
+	my ($filePath) = @_;
+	my $result = 0;
+	if ($filePath =~ m!$GLOSSARYFILENAME$!i)
+		{
+		$result = 1;
+		}
+	
+	return($result);
+}
+
+sub BroadcastGlossaryFilesChangedOrNew {
+	my ($pathsOfChangedFilesA, $newPathsH) = @_;
+	my $numPaths = @$pathsOfChangedFilesA;
+	my $numNew = keys %$newPathsH;
+	my %pathSeen; # Avoid broadcasting twice for the same file.
+	
+	if ($numPaths)
+		{
+		for (my $i = 0; $i < $numPaths; ++$i)
+			{
+			my $filePath = lc($pathsOfChangedFilesA->[$i]);
+			if (IsGlossaryFile($filePath) && !defined($pathSeen{$filePath}))
+				{
+				RequestBroadcast('signal=glossaryChanged&path=' . $filePath);
+				$pathSeen{$filePath} = 1;
+				}
+			}
+		}
+	if ($numNew)
+		{
+		keys %$newPathsH;
+		while (my ($filePath, $fileName) = each %$newPathsH)
+			{
+			if (IsGlossaryFile($filePath) && !defined($pathSeen{$filePath}))
+				{
+				RequestBroadcast('signal=glossaryChanged&path=' . $filePath);
+				$pathSeen{$filePath} = 1;
+				}
+			}
+		}
 	}
 
 { ##### Full paths consolidation

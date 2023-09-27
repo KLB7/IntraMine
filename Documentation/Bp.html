@@ -1283,14 +1283,17 @@ position:absolute;
 top: 0;
 background-color: lightyellow;
 width: 150px; /*Default width of hint.*/ 
-padding: 3px;
-border:1px solid black;
-font:normal 11px Verdana;
+padding: 6px;
+/*border:1px solid black;*/
+font:normal 13px Verdana;
 line-height:18px;
 z-index:100;
-border-right: 3px solid black;
-border-bottom: 3px solid black;
+/*border-right: 3px solid black;
+border-bottom: 3px solid black;*/
 visibility: hidden;
+	
+border: none;
+/*box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);*/
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1312,6 +1315,294 @@ margin: 3px 8px;
 .invisiblehintanchor:hover {
 	border-top-style: hidden;
 }
+
+/* Additions for Gloss display of tooltips. */
+#hintbox td:nth-child(1) {
+	background-color: lightyellow;
+	color: #000;
+	min-width: auto;
+	text-align: left;
+}
+
+/* hintgloss.css, temp CSS for showhint with Gloss */
+/* gloss_tables.css: for table display by the ToDo service. */
+
+#hintbox table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+#hintbox table, #hintbox tr, #hintbox td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+#hintbox td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+#hintbox thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+#hintbox td.vam {
+	vertical-align: middle;
+}
+
+
+#hintbox th {
+	text-align: left;
+}
+
+
+#hintbox h1, #hintbox h2, #hintbox h3, #hintbox h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+#hintbox h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+#hintbox h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+#hintbox .outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+#hintbox .outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+#hintbox .ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.2em;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.4em;
+	padding-left: 3.6em;
+	}
+
+#hintbox .ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.0em;
+	}
+
+#hintbox .ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.7em;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.1em;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.2em;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.8em;
+	padding-left: 4.5em;
+	}
+
+#hintbox .ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.5em;
+	}
+
+
+/* Data tables in text */
+#hintbox .bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+#hintbox .bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+#hintbox .bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+#hintbox .bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+
+#hintbox .bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+#hintbox .bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+#hintbox .bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+#hintbox .bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+#hintbox .bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+
+#hintbox .bordered td.centered_cell, #hintbox .bordered th.centered_cell {
+	text-align: center;
+}
+
+#hintbox .bordered td.left_cell, #hintbox .bordered th.left_cell {
+	text-align: left;
+}
+
+#hintbox .bordered td.right_cell, #hintbox .bordered th.right_cell {
+	text-align: right;
+}
+
+#hintbox .shrunkrow {
+	height: 3pt;
+	}
+	
+#hintbox .reallyshrunkrow {
+	background: #888;
+}
+
+#hintbox .reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+#hintbox .codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+
+#hintbox td {
+	padding-bottom: 8px;
+}
+
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -1810,12 +2101,36 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 
 function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
-	
-	setTimeout(function() {
-	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-	}, 100);
-}
 
+	if (typeof isAnImage === "string")
+		{
+		if (isAnImage.toLowerCase() === "true")
+			{
+			isAnImage = true;
+			}
+		else
+			{
+			isAnImage = false;
+			}
+		}
+	
+	// setTimeout(function() {
+	// showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+	// }, 100);
+	setTimeout(function() {
+		showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+		}, 100);
+	}
+
+function decodeHint(text) {
+	text = decodeURIComponent(text);
+	//text = text.replace(/&amp;quot;/g, '"');
+	text = text.replace(/&amp;/g, '&');
+ 	text = text.replace(/&amp;#8216;/g, "'");
+	// TEST ONLY
+	//console.log(text);
+	return(text);
+}
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -1936,11 +2251,11 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			tipwidth = "300px";
 			}
 		hintElement.widthobj = hintElement.style;
-		if (hintElement.innerHTML.indexOf('<img') == 0)
-			{
-			hintElement.style.backgroundColor = 'lightyellow';
-			hintElement.style.border = 'thin dotted black';
-			}
+		// if (hintElement.innerHTML.indexOf('<img') == 0)
+		// 	{
+		// 	hintElement.style.backgroundColor = 'lightyellow';
+		// 	hintElement.style.border = 'thin dotted black';
+		// 	}
 		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{

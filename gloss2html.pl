@@ -2518,17 +2518,33 @@ sub GetReplacementHint {
 	else
 		{
 		# If a glossary entry has synonyms, show just the relevant one at start of the
-		# $gloss entry, and show all synonyms in a new para at bottom of the entry.
+		# $gloss entry, and show other synonyms in a new para at bottom of the entry.
 		if ($gloss =~ m!^<p>([^:]+)\:!)
 			{
 			my $terms = $1;
 			$terms =~ s!\*!!g;
-			if (index($terms, ",") > 0)
+			my @synonyms = split(/,\s*/, $terms);
+			my $numSynonymsTotal = @synonyms;
+			if ($numSynonymsTotal > 1)
 				{
-				$gloss =~ s!^<p>([^:]+)!!;
-				$term = ucfirst($term);
-				$gloss = '<p>' . $term . $gloss;
-				$gloss .= "<p>Alt: $terms</p>";
+				$gloss =~ s!^<p>([^:]+)!!; # Strip terms from start, up to just before ':'
+				# Show term at start of gloss, then definition. Follow with synonyms.
+				my $termShown = '';
+				my @otherSynonyms;
+				for (my $i = 0; $i < $numSynonymsTotal; ++$i)
+					{
+					my $lcTermFromGloss = lc($synonyms[$i]);
+					if ($lcTermFromGloss eq $term)
+						{
+						$termShown = ucfirst($synonyms[$i]);
+						}
+					else
+						{
+						push @otherSynonyms, $synonyms[$i];
+						}
+					}
+				my $altList = "<p>Alt: " . join(', ', @otherSynonyms) . "</p>";
+				$gloss = '<p>' . $termShown . $gloss . $altList;
 				}
 			}
 		

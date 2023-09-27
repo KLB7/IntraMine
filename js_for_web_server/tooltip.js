@@ -8,6 +8,10 @@
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
+// Cursor position, updated when hintbox is showing.
+let cursor_x = -1;
+let cursor_y = -1;
+
 // Where to place the hint, relative to cursor position.
 const DIRECTION_BELOW = 0;
 const DIRECTION_ABOVE = 1;
@@ -158,6 +162,7 @@ function positionAndShowHint() {
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
+	
 	hintElement.style.top = tl.top;
 	hintElement.style.left = tl.left;
 	
@@ -268,7 +273,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	
 	if (bestDirection === DIRECTION_BELOW) // below
 		{
-		top = y + gap + "px";
+		top = y + 2*gap + "px"; // Double the gap to move tip down slightly.
 		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
 		left = (left < 0) ? "0" : left + "px";
 		}
@@ -315,14 +320,109 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
-function showhint(hintContents, obj, e, tipwidth, isAnImage) {
+function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
-	
-	setTimeout(function() {
-	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-	}, 100);
-}
 
+	// TEST ONLY
+	// console.log("ourSSListeningPort is " + ourSSListeningPort);
+	// console.log("mainIP is " + mainIP);
+	// console.log("theMainPort is " + theMainPort);
+
+	if (shouldDecode === undefined)
+		{
+		shouldDecode = false;
+		}
+
+	if (typeof shouldDecode === "string")
+		{
+		if (shouldDecode.toLowerCase() === "true")
+			{
+			shouldDecode = true;
+			}
+		else
+			{
+			shouldDecode = false;
+			}
+		}
+
+	if (shouldDecode)
+		{
+		console.log("shouldDecode is TRUE");
+		}
+	else
+		{
+		console.log("shouldDecode is FALSE");
+		}
+
+	if (typeof isAnImage === "string")
+		{
+		if (isAnImage.toLowerCase() === "true")
+			{
+			isAnImage = true;
+			}
+		else
+			{
+			isAnImage = false;
+			}
+		}
+	
+	if (shouldDecode)
+		{
+		setTimeout(function() {
+			showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+			}, 100);
+		}
+	else
+		{
+		setTimeout(function() {
+			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			}, 100);
+		}
+	// setTimeout(function() {
+	// 	showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+	// 	}, 100);
+	}
+
+function decodeHint(text) {
+	// TEST ONLY
+	
+	text = decodeURIComponent(text);
+	text = text.replace(/%25/g, '%');
+	return(text);
+
+	let ouray = false;
+	if (text.indexOf("ouray") >= 0)
+		{
+		ouray = true;
+		console.log("text before: |" + text + "|");
+		}
+	text = decodeURIComponent(text);
+	text = text.replace(/%25/g, '%');
+	// TEST ONLY
+	if (ouray)
+		{
+		console.log("text AFTER: |" + text + "|");
+		}
+	// TEST ONLY
+	//console.log("AFTER %25: |" + text + "|");
+	return(text);
+
+
+	// TEST ONLY
+	console.log("0" + text);
+	text = decodeURIComponent(text);
+	console.log("1" + text);
+	//text = text.replace(/%20/, ' ');
+	//console.log("2" + text);
+	//text = text.replace(/%25/, '%');
+	//console.log("3" + text);
+	text = text.replace(/&amp;#8216;/g, "'");
+	text = text.replace(/&amp;/g, '&');
+
+	console.log("4" + text);
+
+	return(text);
+}
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -400,10 +500,25 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	
 	if (!hintShown)
 		{
+		hintContents = updateImagePortInHintContent(hintContents);
 		showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 		}
 	}
 
+function updateImagePortInHintContent(hintContent) {
+	// src="
+	const regex = new RegExp("src=\"http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex, "src=\"http://" + mainIP + ":" + ourSSListeningPort);
+	// src='
+	const regex2 = new RegExp("src='http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex2, "src='http://" + mainIP + ":" + ourSSListeningPort);
+	// src=&quot; because you never know....
+	const regex3 = new RegExp("src=&quot;http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex3, "src=\&quot;http://" + mainIP + ":" + ourSSListeningPort);
+
+	return(hintContent);
+}
+	
 function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
@@ -422,6 +537,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			{
 			addClass(obj, hitAnchorClassName);
 			}
+		
+		hideTipJustInCase(obj);
+		
 		addClass(obj, anchorClassName);
 
 		// Check if mouse is still over element (which must have
@@ -443,11 +561,11 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			tipwidth = "300px";
 			}
 		hintElement.widthobj = hintElement.style;
-		if (hintElement.innerHTML.indexOf('<img') == 0)
-			{
-			hintElement.style.backgroundColor = 'lightyellow';
-			hintElement.style.border = 'thin dotted black';
-			}
+		// if (hintElement.innerHTML.indexOf('<img') == 0)
+		// 	{
+		// 	hintElement.style.backgroundColor = 'lightyellow';
+		// 	hintElement.style.border = 'thin dotted black';
+		// 	}
 		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{
@@ -457,7 +575,11 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 
 		hintParams.hintContents = hintContents;
 		hintParams.x = e.clientX;
-		hintParams.y = e.clientY;
+		// TEST ONLY
+		let viewportOffset = obj.getBoundingClientRect();
+		hintParams.y = viewportOffset.top;
+		//hintParams.y = e.clientY;
+
 		hintParams.tipwidth = tipwidth;
 		hintParams.isAnImage = isAnImage;
 		
@@ -477,15 +599,21 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			positionAndShowHint();
 			}
 
-		obj.onmouseout = hidetip;
+		//obj.onmouseout = hidetip;
+		document.addEventListener('mousemove', recordMousePosition);
+		document.documentElement.addEventListener('mouseleave', handleMouseLeave);
 
 		if (typeof window.ontouchstart === 'undefined')
 			{
 			overAnchorTimer = window.setTimeout(function() {
 				hideTipIfMouseHasLeft(obj);
-			}, 1000);
+			}, 500);
 			}
 		}
+}
+
+function handleMouseLeave() {
+	hidetip();
 }
 
 // If see src="something", return something, else "".
@@ -506,17 +634,20 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj))
+	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
-		}, 1000);
+		}, 500);
 		}
 	else
 		{
 		hidetip();
-		removeClass(obj, anchorClassName);
 		}
+}
+
+function hideTipJustInCase(obj) {
+	hidetip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -529,7 +660,30 @@ function mouseStillOverTipOwner(obj) {
 		let c = window.getComputedStyle(el).getPropertyValue('border-top-style');
 		stillOver = (c === 'hidden') ? true : false;
 		}
+
 	return (stillOver);
+}
+
+function mouseStillOverHintbox() {
+	let stillOver = false;
+
+	let elements = document.elementsFromPoint(cursor_x, cursor_y);
+
+	for (var i = 0; i < elements.length; i++) {
+		let elementId = elements[i].id;
+		if (elementId === "hintbox")
+			{
+			stillOver = true;
+			break;
+			}
+		}
+
+	return(stillOver);
+}
+
+function recordMousePosition(evt) {
+	cursor_x = evt.pageX;
+	cursor_y = evt.pageY;
 }
 
 function hidetip(e) {
@@ -543,6 +697,9 @@ function hidetip(e) {
 			removeClass(anks[i], anchorClassName);
 			}
 		}
+	
+	document.removeEventListener('mousemove', recordMousePosition);
+	document.removeEventListener('mouseleave', handleMouseLeave);
 }
 
 function touchhidetip(e) {

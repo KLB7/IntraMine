@@ -50,6 +50,7 @@ use swarmserver;
 use reverse_filepaths;
 use win_wide_filepaths;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
+use intramine_glossary;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -99,7 +100,7 @@ $RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
 
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
 # which can take some time.
-MainLoop(\%RequestAction, undef, undef, \&callbackInitDirectoryFinder);
+MainLoop(\%RequestAction, undef, undef, \&callbackInitPathsAndGlossary);
 
 ################### subs
 
@@ -145,6 +146,12 @@ sub HandleBroadcastRequest {
 			my $elapsedSecs = int($endTime - $startTime + 0.5);
 			print("Linker on port $port_listen is back. Update took $elapsedSecs s.\n");
 			}
+		elsif ($formH->{'signal'} eq 'glossaryChanged')
+			{
+			my $filePath = defined($formH->{'path'}) ? $formH->{'path'} : 'BOGUS PATH';
+			#print("Glossary changed seen: |$filePath|\n");
+			LoadGlossary($filePath);
+			}
 		}
 
 	return('OK');	# Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.
@@ -152,12 +159,33 @@ sub HandleBroadcastRequest {
 
 # Load list of all files and directories, and create a hash holding lists of all
 # corresponding known full paths for partial paths, for autolinks.
-sub callbackInitDirectoryFinder {
+# Also load all glossary entries.
+sub callbackInitPathsAndGlossary {
 	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 	
 	# reverse_filepaths.pm#InitDirectoryFinder()
 	my $filePathCount = InitDirectoryFinder($fullFilePathListPath);
+
+	LoadAllGlossaryFiles();
+	}
+
+sub LoadAllGlossaryFiles {
+	my $glossaryFileName = lc(CVal('GLOSSARYFILENAME'));
+	if ($glossaryFileName eq '')
+		{
+		print("WARNING, GLOSSARYFILENAME not found in data/intramine_config_4.txt. No glossaries loaded.\n");
+		}
+	my $paths = GetAllPathsForFileName($glossaryFileName);
+	if ($paths ne '')
+		{
+		print("Loading glossaries...\n");
+		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR);
+		}
+	else
+		{
+		print("No files called $glossaryFileName were found, no glossaries loaded.\n");
+		}
 	}
 	
 # Completely reload list of all files and directories. Called by HandleBroadcastRequest() above.
@@ -1606,6 +1634,8 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 		my $currentLineNumber = $firstLineNum + $counter;
 		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port,
 					$clientIsRemote, $allowEditing, $currentLineNumber, $linksA);
+
+		AddGlossaryHints($lines[$counter], $contextDir, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
 		}
 	}
 
@@ -1637,6 +1667,7 @@ sub AddWebAndFileLinksToVisibleLines {
 		{
 		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
 								$clientIsRemote, $allowEditing);
+		AddGlossaryHints(\${lines[$counter]}, $dir, $serverAddr, $server_port, $VIEWERNAME);
 		}
 
 	#$$resultR = join("\n", @lines);

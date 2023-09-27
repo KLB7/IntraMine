@@ -87,6 +87,8 @@ my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 
+my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
+
 InitPerlSyntaxHighlighter();
 my $LogDir = FullDirectoryPath('LogDir');
 InitCtags($LogDir . 'temp/tempctags');
@@ -288,6 +290,14 @@ sub FullFile {
 		$customCSS = '<link rel="stylesheet" type="text/css" href="non_cm_text.css" />';
 		}
 		
+	# Remove scrollAdjustedHeight if it's an image.
+	# And take out the toggle button.
+	if ($filePath =~ m!\.(png|gif|jpe?g|ico|webp)$!i)
+		{
+		$theBody =~ s! id='scrollAdjustedHeight'!!;
+		$theBody =~ s!_TOGGLEPOSACTION_!!;
+		}
+
 	# Insert the HTML to load various JavaScript and CSS files as needed. Plus the "meta" line.
 	$theBody =~ s!_META_CHARSET_!$meta!;
 	$theBody =~ s!_CSS_!$customCSS!;
@@ -569,9 +579,17 @@ sub GetContentBasedOnExtension {
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
-		# By default this runs the text through a Gloss processor.
-		# So all your .txt files are belong to Gloss.
-		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
+		# Glossary files get a special table of contents, and not much else.
+		if ($filePath =~ m![\\/]$GLOSSARYFILENAME$!i || $filePath =~ m![\\/]glossary.txt$!i)
+			{
+			GetPrettyGlossaryFile($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
+			}
+		else
+			{
+			# By default this runs the text through a Gloss processor.
+			# So all your .txt files are belong to Gloss.
+			GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
+			}
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
@@ -1509,6 +1527,124 @@ sub GetPrettyTextContents {
 		$$contentsR = encode_utf8($$contentsR);
 		}
 	}
+
+# A basic view of an IntraMine glossary file, with an alphabetical table of contents.
+sub GetPrettyGlossaryFile {
+	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $sourceR) = @_;
+	my $serverAddr = ServerAddress();
+	
+	my $filePath = $formH->{'FULLPATH'};
+	my $dir = lc(DirectoryFromPathTS($filePath));
+	$$contentsR = ""; # "<hr />";
+
+	my $octets;
+	if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+		{
+		return;
+		}
+
+	
+	my @lines = split(/\n/, $octets);
+
+	my $indentClass = '';
+	my @jumpList;
+	my $lineNum = 1;
+	my %sectionIdExists; # used to avoid duplicated anchor id's for sections.
+	my $numLines = @lines;
+	
+	# Gloss, aka minimal Markdown.
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ($lines[$i] =~ m!^([^:]+)\:!)
+			{
+			my $term = $1;
+			my $anchorText = lc(AnchorForGlossaryTerm($term));
+			my $contentsClass = 'h2';
+			my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$anchorText'>";
+			my $jlEnd = "</a></li>";
+			push @jumpList, $jlStart . $term . $jlEnd;
+			}
+
+		my $rowID = 'R' . $lineNum;
+			my $classAttr = ClassAttribute('', $indentClass);
+			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
+		
+		++$lineNum;
+		}
+
+	for (my $i = 0; $i < @lines; ++$i)
+		{
+		AddGlossaryAnchor(\${lines[$i]});
+		}
+
+	if (defined($lines[0]))
+		{
+		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		}
+	unshift @jumpList, "<ul>";
+	@jumpList = sort TocSort @jumpList;
+	unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
+	$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
+	my $bottomShim = "<p id='bottomShim'></p>";
+	$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
+
+	$$contentsR = encode_utf8($$contentsR);
+	}
+
+sub AnchorForGlossaryTerm {
+	my ($term) = @_;
+	
+	$term =~ s!&nbsp;!_!g;
+	$term =~ s!['"]!!g;
+	$term =~ s!\&#\d+;!!g; # eg &#9755;
+	$term =~ s!\s!_!g;
+	$term =~ s!\-!_!g;
+	
+	return($term);
+	}
+
+# For glossary.txt only, add anchors for defined terms.
+sub AddGlossaryAnchor {
+	my ($txtR) = @_;
+	
+	# Init variables with "Glossary loading" scope.
+	my $line = $$txtR;
+	my $len = length($line);
+	
+	# Typical line start for defined term:
+	# <tr><td n='21'></td><td>Strawberry Perl: 
+	if ($line =~ m!^(.+?<td>\s*)([^:]+)\:(.*)$!)
+		{
+		my $pre = $1;
+		my $post = $3;
+		my $term = $2;
+		my $originalText = $term;
+		$term = lc($term);
+		$term =~ s!\*!!g;
+		my $anchorText = AnchorForGlossaryTerm($term);
+		my $rep = "<h2 id=\"$anchorText\"><strong>$originalText</strong>:</h2>";
+#		my $rep = "<a id=\"$anchorText\"><strong>$originalText</strong>:</a>";
+		$$txtR = $pre . $rep . $post;
+		}
+	}
+
+# Sort @jumpList (above) based on anchor text. Typical @jumpList entry:
+# <li class="h2" im-text-ln="41"><a href="#map_network_drive">Map network drive</a></li>
+sub TocSort {
+	my $result = -1;
+	
+	if ($a =~ m!\#([^\>]+)\>!)
+		{
+		my $aStr = $1;
+		if ($b =~ m!\#([^\>]+)\>!)
+			{
+			my $bStr = $1;
+			$result = $aStr cmp $bStr;;
+			}
+		}
+
+	return($result);
+}
 
 # Cook up a class= entry.
 # Any one specific class, or indent level class, or ''.

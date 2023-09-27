@@ -1283,14 +1283,17 @@ position:absolute;
 top: 0;
 background-color: lightyellow;
 width: 150px; /*Default width of hint.*/ 
-padding: 3px;
-border:1px solid black;
-font:normal 11px Verdana;
+padding: 6px;
+/*border:1px solid black;*/
+font:normal 13px Verdana;
 line-height:18px;
 z-index:100;
-border-right: 3px solid black;
-border-bottom: 3px solid black;
+/*border-right: 3px solid black;
+border-bottom: 3px solid black;*/
 visibility: hidden;
+	
+border: none;
+/*box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);*/
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1312,6 +1315,294 @@ margin: 3px 8px;
 .invisiblehintanchor:hover {
 	border-top-style: hidden;
 }
+
+/* Additions for Gloss display of tooltips. */
+#hintbox td:nth-child(1) {
+	background-color: lightyellow;
+	color: #000;
+	min-width: auto;
+	text-align: left;
+}
+
+/* hintgloss.css, temp CSS for showhint with Gloss */
+/* gloss_tables.css: for table display by the ToDo service. */
+
+#hintbox table {
+	tab-size: 4;
+	white-space: pre-wrap;
+}
+
+#hintbox table, #hintbox tr, #hintbox td {
+	margin: 0;
+	border: none;
+	border-spacing: 0;
+	padding: 0;
+}
+
+#hintbox td {
+	vertical-align: top;
+	padding-left: 4px;
+	/*overflow-wrap: break-word;*/
+}
+
+#hintbox thead {
+	overflow-wrap: break-word;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+}
+
+/* vertical align middle */
+#hintbox td.vam {
+	vertical-align: middle;
+}
+
+
+#hintbox th {
+	text-align: left;
+}
+
+
+#hintbox h1, #hintbox h2, #hintbox h3, #hintbox h4 {
+	font-family: helvetica, arial, sans-serif;
+	text-shadow: #9C9C9C 1px 1px 1px;
+	color: #002000;
+}
+
+#hintbox h1 {
+	color: #305030;
+	font-size: 2em;
+	line-height: 2em;
+	margin: 0;
+	padding: 2px;
+}
+
+#hintbox h3 {
+	font-style: italic;
+}
+
+/* Unordered list items. */
+#hintbox .outdent-unordered {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.8em;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.3em;
+	padding-left: 2.9em;
+	}
+
+#hintbox .outdent-unordered-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.8em;
+	}
+
+#hintbox .outdent-unordered-sub-continued {
+	margin: 0;
+	padding: 0;
+	padding-left: 2.9em;
+	}
+
+/* Ordered lists, with one or two digits in the main item or sub item, and their
+continuation paragraphs. There are twelve possibilities.
+Naming: "ol-1-2-c" = ordered list - one digit top level - two digits second - continuation
+paragraph (ie not the first paragraph in the item).
+"ol-2" = ordered list - two digits top level, no second level, first paragraph.
+*/
+#hintbox .ol-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.2em;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.2em;
+	}
+
+#hintbox .ol-1-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.4em;
+	padding-left: 3.6em;
+	}
+
+#hintbox .ol-1-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.0em;
+	}
+
+#hintbox .ol-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -1.7em;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 1.7em;
+	}
+
+#hintbox .ol-1-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.1em;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-1-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.3em;
+	}
+
+#hintbox .ol-2-1 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.2em;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-1-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 3.8em;
+	}
+
+#hintbox .ol-2-2 {
+	margin: 0;
+	padding: 0;
+	text-indent: -2.8em;
+	padding-left: 4.5em;
+	}
+
+#hintbox .ol-2-2-c {
+	margin: 0;
+	padding: 0;
+	padding-left: 4.5em;
+	}
+
+
+/* Data tables in text */
+#hintbox .bordered {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;
+    margin-bottom: 4px;    
+}
+
+#hintbox .bordered tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+#hintbox .bordered td, .bordered th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-align: left;    
+}
+
+#hintbox .bordered th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+
+#hintbox .bordered th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+#hintbox .bordered th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+#hintbox .bordered th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+#hintbox .bordered tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+#hintbox .bordered tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+
+#hintbox .bordered td.centered_cell, #hintbox .bordered th.centered_cell {
+	text-align: center;
+}
+
+#hintbox .bordered td.left_cell, #hintbox .bordered th.left_cell {
+	text-align: left;
+}
+
+#hintbox .bordered td.right_cell, #hintbox .bordered th.right_cell {
+	text-align: right;
+}
+
+#hintbox .shrunkrow {
+	height: 3pt;
+	}
+	
+#hintbox .reallyshrunkrow {
+	background: #888;
+}
+
+#hintbox .reallyshrunkrow td {
+	height: 1px;
+	border: none;
+	padding: 0;
+	}
+
+#hintbox .codehere {
+	background-color: #ECF6CE; /*#dce9f9 light blue,  #F7F8E0 light yellow, #E1F5A9 light green, #ECF6CE lighter green*/
+}
+
+#hintbox td {
+	padding-bottom: 8px;
+}
+
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -1507,49 +1798,51 @@ pf8GquFxGN15hFcAAAAASUVORK5CYII=
 <tr id='R10'><td n='10'></td><td><a href="./Installing universal ctags.html" target="_blank">Installing universal ctags.txt</a></td></tr>
 <tr id='R11'><td n='11'></td><td><a href="./Checks before the first run.html" target="_blank">Checks before the first run.txt</a></td></tr>
 <tr id='R12'><td n='12'></td><td><a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">Build your Elasticsearch index and run IntraMine.txt</a></td></tr>
-<tr id='R13'><td n='13'></td><td><a href="./Upgrading to Windows 11.html" target="_blank">Upgrading to Windows 11.txt</a></td></tr>
-<tr id='R14'><td n='14'></td><td></td></tr>
-<tr id='R15'><td n='15'></td><td><em>INTRAMINE IMPORTANT BITS</em></td></tr>
-<tr id='R16'><td n='16'></td><td><a href="./Using IntraMine.html" target="_blank">Using IntraMine.txt</a></td></tr>
-<tr id='R17'><td n='17'></td><td><a href="./Configuring IntraMine.html" target="_blank">Configuring IntraMine.txt</a></td></tr>
-<tr id='R18'><td n='18'></td><td><a href="./Editing documents.html" target="_blank">Editing documents.txt</a></td></tr>
-<tr id='R19'><td n='19'></td><td><a href="./Gloss.html" target="_blank">Gloss.txt</a></td></tr>
-<tr id='R20'><td n='20'></td><td><a href="./gloss2html.pl for standalone Gloss files.html" target="_blank">gloss2html.pl for standalone Gloss files.txt</a></td></tr>
-<tr id='R21'><td n='21'></td><td></td></tr>
-<tr id='R22'><td n='22'></td><td><em>SUPPLIED SERVICES</em></td></tr>
-<tr id='R23'><td n='23'></td><td><a href="./IntraMine Main.html" target="_blank">IntraMine Main.txt</a></td></tr>
-<tr id='R24'><td n='24'></td><td><a href="./Search.html" target="_blank">Search.txt</a></td></tr>
-<tr id='R25'><td n='25'></td><td><a href="./Viewer.html" target="_blank">Viewer.txt</a></td></tr>
-<tr id='R26'><td n='26'></td><td><a href="./Linker.html" target="_blank">Linker.txt</a></td></tr>
-<tr id='R27'><td n='27'></td><td><a href="./Opener.html" target="_blank">Opener.txt</a></td></tr>
-<tr id='R28'><td n='28'></td><td><a href="./Editor.html" target="_blank">Editor.txt</a></td></tr>
-<tr id='R29'><td n='29'></td><td><a href="./Upload.html" target="_blank">Upload.txt</a></td></tr>
-<tr id='R30'><td n='30'></td><td><a href="./Files.html" target="_blank">Files.txt</a></td></tr>
-<tr id='R31'><td n='31'></td><td><a href="./Status.html" target="_blank">Status.txt</a></td></tr>
-<tr id='R32'><td n='32'></td><td><a href="./Cmd.html" target="_blank">Cmd.txt</a></td></tr>
-<tr id='R33'><td n='33'></td><td><a href="./ToDo.html" target="_blank">ToDo.txt</a></td></tr>
-<tr id='R34'><td n='34'></td><td><a href="./EM.html" target="_blank">EM.txt</a></td></tr>
-<tr id='R35'><td n='35'></td><td><a href="./Bp.html" target="_blank">Bp.txt</a></td></tr>
-<tr id='R36'><td n='36'></td><td><a href="./DBX.html" target="_blank">DBX.txt</a></td></tr>
-<tr id='R37'><td n='37'></td><td><a href="./FILEWATCHER.html" target="_blank">FILEWATCHER.txt</a></td></tr>
-<tr id='R38'><td n='38'></td><td><a href="./WS.html" target="_blank">WS.txt</a></td></tr>
-<tr id='R39'><td n='39'></td><td><a href="./Chat.html" target="_blank">Chat.txt</a></td></tr>
-<tr id='R40'><td n='40'></td><td><a href="./SSE.html" target="_blank">SSE.txt</a></td></tr>
-<tr id='R41'><td n='41'></td><td><a href="./Other services.html" target="_blank">Other services.txt</a></td></tr>
-<tr id='R42'><td n='42'></td><td></td></tr>
-<tr id='R43'><td n='43'></td><td><a href="./Other Perl programs.html" target="_blank">Other Perl programs.txt</a></td></tr>
+<tr id='R13'><td n='13'></td><td><a href="./Starting, stopping, and visiting IntraMine.html" target="_blank">Starting, stopping, and visiting IntraMine.txt</a></td></tr>
+<tr id='R14'><td n='14'></td><td><a href="./Upgrading to Windows 11.html" target="_blank">Upgrading to Windows 11.txt</a></td></tr>
+<tr id='R15'><td n='15'></td><td></td></tr>
+<tr id='R16'><td n='16'></td><td><em>INTRAMINE IMPORTANT BITS</em></td></tr>
+<tr id='R17'><td n='17'></td><td><a href="./Using IntraMine.html" target="_blank">Using IntraMine.txt</a></td></tr>
+<tr id='R18'><td n='18'></td><td><a href="./Configuring IntraMine.html" target="_blank">Configuring IntraMine.txt</a></td></tr>
+<tr id='R19'><td n='19'></td><td><a href="./Editing documents.html" target="_blank">Editing documents.txt</a></td></tr>
+<tr id='R20'><td n='20'></td><td><a href="./Gloss.html" target="_blank">Gloss.txt</a></td></tr>
+<tr id='R21'><td n='21'></td><td><a href="./Glossaries.html" target="_blank">Glossaries.txt</a></td></tr>
+<tr id='R22'><td n='22'></td><td><a href="./gloss2html.pl for standalone Gloss files.html" target="_blank">gloss2html.pl for standalone Gloss files.txt</a></td></tr>
+<tr id='R23'><td n='23'></td><td></td></tr>
+<tr id='R24'><td n='24'></td><td><em>SUPPLIED SERVICES</em></td></tr>
+<tr id='R25'><td n='25'></td><td><a href="./IntraMine Main.html" target="_blank">IntraMine Main.txt</a></td></tr>
+<tr id='R26'><td n='26'></td><td><a href="./Search.html" target="_blank">Search.txt</a></td></tr>
+<tr id='R27'><td n='27'></td><td><a href="./Viewer.html" target="_blank">Viewer.txt</a></td></tr>
+<tr id='R28'><td n='28'></td><td><a href="./Linker.html" target="_blank">Linker.txt</a></td></tr>
+<tr id='R29'><td n='29'></td><td><a href="./Opener.html" target="_blank">Opener.txt</a></td></tr>
+<tr id='R30'><td n='30'></td><td><a href="./Editor.html" target="_blank">Editor.txt</a></td></tr>
+<tr id='R31'><td n='31'></td><td><a href="./Upload.html" target="_blank">Upload.txt</a></td></tr>
+<tr id='R32'><td n='32'></td><td><a href="./Files.html" target="_blank">Files.txt</a></td></tr>
+<tr id='R33'><td n='33'></td><td><a href="./Status.html" target="_blank">Status.txt</a></td></tr>
+<tr id='R34'><td n='34'></td><td><a href="./Cmd.html" target="_blank">Cmd.txt</a></td></tr>
+<tr id='R35'><td n='35'></td><td><a href="./ToDo.html" target="_blank">ToDo.txt</a></td></tr>
+<tr id='R36'><td n='36'></td><td><a href="./EM.html" target="_blank">EM.txt</a></td></tr>
+<tr id='R37'><td n='37'></td><td><a href="./Bp.html" target="_blank">Bp.txt</a></td></tr>
+<tr id='R38'><td n='38'></td><td><a href="./DBX.html" target="_blank">DBX.txt</a></td></tr>
+<tr id='R39'><td n='39'></td><td><a href="./FILEWATCHER.html" target="_blank">FILEWATCHER.txt</a></td></tr>
+<tr id='R40'><td n='40'></td><td><a href="./WS.html" target="_blank">WS.txt</a></td></tr>
+<tr id='R41'><td n='41'></td><td><a href="./Chat.html" target="_blank">Chat.txt</a></td></tr>
+<tr id='R42'><td n='42'></td><td><a href="./SSE.html" target="_blank">SSE.txt</a></td></tr>
+<tr id='R43'><td n='43'></td><td><a href="./Other services.html" target="_blank">Other services.txt</a></td></tr>
 <tr id='R44'><td n='44'></td><td></td></tr>
-<tr id='R45'><td n='45'></td><td><em>ONWARDS</em></td></tr>
-<tr id='R46'><td n='46'></td><td><a href="./Writing your own IntraMine server.html" target="_blank">Writing your own IntraMine server.txt</a></td></tr>
-<tr id='R47'><td n='47'></td><td><a href="./Stealing from IntraMine.html" target="_blank">Stealing from IntraMine.txt</a></td></tr>
-<tr id='R48'><td n='48'></td><td></td></tr>
-<tr id='R49'><td n='49'></td><td><em>DETAILS</em></td></tr>
-<tr id='R50'><td n='50'></td><td><a href="./Configuring folders to index and monitor.html" target="_blank">Configuring folders to index and monitor.txt</a></td></tr>
-<tr id='R51'><td n='51'></td><td><a href="./A note on port numbers.html" target="_blank">A note on port numbers.txt</a></td></tr>
-<tr id='R52'><td n='52'></td><td><a href="./Elasticsearch with replicas.html" target="_blank">Elasticsearch with replicas.txt</a></td></tr>
-<tr id='R53'><td n='53'></td><td><a href="./Testing with IntraMine.html" target="_blank">Testing with IntraMine.txt</a></td></tr>
-<tr id='R54'><td n='54'></td><td></td></tr>
-<tr id='R55'><td n='55'></td><td><a href="./glossary.html" target="_blank">glossary.txt</a></td></tr></table></div></div></div>
+<tr id='R45'><td n='45'></td><td><a href="./Other Perl programs.html" target="_blank">Other Perl programs.txt</a></td></tr>
+<tr id='R46'><td n='46'></td><td></td></tr>
+<tr id='R47'><td n='47'></td><td><em>ONWARDS</em></td></tr>
+<tr id='R48'><td n='48'></td><td><a href="./Writing your own IntraMine server.html" target="_blank">Writing your own IntraMine server.txt</a></td></tr>
+<tr id='R49'><td n='49'></td><td><a href="./Stealing from IntraMine.html" target="_blank">Stealing from IntraMine.txt</a></td></tr>
+<tr id='R50'><td n='50'></td><td></td></tr>
+<tr id='R51'><td n='51'></td><td><em>DETAILS</em></td></tr>
+<tr id='R52'><td n='52'></td><td><a href="./Configuring folders to index and monitor.html" target="_blank">Configuring folders to index and monitor.txt</a></td></tr>
+<tr id='R53'><td n='53'></td><td><a href="./A note on port numbers.html" target="_blank">A note on port numbers.txt</a></td></tr>
+<tr id='R54'><td n='54'></td><td><a href="./Elasticsearch with replicas.html" target="_blank">Elasticsearch with replicas.txt</a></td></tr>
+<tr id='R55'><td n='55'></td><td><a href="./Testing with IntraMine.html" target="_blank">Testing with IntraMine.txt</a></td></tr>
+<tr id='R56'><td n='56'></td><td></td></tr>
+<tr id='R57'><td n='57'></td><td><a href="./glossary.html" target="_blank">glossary.txt</a></td></tr></table></div></div></div>
 <script>
 let thePath = 'C:/perlprogs/IntraMine/Documentation/contents.txt';
 let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/contents.txt';
@@ -1932,12 +2225,36 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 
 function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
-	
-	setTimeout(function() {
-	showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-	}, 100);
-}
 
+	if (typeof isAnImage === "string")
+		{
+		if (isAnImage.toLowerCase() === "true")
+			{
+			isAnImage = true;
+			}
+		else
+			{
+			isAnImage = false;
+			}
+		}
+	
+	// setTimeout(function() {
+	// showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+	// }, 100);
+	setTimeout(function() {
+		showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+		}, 100);
+	}
+
+function decodeHint(text) {
+	text = decodeURIComponent(text);
+	//text = text.replace(/&amp;quot;/g, '"');
+	text = text.replace(/&amp;/g, '&');
+ 	text = text.replace(/&amp;#8216;/g, "'");
+	// TEST ONLY
+	//console.log(text);
+	return(text);
+}
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -2058,11 +2375,11 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			tipwidth = "300px";
 			}
 		hintElement.widthobj = hintElement.style;
-		if (hintElement.innerHTML.indexOf('<img') == 0)
-			{
-			hintElement.style.backgroundColor = 'lightyellow';
-			hintElement.style.border = 'thin dotted black';
-			}
+		// if (hintElement.innerHTML.indexOf('<img') == 0)
+		// 	{
+		// 	hintElement.style.backgroundColor = 'lightyellow';
+		// 	hintElement.style.border = 'thin dotted black';
+		// 	}
 		hintElement.style.width = tipwidth;
 		if (!isAnImage)
 			{

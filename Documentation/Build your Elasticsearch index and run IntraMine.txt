@@ -57,7 +57,7 @@ And later you can **re-start IntraMine** by double-clicking **bats\START_INTRAMI
 
 Do come back to the docs and read "Using IntraMine.txt" at least, when the initial thrill wears off:)
 
-Next: Using IntraMine.txt.
+Next: Starting, stopping, and visiting IntraMine.txt.
 
 ---
 contents.txt

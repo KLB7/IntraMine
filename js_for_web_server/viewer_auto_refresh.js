@@ -16,7 +16,7 @@ function handleFileChanged(message) {
 		let lineNumberStr = currentResult[2];
 		let pathFromMessage = currentResult[3];
 		pathFromMessage = decodeURIComponent(pathFromMessage);
-		pathFromMessage = pathFromMessage.replace("%25", /%/g);
+		pathFromMessage = pathFromMessage.replace(/%25/g, "%");
 		
 		if (pathFromMessage === theEncodedPath)
 			{

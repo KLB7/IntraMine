@@ -40,7 +40,7 @@ Image hover, hover image, hover images: In IntraMine's file views and under the 
 
 Image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.
 
-Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby. For more see "Documentation/Supplied services.txt#Viewer".
+Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Documentation/Supplied services.txt#Viewer".
 
 Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.
 
@@ -60,7 +60,7 @@ And you can set it to always "Run as administrator" by right-clicking on the sho
 
 Map network drive: Open a File Explorer window, click on "This PC" on the left, and then select "Map network drive" at the top. Enter the \\\\host-name\\share-name you want to map, and then select a drive letter to map it to on the PC you're sitting at. Whether or not you'll want to reconnect using a different account is up to you, depending on how you've set things up.
 
-Autolinks, automatic links, automatic linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
+Autolinks, automatic links, automatic linking, autolinking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
 
 You can also autolink to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
 
