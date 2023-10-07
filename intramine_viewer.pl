@@ -394,6 +394,9 @@ sub FullFile {
 		$togglePositionButton = PositionToggle();
 		}
 	$theBody =~ s!_TOGGLEPOSACTION_!$togglePositionButton!;
+
+	my $inlineHoverButton = InlineHoverButton($filePath);
+	$theBody =~ s!_HOVERINLINE_!$inlineHoverButton!;
 	
 	# Hilight class for table of contents selected element - see also non_cm_test.css
 	# and cm_viewer.css.
@@ -445,7 +448,7 @@ _TOPNAV_
 <span id="viewEditTitle">_TITLEHEADER_</span><br /><span id="viewEditDateSize">_DATEANDSIZE_</span>
 </div>
 <div id="button-block">
-_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ <span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span>
+_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ _HOVERINLINE_<span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span>
 </div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
@@ -830,6 +833,18 @@ sub PositionToggle {
 	return($result);
 	}
 
+sub InlineHoverButton {
+	my ($filePath) = @_;
+	my $result = '';
+	if ($filePath !~ m!\.txt$!i)
+		{
+		return($result);
+		}
+	$result = '<input onclick="toggleImagesButton();" id="inlineImages" class="submit-button" type="submit" value="Inline Images" />';
+
+	return($result);
+	}
+
 # CodeMirror JavaScript and non-CodeMirror JS are rather different, especially in the way that
 # such things as links and highlights are handled. For non-CodeMirror, links and highlights
 # are put right in the HTML, whereas CodeMirror links and highlights are handled with
@@ -892,6 +907,7 @@ sub NonCodeMirrorJS {
 <script src="scrollTOC.js" ></script>
 <script src="viewer_auto_refresh.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="viewer_hover_inline_images.js" ></script>
 <script>
 hideSpinner();
 </script>

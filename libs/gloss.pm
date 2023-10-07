@@ -1,4 +1,7 @@
-# gloss.pm: a module for Gloss, as used by the ToDo page. See Gloss.txt.
+# gloss.pm: a module for Gloss, as used by the ToDo page.
+# And now also by IntraMine's glossary definition popups,
+# see intramine_glossary.pm.
+# For usage, see Gloss.txt.
 # And see intramine_todolist.pl for an example of usage.
 # This is a slightly reduced version of Gloss:
 # - linking: only web links and full paths in double quotes are supported
@@ -20,6 +23,7 @@ use common;
 use intramine_config;
 use win_wide_filepaths;
 use ext;
+use Image::Size;
 
 # These are set when Gloss() is called.
 my $IMAGESDIR;
@@ -36,7 +40,7 @@ BEGIN {
 # Note no table of contents here.
 # Contents are put in a simple table without line numbers.
 sub Gloss {
-    my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir) = @_;
+    my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
 	$IMAGESDIR = $imagesDir;
 	$COMMONIMAGESDIR = $commonImagesDir;
 
@@ -137,7 +141,7 @@ sub Gloss {
     # Put in web links and double-quoted full path links.
     for (my $i = 0; $i < @lines; ++$i)
         {
-        AddLinks(\${lines[$i]}, $serverAddr, $mainServerPort, $inlineImages, $contextDir);
+        AddLinks(\${lines[$i]}, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath);
         }
     
 	# TEST ONLY try using &quot;
@@ -770,11 +774,15 @@ sub DoTableRows {
 # - web pages
 # - double-quoted full paths to text files
 # - double-quoted full paths to images
+# - if $callbackFullPath is provided, gives full path for a file specifier
+#   (a partial path with possibly missing or scrambled dir names) - not supported by ToDo.
+# - similarly, if $callbackFullDirectoryPath is provided then directory specifiers
+# will be turned into full directory paths.
 # For the file links to function, IntraMine's Viewer must be running.
 # The ToDo page has no "context" and the Linker is not guaranteed to be running,
 # so links are a bit limited.
 sub AddLinks {
-    my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir) = @_;
+    my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
     my $line = $$txtR;
     my @repStr;
 	my @repLen;
@@ -783,23 +791,13 @@ sub AddLinks {
     my $previousEndPos = 0;
     my $haveGoodMatch = 0;
 
-    while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(&amp;quot;(.+?)&amp;quot;)|((https?://([^\s)<\"](?\!ttp:))+)))!g)
-        {
+    while ($line =~ m!((\"([^"]+)(#[^"]+)?\")|(\'([^']+)(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(&amp;quot;(.+?)&amp;quot;)|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+       {
 		my $startPos = $-[0];
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $ext = $1;			# double-quoted chunk, or url
 		my $entityQuote1 = $9;
 		my $entityQuote2 = $11;
-
-		# print("\$ext: |$ext|\n");
-		# if (defined($entityQuote1))
-		# 	{
-		# 	print("\$entityQuote: |$entityQuote1|\n");
-		# 	}
-		# elsif (defined($entityQuote2))
-		# 	{
-		# 	print("\$entityQuote: |$entityQuote2|\n");
-		# 	}
 
         my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
         my $quoteChar = '';
@@ -848,30 +846,77 @@ sub AddLinks {
 
             # File path (trim #anchor) and check it's a path to an existing file.
             my $pathToCheck = $ext;
-			
+
             my $anchorPos = index($ext, '#');
             if ($anchorPos > 0)
                 {
                 $pathToCheck = substr($ext, 0, $anchorPos);
                 }
             
-            my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
-			my $isFullKnownPath = (FileOrDirExistsWide($pathToCheck) == 1);
-			my $fullImagePath = $extOriginal;
-			if (!$isFullKnownPath && IsImageExtensionNoPeriod($fileExtension))
+            #my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
+			my $fileExtension = '';
+			if ($pathToCheck =~ m!\.(\w+)$!)
 				{
-				$fullImagePath = ImageFileNamePath($pathToCheck, $contextDir);
-				if ($fullImagePath ne '')
+				$fileExtension = $1;
+				}
+
+			my $isFullKnownPath = (FileOrDirExistsWide($pathToCheck) == 1);
+
+			my $fullFilePath = $pathToCheck;
+			if (!$isFullKnownPath && defined($callbackFullPath))
+				{
+				my $fullPath = $callbackFullPath->($fullFilePath, $contextDir);
+				if ($fullPath ne '')
 					{
 					$isFullKnownPath = 1;
-					#$extOriginal = $fullImagePath;
-					#$pathToCheck = $extOriginal; # A big redundant, sorry.
+					$fullFilePath = $fullPath;
 					}
 				}
+			if (!$isFullKnownPath && IsImageExtensionNoPeriod($fileExtension))
+				{
+				$fullFilePath = ImageFileNamePath($pathToCheck, $contextDir);
+				if ($fullFilePath ne '')
+					{
+					$isFullKnownPath = 1;
+					#$extOriginal = $fullFilePath;
+					#$pathToCheck = $extOriginal; # A bit redundant, sorry.
+					}
+				}
+
             if ($isFullKnownPath && $fileExtension ne '')
                 {
-                RememberTextOrImageFileMentionGloss($extOriginal, $fullImagePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages);
+                RememberTextOrImageFileMentionGloss($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages);
+				$haveGoodMatch = 1;
                 }
+			else # possibly a directory
+				{
+				my $dirFullPath = '';
+				my $trimmedDirPath = $pathToCheck;
+				$trimmedDirPath =~ s!\\!/!g;
+				# Remove any starting or trailing slashes.
+				$trimmedDirPath =~ s!^/!!;
+				$trimmedDirPath =~ s!/$!!;
+				# Lower case
+				$trimmedDirPath = lc($trimmedDirPath);
+
+				if (defined($callbackFullDirectoryPath))
+					{
+					$dirFullPath = $callbackFullDirectoryPath->($trimmedDirPath, $contextDir);
+					}
+				else
+					{
+					if (FileOrDirExistsWide($trimmedDirPath) == 2)
+						{
+						$dirFullPath = $trimmedDirPath;
+						}
+					}
+				
+				if ($dirFullPath ne '')
+					{
+					RememberDirMentionGloss($extOriginal, $dirFullPath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos);
+					$haveGoodMatch = 1;
+					}
+				}
            $haveGoodMatch = 1;
             }
 
@@ -1018,7 +1063,7 @@ sub TextWithSpanBreaks {
 # $repStartPosA: where the replacement starts in the original text
 # $repLenA: length of text being replaced.
 sub RememberTextOrImageFileMentionGloss {
-    my ($extOriginal, $fullImagePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages) = @_;
+    my ($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages) = @_;
     my $ext = $extOriginal; # $ext for href, $extOriginal when caculating $repLength
     $ext = str_replace("\t", '/t', $ext);
     my $pathToCheck = $ext;
@@ -1029,30 +1074,31 @@ sub RememberTextOrImageFileMentionGloss {
         $pathToCheck = substr($ext, 0, $anchorPos);
         $anchorWithNum = substr($ext, $anchorPos);
         }
+
     my $anchorLength = length($anchorWithNum);
     my $doingQuotedPath = $haveQuotation;
     my $longestSourcePath = $pathToCheck;
     my $bestVerifiedPath = $longestSourcePath;
-    my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
+	my $fileExtension = '';
+	if ($pathToCheck =~ m!\.(\w+)$!)
+		{
+		$fileExtension = $1;
+		}
     my $haveImageExtension = IsImageExtensionNoPeriod($fileExtension);
     my $haveTextExtension = IsTextExtensionNoPeriod($fileExtension);
     my $repString = '';
 
-     my $repLength = length($extOriginal);
-   if ($haveTextExtension)
+    my $repLength = length($extOriginal);
+   	if ($haveTextExtension)
         {
-        GetTextFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath,
-							$anchorWithNum, \$repString);
+        GetTextFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $fullFilePath, $pathToCheck,
+							$anchorWithNum, \$repString, $inlineImages);
 
         }
     else # currently only image extension
         {
-        GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
-							$fullImagePath, \$repString, $inlineImages);
-        # GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
-		# 					$longestSourcePath, \$repString, $inlineImages);
-		#my $repLength = length($fullImagePath);
-
+       GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
+							$fullFilePath, $pathToCheck, \$repString, $inlineImages);
         }
 
     if ($haveQuotation)
@@ -1067,9 +1113,23 @@ sub RememberTextOrImageFileMentionGloss {
     push @$repStartPosA, $repStartPosition;
     }
 
+sub RememberDirMentionGloss {
+	my ($extOriginal, $dirFullPath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA) = @_;
+
+	my $displayedLinkName = $quoteChar . $extOriginal . $quoteChar;
+
+	my $repString = "<a href=\"$dirFullPath\" onclick=\"openDirectory(this.href); return false;\">$displayedLinkName</a>";
+
+	my $repLength = length($displayedLinkName);
+	my $repStartPosition = $startPos;
+	push @$repStrA, $repString;
+    push @$repLenA, $repLength;
+    push @$repStartPosA, $repStartPosition;
+	}
+
 # Get link for full file path $longestSourcePath.
 sub GetTextFileRepGloss {
-    my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath, $anchorWithNum, $repStringR) = @_;
+    my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath, $properCasedPath, $anchorWithNum, $repStringR, , $inlineImages) = @_;
     
     my $editLink = '';
 	my $viewerPath = $longestSourcePath;
@@ -1082,10 +1142,15 @@ sub GetTextFileRepGloss {
 	$viewerPath =~ s!%!%25!g;
 	$viewerPath =~ s!\+!\%2B!g;
 
-    my $displayedLinkName = $longestSourcePath . $anchorWithNum;
+    my $displayedLinkName = $properCasedPath . $anchorWithNum;
     # In a ToDo item a full link can be too wide too often.
     # So shorten the displayed link name to just the file name with anchor.
-    $displayedLinkName = ShortenedLinkText($displayedLinkName, $quoteChar, 28);
+
+	# $inlineImages true means we're doing eg glossary definitions, where
+	# we have lots of room. If it's false, we're doing Gloss in a ToDo
+	# item, which is narrow.
+	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+    $displayedLinkName = ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
 
  	if ($haveQuotation)
 		{
@@ -1115,7 +1180,7 @@ sub GetTextFileRepGloss {
 # Get image link for full path $longestSourcePath. Optionally includes showhint() popup call
 # and the little hummingbird images to suggest hovering.
 sub GetImageFileRepGloss {
-	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $repStringR, $inlineImages) = @_;
+	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages) = @_;
 
     my $fullPath = $longestSourcePath;
 	$fullPath =~ s!\\!/!g;
@@ -1126,10 +1191,14 @@ sub GetImageFileRepGloss {
 	my $port = $mainServerPort;
     my $ViewerShortName = CVal('VIEWERSHORTNAME');
     my $imagePath = "http://$host:$port/$ViewerShortName/$fullPath";
-    my $displayedLinkName = $longestSourcePath;
+    my $displayedLinkName = $properCasedPath;
     # In a ToDo item a full link can be too wide too often.
     # So shorten the displayed link name to just the file name with anchor.
-    $displayedLinkName = ShortenedLinkText($displayedLinkName, $quoteChar, 28);
+	# $inlineImages true means we're doing eg glossary definitions, where
+	# we have lots of room. If it's false, we're doing Gloss in a ToDo
+	# item, which is narrow.
+	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+    $displayedLinkName = ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
 
 	if ($haveQuotation)
 		{
@@ -1138,16 +1207,28 @@ sub GetImageFileRepGloss {
 
 	if ($inlineImages)
 		{
-		# TEST ONLY
-		#$$repStringR = "<img src=&quot;$imagePath&quot;>";
-		$$repStringR = "<img src='$imagePath'>";
+		my $widthHeightStr = '';
+		my ($width, $height) = imgsize($fullPath);
+		if (defined($width) && $width > 0)
+			{
+			if ($width > 600)
+				{
+				my $scaleFactor = 600.0 / $width;
+				$width = 600;
+				$height = $height * $scaleFactor;
+				}
+			
+			$widthHeightStr = " width='$width' height='$height'";
+			}
+		
+		$$repStringR = "<img src='$imagePath'$widthHeightStr>";
 		}
 	else
 		{
 		my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 		my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
 
-		$$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+		$$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '600px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 		}
     }
 

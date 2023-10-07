@@ -1398,35 +1398,41 @@ sub RightmostWantedPartialPath {
 		{
 		my $startPos = $-[0]; # position of \w, potential drive letter
 		my $testObj = substr($wantedObj, $startPos);
+		$wantedObj = $testObj;
 		#print ("Path to end: |$testObj|\n");
 		
-		# Check $testObj to see if it begins with a full path and has something on the
-		# right left over. Do that by stripping /bits/ from the right until a potential
-		# end of a full path is seen, or we go too far.
-		my $filePathCopy = $testObj;
-		my $fnPosition = rindex($filePathCopy, '/');
-		my $foundRightmostFullPath = 0;
-		
-		while ($fnPosition > 3)
+		# Check for a "leftover" after a full path only if $obj begins with
+		# something more than just /\w: or \w:.
+		if ($startPos > 1)
 			{
-			$filePathCopy = substr($filePathCopy, 0, $fnPosition);
-			#print("Checking |$filePathCopy|\n");
-			if ($filePathCopy =~ m!\.\w+$!)
+			# Check $testObj to see if it begins with a full path and has something on the
+			# right left over. Do that by stripping /bits/ from the right until a potential
+			# end of a full path is seen, or we go too far.
+			my $filePathCopy = $testObj;
+			my $fnPosition = rindex($filePathCopy, '/');
+			my $foundRightmostFullPath = 0;
+			
+			while ($fnPosition > 3)
 				{
-				$foundRightmostFullPath = 1;
-				last;
+				$filePathCopy = substr($filePathCopy, 0, $fnPosition);
+				#print("Checking |$filePathCopy|\n");
+				if ($filePathCopy =~ m!\.\w+$!)
+					{
+					$foundRightmostFullPath = 1;
+					last;
+					}
+				else
+					{
+					$fnPosition = rindex($filePathCopy, '/');
+					}
+				#print("\$fnPosition: |$fnPosition|\n");
 				}
-			else
+			
+			if ($foundRightmostFullPath)
 				{
-				$fnPosition = rindex($filePathCopy, '/');
+				$wantedObj = substr($testObj, $fnPosition + 1);
+				#print("Trimmed obj: |$wantedObj|\n");
 				}
-			#print("\$fnPosition: |$fnPosition|\n");
-			}
-		
-		if ($foundRightmostFullPath)
-			{
-			$wantedObj = substr($testObj, $fnPosition + 1);
-			#print("Trimmed obj: |$wantedObj|\n");
 			}
 		}
 	

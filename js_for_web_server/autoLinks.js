@@ -59,13 +59,14 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
+	let shouldInline = (shouldInlineImages()) ? '1' : '0';
 
 	try {
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=nonCmLinks'
 		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
 		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
 		+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
-		+ lastVisibleLineNum;
+		+ lastVisibleLineNum + '&shouldInline=' + shouldInline;
 		const response = await fetch(theAction);
 
 		if (response.ok)
@@ -88,9 +89,12 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 						let rowElem = document.getElementById(rowId);
 						if (rowElem !== null)
 							{
-							// TEST ONY
-							//rowElem.innerHTML = decodeURIComponentSafe(lines[ind]);
-							rowElem.innerHTML = lines[ind];
+							let repStr = lines[ind];
+							let regex = /\%2B/gi;
+							repStr = repStr.replace(regex, '+');
+							let regex2 = /:81\//g;
+							repStr = repStr.replace(regex2, ":" + ourSSListeningPort + "/");
+							rowElem.innerHTML = repStr;
 							}
 						}
 					}

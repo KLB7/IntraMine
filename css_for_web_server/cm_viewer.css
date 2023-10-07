@@ -183,6 +183,11 @@ div#indicator {
 	background-color: lightgreen;
 }
 
+/* For Gloss display of *!* wrapped code bits. */
+code {
+	background-color:#ECF6CE;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	.CodeMirror {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}

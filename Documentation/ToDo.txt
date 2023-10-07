@@ -35,17 +35,18 @@ The ToDo version of Gloss supports:
  - unordered or "bullet" lists, two levels
  - ordered or "numbered" lists, two levels
  - headings (three levels with =====, -----, ~~~~~ underlines)
- - special icons (such as FIXED)
+ - special icons (such as FIXED or NOTE)
  - tables (see below)
  - links (see below).
 
-If you're typing in a table, use "\t" as the cell separator, since TAB will just advance you to the Due Date field. But you can paste in a regular Gloss table that uses TABs and it will work.
+If you're typing in a table, use "\t" as the cell separator instead of hitting the TAB key, since TAB will just advance you to the Due Date field. But you can paste in a regular Gloss table that uses TABs and it will work.
 
 Links are restricted for ToDo items (by comparison with full autolinking as seen with IntraMine's Viewer for text files). Supported links for ToDo:
  - web links, as usual they must start with http: or https:
  - file links, but they must be full paths enclosed in single or double quotes, such as "C:\Common/images/animage.png" or "P:\project51\src/afile.cpp"
  - file links are supported for all source files and text files, and image files
- - you do get the "pop up on hover" for image links, so if you pause your cursor over the image link a (possibly reduced) version of the image will appear.
+ - directory links, also must be in quotes and full paths, eg "C:\Strawberry\perl\lib"
+ - you do get the "pop up on hover" for image links, so if you pause your cursor over the image link a (possibly reduced) version of the image will appear. Images aren't shown inline in ToDo items because they are just too narrow.
 
 Full autolinking as seen with the Viewer isn't implemented for ToDo, mainly because there's no useful "context" for ToDo items.
 

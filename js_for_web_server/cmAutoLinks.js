@@ -1033,6 +1033,8 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 // Strip the short server name (eg Viewer or Editor), it's not wanted.
 function updatePortInHintContent(hintContent) {
 	// TEST ONLY
+	return(hintContent);
+	
 	//testPortUpdate(ourSSListeningPort);
 
 	const regex = new RegExp("http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");

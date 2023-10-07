@@ -18,7 +18,7 @@ Using IntraMine.txt
 Configuring IntraMine.txt
 Editing documents.txt
 Gloss.txt
-Glossaries.txt
+Glossary definition popups.txt
 gloss2html.pl for standalone Gloss files.txt
 
 *SUPPLIED SERVICES*

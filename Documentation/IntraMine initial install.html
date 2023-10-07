@@ -1281,8 +1281,8 @@ paragraph (ie not the first paragraph in the item).
 #hintbox{ /*CSS for pop up hint box */
 position:absolute;
 top: 0;
-background-color: lightyellow;
-width: 150px; /*Default width of hint.*/ 
+background-color: #FFFFF4;
+/*width: 150px; Default width of hint.*/ 
 padding: 6px;
 /*border:1px solid black;*/
 font:normal 13px Verdana;
@@ -1293,7 +1293,7 @@ border-bottom: 3px solid black;*/
 visibility: hidden;
 	
 border: none;
-/*box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);*/
+box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1317,9 +1317,11 @@ margin: 3px 8px;
 }
 
 /* Additions for Gloss display of tooltips. */
+
 #hintbox td:nth-child(1) {
-	background-color: lightyellow;
+	background-color: #FFFFF4;
 	color: #000;
+
 	min-width: auto;
 	text-align: left;
 }
@@ -1505,7 +1507,7 @@ paragraph (ie not the first paragraph in the item).
     margin-bottom: 4px;    
 }
 
-#hintbox .bordered tr:hover {
+#hintbox .bordered td:first-child:hover, #hintbox .bordered tr:hover {
     background: #fbf8e9;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;
@@ -1678,8 +1680,8 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='74'><a href='#Installing_additional_Strawberry_Perl_modules'>Installing additional Strawberry Perl modules</a></li>
 <li class='h3' im-text-ln='77'><a href='#All_at_once'>All at once</a></li>
 <li class='h3' im-text-ln='90'><a href='#One_by_one'>One by one</a></li>
-<li class='h2' im-text-ln='119'><a href='#Optional_modules'>Optional modules</a></li>
-<li class='h2' im-text-ln='131'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
+<li class='h2' im-text-ln='120'><a href='#Optional_modules'>Optional modules</a></li>
+<li class='h2' im-text-ln='132'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps as described below consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="showhint('<p>Strawberry Perl: An open source version of Perl for Windows. See strawberryperl.com for details. IntraMine uses Strawberry Perl.</p>', this, event, '500px', false);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
@@ -1840,64 +1842,65 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R100'><td n='100'></td><td>cpan Search::<a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
-<tr id='R101'><td n='101'></td><td>cpan ExportAbove</td></tr>
-<tr id='R102'><td n='102'></td><td>cpan Win32API::File::Time</td></tr>
-<tr id='R103'><td n='103'></td><td>cpan Math::SimpleHisto::XS</td></tr>
-<tr id='R104'><td n='104'></td><td>cpan File::ReadBackwards</td></tr>
-<tr id='R105'><td n='105'></td><td>cpan IO::Socket::Timeout</td></tr>
-<tr id='R106'><td n='106'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
-<tr id='R107'><td n='107'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
-<tr id='R108'><td n='108'></td><td>cpan Text::MultiMarkdown</td></tr>
-<tr id='R109'><td n='109'></td><td>cpan Win32::RunAsAdmin</td></tr>
-<tr id='R110'><td n='110'></td><td>cpan Text::Unidecode</td></tr>
-<tr id='R111'><td n='111'></td><td>cpan Selenium::Remote::Driver</td></tr>
-<tr id='R112'><td n='112'></td><td>cpan Protocol::WebSocket::Client</td></tr>
-<tr id='R113'><td n='113'></td><td>cpan Net::WebSocket::Server</td></tr>
-<tr id='R114'><td n='114'></td><td>cpan URI::Encode</td></tr>
-<tr id='R115'><td n='115'></td><td>cpan Date::Business</td></tr>
-<tr id='R116'><td n='116'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R100'><td n='100'></td><td>cpan PREACTION/Log-Any-1.716.tar.gz</td></tr>
+<tr id='R101'><td n='101'></td><td>cpan Search::<a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></td></tr>
+<tr id='R102'><td n='102'></td><td>cpan ExportAbove</td></tr>
+<tr id='R103'><td n='103'></td><td>cpan Win32API::File::Time</td></tr>
+<tr id='R104'><td n='104'></td><td>cpan Math::SimpleHisto::XS</td></tr>
+<tr id='R105'><td n='105'></td><td>cpan File::ReadBackwards</td></tr>
+<tr id='R106'><td n='106'></td><td>cpan IO::Socket::Timeout</td></tr>
+<tr id='R107'><td n='107'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
+<tr id='R108'><td n='108'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
+<tr id='R109'><td n='109'></td><td>cpan Text::MultiMarkdown</td></tr>
+<tr id='R110'><td n='110'></td><td>cpan Win32::RunAsAdmin</td></tr>
+<tr id='R111'><td n='111'></td><td>cpan Text::Unidecode</td></tr>
+<tr id='R112'><td n='112'></td><td>cpan Selenium::Remote::Driver</td></tr>
+<tr id='R113'><td n='113'></td><td>cpan Protocol::WebSocket::Client</td></tr>
+<tr id='R114'><td n='114'></td><td>cpan Net::WebSocket::Server</td></tr>
+<tr id='R115'><td n='115'></td><td>cpan URI::Encode</td></tr>
+<tr id='R116'><td n='116'></td><td>cpan Date::Business</td></tr>
+<tr id='R117'><td n='117'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R117'><td n='117'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
-<tr id='R118'><td n='118'></td><td></td></tr>
-<tr id='R119'><td n='119'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
+<tr id='R118'><td n='118'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
+<tr id='R119'><td n='119'></td><td></td></tr>
+<tr id='R120'><td n='120'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R121'><td n='121'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
-<tr id='R122'><td n='122'></td><td></td></tr>
-<tr id='R123'><td n='123'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>:</td></tr>
-<tr id='R124'><td n='124'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R122'><td n='122'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
+<tr id='R123'><td n='123'></td><td></td></tr>
+<tr id='R124'><td n='124'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>:</td></tr>
+<tr id='R125'><td n='125'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R125'><td n='125'></td><td>cpan Tk::BrowseEntry</td></tr>
-<tr id='R126'><td n='126'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R126'><td n='126'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R127'><td n='127'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R127'><td n='127'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
-<tr id='R128'><td n='128'></td><td></td></tr>
-<tr id='R129'><td n='129'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
-<tr id='R130'><td n='130'></td><td></td></tr>
-<tr id='R131'><td n='131'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
+<tr id='R128'><td n='128'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
+<tr id='R129'><td n='129'></td><td></td></tr>
+<tr id='R130'><td n='130'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
+<tr id='R131'><td n='131'></td><td></td></tr>
+<tr id='R132'><td n='132'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R133'><td n='133'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.</td></tr>
-<tr id='R134'><td n='134'></td><td></td></tr>
-<tr id='R135'><td n='135'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
-<tr id='R136'><td n='136'></td><td></td></tr>
-<tr id='R137'><td n='137'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
-<tr id='R138'><td n='138'></td><td></td></tr>
-<tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R134'><td n='134'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.</td></tr>
+<tr id='R135'><td n='135'></td><td></td></tr>
+<tr id='R136'><td n='136'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
+<tr id='R137'><td n='137'></td><td></td></tr>
+<tr id='R138'><td n='138'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
+<tr id='R139'><td n='139'></td><td></td></tr>
+<tr id='R140'><td n='140'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R140'><td n='140'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R141'><td n='141'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R141'><td n='141'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R142'><td n='142'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
@@ -1974,6 +1977,10 @@ JD.debounce = function(func, wait, immediate) {
 // (Significantly modified from the original 2018-19 and 2023 for use with IntraMine.)
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
+
+// Cursor position, updated when hintbox is showing.
+let cursor_x = -1;
+let cursor_y = -1;
 
 // Where to place the hint, relative to cursor position.
 const DIRECTION_BELOW = 0;
@@ -2085,17 +2092,25 @@ function positionAndShowHint() {
 	let hintContents = hintParams.hintContents;
 	let x = hintParams.x;
 	let y = hintParams.y;
-	let tipwidth = hintParams.tipwidth;
+	let tipwidth = hintParams.tipWidth;
 	let isAnImage = hintParams.isAnImage;
+	let haveImageWidth = true;
 	let gap = 10; // gap between cursor and tip
 	let windowHeight = window.innerHeight - gap;
 	let windowWidth = window.innerWidth - gap;
-	let hintWidth = 450;
-	let hintHeight = hintElement.offsetHeight;
+	let hintWidth = tipwidth; //450;
+	let hintHeight = hintParams.tipHeight; //hintElement.offsetHeight;
 	if (isAnImage)
 		{
-		hintWidth = hintParams.theImage.width;
-		hintHeight = hintParams.theImage.height;
+		try
+			{
+			hintWidth = hintParams.theImage.width;
+			hintHeight = hintParams.theImage.height;
+			}
+		catch(e)
+			{
+			haveImageWidth = false;
+			}
 		}
 	else
 		{
@@ -2125,28 +2140,18 @@ function positionAndShowHint() {
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
+	
 	hintElement.style.top = tl.top;
 	hintElement.style.left = tl.left;
 	
-	if (isAnImage)
+	// Scale image if it's really needed and we have good width and height.
+	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
 		{
 		hintContents =
 			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
 	hintElement.innerHTML = hintContents;
-
-	// Set width and height for an image. For text, set the desired width and let it flow.
-	// hintElement.style.width = hintWidth + "px";
-	if (isAnImage)
-		{
-		hintElement.style.height = hintHeight + "px";
-		hintElement.style.width = hintWidth + "px";
-		}
-	else
-		{
-		hintElement.style.height = '';
-		}
 
 	hintElement.style.visibility = "visible";
 }
@@ -2235,46 +2240,76 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	
 	if (bestDirection === DIRECTION_BELOW) // below
 		{
-		top = y + gap + "px";
+		top = y + 2*gap; // Double the gap to move tip down slightly.
 		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
-		left = (left < 0) ? "0" : left + "px";
+		left = (left < 0) ? 0 : left;
 		}
 	else if (bestDirection === DIRECTION_ABOVE) // above
 		{
 		if (y - hintHeight - gap >= 0)
 			{
-			top = y - hintHeight - gap + "px";
+			top = y - hintHeight - gap;
 			}
 		else
 			{
-			top = "0";
+			top = 0;
 			}
 		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
-		left = (left < 0) ? "0" : left + "px";
+		left = (left < 0) ? 0 : left;
 		}
 	else if (bestDirection === DIRECTION_RIGHT) // right
 		{
-		left = x + gap + "px";
+		left = x + gap;
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
-		top = (top < 0) ? "0" : top + "px";
+		top = (top < 0) ? 0 : top;
 		}
 	else
 		// if (bestDirection === DIRECTION_LEFT) // left
 		{
 		if (x - hintWidth - gap >= 0)
 			{
-			left = x - hintWidth - gap + "px";
+			left = x - hintWidth - gap;
 			}
 		else
 			{
-			left = "0";
+			left = 0;
 			}
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
-		top = (top < 0) ? "0" : top + "px";
+		top = (top < 0) ? 0 : top;
 		}
 
+	// Some fine-tuning to keep as much of the tip visible as possible.
+	// Top left portion preferred.
+	if (top + hintHeight > windowHeight)
+		{
+		let offBottom = top + hintHeight - windowHeight;
+		top -= offBottom;
+		}
+	if (top < 0)
+		{
+		top = 0;
+		}
+	if (left + hintWidth > windowWidth)
+		{
+		let offRight = left + hintWidth - windowWidth;
+		left -= offRight;
+		}
+	if (left < 0)
+		{
+		left = 0;
+		}
+
+	if (top > 0)
+		{
+		top += "px";
+		}
+	if (left > 0)
+		{
+		left += "px";
+		}
+	
 	let topLeft = {};
 	topLeft.top = top;
 	topLeft.left = left;
@@ -2282,8 +2317,25 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
-function showhint(hintContents, obj, e, tipwidth, isAnImage) {
+function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
+
+	if (shouldDecode === undefined)
+		{
+		shouldDecode = false;
+		}
+
+	if (typeof shouldDecode === "string")
+		{
+		if (shouldDecode.toLowerCase() === "true")
+			{
+			shouldDecode = true;
+			}
+		else
+			{
+			shouldDecode = false;
+			}
+		}
 
 	if (typeof isAnImage === "string")
 		{
@@ -2297,23 +2349,25 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		}
 	
-	// setTimeout(function() {
-	// showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-	// }, 100);
-	setTimeout(function() {
-		showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
-		}, 100);
+	if (shouldDecode)
+		{
+		setTimeout(function() {
+			showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
+			}, 100);
+		}
+	else
+		{
+		setTimeout(function() {
+			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			}, 100);
+		}
 	}
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
-	//text = text.replace(/&amp;quot;/g, '"');
-	text = text.replace(/&amp;/g, '&');
- 	text = text.replace(/&amp;#8216;/g, "'");
-	// TEST ONLY
-	//console.log(text);
 	return(text);
 }
+
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -2391,10 +2445,28 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	
 	if (!hintShown)
 		{
+		hintContents = updateImagePortInHintContent(hintContents);
 		showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage);
 		}
 	}
 
+function updateImagePortInHintContent(hintContent) {
+	if (typeof ourSSListeningPort !== 'undefined')
+	{
+	// src="
+	const regex = new RegExp("src=\"http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex, "src=\"http://" + mainIP + ":" + ourSSListeningPort);
+	// src='
+	const regex2 = new RegExp("src='http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex2, "src='http://" + mainIP + ":" + ourSSListeningPort);
+	// src=&quot; because you never know....
+	const regex3 = new RegExp("src=&quot;http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
+	hintContent = hintContent.replace(regex3, "src=\&quot;http://" + mainIP + ":" + ourSSListeningPort);
+	}
+
+	return(hintContent);
+}
+	
 function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	"use strict";
 	
@@ -2408,81 +2480,104 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		{
 		hintElement = document.getElementById("hintbox");
 		hintElement.innerHTML = hintContents;
-
-		if (!hasClass(obj, hitAnchorClassName))
+		if (isAnImage)
 			{
-			addClass(obj, hitAnchorClassName);
-			}
-		addClass(obj, anchorClassName);
-
-		// Check if mouse is still over element (which must have
-		// class hintanchor or plainhintanchor)
-		let stillOver = mouseStillOverTipOwner(obj);
-
-		if (!stillOver)
-			{
-			hintElement.style.visibility = "hidden";
-			hintElement.style.left = "-500px";
-			removeClass(obj, anchorClassName);
-			return;
-			}
-
-		hintElement.style.left = "-500px";
-		hintElement.style.top = "-500px";
-		if (tipwidth === "")
-			{
-			tipwidth = "300px";
-			}
-		hintElement.widthobj = hintElement.style;
-		// if (hintElement.innerHTML.indexOf('<img') == 0)
-		// 	{
-		// 	hintElement.style.backgroundColor = 'lightyellow';
-		// 	hintElement.style.border = 'thin dotted black';
-		// 	}
-		hintElement.style.width = tipwidth;
-		if (!isAnImage)
-			{
-			// Reset height to 'auto'.
-			hintElement.style.height = '';
-			}
-
-		hintParams.hintContents = hintContents;
-		hintParams.x = e.clientX;
-		hintParams.y = e.clientY;
-		hintParams.tipwidth = tipwidth;
-		hintParams.isAnImage = isAnImage;
-		
-		// Note we re-get the image_url since it might have changed.
-		let image_url = srcURL(hintContents);
-		if (image_url !== "")
-			{
-			let my_image = new Image();
-			my_image.onload = function() {
-				positionAndShowHint();
-			};
-			my_image.src = image_url;
-			hintParams.theImage = my_image;
+			hintElement.style.width = '';
 			}
 		else
 			{
-			positionAndShowHint();
+			hintElement.style.width = "650px";
 			}
 
-		obj.onmouseout = hidetip;
-
-		if (typeof window.ontouchstart === 'undefined')
-			{
-			overAnchorTimer = window.setTimeout(function() {
-				hideTipIfMouseHasLeft(obj);
-			}, 1000);
-			}
+		setTimeout(function() {
+			showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage);
+			}, 200);
 		}
+}
+
+function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
+	let rect = hintElement.getBoundingClientRect();
+	rect = hintElement.getBoundingClientRect(); // sic
+	let currentWidth = rect.width;
+	let currentHeight = rect.height;
+	tipwidth = currentWidth;
+	hintParams.tipWidth = currentWidth;
+	hintParams.tipHeight = currentHeight;
+	
+	if (!hasClass(obj, hitAnchorClassName))
+		{
+		addClass(obj, hitAnchorClassName);
+		}
+	
+	hideTipJustInCase(obj);
+	
+	addClass(obj, anchorClassName);
+
+	// Check if mouse is still over element (which must have
+	// class hintanchor or plainhintanchor)
+	let stillOver = mouseStillOverTipOwner(obj);
+
+	if (!stillOver)
+		{
+		hintElement.style.visibility = "hidden";
+		hintElement.style.left = "-500px";
+		removeClass(obj, anchorClassName);
+		return;
+		}
+
+	hintElement.style.left = "-500px";
+	hintElement.style.top = "-500px";
+	if (tipwidth === "")
+		{
+		tipwidth = "300px";
+		}
+	hintElement.widthobj = hintElement.style;
+	hintParams.hintContents = hintContents;
+	hintParams.x = e.clientX;
+	
+	let viewportOffset = obj.getBoundingClientRect();
+	hintParams.y = viewportOffset.top;
+	hintParams.isAnImage = isAnImage;
+	
+	// Note we re-get the image_url since it might have changed.
+	let image_url = srcURL(hintContents); // Stubbed out, always returns ""
+	if (image_url !== "")
+		{
+		let my_image = new Image();
+		my_image.onload = function() {
+			positionAndShowHint();
+		};
+		my_image.src = image_url;
+		hintParams.theImage = my_image;
+		}
+	else
+		{
+		positionAndShowHint();
+		}
+
+	document.addEventListener('mousemove', recordMousePosition);
+	document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+
+	if (typeof window.ontouchstart === 'undefined')
+		{
+		overAnchorTimer = window.setTimeout(function() {
+			hideTipIfMouseHasLeft(obj);
+		}, 500);
+		}
+}
+
+function handleMouseLeave() {
+	hidetip();
 }
 
 // If see src="something", return something, else "".
 // The something should be in single or double quotes of some sort.
+// Stubbed out, not needed at the moment.
 function srcURL(hintContents) {
 	let image_url = "";
+	// TEST ONLY
+	return("");
+	
 	let arrayMatch = null;
 
 	if ((arrayMatch = /src='([^']+?)'/.exec(hintContents)) ||
@@ -2497,17 +2592,20 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj))
+	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
-		}, 1000);
+		}, 500);
 		}
 	else
 		{
 		hidetip();
-		removeClass(obj, anchorClassName);
 		}
+}
+
+function hideTipJustInCase(obj) {
+	hidetip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2520,7 +2618,30 @@ function mouseStillOverTipOwner(obj) {
 		let c = window.getComputedStyle(el).getPropertyValue('border-top-style');
 		stillOver = (c === 'hidden') ? true : false;
 		}
+
 	return (stillOver);
+}
+
+function mouseStillOverHintbox() {
+	let stillOver = false;
+
+	let elements = document.elementsFromPoint(cursor_x, cursor_y);
+
+	for (var i = 0; i < elements.length; i++) {
+		let elementId = elements[i].id;
+		if (elementId === "hintbox")
+			{
+			stillOver = true;
+			break;
+			}
+		}
+
+	return(stillOver);
+}
+
+function recordMousePosition(evt) {
+	cursor_x = evt.pageX;
+	cursor_y = evt.pageY;
 }
 
 function hidetip(e) {
@@ -2534,6 +2655,9 @@ function hidetip(e) {
 			removeClass(anks[i], anchorClassName);
 			}
 		}
+	
+	document.removeEventListener('mousemove', recordMousePosition);
+	document.removeEventListener('mouseleave', handleMouseLeave);
 }
 
 function touchhidetip(e) {
@@ -4133,6 +4257,7 @@ function finishStartup() {
 	hideIt("small-tip");
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
+	setImagesButtonText();
 	reJump();
 }
 
@@ -4352,19 +4477,6 @@ function highlightInitialItems() {
 			}
 		}
 }
-
-//function decodeSpecialWordCharacters() {
-//	if (markerMainElement !== null && highlightItems.length > 0)
-//		{
-//		for (let i = 0; i < highlightItems.length; ++i)
-//			{
-//			highlightItems[i] = highlightItems[i].replace(/ *__D_ */g, ".");
-//			highlightItems[i] = highlightItems[i].replace(/__DS_([A-Za-z])/g, "\$$1");
-//			highlightItems[i] = highlightItems[i].replace(/__PC_([A-Za-z])/g, "\%$1");
-//			highlightItems[i] = highlightItems[i].replace(/__AT_([A-Za-z])/g, "\@$1");
-//			}
-//		}
-//}
 
 function removeInitialHighlights() {
 	if (markerMainElement !== null && highlightItems.length > 0)
@@ -5656,6 +5768,9 @@ function addTocScrollListener(evt) {
 			scrollingForToc = setTimeout(function() {
 				// Run the callback.
 				scrollTocEntryIntoView(evt, true);
+				// Trying to stabilize nav bar, sometimes it randomly
+				// jumps off the top of the window.
+				resetTopNavPosition();
 			}, 66);
 			});
 		}
@@ -5905,5 +6020,57 @@ function disableSelect(event) {
 <script type="text/javascript">
 /*! lolight v1.4.0 - https://larsjung.de/lolight/ modified to add 'my' and 'sub' keywords. -KLB */
 !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):e.lolight=t()}(this,function(){function t(e){if("string"!=typeof e)throw new Error("tok: no string");for(var t=[],n=u.length,o=!1;e;)for(var r=0;r<n;r+=1){var i=u[r][1].exec(e);if(i&&0===i.index){var a=u[r][0];if("rex"!==a||!o){var l=i[0];a===s&&c.test(l)&&(a="key"),"spc"===a?0<=l.indexOf("\n")&&(o=!1):o=a===f||a===s,e=e.slice(l.length),t.push([a,l]);break}}}return t}function e(e,t){if("undefined"!=typeof document)t(document);else if(e)throw new Error("no doc")}function n(o){e(!0,function(n){var e=t(o.textContent);o.innerHTML="",e.forEach(function(e){var t=n.createElement("span");t.className="ll-"+e[0],t.textContent=e[1],o.appendChild(t)})})}function o(t){e(!0,function(e){[].forEach.call(e.querySelectorAll(t||".lolight"),function(e){n(e)})})}var r="_nam#2196f3}_num#ec407a}_str#43a047}_rex#ef6c00}_pct#666}_key#555;font-weight:bold}_com#aaa;font-style:italic}".replace(/_/g,".ll-").replace(/#/g,"{color:#"),c=/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|onst|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do|double|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or(each)?|riend|rom|unc(tion)?)|global|goto|guard|i(f|mp(lements|licit|ort)|n(it|clude(_once)?|line|out|stanceof|t(erface|ernal)?)?|s)|l(ambda|et|ock|ong)|m(odule|utable|y)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|ub)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of))|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|ith)|xor|yield)$/,i="com",s="nam",f="num",u=[[f,/#([0-9a-f]{6}|[0-9a-f]{3})\b/],[i,/(\/\/|#).*?(?=\n|$)/],[i,/\/\*[\s\S]*?\*\//],[i,/<!--[\s\S]*?-->/],["rex",/\/(\\\/|[^\n])*?\//],["str",/(['"`])(\\\1|[\s\S])*?\1/],[f,/[+-]?([0-9]*\.?[0-9]+|[0-9]+\.?[0-9]*)([eE][+-]?[0-9]+)?/],["pct",/[\\.,:;+\-*\/=<>()[\]{}|?!&@~]/],["spc",/\s+/],[s,/[\w$]+/],["unk",/./]];return e(!1,function(e){var t=e.querySelector("head"),n=e.createElement("style");n.textContent=r,t.insertBefore(n,t.firstChild),/^(i|c|loade)/.test(e.readyState)?o():e.addEventListener("DOMContentLoaded",function(){o()})}),o.tok=t,o.el=n,o});
+</script>
+<script type="text/javascript">
+// viewer_hover_inline_images.js: toggle between showing images
+// as hover tooltips or inline.
+// Only for .txt files. When the #inlineImages button is clicked, we do a reload().
+// The state is remembered in localStorage.
+
+// Hover / Inline Button clicked, set localStorage for
+// 'inlineImages' and reload.
+function toggleImagesButton() {
+	let buttonElem = document.getElementById("inlineImages");
+	if (buttonElem === null)
+		{
+		return;
+		}
+	let shouldInline = shouldInlineImages();
+	shouldInline = !shouldInline;
+	let imageKey = thePath + '?' + 'inlineImages';
+	localStorage.setItem(imageKey, shouldInline);
+	
+	window.location.reload();
+}
+
+// Button hover / inline state is kept in localStorage.
+function shouldInlineImages() {
+	let imageKey = thePath + '?' + 'inlineImages';
+	let shouldInline = localStorage.getItem(imageKey);
+	if (shouldInline === 'true' || shouldInline === true)
+		{
+		shouldInline = true;
+		}
+	else
+		{
+		shouldInline = false;
+		}
+
+	return(shouldInline);
+	}
+
+// Call during load, or when the Hover / Inline button is clicked.
+function setImagesButtonText() {
+	let buttonElem = document.getElementById("inlineImages");
+	if (buttonElem === null)
+		{
+		return;
+		}
+	let imageKey = thePath + '?' + 'inlineImages';
+	let shouldInline = shouldInlineImages();
+	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
+	buttonElem.value = buttonText;
+}
+
 </script>
 </body></html>

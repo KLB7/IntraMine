@@ -1,6 +1,6 @@
 # intramine_glossary.pm: load and retrieve glossary definitions from glossary files.
 # Hints are shown in response to onmouseover, using tooltip.js#showhint().
-# See IntraMine's Documentation/Glossaries.txt for usage.
+# See IntraMine's Documentation/Glossary definition popups.txt for usage.
 
 package intramine_glossary;
 require Exporter;
@@ -19,6 +19,9 @@ use gloss;
 
 my $IMAGES_DIR;
 my $COMMON_IMAGES_DIR;
+
+my $callbackFullPath;
+my $callbackFullDirectoryPath;
 
 my %GlossaryModDates; 		# $GlossaryModDates{glossary file path} = mod date for file as string.
 my %Definition;				# $Definition{'term'} = 'definition';
@@ -45,9 +48,11 @@ sub ClearDocumentGlossaryTermsSeen {
 # same %Definition hash, and all are used by AddGlossaryHints() below
 # when putting glossary hints in the text of a file.
 sub LoadAllGlossaries {
-	my ($allpaths, $imagesDir, $commonImagesDir) = @_;
+	my ($allpaths, $imagesDir, $commonImagesDir, $theFullPathCallback, $theFullDirectoryPathCallback) = @_;
 	$IMAGES_DIR = $imagesDir;
 	$COMMON_IMAGES_DIR = $commonImagesDir;
+	$callbackFullPath = $theFullPathCallback;
+	$callbackFullDirectoryPath = $theFullDirectoryPathCallback;
 
 	my @paths;
 	if ($allpaths =~ m!\|!) # more than one candidate full path
@@ -104,21 +109,12 @@ sub LoadGlossary {
 			{
 			my $term = $1;
 			$term =~ s!\*!!g;
-			# Make entry in %Definition for lowercase version of term.
-			#$currentTerm = lc($term);
 			@currentTerms = split(/,\s*/, lc($term));
 			my $entry = $lines[$i];
 			chomp($entry);
 
-
-			# TEST ONLY TEMP OUT
-			#$entry = &HTML::Entities::decode($entry);
-			###$entry = &HTML::Entities::encode($entry);
-
 			$entry =~ s!\&#39;!\&#8216;!g;
-			#$entry =~ s!%!%25!g;
 			
-			#$Definition{$currentTerm} = "<p>$entry</p>";
 			for (my $j = 0; $j < @currentTerms; ++$j)
 				{
 				$Definition{$currentTerms[$j]} = "<p>$entry</p>";
@@ -130,10 +126,7 @@ sub LoadGlossary {
 			chomp($entry);
 			if ($entry ne '')
 				{
-				#$entry = &HTML::Entities::encode($entry);
 				$entry =~ s!\&#39;!\&#8216;!g;
-				#$entry =~ s!%!%25!g;
-				#$Definition{$currentTerm} .= "<p>$entry</p>";
 				for (my $j = 0; $j < @currentTerms; ++$j)
 					{
 					$Definition{$currentTerms[$j]} .= "<p>$entry</p>";
@@ -415,7 +408,7 @@ sub GetReplacementHint {
 			{
 			$imagePath =~ s!\\!/!g;
 			}
-		$result = "<a class='$class' href=\"#\" onmouseOver=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true, true);\">$originalText</a>";
+		$result = "<a class='$class' href=\"#\" onmouseOver=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '600px', true, true);\">$originalText</a>";
 		}
 	else
 		{
@@ -461,8 +454,8 @@ sub GetReplacementHint {
 				$termShown = ucfirst($synonyms[0]);
 				}
 
-			# Experiment, apply Gloss to the $gloss (sorry about that);
-			Gloss("**$termShown**: " . $gloss . $altList, $host, $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context);
+			# Apply Gloss to the glossary entry (sorry about that);
+			Gloss("**$termShown**: " . $gloss . $altList, $host, $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context, $callbackFullPath, $callbackFullDirectoryPath);
 			$glossed = uri_escape_utf8($glossed);
 
 			# Spurious LF's, stomp them with malice.
@@ -470,7 +463,7 @@ sub GetReplacementHint {
 			$gloss = $glossed;
 			}
 		
-		$result = "<a class='$class' href=\"#\" onmouseover=\"showhint('$gloss', this, event, '500px', false, true);\">$originalText</a>";
+		$result = "<a class='$class' href=\"#\" onmouseover=\"showhint('$gloss', this, event, '600px', false, true);\">$originalText</a>";
 		}
 	
 	return($result);
@@ -547,6 +540,7 @@ sub AnchorForGlossaryTerm {
 # However, only "cosmetic" problems result from an overlap, all the
 # links and popups still work, and it would be a nightmare to fix,
 # so I'm leaving it as-is.)
+# Added later, stay out of <img src='$imagePath'> elements too.
 sub RangeOverlapsExistingAnchor {
 	my ($startPos, $endPos) = @_;
 	my $insideExistingAnchor = 0;
@@ -578,6 +572,32 @@ sub RangeOverlapsExistingAnchor {
 			}
 		}
 		
+	if (!$insideExistingAnchor && index($line, '<img') > 0)
+		{
+		# Does any img overlap?
+		my $pos = 0;
+		my $nextPos = 0;
+		while (($nextPos = index($line, '<img', $pos)) >= 0)
+			{
+			my $aStart = $nextPos;
+			my $aEnd = index($line, '>', $nextPos);
+			if ($aEnd > 0)
+				{
+				if ( ($startPos >= $aStart && $startPos <= $aEnd)
+				  || ($endPos >= $aStart && $endPos <= $aEnd) )
+					{
+					$insideExistingAnchor = 1;
+					last;
+					}
+				}
+			else # should not happen, like, ever.
+				{
+				last;
+				}
+			$pos = $aEnd + 1;
+			}
+		}
+	
 	if (!$insideExistingAnchor && index($line, '<h') > 0)
 		{
 		my $startH = index($line, '<h');

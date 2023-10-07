@@ -300,6 +300,7 @@ function finishStartup() {
 	hideIt("small-tip");
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
+	setImagesButtonText();
 	reJump();
 }
 
@@ -519,19 +520,6 @@ function highlightInitialItems() {
 			}
 		}
 }
-
-//function decodeSpecialWordCharacters() {
-//	if (markerMainElement !== null && highlightItems.length > 0)
-//		{
-//		for (let i = 0; i < highlightItems.length; ++i)
-//			{
-//			highlightItems[i] = highlightItems[i].replace(/ *__D_ */g, ".");
-//			highlightItems[i] = highlightItems[i].replace(/__DS_([A-Za-z])/g, "\$$1");
-//			highlightItems[i] = highlightItems[i].replace(/__PC_([A-Za-z])/g, "\%$1");
-//			highlightItems[i] = highlightItems[i].replace(/__AT_([A-Za-z])/g, "\@$1");
-//			}
-//		}
-//}
 
 function removeInitialHighlights() {
 	if (markerMainElement !== null && highlightItems.length > 0)

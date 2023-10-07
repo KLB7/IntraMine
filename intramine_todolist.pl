@@ -171,6 +171,7 @@ let clientIPAddress = '_CLIENT_IP_ADDRESS_'; 	// ip address of client
 let viewerShortName = '_VIEWERSHORTNAME_';
 let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
+let filesShortName = '_FILESSHORTNAME_';
 let errorID = "loadError";
 
 let onMobile = false; // Set below, true if we have touch events.
@@ -224,6 +225,7 @@ FINIS
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
+	my $filesShortName = CVal('FILESSHORTNAME');
 
 
 	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
@@ -240,6 +242,7 @@ FINIS
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
+	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
@@ -297,8 +300,9 @@ sub GetData {
 
 			# Generate html version of text, with Gloss markdown.
 			my $gloss;
-			# The last arg, context directory, does not apply and so is''.
-			Gloss($desc, $serverAddr, $mainServerPort, \$gloss, 1, $IMAGES_DIR, $COMMON_IMAGES_DIR, '');
+			# Context directory, does not apply and so is''.
+			# Also, we have no callback for reverse_filepaths.pm#FullPathInContextNS().
+			Gloss($desc, $serverAddr, $mainServerPort, \$gloss, 1, $IMAGES_DIR, $COMMON_IMAGES_DIR, '', undef, undef);
 			$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.

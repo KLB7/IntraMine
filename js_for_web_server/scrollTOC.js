@@ -223,6 +223,9 @@ function addTocScrollListener(evt) {
 			scrollingForToc = setTimeout(function() {
 				// Run the callback.
 				scrollTocEntryIntoView(evt, true);
+				// Trying to stabilize nav bar, sometimes it randomly
+				// jumps off the top of the window.
+				resetTopNavPosition();
 			}, 66);
 			});
 		}

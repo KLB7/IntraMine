@@ -180,7 +180,8 @@ sub LoadAllGlossaryFiles {
 	if ($paths ne '')
 		{
 		print("Loading glossaries...\n");
-		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR);
+		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR,
+			\&FullPathInContextNS, \&BestMatchingFullDirectoryPath);
 		}
 	else
 		{
@@ -266,21 +267,22 @@ sub NonCmLinks {
 		$ext = lc($ext);
 		my $clientIsRemote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
 		my $allowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
-		GetLinksForText($formH, $dir, $ext, $clientIsRemote, $allowEditing, \$result);
+		my $shouldInline = (defined($formH->{'shouldInline'})) ? $formH->{'shouldInline'}: '0';
+		GetLinksForText($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, \$result);
 		}
 	
 	return($result);
 	}
 
 sub GetLinksForText {
-	my ($formH, $dir, $ext, $clientIsRemote, $allowEditing, $resultR) = @_;
+	my ($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
 	my $text = $formH->{'text'};
 	#my $firstLineNum = $formH->{'first'};
 	#my $lastLineNum = $formH->{'last'};
 	my $serverAddr = ServerAddress();
 	
 	AddWebAndFileLinksToVisibleLines($text, $dir, $ext, $serverAddr, $server_port,
-								$clientIsRemote, $allowEditing, $resultR);
+								$clientIsRemote, $allowEditing, $shouldInline, $resultR);
 	}
 
 # Called in response to the %RequestAction req=autolink&partialpath=...
@@ -366,6 +368,8 @@ my @linkIsPotentiallyTooLong; # For unquoted links to text headers, we grab 100 
 my $longestSourcePath; 	# Longest linkable path identified in original text
 my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
 
+my $shouldInlineImages; # True = use img element, false = use showhint().
+
 # AddWebAndFileLinksToLine: look for file and web address mentions, turn them into links.
 # Does the promised "autolinking", so no quotes etc are needed around file names even if
 # the file name contains spaces, and directories in the path are needed only if the file name isn't unique
@@ -383,28 +387,15 @@ my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
 # Adn that leads to a very long underlined link, which looks a bit ugly.
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
-		$currentLineNumber, $linksA) = @_;
+		$shouldInline, $currentLineNumber, $linksA) = @_;
 	
 	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
 		{
-		# Non-CodeMirror text can contain <mark> elements anywhere, even on
-		# a file extension. Revised, this isn't needed for speed and there's
-		# no simple pattern to check for a "directory" specifier since
-		# every line contains double quotes in the HTML, <td n="27"> sort of thing.
-		#if ($$txtR !~ m!\.\w|http|_RB_! && $$txtR !~ m!\.(<mark[^>]*>)?\w+!)
-		#	{
-		#	return;
-		#	}
 		$haveRefToText = 1;
 		$line = $$txtR;
 		}
 	else # not a ref (at least it shouldn't be), so doing CodeMirror
 		{
-		# Return if nothing on the line looks roughly like a link.
-		#if ($txtR !~ m!\.\w|http|_LB_!)
-		#	{
-		#	return;
-		#	}
 		$haveRefToText = 0;
 		$line = $txtR;
 		}
@@ -422,6 +413,8 @@ sub AddWebAndFileLinksToLine {
 	@repStartPos = ();
 	@repLinkType = ();
 	@linkIsPotentiallyTooLong = ();
+
+	$shouldInlineImages = $shouldInline;
 	
 	# Look for all of: single or double quoted text, a potential file extension, or a url.
 	EvaluateLinkCandidates();
@@ -633,8 +626,10 @@ sub EvaluateLinkCandidates {
 			# Potentially a text file mention or an image.
 			if ($haveGoodExtension)
 				{
-				$haveGoodMatch = RememberTextOrImageFileMention($startPos, $previousRevEndPos, $captured, $extProper,
-							$haveQuotation, $haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum);
+				$haveGoodMatch = RememberTextOrImageFileMention($startPos,
+						$previousRevEndPos, $captured, $extProper,
+						$haveQuotation, $haveTextExtension, $haveImageExtension,
+						$quoteChar, $anchorWithNum);
 				} # if known extensions
 			elsif ($haveURL)
 				{
@@ -1113,9 +1108,19 @@ sub GetImageFileRep {
 	
 	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
+
 	if ($haveRefToText)
 		{
-		$$repStringR = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+		if ($shouldInlineImages)
+			{
+			# TEST ONLY
+			my $imgPath = "http://$host:$port/$fullPath";
+			$$repStringR = "<img src='$imgPath'>";
+			}
+		else
+			{
+			$$repStringR = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+			}
 		}
 	else
 		{
@@ -1123,6 +1128,7 @@ sub GetImageFileRep {
 		my $imageOpenHref = "http://$host:$port/$VIEWERNAME/?href=$fullPath";
 		$$repStringR = "<a href=\"$imageOpenHref\" target='_blank' onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 		}
+
 	}
 
 # Push url details onto @repStr, @repLen etc.
@@ -1633,7 +1639,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 		{
 		my $currentLineNumber = $firstLineNum + $counter;
 		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port,
-					$clientIsRemote, $allowEditing, $currentLineNumber, $linksA);
+					$clientIsRemote, $allowEditing, '0', $currentLineNumber, $linksA);
 
 		AddGlossaryHints($lines[$counter], $contextDir, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
 		}
@@ -1642,7 +1648,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 # Get links, for non-CodeMirror (txt pl etc) files.
 sub AddWebAndFileLinksToVisibleLines {
 	my ($text, $dir, $ext, $serverAddr, $server_port,
-		$clientIsRemote, $allowEditing, $resultR) = @_;
+		$clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
 	my @lines = split(/\n/, $text);
 	
 	if (IsTextFileExtension($ext) || IsPodExtension($ext))
@@ -1666,7 +1672,7 @@ sub AddWebAndFileLinksToVisibleLines {
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
 		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
-								$clientIsRemote, $allowEditing);
+								$clientIsRemote, $allowEditing, $shouldInline);
 		AddGlossaryHints(\${lines[$counter]}, $dir, $serverAddr, $server_port, $VIEWERNAME);
 		}
 

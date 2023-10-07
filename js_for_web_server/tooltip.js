@@ -122,17 +122,25 @@ function positionAndShowHint() {
 	let hintContents = hintParams.hintContents;
 	let x = hintParams.x;
 	let y = hintParams.y;
-	let tipwidth = hintParams.tipwidth;
+	let tipwidth = hintParams.tipWidth;
 	let isAnImage = hintParams.isAnImage;
+	let haveImageWidth = true;
 	let gap = 10; // gap between cursor and tip
 	let windowHeight = window.innerHeight - gap;
 	let windowWidth = window.innerWidth - gap;
-	let hintWidth = 450;
-	let hintHeight = hintElement.offsetHeight;
+	let hintWidth = tipwidth; //450;
+	let hintHeight = hintParams.tipHeight; //hintElement.offsetHeight;
 	if (isAnImage)
 		{
-		hintWidth = hintParams.theImage.width;
-		hintHeight = hintParams.theImage.height;
+		try
+			{
+			hintWidth = hintParams.theImage.width;
+			hintHeight = hintParams.theImage.height;
+			}
+		catch(e)
+			{
+			haveImageWidth = false;
+			}
 		}
 	else
 		{
@@ -166,25 +174,14 @@ function positionAndShowHint() {
 	hintElement.style.top = tl.top;
 	hintElement.style.left = tl.left;
 	
-	if (isAnImage)
+	// Scale image if it's really needed and we have good width and height.
+	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
 		{
 		hintContents =
 			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
 		}
 
 	hintElement.innerHTML = hintContents;
-
-	// Set width and height for an image. For text, set the desired width and let it flow.
-	// hintElement.style.width = hintWidth + "px";
-	if (isAnImage)
-		{
-		hintElement.style.height = hintHeight + "px";
-		hintElement.style.width = hintWidth + "px";
-		}
-	else
-		{
-		hintElement.style.height = '';
-		}
 
 	hintElement.style.visibility = "visible";
 }
@@ -273,46 +270,76 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	
 	if (bestDirection === DIRECTION_BELOW) // below
 		{
-		top = y + 2*gap + "px"; // Double the gap to move tip down slightly.
+		top = y + 2*gap; // Double the gap to move tip down slightly.
 		left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
-		left = (left < 0) ? "0" : left + "px";
+		left = (left < 0) ? 0 : left;
 		}
 	else if (bestDirection === DIRECTION_ABOVE) // above
 		{
 		if (y - hintHeight - gap >= 0)
 			{
-			top = y - hintHeight - gap + "px";
+			top = y - hintHeight - gap;
 			}
 		else
 			{
-			top = "0";
+			top = 0;
 			}
 		let left = (x + gap + hintWidth <= windowWidth) ? (x + gap) : windowWidth - hintWidth - gap;
-		left = (left < 0) ? "0" : left + "px";
+		left = (left < 0) ? 0 : left;
 		}
 	else if (bestDirection === DIRECTION_RIGHT) // right
 		{
-		left = x + gap + "px";
+		left = x + gap;
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
-		top = (top < 0) ? "0" : top + "px";
+		top = (top < 0) ? 0 : top;
 		}
 	else
 		// if (bestDirection === DIRECTION_LEFT) // left
 		{
 		if (x - hintWidth - gap >= 0)
 			{
-			left = x - hintWidth - gap + "px";
+			left = x - hintWidth - gap;
 			}
 		else
 			{
-			left = "0";
+			left = 0;
 			}
 		let top =
 			(y + gap + hintHeight <= windowHeight) ? (y + gap) : windowHeight - hintHeight - gap;
-		top = (top < 0) ? "0" : top + "px";
+		top = (top < 0) ? 0 : top;
 		}
 
+	// Some fine-tuning to keep as much of the tip visible as possible.
+	// Top left portion preferred.
+	if (top + hintHeight > windowHeight)
+		{
+		let offBottom = top + hintHeight - windowHeight;
+		top -= offBottom;
+		}
+	if (top < 0)
+		{
+		top = 0;
+		}
+	if (left + hintWidth > windowWidth)
+		{
+		let offRight = left + hintWidth - windowWidth;
+		left -= offRight;
+		}
+	if (left < 0)
+		{
+		left = 0;
+		}
+
+	if (top > 0)
+		{
+		top += "px";
+		}
+	if (left > 0)
+		{
+		left += "px";
+		}
+	
 	let topLeft = {};
 	topLeft.top = top;
 	topLeft.left = left;
@@ -322,11 +349,6 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 
 function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
-
-	// TEST ONLY
-	// console.log("ourSSListeningPort is " + ourSSListeningPort);
-	// console.log("mainIP is " + mainIP);
-	// console.log("theMainPort is " + theMainPort);
 
 	if (shouldDecode === undefined)
 		{
@@ -343,15 +365,6 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 			{
 			shouldDecode = false;
 			}
-		}
-
-	if (shouldDecode)
-		{
-		console.log("shouldDecode is TRUE");
-		}
-	else
-		{
-		console.log("shouldDecode is FALSE");
 		}
 
 	if (typeof isAnImage === "string")
@@ -378,51 +391,13 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
 			}, 100);
 		}
-	// setTimeout(function() {
-	// 	showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
-	// 	}, 100);
 	}
 
 function decodeHint(text) {
-	// TEST ONLY
-	
 	text = decodeURIComponent(text);
-	text = text.replace(/%25/g, '%');
-	return(text);
-
-	let ouray = false;
-	if (text.indexOf("ouray") >= 0)
-		{
-		ouray = true;
-		console.log("text before: |" + text + "|");
-		}
-	text = decodeURIComponent(text);
-	text = text.replace(/%25/g, '%');
-	// TEST ONLY
-	if (ouray)
-		{
-		console.log("text AFTER: |" + text + "|");
-		}
-	// TEST ONLY
-	//console.log("AFTER %25: |" + text + "|");
-	return(text);
-
-
-	// TEST ONLY
-	console.log("0" + text);
-	text = decodeURIComponent(text);
-	console.log("1" + text);
-	//text = text.replace(/%20/, ' ');
-	//console.log("2" + text);
-	//text = text.replace(/%25/, '%');
-	//console.log("3" + text);
-	text = text.replace(/&amp;#8216;/g, "'");
-	text = text.replace(/&amp;/g, '&');
-
-	console.log("4" + text);
-
 	return(text);
 }
+
 // Special handling for some images: if hintContents looks like
 //<img src="http://192.168.1.132:81/Viewer/imagefile.png">
 // then we take what's in the "81" position as IntraMine's Main port, and what's in
@@ -506,6 +481,8 @@ async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	}
 
 function updateImagePortInHintContent(hintContent) {
+	if (typeof ourSSListeningPort !== 'undefined')
+	{
 	// src="
 	const regex = new RegExp("src=\"http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
 	hintContent = hintContent.replace(regex, "src=\"http://" + mainIP + ":" + ourSSListeningPort);
@@ -515,6 +492,7 @@ function updateImagePortInHintContent(hintContent) {
 	// src=&quot; because you never know....
 	const regex3 = new RegExp("src=&quot;http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
 	hintContent = hintContent.replace(regex3, "src=\&quot;http://" + mainIP + ":" + ourSSListeningPort);
+	}
 
 	return(hintContent);
 }
@@ -532,83 +510,89 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		{
 		hintElement = document.getElementById("hintbox");
 		hintElement.innerHTML = hintContents;
-
-		if (!hasClass(obj, hitAnchorClassName))
+		if (isAnImage)
 			{
-			addClass(obj, hitAnchorClassName);
-			}
-		
-		hideTipJustInCase(obj);
-		
-		addClass(obj, anchorClassName);
-
-		// Check if mouse is still over element (which must have
-		// class hintanchor or plainhintanchor)
-		let stillOver = mouseStillOverTipOwner(obj);
-
-		if (!stillOver)
-			{
-			hintElement.style.visibility = "hidden";
-			hintElement.style.left = "-500px";
-			removeClass(obj, anchorClassName);
-			return;
-			}
-
-		hintElement.style.left = "-500px";
-		hintElement.style.top = "-500px";
-		if (tipwidth === "")
-			{
-			tipwidth = "300px";
-			}
-		hintElement.widthobj = hintElement.style;
-		// if (hintElement.innerHTML.indexOf('<img') == 0)
-		// 	{
-		// 	hintElement.style.backgroundColor = 'lightyellow';
-		// 	hintElement.style.border = 'thin dotted black';
-		// 	}
-		hintElement.style.width = tipwidth;
-		if (!isAnImage)
-			{
-			// Reset height to 'auto'.
-			hintElement.style.height = '';
-			}
-
-		hintParams.hintContents = hintContents;
-		hintParams.x = e.clientX;
-		// TEST ONLY
-		let viewportOffset = obj.getBoundingClientRect();
-		hintParams.y = viewportOffset.top;
-		//hintParams.y = e.clientY;
-
-		hintParams.tipwidth = tipwidth;
-		hintParams.isAnImage = isAnImage;
-		
-		// Note we re-get the image_url since it might have changed.
-		let image_url = srcURL(hintContents);
-		if (image_url !== "")
-			{
-			let my_image = new Image();
-			my_image.onload = function() {
-				positionAndShowHint();
-			};
-			my_image.src = image_url;
-			hintParams.theImage = my_image;
+			hintElement.style.width = '';
 			}
 		else
 			{
+			hintElement.style.width = "650px";
+			}
+
+		setTimeout(function() {
+			showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage);
+			}, 200);
+		}
+}
+
+function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
+	let rect = hintElement.getBoundingClientRect();
+	rect = hintElement.getBoundingClientRect(); // sic
+	let currentWidth = rect.width;
+	let currentHeight = rect.height;
+	tipwidth = currentWidth;
+	hintParams.tipWidth = currentWidth;
+	hintParams.tipHeight = currentHeight;
+	
+	if (!hasClass(obj, hitAnchorClassName))
+		{
+		addClass(obj, hitAnchorClassName);
+		}
+	
+	hideTipJustInCase(obj);
+	
+	addClass(obj, anchorClassName);
+
+	// Check if mouse is still over element (which must have
+	// class hintanchor or plainhintanchor)
+	let stillOver = mouseStillOverTipOwner(obj);
+
+	if (!stillOver)
+		{
+		hintElement.style.visibility = "hidden";
+		hintElement.style.left = "-500px";
+		removeClass(obj, anchorClassName);
+		return;
+		}
+
+	hintElement.style.left = "-500px";
+	hintElement.style.top = "-500px";
+	if (tipwidth === "")
+		{
+		tipwidth = "300px";
+		}
+	hintElement.widthobj = hintElement.style;
+	hintParams.hintContents = hintContents;
+	hintParams.x = e.clientX;
+	
+	let viewportOffset = obj.getBoundingClientRect();
+	hintParams.y = viewportOffset.top;
+	hintParams.isAnImage = isAnImage;
+	
+	// Note we re-get the image_url since it might have changed.
+	let image_url = srcURL(hintContents); // Stubbed out, always returns ""
+	if (image_url !== "")
+		{
+		let my_image = new Image();
+		my_image.onload = function() {
 			positionAndShowHint();
-			}
+		};
+		my_image.src = image_url;
+		hintParams.theImage = my_image;
+		}
+	else
+		{
+		positionAndShowHint();
+		}
 
-		//obj.onmouseout = hidetip;
-		document.addEventListener('mousemove', recordMousePosition);
-		document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+	document.addEventListener('mousemove', recordMousePosition);
+	document.documentElement.addEventListener('mouseleave', handleMouseLeave);
 
-		if (typeof window.ontouchstart === 'undefined')
-			{
-			overAnchorTimer = window.setTimeout(function() {
-				hideTipIfMouseHasLeft(obj);
-			}, 500);
-			}
+	if (typeof window.ontouchstart === 'undefined')
+		{
+		overAnchorTimer = window.setTimeout(function() {
+			hideTipIfMouseHasLeft(obj);
+		}, 500);
 		}
 }
 
@@ -618,8 +602,12 @@ function handleMouseLeave() {
 
 // If see src="something", return something, else "".
 // The something should be in single or double quotes of some sort.
+// Stubbed out, not needed at the moment.
 function srcURL(hintContents) {
 	let image_url = "";
+	// TEST ONLY
+	return("");
+	
 	let arrayMatch = null;
 
 	if ((arrayMatch = /src='([^']+?)'/.exec(hintContents)) ||

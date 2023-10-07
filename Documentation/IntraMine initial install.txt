@@ -97,6 +97,7 @@ cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just
 
 Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a command prompt and press Enter:
 ---
+cpan PREACTION/Log-Any-1.716.tar.gz
 cpan Search::Elasticsearch
 cpan ExportAbove
 cpan Win32API::File::Time

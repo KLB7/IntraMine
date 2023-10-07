@@ -3,8 +3,8 @@
 #hintbox{ /*CSS for pop up hint box */
 position:absolute;
 top: 0;
-background-color: lightyellow;
-width: 150px; /*Default width of hint.*/ 
+background-color: #FFFFF4;
+/*width: 150px; Default width of hint.*/ 
 padding: 6px;
 /*border:1px solid black;*/
 font:normal 13px Verdana;
@@ -39,9 +39,11 @@ margin: 3px 8px;
 }
 
 /* Additions for Gloss display of tooltips. */
+
 #hintbox td:nth-child(1) {
-	background-color: lightyellow;
+	background-color: #FFFFF4;
 	color: #000;
+
 	min-width: auto;
 	text-align: left;
 }
@@ -227,7 +229,7 @@ paragraph (ie not the first paragraph in the item).
     margin-bottom: 4px;    
 }
 
-#hintbox .bordered tr:hover {
+#hintbox .bordered td:first-child:hover, #hintbox .bordered tr:hover {
     background: #fbf8e9;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;

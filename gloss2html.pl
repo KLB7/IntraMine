@@ -2131,6 +2131,7 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('scrollTOC.js');
 	$$contents_R .= InlineJavaScriptForFile('dragTOC.js');
 	$$contents_R .= InlineJavaScriptForFile('lolight-1.4.0.min.js');
+	$$contents_R .= InlineJavaScriptForFile('viewer_hover_inline_images.js');
 
 	$$contents_R .= "</body></html>\n";
 	}
