@@ -3,7 +3,7 @@
 *Fast search and real autolinking for your Windows local drives and NAS.*
 
 
-## **IMPORTANT** IPv6 not supported
+### **IMPORTANT** IPv6 not supported
 For IntraMine to run, IPv6 must be disabled on the Windows PC where it's installed. Note other PCs accessing the IntraMine PC remotely don't have to have IPv6 disabled. I agree this is an unfortunate limitation, but I doubt I can lift it. IntraMine is intended mainly as a technology demo, primarily to show what can be done with automatic file and directory linking. If you turn off IPv6 you'll be able to see and use a preview of some features that will probably come to your favourite IDE in the vague future, such as: image hovers (currently coming to VS Code), file and directory links in source and text files with absolute minimum typing, Markdown tuned for intranet use (called "Gloss"), rich glossary popup definitions in source and text files with absolute minimum typing, and instant (well, sub-second) system-wide text search.
 
 To disable IPv6: search for "Network connections", right-click on your network adapter and pick "Properties", and de-select IPv6. For pictures and more words, see [Disable IPv6](https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11).
@@ -76,6 +76,7 @@ If you see a use for IntraMine's autolinking algorithms etc in your own work, go
 
 ## Requirements
  - Windows 10 / 11.
+ - as mentioned above, IPv6 must be disabled on the PC where IntraMine is installed.
  - Strawberry Perl 5 version 30 or later (install instructions are included).
  - 3-4 GB of RAM for IntraMine (including Elasticsearch)
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and autolinking, but changes to them won't be detected, so that's fine for library files but not your own work.
