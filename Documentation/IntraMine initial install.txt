@@ -8,6 +8,12 @@ https://github.com/KLB7/IntraMine
 
 You can clone it, or download a zip.
 
+IPv6 must be disabled where IntraMine is installed
+==================================================
+For IntraMine to run, IPv6 must be disabled on the Windows PC where it's installed. Note other PCs accessing the IntraMine PC remotely don't have to have IPv6 disabled. I agree this is an unfortunate limitation, but I doubt I can lift it. IntraMine is intended mainly as a technology demo, primarily to show what can be done with automatic file and directory linking. If you turn off IPv6 you'll be able to see and use a preview of some features that will probably come to your favourite IDE in the vague future, such as: image hovers (currently coming to VS Code), file and directory links in source and text files with absolute minimum typing, Markdown tuned for intranet use (called "Gloss"), rich glossary popup definitions in source and text files with absolute minimum typing, and instant (well, sub-second) system-wide text search.
+
+To disable IPv6: search for "Network connections", right-click on your network adapter and pick "Properties", and de-select IPv6. For pictures and more words, see "https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11".
+
 Moving and renaming your IntraMine folder
 =========================================
 If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.
