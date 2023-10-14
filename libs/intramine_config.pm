@@ -29,8 +29,9 @@ my $ScriptFullDirTS; # TS == Trailing Slash
 # SSInitialize() will pass the server's Short name as $extraConfigName, eg it will pass
 # "DBX" for the intramine_db_example.pl server.
 sub LoadConfigValues {
-	my ($extraConfigName) = @_;
+	my ($extraConfigName, $extraConfigName2) = @_;
 	$extraConfigName ||= '';
+	$extraConfigName2 ||= '';
 	
 	my $scriptFullPath = $0; # path of calling program
 	my $scriptName = FileNameFromPath($scriptFullPath);
@@ -86,6 +87,19 @@ sub LoadConfigValues {
 			}
 		# else no error, the server config file is optional.
 		}
+	
+	if ($extraConfigName2 ne '')
+		{
+		my $serverConfigPath = $ScriptFullDirTS . "data/$extraConfigName2" . '_config.txt';
+		if (-f $serverConfigPath)
+			{
+			my $numConfigEntries = 
+			LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $serverConfigPath, "", 1);
+			LoadNumberedConfigFiles($extraConfigName2 . '_config.txt');
+			}
+		# else no error, the server config file is optional.
+		}
+
 	}
 
 # Requires: the "base" config file has loaded. The "base" can be either the standard

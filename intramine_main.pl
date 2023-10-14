@@ -1959,12 +1959,14 @@ sub ShouldSelfTestMain {
 { ##### Server address
 my $ServerAddress;
 
+# Get our (currently IPv4 only) server address, eg '192.168.40.8'.
+# After, it can be retrieved with $addr = ServerAddress();
 sub InitServerAddress {
 	my ($S) = @_;
 	
 	my $ipaddr = GetReadableAddress($S);
 	$ServerAddress = $ipaddr;
-	#print "Main Server IP: $ipaddr\n";
+	print "Main Server IP: $ipaddr\n";
 
 	# Save server address for use by other programs, as CVal('SERVER_ADDRESS');
 	my %addrH;
@@ -1973,15 +1975,45 @@ sub InitServerAddress {
 	SaveExtraConfigValues($extraConfigName, \%addrH);
 	}
 
+# Look for an IPv4 address and convert it to human readable.
+# If none found, take the last address seen (which will probably fail).
 sub GetReadableAddress {
 	my ($S) = @_;
+
 	my $packdaddr = getsockname($S);
 	my ($err, $hostname, $servicename) = Socket::getnameinfo($packdaddr);
-	my ($error, @res) = Socket::getaddrinfo($hostname, "", {socktype => Socket::SOCK_RAW});
+
+	my ($error, @res) = Socket::getaddrinfo($hostname, $port_listen,
+		{socktype => Socket::SOCK_RAW, flags => Socket::AI_PASSIVE});
 	die "Cannot getaddrinfo - $error" if $error;
-	# In spite of using SOCK_RAW we get back three addresses. The last address is probably the one wanted.
-	my ($err2, $ipaddr) = Socket::getnameinfo($res[-1]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
-	return($ipaddr);	
+	my $bestI = -1;
+	for (my $i = 0; $i < @res; ++$i)
+		{
+		#print("$i family: |$res[$i]->{family}|\n");
+		my $fam = '';
+
+		if ($res[$i]->{family} eq AF_INET)
+			{
+			$fam = '4';
+			if ($bestI < 0)
+				{
+				$bestI = $i;
+				}
+			#last;
+			#print("$i IPv4 addr: |$res[$i]->{addr}|\n");
+			}
+		else # IPv6
+			{
+			$fam = '6';
+			#print("$i IPv6 addr: |$res[$i]->{addr}|\n");
+			}
+
+		# my ($err2, $ipaddr) = Socket::getnameinfo($res[$i]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
+		#print("$fam |$ipaddr|\n");
+		}
+		
+	my ($err2, $ipaddr) = Socket::getnameinfo($res[$bestI]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
+	return($ipaddr);		
 	}
 
 sub ServerAddress {

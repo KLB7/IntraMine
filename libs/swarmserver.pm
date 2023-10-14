@@ -51,23 +51,55 @@ my $QUICKDRIVELIST = 1; # Set to 0 for slower but more accurate list
 my $ServerAddress;
 
 # Called by MainLoop() below, to determine server's local IP address eg 192.168.0.14.
+# The address saved by intramine_main.pl when it starts up is preferred.
 sub InitServerAddress {
 	my ($S) = @_;
 	
-	my $ipaddr = GetReadableAddress($S);
-	$ServerAddress = $ipaddr;
-	Output("File Streaming IP: $ipaddr\n");
+	$ServerAddress = CVal('SERVER_ADDRESS');
+	if ($ServerAddress eq '')
+		{
+		print("Server address not found, calling GetReadableAddress().\n");
+		my $ipaddr = GetReadableAddress($S);
+		$ServerAddress = $ipaddr;
+		}
+	
+	#print "Swarmserver Server IP: $ServerAddress\n";
 	}
 
+# Look for an IPv4 address and convert it to human readable.
+# If none found, take the last address seen (which will probably fail).
 sub GetReadableAddress {
 	my ($S) = @_;
+
 	my $packdaddr = getsockname($S);
 	my ($err, $hostname, $servicename) = Socket::getnameinfo($packdaddr);
-	my ($error, @res) = Socket::getaddrinfo($hostname, "", {socktype => Socket::SOCK_RAW});
+
+	my $mainPort = MainServerPort();
+	my ($error, @res) = Socket::getaddrinfo($hostname, $mainPort,
+		{socktype => Socket::SOCK_RAW, flags => Socket::AI_PASSIVE});
 	die "Cannot getaddrinfo - $error" if $error;
-	# In spite of using SOCK_RAW we get back three addresses. The last address is probably the one wanted.
-	my ($err2, $ipaddr) = Socket::getnameinfo($res[-1]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
-	return($ipaddr);	
+	my $bestI = -1;
+	for (my $i = 0; $i < @res; ++$i)
+		{
+		#print("$i family: |$res[$i]->{family}|\n");
+
+		if ($res[$i]->{family} eq AF_INET)
+			{
+			$bestI = $i;
+			last;
+			;#print("$i IPv4 addr: |$res[$i]->{addr}|\n");
+			}
+		else # IPv6
+			{
+			;#print("$i IPv6 addr: |$res[$i]->{addr}|\n");
+			}
+
+		# my ($err2, $ipaddr) = Socket::getnameinfo($res[$i]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
+		# print("|$ipaddr|\n");
+		}
+		
+	my ($err2, $ipaddr) = Socket::getnameinfo($res[$bestI]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
+	return($ipaddr);		
 	}
 
 sub ServerAddress {
@@ -334,7 +366,9 @@ sub SSInitialize {
 	$SetConsoleOutputCP->Call(65001);
 
 	SetCommonOutput(\&Output);			# common.pm
-	LoadConfigValues($$shortNameR);					# intramine_config.pm
+	# A wee sleep to allow Main to set any additional config values.
+	sleep(1);
+	LoadConfigValues($$shortNameR, 'SRVR');		# intramine_config.pm
 	}
 
 sub GrabParameter {

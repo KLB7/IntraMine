@@ -8,11 +8,11 @@ https://github.com/KLB7/IntraMine
 
 You can clone it, or download a zip.
 
-IPv6 must be disabled where IntraMine is installed
+IPv4 must be enabled
 ==================================================
-For IntraMine to run, IPv6 must be disabled on the Windows PC where it's installed. Note other PCs accessing the IntraMine PC remotely don't have to have IPv6 disabled. I agree this is an unfortunate limitation, but I doubt I can lift it. IntraMine is intended mainly as a technology demo, primarily to show what can be done with automatic file and directory linking. If you turn off IPv6 you'll be able to see and use a preview of some features that will probably come to your favourite IDE in the vague future, such as: image hovers (currently coming to VS Code), file and directory links in source and text files with absolute minimum typing, Markdown tuned for intranet use (called "Gloss"), rich glossary popup definitions in source and text files with absolute minimum typing, and instant (well, sub-second) system-wide text search.
+You can enable or disable IPv6 as you please and IntraMine will work. HOWEVER, IPv4 must be enabled. This is overwhelming the default. If you're not sure, run "ipconfig /all" at a command prompt and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an address such as 192.168.40.8 listed, you have IPv4 enabled.
 
-To disable IPv6: search for "Network connections", right-click on your network adapter and pick "Properties", and de-select IPv6. For pictures and more words, see "https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11".
+To enable or disable IPv6 or IPv4: search on your PC for "Network connections", right-click on your network adapter and pick "Properties", and select or de-select IPv4 or IPv6. For pictures and more words, see "https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11".
 
 Moving and renaming your IntraMine folder
 =========================================
@@ -34,7 +34,7 @@ This new data/ folder is your own copy of IntraMine's configuration data. The .g
 ---
 data/
 ---
-which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update, or adding noise to a pull request.
+which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update.
 
 
 
