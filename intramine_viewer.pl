@@ -1312,7 +1312,10 @@ sub GetPrettyTextContents {
 			}
 		}
 	
+	# Preserve consecutive blank lines at bottom.
+	$octets .= "\nx";
 	my @lines = split(/\n/, $octets);
+	pop @lines;
 	 
 	my @jumpList;
 	my $lineNum = 1;
