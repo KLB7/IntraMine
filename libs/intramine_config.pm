@@ -18,6 +18,7 @@ use win_wide_filepaths;
 { ##### Config values
 my %ConfigValues;
 my $ScriptFullDirTS; # TS == Trailing Slash
+my @AdditionalConfigFileNames;
 
 # An IntraMine swarm server can load config values by calling swarmserver.pm#SSInitialize()
 # which in turn calls this sub.
@@ -127,6 +128,7 @@ sub LoadNumberedConfigFiles {
 			{
 			my $configNumber = $1;
 			push @configFileNames, $allTopLevelItems[$i];
+			push @AdditionalConfigFileNames,  $allTopLevelItems[$i];
 			push @configFileNumbers, $configNumber;
 			}
 		}
@@ -138,6 +140,11 @@ sub LoadNumberedConfigFiles {
 		my $configFilePath = $dir . $configFileNames[$i];
 		LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $configFilePath, "", 1);
 		}
+	}
+
+sub GetAdditionalConfigFileNames {
+	my ($configNamesA) = @_;
+	@$configNamesA = @AdditionalConfigFileNames;
 	}
 
 # Look in the /_copy_and_rename_to_data folder, copy any files there that

@@ -1532,6 +1532,7 @@ sub ReportOnBackgroundServers {
 	$$resultR .= '</tbody></table>' . "\n";
 	}
 
+# Show ports, num servers etc, and throw in links to configuration files.
 sub AddSummaryLines {
 	my ($resultR) = @_;
 	
@@ -1553,8 +1554,42 @@ sub AddSummaryLines {
 	$summary .= "<tr><td$cellAlign>Active servers</td><td>$numberOfSwarmServers</td></tr>";
 	$summary .= "<tr><td$cellAlign>Session start</td><td>$startTime</td></tr>";
 	$summary .= "</table>";
-	
-	$$resultR = $summary . $$resultR;
+
+	# Links to configuration files.
+	my @configFileNames;
+	GetConfigurationFileNames(\@configFileNames);
+
+	my $todoPath = FullDirectoryPath('TODODATAPATH');
+	my $lastSlash = rindex($todoPath, "/");
+	my $dataDirectory = substr($todoPath, 0, $lastSlash + 1);
+	my $host = ServerAddress();
+	my $viewerShortName = CVal('VIEWERSHORTNAME');
+
+	my $configList = "<div id='configFiles'>\n";
+	$configList .= "<h3>Config files</h3>\n";
+	for (my $i = 0; $i < @configFileNames; ++$i)
+		{
+		$configList .= "\n<p><a href='http://$host:$mainPort/$viewerShortName/?href=$dataDirectory$configFileNames[$i]' target='_blank'>$configFileNames[$i]</a></p>";
+		}
+	$configList .= "\n</div>\n";
+	$$resultR = $summary . $configList . $$resultR;
+	}
+
+# Get names of all configuration files in the data folder.
+sub GetConfigurationFileNames {
+	my ($configNamesA) = @_;
+	my @configFileNames;
+	push @configFileNames, 'intramine_config.txt';
+	my @numberedConfigFileNames;
+	GetAdditionalConfigFileNames(\@numberedConfigFileNames);
+	for (my $i = 0; $i < @numberedConfigFileNames; ++$i)
+		{
+		push @configFileNames, $numberedConfigFileNames[$i];
+		}
+	push @configFileNames, 'search_directories.txt';
+	push @configFileNames, 'serverlist.txt';
+
+	@$configNamesA = @configFileNames;
 	}
 
 sub IsShortName {

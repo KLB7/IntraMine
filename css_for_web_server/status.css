@@ -2,6 +2,26 @@
 See also flashing LEDs.css.
 */
 
+#statusSummarytable {
+	display: inline-block;
+	vertical-align: top;
+}
+
 #statusSummarytable td.right_cell, #statusSummarytable th.right_cell {
 	text-align: right;
+}
+
+#configFiles {
+	display: inline-block;
+	padding-left: 80px;
+	vertical-align: top;
+}
+
+#configFiles h3 {
+	margin: 0;
+}
+
+#configFiles p {
+	margin-top: 3px;
+	margin-bottom: 3px;
 }
