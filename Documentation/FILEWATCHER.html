@@ -1693,9 +1693,9 @@ span.ll-com { /* comments */
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td>On detecting a file system change, FILEWATCHER</td></tr>
 <tr id='R17'><td n='17'></td><td><p class="outdent-unordered">&nbsp;&bull; loads details of the changes from the File Watcher service log</p></td></tr>
-<tr id='R18'><td n='18'></td><td><p class="outdent-unordered">&nbsp;&bull; uses the details to ask <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> to index affected files</p></td></tr>
+<tr id='R18'><td n='18'></td><td><p class="outdent-unordered">&nbsp;&bull; uses the details to ask <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> to index affected files</p></td></tr>
 <tr id='R19'><td n='19'></td><td><p class="outdent-unordered">&nbsp;&bull; saves a list of any new file paths</p></td></tr>
-<tr id='R20'><td n='20'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, which updates its full and <a class='glossary' href="#" onmouseover="showhint('<p>Partial path: For IntraMine&#8216;s autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).</p><p>For example, &quot;project51/Cpp/main.cpp&quot; would be a partial path for &quot;P&#xA789;\Cpp\OtherProjects\Project51\src\main.cpp&quot;. Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</p>', this, event, '500px', false);">partial path</a> lists for <a class='glossary' href="#" onmouseover="showhint('<p>Autolinking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of &quot;context&quot;, which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.</p><p>You can also autolink to headings within other files, such as &quot;Gloss.txt#Gloss vs MultiMarkdown tables&quot;.</p><p>That was a bit brief wasn&#8216;t it? Please see Gloss.txt and Linker.txt in IntraMine&#8216;s Documentation folder for more details and some examples. And autolinking_demo.pl for a running example of the autolinking algorithm.</p><p>Alt: Autolinks, automatic links, automatic linking</p>', this, event, '500px', false);">autolinking</a></p></td></tr>
+<tr id='R20'><td n='20'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, which updates its full and <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPartial%20path%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20autolinking%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%26amp%3B%23xA789%3B%5CCpp%5COtherProjects%5CProject51%5Csrc%5Cmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20file%20specifier%2C%20link%20specifier%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">partial path</a> lists for <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinking%3C%2Fstrong%3E%3A%20Briefly%2C%20IntraMine%20uses%20a%20complete%20list%20of%20paths%20to%20Elasticsearch-indexed%20files%2C%20and%20the%20notion%20of%20%22context%22%2C%20which%20is%20the%20folder%20containing%20the%20file%20where%20you%20are%20mentioning%20some%20other%20file%2C%20to%20generate%20a%20hyperlink%20to%20the%20file%20without%20your%20needing%20to%20type%20the%20full%20path%20to%20the%20file%2C%20or%20any%20special%20characters.%20Though%20putting%20links%20in%20double%20quotes%20helps%20readability%20in%20the%20original%20text.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20autolink%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%26quot%3BGloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThat%20was%20a%20bit%20brief%20wasn%27t%20it%3F%20Please%20see%20%22Gloss.html%22%20and%20%22Linker.html%22%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20autolinking%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinking</a></p></td></tr>
 <tr id='R21'><td n='21'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts 'signal=filechange' to all IntraMine servers: the Status server in particular will respond by reloading its displayed list of recent file changes.</p></td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td><h2 id="File_consolidation">File consolidation</h2></td></tr>
@@ -1728,7 +1728,7 @@ AABJRU5ErkJggg==
 <tr id='R42'><td n='42'></td><td></td></tr>
 <tr id='R43'><td n='43'></td><td><h3 id="Respond_to_signal_that_the_file_system_has_changed">Respond to signal that the file system has changed</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R45'><td n='45'></td><td><strong>Action</strong>: handle a file system changed signal, by rebuilding the full path list, having <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> index the changes, and signalling if new files have been added or a folder has been renamed</td></tr>
+<tr id='R45'><td n='45'></td><td><strong>Action</strong>: handle a file system changed signal, by rebuilding the full path list, having <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> index the changes, and signalling if new files have been added or a folder has been renamed</td></tr>
 <tr id='R46'><td n='46'></td><td><strong>Request</strong>: /?signal=FILESYSTEMCHANGE</td></tr>
 <tr id='R47'><td n='47'></td><td><strong>Response</strong>: none</td></tr>
 <tr id='R48'><td n='48'></td><td><strong>For example</strong>: /?signal=FILESYSTEMCHANGE&amp;name=Watcher</td></tr>
@@ -1765,7 +1765,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1778,6 +1778,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5912,6 +5918,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

@@ -42,13 +42,13 @@ Getting Elasticsearch
 ----------------------
 Currently I'm recommending version Elasticsearch 8.6.2, which is compatible with the latest version of the Search::Elasticsearch module. However, any later version 8 should also work.
 
-To download Elasticsearch version 8.6.2 or later, head to
+=> To download Elasticsearch version 8.6.2 or later, head to
 https://www.elastic.co/downloads/elasticsearch
 On the resulting page, click on the blue and white "Windows" button near the top to start your download. You'll be downloading a file called something like "elasticsearch-8.6.2-windows-x86_64.zip".
 
-Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-8.6.2", then that's the one to copy, rather than the top folder.
+=> Unzip it somewhere. Look inside, and verify that you see "bin", "config", and "lib" folders, among others at the top. If you just see a single subfolder with roughly the same name as the top folder, such as "elasticsearch-8.6.2", then that's the one to copy, rather than the top folder.
 
-Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-8.6.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the top level in that folder.
+=> Copy that folder to the top of your C: drive, ending up with "C:\elasticsearch-8.6.2". And just to be sure, verify that you see "bin", "config", and "lib" folders at the top level in that folder.
 
 If you can't put the "elasticsearch-8.6.2" folder at the top of your C: drive, note where you have placed your Elasticsearch folder and substitute your location for "C:\elasticsearch-8.6.2" below for the rest of the install. IntraMine's config files won't be affected if you put Elasticsearch somewhere else.
 

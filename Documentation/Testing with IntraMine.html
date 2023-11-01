@@ -1802,14 +1802,14 @@ AABJRU5ErkJggg==
 <tr id='R79'><td n='79'></td><td></td></tr></tbody></table><table class='bordered'><caption>test_DBX.pl</caption><thead>
 <tr id='R80'><th n='80'></th><th>Location</th><th>What's that</th></tr></thead><tbody>
 <tr id='R81'><td n='81'></td><td>31</td><td>Brings in intramine_test.pm for talking to Selenium and ChromeDriver</td></tr>
-<tr id='R82'><td n='82'></td><td>38</td><td>intramine_test.pm#InitTesting() grabs some standard arguments from the command line that called us, and loads IntraMine configuration values, from data/intramine_config.txt and also any values that are specific to the server being tested, based on its <a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a>. For DBX, data/DBX_config.txt is also loaded.</td></tr>
+<tr id='R82'><td n='82'></td><td>38</td><td>intramine_test.pm#InitTesting() grabs some standard arguments from the command line that called us, and loads IntraMine configuration values, from data/intramine_config.txt and also any values that are specific to the server being tested, based on its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a>. For DBX, data/DBX_config.txt is also loaded.</td></tr>
 <tr id='R83'><td n='83'></td><td>42</td><td>"my @errors;" is important, and your test program should have this array. If an error is encountered, push a string describing the error onto your @errors array. There are several examples of that in test_DBX.pl.</td></tr>
 <tr id='R84'><td n='84'></td><td>45</td><td>"my $driver = StartBrowserDriver();" starts up Selenium, and ChromeDriver</td></tr>
-<tr id='R85'><td n='85'></td><td>48</td><td>"GetStandarURL($driver);" loads the "standard" page for a service, which is the address and port of the service with the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a> tacked on. For DBX, it's "<a href='http://192.168.1.132:43125/DBX/' target='_blank'>http://192.168.1.132:43125/DBX/</a>", and in general it's "<a href='http://$ServerAddress:$SwarmServerPort/$ShortName/' target='_blank'>http://$ServerAddress:$SwarmServerPort/$ShortName/</a>". To load some other URL you could use GetURL($driver, $url) or more directly use "$driver->get($url);".</td></tr>
+<tr id='R85'><td n='85'></td><td>48</td><td>"GetStandarURL($driver);" loads the "standard" page for a service, which is the address and port of the service with the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a> tacked on. For DBX, it's "<a href='http://192.168.1.132:43125/DBX/' target='_blank'>http://192.168.1.132:43125/DBX/</a>", and in general it's "<a href='http://$ServerAddress:$SwarmServerPort/$ShortName/' target='_blank'>http://$ServerAddress:$SwarmServerPort/$ShortName/</a>". To load some other URL you could use GetURL($driver, $url) or more directly use "$driver->get($url);".</td></tr>
 <tr id='R86'><td n='86'></td><td>52</td><td>WaitForPageToLoad() waits until the page has loaded into Chrome.</td></tr>
 <tr id='R87'><td n='87'></td><td>58..192</td><td>Calls to Selenium subs through the $driver retrieve various parts of the loaded page from Chrome. If you want to retrieve the entire page, you have a choice between $driver->get_page_source() which retrieves the "raw" HTML source for the page, and $driver->get_body() which retrieves the text of the body. There are also subs for retrieving elements, sending keystrokes to an element, clicking on an element, finding child elements etc as provided by Selenium: see <a href='https://metacpan.org/pod/Selenium::Remote::Driver' target='_blank'>https://metacpan.org/pod/Selenium::Remote::Driver</a> for details.</td></tr>
 <tr id='R88'><td n='88'></td><td>196</td><td>"$driver->shutdown_binary;" should be called at the end to shut down the ChromeDriver, which also closes the web page that was opened.</td></tr>
-<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="showhint('<p>Console window: The window you can type commands in when you run &quot;C:\\Windows\\System32\\cmd.exe&quot;. To make life easier, once you&#8216;ve found it put a shortcut to it on your desktop. You can have two shortcuts, and set one of them to always &quot;Run as administrator&quot; (to do that, right-click and then Properties-&gt;Shortcut-&gt;Advanced... and check &quot;Run as administrator&quot;).</p>', this, event, '500px', false);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table><tbody>
+<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EConsole%20window%3C%2Fstrong%3E%3A%20The%20window%20you%20can%20type%20commands%20in%20when%20you%20run%20%22C%3A%5C%5CWindows%5C%5CSystem32%5C%5Ccmd.exe%22.%20To%20make%20life%20easier%2C%20once%20you%27ve%20found%20it%20put%20a%20shortcut%20to%20it%20on%20your%20desktop.%20You%20can%20have%20two%20shortcuts%2C%20and%20set%20one%20of%20them%20to%20always%20%22Run%20as%20administrator%22%20%28to%20do%20that%2C%20right-click%20and%20then%20Properties-%26amp%3Bgt%3BShortcut-%26amp%3Bgt%3BAdvanced...%20and%20check%20%22Run%20as%20administrator%22%29.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table><tbody>
 <tr id='R90'><td n='90'></td><td></td></tr>
 <tr id='R91'><td n='91'></td><td><h3 id="Adding_a_test_action">Adding a test action</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1842,7 +1842,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R106'><td n='106'></td><td>For a <a class='glossary' href="#" onmouseover="showhint('<p>Second level: A second level service is called by a top level service to fulfill a specific need, such as viewing or editing a file. It has no entry in the navigation bar.</p><p>The number of instances of a second level service to run is set by its &quot;Count&quot; field in data/serverlist.txt.</p>', this, event, '500px', false);">second level</a> server, use a unique <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a> together with the <a class='glossary' href="#" onmouseover="showhint('<p>Page name: This is set in the &quot;Page name&quot; column of data/serverlist.txt, and serves two purposes: it provides the name to display for the service in IntraMine&#8216;s top navigation bar for top-level services, and it can be shared by several services to indicate that they are somehow associated - signals can be sent to all services that share the same Page name, for example. </p>', this, event, '500px', false);">Page name</a> of a <a class='glossary' href="#" onmouseover="showhint('<p>Top level: A service is &quot;top level&quot; and has an entry in the top navigation bar if its Page name and Short name are the same in data/serverlist.txt, and it&#8216;s not marked there as a &quot;BACKGROUND&quot; service. A top level service will show up in IntraMine&#8216;s top navigation bar.</p><p>The number of instances of a top level service to run is set by its &quot;Count&quot; field in serverlist.txt.</p><p>A top-level service can have second level services that it hands off to for specific tasks. For example, the Search page presents a list of hits with file links, and hands off to either the Viewer or Editor service when a link is clicked. The Viewer and Editor services are also called in response to clicks on the Files page links.</p>', this, event, '500px', false);">top level</a> server. For example, "NovelData", that responds to requests from a top-level page called "Novel":</td></tr>
+<tr id='R106'><td n='106'></td><td>For a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ESecond%20level%3C%2Fstrong%3E%3A%20A%20second%20level%20service%20is%20called%20by%20a%20top%20level%20service%20to%20fulfill%20a%20specific%20need%2C%20such%20as%20viewing%20or%20editing%20a%20file.%20It%20has%20no%20entry%20in%20the%20navigation%20bar.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20number%20of%20instances%20of%20a%20second%20level%20service%20to%20run%20is%20set%20by%20its%20%22Count%22%20field%20in%20data%2Fserverlist.txt.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">second level</a> server, use a unique <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a> together with the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPage%20name%3C%2Fstrong%3E%3A%20This%20is%20set%20in%20the%20%22Page%20name%22%20column%20of%20data%2Fserverlist.txt%2C%20and%20serves%20two%20purposes%3A%20it%20provides%20the%20name%20to%20display%20for%20the%20service%20in%20IntraMine%27s%20top%20navigation%20bar%20for%20top-level%20services%2C%20and%20it%20can%20be%20shared%20by%20several%20services%20to%20indicate%20that%20they%20are%20somehow%20associated%20-%20signals%20can%20be%20sent%20to%20all%20services%20that%20share%20the%20same%20Page%20name%2C%20for%20example.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Page name</a> of a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ETop%20level%3C%2Fstrong%3E%3A%20A%20service%20is%20%22top%20level%22%20and%20has%20an%20entry%20in%20the%20top%20navigation%20bar%20if%20its%20Page%20name%20and%20Short%20name%20are%20the%20same%20in%20data%2Fserverlist.txt%2C%20and%20it%27s%20not%20marked%20there%20as%20a%20%22BACKGROUND%22%20service.%20A%20top%20level%20service%20will%20show%20up%20in%20IntraMine%27s%20top%20navigation%20bar.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20number%20of%20instances%20of%20a%20top%20level%20service%20to%20run%20is%20set%20by%20its%20%22Count%22%20field%20in%20data%2Fserverlist.txt.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20top-level%20service%20can%20have%20second%20level%20services%20that%20it%20hands%20off%20to%20for%20specific%20tasks.%20For%20example%2C%20the%20Search%20page%20presents%20a%20list%20of%20hits%20with%20file%20links%2C%20and%20hands%20off%20to%20either%20the%20Viewer%20or%20Editor%20service%20when%20a%20link%20is%20clicked.%20The%20Viewer%20and%20Editor%20services%20are%20also%20called%20in%20response%20to%20clicks%20on%20the%20Files%20page%20links.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">top level</a> server. For example, "NovelData", that responds to requests from a top-level page called "Novel":</td></tr>
 <tr id='R107'><td n='107'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -1887,7 +1887,7 @@ AABJRU5ErkJggg==
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R133'><td n='133'></td><td><p class="ol-1">1. Install Chrome and chromedriver.exe, and make an entry in data/intramine_config.txt for CHROME_DRIVER_PATH (see above).</p></td></tr>
 <tr id='R134'><td n='134'></td><td><p class="ol-1">2. Open data/serverlist_for_testing.txt, and set the "Count" fields to 1 for each server you want to test. You can test as many at once as you like, though things might get a bit busy.</p></td></tr>
-<tr id='R135'><td n='135'></td><td><p class="ol-1">3. Note data/serverlist_for_testing.txt has a special entry for "Main". Set the Count for Main to 1 if you want IntraMine's <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> (intramine_main.pl) to run some self tests.</p></td></tr>
+<tr id='R135'><td n='135'></td><td><p class="ol-1">3. Note data/serverlist_for_testing.txt has a special entry for "Main". Set the Count for Main to 1 if you want IntraMine's <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> (intramine_main.pl) to run some self tests.</p></td></tr>
 <tr id='R136'><td n='136'></td><td><p class="ol-1">4. Set Count entries to 0 for any of your own servers that you have added, to avoid confusion. Well, you don't have to do that, but it should help.</p></td></tr>
 <tr id='R137'><td n='137'></td><td><p class="ol-1">5. Make sure IntraMine isn't running.</p></td></tr>
 <tr id='R138'><td n='138'></td><td><p class="ol-1">6. Run bats/TEST_INTRAMINE.bat.</p></td></tr>
@@ -1922,7 +1922,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1935,6 +1935,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -6069,6 +6075,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

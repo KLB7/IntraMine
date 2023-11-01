@@ -1680,17 +1680,17 @@ span.ll-com { /* comments */
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R6'><td n='6'></td><td>In the IntraMine folder, data/serverlist.txt lists the services that will run when IntraMine starts. The first column on the line for a service holds the "count" of how many instances of the service to start, and a zero means don't start any.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
-<tr id='R8'><td n='8'></td><td>To run a service, set the first "count" field for it to 1 or more. To stop it from running, set the "count" field to 0. Changes take effect the next time you start IntraMine. Typically <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> and Linker are the only supplied services that want a count greater than 1. Services marked "BACKGROUND" are limited to single instances, so the count for those can only be 0 or 1.</td></tr>
+<tr id='R8'><td n='8'></td><td>To run a service, set the first "count" field for it to 1 or more. To stop it from running, set the "count" field to 0. Changes take effect the next time you start IntraMine. Typically <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> and Linker are the only supplied services that want a count greater than 1. Services marked "BACKGROUND" are limited to single instances, so the count for those can only be 0 or 1.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td>See <a href="./Using IntraMine.html#Supplied services" target="_blank">"Using IntraMine.txt#Supplied services"</a> for an overview of the 17 services that you can run out of the box.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>As shipped, data/serverlist.txt enables services shown with a non-zero Count in the first column:</td></tr>
-<tr id='R13'><td n='13'></td><td>#Count	<a class='glossary' href="#" onmouseover="showhint('<p>Page name: This is set in the &quot;Page name&quot; column of data/serverlist.txt, and serves two purposes: it provides the name to display for the service in IntraMine&#8216;s top navigation bar for top-level services, and it can be shared by several services to indicate that they are somehow associated - signals can be sent to all services that share the same Page name, for example. </p>', this, event, '500px', false);">Page name</a>		<a class='glossary' href="#" onmouseover="showhint('<p>Short name: The unique name for an IntraMine service, as found in data/serverlist.txt. Each service should have its own unique name in the &quot;Short name&quot; column there.</p>', this, event, '500px', false);">Short name</a>	Program						Option</td></tr>
+<tr id='R13'><td n='13'></td><td>#Count	<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPage%20name%3C%2Fstrong%3E%3A%20This%20is%20set%20in%20the%20%22Page%20name%22%20column%20of%20data%2Fserverlist.txt%2C%20and%20serves%20two%20purposes%3A%20it%20provides%20the%20name%20to%20display%20for%20the%20service%20in%20IntraMine%27s%20top%20navigation%20bar%20for%20top-level%20services%2C%20and%20it%20can%20be%20shared%20by%20several%20services%20to%20indicate%20that%20they%20are%20somehow%20associated%20-%20signals%20can%20be%20sent%20to%20all%20services%20that%20share%20the%20same%20Page%20name%2C%20for%20example.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Page name</a>		<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a>	Program						Option</td></tr>
 <tr id='R14'><td n='14'></td><td>1	Search				Search		intramine_search.pl</td></tr>
-<tr id='R15'><td n='15'></td><td>2	Search				<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>		intramine_viewer.pl</td></tr>
+<tr id='R15'><td n='15'></td><td>2	Search				<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>		intramine_viewer.pl</td></tr>
 <tr id='R16'><td n='16'></td><td>2	Search				Linker		intramine_linker.pl</td></tr>
 <tr id='R17'><td n='17'></td><td>1	Search				Opener		intramine_open_with.pl</td></tr>
-<tr id='R18'><td n='18'></td><td>1	Search				<a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a>		intramine_editor.pl</td></tr>
+<tr id='R18'><td n='18'></td><td>1	Search				<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20autolinking%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a>		intramine_editor.pl</td></tr>
 <tr id='R19'><td n='19'></td><td>1	Files				Files		intramine_filetree.pl</td></tr>
 <tr id='R20'><td n='20'></td><td>0	Upload				Upload		intramine_uploader.pl</td></tr>
 <tr id='R21'><td n='21'></td><td>0	Days				Days		intramine_daysserver.pl</td></tr>
@@ -1704,11 +1704,11 @@ span.ll-com { /* comments */
 <tr id='R29'><td n='29'></td><td>1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND</td></tr>
 <tr id='R30'><td n='30'></td><td>1	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
-<tr id='R32'><td n='32'></td><td>Two instances of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a> and Linker will be run by default. Two of the Viewer, because it's small and used to open all file views. And two of the Linker, even though it's typically larger, because the Linker can go out of service for maintenance if a folder is renamed: if that happens, the two Linker instances will take turns doing maintenance to avoid a service dropout.</td></tr>
+<tr id='R32'><td n='32'></td><td>Two instances of <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> and Linker will be run by default. Two of the Viewer, because it's small and used to open all file views. And two of the Linker, even though it's typically larger, because the Linker can go out of service for maintenance if a folder is renamed: if that happens, the two Linker instances will take turns doing maintenance to avoid a service dropout.</td></tr>
 <tr id='R33'><td n='33'></td><td></td></tr>
 <tr id='R34'><td n='34'></td><td><h2 id="Port_numbers">Port numbers</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R36'><td n='36'></td><td>Check to see if port 81 is free: if not, open data/intramine_config.txt and change 'INTRAMINE_MAIN_PORT' near the top to a free port. Leave the <a class='glossary' href="#" onmouseover="showhint('<p>Swarm server: A service written to run under IntraMine. A server is a &quot;swarm&quot; server if it uses &quot;swarmserver.pm&quot; to answer HTTP requests, and communicate with other services, including IntraMine&#8216;s main service.</p>', this, event, '500px', false);">swarm server</a> start of range ('INTRAMINE_FIRST_SWARM_SERVER_PORT') at 43124, it's fine.</td></tr>
+<tr id='R36'><td n='36'></td><td>Check to see if port 81 is free: if not, open data/intramine_config.txt and change 'INTRAMINE_MAIN_PORT' near the top to a free port. Leave the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ESwarm%20server%3C%2Fstrong%3E%3A%20A%20service%20written%20to%20run%20under%20IntraMine.%20A%20server%20is%20a%20%22swarm%22%20server%20if%20it%20uses%20%22swarmserver.pm%22%20to%20answer%20HTTP%20requests%2C%20and%20communicate%20with%20other%20services%2C%20including%20IntraMine%27s%20main%20service.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">swarm server</a> start of range ('INTRAMINE_FIRST_SWARM_SERVER_PORT') at 43124, it's fine.</td></tr>
 <tr id='R37'><td n='37'></td><td></td></tr>
 <tr id='R38'><td n='38'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
@@ -1724,9 +1724,9 @@ AABJRU5ErkJggg==
 <tr id='R41'><td n='41'></td><td></td></tr>
 <tr id='R42'><td n='42'></td><td><h2 id="Looking_ahead">Looking ahead</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R44'><td n='44'></td><td>Later, you might want to decide how IntraMine should handle requests to edit a source or text file: using its built-in simple <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">editor</a>, or using an application that you specify. See <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a> for that.</td></tr>
+<tr id='R44'><td n='44'></td><td>Later, you might want to decide how IntraMine should handle requests to edit a source or text file: using its built-in simple <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20autolinking%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a>, or using an application that you specify. See <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a> for that.</td></tr>
 <tr id='R45'><td n='45'></td><td></td></tr>
-<tr id='R46'><td n='46'></td><td>But for now, you're ready to create your first <a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> index, and then run IntraMine.</td></tr>
+<tr id='R46'><td n='46'></td><td>But for now, you're ready to create your first <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> index, and then run IntraMine.</td></tr>
 <tr id='R47'><td n='47'></td><td></td></tr>
 <tr id='R48'><td n='48'></td><td>Next: <a href="./Build your Elasticsearch index and run IntraMine.html" target="_blank">Build your Elasticsearch index and run IntraMine.txt</a></td></tr>
 <tr id='R49'><td n='49'></td><td></td></tr>
@@ -1760,7 +1760,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1773,6 +1773,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5907,6 +5913,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

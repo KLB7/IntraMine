@@ -41,7 +41,7 @@ If you're concerned that there might be a port conflict at any point, please see
 
 Looking ahead
 =============
-Later, you might want to decide how IntraMine should handle requests to edit a source or text file: using its built-in simple editor, or using an application that you specify. See "Configuring IntraMine.txt#Editing" for that.
+Later, you might want to decide how IntraMine should handle requests to edit a source or text file: using its built-in simple Editor, or using an application that you specify. See "Configuring IntraMine.txt#Editing" for that.
 
 But for now, you're ready to create your first Elasticsearch index, and then run IntraMine.
 

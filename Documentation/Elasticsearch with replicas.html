@@ -1680,30 +1680,30 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='43'><a href='#Restart_Elasticsearch'>Restart Elasticsearch</a></li>
 <li class='h2' im-text-ln='49'><a href='#Rebuild_your_index'>Rebuild your index</a></li>
 <li class='h2' im-text-ln='53'><a href='#Verify_the_replica_is_ok'>Verify the replica is ok</a></li>
-<li class='h2' im-text-ln='63'><a href='#I_want_to_go_back_to_one_node'>I want to go back to one node</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Elasticsearch_with_replicas"><a class='glossary' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> with replicas</h1></td></tr>
+<li class='h2' im-text-ln='63'><a href='#I_want_to_go_back_to_one_node'>I want to go back to one node</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Elasticsearch_with_replicas"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> with replicas</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><h2 id="Why_would_you_do_this?">Why would you do this?</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>If you run a second instance of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> on another computer and tie it in to your main one where IntraMine is running, you will have a backup of your IntraMine index and potentially faster searching. Having said that, I tried it and wasn't able to push searching hard enough that the second instance of Elasticsearch helped any. But if you like the idea, here's how to set up a "replica node" for Elasticsearch. Generalizing to two or more replica nodes is I hope obvious after you've done one of them.</td></tr>
+<tr id='R6'><td n='6'></td><td>If you run a second instance of <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on another computer and tie it in to your main one where IntraMine is running, you will have a backup of your IntraMine index and potentially faster searching. Having said that, I tried it and wasn't able to push searching hard enough that the second instance of Elasticsearch helped any. But if you like the idea, here's how to set up a "replica node" for Elasticsearch. Generalizing to two or more replica nodes is I hope obvious after you've done one of them.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td><h2 id="Use_static_local_IP_addresses">Use static local IP addresses</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td>If you haven't already, assign static local (LAN) IP addresses to both PCs. You know what I mean, I'm talking local IP addresses such as 192.168.1.22 or 10.0.0.90 addresses, reserved for local area network use, as opposed to a public IP address used for the world wide web. That's something you might well have done before, but if not, google "router set static local IP address" or "router local static leases" or check your router's manual. If you have installed dd-wrt on your router you can find the details on adding static LAN leases at <a href='https://wiki.dd-wrt.com/wiki/index.php/Static_DHCP' target='_blank'>https://wiki.dd-wrt.com/wiki/index.php/Static_DHCP</a>.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
-<tr id='R12'><td n='12'></td><td><h2 id="Install_a_second_Elasticsearch">Install a second <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h2></td></tr>
+<tr id='R12'><td n='12'></td><td><h2 id="Install_a_second_Elasticsearch">Install a second <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td>Install <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> on the second PC, in the same way you originally installed it on the PC that's running IntraMine.</td></tr>
+<tr id='R14'><td n='14'></td><td>Install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on the second PC, in the same way you originally installed it on the PC that's running IntraMine.</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td><h2 id="Some_names_and_numbers">Some names and numbers</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R18'><td n='18'></td><td>I'll be calling the PC that's running <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> and IntraMine your "Main" PC, and the one where the new instance of Elasticsearch is installed will be your "Replica" PC. And I'll use actual IP numbers in the examples, be sure to change them to your numbers.</td></tr>
+<tr id='R18'><td n='18'></td><td>I'll be calling the PC that's running <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> and IntraMine your "Main" PC, and the one where the new instance of Elasticsearch is installed will be your "Replica" PC. And I'll use actual IP numbers in the examples, be sure to change them to your numbers.</td></tr>
 <tr id='R19'><td n='19'></td><td>For the Main PC: 192.168.1.132</td></tr>
 <tr id='R20'><td n='20'></td><td>For the Replica PC: 192.168.1.128</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td><h2 id="Main_PC_config_changes">Main PC config changes</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R24'><td n='24'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">elasticsearch</a>.yml in your Elasticsearch folder. Save a copy somewhere, so you can restore it if something goes wrong. Add the following three lines to the bottom of the file:</td></tr>
+<tr id='R24'><td n='24'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder. Save a copy somewhere, so you can restore it if something goes wrong. Add the following three lines to the bottom of the file:</td></tr>
 <tr id='R25'><td n='25'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -1717,11 +1717,11 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R30'><td n='30'></td><td>Save and close your Main <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">elasticsearch</a>.yml file.</td></tr>
+<tr id='R30'><td n='30'></td><td>Save and close your Main <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
 <tr id='R32'><td n='32'></td><td><h2 id="Replica_PC_config_changes">Replica PC config changes</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R34'><td n='34'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">elasticsearch</a>.yml in your Elasticsearch folder on your Replica PC, make a backup copy, and add the following four lines to the bottom of the file:</td></tr>
+<tr id='R34'><td n='34'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder on your Replica PC, make a backup copy, and add the following four lines to the bottom of the file:</td></tr>
 <tr id='R35'><td n='35'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -1736,17 +1736,17 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R41'><td n='41'></td><td>Save and close your Replica <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">elasticsearch</a>.yml file.</td></tr>
+<tr id='R41'><td n='41'></td><td>Save and close your Replica <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
 <tr id='R42'><td n='42'></td><td></td></tr>
-<tr id='R43'><td n='43'></td><td><h2 id="Restart_Elasticsearch">Restart <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a></h2></td></tr>
+<tr id='R43'><td n='43'></td><td><h2 id="Restart_Elasticsearch">Restart <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R45'><td n='45'></td><td>On both Main and Replica, stop and start <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> by running</td></tr>
+<tr id='R45'><td n='45'></td><td>On both Main and Replica, stop and start <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> by running</td></tr>
 <tr id='R46'><td n='46'></td><td>C:\elasticsearch-6.7.0\bin\elasticsearch-service.bat manager</td></tr>
 <tr id='R47'><td n='47'></td><td>in a cmd window (change the path to match your system) and clicking the Stop and Start buttons at the bottom of the General tab.</td></tr>
 <tr id='R48'><td n='48'></td><td></td></tr>
 <tr id='R49'><td n='49'></td><td><h2 id="Rebuild_your_index">Rebuild your index</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R51'><td n='51'></td><td>This is perhaps optional, but why not get off to a clean start just to be safe? Rebuild your <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> IntraMine index by running elastic_stop_INIT_rebuild_start.bat, located in your IntraMine /bats/ folder. This will take an hour or two but I think the peace of mind is worth it.</td></tr>
+<tr id='R51'><td n='51'></td><td>This is perhaps optional, but why not get off to a clean start just to be safe? Rebuild your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> IntraMine index by running elastic_stop_INIT_rebuild_start.bat, located in your IntraMine /bats/ folder. This will take an hour or two but I think the peace of mind is worth it.</td></tr>
 <tr id='R52'><td n='52'></td><td></td></tr>
 <tr id='R53'><td n='53'></td><td><h2 id="Verify_the_replica_is_ok">Verify the replica is ok</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1760,7 +1760,7 @@ AABJRU5ErkJggg==
 <tr id='R62'><td n='62'></td><td></td></tr>
 <tr id='R63'><td n='63'></td><td><h2 id="I_want_to_go_back_to_one_node">I want to go back to one node</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R65'><td n='65'></td><td>Stop and remove the <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them.</p>', this, event, '500px', false);">Elasticsearch</a> service on your Replica, using elasticsearch-service.bat manager as decribed above, then delete the Elasticsearch folder there. Revert the elasticsearch.yml file on your Main computer, using the backup copy you made. And then stop and start Elasticsearch on your Main PC.</td></tr>
+<tr id='R65'><td n='65'></td><td>Stop and remove the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> service on your Replica, using elasticsearch-service.bat manager as decribed above, then delete the Elasticsearch folder there. Revert the elasticsearch.yml file on your Main computer, using the backup copy you made. And then stop and start Elasticsearch on your Main PC.</td></tr>
 <tr id='R66'><td n='66'></td><td></td></tr>
 <tr id='R67'><td n='67'></td><td>You might want to also re-index, but if IntraMine Search looks ok then there's no need to.</td></tr>
 <tr id='R68'><td n='68'></td><td></td></tr>
@@ -1794,7 +1794,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1807,6 +1807,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5941,6 +5947,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

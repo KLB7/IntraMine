@@ -141,6 +141,7 @@ _TOPNAV_
 <script src="diff_match_patch_uncompressed.js" ></script>
 <script src="restore_edits.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
+<script src="editor_auto_refresh.js" ></script>
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
 </script>

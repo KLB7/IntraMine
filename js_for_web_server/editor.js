@@ -463,7 +463,12 @@ function notifyFileChangedAndRememberCursorLine(path) {
 
 	location.hash = lineNumber;
 
-	let msg = 'changeDetected ' + lineNumber + ' ' + path;
+	// Avoid self-triggering a reload, set the save time for use
+	// by editor_auto_refresh.js.
+	RememberLastEditorUpdateTime();
+
+	// trigger | lineNumber | filePath | timestamp
+	let msg = 'changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
 	wsSendMessage(msg);
 }
 

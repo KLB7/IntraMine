@@ -17,6 +17,7 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
+use MIME::Base64 qw(encode_base64);
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -24,6 +25,12 @@ use intramine_config;
 use win_wide_filepaths;
 use ext;
 use Image::Size;
+
+# Popup definition image cache.
+my $ImageKeyBase; # Typ '__img__cache__'
+my $ImageCounter; # Int 1..up index for popup definition images.
+my %KeyForImagePath; # $KeyForImagePath{'path/to/image.xxx'} = '__img__cache__00007';
+my $ImageCache; # holds JS for the imageCache Map decl and entries. Note NO <script> wrapper.
 
 # These are set when Gloss() is called.
 my $IMAGESDIR;
@@ -39,10 +46,21 @@ BEGIN {
 # Return an HTML version of $text with Gloss-style markdown.
 # Note no table of contents here.
 # Contents are put in a simple table without line numbers.
+#
+# For the call from gloss2html.pl, these are undef:
+#  $serverAddr, $mainServerPort, $callbackFullPath, $callbackFullDirectoryPath.
 sub Gloss {
     my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
 	$IMAGESDIR = $imagesDir;
 	$COMMONIMAGESDIR = $commonImagesDir;
+
+	if (!defined($serverAddr)) # Call is from gloss2html.pl
+		{
+		$ImageKeyBase = '__img__cache__';
+		$ImageCounter = 1;
+		%KeyForImagePath = ();
+		$ImageCache = "const imageCache = new Map();\n";
+		}
 
 	if (!defined($doEscaping))
 		{
@@ -153,6 +171,15 @@ sub Gloss {
     	$$contentsR = horribleEscape($$contentsR);
 		}
    }
+
+# Get JS for the imageCache Map, which holds bin64 reps of all
+# images in all popup glossary definitions. Goes at bottom of HTML.
+sub GetImageCache {
+	return($ImageCache);
+}
+
+use ExportAbove;
+################# Internal subs to the end ###################
 
 # See todo.js#horribleEscape();
 sub horribleUnescape {
@@ -781,6 +808,8 @@ sub DoTableRows {
 # For the file links to function, IntraMine's Viewer must be running.
 # The ToDo page has no "context" and the Linker is not guaranteed to be running,
 # so links are a bit limited.
+# For the call from gloss2html.pl, these are undef:
+#  $serverAddr, $mainServerPort, $callbackFullPath, $callbackFullDirectoryPath.
 sub AddLinks {
     my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
     my $line = $$txtR;
@@ -867,6 +896,15 @@ sub AddLinks {
 				{
 				my $fullPath = $callbackFullPath->($fullFilePath, $contextDir);
 				if ($fullPath ne '')
+					{
+					$isFullKnownPath = 1;
+					$fullFilePath = $fullPath;
+					}
+				}
+			if (!$isFullKnownPath && $contextDir ne "")
+				{
+				my $fullPath = $contextDir . $fullFilePath;
+				if (FileOrDirExistsWide($fullPath) == 1)
 					{
 					$isFullKnownPath = 1;
 					$fullFilePath = $fullPath;
@@ -1095,11 +1133,15 @@ sub RememberTextOrImageFileMentionGloss {
 							$anchorWithNum, \$repString, $inlineImages);
 
         }
-    else # currently only image extension
+    elsif ($haveImageExtension)
         {
        GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
 							$fullFilePath, $pathToCheck, \$repString, $inlineImages);
         }
+	else
+		{
+		return;
+		}
 
     if ($haveQuotation)
         {
@@ -1129,7 +1171,7 @@ sub RememberDirMentionGloss {
 
 # Get link for full file path $longestSourcePath.
 sub GetTextFileRepGloss {
-    my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath, $properCasedPath, $anchorWithNum, $repStringR, , $inlineImages) = @_;
+    my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $fileExtension, $longestSourcePath, $properCasedPath, $anchorWithNum, $repStringR, $inlineImages) = @_;
     
     my $editLink = '';
 	my $viewerPath = $longestSourcePath;
@@ -1157,6 +1199,13 @@ sub GetTextFileRepGloss {
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
 
+	# For file links in gloss2html.pl glossed popups, put in a simple
+	# /.file.txt link. $mainServerPort is not defined for this case.
+	if (!defined($mainServerPort))
+		{
+		GetTextFileRepForStandaloneGloss($viewerPath, $displayedLinkName, $anchorWithNum, $repStringR);
+		return;
+		}
     my $host = $serverAddr;
 	my $port = $mainServerPort;
     my $ViewerShortName = CVal('VIEWERSHORTNAME');
@@ -1177,10 +1226,30 @@ sub GetTextFileRepGloss {
 	$$repStringR = "$viewerLink$editLink";
     }
 
+sub GetTextFileRepForStandaloneGloss {
+	my ($viewerPath, $displayedLinkName, $anchorWithNum, $repStringR) = @_;
+
+	# Extract just the file name from $viewerPath. Convert txt to html too.
+	$viewerPath = FileNameFromPath($viewerPath);
+	$viewerPath =~ s!\.txt!.html!i;
+
+	$displayedLinkName =~ s!&amp;!\&!g;
+
+	$$repStringR = "<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
+	}
+
 # Get image link for full path $longestSourcePath. Optionally includes showhint() popup call
 # and the little hummingbird images to suggest hovering.
+# For standalone HTML gloss popups, $mainServerPort is undef: in this case,
+# images are loaded fully into the HTML and displayed in place.
 sub GetImageFileRepGloss {
 	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages) = @_;
+
+	if (!defined($mainServerPort))
+		{
+		GetLoadedImageFileRep($longestSourcePath, $repStringR);
+		return;
+		}
 
     my $fullPath = $longestSourcePath;
 	$fullPath =~ s!\\!/!g;
@@ -1232,6 +1301,15 @@ sub GetImageFileRepGloss {
 		}
     }
 
+# 
+sub GetLoadedImageFileRep {
+	my ($sourcePath, $repStringR) = @_;
+
+	my $bin64Img = '';
+	ImageLink($sourcePath, "", \$bin64Img);
+	$$repStringR = $bin64Img;
+	}
+
 # Replacements of file/url mentions with links are done straight in the text.
 # Do all reps in reverse order for text, so as to not throw off positions.
 sub DoTextRepsGloss {
@@ -1274,5 +1352,131 @@ sub ShortenedLinkText {
     return($filename);
 }
 
-use ExportAbove;
+# "<img src=\"data:image/png;base64,$enc64\" (optional width height) />";
+sub ImageLinkQuoted {
+	my ($fileName, $contextDir, $linkR, $width, $height) = @_;
+	$width ||= '';
+	$height ||= '';
+	$$linkR = '';
+	my $enc64 = '';
+	ImageBase64($fileName, $contextDir, \$enc64);
+	
+
+	if ($enc64 ne '')
+		{
+		$width = " width='$width'"  unless ($width eq '');
+		$height = " height='$height'"  unless ($height eq '');
+		my $imgType = 'png';
+		if ($fileName =~ m!\.(jpg|jpeg)$!i)
+			{
+			$imgType = 'jpeg';
+			}
+		elsif ($fileName =~ m!\.gif$!i)
+			{
+			$imgType = 'gif';
+			}
+		elsif ($fileName =~ m!\.webp$!i)
+			{
+			$imgType = 'webp';
+			}
+		$$linkR = "<img src=&quot;data:image/$imgType;base64,$enc64&quot;$width$height  />";
+		}
+	else
+		{
+		print("Warning, could not retrieve image |$fileName|\n");
+		}
+	}
+
+# "<img src=\"data:image/png;base64,$enc64\" (optional width height) />";
+# This simpler variant of ImageLinkQuoted() is used for 'hoverleft.png' and 'hoverright.png' above.
+sub ImageLink {
+	my ($fileName, $contextDir, $linkR, $width, $height) = @_;
+	$width ||= '';
+	$height ||= '';
+	$$linkR = '';
+	my $enc64 = '';
+	ImageBase64($fileName, $contextDir, \$enc64);
+	
+	
+	if ($enc64 ne '')
+		{
+		$width = " width='$width'"  unless ($width eq '');
+		$height = " height='$height'"  unless ($height eq '');
+		my $imgType = 'png';
+		if ($fileName =~ m!\.(jpg|jpeg)$!i)
+			{
+			$imgType = 'jpeg';
+			}
+		elsif ($fileName =~ m!\.gif$!i)
+			{
+			$imgType = 'gif';
+			}
+		#$result = "<img src=\"data:image/$imgType;base64,$enc64\"$width$height  />";
+
+		# Cache images at bottom of HTML file as JavaScript Map entries, just
+		# put the map key for the image here.
+		my $imageKey = KeyForCachedImage($fileName, $enc64);
+		$$linkR = "<img src=\"data:image/$imgType;base64,$imageKey\"$width$height  />";
+		}
+	else
+		{
+		print("Warning, could not retrieve image |$fileName|\n");
+		}
+	}
+
+# Load and return the base 64 contents of an image, for inlining.
+sub ImageBase64 {
+	my ($fileName, $contextDir, $encContentsR) = @_;
+	$$encContentsR = '';
+	
+	my $filePath = '';
+
+	if (FileOrDirExistsWide($fileName) == 1)
+		{
+		$filePath = $fileName;
+		}
+	elsif (FileOrDirExistsWide($IMAGESDIR . $fileName) == 1)
+		{
+		$filePath = $IMAGESDIR . $fileName;
+		}
+	elsif ($COMMONIMAGESDIR ne '' && FileOrDirExistsWide($COMMONIMAGESDIR . $fileName) == 1)
+		{
+		$filePath = $COMMONIMAGESDIR . $fileName;
+		}
+	elsif (FileOrDirExistsWide($contextDir . $fileName) == 1)
+		{
+		$filePath = $contextDir . $fileName;
+		}
+	elsif (FileOrDirExistsWide($contextDir . 'images/' . $fileName) == 1)
+		{
+		$filePath = $contextDir . 'images/' . $fileName;
+		}
+
+	$$encContentsR = encode_base64(ReadBinFileWide($filePath));
+	}
+
+sub KeyForCachedImage {
+	my ($fileName, $enc64) = @_;
+	my $imageKey = (defined($KeyForImagePath{$fileName})) ? $KeyForImagePath{$fileName}: '';
+	if ($imageKey eq '') # First time see, cache the image in JS and make key
+		{
+		my $paddedImageCounterStr = paddedImageCounterString($ImageCounter);
+		++$ImageCounter;
+		$imageKey = $ImageKeyBase . $paddedImageCounterStr;
+
+		$enc64 =~ s!\n!!g; # JS doesn't like \n inside the image string
+
+		# Eg |imageCache.set('__img__cache__00007', 'ENC64 binary stuff');|
+		$ImageCache .= "imageCache.set('" . $imageKey . "', '" . $enc64 . "');\n";
+		}
+
+	return($imageKey);
+	}
+
+sub paddedImageCounterString {
+	my ($imageCounter) = @_;
+	return(sprintf("%05d", $imageCounter));
+	}
+
+#use ExportAbove;
 return 1;

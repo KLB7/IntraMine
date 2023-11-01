@@ -7,6 +7,8 @@ To **stop IntraMine**, double-click on **bats\STOP_INTRAMINE.bat** as found in y
 
 And later you can **start IntraMine** by double-clicking **bats\START_INTRAMINE.bat** in your IntraMine folder.
 
+bats.png
+
 Do come back to the docs and read "Using IntraMine.txt" at least, when the initial thrill wears off:)
 
 Start/stop shortcuts

@@ -1678,7 +1678,7 @@ span.ll-com { /* comments */
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><strong>OBSOLETE</strong></td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>As of August 2021 IntraMine <strong>no longer uses <a class='glossary' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a></strong>. <a class='glossary' href="#" onmouseover="showhint('<p>WebSockets: like HTTP, but it allows two-way communications, and easy communications between web clients.</p>', this, event, '500px', false);">WebSockets</a> are used instead. On or around line 614 of intramine_main.pl you'll find that the intramine_SSE.pl is specifically prevented from running.</td></tr>
+<tr id='R6'><td n='6'></td><td>As of August 2021 IntraMine <strong>no longer uses <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a></strong>. <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWebSockets%3C%2Fstrong%3E%3A%20like%20HTTP%2C%20but%20it%20allows%20two-way%20communications%2C%20and%20easy%20communications%20between%20web%20clients.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">WebSockets</a> are used instead. On or around line 614 of intramine_main.pl you'll find that the intramine_SSE.pl is specifically prevented from running.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>If you have written anything that depends on SSE you can re-enable the SSE server by:</td></tr>
 <tr id='R9'><td n='9'></td><td><p class="outdent-unordered">&nbsp;&bull; making a copy of intramine_SSE.pl, at the top of your IntraMine folder</p></td></tr>
@@ -1686,20 +1686,20 @@ span.ll-com { /* comments */
 <tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; updating the corresponding program name in your data/serverlist.txt file</p></td></tr>
 <tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; and then of course restarting IntraMine.</p></td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td>However, if you are using <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a>, I urge you to read the new <a href="./WS.html" target="_blank">"WS.txt"</a> doc which describes how to use <a class='glossary term-seen' href="#" onmouseover="showhint('<p>WebSockets: like HTTP, but it allows two-way communications, and easy communications between web clients.</p>', this, event, '500px', false);">WebSockets</a> in IntraMine.</td></tr>
+<tr id='R14'><td n='14'></td><td>However, if you are using <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>, I urge you to read the new <a href="./WS.html" target="_blank">"WS.txt"</a> doc which describes how to use <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWebSockets%3C%2Fstrong%3E%3A%20like%20HTTP%2C%20but%20it%20allows%20two-way%20communications%2C%20and%20easy%20communications%20between%20web%20clients.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">WebSockets</a> in IntraMine.</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
-<tr id='R16'><td n='16'></td><td><a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a> have been dropped because they can handle only six connections per browser per domain, and that's just not enough because all of IntraMine counts as a single domain.</td></tr>
+<tr id='R16'><td n='16'></td><td><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a> have been dropped because they can handle only six connections per browser per domain, and that's just not enough because all of IntraMine counts as a single domain.</td></tr>
 <tr id='R17'><td n='17'></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td>Original doc follows.</td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
 <tr id='R20'><td n='20'></td><td></td></tr>
-<tr id='R21'><td n='21'></td><td>SSE is a <a class='glossary' href="#" onmouseover="showhint('<p>Background service: has no navigation bar entry, and typically no JavaScript. It lurks in the background. Two are supplied with IntraMine: the Watcher service monitors the file system for changes, and SSE dispatches Server-Sent Events. There can be only one running instance of a background service. See data/serverlist.txt for a list of services.</p>', this, event, '500px', false);">background service</a> that serves as IntraMine's registration and distribution center for <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a>.</td></tr>
+<tr id='R21'><td n='21'></td><td>SSE is a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBackground%20service%3C%2Fstrong%3E%3A%20has%20no%20navigation%20bar%20entry%2C%20and%20typically%20no%20JavaScript.%20It%20lurks%20in%20the%20background.%20Two%20are%20supplied%20with%20IntraMine%3A%20the%20Watcher%20service%20monitors%20the%20file%20system%20for%20changes%2C%20and%20WS%20handles%20WebSockets%20communication.%20There%20can%20be%20only%20one%20running%20instance%20of%20a%20background%20service.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">background service</a> that serves as IntraMine's registration and distribution center for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>.</td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td>Perl main files:</td></tr>
 <tr id='R24'><td n='24'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_SSE.pl</p></td></tr>
 <tr id='R25'><td n='25'></td><td><p class="outdent-unordered">&nbsp;&bull; swarmserver.pm</p></td></tr>
 <tr id='R26'><td n='26'></td><td></td></tr>
-<tr id='R27'><td n='27'></td><td>SSE generates no HTML views and has no JavaScript. It just remembers all web pages that have registered to receive <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a>, keeps sockets open for them, and handles broadcasting the events as they happen.</td></tr>
+<tr id='R27'><td n='27'></td><td>SSE generates no HTML views and has no JavaScript. It just remembers all web pages that have registered to receive <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>, keeps sockets open for them, and handles broadcasting the events as they happen.</td></tr>
 <tr id='R28'><td n='28'></td><td></td></tr>
 <tr id='R29'><td n='29'></td><td><h2 id="A_typical_Server-Sent_Event_sequence">A typical Server-Sent Event sequence</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1713,15 +1713,15 @@ span.ll-com { /* comments */
 <tr id='R38'><td n='38'></td><td><p class="ol-1">4. todoGetPutData.js#putData() sends ToDo page data to intramine_SSE.pl#PutData() on the back end for saving.</p></td></tr>
 <tr id='R39'><td n='39'></td><td><p class="ol-1">5. PutData() calls swarmserver.pm#BroadcastSSE("todochanged"). We're still in the ToDo server at this point.</p></td></tr>
 <tr id='R40'><td n='40'></td><td><p class="ol-1">6. BroadcastSSE() calls RequestBroadcast() of "todochanged" message to SSE</p></td></tr>
-<tr id='R41'><td n='41'></td><td><p class="ol-1">7. The swarmserver.pm#RequestBroadcast() being called is the one associated with the ToDo server, and it doesn't know how to reach other servers. So it sends the message back to the <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> (intramine_main.pl), which does know how to reach all other IntraMine servers.</p></td></tr>
+<tr id='R41'><td n='41'></td><td><p class="ol-1">7. The swarmserver.pm#RequestBroadcast() being called is the one associated with the ToDo server, and it doesn't know how to reach other servers. So it sends the message back to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> (intramine_main.pl), which does know how to reach all other IntraMine servers.</p></td></tr>
 <tr id='R42'><td n='42'></td><td><p class="ol-1">8. #intramine_main.plBroadcastSignal() sends the "todochanged" signal to the SSE server (Main knows the port numbers associated with all Short names such as SSE).</p></td></tr>
 <tr id='R43'><td n='43'></td><td><p class="ol-1">9. intramine_SSE.pl#HandleBroadcastRequest() receives the request, and calls swarmserver.pm#SendEventToClients().</p></td></tr>
 <tr id='R44'><td n='44'></td><td><p class="ol-2">10. SendEventToClients(), associated here with the SSE server, sends out the event message to all clients that have registered with it.</p></td></tr>
-<tr id='R45'><td n='45'></td><td><p class="ol-2">11. The event listener added in step 1 receives the "todochanged" event, and calls todoGetPutData.js#getToDoData(), which refreshes the browser view of the ToDo data. This happens for all ToDo views, since they have all registered to receive <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a>.</p></td></tr>
+<tr id='R45'><td n='45'></td><td><p class="ol-2">11. The event listener added in step 1 receives the "todochanged" event, and calls todoGetPutData.js#getToDoData(), which refreshes the browser view of the ToDo data. This happens for all ToDo views, since they have all registered to receive <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>.</p></td></tr>
 <tr id='R46'><td n='46'></td><td></td></tr>
 <tr id='R47'><td n='47'></td><td><h2 id="API">API</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R49'><td n='49'></td><td>SSE request handling is a small part of the overall handling of <a class='glossary term-seen' href="#" onmouseover="showhint('<p>Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.</p>', this, event, '500px', false);">Server-Sent Events</a>. Here's the signal handling, but for an overview of the entire process see above.</td></tr>
+<tr id='R49'><td n='49'></td><td>SSE request handling is a small part of the overall handling of <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>. Here's the signal handling, but for an overview of the entire process see above.</td></tr>
 <tr id='R50'><td n='50'></td><td></td></tr>
 <tr id='R51'><td n='51'></td><td><h2 id="Forward_an_activity_event">Forward an activity event</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1762,7 +1762,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1775,6 +1775,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5909,6 +5915,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

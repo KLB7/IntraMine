@@ -1677,7 +1677,7 @@ span.ll-com { /* comments */
 <tr id='R3'><td n='3'></td><td>Main Perl file: intramine_commandserver.pl.</td></tr>
 <tr id='R4'><td n='4'></td><td>Main JavaScript file: cmdServer.js.</td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>The Cmd server is possibly the most dangerous server ever written, so don't use it. Unless you think of such a good use for it that you can't resist. It allows you to run arbitrary scripts and programs by clicking one button, really without any restriction except possibly programs requiring "<a class='glossary' href="#" onmouseover="showhint('<p>Run as administrator: You can get a command prompt (console window) by putting a shortcut to &quot;C:/Windows/System32/cmd.exe&quot; on your desktop.</p><p>For a single run, right-click on the shortcut and select &quot;Run as administrator&quot;.</p><p>And you can set it to always &quot;Run as administrator&quot; by right-clicking on the shortcut for Properties, and then clicking on the &quot;Run as administrator&quot; checkbox under the Shortcut tab&#8216;s Advanced... button.</p>', this, event, '500px', false);">Run as administrator</a>", and even then you can probably think of a way to do that.</td></tr>
+<tr id='R6'><td n='6'></td><td>The Cmd server is possibly the most dangerous server ever written, so don't use it. Unless you think of such a good use for it that you can't resist. It allows you to run arbitrary scripts and programs by clicking one button, really without any restriction except possibly programs requiring "<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ERun%20as%20administrator%3C%2Fstrong%3E%3A%20You%20can%20get%20a%20command%20prompt%20%28console%20window%29%20by%20putting%20a%20shortcut%20to%20%22C%3A%2FWindows%2FSystem32%2Fcmd.exe%22%20on%20your%20desktop.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20a%20single%20run%2C%20right-click%20on%20the%20shortcut%20and%20select%20%22Run%20as%20administrator%22.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAnd%20you%20can%20set%20it%20to%20always%20%22Run%20as%20administrator%22%20by%20right-clicking%20on%20the%20shortcut%20for%20Properties%2C%20and%20then%20clicking%20on%20the%20%22Run%20as%20administrator%22%20checkbox%20under%20the%20Shortcut%20tab%27s%20Advanced...%20button.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Run as administrator</a>", and even then you can probably think of a way to do that.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>If you want to add a command, type it into intramine_commandserver.pl#Commands(), following the brief description there, and make sure you really want to do this.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
@@ -1724,7 +1724,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1737,6 +1737,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5871,6 +5877,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

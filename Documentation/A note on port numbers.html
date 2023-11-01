@@ -1691,7 +1691,7 @@ AABJRU5ErkJggg==
 <tr id='R10'><td n='10'></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td>'INTRAMINE_FIRST_SWARM_SERVER_PORT' is the first of a range of 48 consecutive port numbers that IntraMine will use for its (non-Main) services. As best I can tell those ports are not used by any other app or service.</td></tr>
 <tr id='R12'><td n='12'></td><td></td></tr>
-<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="showhint('<p>Command prompt: The flashing insertion point in the window that comes up when you run &quot;C:\\Windows\\System32\cmd.exe&quot;</p>', this, event, '500px', false);">command prompt</a> run</td></tr>
+<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20%22C%3A%5C%5CWindows%5C%5CSystem32%5Ccmd.exe%22%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> run</td></tr>
 <tr id='R14'><td n='14'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -1714,7 +1714,7 @@ AABJRU5ErkJggg==
 <tr id='R25'><td n='25'></td><td></td></tr>
 <tr id='R26'><td n='26'></td><td><h2 id="Worth_reading_if_youre_bored">Worth reading if you're bored</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Main server: IntraMine&#8216;s round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can&#8216;t handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.</p>', this, event, '500px', false);">Main server</a> listens to currently unused ports.</td></tr>
+<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> listens to currently unused ports.</td></tr>
 <tr id='R29'><td n='29'></td><td></td></tr>
 <tr id='R30'><td n='30'></td><td>If you're a glutton for details, see near the top of intramine_main.pl#MainLoop(), where 'TOTAL_SWARM_PORTS_TO_MONITOR' is used.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
@@ -1748,7 +1748,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1761,6 +1761,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5895,6 +5901,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

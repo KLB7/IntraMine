@@ -184,6 +184,7 @@ my @RenamedFilePaths;			# holds full path to renamed file, using the new name
 my %CurrentPathAlreadySeen; 	# Avoid doing the same file twice here, File Watcher can be a bit repetitive.
 my $MostRecentTimeStampThisTimeAround;
 my %FilesForMostRecentFileStamp;	# Files at end of current check (transferred to %FilesForLastFileStamp when done check)
+my %TimeStampForPath; # $TimeStampForPath{'C:/folder/file.txt'} = '2023-10-31 5-49-24 PM'
 
 # Read FileWatcher Service log(s), ask Elasticsearch to index changed/new, remember full
 # paths of any new files. If a folder is renamed, tell Viewer to reload partial path list.
@@ -255,7 +256,7 @@ sub IndexChangedFiles {
 
 	# Send out messages via WebSockets for changed files, so the Viewer can update.
 	# (This needs more work, sometimes the WebSockets message doesn't go through.)
-	SendFileContentsChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles);
+	SendFileContentsChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
 
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
@@ -330,8 +331,8 @@ sub IndexChangedFiles {
 # Use WebSockets to send 'changeDetected' messages out to everyone, in particular
 # so that the Viewer can refresh the view.
 sub SendFileContentsChanged {
-	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH) = @_;
-	my $CHANGED_BROADCAST_LIMIT = 3; # or 5 or 10?
+	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH, $timeStampForPathH) = @_;
+	my $CHANGED_BROADCAST_LIMIT = 10; # or 5 or 3?
 	my @pathsOfChangedNotNewFiles;
 	my $numChangedNew = @$pathsOfChangedFilesA;
 	for (my $i = 0; $i < $numChangedNew; ++$i)
@@ -351,19 +352,19 @@ sub SendFileContentsChanged {
 		{
 		for (my $i = 0; $i < $numChanged; ++$i)
 			{
-			SendOneFileContentsChanged($pathsOfChangedNotNewFiles[$i]);
+			my $timeStamp = defined($timeStampForPathH->{$pathsOfChangedNotNewFiles[$i]}) ? $timeStampForPathH->{$pathsOfChangedNotNewFiles[$i]}: '0';
+			SendOneFileContentsChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
 			}
 		}
 	}
 
 sub SendOneFileContentsChanged {
-	my ($filePath) = @_;
-	# Sept 2023 disabled for now, this is too slow, takes 3-5 seconds.
-	return;
+	my ($filePath, $timeStamp) = @_;
 	
 	$filePath =~ s!%!%25!g;
 	$filePath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	WebSocketSend('changeDetected ' . '0 ' . $filePath);
+	my $msg = 'changeDetected 0 ' . $filePath . '     ' . $timeStamp;
+	WebSocketSend($msg);
 	}
 
 sub ReportMissingFileWatcherLog {
@@ -396,6 +397,7 @@ sub GetChangesFromWatcherLogs {
 	%PathsOfDeletedFiles = ();
 	@RenamedFolderPaths = ();		# holds full path to folder, with the new folder name
 	@RenamedFilePaths = ();			# holds full path to renamed file, using the new name
+	%TimeStampForPath = ();			# holds time a file changed, to the second
 	
 	%CurrentPathAlreadySeen = (); 	# Avoid doing the same file twice here, File Watcher can be a bit repetitive.
 	$MostRecentTimeStampThisTimeAround = '';
@@ -554,6 +556,12 @@ sub GetLogChanges {
 						{
 						push @PathsOfChangedFiles, $pathProperCased;
 						push @PathsOfChangedFilesFileTimes, $timestamp;
+						if (!defined($TimeStampForPath{$pathProperCased}))
+							{
+							my $timestampWithHyphens = $timestamp;
+							$timestampWithHyphens =~ s!:!-!g;
+							$TimeStampForPath{$pathProperCased} = $timestampWithHyphens;
+							}
 						}
 						
 					# If a file  is changed after delete/create, just show it as changed.

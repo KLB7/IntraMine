@@ -49,13 +49,14 @@ Count	Page name			Short name	Program						Option	Docs
 1		DBX					DBX			intramine_db_example.pl	 	DBX.txt
 1		Bp					Bp			intramine_boilerplate.pl	 	Bp.txt
 1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
-1		SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND	SSE.txt
+0		SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND	SSE.txt
+(SSE is deprecated, and has been replaced by a WebSockets service. See WS.txt for details.)
 
 The "Count" field controls how many of each server to start.
 
-To disable a server, set its "Count" field to 0 in data/serverlist.
+To disable a server, set its "Count" field to 0 in data/serverlist.txt.
 
-To start, stop, restart or add a non-persistent instance of a running server on the fly, use the Status page.
+To start, stop, restart or add a service on the fly, use the Status page. PERSISTENT and BACKGROUND service counts must be adjusted in data/serverlist.txt and a restart of IntraMine is required for the changes to take effect.
 
 A minimal set for search/view/edit
 ==================================
@@ -67,7 +68,7 @@ Ramping up for many users
 =========================
 The only services supplied with IntraMine that might experience heavy load are the Linker and Viewer. If you have many users and people notice that it's taking a long time to open or scroll through file views, the cure is to increase the Count field for both the Linker and Viewer in data/serverlist, and of course restart IntraMine.
 
-The Viewer has minor memory needs (under 40 MB), but each Linker needs about 400 MB for every 300,000 files. If people report slow file loading times, that means you could use another Viewer. If links don't fill in immediately when scrolling through a document, that means you could use another Linker. As usual, you can increase the number of Viewer or Linker services running by bumping up the Count field in data/intramine_config.txt.
+The Viewer has minor memory needs (under 40 MB), but each Linker needs about 400 MB for every 300,000 files. If people report slow file loading times, that means you could use another Viewer. If links don't fill in immediately when scrolling through a document, that means you could use another Linker. As usual, you can increase the number of Viewer or Linker services running by bumping up the Count field in data/serverlist.txt.
 
 Indexing additional folders
 =================================

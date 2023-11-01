@@ -66,7 +66,7 @@ Why the Index and Monitor fields?
 =================================
 There are situations where changing the 0's an 1's can be useful:
  - if you want to add a folder later, you can set all of the Index entries to 0 except for the folder you're adding, and run IM_ADD_INDEX.bat to add the files in the new folder to your Elasticsearch index without deleting your current index. Set Monitor for the new folder as above, to 1 if it's locally attached, 0 if it's a NAS location. For the whole description of adding a directory, see "Using IntraMine.txt#Indexing additional folders".
- - if a directory on your C: drive contains static files, you can set Monitor to 0 for it, and not bother monitoring for changes.
+ - if a directory on a local drive, eg "C:\boost" contains files that will not change, you can set Monitor to 0 for it, and not bother monitoring for changes.
 
 Where are you?
 ==============

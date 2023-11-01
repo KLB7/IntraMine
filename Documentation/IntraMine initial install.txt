@@ -10,7 +10,7 @@ You can clone it, or download a zip.
 
 IPv4 must be enabled
 ==================================================
-You can enable or disable IPv6 as you please and IntraMine will work. HOWEVER, IPv4 must be enabled. This is overwhelming the default. If you're not sure, run "ipconfig /all" at a command prompt and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an address such as 192.168.40.8 listed, you have IPv4 enabled.
+You can enable or disable IPv6 as you please and IntraMine will work. However, IPv4 must be enabled. This is overwhelming the default for new Windows installs (unless your company is very very concerned about security). If you're not sure, run "ipconfig /all" at a command prompt and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an NNN.NNN.NNN.NN address such as 192.168.40.8 listed, you have IPv4 enabled.
 
 To enable or disable IPv6 or IPv4: search on your PC for "Network connections", right-click on your network adapter and pick "Properties", and select or de-select IPv4 or IPv6. For pictures and more words, see "https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11".
 
@@ -36,15 +36,21 @@ data/
 ---
 which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update.
 
-
+From time to time additional configuration values are added to IntraMine. These are shipped in numbered configuration files in the '_copy_and_rename_to_data' folder. When you (re)start IntraMine, it copies any new such file to your data/ folder. The numbers are always new, so old configuration values are never overwritten. Blah blah I hear you say perhaps, but this was hard to figure out and I'm proud of it.
 
 Installing Strawberry Perl
 ==========================
+If you already have Strawberry Perl installed, whatever you have should be fine. However, I'm sorry that I can't predict how far back you can go. Anything before version 5.8 is not recommended, but that was released in 2002 and if your Perl is that old then something has gone wrong and it's time to upgrade.
+
+You can skip ahead slightly to "Installing additional Strawberry Perl modules" if you have Strawberry perl installed.
+
+If you don't have Strawberry Perl yet:
+
 Head off to
 ---
 http://strawberryperl.com/
 ---
-Download the "Recommended version" from the pink box on the right. IntraMine has been tested with Strawberry Perl 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.
+Download the "Recommended version" or "System installer version" from the pink box on the right. IntraMine has been tested with Strawberry Perl 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.
 Strawberry30.png
 (*the pink box is for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested*)
 
@@ -125,6 +131,8 @@ The last one on the list, Date::Business, will ask you to accept a licence agree
 
 Optional modules
 =================
+[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. Use the "EM" (Extract Method) service instead.]
+
 IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See "Other Perl programs.txt#extract_method.pl" for more.
 
 If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a command prompt:
@@ -133,6 +141,8 @@ cpan Tk::BrowseEntry
 ---
 You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.
 
+Use the "EM" (Extract Method) service instead
+-------------------------------
 NOTE as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see "EM.txt".
 
 Verifying module installation

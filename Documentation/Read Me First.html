@@ -1673,9 +1673,9 @@ span.ll-com { /* comments */
 <li class='h1' im-text-ln='1'><a href='#Read_Me_First'>Read Me First</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Read_Me_First">Read Me First</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
-<tr id='R4'><td n='4'></td><td>IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read. The images in those files, bracketed by yellow hummingbirds, will show if you pause your cursor over their links. They're done that way because otherwise you might not ever see any "<a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">image hovers</a>", which can be quite useful in source and text files.</td></tr>
+<tr id='R4'><td n='4'></td><td>IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read, with formatting and file links and images.</td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>Start by opening Documentation/<a href="./contents.html" target="_blank">contents.html</a> in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of <a href="./contents.html" target="_blank">contents.html</a> is a good place to start.</td></tr>
+<tr id='R6'><td n='6'></td><td>Start by opening "Documentation/<a href="./contents.html" target="_blank">contents.html</a>" in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of <a href="./contents.html" target="_blank">contents.html</a> is a good place to start.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>IntraMine itself can be found at</td></tr>
 <tr id='R9'><td n='9'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
@@ -1701,7 +1701,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1714,6 +1714,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5848,6 +5854,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

@@ -1681,43 +1681,87 @@ span.ll-com { /* comments */
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td><h2 id="Viewing_files_on_the_iPad">Viewing files on the iPad</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R10'><td n='10'></td><td>This is for read-only views, mainly brought up by touching a link in Search hits or under the Files tab. They are displayed by IntraMine's <a class='glossary' href="#" onmouseover="showhint('<p>Viewer: IntraMine&#8216;s read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see &quot;Documentation/Supplied services.txt#Viewer&quot;.</p>', this, event, '500px', false);">Viewer</a>, intramine_file_viewer.pl.</td></tr>
+<tr id='R10'><td n='10'></td><td>This is for read-only views, mainly brought up by touching a link in Search hits or under the Files tab. They are displayed by IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, intramine_file_viewer.pl.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>Selecting text: use a double-tap to select a word, or drag to select any amount of text. Single tapping will highlight, but won't select any text.</td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td><a class='glossary' href="#" onmouseover="showhint('<p>Image hovers: In IntraMine&#8216;s file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</p>', this, event, '500px', false);">Image hovers</a>: a brief touch on an image link such as <span href='./C:/perlprogs/IntraMine/Documentation/images/Strawberry30.png' onmouseOver="showhint('<img src=&quot;data:image/png;base64,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&quot;  />', this, event, '500px', true);"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAAAd0SU1FB9kKDwIHIwWU3GsAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5l
-dCA0LjEuNWRHWFIAAAI8SURBVDhPbZJrSNNhFMZ/q4lp5cwuSK6LZX5IbaWFKISSFtmFvoSXUSjS
-tLKkSAoCgwqxLL+UUsYi+2CoqTmslqQtU4uUDCGFLLykGfMvpsuVmrjev040th8ceHk4z8M5hxeZ
-7m+4tdZwaMNaVNOCndIsVB1lZFZlk7zOh0V22Tnj477HWoyKvtyTVG30xk9IClMJSvNL9J/eu9q+
-NLtOVWZTYMxjvzGHyKILhN1OJ/haEgGJ0XhS0BC+9O9E2Md3VUi30hhI3kOjegWB9XkEWE1Yeiqx
-DdZgq8imS7cX/VZfLm7fREaQL2ma9aSolxPExJ97Owet/v0Nj5HyMpBOHWQgJoS6Zj2GiXpscrUX
-Y/VYwm4xoYuoBfNKIQpGhioSh0fXmOvLRchppMs6hjLjGf7+hMnZkKKrNIpW+V5zxvm0tN1N7+xa
-2Wl8QN8NHf2pMfTnn8EyVjcTMPYG2yUtX2+mUN1QTIXF7JlzLl0dKKxzYSGaZaqoSHaEbiFms5rD
-ft5om+7QMTvFh4dMno/lZ1YS0ov7DAyPqMxxCatShVWeygE5WdFaQvDv1/ySAwafMxmhoSk+AvOV
-o0iGAqTezy59cbGLo+z9jth6UPQayJcDrK+YykykRcih0RoKxUrmZ3qk6qc0enniM+NwwtsifCy1
-/Bg1MXX9BO3ubuwT8kJ3FN7iPxSW5tK9K5w0oSmnDc5oe8SRrjKsZ7XUKpVECGl+s5f/auQ1/vvV
-Dhw/wDYPNxLEUx7X6eEcgX8MB93QHHZJTQAAAABJRU5ErkJggg==
-" width='17' height='12'  />"Strawberry30.png"<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAAAd0SU1FB9kKDwIIFtS/BIcAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5l
-dCA0LjEuNWRHWFIAAAI1SURBVDhPlZFfSFNhGMafbdSESmLIwkFNN7DozxEnDJYlLPojDgPLmUGI
-JVpJRRlTYUGYLhixmgktukk2oX8Ysgt1E8Vm0MqLabKLZOC02qFzcNuFbcuGp2/HMzC0i37w8PE9
-vO/zvS8f/kUFhdyh+2j+8hZmZwe2CTbPscPYFfLBEJiDlDcaKyCzNOLgk1sofdUG3cgD6IfsqPLa
-8HIukLManNzK0V7YuAWISLlIo4LG0Qrf7Kg4nEgV1vAhSjlKilW4XFyAaxo1TCVq3LlxGk7PQ3xn
-RsF9dYNbHkfMZUa+SoGyqwbMPm0FExgHk07rfe7pE/yU/AtE4nWSUmrUhQaQWJkEl9GIFc4qLaZv
-VoN91g72gxtsNEmFV1IOLanfQDYw321DIBsSeoHfbUbEOpsQJZOwH4fBJhJFkXj0jZHvEhA5eovK
-lhal9rE+DFouwmNpQDjlWwtJToDruoTYFQPonhZEPP34Nh9WhqZmHE1CP4+k8+6ebiYi/TH4GMy9
-erAmI+IzLqSz0wxb4S+Q49wBJc7qKJw6fhKl+7SyXKGfR9R+e0f9YlBMv34E1nwebO0R0HoKU3Ev
-VjMhyxNgvHYoMrWCNiLbif3vxxAc6AXbUQu6/BAcxNZZWxBMvQP3i6wWcsFEvM0DBKQXqtHdb8F8
-TTl6yD2PSLI9B2fIjywkSdCSB5/9z/HXCpsh36uAnpzrC7dIJKjsasaniBs//X04Kvj/TebbC3fn
-oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
-" width='17' height='12'  /></span> will open the image in a new tab. Touch and hold to see the popup hover.</td></tr>
+<tr id='R14'><td n='14'></td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EImage%20hovers%3C%2Fstrong%3E%3A%20In%20IntraMine%27s%20file%20views%20and%20under%20the%20Files%20page%2C%20if%20you%20pause%20your%20cursor%20over%20a%20linked%20image%20name%20a%20view%20of%20the%20image%20will%20pop%20up.%20It%20goes%20away%20when%20you%20move%20your%20mouse%20away.%20You%20can%20tell%20if%20an%20image%20is%20linked%2C%20it%20has%20little%20yellow%20hummingbirds%20around%20it.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Image%20hover%2C%20hover%20image%2C%20hover%20images%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Image hovers</a>: a brief touch on an image link such as <img src="data:image/png;base64,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
+AElFTkSuQmCC
+"  /> will open the image in a new tab. Touch and hold to see the popup hover.</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td>Find on page: to invoke the browser's Find command for a page, you'll need to hook up a keyboard. Try the various control keys plus "F", ... one of them should work.</td></tr>
 <tr id='R17'><td n='17'></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td><h2 id="Editing_files_via_the_iPad">Editing files via the iPad</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="showhint('<p>Editor: by default IntraMine&#8216;s built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers.</p>', this, event, '500px', false);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
+<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20autolinking%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
@@ -1749,7 +1793,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -1762,6 +1806,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 <script type="text/javascript">
 /**
@@ -5896,6 +5946,46 @@ function setImagesButtonText() {
 	let buttonText = (shouldInline) ? 'Hover Images' : 'Inline Images';
 	buttonElem.value = buttonText;
 }
+
+</script>
+<script type="text/javascript">
+// popup_image_cache.js: retrieve bin64 images from a Map.
+// The Map is created in gloss.pm when loading images for
+// popup glossary definitions. The goal is to have just
+// one stored instance of each image that's use in a popup
+// definition. Images are loaded into the popup definition
+// when the popup is shown.
+
+// Given popup hint text containing image placeholders such as '__img__cache__00007',
+// replace with bin64 image from imageCache.
+function loadCachedImages(text) {
+	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
+	const imagePositions = [];
+	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');
+	let match = {};
+	while ((match = cacheKeyRegExp.exec(text)) !== null)
+		{
+		let currentMatchPos = match.index;
+		imagePositions.push(currentMatchPos);
+		}
+		
+	// Loop through array in reverse, putting in images.
+	for (let i = imagePositions.length - 1; i >= 0; --i)
+		{
+		let imageKey = text.substr(imagePositions[i], keyLength);
+		if (imageCache.has(imageKey))
+			{
+			let bin64Image = imageCache.get(imageKey);
+			text = text.substr(0, imagePositions[i]) + bin64Image + text.substr(imagePositions[i] + keyLength);
+			}
+		}
+		
+	return(text);
+}
+
+</script>
+
+<script>const imageCache = new Map();
 
 </script>
 </body></html>

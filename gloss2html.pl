@@ -115,6 +115,7 @@ use FileHandle;
 use File::Slurp;
 use Encode;
 use Encode::Guess;
+use URI::Escape;
 use MIME::Base64 qw(encode_base64);
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -123,6 +124,7 @@ use intramine_config;
 use win_wide_filepaths;
 use win_user32_local;
 use ext;
+use gloss;
 
 
 my $firstArg = shift @ARGV;
@@ -2077,7 +2079,7 @@ let doubleClickTime = _DOUBLECLICKTIME_;
 let useLolight = true;
 //let weAreStandalone = true;
 </script>
-<script type="text/javascript">
+<script>
 	// Call fn when ready.
 	function ready(fn) {
 	  if (document.readyState != 'loading'){
@@ -2090,6 +2092,12 @@ let useLolight = true;
 	function getRandomInt(min, max) {
   		return Math.floor(Math.random() * (max - min + 1) + min);
 		}
+</script>
+<script>
+function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
+	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
+}
 </script>
 DONEIT
 
@@ -2132,7 +2140,11 @@ DONEIT
 	$$contents_R .= InlineJavaScriptForFile('dragTOC.js');
 	$$contents_R .= InlineJavaScriptForFile('lolight-1.4.0.min.js');
 	$$contents_R .= InlineJavaScriptForFile('viewer_hover_inline_images.js');
+	$$contents_R .= InlineJavaScriptForFile('popup_image_cache.js');
 
+	# Add the JS image cache.
+	my $imgCache = GetImageCache(); # gloss.pm#GetImageCache()
+	$$contents_R .= "\n<script>" . $imgCache . "\n</script>\n";
 	$$contents_R .= "</body></html>\n";
 	}
 
@@ -2494,6 +2506,101 @@ sub GetLineWordStartsAndEnds {
 # If the entry has synonyms, remove them from the term being defined and show them
 # as "Alt: " in a new paragraph at the bottom of the hint.
 sub GetReplacementHint {
+	my ($term, $originalText, $definitionAlreadySeen, $context) = @_;
+	my $host = undef;
+	my $port = undef;
+	my $VIEWERNAME = undef;
+	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
+	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
+	my $result = '';
+	
+	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
+	# otherwise it's a text popup using the $gloss verbatim.
+	my $glossaryImagePath = ImageNameFromGloss($gloss);
+	if ($glossaryImagePath ne '')
+		{
+		my $bin64Img = '';
+		ImageLinkQuoted($glossaryImagePath, $context, \$bin64Img);
+		$bin64Img =~ s!\n!!g; # JS doesn't like \n inside the image string
+		if ($bin64Img ne '')
+			{
+			$result = "<a class='$class' href=\"#\" onmouseOver=\"showhint('$bin64Img', this, event, '500px', true);\">$originalText</a>";
+			}
+		else
+			{
+			$result = $originalText;
+			}
+		}
+	else
+		{
+		my $glossed = '';
+		# If a glossary entry has synonyms, show just the relevant one at start of the
+		# $gloss entry, and show other synonyms in a new para at bottom of the entry.
+		if ($gloss =~ m!^<p>([^:]+)\:!)
+			{
+			my $terms = $1;
+			$terms =~ s!\*!!g;
+			my $termShown = '';
+			
+			my @synonyms = split(/,\s*/, $terms);
+			my $numSynonymsTotal = @synonyms;
+			my $altList = '';
+			$gloss =~ s!^<p>([^:]+):\s*!!; # Strip terms from start, up to just before ':'
+			$gloss =~ s!\<p>!!g;
+			$gloss =~ s!\</p>!\n!g;
+			chomp($gloss); # Get rid of trailing blank line.
+
+			if ($numSynonymsTotal > 1)
+				{
+				# Show term at start of gloss, then definition. Follow with synonyms.
+				my @otherSynonyms;
+				for (my $i = 0; $i < $numSynonymsTotal; ++$i)
+					{
+					my $lcTermFromGloss = lc($synonyms[$i]);
+					if ($lcTermFromGloss eq $term)
+						{
+						$termShown = ucfirst($synonyms[$i]);
+						}
+					else
+						{
+						push @otherSynonyms, $synonyms[$i];
+						}
+					}
+				
+				$altList = "\nAlt: " . join(', ', @otherSynonyms);
+				#$gloss .= $altList;
+				}
+			else
+				{
+				$termShown = ucfirst($synonyms[0]);
+				}
+
+			# Apply Gloss to the glossary entry (sorry about that);
+			Gloss("**$termShown**: " . $gloss . $altList, $host, $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context, undef, undef);
+
+			$glossed =~ s!&amp;#8216;!'!g;
+			$glossed =~ s!&amp;quot;!"!g;
+
+			$glossed = uri_escape_utf8($glossed);
+
+			#$glossed =~ s!&amp;#8216;!'!g;
+
+			# Spurious LF's, stomp them with malice.
+			$glossed =~ s!\%0A!!g;
+			$gloss = $glossed;
+			}
+		
+		$result = "<a class='$class' href=\"#\" onmouseover=\"loadAndShowHint('$gloss', this, event, '600px', false, true);\">$originalText</a>";
+		}
+	
+	return($result);
+	}
+
+# Return the full glossary definition, in an anchor element.
+# If the entry is just an image, put in the image as the hint.
+# If the entry has synonyms, remove them from the term being defined and show them
+# as "Alt: " in a new paragraph at the bottom of the hint.
+sub xGetReplacementHint {
 	my ($term, $originalText, $definitionAlreadySeen, $context) = @_;
 	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
 	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
