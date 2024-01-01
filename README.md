@@ -76,7 +76,7 @@ Here's how to do a simple table in a .txt file with Gloss:
 If your project involves more than just you, a usable glossary isn't just nice to have, it's essential. Now you can have rich popup definitions in all source and text files when displayed with IntraMine's Viewer or Editor. It's easy, see the [glossary_master.txt](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/glossary_master.txt) file at the top of the IntraMine folder for the how-to. The definition format is *term colon definition* and the definition can embrace several paragraphs, until the next paragraph with a colon.
 
 ### Write your own service
-[Write your own](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Writing$20your%20own%20IntraMine%20server.html)
+[Write your own](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Writing%20your%20own%20IntraMine%20server.html)
 For Windows Perl developers, write your own IntraMine services based on the examples provided and then run as many of each as you need as separate processes, concentrating on your callbacks, and JavaScript if needed. Two example services are provided, one static and one RESTful, in addition to 15 or so other services that actually do things.
 
 ### Free as in free
