@@ -71,7 +71,7 @@ If you've set USE_APP_FOR_REMOTE_EDITING to 1 and selected an editor for your RE
 5. Unblock Start-Editing.ps1, and punch a hole in your firewall on the remote PC 
 6. Run Start-Editing.ps1 each time before you start editing on your remote PC.
 
-Remote editing works best if the folders being shared from your IntraMine PC have also been indexed, since files must be indexed in order for autolinking to work fully. That way, partial paths presented by IntraMine's Viewer will have links. Without indexing, a file mention will need to be a full path to get a link.
+Remote editing works best if the folders being shared from your IntraMine PC have also been indexed, since files must be indexed in order for FLASH linking to work fully. That way, partial paths presented by IntraMine's Viewer will have links. Without indexing, a file mention will need to be a full path to get a link.
 
 Let's take those six steps one at a time.
 

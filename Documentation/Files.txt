@@ -10,7 +10,7 @@ This is mostly a standard two-panel directory view, though with popup image prev
 *The Files page*
 2019-12-03 18_09_20-Local Files.png
 
-There is one addition at the top of the page though, a text area with "Open" next to it: you can enter a file name here and open the file by hitting Open, and if it's the name of an indexed file that's unique you don't need to enter a partial path. Picking an indexed file at random on my system for example, "152_flake_check.pl" is uniquely named, so that's all I need to type in order to open it. If the file name isn't unique, you'll need to enter enough of a path to distinguish it from other files with the same name. The rules here are the same as for autolinking, as explained in Gloss.txt, except that there is no "context" directory to determine which file is closest. If the wanted file isn't in an indexed location, you'll need to enter the full path.
+There is one addition at the top of the page though, a text area with "Open" next to it: you can enter a file name here and open the file by hitting Open, and if it's the name of an indexed file that's unique you don't need to enter a partial path. Picking an indexed file at random on my system for example, "152_flake_check.pl" is uniquely named, so that's all I need to type in order to open it. If the file name isn't unique, you'll need to enter enough of a path to distinguish it from other files with the same name. The rules here are the same as for FLASH links, as explained in Gloss.txt, except that there is no "context" directory to determine which file is closest. If the wanted file isn't in an indexed location, you'll need to enter the full path.
 2019-12-03 18_05_02-Local Files.png
 
 Under the hood

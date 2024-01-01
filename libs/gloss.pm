@@ -1,5 +1,5 @@
 # gloss.pm: a module for Gloss, as used by the ToDo page.
-# And now also by IntraMine's glossary definition popups,
+# And now also by IntraMine's glossary popups,
 # see intramine_glossary.pm.
 # For usage, see Gloss.txt.
 # And see intramine_todolist.pl for an example of usage.
@@ -882,7 +882,6 @@ sub AddLinks {
                 $pathToCheck = substr($ext, 0, $anchorPos);
                 }
             
-            #my $fileExtension = GetTextOrImageExtensionNoPeriod($pathToCheck);
 			my $fileExtension = '';
 			if ($pathToCheck =~ m!\.(\w+)$!)
 				{
@@ -916,8 +915,6 @@ sub AddLinks {
 				if ($fullFilePath ne '')
 					{
 					$isFullKnownPath = 1;
-					#$extOriginal = $fullFilePath;
-					#$pathToCheck = $extOriginal; # A bit redundant, sorry.
 					}
 				}
 
@@ -955,8 +952,7 @@ sub AddLinks {
 					$haveGoodMatch = 1;
 					}
 				}
-           $haveGoodMatch = 1;
-            }
+             }
 
         if (!$haveGoodMatch)
             {

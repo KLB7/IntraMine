@@ -346,8 +346,13 @@ html[xmlns] #nav {
 	tab-size: 4;
 }
 
-#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4, #scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
 	display: inline;
+}
+
+#scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
+	padding-top: 6px;
+	padding-bottom: 3px;
 }
 
 #scrollContentsList .h1 {
@@ -1283,7 +1288,7 @@ position:absolute;
 top: 0;
 background-color: #FFFFF4;
 /*width: 150px; Default width of hint.*/ 
-padding: 6px;
+padding: 0; /* was 6px */
 /*border:1px solid black;*/
 font:normal 13px Verdana;
 line-height:18px;
@@ -1292,6 +1297,12 @@ z-index:100;
 border-bottom: 3px solid black;*/
 visibility: hidden;
 	
+overflow: auto;
+overflow-wrap: break-word;
+word-wrap: break-word;
+-ms-word-break: break-all;
+word-break: break-word;
+
 border: none;
 box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
@@ -1922,7 +1933,7 @@ function positionAndShowHint() {
 	let bestDirection = ds.bestDirection;
 	let scaleFactor = ds.scaleFactor;
 	
-	// For now, just scale images. Text tips are usually small enough.
+	// Scale image down to fit in window.
 	if (isAnImage)
 		{
 		if (scaleFactor < 1.0)
@@ -1932,7 +1943,7 @@ function positionAndShowHint() {
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
 		}
-
+	
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
@@ -1941,10 +1952,24 @@ function positionAndShowHint() {
 	hintElement.style.left = tl.left;
 	
 	// Scale image if it's really needed and we have good width and height.
-	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
+	if (isAnImage)
 		{
-		hintContents =
-			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintElement.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		}
+	// For text, shrink the height to fit within window if necessary.
+	else
+		{
+		hintElement.style.width = "650px";
+		if (tl.top + hintHeight > windowHeight)
+			{
+			let reducedHeight = windowHeight - tl.top;
+			hintElement.style.height = reducedHeight + "px";
+			}
+		else
+			{
+			hintElement.style.height = "auto";
+			}
 		}
 
 	hintElement.innerHTML = hintContents;
@@ -2278,7 +2303,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
-			hintElement.style.width = '';
+			hintElement.style.width = 'auto';
 			}
 		else
 			{
@@ -2363,7 +2388,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 }
 
 function handleMouseLeave() {
-	hidetip();
+	hideTip();
 }
 
 // If see src="something", return something, else "".
@@ -2396,12 +2421,12 @@ function hideTipIfMouseHasLeft(obj) {
 		}
 	else
 		{
-		hidetip();
+		hideTip();
 		}
 }
 
 function hideTipJustInCase(obj) {
-	hidetip();
+	hideTip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2440,9 +2465,12 @@ function recordMousePosition(evt) {
 	cursor_y = evt.pageY;
 }
 
-function hidetip(e) {
+function hideTip(e) {
 	hintElement.style.visibility = "hidden";
+	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
+	hintElement.style.width = "auto";
+	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -5872,7 +5900,7 @@ function setImagesButtonText() {
 <script type="text/javascript">
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.

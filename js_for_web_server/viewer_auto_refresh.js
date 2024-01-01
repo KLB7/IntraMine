@@ -33,8 +33,11 @@ function handleFileChanged(message) {
 		let timeStamp = currentResult[4];
 		pathFromMessage = decodeURIComponent(pathFromMessage);
 		pathFromMessage = pathFromMessage.replace(/%25/g, "%");
+
+		let lcTheEncodedPath = theEncodedPath.toLowerCase();
+		let lcPathFromMessage = pathFromMessage.toLowerCase();
 		
-		if (pathFromMessage === theEncodedPath)
+		if (lcPathFromMessage === lcTheEncodedPath)
 			{
 			// lineNumberStr > 0 means the Viewer should jump to that line
 			// number, 0 means don't jump (since line number is unknown).

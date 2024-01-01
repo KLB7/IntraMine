@@ -48,7 +48,7 @@ Links are restricted for ToDo items (by comparison with full autolinking as seen
  - directory links, also must be in quotes and full paths, eg "C:\Strawberry\perl\lib"
  - you do get the "pop up on hover" for image links, so if you pause your cursor over the image link a (possibly reduced) version of the image will appear. Images aren't shown inline in ToDo items because they are just too narrow.
 
-Full autolinking as seen with the Viewer isn't implemented for ToDo, mainly because there's no useful "context" for ToDo items.
+Full FLASH linking as seen with the Viewer isn't implemented for ToDo, mainly because there's no useful "context" for ToDo items.
 
 Please see also "Gloss.txt" if you haven't yet, you might enjoy using Gloss for your intranet documentation.
 

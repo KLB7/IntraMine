@@ -346,8 +346,13 @@ html[xmlns] #nav {
 	tab-size: 4;
 }
 
-#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4, #scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
 	display: inline;
+}
+
+#scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
+	padding-top: 6px;
+	padding-bottom: 3px;
 }
 
 #scrollContentsList .h1 {
@@ -1283,7 +1288,7 @@ position:absolute;
 top: 0;
 background-color: #FFFFF4;
 /*width: 150px; Default width of hint.*/ 
-padding: 6px;
+padding: 0; /* was 6px */
 /*border:1px solid black;*/
 font:normal 13px Verdana;
 line-height:18px;
@@ -1292,6 +1297,12 @@ z-index:100;
 border-bottom: 3px solid black;*/
 visibility: hidden;
 	
+overflow: auto;
+overflow-wrap: break-word;
+word-wrap: break-word;
+-ms-word-break: break-all;
+word-break: break-word;
+
 border: none;
 box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
@@ -1686,7 +1697,7 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='148'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
-<tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps as described below consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberry%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eperl.com%2F%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
+<tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberry%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eperl.com%2F%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
 <tr id='R6'><td n='6'></td><td>IntraMine is available at</td></tr>
 <tr id='R7'><td n='7'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
@@ -1950,7 +1961,7 @@ AABJRU5ErkJggg==
 <tr id='R147'><td n='147'></td><td></td></tr>
 <tr id='R148'><td n='148'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R150'><td n='150'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.</td></tr>
+<tr id='R150'><td n='150'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
 <tr id='R151'><td n='151'></td><td></td></tr>
 <tr id='R152'><td n='152'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20%22C%3A%5C%5CWindows%5C%5CSystem32%5Ccmd.exe%22%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
 <tr id='R153'><td n='153'></td><td></td></tr>
@@ -2194,7 +2205,7 @@ function positionAndShowHint() {
 	let bestDirection = ds.bestDirection;
 	let scaleFactor = ds.scaleFactor;
 	
-	// For now, just scale images. Text tips are usually small enough.
+	// Scale image down to fit in window.
 	if (isAnImage)
 		{
 		if (scaleFactor < 1.0)
@@ -2204,7 +2215,7 @@ function positionAndShowHint() {
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
 		}
-
+	
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
@@ -2213,10 +2224,24 @@ function positionAndShowHint() {
 	hintElement.style.left = tl.left;
 	
 	// Scale image if it's really needed and we have good width and height.
-	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
+	if (isAnImage)
 		{
-		hintContents =
-			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintElement.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		}
+	// For text, shrink the height to fit within window if necessary.
+	else
+		{
+		hintElement.style.width = "650px";
+		if (tl.top + hintHeight > windowHeight)
+			{
+			let reducedHeight = windowHeight - tl.top;
+			hintElement.style.height = reducedHeight + "px";
+			}
+		else
+			{
+			hintElement.style.height = "auto";
+			}
 		}
 
 	hintElement.innerHTML = hintContents;
@@ -2550,7 +2575,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
-			hintElement.style.width = '';
+			hintElement.style.width = 'auto';
 			}
 		else
 			{
@@ -2635,7 +2660,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 }
 
 function handleMouseLeave() {
-	hidetip();
+	hideTip();
 }
 
 // If see src="something", return something, else "".
@@ -2668,12 +2693,12 @@ function hideTipIfMouseHasLeft(obj) {
 		}
 	else
 		{
-		hidetip();
+		hideTip();
 		}
 }
 
 function hideTipJustInCase(obj) {
-	hidetip();
+	hideTip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2712,9 +2737,12 @@ function recordMousePosition(evt) {
 	cursor_y = evt.pageY;
 }
 
-function hidetip(e) {
+function hideTip(e) {
 	hintElement.style.visibility = "hidden";
+	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
+	hintElement.style.width = "auto";
+	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -6144,7 +6172,7 @@ function setImagesButtonText() {
 <script type="text/javascript">
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.

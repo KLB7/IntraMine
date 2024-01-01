@@ -1,6 +1,6 @@
 # intramine_glossary.pm: load and retrieve glossary definitions from glossary files.
 # Hints are shown in response to onmouseover, using tooltip.js#showhint().
-# See IntraMine's Documentation/Glossary definition popups.txt for usage.
+# See IntraMine's Documentation/Glossary popups.txt for usage.
 
 package intramine_glossary;
 require Exporter;

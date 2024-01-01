@@ -346,8 +346,13 @@ html[xmlns] #nav {
 	tab-size: 4;
 }
 
-#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4, #scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
 	display: inline;
+}
+
+#scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
+	padding-top: 6px;
+	padding-bottom: 3px;
 }
 
 #scrollContentsList .h1 {
@@ -1283,7 +1288,7 @@ position:absolute;
 top: 0;
 background-color: #FFFFF4;
 /*width: 150px; Default width of hint.*/ 
-padding: 6px;
+padding: 0; /* was 6px */
 /*border:1px solid black;*/
 font:normal 13px Verdana;
 line-height:18px;
@@ -1292,6 +1297,12 @@ z-index:100;
 border-bottom: 3px solid black;*/
 visibility: hidden;
 	
+overflow: auto;
+overflow-wrap: break-word;
+word-wrap: break-word;
+-ms-word-break: break-all;
+word-break: break-word;
+
 border: none;
 box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
@@ -1673,15 +1684,17 @@ span.ll-com { /* comments */
 <li class='h1' im-text-ln='1'><a href='#Read_Me_First'>Read Me First</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Read_Me_First">Read Me First</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
-<tr id='R4'><td n='4'></td><td>IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read, with formatting and file links and images.</td></tr>
+<tr id='R4'><td n='4'></td><td>IntraMine's documentation in the aptly named Documentation/ folder comes in .txt and .html formats. The .html versions are much nicer to read, with formatting and file links and images, glossary popups, tables of contents and other niceties.</td></tr>
 <tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>Start by opening "Documentation/<a href="./contents.html" target="_blank">contents.html</a>" in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of <a href="./contents.html" target="_blank">contents.html</a> is a good place to start.</td></tr>
+<tr id='R6'><td n='6'></td><td>Start by opening <a href="./contents.html" target="_blank">"contents.html"</a> in your browser, and all the links there will bring up .html versions. The "INSTALLING AND RUNNING INTRAMINE" section at the top of <a href="./contents.html" target="_blank">contents.html</a> will guide you through installing IntraMine. Begin with <a href="./IntraMine initial install.html" target="_blank">"IntraMine initial install.html"</a> and you'll be up and running in no time!</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
-<tr id='R8'><td n='8'></td><td>IntraMine itself can be found at</td></tr>
-<tr id='R9'><td n='9'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
-<tr id='R10'><td n='10'></td><td></td></tr>
-<tr id='R11'><td n='11'></td><td>Enjoy!</td></tr>
-<tr id='R12'><td n='12'></td><td>-KLB7@intramine.info</td></tr></table><p id='bottomShim'></p></div></div>
+<tr id='R8'><td n='8'></td><td>After installing IntraMine you might want to browse through the "INTRAMINE IMPORTANT BITS" section listed in <a href="./contents.html" target="_blank">"contents.html"</a>, especially if you want to use <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20links%3C%2Fstrong%3E%3A%20Briefly%2C%20IntraMine%20uses%20a%20complete%20list%20of%20paths%20to%20Elasticsearch-indexed%20files%2C%20and%20the%20notion%20of%20%22context%22%2C%20which%20is%20the%20folder%20containing%20the%20file%20where%20you%20are%20mentioning%20some%20other%20file%2C%20to%20generate%20a%20hyperlink%20to%20the%20file%20without%20your%20needing%20to%20type%20the%20full%20path%20to%20the%20file%2C%20or%20any%20special%20characters.%20Though%20putting%20links%20in%20double%20quotes%20helps%20readability%20in%20the%20original%20text.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%26quot%3BGloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThat%20was%20a%20bit%20brief%20wasn%27t%20it%3F%20Please%20see%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%26quot%3BGloss.html%26quot%3B%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%26quot%3BLinker.html%26quot%3B%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH links</a> or glossary popups in your work.</td></tr>
+<tr id='R9'><td n='9'></td><td></td></tr>
+<tr id='R10'><td n='10'></td><td>IntraMine can be found at</td></tr>
+<tr id='R11'><td n='11'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
+<tr id='R12'><td n='12'></td><td></td></tr>
+<tr id='R13'><td n='13'></td><td>Enjoy!</td></tr>
+<tr id='R14'><td n='14'></td><td>-KLB42@proton.me</td></tr></table><p id='bottomShim'></p></div></div>
 <script>
 let thePath = 'C:/perlprogs/IntraMine/Documentation/Read Me First.txt';
 let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/Read Me First.txt';
@@ -1909,7 +1922,7 @@ function positionAndShowHint() {
 	let bestDirection = ds.bestDirection;
 	let scaleFactor = ds.scaleFactor;
 	
-	// For now, just scale images. Text tips are usually small enough.
+	// Scale image down to fit in window.
 	if (isAnImage)
 		{
 		if (scaleFactor < 1.0)
@@ -1919,7 +1932,7 @@ function positionAndShowHint() {
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
 		}
-
+	
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
@@ -1928,10 +1941,24 @@ function positionAndShowHint() {
 	hintElement.style.left = tl.left;
 	
 	// Scale image if it's really needed and we have good width and height.
-	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
+	if (isAnImage)
 		{
-		hintContents =
-			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintElement.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		}
+	// For text, shrink the height to fit within window if necessary.
+	else
+		{
+		hintElement.style.width = "650px";
+		if (tl.top + hintHeight > windowHeight)
+			{
+			let reducedHeight = windowHeight - tl.top;
+			hintElement.style.height = reducedHeight + "px";
+			}
+		else
+			{
+			hintElement.style.height = "auto";
+			}
 		}
 
 	hintElement.innerHTML = hintContents;
@@ -2265,7 +2292,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
-			hintElement.style.width = '';
+			hintElement.style.width = 'auto';
 			}
 		else
 			{
@@ -2350,7 +2377,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 }
 
 function handleMouseLeave() {
-	hidetip();
+	hideTip();
 }
 
 // If see src="something", return something, else "".
@@ -2383,12 +2410,12 @@ function hideTipIfMouseHasLeft(obj) {
 		}
 	else
 		{
-		hidetip();
+		hideTip();
 		}
 }
 
 function hideTipJustInCase(obj) {
-	hidetip();
+	hideTip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2427,9 +2454,12 @@ function recordMousePosition(evt) {
 	cursor_y = evt.pageY;
 }
 
-function hidetip(e) {
+function hideTip(e) {
 	hintElement.style.visibility = "hidden";
+	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
+	hintElement.style.width = "auto";
+	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -5859,7 +5889,7 @@ function setImagesButtonText() {
 <script type="text/javascript">
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.

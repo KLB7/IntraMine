@@ -1,4 +1,5 @@
 # reverse_filepaths.pm: FullPathInContextNS() below implements the "auto" part of "autolink."
+# More specifically, FLASH links (see "Documentation/Gloss.html#Links").
 # This is done using a reverse index %FullPathsForFileName, which for each file name lists
 # all full paths that end in the file name.
 # Given a file name or a partial path that ends in the file name
@@ -32,7 +33,7 @@
 #
 # And autolinking_demo.pl at the top level of the IntraMine folder isolates the functions
 # in this file to show how they work on a small set of paths, reporting which function
-# found a good match.
+# found a good match. If you want to implement FLASH links, that's a good place to start.
 
 package reverse_filepaths;
 require Exporter;

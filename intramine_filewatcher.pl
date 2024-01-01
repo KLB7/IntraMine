@@ -480,7 +480,9 @@ sub GetLogChanges {
 		chomp($line);
 		$line = decode_utf8($line);
 		
-		if ($line =~ m!^\[([^\]]+)\]\s+\[Info\]\s+File[^\']+'([^']+)'!)
+		# Testing suggests (system generated) entries are always duplicates.
+		if ($line =~ m!^\[([^\]]+)\]\s+\[Info\]\s+File[^\']+'([^']+)'! &&
+			index($line, "(system generated)") < 0)
 			{
 			my $timestamp = $1;
 			my $pathProperCased = $2;

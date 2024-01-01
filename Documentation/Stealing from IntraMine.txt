@@ -2,8 +2,9 @@ Stealing from IntraMine
 =======================
 (If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)
 
-Those autolinks
+Those FLASH links
 ===============
+(Fast Local Automatic Source and text Hyperlinks)
 First, a definition: a "link specifier" for a file consists of the file name and zero or more folders in the path, not necessarily complete or in order, and an optional drive letter. For example, link specifiers for "C:Project51\src\main.cpp" are:
  - main.cpp
  - Project51\main.cpp
@@ -13,7 +14,7 @@ First, a definition: a "link specifier" for a file consists of the file name and
  - C:\Project51\src\main.cpp
 Whether or not a link specifier is ambiguous is determined by comparison with full paths to all the files you've instructed Elasticsearch to index, with a preference for the path that's closest to your "context" (the directory holding the file where you mention the link specifier).
 
-Here are the needed parts for autolinking:
+Here are the needed parts for FLASH links:
 1. A persistent complete list of full paths to all indexed files, hereafter the "full paths list"
 2. A rather larger in-memory list consisting of all full paths for each file name. For a uniquely named file there will be one full path, but for the inevitable "main.cpp" there could be hundreds or thousands of full paths. Called "paths for file names list" below.
 2.1 Looking ahead a bit, in IntraMine this is a hash with file names for the keys and a list of full paths, separated by '|', for the values, eg
@@ -25,7 +26,7 @@ Here's how IntraMine implements those.
 
 1. a complete list of full paths to all indexed files
 -----------------------------------------------------
-A list of full paths is essential for automatic linking and image hovers. IntraMine piggybacks path collection on Elasticsearch indexing, banking on the likelihood that files of interest for searching will also be the ones of interest for autolinking. Folders for indexing are listed in data/search_directories.txt, and any files indexed from those folders will also have their full paths collected.
+A list of full paths is essential for FLASH links and image hovers. IntraMine piggybacks path collection on Elasticsearch indexing, banking on the likelihood that files of interest for searching will also be the ones of interest for autolinking. Folders for indexing are listed in data/search_directories.txt, and any files indexed from those folders will also have their full paths collected.
 
 This happens in elastic_indexer.pl:
  - win_wide_filepaths.pm#DeepFindFileWide() is called on each folder to collect a list of all files, in %rawPathList
@@ -43,7 +44,7 @@ When InitDirectoryFinder() finishes, full paths for link specifiers can be retri
 
 3. Code to detect a link specifier
 ----------------------------------
-IntraMine's Linker, as called by the Viewer, emplaces autolinks on demand, when new lines of text become visible. You'll find an overview in "Viewer.txt#Autolinks" and "Linker.txt#Calling the Linker".
+IntraMine's Linker, as called by the Viewer, emplaces web and FLASH links etc on demand, when new lines of text become visible. You'll find an overview in "Viewer.txt#Autolinks" and "Linker.txt#Calling the Linker".
 
 We get down to brass tacks in intramine_linker.pl#AddWebAndFileLinksToLine() which looks for linkable text on a single line.
 AddWebAndFileLinksToLine() calls EvaluateLinkCandidates() to identify text that looks like links, and replacement links for the text. Then DoTextReps() or DoCodeMirrorReps() is called to do the replacement: DoTextReps() puts the links directly in the text to be returned, whereas DoCodeMirrorReps() constructs an array of positions and link text that will be returned as JSON to the calling JavaScript function, with links done in an overlay layer.
@@ -100,7 +101,7 @@ Running through the full path entries for main.cpp, all exact rightmost matches 
 
 4. a way of keeping the full paths list up to date
 --------------------------------------------------
-The practicality of autolinking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:
+The practicality of FLASH linking depends on being able to detect changes to the file system without having to loop through all files in a directory to see if any have changed. Fortunately, Microsoft has provided a way of detecting file changes with near zero overhead: basically you subscribe to a change notifier and changes are pushed out to you when they happen. This is the .NET System.IO.FileSystemWatcher class. IntraMine uses it in two places:
  - the 3rd party File Watcher service that you installed ages ago monitors directories and writes a summary of changes to a log file. IntraMine's Watcher checks the log file for changes every 30 seconds, and calls IndexChangedFiles() if the log has changed.
  - data/foldermonitor.ps1 is started by IntraMine's Watcher (intramine_filewatcher.pl), and rather than writing changes to a log when they happen it instead sends an immediate signal to IntraMine's Watcher, of the form "http://localhost:port/Watcher/?signal=FILESYSTEMCHANGE". When the Watcher receives that signal it also calls IndexChangedFiles().
 
@@ -116,7 +117,7 @@ IntraMine's approach to handling this is to completely rebuild the Linker's hash
 
 To partially compensate, IntraMine's Main server will direct Linkers to do their maintenance in sequence if at least two Linkers are running. That way, at least one Linker will remain responsive at all times. Search IntraMine's stuff for "MAINTENANCE_SERVER_EVENTS" to see the details.
 
-If you're doing your own autolinks, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.
+If you're doing your own version of FLASH linking, I'd suggest making a study of the "folder rename problem" for your implementation. An alternative, for example, might be to keep a list of original and renamed folder paths, correcting retrieved full paths on the fly, with a full update of stored paths taking place separately.
 
 Text from Perl to JavaScript and back
 =====================================

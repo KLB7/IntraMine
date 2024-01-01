@@ -4,7 +4,7 @@ This is about IntraMine's built-in Editor, with intramine_editor.pl on the back 
 
 To configure editing with IntraMine, see "Editing documents.txt". Basically you can set things up so that clicking on a "pencil" icon next to a file name will bring up either IntraMine's Editor (the default), or the editor of your choice.
 
-The Editor is fairly minimal, but includes syntax highlighting, autolinks and image hovers, and of course the ability to Save. There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
+The Editor is fairly minimal, but includes syntax highlighting, FLASH links and image hovers, and of course the ability to Save. There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
 TABLE
 Action			Keys
 Save			Ctrl+S

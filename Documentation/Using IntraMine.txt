@@ -13,9 +13,9 @@ For normal use, let IntraMine run 24/7.
 
 Visit IntraMine with your browser
 =================================
-Go to http://localhost:81/Search (use your main port number, if you decided not to use 81. Or you can go to some other running page such as "ToDo" or "Status", just substitute that for "Search" in the URL.
+Go to http://localhost:81/Search (use your main port number, if you decided not to use 81). Or you can go to some other running page such as "ToDo" or "Status", just substitute that for "Search" in the URL.
 
-To visit IntraMine from a different PC, substitute the LAN IP of your IntraMine PC for "localhost". (Run "ipconfig /all" to discover the Local IP address of a PC. And this is the best example of telling you things you already know, as I predicted in "Read Me First.txt".)
+To visit IntraMine from a different PC, substitute the LAN IP of your IntraMine PC for "localhost". (Run "ipconfig /all" on your IntraMine PC in a command window to discover the Local "IPv4 Address".)
 
 The Navigation Bar
 ==================
@@ -49,12 +49,16 @@ Count	Page name			Short name	Program						Option	Docs
 1		DBX					DBX			intramine_db_example.pl	 	DBX.txt
 1		Bp					Bp			intramine_boilerplate.pl	 	Bp.txt
 1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
+0		Chat				Chat		intramine_chat.pl			 	Chat.txt
+1		EM					EM			intramine_EM.pl 			EM.txt
 0		SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND	SSE.txt
-(SSE is deprecated, and has been replaced by a WebSockets service. See WS.txt for details.)
+(SSE is deprecated, and has been replaced by a WebSockets service "WS" which is always started. See WS.txt for details.)
 
 The "Count" field controls how many of each server to start.
 
 To disable a server, set its "Count" field to 0 in data/serverlist.txt.
+
+Only one instance of a BACKGROUND service can be run, so the Count values for a service such as FILEWATCHER are basically zero to not run and non-zero to run.
 
 To start, stop, restart or add a service on the fly, use the Status page. PERSISTENT and BACKGROUND service counts must be adjusted in data/serverlist.txt and a restart of IntraMine is required for the changes to take effect.
 
@@ -88,17 +92,42 @@ To avoid swamping IntraMine's Watcher, stop IntraMine with bats/STOP_INTRAMINE.b
  - treat the folder where you've added files as an "additional folder", and follow the steps just above for adding a folder to be indexed, pretending that the folder you just added files to is an "additional" folder. This will re-index older files in the folder as well as indexing newly added files, but that's harmless.
  - or completely re-index all files by running bats/IM_INIT_INDEX.bat. This will take a fair bit longer probably, but involves less fussing: in particular there's no need to change data/search_directories.txt.
 
-Having warned about adding too many files at once to an indexed folder, I should add that IntraMine's theoretical "swamp limit" should be on the order of 40,000 files. But I haven't tested it. I *have* tested adding about 4,000 files to an indexed folder while IntraMine was running, and everything was fine.
+Having warned about adding too many files at once to an indexed folder, I should add that IntraMine's theoretical "swamp limit" should be on the order of 40,000 files at one time. But I haven't tested it. I *have* tested adding about 4,000 files to an indexed folder while IntraMine was running, and everything was fine.
 
 If IntraMine's Watcher goes DEAD, this typically means it's very very busy indexing newly added files. Give it a while, and it will probably recover (worst case about an hour). If it does recover, no file additions or changes will have been skipped. If it doesn't, your best recourse is to blow away your current Elasticsearch index and full paths list and rebuild them, by running bats/IM_INIT_INDEX.bat (Run as administrator, see "Build your Elasticsearch index and run IntraMine.txt#Index and run").
 
 More to explore
 ===============
-**Gloss**. If you like the idea of using some sort of markdown for your internal documents, but want something with very little overhead and unforgettable syntax that goes the extra mile, take a look at "Gloss.txt".
+### FLASH links
+(Fast Local Automatic Source and text Hyperlinks)
+Type just the file name and get the right link: how can that work? IntraMine knows the full paths to all files of interest to you, and when there's more than one matching file it picks the one closest to where you're writing. "Closest" means the the minimum number of directory moves up and down to get from where you're typing to your intended target file. In rare cases where that's not enough you can supply all or part of the path to the target file: the path need not be complete, the directory names need not be in order. In text files and source file comments you don't even need quotes, unless you've included '#' followed by a function or class or header name. Here's one: contents.html.
+For the details, see "Gloss.html#Links".
 
-Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style text documents to single-file completely standalone HTML. You get all of Gloss's standard features, plus the option of inlining images rather than having them pop up on a hover, and glossary popup support for "technical terms". You should find they look good enough for in-house documentation, and even for Help files on the web. 
+### Glossary popups
+Why aren't you using a glossary? Possibly because it's a bit tedious: you see a term you're not sure about, open the glossary, and find it in alphabetical order (maybe), then go back to reading. How about this instead: you see a term, you know it's in the glossary because it has a subtle dotted underline, you pause your mouse over it, and the definition instantly pops up with a mix of styled text, clickable links, images, tables, lists, and a scroll bar if needed. Better, right? All glossary entries are automatically available in all source and text files on your PC or LAN when the file is viewed with IntraMine. Typing up a glossary definition is as easy as putting *term colon definition* in a file called "glossary_master.txt".
+The details are in "Glossary popups.html".
 
-**Write your own IntraMine server**. IntraMine takes care of basic issues such as HTTP communications, so you're free to write the interesting parts. See "Writing your own IntraMine server.txt".
+gloss1.png
+*An image of a glossary popup, showing off Gloss for the formatting. Pause your mouse over "Gloss" in the previous sentence and you'll see a real glossary popup.*
+
+### Fast system-wide search
+IntraMine uses Elasticsearch (https://www.elastic.co/what-is/elasticsearch) to provide near-instant search of all your source and text files (which could easily number half a million these days), with index updates in five seconds. Search results show links to matching files, with a bit of context around the first hit in each file to give you a better assessment. You can limit searches by language or directory, but there's no need to do that for speed.
+Details are in "Search.html".
+
+### Gloss for markdown
+If you like the idea of using some sort of markdown for your internal documents, but want something with very little overhead and memorable syntax that makes things like links and tables as easy as possible, take a look at "Gloss.txt".
+
+Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style text documents to single-file completely standalone HTML. You get all of Gloss's standard features, plus the option of inlining images rather than having them pop up on a hover, and glossary popup support for definitions and procedures. You should find they look good enough for in-house documentation, and even for Help files on the web.
+See "gloss2html.pl for standalone Gloss files.html".
+
+### A truly nice file Viewer
+Pause your cursor over Viewer to see a brief overview. Details in Viewer.html.
+
+### A simple but useful Editor
+IntraMine's Editor isn't fancy, but it's good enough for editing .txt files. These could be your personal development notes, or a set of documents marked up with Gloss that you'll be sharing with others. If a file is also open in the Viewer then the view will refresh immediately when you save using the Editor, so you can see a fully rendered preview as you work. If you close an Editor tab for a file without saving, when you re-open the file you'll have the option of restoring unsaved changes.
+
+### Write your own IntraMine server
+IntraMine takes care of basic issues such as HTTP communications, so you're free to write the interesting parts. See "Writing your own IntraMine server.txt".
 
 ---
 contents.txt

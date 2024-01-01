@@ -5,8 +5,8 @@
 # Supply a single file path To a Gloss .txt file, or a folder holding all of your
 # Gloss files, as an argument to this program. If you want images to be expanded (rather
 # than popping up if you hover over a link) supply a second argument of -i or -inline.
-# A Gloss file is just a .txt file that uses Gloss for markup, see Documentation/Gloss.txt for
-# all the details. Gloss is a Markdown variant emphasizing minimal overhead, and autolinks.
+# A Gloss file is just a .txt file that uses Gloss for markup, see also Documentation/Gloss.txt for
+# additional details. Gloss is a Markdown variant emphasizing minimal overhead, and autolinks.
 # "Self contained" means all CSS, JavaScript and even images are jammed into the HTML file,
 # leaving no dependencies on other files. See StartHtmlFile() for inlined CSS files,
 # and EndHtmlFile() for inlined JS files.
@@ -59,6 +59,12 @@
 # produce a link.
 # NOTE: A link to another file in your Context folder will be generated only if
 # the file name has a .txt or .html or .png/.jpg/.jpeg/.gif/.webp extension.
+#
+# Additional image locations
+############################
+# Although the /images/ subfolder is the best location for your images, you can also
+# pull in images from IntraMine's /images_for_web_server/ folder, and more importantly
+# from your "common" images folder, which by default is C:/Common/Images/.
 
 # Using the resulting HTML files
 ################################
@@ -93,13 +99,15 @@
 # and terms receive a subtle underline.
 # For details see "gloss2html.pl for standalone Gloss files.txt#Adding a glossary"
 
-# Usage
+# Usage examples
 # Example cmd lines for a whole folder, and for one file (change the paths!):
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation"
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation\gloss.txt"
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation\Read Me First.txt"
 # With images inlined:
+# Currently used to generate IntraMine's HTML documentation:
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i
+#
 # perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\Documentation\gloss.txt"
 
 
@@ -422,8 +430,14 @@ sub GetPrettyText {
 			UnorderedList(\$lines[$i], \$unorderedListDepth);
 			OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
 			
+		# Hashed heading eg ## Heading.
+		if ($lines[$i] =~ m!^#+\s+!)
+			{
+			Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
+			$justDidHeadingOrHr = 1;
+			}
 			# Underlines -> hr or heading. Heading requires altering line before underline.
-			if ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
+			elsif ($i > 0 && $lines[$i] =~ m!^[=~-][=~-]([=~-]+)$!)
 				{
 				my $underline = $1;
 				if (length($underline) <= 2) # ie three or four total
@@ -571,7 +585,7 @@ sub AddEmphasis {
 	# OK hand sign: &#128076;
 	# Hand pointing right: &#9755;
 	# Light bulb: &#128161;
-	# Smiling face: &#9786;
+	# Smiling face: &#128578;
 	
 	$$lineR =~ s!(TODO)!<span class='notabene'>\&#127895;$1</span>!;		
 	$$lineR =~ s!(REMINDERS?)!<span class='notabene'>\&#127895;$1</span>!;
@@ -582,7 +596,8 @@ sub AddEmphasis {
 	$$lineR =~ s!(IDEA\!)!<span class='textSymbol' style='color: Gold;'>\&#128161;</span>$1!;
 	$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 	$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
-	$$lineR =~ s!\:\)!<span class='textSymbol' style='background-color: Gold;'>\&#9786;</span>!;
+	$$lineR =~ s!\:\)!<span class='textSymbol' style='color: DarkGreen;'>\&#128578;</span>!; # or \&#9786;
+	# No good, messes up glossary popup: $$lineR =~ s!FLASH!F<span class='smallCaps'>LASH</span>!g;
 	}
 
 # Bulleted lists start with space? hyphen hyphen* space? then not-a-hyphen, and then anything goes.
@@ -742,7 +757,139 @@ sub Underline {
 	}
 
 # Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+# Note if doing underlined header then line before will have td etc, but
+# if doing # header then the line we're on will be plain text.
+# Note line counts as # header only if the #'s are followed by at least one space.
 sub Heading {
+	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
+
+	# Use text of header for anchor id if possible.
+	my $isHashedHeader = 0; #  ### header vs underlined header
+	my $beforeHeader = '';
+	my $headerProper = '';
+	my $afterHeader = '';
+	my $headerLevel = 0;
+	# ### style heading, heading is on $lineR.
+	if ($$lineR =~ m!^(#.+)$!)
+		{
+		$isHashedHeader = 1;
+		$beforeHeader = '';
+		my $rawHeader = $1;
+		$afterHeader = '';
+		$rawHeader =~ m!^(#+)!;
+		my $hashes = $1;
+		$headerLevel = length($hashes);
+		if ($i <= 1) # right at the top of the document, assume it's a document title <h1>
+			{
+			$headerLevel = 1;
+			}
+		$rawHeader =~ s!^#+\s+!!;
+		$headerProper = $rawHeader;
+		}
+	# Underlined heading, heading is on $lineBeforeR.
+	elsif ($$lineBeforeR =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)(.*?)(</td></tr>)$!)
+		{
+		$beforeHeader = $1;
+		$headerProper = $2;
+		$afterHeader = $3;
+		if (substr($underline,0,1) eq '=')
+			{
+			$headerLevel = 2;
+			}
+		elsif (substr($underline,0,1) eq '-')
+			{
+			$headerLevel = 3;
+			}
+		elsif (substr($underline,0,1) eq '~')
+			{
+			$headerLevel = 4;
+			}
+		if ($i == 1) # right at the top of the document, assume it's a document title <h1>
+			{
+			$headerLevel = 1;
+			}
+		}
+
+	# Mark up as an ordinary line and return if no header pattern matched.
+	if (!defined($headerProper) || $headerProper eq '')
+		{
+		++$i; # Convert to 1-based line number.
+		my $rowID = 'R' . $i;
+		$$lineR = "<tr id='$rowID'><td n='$i'></td><td>" . $$lineR . '</td></tr>';
+		return;
+		}
+	
+	my ($jumperHeader, $id) = GetJumperHeaderAndId($headerProper, $jumpListA, $sectionIdExistsH);
+
+	my $contentsClass = 'h' . $headerLevel;
+	
+	# For ### hash headers we link to $i+1, for underlined link to $i.
+	# im-text-ln is short for IntraMine text line.
+	# Note $i is 0-based, but im-text-ln is 1-based, so $i refers to line $i-1.
+	if ($isHashedHeader)
+		{
+		++$i; # $i is now a 1-based line number.
+		my $rowID = 'R' . $i;
+		$$lineR = "<tr id='$rowID'><td n='$i'></td><td>" . "<$contentsClass id=\"$id\">$headerProper</$contentsClass>" . '</td></tr>';
+		}
+	else
+		{
+		# Turn the underline into a tiny blank row, make line before look like a header
+		$$lineR = "<tr class='shrunkrow'><td></td><td></td></tr>";
+		$$lineBeforeR = "$beforeHeader<$contentsClass id=\"$id\">$headerProper</$contentsClass>$afterHeader";
+		# Back out any "outdent" wrapper that might have been added, for better alignment.
+		if ($jumperHeader =~ m!^<p!)
+			{
+			$jumperHeader =~ s!^<p[^>]*>!!;
+			$jumperHeader =~ s!</p>$!!;
+			}
+		}
+	
+	my $jlStart = "<li class='$contentsClass' im-text-ln='$i'><a href='#$id'>";
+	my $jlEnd = "</a></li>";
+	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
+	}
+
+# $jumperHeader is $headerProper (orginal header text) with HTML etc removed.
+# $id also has unicode etc removed, and is forced to be unique.
+sub GetJumperHeaderAndId {
+	my ($headerProper, $jumpListA, $sectionIdExistsH) = @_;
+
+	my $id = $headerProper;
+	# Remove leading white from header, it looks better.
+	$headerProper =~ s!^\s+!!;
+	$headerProper =~ s!^&nbsp;!!g;
+	# A minor nuisance, we have span, strong, em wrapped around some or all of the header, get rid of that in the id.
+	# And thanks to links just being added, also remove <a ...> and </a> and <img ...>.
+	# Rev, remove from both TOC entry and id.
+	$id =~ s!<[^>]+>!!g;
+	$id =~ s!^\s+!!;
+	$id =~ s!\s+$!!;
+	$id =~ s!\t+! !g;
+	my $jumperHeader = $id;				
+	$id =~ s!\s+!_!g;
+	# File links can have &nbsp; Strip any leading ones, and convert the rest to _.
+	$id =~ s!^&nbsp;!!;
+	$id =~ s!&nbsp;!_!g;
+	$id =~ s!_+$!!;
+	# Quotes don't help either.
+	$id =~ s!['"]!!g;
+	# Remove unicode symbols from $id, especially the ones inserted by markdown above, to make
+	# it easier to type the headers in links. Eg 'server swarm.txt#TODO_List' for header '&#127895;TODO List'.
+	$id =~ s!\&#\d+;!!g; # eg &#9755;
+
+	if ($id eq '' || defined($sectionIdExistsH->{$id}))
+		{
+		my $anchorNumber = @$jumpListA;
+		$id = "hdr_$anchorNumber";
+		}
+	$sectionIdExistsH->{$id} = 1;
+
+	return($jumperHeader, $id);
+	}
+
+# Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+sub xHeading {
 	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
 	
 	# Use text of header for anchor id if possible.
@@ -1262,6 +1409,11 @@ sub EvaluateLinkCandidates {
 	my $previousRevEndPos = $len;
 	my $haveGoodMatch = 0; # check-back distance is not adjusted if there is no good current match.
 
+	# Look for:
+	# ".ext#optional heading"
+	# 'ext#optional heading'
+	# .ext up to 7 chars
+	# http:// or https://
 	while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
@@ -1447,7 +1599,7 @@ sub CheckForTextOrImageFile {
 	# (Note to self, using ^.{}... might be faster.)
 	my $revStrToSearch = substr($revLine, $revPos, $previousRevEndPos - $revPos + 1);
 	
-	# Good break points for hunt are [\\/ ], and [*?"<>|\t] end the hunt. NOTE not accouting for paths in "" or '' yet.
+	# Good break points for hunt are [\\/ ], and [*?"<>|\t] end the hunt. NOTE not accounting for paths in "" or '' yet.
 	# For image files only, we look in a couple of standard places for just the file name.
 	# This can sometimes be expensive, but we look at the standad locations only until
 	# either a slash is seen or a regular mention is found.
@@ -2274,7 +2426,7 @@ sub ImageBase64 {
 	$$encContentsR = encode_base64(ReadBinFileWide($filePath));
 	}
 
-{ ##### Glossary loading and hash of glossary entries
+{ ##### Glossary load, evaluate, and add entries for terms when seen in text.
 my $GlossaryFileName;
 my $GlossaryHtmlName;
 my $GlossaryPath;
@@ -2515,7 +2667,7 @@ sub GetReplacementHint {
 	my $result = '';
 	
 	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
-	# otherwise it's a text popup using the $gloss verbatim.
+	# otherwise apply GLoss (IntraMine's Markdown variant for intranet use).
 	my $glossaryImagePath = ImageNameFromGloss($gloss);
 	if ($glossaryImagePath ne '')
 		{
@@ -2591,72 +2743,6 @@ sub GetReplacementHint {
 			}
 		
 		$result = "<a class='$class' href=\"#\" onmouseover=\"loadAndShowHint('$gloss', this, event, '600px', false, true);\">$originalText</a>";
-		}
-	
-	return($result);
-	}
-
-# Return the full glossary definition, in an anchor element.
-# If the entry is just an image, put in the image as the hint.
-# If the entry has synonyms, remove them from the term being defined and show them
-# as "Alt: " in a new paragraph at the bottom of the hint.
-sub xGetReplacementHint {
-	my ($term, $originalText, $definitionAlreadySeen, $context) = @_;
-	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
-	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
-	my $result = '';
-	
-	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
-	# otherwise it's a text popup using the $gloss verbatim.
-	my $glossaryImagePath = ImageNameFromGloss($gloss);
-	if ($glossaryImagePath ne '')
-		{
-		my $bin64Img = '';
-		ImageLinkQuoted($glossaryImagePath, $context, \$bin64Img);
-		$bin64Img =~ s!\n!!g; # JS doesn't like \n inside the image string
-		if ($bin64Img ne '')
-			{
-			$result = "<a class='$class' href=\"#\" onmouseOver=\"showhint('$bin64Img', this, event, '500px', true);\">$originalText</a>";
-			}
-		else
-			{
-			$result = $originalText;
-			}
-		}
-	else
-		{
-		# If a glossary entry has synonyms, show just the relevant one at start of the
-		# $gloss entry, and show other synonyms in a new para at bottom of the entry.
-		if ($gloss =~ m!^<p>([^:]+)\:!)
-			{
-			my $terms = $1;
-			$terms =~ s!\*!!g;
-			my @synonyms = split(/,\s*/, $terms);
-			my $numSynonymsTotal = @synonyms;
-			if ($numSynonymsTotal > 1)
-				{
-				$gloss =~ s!^<p>([^:]+)!!; # Strip terms from start, up to just before ':'
-				# Show term at start of gloss, then definition. Follow with synonyms.
-				my $termShown = '';
-				my @otherSynonyms;
-				for (my $i = 0; $i < $numSynonymsTotal; ++$i)
-					{
-					my $lcTermFromGloss = lc($synonyms[$i]);
-					if ($lcTermFromGloss eq $term)
-						{
-						$termShown = ucfirst($synonyms[$i]);
-						}
-					else
-						{
-						push @otherSynonyms, $synonyms[$i];
-						}
-					}
-				my $altList = "<p>Alt: " . join(', ', @otherSynonyms) . "</p>";
-				$gloss = '<p>' . $termShown . $gloss . $altList;
-				}
-			}
-		
-		$result = "<a class='$class' href=\"#\" onmouseover=\"showhint('$gloss', this, event, '500px', false);\">$originalText</a>";
 		}
 	
 	return($result);

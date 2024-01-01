@@ -346,8 +346,13 @@ html[xmlns] #nav {
 	tab-size: 4;
 }
 
-#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4, #scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
 	display: inline;
+}
+
+#scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
+	padding-top: 6px;
+	padding-bottom: 3px;
 }
 
 #scrollContentsList .h1 {
@@ -1283,7 +1288,7 @@ position:absolute;
 top: 0;
 background-color: #FFFFF4;
 /*width: 150px; Default width of hint.*/ 
-padding: 6px;
+padding: 0; /* was 6px */
 /*border:1px solid black;*/
 font:normal 13px Verdana;
 line-height:18px;
@@ -1292,6 +1297,12 @@ z-index:100;
 border-bottom: 3px solid black;*/
 visibility: hidden;
 	
+overflow: auto;
+overflow-wrap: break-word;
+word-wrap: break-word;
+-ms-word-break: break-all;
+word-break: break-word;
+
 border: none;
 box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
@@ -1675,6 +1686,9 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='10'><a href='#How_it_works'>How it works</a></li>
 <li class='h2' im-text-ln='23'><a href='#File_consolidation'>File consolidation</a></li>
 <li class='h3' im-text-ln='27'><a href='#Configuring_file_consolidation'>Configuring file consolidation</a></li>
+<li class='h1' im-text-ln='31'><a href='#For_FILEWATCHER,_the_local_start_and_end_times_for_when'>For FILEWATCHER, the local start and end times for when</a></li>
+<li class='h1' im-text-ln='32'><a href='#path_consolidation_is_allowed._Default_3_AM_to_5_AM.'>path consolidation is allowed. Default 3 AM to 5 AM.</a></li>
+<li class='h1' im-text-ln='33'><a href='#Allow_a_window_of_at_least_two_hours.'>Allow a window of at least two hours.</a></li>
 <li class='h2' im-text-ln='39'><a href='#API'>API</a></li>
 <li class='h3' im-text-ln='43'><a href='#Respond_to_signal_that_the_file_system_has_changed'>Respond to signal that the file system has changed</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="FILEWATCHER">FILEWATCHER</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1695,7 +1709,7 @@ span.ll-com { /* comments */
 <tr id='R17'><td n='17'></td><td><p class="outdent-unordered">&nbsp;&bull; loads details of the changes from the File Watcher service log</p></td></tr>
 <tr id='R18'><td n='18'></td><td><p class="outdent-unordered">&nbsp;&bull; uses the details to ask <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> to index affected files</p></td></tr>
 <tr id='R19'><td n='19'></td><td><p class="outdent-unordered">&nbsp;&bull; saves a list of any new file paths</p></td></tr>
-<tr id='R20'><td n='20'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, which updates its full and <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPartial%20path%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20autolinking%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%26amp%3B%23xA789%3B%5CCpp%5COtherProjects%5CProject51%5Csrc%5Cmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20file%20specifier%2C%20link%20specifier%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">partial path</a> lists for <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinking%3C%2Fstrong%3E%3A%20Briefly%2C%20IntraMine%20uses%20a%20complete%20list%20of%20paths%20to%20Elasticsearch-indexed%20files%2C%20and%20the%20notion%20of%20%22context%22%2C%20which%20is%20the%20folder%20containing%20the%20file%20where%20you%20are%20mentioning%20some%20other%20file%2C%20to%20generate%20a%20hyperlink%20to%20the%20file%20without%20your%20needing%20to%20type%20the%20full%20path%20to%20the%20file%2C%20or%20any%20special%20characters.%20Though%20putting%20links%20in%20double%20quotes%20helps%20readability%20in%20the%20original%20text.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20autolink%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%26quot%3BGloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThat%20was%20a%20bit%20brief%20wasn%27t%20it%3F%20Please%20see%20%22Gloss.html%22%20and%20%22Linker.html%22%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20autolinking%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinking</a></p></td></tr>
+<tr id='R20'><td n='20'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%26quot%3BViewer.html%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, which updates its full and <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPartial%20path%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20FLASH%20links%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%26amp%3B%23xA789%3B%5CCpp%5COtherProjects%5CProject51%5Csrc%5Cmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20file%20specifier%2C%20link%20specifier%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">partial path</a> lists for <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20links%3C%2Fstrong%3E%3A%20Briefly%2C%20IntraMine%20uses%20a%20complete%20list%20of%20paths%20to%20Elasticsearch-indexed%20files%2C%20and%20the%20notion%20of%20%22context%22%2C%20which%20is%20the%20folder%20containing%20the%20file%20where%20you%20are%20mentioning%20some%20other%20file%2C%20to%20generate%20a%20hyperlink%20to%20the%20file%20without%20your%20needing%20to%20type%20the%20full%20path%20to%20the%20file%2C%20or%20any%20special%20characters.%20Though%20putting%20links%20in%20double%20quotes%20helps%20readability%20in%20the%20original%20text.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%26quot%3BGloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThat%20was%20a%20bit%20brief%20wasn%27t%20it%3F%20Please%20see%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%26quot%3BGloss.html%26quot%3B%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%26quot%3BLinker.html%26quot%3B%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH links</a></p></td></tr>
 <tr id='R21'><td n='21'></td><td><p class="outdent-unordered">&nbsp;&bull; broadcasts 'signal=filechange' to all IntraMine servers: the Status server in particular will respond by reloading its displayed list of recent file changes.</p></td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td><h2 id="File_consolidation">File consolidation</h2></td></tr>
@@ -1710,9 +1724,9 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R31'><td n='31'></td><td># For FILEWATCHER, the local start and end times for when</td></tr>
-<tr id='R32'><td n='32'></td><td># path consolidation is allowed. Default 3 AM to 5 AM.</td></tr>
-<tr id='R33'><td n='33'></td><td># Allow a window of at least two hours.</td></tr>
+<tr id='R31'><td n='31'></td><td><h1 id="For_FILEWATCHER,_the_local_start_and_end_times_for_when">For FILEWATCHER, the local start and end times for when</h1></td></tr>
+<tr id='R32'><td n='32'></td><td><h1 id="path_consolidation_is_allowed._Default_3_AM_to_5_AM.">path consolidation is allowed. Default 3 AM to 5 AM.</h1></td></tr>
+<tr id='R33'><td n='33'></td><td><h1 id="Allow_a_window_of_at_least_two_hours.">Allow a window of at least two hours.</h1></td></tr>
 <tr id='R34'><td n='34'></td><td>FILEWATCHER_CONSOLIDATION_START_HOUR	3</td></tr>
 <tr id='R35'><td n='35'></td><td>FILEWATCHER_CONSOLIDATION_END_HOUR		5</td></tr>
 <tr id='R36'><td n='36'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
@@ -1973,7 +1987,7 @@ function positionAndShowHint() {
 	let bestDirection = ds.bestDirection;
 	let scaleFactor = ds.scaleFactor;
 	
-	// For now, just scale images. Text tips are usually small enough.
+	// Scale image down to fit in window.
 	if (isAnImage)
 		{
 		if (scaleFactor < 1.0)
@@ -1983,7 +1997,7 @@ function positionAndShowHint() {
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
 		}
-
+	
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
@@ -1992,10 +2006,24 @@ function positionAndShowHint() {
 	hintElement.style.left = tl.left;
 	
 	// Scale image if it's really needed and we have good width and height.
-	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
+	if (isAnImage)
 		{
-		hintContents =
-			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintElement.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		}
+	// For text, shrink the height to fit within window if necessary.
+	else
+		{
+		hintElement.style.width = "650px";
+		if (tl.top + hintHeight > windowHeight)
+			{
+			let reducedHeight = windowHeight - tl.top;
+			hintElement.style.height = reducedHeight + "px";
+			}
+		else
+			{
+			hintElement.style.height = "auto";
+			}
 		}
 
 	hintElement.innerHTML = hintContents;
@@ -2329,7 +2357,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
-			hintElement.style.width = '';
+			hintElement.style.width = 'auto';
 			}
 		else
 			{
@@ -2414,7 +2442,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 }
 
 function handleMouseLeave() {
-	hidetip();
+	hideTip();
 }
 
 // If see src="something", return something, else "".
@@ -2447,12 +2475,12 @@ function hideTipIfMouseHasLeft(obj) {
 		}
 	else
 		{
-		hidetip();
+		hideTip();
 		}
 }
 
 function hideTipJustInCase(obj) {
-	hidetip();
+	hideTip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2491,9 +2519,12 @@ function recordMousePosition(evt) {
 	cursor_y = evt.pageY;
 }
 
-function hidetip(e) {
+function hideTip(e) {
 	hintElement.style.visibility = "hidden";
+	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
+	hintElement.style.width = "auto";
+	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -5923,7 +5954,7 @@ function setImagesButtonText() {
 <script type="text/javascript">
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.

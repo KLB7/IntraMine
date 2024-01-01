@@ -1,7 +1,7 @@
 IntraMine initial install
 =========================
 
-There are a few steps to getting IntraMine up and running, but the first steps as described below consist of putting your IntraMine folder somewhere appropriate, installing Strawberry Perl, and installing some modules for Strawberry Perl that IntraMine needs.
+There are a few steps to getting IntraMine up and running, but the first steps consist of putting your IntraMine folder somewhere appropriate, installing Strawberry Perl, and installing some modules for Strawberry Perl that IntraMine needs.
 
 IntraMine is available at
 https://github.com/KLB7/IntraMine
@@ -147,7 +147,7 @@ NOTE as an alternative to the standalone program extract_method.pl, IntraMine in
 
 Verifying module installation
 =============================
-When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints about any missing modules.
+When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.
 
 The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a command prompt. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.
 

@@ -1,4 +1,4 @@
-# intramine_linker.pl: IntraMine's Autolinker (in combination with reverse_filepaths.pm).
+# intramine_linker.pl: IntraMine's autolinker (in combination with reverse_filepaths.pm).
 # Pass in plain text containing mentions of other files, and get back either:
 # text with links - see NonCmLinks()
 # or a JSON summary of the links that can be used to create an overlay for CodeMirror
@@ -6,7 +6,16 @@
 # File and web links are handled, "internal" links within a document are done
 # in intramine_viewer.pl.
 # FullPathForPartial() will return its best guess at a full path, given a single partial path
-# (use only when there is no relevant "context").
+# (use when there is no relevant "context").
+#
+# Links suported here:
+# - FLASH links: if you type just a file name in a text file or a source file,
+#    IntraMine will link it to the closest known instance of that file, from amongst
+#    all the files of interest to you. Links to locations within files are also
+#    supported, such as "Linker.html#What the Linker does differently" or
+#    reverse_filepaths.pm#FullPathInContextNS().
+# - web links: http(s), eg https://www.google.com
+# - Perl module links eg "use X::Y;"
 #
 # A "partial path" is a file name with extension) preceded by zero or more directory
 # names, in any order, not necessariy consecutive, with slashes after each directory name
@@ -15,7 +24,7 @@
 # is the desired path, then the partial path could be
 # run.cpp or projects/run.cpp or C:/run.cpp or project51/projects.cpp etc.
 #
-# Autolinking also uses the notion of "context directory", the location of the file
+# FLASH links also use the notion of "context directory", the location of the file
 # mentioning the partial path. You might for example be writing
 # in project51/docs/Log_Sept_20201.txt and type in "run.cpp": if there are several
 # run.cpp files in your indexed folders, then the run.cpp closest to the Log_Sept_20201.txt

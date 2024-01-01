@@ -34,20 +34,20 @@ Strawberry Perl: An open source version of Perl for Windows. See "https://strawb
 
 Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them. It's a bit huge, details can be found at "https://www.elastic.co/elasticsearch/".
 
-Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use autolinks in source files, as described in "Gloss.html". Gloss can also be used in glossary definitions which show in any text or source file, see "Glossaries.html" for glossary usage.
+Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use FLASH links in source files, as described in "Gloss.html". Gloss can also be used in glossary definitions which show in any text or source file, see "Glossary popups.html" for glossary usage.
 
 A sample table (see "Gloss.html#Tables" for details)
 TABLE Gloss support in various contexts
 Feature					IntraMine Viewer, text	Viewer, source		Glossary popups		ToDo
 Bold, italic, code		Yes						No					Yes					Yes
-Autolinks				Yes (full support)		Yes					"Quotes needed"		"Quotes" and full path needed
+FLASH links			Yes (full support)		Yes					"Quotes needed"		"Quotes" and full path needed
 Image hovers			Yes						Yes					No (inlined)		"Quotes" and full path needed
 Tables					Yes						No					Yes					Yes (use tab or \t to separate cells)
 Lists					Yes						No					Yes					Yes
 CODE blocks				Yes						No					No					No
 (A TABLE ends when there's a line with no tab.)
-Quotes can be single or double, eg "some_file.h" or 'some_file.h'.
-IntraMine's Editor fully supports autolinks and image hovers, but otherwise shows Gloss markup as typed.
+Quotes can be single or double, eg "Gloss.html" or 'Gloss.html'.
+IntraMine's Editor fully supports FLASH links, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
 You can also have
 1. Numbered lists
 1.2 with subitems, up to 99.99
@@ -55,19 +55,20 @@ You can also have
   -- with subitems too
 **Bold**, *italic*, and *!*/* Code snippets */ int x = 42;*!*.
 Images will be shown inline, eg "button1.png" "globe.gif" "favicon-32x32.png"
+
 :)
 
 Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.
 
-Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, autolinks, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Documentation/Supplied services.txt#Viewer".
+Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, FLASH links, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Viewer.html".
 
-Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements autolinking for local files and web URLs, as well as image hovers. When a file is saved using the Editor, any Viewer display of the file will refresh.
+Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file. For more see "Editor.html".
 
-Partial path, file specifier, link specifier: For IntraMine's autolinking, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
+Partial path, file specifier, link specifier: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
 For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
-Sufficient path: For IntraMine's autolinking, a sufficient path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
+Sufficient path: For IntraMine's FLASH links, a sufficient path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
 For example, "project51/Cpp/main.cpp" would be a sufficient path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
@@ -79,11 +80,11 @@ And you can set it to always "Run as administrator" by right-clicking on the sho
 
 Map network drive: Open a File Explorer window, click on "This PC" on the left, and then select "Map network drive" at the top. Enter the \\\\host-name\\share-name you want to map, and then select a drive letter to map it to on the PC you're sitting at. Whether or not you'll want to reconnect using a different account is up to you, depending on how you've set things up.
 
-Autolinks, automatic links, automatic linking, autolinking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
+Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
 
-You can also autolink to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
+You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
 
-That was a bit brief wasn't it? Please see "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the autolinking algorithm.
+That was a bit brief wasn't it? Please see "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
 
 Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.
 

@@ -1,6 +1,6 @@
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.

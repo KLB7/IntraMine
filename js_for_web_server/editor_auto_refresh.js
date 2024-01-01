@@ -12,11 +12,71 @@ function registerAutorefreshCallback() {
 	addCallback("changeDetected", handleFileChanged);
 }
 
+// Remember time of last Save. See editor.js#notifyFileChangedAndRememberCursorLine().
 function RememberLastEditorUpdateTime() {
 	lastEditorUpdateTime = Date.now();
 }
 
 function handleFileChanged(message) {
+	// changeDetected space lineNumber space filePath five spaces timestamp
+	let regex = new RegExp("^(\\w+) (\\d+) (.+?)     (.+)$");
+	let currentResult = {};
+	if ((currentResult = regex.exec(message)) !== null)
+		{
+		let lineNumberStr = currentResult[2];
+		let pathFromMessage = currentResult[3];
+		let timeStamp = currentResult[4];
+		pathFromMessage = decodeURIComponent(pathFromMessage);
+		pathFromMessage = pathFromMessage.replace(/%25/g, "%");
+		
+		if (pathFromMessage === theEncodedPath)
+			{
+			let currentTime = Date.now();
+			// lineNumberStr > 0 means the Viewer should jump to that line
+			// number, 0 means don't jump (since line number is unknown).
+			if (lineNumberStr > 0) // "0" means line number unknown
+				{
+				// Avoid self triggering.
+				let secondsSinceEditorUpdate = (currentTime - lastEditorUpdateTime) / 1000;
+				if (secondsSinceEditorUpdate >= selfTriggerSeconds)
+					{
+					location.hash = lineNumberStr;
+					window.location.reload();
+					}
+				}
+			else
+				{
+				let timestampKey = theEncodedPath + '?' + 'timestamp';
+				let previousTimestamp = "0";
+
+				if (!localStorage.getItem(timestampKey))
+					{
+					; // first message from Watcher
+					}
+				else
+					{
+					previousTimestamp = localStorage.getItem(timestampKey);
+					}
+				localStorage.setItem(timestampKey, timeStamp);
+
+				// Update only if not immediately following a change
+				// notice from IntraMine's Editor (for those, the line
+				// number is positive.)
+				let secondsSinceEditorUpdate = (currentTime - lastEditorUpdateTime) / 1000;
+				if (secondsSinceEditorUpdate >= doubleNoticeSeconds)
+					{
+					if (previousTimestamp !== timeStamp)
+						{
+						window.location.reload();
+						}
+					}
+				// else too soon, ignore message from Watcher
+				}
+			}
+		}
+}
+
+function xhandleFileChanged(message) {
 	// trigger space lineNumber space filePath five spaces timestamp
 	let regex = new RegExp("^(\\w+) (\\d+) (.+?)     (.+)$");
 	let currentResult = {};
@@ -42,7 +102,6 @@ function handleFileChanged(message) {
 					location.hash = lineNumberStr;
 					window.location.reload();
 					}
-				lastEditorUpdateTime = currentTime;
 				}
 			else
 				{

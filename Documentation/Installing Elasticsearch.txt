@@ -1,6 +1,8 @@
 Installing Elasticsearch
 ========================
 
+If you haven't installed Elasticsearch yet, you can skip down to "Getting Elasticsearch".
+
 CORRECTION
 ==============
 IMPORTANT if you installed Strawberry Perl while installing IntraMine between December 29 2022 and March 26 2023, you will need to remove Elasticsearch 7.9.2 and upgrade to Elasticsearch 8. To remove Elasticsearch 7.9.2, at a command prompt run these two commands (adjust to your ES path):
@@ -40,7 +42,7 @@ C:\elasticsearch-7.9.2\bin\elasticsearch-service.bat remove
 
 Getting Elasticsearch
 ----------------------
-Currently I'm recommending version Elasticsearch 8.6.2, which is compatible with the latest version of the Search::Elasticsearch module. However, any later version 8 should also work.
+Currently I'm recommending version Elasticsearch 8.6.2, which is compatible with the latest version of the Search::Elasticsearch module. However, any later version 8 should also work. Kindly substitute your actual version number for "8.6.2" in what follows.
 
 => To download Elasticsearch version 8.6.2 or later, head to
 https://www.elastic.co/downloads/elasticsearch

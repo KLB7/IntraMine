@@ -346,8 +346,13 @@ html[xmlns] #nav {
 	tab-size: 4;
 }
 
-#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4 {
+#scrollTextRightOfContents h1, #scrollTextRightOfContents h2, #scrollTextRightOfContents h3, #scrollTextRightOfContents h4, #scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
 	display: inline;
+}
+
+#scrollTextRightOfContents h5, #scrollTextRightOfContents h6 {
+	padding-top: 6px;
+	padding-bottom: 3px;
 }
 
 #scrollContentsList .h1 {
@@ -1283,7 +1288,7 @@ position:absolute;
 top: 0;
 background-color: #FFFFF4;
 /*width: 150px; Default width of hint.*/ 
-padding: 6px;
+padding: 0; /* was 6px */
 /*border:1px solid black;*/
 font:normal 13px Verdana;
 line-height:18px;
@@ -1292,6 +1297,12 @@ z-index:100;
 border-bottom: 3px solid black;*/
 visibility: hidden;
 	
+overflow: auto;
+overflow-wrap: break-word;
+word-wrap: break-word;
+-ms-word-break: break-all;
+word-break: break-word;
+
 border: none;
 box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
@@ -1681,7 +1692,7 @@ span.ll-com { /* comments */
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td><h2 id="Viewing_files_on_the_iPad">Viewing files on the iPad</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R10'><td n='10'></td><td>This is for read-only views, mainly brought up by touching a link in Search hits or under the Files tab. They are displayed by IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20autolinks%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%22Documentation%2FSupplied%20services.txt%23Viewer%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, intramine_file_viewer.pl.</td></tr>
+<tr id='R10'><td n='10'></td><td>This is for read-only views, mainly brought up by touching a link in Search hits or under the Files tab. They are displayed by IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%26quot%3BViewer.html%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a>, intramine_file_viewer.pl.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>Selecting text: use a double-tap to select a word, or drag to select any amount of text. Single tapping will highlight, but won't select any text.</td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
@@ -1761,7 +1772,7 @@ AElFTkSuQmCC
 <tr id='R17'><td n='17'></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td><h2 id="Editing_files_via_the_iPad">Editing files via the iPad</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20autolinking%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
+<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%26quot%3BEditor.html%26quot%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
@@ -2001,7 +2012,7 @@ function positionAndShowHint() {
 	let bestDirection = ds.bestDirection;
 	let scaleFactor = ds.scaleFactor;
 	
-	// For now, just scale images. Text tips are usually small enough.
+	// Scale image down to fit in window.
 	if (isAnImage)
 		{
 		if (scaleFactor < 1.0)
@@ -2011,7 +2022,7 @@ function positionAndShowHint() {
 			hintHeight = Math.floor(hintHeight * finalScaleFactor);
 			}
 		}
-
+	
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
@@ -2020,10 +2031,24 @@ function positionAndShowHint() {
 	hintElement.style.left = tl.left;
 	
 	// Scale image if it's really needed and we have good width and height.
-	if (scaleFactor < 0.99 && !isNaN(hintWidth) && !isNaN(hintHeight) && isAnImage && hintWidth > 300)
+	if (isAnImage)
 		{
-		hintContents =
-			hintContents.slice(0, -1) + " width='" + hintWidth + "' height='" + hintHeight + "'>";
+		hintElement.style.width = hintWidth + "px";
+		hintElement.style.height = hintHeight + "px";
+		}
+	// For text, shrink the height to fit within window if necessary.
+	else
+		{
+		hintElement.style.width = "650px";
+		if (tl.top + hintHeight > windowHeight)
+			{
+			let reducedHeight = windowHeight - tl.top;
+			hintElement.style.height = reducedHeight + "px";
+			}
+		else
+			{
+			hintElement.style.height = "auto";
+			}
 		}
 
 	hintElement.innerHTML = hintContents;
@@ -2357,7 +2382,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
-			hintElement.style.width = '';
+			hintElement.style.width = 'auto';
 			}
 		else
 			{
@@ -2442,7 +2467,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 }
 
 function handleMouseLeave() {
-	hidetip();
+	hideTip();
 }
 
 // If see src="something", return something, else "".
@@ -2475,12 +2500,12 @@ function hideTipIfMouseHasLeft(obj) {
 		}
 	else
 		{
-		hidetip();
+		hideTip();
 		}
 }
 
 function hideTipJustInCase(obj) {
-	hidetip();
+	hideTip();
 }
 
 function mouseStillOverTipOwner(obj) {
@@ -2519,9 +2544,12 @@ function recordMousePosition(evt) {
 	cursor_y = evt.pageY;
 }
 
-function hidetip(e) {
+function hideTip(e) {
 	hintElement.style.visibility = "hidden";
+	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
+	hintElement.style.width = "auto";
+	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
 		{
@@ -5951,7 +5979,7 @@ function setImagesButtonText() {
 <script type="text/javascript">
 // popup_image_cache.js: retrieve bin64 images from a Map.
 // The Map is created in gloss.pm when loading images for
-// popup glossary definitions. The goal is to have just
+// glossary popups. The goal is to have just
 // one stored instance of each image that's use in a popup
 // definition. Images are loaded into the popup definition
 // when the popup is shown.
@@ -5986,6 +6014,7 @@ function loadCachedImages(text) {
 </script>
 
 <script>const imageCache = new Map();
+imageCache.set('__img__cache__00001', 'iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALDwAACw8BkvkDpQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS41ZEdYUgAAAgFJREFUOE9jIBb8Dw7W+5+QHPovLy/nX2mp17/Jk4X////PBJUmCFgXTavX2bVp/YIrCxff+1lQ8OB/SdmNv729u35PmOAMVYMb7Oxm4H54TM/3zpmIOQf31Z05sHbyq6szZ///PwWIGxv//ysrS4YqxQ7u7bWUv3c8OPXt/ewtH58Vfnh8ze3huSNud3dtr/10bUHX7TclJTs+pxY6QpUjwH8GBsZbixn47h3W1n9+LbL8zb3aO1/etP79+6Ps/9/XBv+fX+L5fGKX8pH1Kx3KO6fNUY+v/88B1QoB9fUMTLe2ccrcO2kQ+vx6xLaPz3Le/vlW+/f/V5//357w/3l2gefnme18F3YskYya0aIhCdWGACADvj5ikH521av61Z3Mqz8+Lfny92fjv//vRf5/ecDy/8ZB7i/HNwt1rZgmb9ENDCegFkaITij4d+eO2Pm17t5nVugve3Qh/u7Xd4W//3/y/P//rer/dze4/1/ex3F2/0rBkpVzhbTS0oxZodpQweVFxb5bWvx7V1fbfjo8z+b/7QOG/z/fFvz/4iLby9PbRBZtXSgePq1bSQyolBmiAwtoT/co7EhwXj8lye7/glz1/8tr+N4fX8197MJe/tbVs5S1VVQ82KFKcQNdLd2QRA+91oZI/bMN4Xqn6kO0Z7UmaTpPrBfigyqhB2BgAACDIvih7pI6RAAAAABJRU5ErkJggg==');
 
 </script>
 </body></html>

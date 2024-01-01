@@ -17,7 +17,7 @@ On detecting a file system change, FILEWATCHER
  - loads details of the changes from the File Watcher service log
  - uses the details to ask Elasticsearch to index affected files
  - saves a list of any new file paths
- - broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the Viewer, which updates its full and partial path lists for autolinking
+ - broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the Viewer, which updates its full and partial path lists for FLASH links
  - broadcasts 'signal=filechange' to all IntraMine servers: the Status server in particular will respond by reloading its displayed list of recent file changes.
 
 File consolidation

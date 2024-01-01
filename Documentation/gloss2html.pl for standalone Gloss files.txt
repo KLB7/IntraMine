@@ -67,10 +67,16 @@ If you'd prefer your table of contents file to be plain (no old paper background
 
 Adding a glossary
 =================
-To provide popup glossary entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being converted from text to HTML.
+The glossary file
+-------------------
+To provide glossary popup entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being converted from text to HTML.
 
+Glossary term appearance
+--------------------------
 All converted files will have glossary popups wherever glossary terms are used, with a dotted underline under each term. The first mention in a document will have a slightly stronger underline, and if the term is used more than once in a paragraph only the first instance will be underlined. Where a term has synonyms, only the relevant instance will be shown at the top of the popup, with a list of synonyms added at the bottom.
 
+Glossary file format
+---------------------
 The **glossary file format** is:
 ---
 term{, synonym}* COLON definition
@@ -97,7 +103,11 @@ IntraMine's glossary.txt has an example,
 ---
 Navigation bar: "topnav.png".
 ---
-where topnav.png is in IntraMine's Documentation/images folder.
+where that image is in IntraMine's Documentation/images folder.
+
+Using Gloss in your glossary
+----------------------------
+Glossary definitions don't have to be just plain text or one image: you can take advantage of almost all of IntraMine's Gloss markdown variant (designed for intranet use).
 
 For a full example of a glossary file, see Documentation/glossary.txt.
 
