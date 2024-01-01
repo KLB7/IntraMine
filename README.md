@@ -2,7 +2,7 @@
 
 *Fast search, easy linking, and glossary popups for your Windows source and text files.*
 
-Please note IntraMine must be installed on a PC running Windows 10/11. And the files you want to edit must be on drives directly attached to your PC, though library files can be on NAS.
+Please note IntraMine must be installed on a PC running Windows 10/11. And the files you want to edit must be on drives directly attached to the same PC, though library files can be on NAS.
 
 ## In brief
 
