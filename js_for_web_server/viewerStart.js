@@ -92,7 +92,16 @@ function reJumpAndHighlight() {
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
 	highlightInitialItems();
-	addAutoLinks();
+
+	setIsMarkdown();
+	if (isMarkdown)
+		{
+		addAutoLinksForMarkdown();
+		}
+	else
+		{
+		addAutoLinks();
+		}
 }
 
 // Set top of nav to zero, fixes an iPad scroll problem where nav goes off the top.

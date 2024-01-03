@@ -4,8 +4,9 @@
 
 // Track line numbers seen, to avoid doing them twice.
 let lineSeen = {};
+let isMarkdown = false;
 
-// Called by addToggleScrollListener() below, and viewerStart.js#reJumpAndHighlight() on "load".
+// Called by addScrollListenerAndSetMarkdown() below, and viewerStart.js#reJumpAndHighlight() on "load".
 function addAutoLinks() {
 	let el = document.getElementById(cmTextHolderName);
 	if (el === null)
@@ -114,6 +115,85 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 	}
 }
 
+function addAutoLinksForMarkdown() {
+	let el = document.getElementById(cmTextHolderName);
+	if (el === null)
+		{
+		cmTextHolderName = specialTextHolderName;
+		el = document.getElementById(cmTextHolderName);
+		if (el === null)
+			{
+			console.log("Error, no text holder found in addAutoLinks!");
+			return;
+			}
+		}
+
+	let visibleText = el.innerHTML; // Grab whole file
+	requestLinkMarkupForMarkdown(visibleText, el);
+}
+
+// Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
+async function requestLinkMarkupForMarkdown(visibleText, el) {
+	try {
+		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+		if (port !== "")
+			{
+			requestLinkMarkupWithPortForMarkdown(visibleText, port, el);
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+	}
+}
+
+// Add link markup to view all lines. Remember the lines have been marked up.
+async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el) {
+	let remoteValue = (weAreRemote)? '1': '0';
+	let allowEditValue = (allowEditing)? '1': '0';
+	let useAppValue = (useAppForEditing)? '1': '0';
+	let shouldInline = '1'; //(shouldInlineImages()) ? '1' : '0';
+
+	try {
+		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=nonCmLinks'
+		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
+		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
+		+ '&path=' + encodeURIComponent(thePath) + '&first=' + '0' + '&last='
+		+ '0' + '&shouldInline=' + shouldInline;
+		const response = await fetch(theAction);
+
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text != 'nope')
+				{
+				let lines = text.split("\n");
+				let len = lines.length;
+			
+				for (let ind = 0; ind < len; ++ind)
+					{
+					let regex = /\%2B/gi;
+					lines[ind] = lines[ind].replace(regex, '+');
+					let regex2 = /:81\//g;
+					lines[ind] = lines[ind].replace(regex2, ":" + ourSSListeningPort + "/");
+					}
+
+				text = lines.join("\n");
+				el.innerHTML = text;
+				}
+			}
+		else
+			{
+			// We reached server but it returned an error. Bummer, no links.
+			}
+	}
+	catch(error) {
+	// There was a connection error of some sort. Double bummer, no links.
+	console.log('requestLinkMarkupWithPort connection error!');
+	}
+}
+
 function decodeURIComponentSafe(s) {
     if (!s) {
         return s;
@@ -122,7 +202,14 @@ function decodeURIComponentSafe(s) {
 }
 
 let isScrollingAuto = null;
-function addToggleScrollListener() {
+function addScrollListenerAndSetMarkdown() {
+	// Skip .md files.
+	setIsMarkdown();
+	if (isMarkdown)
+		{
+		return;
+		}
+	
 	let el = document.getElementById(cmTextHolderName);
 	if (el !== null)
 		{
@@ -136,6 +223,22 @@ function addToggleScrollListener() {
 			addAutoLinks();
 			}, 66);
 			});
+		}
+}
+
+function setIsMarkdown() {
+	isMarkdown = false;
+	let fileName = theEncodedPath.split(/[\\/]/).pop();
+	let extPos = fileName.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = fileName.slice(extPos + 1);
+		if (ext === "md" || ext === "MD")
+			{
+			// .md files don't have line numbers and need special handling
+			// when inserting links and glossary popups - see addAutoLinks().
+			isMarkdown = true;
+			}
 		}
 }
 
@@ -208,5 +311,5 @@ function allLinesHaveBeenSeen(rowIds) {
 	return (true);
 }
 
-window.addEventListener("load", addToggleScrollListener);
+window.addEventListener("load", addScrollListenerAndSetMarkdown);
 
