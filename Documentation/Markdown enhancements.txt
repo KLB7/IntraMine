@@ -1,0 +1,24 @@
+Markdown enhancements
+=====================
+
+This is just a brief note to mention that when displayed with IntraMine's Viewer or Editor, a Markdown document (.md) will show FLASH links and glossary popups.
+
+Now, FLASH links won't be that useful to you immediately, simply because you haven't had a way to link to local files in Markdown before. Still, if you start putting in target specifiers for FLASH links you might find they speed up navigation.
+
+For more about FLASH links, see "Gloss.txt#Links".
+
+Glossary popups now are a bigger deal: they are going to change the way you write your in-house documentation, for new hires and fellow developers and testers and managers and everyone else who wants to know what your code does. No more writer's block from having to describe something using terms you haven't defined yet, no more interruption to consult a different document for a definition or procedure, and less pestering for explanations from all and sundry.
+
+For more about glossary popups, see "Glossary popups.txt".
+
+To bring up a Markdown (.md) file in IntraMine's Viewer:
+ - you can search for it on the Search page
+ - or find it on the Files page
+ - or click any regular link to it in some other document being displayed by IntraMine's Viewer or Editor.
+ 
+To bring up a Markdown (.md) file in the Editor:
+ - in Search results or on the Files page or in another document, click on the "pencil" icon () next to the regular link
+ - or click on the Edit button up top in the Viewer display of a .md file.
+
+---
+contents.html

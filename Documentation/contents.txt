@@ -20,6 +20,7 @@ Editing documents.txt
 Gloss.txt
 Glossary popups.txt
 gloss2html.pl for standalone Gloss files.txt
+Markdown enhancements.txt
 
 *SUPPLIED SERVICES*
 IntraMine Main.txt

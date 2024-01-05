@@ -1236,11 +1236,32 @@ sub GetPrettyMD {
 	    use_wikilinks => 0,
 		);
 	my $html = $m->markdown( $octets );
+
+	# Regex to add raw=true has been moved to autoLinks.jsrequestLinkMarkupWithPortForMarkdown().
+	##$html = FixGithubLinks($html);
 	
 	$$contentsR = "<div id='scrollText'>" . $html . "</div>";
 	
-	
 	$$contentsR = encode_utf8($$contentsR);
+	}
+
+# Add raw=true to github links.
+sub FixGithubLinks {
+	my ($src) = @_;
+
+	my @lines = split(/\n/, $src);
+	for (my $i = 0; $i < @lines; ++$i)
+		{
+		# Add ?raw=true to github img src.
+		if (index($lines[$i], "?raw=true") < 0)
+			{
+			$lines[$i] =~ s!https://github.com/([^'"]+)(['"])!https://github.com/$1?raw=true$2!g;
+			}
+		}
+
+	my $result = join("\n", @lines);
+
+	return($result);
 	}
 
 # Call LoadPodFileContents() to get an HTML version using Pod::Simple::HTML,

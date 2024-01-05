@@ -9,13 +9,13 @@ NOTE:
 
 Overview
 ========
-Gloss is a markdown variant that concentrates on two things: minimal, memorable markdown that looks good in the source text; and automatic linking to files on your local storage intranet (these are called FLASH links below).
+Gloss is a markdown variant that concentrates on: minimal, memorable markdown that looks good in the source text; automatic linking to files on your local storage intranet (these are called FLASH links below); and glossary popups.
 
-Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to put to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other.
+Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to type to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other. In the rare cases where the file name alone is ambiguous, you can add one or more directory names in any order in any sequence to pin down the file you want. You can leave out directory names that aren't needed for pinning the instance down. And if you need a drive letter to do the job, put it first.
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt").
 
-Gloss can also be used in glossary popups, which as the name suggests are glossary entries that appear when you pause your cursor over a defined word or phrase. These are available in all source and text files when IntraMine's Viewer is used to display them.
+Gloss can also be used in glossary popups, which are glossary definitions that appear when you pause your cursor over a defined word or phrase. These are available in all source and text files when IntraMine's Viewer is used to display them (even regular Markdown (.md) files). For details see "Glossary popups.txt".
 
 And most of Gloss is available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main differences are that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt"), and that cell separation in tables is done with \t rather than an actual tab.
 
@@ -25,6 +25,7 @@ Since IntraMine is a bit of a tech demo, Gloss processing is fully applied to al
 
 I sense you want some bullet points. Gloss does
  - "Links": FLASH links to local and NAS source and text files, links to the web, internal headings, images, and links that jump directly to places in other documents (functions, classes, text file headings). Typical overhead per link: at most two double quotes, and a hash tag '#' between a file name and a heading in the file. FLASH links are context aware, minimizing the need to provide a partial path. Linking is applied to all source and text files by the Viewer.
+ - "Glossary popups": rich definitions that pop up when you pause your cursor over a defined term. See "Glossary popups.txt" for details on creating and using your own definitions in all source and text files.
  - for supported languages (see just above), an automatically generated "Table of Contents" down the left side, with links to headings, functions, and classes etc.
  - "Headings": h1 h2 h3, done with underlining using at least five ========, ------------, ~~~~~~~~~~~~.
  - "Tables": write "TABLE", put headers on the next line, data on following lines, and separate cells with one or more tabs: the table ends when a line has no tabs. More below, but that's basically it.
@@ -36,6 +37,16 @@ I sense you want some bullet points. Gloss does
 
 How to
 ======
+
+Glossary popups
+----------------
+If you pause your cursor over a defined term such as Gloss, a rich definition will pop up. IntraMine supports two glossaries, one for general use when displaying source and text files, and one for use when converting text files to HTML with gloss2html.pl. That program was used to generate the HTML version of this document.
+
+For general use: create a glossary_master.txt file anywhere within a folder that's listed for indexing in your data/search_directories.txt file. There's a sample glossary_master.txt file included at the top of your IntraMine folder: open that and follow the instructions at the top to get going. The basic format of a glossary entry is term colon definition, and the definition continues until the next paragraph with a colon.
+
+For generating standalone HTML with gloss2html.pl: use "glossary.txt" as the name of your glossary file, and put it at the top of the folder containing text documents that you want to convert to HTML. The format is the same as for glossary_master.txt files. An example glossary.txt file is included at the top of IntraMine's Documentation folder, and it also has instructions at the top.
+
+"Glossary popups.txt" has slightly more details, with a focus on creating glossary_master.txt files for general use.
 
 Table of Contents
 -----------------

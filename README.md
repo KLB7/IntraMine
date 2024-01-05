@@ -25,16 +25,19 @@ IntraMine also includes:
 
 ## Some pictures
 
-*Search results: 125,000 files searched for "FindFileWide", results in 0.09 seconds. No restriction on directory or language.*
+_Search results: 125,000 files searched for "FindFileWide", results in 0.09 seconds. No restriction on directory or language._
 ![Search](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/Search1.png)
 
-*Some "FindFileWide" search hits in a file, seen with IntraMine's Viewer. The hits are in pink, in the text and down the scroll bar. A click on "allEntries" has highlighted all instances in green, in the text and down the scroll bar. There are automatically generated links to a subroutine in another file (intramine_filetree.pl#GetDirsAndFiles()), a specific line in another file (elastic_indexer.pl#101), and a subroutine within the same file (FindFileWide()).*
+
+_Some "FindFileWide" search hits in a file, seen with IntraMine's Viewer. The hits are in pink, in the text and down the scroll bar. A click on "allEntries" has highlighted all instances in green, in the text and down the scroll bar. There are automatically generated links to a subroutine in another file (intramine_filetree.pl#GetDirsAndFiles()), a specific line in another file (elastic_indexer.pl#101), and a subroutine within the same file (FindFileWide())._
 ![FindFileWide in a file](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/2020-05-04%2016_22_47-win_wide_filepaths.pm.png)
 
-*A simple glossary popup. The cursor is paused over "FLASH link". Links in the definition are functional.*
+
+_A simple glossary popup. The cursor is paused over "FLASH link". Links in the definition are functional._
 ![Simple glossary popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/FLASH_pop.png)
 
-* A glossary popup showing off. This is the popup for "Gloss", IntraMine's markdown for intranet use.*
+
+_A glossary popup showing off. This is the popup for "Gloss", IntraMine's markdown for intranet use._
 ![Fancy glossary popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/gloss1.png)
 
 ## Some details

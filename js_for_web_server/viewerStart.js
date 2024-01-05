@@ -206,7 +206,7 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		console.log("reJumpToLineNumber negative line number received: |" + h + "|");
+		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	

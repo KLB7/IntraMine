@@ -177,6 +177,8 @@ async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el)
 					lines[ind] = lines[ind].replace(regex, '+');
 					let regex2 = /:81\//g;
 					lines[ind] = lines[ind].replace(regex2, ":" + ourSSListeningPort + "/");
+					let regex3 = /https:\/\/github.com\/([^'"]+)(['"])/g;
+					lines[ind] = lines[ind].replace(regex3, "https://github.com/$1?raw=true$2");
 					}
 
 				text = lines.join("\n");
