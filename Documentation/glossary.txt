@@ -2,9 +2,11 @@ This is an example of a glossary that can accompany a set of standalone HTML fil
 
 For more details, see "Documentation/gloss2html.pl for standalone Gloss files.txt".
 
-Format is the term being defined, at the start of a new line, followed by optional synonyms separated by commas, followed by a colon. What follows the colon is the definition for the term. The term being defined can have up to four words, as can the synonyms. The definition can go on for more than one paragraph, but remember it has to fit in a "tooltip" window. The definition ends when a paragraph containing a colon is seen.
+Format is the term being defined, at the start of a new line, followed by optional synonyms separated by commas, followed by a colon. What follows the colon is the definition for the term. The term being defined can have up to four words, as can the synonyms. The definition can go on for more than one paragraph, but remember it has to fit in a "tooltip" window or there will be scroll bars. The definition ends when a paragraph containing a colon is seen. Definitions can use most of Gloss, IntraMine's Markdown variant, more about that in "Glossary popups.txt".
 
-Note if you want a backslash, use two of them in a row.
+This top part doesn't interfere with definitions, because is carefully does not contain a colon.
+
+Note if you want a backslash, it's best to use two of them in a row. But single backslashes usually work too.
 
 Swarm server: A service written to run under IntraMine. A server is a "swarm" server if it uses "swarmserver.pm" to answer HTTP requests, and communicate with other services, including IntraMine's main service.
 
@@ -88,9 +90,15 @@ You can also link to headings within other files, such as "Gloss.txt#Gloss vs Mu
 
 That was a bit brief wasn't it? Please see "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
 
+Linker: IntraMine's hyperlink service, implementing FLASH links in particular. Also glossary popups. For more see "Linker.html".
+
 Server-Sent Events: (SSE for short) basically, a web page subscribes to a service for specific events, and the service publishes messages to the subscribed pages. IntraMine used to use these, but now WebSockets are used instead.
 
-Command prompt: The flashing insertion point in the window that comes up when you run "C:\\Windows\\System32\cmd.exe"
+Command prompt: The command prompt window
+
+"prompt.png"
+
+The flashing insertion point in the window that comes up when you run C:/Windows/System32/cmd.exe or PowerShell.
 
 Console window: The window you can type commands in when you run "C:\\Windows\\System32\\cmd.exe". To make life easier, once you've found it put a shortcut to it on your desktop. You can have two shortcuts, and set one of them to always "Run as administrator" (to do that, right-click and then Properties->Shortcut->Advanced... and check "Run as administrator").
 

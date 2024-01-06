@@ -48,19 +48,11 @@ BEGIN {
 # Contents are put in a simple table without line numbers.
 #
 # For the call from gloss2html.pl, these are undef:
-#  $serverAddr, $mainServerPort, $callbackFullPath, $callbackFullDirectoryPath.
+# $callbackFullPath, $callbackFullDirectoryPath.
 sub Gloss {
     my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
 	$IMAGESDIR = $imagesDir;
 	$COMMONIMAGESDIR = $commonImagesDir;
-
-	if (!defined($serverAddr)) # Call is from gloss2html.pl
-		{
-		$ImageKeyBase = '__img__cache__';
-		$ImageCounter = 1;
-		%KeyForImagePath = ();
-		$ImageCache = "const imageCache = new Map();\n";
-		}
 
 	if (!defined($doEscaping))
 		{
@@ -171,6 +163,18 @@ sub Gloss {
     	$$contentsR = horribleEscape($$contentsR);
 		}
    }
+
+# $ImageCache is used only by gloss2html.pl.
+# Images for glossary popups are loaded only once, to reduce file size.
+# See gloss2html.pl#EndHtmlFile() for the call to GetImageCache()
+# That loads the generated JavaScript for the image cache.
+# Images are cached below by KeyForCachedImage().
+sub InitImageCache {
+	$ImageKeyBase = '__img__cache__';
+	$ImageCounter = 1;
+	%KeyForImagePath = ();
+	$ImageCache = "const imageCache = new Map();\n";
+}
 
 # Get JS for the imageCache Map, which holds bin64 reps of all
 # images in all popup glossary definitions. Goes at bottom of HTML.

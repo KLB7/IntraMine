@@ -131,7 +131,7 @@ The last one on the list, Date::Business, will ask you to accept a licence agree
 
 Optional modules
 =================
-[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. Use the "EM" (Extract Method) service instead.]
+[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. It was used only for presenting an "Extract Method" interface for Perl subs. Use the "EM" (Extract Method) service instead.]
 
 IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See "Other Perl programs.txt#extract_method.pl" for more.
 

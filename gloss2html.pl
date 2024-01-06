@@ -269,6 +269,9 @@ sub ConvertTextToHTML {
 	Output("Converting |$filePath|\n");
 	
 	ClearDocumentGlossaryTermsSeen();
+
+	# Initialize JS code for the image cache used with glossary popups.
+	InitImageCache(); #gloss.pm#InitImageCache()
 	
 	my $contents = "";
 	StartHtmlFile($filePath, $context, \$contents); # Start HTML, inline CSS
