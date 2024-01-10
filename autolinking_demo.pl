@@ -634,7 +634,17 @@ sub SetColumnWidths {
 		{
 		for (my $col = 0; $col < @$row; $col++)
 			{
-			$widths[$col] = length $row->[$col] if length $row->[$col] > ($widths[$col] // 0);
+			# The '//' operator makes the Syntax::Highlight::Perl::Improved
+			# parser stumble, so we do it the long way.
+			###$widths[$col] = length $row->[$col] if length $row->[$col] > ($widths[$col] // 0);
+			if (defined($widths[$col]))
+				{
+				$widths[$col] = length $row->[$col] if length $row->[$col] > $widths[$col];
+				}
+			else
+				{
+				$widths[$col] = length $row->[$col] if length $row->[$col] > 0;
+				}
 			}
 		}
 	}

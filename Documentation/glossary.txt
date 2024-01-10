@@ -8,7 +8,7 @@ This top part doesn't interfere with definitions, because is carefully does not 
 
 Note if you want a backslash, it's best to use two of them in a row. But single backslashes usually work too.
 
-Swarm server: A service written to run under IntraMine. A server is a "swarm" server if it uses "swarmserver.pm" to answer HTTP requests, and communicate with other services, including IntraMine's main service.
+Swarm server: A service written to run under IntraMine. A server is a "swarm" server if it uses "swarmserver.pm" to answer HTTP requests, and communicate with other services, including IntraMine's main service. There's more in "Writing your own IntraMine server.html".
 
 Main server: IntraMine's round-robin redirect server, intramine_main.pl. The Main server redirects requests to appropriate swarm servers, based on the Short name in the request, and can receive these requests directly or from a swarm server that can't handle a request. Main also handles requests to broadcast a signal to other IntraMine servers, by name or port or general type.
 
@@ -70,11 +70,11 @@ Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standar
 
 Partial path, file specifier, link specifier: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
-For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
 Sufficient path: For IntraMine's FLASH links, a sufficient path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
-For example, "project51/Cpp/main.cpp" would be a sufficient path for "P꞉\Cpp\OtherProjects\Project51\src\main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+For example, "project51/Cpp/main.cpp" would be a sufficient path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 
 Run as administrator: You can get a command prompt (console window) by putting a shortcut to "C:/Windows/System32/cmd.exe" on your desktop.
 
@@ -84,11 +84,9 @@ And you can set it to always "Run as administrator" by right-clicking on the sho
 
 Map network drive: Open a File Explorer window, click on "This PC" on the left, and then select "Map network drive" at the top. Enter the \\\\host-name\\share-name you want to map, and then select a drive letter to map it to on the PC you're sitting at. Whether or not you'll want to reconnect using a different account is up to you, depending on how you've set things up.
 
-Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: Briefly, IntraMine uses a complete list of paths to Elasticsearch-indexed files, and the notion of "context", which is the folder containing the file where you are mentioning some other file, to generate a hyperlink to the file without your needing to type the full path to the file, or any special characters. Though putting links in double quotes helps readability in the original text.
+Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended).
 
-You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables".
-
-That was a bit brief wasn't it? Please see "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
+See "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
 
 Linker: IntraMine's hyperlink service, implementing FLASH links in particular. Also glossary popups. For more see "Linker.html".
 
@@ -100,7 +98,9 @@ Command prompt: The command prompt window
 
 The flashing insertion point in the window that comes up when you run C:/Windows/System32/cmd.exe or PowerShell.
 
-Console window: The window you can type commands in when you run "C:\\Windows\\System32\\cmd.exe". To make life easier, once you've found it put a shortcut to it on your desktop. You can have two shortcuts, and set one of them to always "Run as administrator" (to do that, right-click and then Properties->Shortcut->Advanced... and check "Run as administrator").
+Console window: The window you can type commands in when you run "C:/Windows/System32/cmd.exe". To make life easier, once you've found it put a shortcut to it on your desktop. You can have two shortcuts, and set one of them to always "Run as administrator" (to do that, right-click and then Properties->Shortcut->Advanced... and check "Run as administrator").
+
+"prompt.png"
 
 Navigation bar: "topnav.png".
 
@@ -131,3 +131,5 @@ Context directory: the path to the directory holding a referencing file. Eg "p:/
 Glossary popup, glossary popups: for general use with IntraMine, glossary popup definitions are contained in any files called "glossary_master.txt" as found in any folder listed in your data/search_directories.txt file. See the glossary_master.txt file at the top of your IntraMine folder for an example. Glossary terms in all source and text files displayed with IntraMine's Viewer will have a dotted underline, and pausing your mouse over the term will show the definition. Popups support rich styling such as bold, italic, FLASH links, and images. For more see "Glossary popups.html".
 
 A separate glossary is available for use with gloss2html.pl. It should be called "glossary.txt" and placed at the top level of any folder containing text files that you want to convert to standalone HTML using gloss2html. For details see "gloss2html.pl for standalone Gloss files.html".
+
+Shortcut on your desktop: To make a shortcut to any file, in a Windows File Explorer view hold down the Shift and Ctrl keys and drag the file to your desktop, or wherever you want the shortcut.

@@ -1,38 +1,36 @@
 Gloss
 =====
+
+To view this file with Gloss-style markdown applied, you can double-click on the HTML version "Gloss.html" in IntraMine's Documentation folder, or click on the '?' in the navigation bar and then click on "Gloss.txt" listed there. For the plain text source, open Documentation/Gloss.txt in a text editor.
+
 ---
-NOTE:
- - to see how Gloss renders markup, please view the .html version of this file in IntraMine's Documentation/ folder, or open the .txt version using IntraMine, either directly or after clicking on the '?' in the navigation bar.
- - to see the source for this file, open Documentation/Gloss.txt in a text editor.
- - "tricks" such as zero width spaces, fat asterisks ✱, and images are used to avoid Gloss processing below, so you can see the original text followed by how Gloss renders it.
+NOTE: "tricks" such as zero width spaces, fat asterisks ✱, and images are used to avoid Gloss processing below, so you can see the original text followed by how Gloss renders it.
 ---
 
 Overview
 ========
-Gloss is a markdown variant that concentrates on: minimal, memorable markdown that looks good in the source text; automatic linking to files on your local storage intranet (these are called FLASH links below); and glossary popups.
+Gloss is a markdown variant that concentrates on: minimal, memorable markdown that looks good in the source text; automatic linking to files on your local and intranet storage (these are called FLASH links below); and glossary popups.
 
-Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With Gloss, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to type to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other. In the rare cases where the file name alone is ambiguous, you can add one or more directory names in any order in any sequence to pin down the file you want. You can leave out directory names that aren't needed for pinning the instance down. And if you need a drive letter to do the job, put it first.
+Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With **FLASH links**, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to type to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other. Paths are selected from among those that you've indicated are "of interest" to you, based on your list of directory paths in data/search_directories.txt. In the rare case where the file name alone is ambiguous, you can add one or more directory names in any order in any sequence to pin down the file you want. You can leave out directory names that don't constrain the instance wanted. And if you need a drive letter to do the job, put it first.
+
+A **glossary** is a necessity for a project of any size. You've probably seen already how they work in IntraMine: any defined term, such as FLASH links, has a dotted underline in the text, and if you pause your cursor over the term a definition pops up. Definitions in your glossary can themselves use Gloss, with styling, links, images and more. These are called **glossary popups** in IntraMine, and in a slightly recursive manner they can also be marked up with Gloss, including FLASH links and styling. For details see "Glossary popups.txt".
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt").
 
-Gloss can also be used in glossary popups, which are glossary definitions that appear when you pause your cursor over a defined word or phrase. These are available in all source and text files when IntraMine's Viewer is used to display them (even regular Markdown (.md) files). For details see "Glossary popups.txt".
-
 And most of Gloss is available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main differences are that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt"), and that cell separation in tables is done with \t rather than an actual tab.
 
-Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use, as opposed to publishing to the world. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
+Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
 
-Since IntraMine is a bit of a tech demo, Gloss processing is fully applied to all .txt files by the Viewer. A subset (including glossary popups, table of contents, automatic linking, and image hovers) is also applied to source files. (Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.) And gloss2html.pl generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once.
+Gloss processing is fully applied to all .txt files by the Viewer. A subset of Gloss including automatic linking, glossary popups, a synchronized table of contents, and image hovers is also applied to source files. IntraMine's Editor is well suited for editing the source of Glossed files, and shows "live" automatic links and glossary popups. And gloss2html.pl generates the promised fully standalone HTML versions from Gloss sources, either single files or a whole folder at once, with images inlined or as hovers.
 
-I sense you want some bullet points. Gloss does
- - "Links": FLASH links to local and NAS source and text files, links to the web, internal headings, images, and links that jump directly to places in other documents (functions, classes, text file headings). Typical overhead per link: at most two double quotes, and a hash tag '#' between a file name and a heading in the file. FLASH links are context aware, minimizing the need to provide a partial path. Linking is applied to all source and text files by the Viewer.
- - "Glossary popups": rich definitions that pop up when you pause your cursor over a defined term. See "Glossary popups.txt" for details on creating and using your own definitions in all source and text files.
- - for supported languages (see just above), an automatically generated "Table of Contents" down the left side, with links to headings, functions, and classes etc.
- - "Headings": h1 h2 h3, done with underlining using at least five ========, ------------, ~~~~~~~~~~~~.
- - "Tables": write "TABLE", put headers on the next line, data on following lines, and separate cells with one or more tabs: the table ends when a line has no tabs. More below, but that's basically it.
- - "Lists" both numbered and bulleted, "Emphasis" (**bold** and *italic*).
- - highlighting of any word or short phrase you select, in the text and down the scrollbar. (Due to technical limitations aka my brain size, only single words can be highlighted in CODE/ENDCODE blocks.)
- - "image hovers": any mention of an image becomes a link to the image, and stopping your cursor over the link will pop up an instant view of the image. If you haven't been using images in your source files, it's because you didn't have image hovers. For text files there' an "Inline Images" button at the top of the Viewer that lets you switch between the default image hovers and fully displayed images.
- - "Emphasis": bold, italic, and code fragments
+Gloss also does
+ - an auto generated and synchronized table of contents (currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.)
+ - "Headings": h1 h2 h3, done with underlining using at least five =====, -----, ~~~~~. And also h1 h2 etc using "# ", "## " etc at the start of a line.
+ - "Tables": write "TABLE" at the start of a line, put headers on the next line, data on following lines, and separate cells with one or more tabs: the table ends when a line has no tabs. More below, but that's basically it.
+ - "Lists" both numbered and bulleted. 
+ - "Emphasis": **bold**, *italic*, and *!*my $codeFragment = 42;*!*.
+ - highlighting of any word or short phrase you select, in the text and down the scroll bar. (Due to technical limitations aka my brain size, only single words can be highlighted in CODE/ENDCODE blocks.)
+ - "image hovers": any mention of an image becomes a link to the image, and stopping your cursor over the link will pop up an instant view of the image. If you haven't been using images in your source files, it's because you didn't have image hovers. For text files there's an "Inline Images" button at the top of the Viewer that lets you switch between the default image hovers and fully displayed images.
  - "Code blocks": if you put some code between CODE and ENDCODE lines it will be styled up a bit.
 
 How to
@@ -53,13 +51,13 @@ Table of Contents
 Gloss generates a Table of Contents (TOC) automatically for:
  - headings in text files (see just below)
  - function, method, class, and struct definitions in source files.
- - currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby.
+ - currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.
  
 The Table of Contents is done alphabetically in source files, and in order of occurrence in text files.
 
 The selected item in the TOC updates automatically to synchronize with the position you're viewing in a document as you scroll.
 
-A little green double-headed arrow doohickey 707788g4.png up top lets you collapse/expand the TOC.
+A little green double-headed arrow doohickey 707788g4.png up top lets you collapse/expand the TOC width.
 
 Headings
 -------
@@ -111,7 +109,7 @@ produces
 
 Links
 -----
-When a source or text file is viewed with IntraMine, file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used. For details on how to index folders, see "Configuring folders to index and monitor.txt".
+When a source or text file is viewed with IntraMine, local or NAS file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used. For details on how to index folders, see "Configuring folders to index and monitor.txt".
 
 Linking to other files
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -122,19 +120,16 @@ Read on for full control over this new super power you have:)
 This will be easier with a few definitions up front:
 **Referencing file**: the source or text file where you're typing, and want to have a link to a target file.
 **Target file**: is the file you want to link to.
+**File specifier**: part of the path to the target file, always including the file name.
 **Context**: this is the directory that holds the referencing file.
 **File distance**: As you might guess, the "distance" between your referencing file and target file is just the number of directory moves up and down that it takes to go from one file to the other.
 **Sufficient path**: a file name, plus optionally enough directory names in any order to uniquely identify a file. Plus optionally a drive letter (placed first so as not to confuse humans).
 
-For example, if you're reading "C:/Projects/project51/docs/notes.txt", and in it you see "main.cpp": then "notes.txt" is the referencing file, "main.cpp" is the target, and "C:/Projects/project51/docs/" is the context. As a variation, the target you see might be "project999/src/main.cpp" (which might or might not be on the C: drive).
+As an example, suppose you're writing in a log file at "C:/Project51/docs/202310 notes.txt": so that's your referencing file. If you write "main.cpp" in it, with or without quotes, that's a file specifier. If there's only one main.cpp in your Project 51 folder, that will be the target file. The full path to it might be "C:/Project51/src/main.cpp" for example. Your context folder would be the docs folder, "C:/Project51/docs/". And the file distance from 202310 notes.txt to main.cpp would be one up from the docs folder and one down into the src folder, a total of 2. If instead you wanted to refer to main.cpp in your Project999 folder, you could write Project999/main.cpp, and that would work if there's only on main.cpp file in the Project 999 folder.
 
 Basically, IntraMine decides which file is meant as the target the same way you would, if you memorized the names and locations of all files on your system. It picks the closest one that's compatible with any path you provide, in other words the one that's at a minimum distance from your context.
 
-So if you type "...as implemented in main.cpp" in "C:/Projects/project51/docs/notes.txt", and the main.cpp closest to that file is "C:/Projects/project51/src/main.cpp", then that's where the link on "main.cpp" will take you. If, in the same project, you also had temp/main.cpp and archived/main.cpp, then you would want to use "src/main.cpp" to signal which of the closest ones you want. IntraMine interprets that as "go to the closest main.cpp that's in a /src/ subfolder, with /src/ being anywhere in the path".
-
-If instead you wanted to link to the main.cpp in a different project, you would need to provide enough of a sufficient path, eg project999/src/main.cpp.
-
-By the way, even though I've sometimes lazily referred to a "partial path" on occasion, there's no need to include a rightmost-complete partial path: directories can be skipped, or out of order. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link autmatically (for example, Q:/CppProjects/January/project999/source/main.cpp). And if your referencing file is in the project999 folder, then all you need is main.cpp. Not even quotes.
+By the way, even though I might lazily refer to a "partial path" on occasion, there's no need to include a rightmost-complete partial path: in a FLASH link file specifier, directories can be skipped, or out of order. If there's only one indexed instance of main.cpp in a /project999/ folder, then you can refer to it as project999/main.cpp and Gloss will come up with the right link automatically (for example, Q:/CppProjects/January/project999/source/main.cpp). And if your referencing file is in the project999 folder, then all you need is main.cpp. Not even quotes.
 
 Just about any file name typed into a source or text file that's viewed with IntraMine's Viewer will become a link, provided it's in a folder that has been indexed. You can use double quotes around the file name (eg "Build your Elasticsearch index and run IntraMine.txt") to help the file name stand out in the original text, but that's optional. If the file is not in an indexed folder, you'll need to provide a full path to it, eg Q:\Old junk\badsort.js.
 
@@ -147,6 +142,25 @@ main.cpp in P:/project51/src	a file on some other drive				project51/main.cpp
 Of course, if you have several copies of the project51 folder floating around, you'll need more of the path in the mention, eg Q:/project51/main.cpp if there's only one project51 folder on the Q: drive.
 
 IntraMine's context-aware file selection isn't quite artificially intelligent however, so it won't handle "the main.cpp over in project27" properly if you're writing that in a file that's outside the project27 folder - you'll need to use something more resembling a path, such as project27/main.cpp. Maybe some day....
+
+Linking to headings, functions, and classes in other files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A FLASH link can include a specific location in a file, specifically a heading in a text file or a function/method or class name in a source file. For the file specifier part, the same rules apply as for FLASH links above.
+
+To link to a heading in a text file: Use a '#' to separate the file name from the heading, and enclose it all in quotes. For example, "Using IntraMine.txt#Indexing additional folders".
+
+If you're linking to a function/method, you can optionally include parentheses to help the link stand out, and you don't need quotes. For example, autolinking_demo.pl#FindBestLinkFor() or autolinking_demo.pl#FindBestLinkFor.
+
+You can link to classes and methods in much the same way, eg
+googlesuggest.h#GSuggestCompletion for a class
+googlesuggest.cpp#GSuggestCompletion for a constructor
+googlesuggest.cpp#GSuggestCompletion::GSuggestCompletion also works for a constructor
+googlesuggest.cpp#GSuggestCompletion::eventFilter() for a method
+googlesuggest.cpp#GSuggestCompletion::eventFilter also gives a method link.
+
+Linking to a line number in a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can also link to a specific line number in a file, eg autolinking_demo.pl#102. No quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult.
 
 Linking to directories
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -170,21 +184,6 @@ C:/Projects/proj99/Changes/	C:/Projects/proj1/notes/Jan_2023.txt	"proj99/changes
 As an example of possible variations, "proj99/changes" could also be entered as "/Proj99/CHANGES/" or "changes\PROJ99" or "C:/projects/proj99/changes/".
 
 Since this is a somewhat new feature, you're encouraged to think up new uses for it. Any directories you'd like to get at with a single click? Now you can.
-
-Linking to headings in other files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Heading links are only fully implemented in IntraMine's Viewer. If you click on the little pencil icon to bring up an Editor for a link that contains a heading, the file will open in the Editor but you won't be scrolled down to the heading.
-
-By "heading" I mean a heading in a text file, or a function or class in a source file, to keep things short.
-
-To link to a heading in a source or text file, put a hash "#" between the file name and heading, and put the whole mention in "double quotes".
-
-Some examples: these are IntraMine files, so if you've indexed your IntraMine folder and you're viewing this with IntraMine's Viewer then all of the below examples will be real links. If you're viewing this with IntraMine's Help, only the first one will be a link.
-"Linker.txt#Calling the Linker"
-"intramine_viewer.pl#GetPrettyTextContents()"
-"autoLinks.js#addAutoLinks()"
-
-If you click on a link to a heading, the file will open in a new tab and you'll be scrolled to the heading.
 
 Linking to headings in the same file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -503,7 +502,7 @@ Markdown is aimed at a variety of audiences. Here are some features that documen
 TABLE Gloss doesn't do these
 Item                 				Why
 ~~strikethrough~~	I have never needed that, have you?
-Definition list		Gloss provides a glossary for standalone Gloss files, as generated by gloss2html.pl. A definition is available wherever a term is used, by stopping the cursor over the term.
+Definition list		Gloss provides glossary popups instead. A definition is available wherever a term is used, by stopping the cursor over the term.
 Heading ID			Gloss links headings automatically: put the heading mentions in double quotes, for example "Overview".
 Footnotes			Something for grander documents.
 Alt text for images	Gloss pops up a view of the image when you put your cursor over the image name. If alt text is needed, you can type it before or after the image name.
@@ -511,7 +510,7 @@ Titles for links	Honestly, too much bother for an intranet document.
 Blockquote			Put it in quotes and italicize the author, good enough for most uses.
 Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
 ---
-Hashed headings, such as #### This is an h4 heading, are supported, but underlining with = - or ~ just looks better in the original.
+Gloss does do hashed headings, such as #### This is an h4 heading, but underlining with five or more of = - or ~ just looks better in the original.
 
 contents.html
 ---

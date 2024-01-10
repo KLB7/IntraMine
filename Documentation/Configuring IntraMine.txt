@@ -12,13 +12,13 @@ To configure					See
 Port numbers					A note on port numbers.txt
 Start/stop services				"Using IntraMine.txt#Supplied services"
 Search options					"Search.txt#Search configuration"
-File Watcher initial config		"Installing File Watcher.txt#Configure the service a bit"
+File Watcher initial config		"Installing File Watcher.txt"
 Directories to index			Configuring folders to index and monitor.txt
 Editing							Editing documents.txt
 Viewer							"Viewer.txt#Viewer configuration"
 Opening PDF and docx files		"Viewer.txt#PDF and docx viewers"
 Gloss standalone HTML			"gloss2html.pl for standalone Gloss files.txt#Full image display versus image hovers", see also intramine_config.txt#243
-Testing							"Testing with IntraMine.txt#Installing ChromeDriver", "Testing with IntraMine.txt#Configuring IntraMine to run your test file"
+Testing							"Testing with IntraMine.txt", "Testing with IntraMine.txt#Configuring IntraMine to run your test file"
 
 Configuration value files
 =========================
@@ -31,6 +31,8 @@ data/search_directories.txt	directories to index/monitor with Elasticsearch
 
 Per-service configuration
 ========================
+To get started creating your own IntraMine server, see "Writing your own IntraMine server.txt".
+
 Each IntraMine service (including ones you might write) can have its own specific configuration file. To create such a file for a new service you're writing:
  - note the Short name you've assigned to the service, eg "DBX". The master list of Short names is in data/serverlist.txt
  - create a file in IntraMine's data/ folder called "SHORT_config.txt", where "SHORT" is the short name of the service, eg DBX_config.txt

@@ -3,7 +3,7 @@ Using IntraMine
 
 Start and stop IntraMine
 ========================
-You can **start IntraMine** by double-clicking bats\START_INTRAMINE.bat as found in your IntraMine folder. (Note you don't need to use "Run as administrator" to start or stop IntraMine.) You might want to put a shortcut to that on your desktop.
+You can **start IntraMine** by double-clicking bats\START_INTRAMINE.bat as found in your IntraMine folder. (Note you don't need to use "Run as administrator" to start or stop IntraMine.) You might want to put a shortcut on your desktop.
 
 To **stop IntraMine**, double-click on bats\STOP_INTRAMINE.bat. This is the best way, because each server will finish whatever it might be busy with before quitting. And for this one as well you might want to put a shortcut on your desktop.
 
@@ -15,7 +15,7 @@ Visit IntraMine with your browser
 =================================
 Go to http://localhost:81/Search (use your main port number, if you decided not to use 81). Or you can go to some other running page such as "ToDo" or "Status", just substitute that for "Search" in the URL.
 
-To visit IntraMine from a different PC, substitute the LAN IP of your IntraMine PC for "localhost". (Run "ipconfig /all" on your IntraMine PC in a command window to discover the Local "IPv4 Address".)
+To visit IntraMine from a different PC, substitute the LAN IP of your IntraMine PC for "localhost". (Run "ipconfig /all" on your IntraMine PC in a command window to discover the Local "IPv4 Address" which will be four sets of three digits, such as 192.168.1.40).
 
 The Navigation Bar
 ==================
@@ -60,7 +60,7 @@ To disable a server, set its "Count" field to 0 in data/serverlist.txt.
 
 Only one instance of a BACKGROUND service can be run, so the Count values for a service such as FILEWATCHER are basically zero to not run and non-zero to run.
 
-To start, stop, restart or add a service on the fly, use the Status page. PERSISTENT and BACKGROUND service counts must be adjusted in data/serverlist.txt and a restart of IntraMine is required for the changes to take effect.
+To start, stop, restart or add a service on the fly, use the Status page. Additions and deletions of services done on the fly will not survive a restart of IntraMine, though. To make a permanent change to which services are running, edit the "Count" column in data/serverlist.txt and restart IntraMine. Note PERSISTENT and BACKGROUND service counts can only be adjusted by editing data/serverlist.txt.
 
 A minimal set for search/view/edit
 ==================================
@@ -105,8 +105,9 @@ For the details, see "Gloss.html#Links".
 
 ### Glossary popups
 Why aren't you using a glossary? Possibly because it's a bit tedious: you see a term you're not sure about, open the glossary, and find it in alphabetical order (maybe), then go back to reading. How about this instead: you see a term, you know it's in the glossary because it has a subtle dotted underline, you pause your mouse over it, and the definition instantly pops up with a mix of styled text, clickable links, images, tables, lists, and a scroll bar if needed. Better, right? All glossary entries are automatically available in all source and text files on your PC or LAN when the file is viewed with IntraMine. Typing up a glossary definition is as easy as putting *term colon definition* in a file called "glossary_master.txt".
-The details are in "Glossary popups.html".
+For the how-to "Glossary popups.html", or the top of the "glossary_master.txt" example glossary file at the top of your IntraMine folder.
 
+Here's an admittedly full-throttle example of a glossary definition being viewed:
 gloss1.png
 *An image of a glossary popup, showing off Gloss for the formatting. Pause your mouse over "Gloss" in the previous sentence and you'll see a real glossary popup.*
 
@@ -117,8 +118,12 @@ Details are in "Search.html".
 ### Gloss for markdown
 If you like the idea of using some sort of markdown for your internal documents, but want something with very little overhead and memorable syntax that makes things like links and tables as easy as possible, take a look at "Gloss.txt".
 
-Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style text documents to single-file completely standalone HTML. You get all of Gloss's standard features, plus the option of inlining images rather than having them pop up on a hover, and glossary popup support for definitions and procedures. You should find they look good enough for in-house documentation, and even for Help files on the web.
-See "gloss2html.pl for standalone Gloss files.html".
+### Gloss for standalone HTML
+Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style .txt documents to single-file completely standalone HTML. If you're reading this document after accessing it through IntraMine's "?" help on the navigation bar, the you're seeing such a file.
+
+You get all of Gloss's standard features, but FLASH links are limited to files in the directory. In particular, glossary popups are supported. You have the option of inlining images rather than having them pop up on a hover.
+
+See "gloss2html.pl for standalone Gloss files.html" if you like the idea of having Markdown styling, FLASH links, a synchronized table of contents, glossary popups etc in your documentation without having to use IntraMine to view the resulting HTML files.
 
 ### A truly nice file Viewer
 Pause your cursor over Viewer to see a brief overview. Details in Viewer.html.

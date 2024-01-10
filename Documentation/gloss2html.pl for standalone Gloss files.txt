@@ -53,12 +53,16 @@ Since we're dealing with standalone files that could end up anywhere, only links
 As an example, many of IntraMine's help docs in the Documentation folder contain links to other files, such as contents.txt.
 
 When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
+
+Links to web pages
+=======================
+Links to web pages are supported, eg https://github.com/. Anything starting with http:// or https:// is treated as a web link.
  
 Adding a table of contents file
 ==========================
 If you have a folder of several documents to convert, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with an old-fashioned look:
  - name your table of contents file "contents.txt"
- - put the word CONTENTS at the top of a file on a line by itself. This is case-sensitive.
+ - put the word CONTENTS at the top of the file on a line by itself. This is case-sensitive.
 
 Then add the names of other files in the same folder that you want listed in your table of contents. No quotes are needed, and you can have section headings if you want. Take a look at  IntraMine's /Documentation/contents.txt table of contents file and you'll see how to do it at a glance.
 
@@ -93,7 +97,7 @@ A term's definition can have several paragraphs, and in fact continues until ano
 
 You can have a preamble above the definitions at the start of the file, as long as it doesn't contain a colon ":".
 
-The definitions don't have to be in any order.
+The definitions don't have to be in any order. However if you use IntraMine's Viewer to display the glossary.txt file then the table of contents on the left will list the definitions in alphabetical order.
 
 Sometimes a picture works better. If you'd rather show an image than plod through a thousand-word equivalent, put the name of the image in place of the "definition", enclosed in double quotes.
 
@@ -107,7 +111,7 @@ where that image is in IntraMine's Documentation/images folder.
 
 Using Gloss in your glossary
 ----------------------------
-Glossary definitions don't have to be just plain text or one image: you can take advantage of almost all of IntraMine's Gloss markdown variant (designed for intranet use).
+Glossary definitions don't have to be just plain text or one image: you can take advantage of almost all of IntraMine's Gloss markdown variant, as described in "Glossary popups.txt".
 
 For a full example of a glossary file, see Documentation/glossary.txt.
 
