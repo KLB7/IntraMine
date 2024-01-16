@@ -1351,6 +1351,49 @@ sub GetPrettyTextContents {
 	my $inACodeBlock = 0; 	# Set if see CODE on a line by itself,
 							# continue until ENDCODE on a line by itself.
 	my $numLines = @lines;
+
+	# Well I've put myself in a pickle by supporting ^#+ to signal headings.
+	# IntraMine's own intramine_config.txt starts lines with # to indicate comments.
+	# There is no great fix for that. But we check the first 20 lines here, and
+	# if enough start with # then turn off octothorpe headings. Also turn off if
+	# we same the same number of hashes on two consecutive lines.
+	my $allowOctothorpeHeadings = 1; 	# Whether to do ## Markdown headings
+	my $numOctos = 0;					# Too many means probably not headings
+	my $linesToCheck = 20;				
+	my $hasSameHashesInARow = 0;		# Consecutive # or ## etc means not headings
+	my $previousHashesCount = 0;
+	if ($linesToCheck > $numLines)
+		{
+		$linesToCheck = $numLines;
+		}
+	if ($linesToCheck)
+		{
+		for (my $i = 0; $i < $linesToCheck; ++$i)
+			{
+			if (index($lines[$i], '#') == 0)
+				{
+				++$numOctos;
+				$lines[$i] =~ m!^(#+)!;
+				my $startHashes = $1;
+				my $currentHashesCount = length($startHashes);
+				if ($currentHashesCount == $previousHashesCount)
+					{
+					$hasSameHashesInARow = 1;
+					}
+				$previousHashesCount = $currentHashesCount;
+				}
+			else
+				{
+				$previousHashesCount = 0;
+				}
+			}
+		my $headingRatio = $numOctos / ($linesToCheck + 0.0);
+		# .25 is admittedly somewhat arbitrary and untested.
+		if ($headingRatio > .25 || $hasSameHashesInARow)
+			{
+			$allowOctothorpeHeadings = 0;
+			}
+		}
 	
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < $numLines; ++$i)
@@ -1478,7 +1521,7 @@ sub GetPrettyTextContents {
 			if (!$didPodPreRule)
 				{
 				# Hashed heading eg ## Heading.
-				if ($lines[$i] =~ m!^#+\s+!)
+				if ($allowOctothorpeHeadings && $lines[$i] =~ m!^#+\s+!)
 					{
 					Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
 					$justDidHeadingOrHr = 1;

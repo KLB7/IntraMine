@@ -126,6 +126,10 @@ The how-to is described in "Editing documents.txt", but in brief any local or NA
 
 Editor links appear as small pencils (edit1.png) to the right of regular links on files.
 
+Auto-refresh
+----------------
+When you use any editor to save a file, any view displayed with IntraMine's Viewer will automatically refresh. This is instant if the change was made using IntraMine's Editor, and takes 1-2 seconds if the change was made with some other editor. This is especially handy for working on Markdown or Gloss files: open a file in the Viewer and any editor, then see your changes rendered immediately.
+
 Under the hood
 ==============
 Request Actions

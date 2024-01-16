@@ -34,7 +34,9 @@ Assuming you've configured IntraMine to use its own Editor, you can bring up a s
 
 Auto-refresh
 ---------------
-Files displayed with IntraMine's Viewer will auto-refresh when changed by IntraMine's Editor, scrolling to the line where the Editor's cursor is. The refresh is pretty much instant. This is mainly handy when you're creating your own in-house documentation or log files using Gloss.
+Files displayed with IntraMine's Viewer will auto-refresh instantly when changed by IntraMine's Editor, scrolling to the line where the Editor's cursor is. If you use some other editor, the refresh in the Viewer will take 1-2 seconds, and the top displayed line won't change. Auto-refresh is especially handy for working on Markdown or Gloss files: open a file in the Viewer and any editor, then see your changes rendered immediately.
+
+For the sake of completeness, a display of a file using Intramine's Editor will also refresh if a change is made to the file using any other editor. But making changes to one file using two editors is the path to madness.
 
 Under the hood
 ==============

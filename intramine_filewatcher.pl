@@ -19,6 +19,7 @@ use File::ReadBackwards;
 use Encode qw(from_to);
 use Encode::Guess;
 use Win32::Process;
+use Time::HiRes qw(usleep);
 # For stopping PowerShell script:
 use Win32::Process 'STILL_ACTIVE';
 use DateTime;
@@ -67,6 +68,7 @@ my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
 # and also signal=FILESYSTEMCHANGE, a request to re-index Elasticsearch and rebuild file paths list.
 my %RequestAction;
 $RequestAction{'signal|FILESYSTEMCHANGE'} = \&OnChangeDelayedIndexChangedFiles;
+$RequestAction{'signal|HEARTBEAT'} = \&OnHeartbeatFromFolderMonitor;
 
 my $HaveCheckedLogExists = 0; 	# we only check the first time, exit if File Watcher log is not found.
 my $LastTimeStampChecked = ''; 	# When reading 'tail' of File Watcher log, just step back to the last time stamp seen before.
@@ -88,6 +90,7 @@ LoadLastTimeStamp();
 my $MainLoopTimeout = 2; # seconds
 my $NumTimeoutsBeforeIndexing = 30; # Re-index about once a minute
 my $NumTimeoutsBeforeSignalledIndexing = 2; # Delay re-indexing after signal received
+my $NumTimeoutsBeforeHeartbeatCheck = 70;
 
 StartPowerShellFolderMonitor();
 
@@ -100,6 +103,9 @@ StopPowerShellFolderMonitor();
 # Call IndexChangedFiles() after MainLoop() timeout has gone through enough to add up to a minute.
 { ##### Timeout IndexChangedFiles
 my $numTimeoutsSinceLastCall;
+my $numTimeoutsSinceLastHeartbeatCheck;
+my $previousHeartbeatCount;
+my $heartbeatReceived;
 
 sub OnTimeoutIndexChangedFiles {
 	if (!defined($numTimeoutsSinceLastCall))
@@ -121,8 +127,78 @@ sub OnTimeoutIndexChangedFiles {
 			$numTimeoutsSinceLastCall = 0;
 			}
 		}
+
+	if (!defined($previousHeartbeatCount))
+		{
+		ResetHeartbeatReceived();
+		}
+
+	# Check that foldermonitor.ps1 is still running, if it is it sends
+	# a 'signal|HEARTBEAT' about once a minute.
+	++$numTimeoutsSinceLastHeartbeatCheck;
+	if ($numTimeoutsSinceLastHeartbeatCheck >= $NumTimeoutsBeforeHeartbeatCheck)
+		{
+		my $currentHeartbeatCount = HeartBeatCount();
+		if ($currentHeartbeatCount == $previousHeartbeatCount)
+			{
+			# Error, foldermonitor.ps1 is not responding.
+			$heartbeatReceived = 0;
+			}
+		else
+			{
+			$heartbeatReceived = 1;
+			}
+		$previousHeartbeatCount = $currentHeartbeatCount;
+		$numTimeoutsSinceLastHeartbeatCheck = 0;
+		}
+
+	if (!$heartbeatReceived)
+		{
+		ResetHeartbeatCount();
+		RestartFolderMonitor();
+		}
+	}
+
+sub FoldermonitorIsOk {
+	return($heartbeatReceived);
+	}
+
+sub ResetHeartbeatReceived {
+	$previousHeartbeatCount = 0;
+	$numTimeoutsSinceLastHeartbeatCheck = 0;
+	$heartbeatReceived = 1;
 	}
 } ##### Timeout IndexChangedFiles
+
+{ ##### foldermonitor.ps1 HEARTBEAT signal handling
+my $heartbeatCount;
+
+# Receive and count up 'heartbeat' signals from foldermonitor.ps1.
+# If not received in time, foldermonitor.ps1 will be restarted.
+# This nuisance tries to deal with cases where foldermonitor.ps1 is
+# overloaded by too many file changes at once, and stops responding.
+sub OnHeartbeatFromFolderMonitor {
+	if (!defined($heartbeatCount))
+		{
+		ResetHeartbeatCount();
+		}
+	++$heartbeatCount;
+	}
+
+sub HeartBeatCount {
+	if (!defined($heartbeatCount))
+		{
+		ResetHeartbeatCount();
+		}
+
+	return($heartbeatCount);
+	}
+
+sub ResetHeartbeatCount {
+	$heartbeatCount = 0;
+	ResetHeartbeatReceived();
+	}
+} ##### foldermonitor.ps1 HEARTBEAT signal handling
 
 # Call IndexChangedFiles() after receiving FILESYSTEMCHANGE and MainLoop() timeout
 # has happened twice.
@@ -136,7 +212,15 @@ my $reindexRequestPending;
 # one IndexChangedFiles() call.
 sub OnChangeDelayedIndexChangedFiles {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
+	# TEST OUT: OnHeartbeatFromFolderMonitor();
+
+	# Do a quick initial re-index, to promptly catch changes to a single file.
+	if (!defined($reindexRequestPending) || $reindexRequestPending == 0)
+		{
+		IndexChangedFiles();
+		}
+
 	$reindexRequestPending = 1;
 	$numTimeOutsSinceRequestReceived = 0;
 	}
@@ -226,6 +310,9 @@ sub IndexChangedFiles {
 		return;
 		}
 	
+	# TEST ONLY
+	#print("Indexing\n");
+
 	# Remove %PathsOfDeletedFiles entry if it was also seen as 'created', trying to work around
 	# problem where a file can be reported as deleted (and also created) when it has been created
 	# and not deleted at all whatsoever (unless notepad++ is doing something sneaky).
@@ -364,6 +451,10 @@ sub SendOneFileContentsChanged {
 	$filePath =~ s!%!%25!g;
 	$filePath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 	my $msg = 'changeDetected 0 ' . $filePath . '     ' . $timeStamp;
+
+	# TEST ONLY
+	#print("CHANGED: $msg\n");
+
 	WebSocketSend($msg);
 	}
 
@@ -1225,6 +1316,7 @@ sub StartPowerShellFolderMonitor {
 	my $oldNewBasePath = CVal('FOLDERMONITOR_OLDNEWBASEPATH'); 	# eg C:/fwws/oldnew
 	$oldNewBasePath =~ s!/!\\!g;
 	my $fmChangeSignal = CVal('FOLDERMONITOR_CHANGE_SIGNAL'); # default /?signal=FILESYSTEMCHANGE&name=Watcher
+	my $fmHeartbeatSignal = CVal('FOLDERMONITOR_HEARTBEAT_SIGNAL'); # default /?signal=HEARTBEAT&name=Watcher
 	
 	my $powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
 	my $foldermonitorPSPath = FullDirectoryPath('FOLDERMONITOR_PS1_FILE'); # ...bats/foldermonitor.ps1
@@ -1233,12 +1325,13 @@ sub StartPowerShellFolderMonitor {
 	# $mainPortNumber 			$mainPort = $args[0], port number of Main (default 81)
 	# $folderMonitorListPath 	$dirListPath = $args[1], holds list of directories to monitor
 	# $oldNewBasePath 			$global:oldNewBasePath = $args[2], base file name for old and new names of renamed dir
-	my $powerShellArgs = "-NoProfile -ExecutionPolicy Bypass -InputFormat None -File \"$foldermonitorPSPath\" $mainPortNumber \"$folderMonitorListPath\" \"$oldNewBasePath\" \"$fmChangeSignal\"";
+	my $powerShellArgs = "-NoProfile -ExecutionPolicy Bypass -InputFormat None -File \"$foldermonitorPSPath\" $mainPortNumber \"$folderMonitorListPath\" \"$oldNewBasePath\" \"$fmChangeSignal\" \"$fmHeartbeatSignal\"";
 	my $result = Win32::Process::Create($PowerShellProc, $powerShellPath, $powerShellArgs, 0, 0, ".");
 	if ($result == 0)
 		{
 		print("WARNING, could not start |$foldermonitorPSPath|.\n");
 		}
+	return($result);
 	}
 
 sub StopPowerShellFolderMonitor {
@@ -1251,5 +1344,16 @@ sub StopPowerShellFolderMonitor {
 		}
 	}
 
+sub RestartFolderMonitor {
+	print("Restarting foldermonitor.ps1 is too slow to respond, restarting...\n");
+	StopPowerShellFolderMonitor();
+	# 1 millisecond == 1000 microseconds
+	usleep(300000); # 0.3 seconds
+	my $result = StartPowerShellFolderMonitor();
+	if ($result)
+		{
+		print("foldermonitor.ps1 has been restarted.\n");
+		}
+	}
 } ##### PowerShell folder monitor start/stop
 1;

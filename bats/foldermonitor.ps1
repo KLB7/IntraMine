@@ -12,7 +12,9 @@ $mainPort = $args[0]
 $dirListPath = $args[1]
 $global:oldNewBasePath = $args[2]
 $changeSignal = $args[3]
+$heartbeatSignal = $args[4]
 $watcherURL = -join("http://localhost:", $mainPort, $changeSignal)
+$heartbeatURL = -join("http://localhost:", $mainPort, $heartbeatSignal)
 #
 # Original author's notice:
 #By BigTeddy 05 September 2011 
@@ -29,6 +31,7 @@ $global:thereWasAnEvent = $false
 # For tracking folder renames:
 $global:oldNewPaths = ''
 $global:oldNewCounter = 1
+$global:heartbeatCounter = 1
 
 # define the code that should execute when a file change is detected
 $Action = {
@@ -55,7 +58,7 @@ $Action = {
 
  
 # Get list of paths to monitor.
-$paths = Get-Content $dirListPath;
+$paths = Get-Content $dirListPath
 
 # Remember the various $fsw's
 $fswList = @()
@@ -81,8 +84,9 @@ $handlers = . {
     # Register-ObjectEvent -InputObject $fsw -EventName Renamed -Action $Action -SourceIdentifier "$i+FSRename"
 	
     Register-ObjectEvent $fsw Changed -SourceIdentifier "$i+FSChange" -Action $Action
-    Register-ObjectEvent $fsw Created -SourceIdentifier "$i+FSCreate" -Action $Action
-    Register-ObjectEvent $fsw Deleted -SourceIdentifier "$i+FSDelete" -Action $Action
+    # Create/Delete aren't that urgent, and are fully picked up in fwws.
+    #Register-ObjectEvent $fsw Created -SourceIdentifier "$i+FSCreate" -Action $Action
+    #Register-ObjectEvent $fsw Deleted -SourceIdentifier "$i+FSDelete" -Action $Action
     Register-ObjectEvent $fsw Renamed -SourceIdentifier "$i+FSRename" -Action $Action
 
     # Register-ObjectEvent $fsw Changed -SourceIdentifier "$i+FSChange" -Action { $global:thereWasAnEvent = $true }
@@ -124,6 +128,14 @@ $i = $i+1
 				$global:oldNewCounter = 1
 				}
 			}
+        }
+    
+    # Send a "heartbeat" signal once a minute;
+    $global:heartbeatCounter = $global:heartbeatCounter + 1
+    if ($global:heartbeatCounter -gt 60)
+        {
+        try {Invoke-WebRequest -Uri $heartbeatURL | Out-Null} catch {}
+        $global:heartbeatCounter = 1
         }
     #Write-Host "." -NoNewline
     } while ($true)
