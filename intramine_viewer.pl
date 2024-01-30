@@ -1,7 +1,7 @@
 # intramine_viewer.pl: use CodeMirror to display most code files,
 # with custom display (code below) for txt, Perl, and pod.
 # Pdf and docx also have basic viewers.
-# All code and text files have autolinks, and image hovers.
+# All code and text files have autolinks, and image hovers, and glossary popups.
 # Text files (.txt) are given the full Gloss (like Markdown) treatment with
 # headings, lists, tables, autolinks, image hovers, special characters,
 # horizontal rules and a table of contents on the left.
@@ -1125,7 +1125,10 @@ sub GetPrettyPerlFileContents {
 		# Put subs etc in TOC, with links.
 		# Links for subs are moved up to the first comment that goes with the sub.
 		# <span class='line_number'>204</span>&nbsp;<span class='Keyword'>sub</span> <span class='Subroutine'>
-		if ($lines[$i] =~ m!^\<span\s+class=\'Keyword\'\>\s*sub\s*\<\/span\>\s*\<span\s+class=\'Subroutine\'\>(\w+)\<\/span\>!)
+		# And also <span class='String'>sub Subname {</span>, since the parser breaks
+		# if it encounters '//' sometimes.
+		if ($lines[$i] =~ m!^\<span\s+class=\'Keyword\'\>\s*sub\s*\<\/span\>\s*\<span\s+class=\'Subroutine\'\>(\w+)\<\/span\>!
+		  || $lines[$i] =~ m!^<span\s+class=\'String\'>\s*sub\s+(\w+)!)
 			{
 			# Use $subName as the $id
 			my $subName = $1;
