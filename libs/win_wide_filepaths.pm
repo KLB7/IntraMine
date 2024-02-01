@@ -25,14 +25,16 @@ use Carp;
 use utf8;
 use Encode qw/encode decode/;
 use Win32API::File;
-# TODO find a better way, GetFileTime (wide) often fails where stat works.
-use Win32API::File::Time qw{GetFileTime};
+#use Win32API::File::Time qw{GetFileTime};
 use Win32::API;
 use IO::Handle;
 use Encode;
 use Encode::Guess;
 use HTML::Entities;
-#use Path::Tiny qw(path);
+use Path::Tiny qw(path);
+use lib path($0)->absolute->parent->child('libs')->stringify;
+# TODO find a better way, GetFileTime (wide) often fails where stat works.
+use Win32API::File::Time qw{GetFileTime};
 
 # Some API calls aren't in the can, so we import them explicitly at the start.
 BEGIN {

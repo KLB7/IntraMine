@@ -3,7 +3,7 @@
 
 // If a file watcher change notice is received within these many seconds
 // of a notice from IntraMine's Editor, we ignore it.
-let doubleNoticeSeconds = 10;
+let doubleNoticeSeconds = 3;
 let selfTriggerSeconds = 1;
 let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
 

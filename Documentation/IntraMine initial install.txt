@@ -112,7 +112,6 @@ Here's the list of modules to install for IntraMine. To install the modules, cop
 cpan PREACTION/Log-Any-1.716.tar.gz
 cpan Search::Elasticsearch
 cpan ExportAbove
-cpan Win32API::File::Time
 cpan Math::SimpleHisto::XS
 cpan File::ReadBackwards
 cpan IO::Socket::Timeout

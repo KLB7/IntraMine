@@ -1692,9 +1692,9 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='86'><a href='#Installing_additional_Strawberry_Perl_modules'>Installing additional Strawberry Perl modules</a></li>
 <li class='h3' im-text-ln='89'><a href='#All_at_once'>All at once</a></li>
 <li class='h3' im-text-ln='102'><a href='#One_by_one'>One by one</a></li>
-<li class='h2' im-text-ln='132'><a href='#Optional_modules'>Optional modules</a></li>
-<li class='h3' im-text-ln='144'><a href='#Use_the_EM_(Extract_Method)_service_instead'>Use the "EM" (Extract Method) service instead</a></li>
-<li class='h2' im-text-ln='148'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
+<li class='h2' im-text-ln='131'><a href='#Optional_modules'>Optional modules</a></li>
+<li class='h3' im-text-ln='143'><a href='#Use_the_EM_(Extract_Method)_service_instead'>Use the "EM" (Extract Method) service instead</a></li>
+<li class='h2' im-text-ln='147'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberry%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eperl.com%2F%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
@@ -1914,66 +1914,65 @@ AABJRU5ErkJggg==
 <tr id='R112'><td n='112'></td><td>cpan PREACTION/Log-Any-1.716.tar.gz</td></tr>
 <tr id='R113'><td n='113'></td><td>cpan Search::<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elasti%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Ec.co%2Felasticsearch%2F%26amp%3Bquot%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%3B%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr>
 <tr id='R114'><td n='114'></td><td>cpan ExportAbove</td></tr>
-<tr id='R115'><td n='115'></td><td>cpan Win32API::File::Time</td></tr>
-<tr id='R116'><td n='116'></td><td>cpan Math::SimpleHisto::XS</td></tr>
-<tr id='R117'><td n='117'></td><td>cpan File::ReadBackwards</td></tr>
-<tr id='R118'><td n='118'></td><td>cpan IO::Socket::Timeout</td></tr>
-<tr id='R119'><td n='119'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
-<tr id='R120'><td n='120'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
-<tr id='R121'><td n='121'></td><td>cpan Text::MultiMarkdown</td></tr>
-<tr id='R122'><td n='122'></td><td>cpan Win32::RunAsAdmin</td></tr>
-<tr id='R123'><td n='123'></td><td>cpan Text::Unidecode</td></tr>
-<tr id='R124'><td n='124'></td><td>cpan Selenium::Remote::Driver</td></tr>
-<tr id='R125'><td n='125'></td><td>cpan Protocol::WebSocket::Client</td></tr>
-<tr id='R126'><td n='126'></td><td>cpan Net::WebSocket::Server</td></tr>
-<tr id='R127'><td n='127'></td><td>cpan URI::Encode</td></tr>
-<tr id='R128'><td n='128'></td><td>cpan Date::Business</td></tr>
-<tr id='R129'><td n='129'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R115'><td n='115'></td><td>cpan Math::SimpleHisto::XS</td></tr>
+<tr id='R116'><td n='116'></td><td>cpan File::ReadBackwards</td></tr>
+<tr id='R117'><td n='117'></td><td>cpan IO::Socket::Timeout</td></tr>
+<tr id='R118'><td n='118'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
+<tr id='R119'><td n='119'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
+<tr id='R120'><td n='120'></td><td>cpan Text::MultiMarkdown</td></tr>
+<tr id='R121'><td n='121'></td><td>cpan Win32::RunAsAdmin</td></tr>
+<tr id='R122'><td n='122'></td><td>cpan Text::Unidecode</td></tr>
+<tr id='R123'><td n='123'></td><td>cpan Selenium::Remote::Driver</td></tr>
+<tr id='R124'><td n='124'></td><td>cpan Protocol::WebSocket::Client</td></tr>
+<tr id='R125'><td n='125'></td><td>cpan Net::WebSocket::Server</td></tr>
+<tr id='R126'><td n='126'></td><td>cpan URI::Encode</td></tr>
+<tr id='R127'><td n='127'></td><td>cpan Date::Business</td></tr>
+<tr id='R128'><td n='128'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R130'><td n='130'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
-<tr id='R131'><td n='131'></td><td></td></tr>
-<tr id='R132'><td n='132'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
+<tr id='R129'><td n='129'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
+<tr id='R130'><td n='130'></td><td></td></tr>
+<tr id='R131'><td n='131'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R134'><td n='134'></td><td>[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. It was used only for presenting an "Extract Method" interface for Perl subs. Use the "EM" (Extract Method) service instead.]</td></tr>
-<tr id='R135'><td n='135'></td><td></td></tr>
-<tr id='R136'><td n='136'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
-<tr id='R137'><td n='137'></td><td></td></tr>
-<tr id='R138'><td n='138'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
-<tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R133'><td n='133'></td><td>[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. It was used only for presenting an "Extract Method" interface for Perl subs. Use the "EM" (Extract Method) service instead.]</td></tr>
+<tr id='R134'><td n='134'></td><td></td></tr>
+<tr id='R135'><td n='135'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
+<tr id='R136'><td n='136'></td><td></td></tr>
+<tr id='R137'><td n='137'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
+<tr id='R138'><td n='138'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R140'><td n='140'></td><td>cpan Tk::BrowseEntry</td></tr>
-<tr id='R141'><td n='141'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R139'><td n='139'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R140'><td n='140'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R142'><td n='142'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
-<tr id='R143'><td n='143'></td><td></td></tr>
-<tr id='R144'><td n='144'></td><td><h3 id="Use_the_EM_(Extract_Method)_service_instead">Use the "EM" (Extract Method) service instead</h3></td></tr>
+<tr id='R141'><td n='141'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
+<tr id='R142'><td n='142'></td><td></td></tr>
+<tr id='R143'><td n='143'></td><td><h3 id="Use_the_EM_(Extract_Method)_service_instead">Use the "EM" (Extract Method) service instead</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R146'><td n='146'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
-<tr id='R147'><td n='147'></td><td></td></tr>
-<tr id='R148'><td n='148'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
+<tr id='R145'><td n='145'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
+<tr id='R146'><td n='146'></td><td></td></tr>
+<tr id='R147'><td n='147'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R150'><td n='150'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
-<tr id='R151'><td n='151'></td><td></td></tr>
-<tr id='R152'><td n='152'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
-<tr id='R153'><td n='153'></td><td></td></tr>
-<tr id='R154'><td n='154'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
-<tr id='R155'><td n='155'></td><td></td></tr>
-<tr id='R156'><td n='156'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R149'><td n='149'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
+<tr id='R150'><td n='150'></td><td></td></tr>
+<tr id='R151'><td n='151'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
+<tr id='R152'><td n='152'></td><td></td></tr>
+<tr id='R153'><td n='153'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
+<tr id='R154'><td n='154'></td><td></td></tr>
+<tr id='R155'><td n='155'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R157'><td n='157'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R158'><td n='158'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R156'><td n='156'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R157'><td n='157'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
