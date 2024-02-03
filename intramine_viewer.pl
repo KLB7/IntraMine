@@ -89,6 +89,10 @@ StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 
 my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
 
+# For ATX-style headings that start with a '#', optionally require blank line before
+# (which is the default).
+my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
+
 InitPerlSyntaxHighlighter();
 my $LogDir = FullDirectoryPath('LogDir');
 InitCtags($LogDir . 'temp/tempctags');
@@ -1359,9 +1363,12 @@ sub GetPrettyTextContents {
 	# IntraMine's own intramine_config.txt starts lines with # to indicate comments.
 	# There is no great fix for that. But we check the first 20 lines here, and
 	# if enough start with # then turn off octothorpe headings. Also turn off if
-	# we same the same number of hashes on two consecutive lines.
+	# we same the same number of hashes on two consecutive lines. Later, we require
+	# a blank line before a heading and a space between '#' and the heading text.
 	my $allowOctothorpeHeadings = 1; 	# Whether to do ## Markdown headings
 	my $numOctos = 0;					# Too many means probably not headings
+	my $lineIsBlank = 1;
+	my $lineBeforeIsBlank = 1; 			# Initally there is no line before, so it's kinda blank:)
 	my $linesToCheck = 20;				
 	my $hasSameHashesInARow = 0;		# Consecutive # or ## etc means not headings
 	my $previousHashesCount = 0;
@@ -1401,6 +1408,16 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
+		$lineBeforeIsBlank = $lineIsBlank;
+		if ($lines[$i] eq '')
+			{
+			$lineIsBlank = 1;
+			}
+		else
+			{
+			$lineIsBlank = 0;
+			}
+
 		# See if we're entering or leaving a code block.
 		# A code block starts with 'CODE' on a line by itself,
 		# and ends with 'ENDCODE' on a line by itself.
@@ -1523,8 +1540,10 @@ sub GetPrettyTextContents {
 			
 			if (!$didPodPreRule)
 				{
-				# Hashed heading eg ## Heading.
-				if ($allowOctothorpeHeadings && $lines[$i] =~ m!^#+\s+!)
+				# Hashed heading eg ## Heading. Require blank line before # heading
+				# (or first line).
+				if ( $allowOctothorpeHeadings && $lines[$i] =~ m!^#+\s+!
+				  && ($lineBeforeIsBlank || !$HashHeadingRequireBlankBefore) )
 					{
 					Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
 					$justDidHeadingOrHr = 1;
@@ -2045,6 +2064,7 @@ sub PreRule {
 # Note if doing underlined header then line before will have td etc, but
 # if doing # header then the line we're on will be plain text.
 # Note line counts as # header only if the #'s are followed by at least one space.
+# Added Feb 2024, require blank line before # header, except at doc start (see above).
 sub Heading {
 	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
 

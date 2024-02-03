@@ -235,6 +235,10 @@ if ($inlineImages)
 # original image file? See the data/intramine_config.txt entry for more about that.
 my $SUPPRESS_IMAGE_LINKS = CVal('SUPPRESS_IMAGE_LINKS');
 
+# For ATX-style headings that start with a '#', optionally require blank line before
+# (which is the default).
+my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
+
 Output("Using JavaScript folder |$JS_DIR|\n");
 
 # Just a whimsy - for contents.txt files that start with CONTENTS, try to make it look
@@ -381,10 +385,22 @@ sub GetPrettyText {
 	my $inATable = 0;
 	my $inACodeBlock = 0; 	# Set if see CODE on a line by itself,
 							# continue until ENDCODE on a line by itself.
+	my $lineIsBlank = 1;
+	my $lineBeforeIsBlank = 1; 			# Initally there is no line before, so it's kinda blank:)
 
 	# Gloss, aka minimal memorable Markdown for your intranet.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
+		$lineBeforeIsBlank = $lineIsBlank;
+		if ($lines[$i] eq '')
+			{
+			$lineIsBlank = 1;
+			}
+		else
+			{
+			$lineIsBlank = 0;
+			}
+
 		# See if we're entering or leaving a code block.
 		# A code block starts with 'CODE' on a line by itself,
 		# and ends with 'ENDCODE' on a line by itself.
@@ -434,7 +450,7 @@ sub GetPrettyText {
 			OrderedList(\$lines[$i], \$orderedListNum, \$secondOrderListNum);
 			
 		# Hashed heading eg ## Heading.
-		if ($lines[$i] =~ m!^#+\s+!)
+		if ($lines[$i] =~ m!^#+\s+! && ($lineBeforeIsBlank || !$HashHeadingRequireBlankBefore))
 			{
 			Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
 			$justDidHeadingOrHr = 1;

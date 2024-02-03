@@ -1686,9 +1686,6 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='10'><a href='#How_it_works'>How it works</a></li>
 <li class='h2' im-text-ln='23'><a href='#File_consolidation'>File consolidation</a></li>
 <li class='h3' im-text-ln='27'><a href='#Configuring_file_consolidation'>Configuring file consolidation</a></li>
-<li class='h1' im-text-ln='31'><a href='#For_FILEWATCHER,_the_local_start_and_end_times_for_when'>For FILEWATCHER, the local start and end times for when</a></li>
-<li class='h1' im-text-ln='32'><a href='#path_consolidation_is_allowed._Default_3_AM_to_5_AM.'>path consolidation is allowed. Default 3 AM to 5 AM.</a></li>
-<li class='h1' im-text-ln='33'><a href='#Allow_a_window_of_at_least_two_hours.'>Allow a window of at least two hours.</a></li>
 <li class='h2' im-text-ln='39'><a href='#API'>API</a></li>
 <li class='h3' im-text-ln='43'><a href='#Respond_to_signal_that_the_file_system_has_changed'>Respond to signal that the file system has changed</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="FILEWATCHER">FILEWATCHER</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1724,9 +1721,9 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R31'><td n='31'></td><td><h1 id="For_FILEWATCHER,_the_local_start_and_end_times_for_when">For FILEWATCHER, the local start and end times for when</h1></td></tr>
-<tr id='R32'><td n='32'></td><td><h1 id="path_consolidation_is_allowed._Default_3_AM_to_5_AM.">path consolidation is allowed. Default 3 AM to 5 AM.</h1></td></tr>
-<tr id='R33'><td n='33'></td><td><h1 id="Allow_a_window_of_at_least_two_hours.">Allow a window of at least two hours.</h1></td></tr>
+<tr id='R31'><td n='31'></td><td># For FILEWATCHER, the local start and end times for when</td></tr>
+<tr id='R32'><td n='32'></td><td># path consolidation is allowed. Default 3 AM to 5 AM.</td></tr>
+<tr id='R33'><td n='33'></td><td># Allow a window of at least two hours.</td></tr>
 <tr id='R34'><td n='34'></td><td>FILEWATCHER_CONSOLIDATION_START_HOUR	3</td></tr>
 <tr id='R35'><td n='35'></td><td>FILEWATCHER_CONSOLIDATION_END_HOUR		5</td></tr>
 <tr id='R36'><td n='36'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
@@ -3142,6 +3139,9 @@ function loadCommonestEnglishWords() {
 function addAutoLinks() {
 }
 
+let isMarkdown = false;
+function setIsMarkdown() {
+}
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element

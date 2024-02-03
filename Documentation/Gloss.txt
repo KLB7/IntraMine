@@ -86,7 +86,9 @@ produces
 2019-09-18 13_31_52-Gloss.txt.png
 
 #### Hashed headings
-For the sake of compability you can also create a heading by putting one or more hashes (#) at the beginning of a line, then one or more spaces or tabs, and then the actual heading text. ### heading produces an h3 heading etc. These work fine for the HTML result, but the effect in the source is reversed from expectations, with more hashes meaning a less important heading.
+For the sake of compatibility you can also create a heading by putting one or more hashes (#) at the beginning of a line, then one or more spaces or tabs, and then the actual heading text. ### heading produces an h3 heading etc. These work fine for the HTML result, but the effect in the source is reversed from expectations, with more hashes meaning a less important heading.
+
+Note a **blank line** must precede the # heading line, unless of course it's the first line. This suppresses problems with quoting code from a language where a '#' introduces a comment. If you don't want that: open data/intramine_config_6.txt, and change the value of HASH_HEADING_NEEDS_BLANK_BEFORE to 0. Then restart IntraMine.
 
 Horizontal rules
 ----------------

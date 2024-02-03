@@ -26,6 +26,7 @@ IntraMine's configuration values can be found (within your IntraMine folder) in
 TABLE IntraMine configuration value files
 File						In brief
 data/intramine_config.txt	port numbers, file and folder names etc
+data/intramine_config_N.txt	miscellaneous constants added after initial release
 data/serverlist.txt			services to run: Perl program name, how many of each, etc
 data/search_directories.txt	directories to index/monitor with Elasticsearch
 

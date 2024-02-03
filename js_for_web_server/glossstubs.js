@@ -3,3 +3,7 @@
 
 function addAutoLinks() {
 }
+
+let isMarkdown = false;
+function setIsMarkdown() {
+}

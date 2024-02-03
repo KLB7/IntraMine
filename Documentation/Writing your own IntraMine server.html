@@ -1696,8 +1696,6 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='207'><a href='#2._Perl_server_to_web_client'>2. Perl server to web client</a></li>
 <li class='h3' im-text-ln='227'><a href='#3._Web_client_to_Perl_server'>3. Web client to Perl server</a></li>
 <li class='h3' im-text-ln='245'><a href='#4._Perl_server_to_server'>4. Perl server to server</a></li>
-<li class='h1' im-text-ln='263'><a href='#Put_this_near_the_top,_right_after_my_%RequestAction;:'>Put this near the top, right after "my %RequestAction;":</a></li>
-<li class='h1' im-text-ln='264'><a href='#(note_the_|_instead_of_=,_its_needed_for_reasons_lost_in_the_mists_of_time)'>(note the '|' instead of '=', it's needed for reasons lost in the mists of time)</a></li>
 <li class='h1' im-text-ln='267'><a href='#The_weather_message_handler:'>The weather message handler:</a></li>
 <li class='h2' im-text-ln='300'><a href='#Testing'>Testing</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Writing_your_own_IntraMine_server">Writing your own IntraMine server</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -2469,8 +2467,8 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R263'><td n='263'></td><td><h1 id="Put_this_near_the_top,_right_after_my_%RequestAction;:">Put this near the top, right after "my %RequestAction;":</h1></td></tr>
-<tr id='R264'><td n='264'></td><td><h1 id="(note_the_|_instead_of_=,_its_needed_for_reasons_lost_in_the_mists_of_time)">(note the '|' instead of '=', it's needed for reasons lost in the mists of time)</h1></td></tr>
+<tr id='R263'><td n='263'></td><td># Put this near the top, right after "my %RequestAction;":</td></tr>
+<tr id='R264'><td n='264'></td><td># (note the '|' instead of '=', it's needed for reasons lost in the mists of time)</td></tr>
 <tr id='R265'><td n='265'></td><td>$RequestAction{'trigger|weather'} = \&amp;HandleWeatherReport; # "trigger=weather"</td></tr>
 <tr id='R266'><td n='266'></td><td></td></tr>
 <tr id='R267'><td n='267'></td><td><h1 id="The_weather_message_handler:">The weather message handler:</h1></td></tr>
@@ -3907,6 +3905,9 @@ function loadCommonestEnglishWords() {
 function addAutoLinks() {
 }
 
+let isMarkdown = false;
+function setIsMarkdown() {
+}
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element
