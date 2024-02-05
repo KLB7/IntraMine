@@ -1,6 +1,5 @@
 # WORK IN PROGRESS, not useful yet.
-# toc_local.pm: generate a Table of Contents, and get lists of CSS and JS files,
-# for a source file.
+# toc_local.pm: generate a Table of Contents for a source file.
 #
 # perl -c C:\perlprogs\IntraMine\libs\toc_local.pm
 
@@ -28,12 +27,10 @@ use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 # GetCMToc: Get Table of Contents Etc for a source file.
 # => $filePath
 # <= $toc_R: the Table of Contents
-# <= $customCSS_R: CSS for CodeMirror display, codemirror.css etc
-# <= $customJS_R: CodeMirror JavaScript, codemirror.js etc.
 sub GetCMToc {
-	my ($filePath, $toc_R, $customCSS_R, $customJS_R) = @_;
-	my $result = 0;	# 1 if Table of Contents generated, 0 if not.
-	
+	my ($filePath, $toc_R) = @_;
+	$$toc_R = '';
+
 	# Processing depends on the file extension, most are handled by
 	# exuberant CTags but some are custom.
 	# Note not all extensions are supported, eg .pdf, .docx. Only extensions
@@ -69,7 +66,5 @@ sub GetCMToc {
 		{
 		
 		}
-	
-	return($result);
 	}
 
