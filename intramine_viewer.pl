@@ -4171,7 +4171,8 @@ sub LoadCtags {
 		$$errorMsgR .= "$ctagsFilePath does not exist.";
 		return($itemCount);
 		}
-	my $octets = read_file($ctagsFilePath);
+	my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
+	#my $octets = read_file($ctagsFilePath);
 	if (!defined($octets))
 		{
 		$$errorMsgR .= "Error, could not open $ctagsFilePath.";
@@ -4780,7 +4781,8 @@ sub LoadCssCtags {
 		$$errorMsgR .= "$ctagsFilePath does not exist.";
 		return($itemCount);
 		}
-	my $octets = read_file($ctagsFilePath);
+	my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
+	#my $octets = read_file($ctagsFilePath);
 	if (!defined($octets))
 		{
 		$$errorMsgR .= "Error, could not open $ctagsFilePath.";
