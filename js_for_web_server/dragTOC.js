@@ -10,7 +10,8 @@ let paneSep; // 'panes-separator', eventually (see below)
 let topLineNumber; // for restoring scrolled position when the separator is dragged.
 
 // This is done in viewerStart.js#reJumpAndHighlight(). Doing it earlier there
-// results in a stable first line number for the text.
+// results in a stable first line number for the text. And it's now done
+// early in the Editor, see editor.js#loadFileIntoCodeMirror().
 /////window.addEventListener("load", addDragger);
 
 function addDragger() {
@@ -19,9 +20,14 @@ function addDragger() {
         return;
         }
     
-    let paneSepString = "<div class='panes-separator' id='panes-separator'></div>";
-    let paneSeparator = createElementFromHTML(paneSepString);
-    panesContainer.insertBefore(paneSeparator, rightPane);
+
+    let paneSepElement = document.getElementById('panes-separator');
+    if (paneSepElement === null)
+        {
+        let paneSepString = "<div class='panes-separator' id='panes-separator'></div>";
+        let paneSeparator = createElementFromHTML(paneSepString);
+        panesContainer.insertBefore(paneSeparator, rightPane);
+        }
 
     paneSep = document.getElementById('panes-separator');
     let panesContainerWidthStr = window.getComputedStyle(panesContainer, null).getPropertyValue('width');
@@ -46,13 +52,35 @@ function addDragger() {
         leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
         widthLeftPane = parseFloat(leftPaneWidthStr);
         cur = widthLeftPane / widthPanesContainer * 100;
-        leftPane.style.width = cur + '%';
+        if (cur < 5)
+            {
+            cur = 23; // toc width default is 23%
+            widthLeftPane = cur * widthPanesContainer / 100;
+            localStorage.setItem(leftPaneWidthKey, widthLeftPane);
+            leftPane.style.width = cur + '%';
+            }
+        else
+            {
+            leftPane.style.width = cur + '%';
+            }
         }
     
     let right = (100-cur-separatorPercent);
     rightPane.style.width = right + '%';
 
     paneSep.addEventListener('mousedown', startDraggingSeparator);
+
+    //TEST ONLY
+    // console.log("leftPaneWidthKey: " + leftPaneWidthKey);
+	// console.log("widthLeftPane: " + widthLeftPane);
+    // console.log("leftPaneWidthStr: " + leftPaneWidthStr);
+	// console.log("panesContainerWidthStr: " + panesContainerWidthStr);
+	// console.log("paneSepWidthStr: " + paneSepWidthStr);
+	// console.log("paneSepWidth: " + paneSepWidth);
+	// console.log("separatorPercent: " + separatorPercent);
+	// //console.log("leftPanePC: " + leftPanePC);
+	// console.log("right: " + right);
+
 }
 
 function separatorMouseUp() {

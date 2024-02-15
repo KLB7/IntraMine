@@ -4,7 +4,7 @@ This is about IntraMine's built-in Editor, with intramine_editor.pl on the back 
 
 To configure editing with IntraMine, see "Editing documents.txt". Basically you can set things up so that clicking on a "pencil" icon next to a file name will bring up either IntraMine's Editor (the default), or the editor of your choice.
 
-The Editor is fairly minimal, but includes syntax highlighting, FLASH links and image hovers, and of course the ability to Save. There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
+The Editor is fairly minimal, but includes syntax highlighting, FLASH links and image hovers, a table of contents, and of course the ability to Save. There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. And standard key equivalents are also available:
 TABLE
 Action			Keys
 Save			Ctrl+S
@@ -29,8 +29,8 @@ Assuming you've configured IntraMine to use its own Editor, you can bring up a s
 *Some pencil links in the Viewer, and a green "Edit" button at the top.*
 2019-12-03 16_38_08-intramine_file_viewer_cm.pl.png
 
-*An Editor view. The "Save" button is enabled because I typed that "x" on line 4.*
-2022-03-03 14_09_39-Editor.txt.png
+*An Editor view of this file. The "Save" button is enabled because I typed that "x" on line 4. The cursor is paused over "Editor" on line 7, resulting in a glossary popup. There are FLASH links to "editor.js" etc because the Editor can show links to any indexed folder, and the IntraMine folder has been indexed for searching on my PC. Standalone Gloss HTML files such as the ones in IntraMine's Documentation folder can only link to files in the same folder.*
+Editor.png
 
 Auto-refresh
 ---------------

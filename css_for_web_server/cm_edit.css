@@ -4,10 +4,12 @@
 	top: 0; left: 0; right: 0; bottom: 0;
 }
 
+/*
 #scrollTextRightOfContents {
 	position: absolute;
 	top: 0; left: 24%; right: 0; bottom: 0;
 }
+*/
 
 div#indicator {
     position: absolute;

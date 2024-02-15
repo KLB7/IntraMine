@@ -257,7 +257,10 @@ sub WebSocketSend {
 			}
 		else
 			{
-			print("WebSocketSend TIMEOUT COULD NOT READ for |$msg|!\n");
+			# Removed, it can be misleading - as far as I can tell,
+			# the message goes through, the trouble is just with the response
+			# (which is ignored).
+			#print("WebSocketSend TIMEOUT COULD NOT READ for |$msg|!\n");
 			last;
 			}
 		}
@@ -267,7 +270,10 @@ sub WebSocketSend {
 	if ($wsElapsed > 2.1)
 		{
 		my $ruffElapsed = substr($wsElapsed, 0, 6);
-		print("LONG DELAY |$wsElapsed| s WebSocketSend for message |$msg|.\n");
+		# Removed, it can be misleading - as far as I can tell,
+		# the message goes through, the trouble is just with the response
+		# (which is ignored).
+		#print("LONG DELAY |$wsElapsed| s WebSocketSend for message |$msg|.\n");
 		}
 	else
 		{
@@ -277,7 +283,10 @@ sub WebSocketSend {
 	# TEST ONLY
 	if (!$result)
 		{
-		print("WS message |$msg| NOT CONFIRMED!\n");
+		# Removed, it can be misleading - as far as I can tell,
+		# the message goes through, the trouble is just with the response
+		# (which is ignored).
+		#print("WS message |$msg| NOT CONFIRMED!\n");
 		}
 		
 	# This was a one-shot connection, to avoid message constipation

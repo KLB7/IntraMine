@@ -565,7 +565,6 @@ sub GetContentBasedOnExtension {
 		$$customCSS_R = $cssForNonCm;
 		}
 	# 2. pure custom with TOC: pl, pm, pod, txt, log, bat, cgi, t.
-	# TEST ONLY codathon temp out
 	elsif ($filePath =~ m!\.(p[lm]|cgi|t)$!i)
 		{
 		GetPrettyPerlFileContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R);

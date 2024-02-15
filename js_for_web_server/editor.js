@@ -3,7 +3,13 @@
 // Load, Save file, manage content resizing.
 // March 2022, autolinks are now supported.
 
+// Remember top line, restore it during and after resize.
+let topLineForResize = -999;
+// Delay scrolling a little, to help resize preserve first text line number.
+let lazyOnScroll;
+
 let debouncedAddLinks; 			// See makeDebouncedClearAddLinks() at bottom.
+let debouncedOnWindowResize; 	// See makeDebouncedOnWindowResize() at bottom.
 let firstMaintainButtonsCall = true;
 
 // Enable/disable beforeUnloadListener
@@ -88,11 +94,51 @@ function removeElementsByClass(className) {
 		}
 }
 
-window.addEventListener("load", reJump);
+function rememberTopLineForResize() {
+	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+	let lineNumber = parseInt(myStartLine.toString(), 10);
+	if (lineNumber > 0)
+		{
+		lineNumber += 2;
+		}
+	else
+		{
+		lineNumber = 1;
+		}
+	
+	topLineForResize = lineNumber.toString();
+}
+
+// Try to preserve first displayed line of text while resizing.
+function onWindowResize() {
+	if (!resizing)
+		{
+		rememberTopLineForResize();
+		}
+	
+	resizing = true;
+
+	location.hash = topLineForResize;
+	restoreColumnWidths();
+	/////myCodeMirror.refresh();
+    reJump();
+	lazyMouseUp();
+	repositionTocToggle();
+}
+
+
+//window.addEventListener("load", makeDebouncedOnWindowResize);
+//window.addEventListener("resize", JD.debounce(onWindowResize, 100));
+window.addEventListener("resize", onWindowResize);
+
+//window.addEventListener("load", reJump);
 window.addEventListener("load", makeDebouncedClearAddLinks);
-window.addEventListener("resize", JD.debounce(doResize, 100)); // swarmserver.pm#TooltipSource()
+//window.addEventListener("resize", JD.debounce(doResize, 100)); // swarmserver.pm#TooltipSource()
 
 function doResize() {
+	restoreColumnWidths();
+
 	let rule = document.getElementById("rule_above_editor");
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
@@ -115,9 +161,15 @@ function doResize() {
 			{
 			tocHeight -= 20;
 			}
+		else
+			{
+			tocHeight -= 16;
+			}
 		let newTocHeightPC = (tocHeight / elHeight) * 100;
 		tocMainElement.style.height = newTocHeightPC + "%";
 		}
+
+	updateToggleBigMoveLimit();
 }
 
 // TODO For the viewer mainly, this needs to go to a line number, not an element.
@@ -223,6 +275,7 @@ function decodeHTMLEntities(text) {
 // Call back to intramine_editor.pl#LoadTheFile() with a req=loadfile request.
 // On success, start clean, resize the text area, and add autolinks.
 async function loadFileIntoCodeMirror(cm, path) {
+	let originalPath = path;
 	path = encodeURIComponent(path);
 	try {
 		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
@@ -233,6 +286,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 			let text = decodeURIComponent(await response.text());
 			setSavedText(text); // For comparison against edited text
 			cm.setValue(text);
+			addDragger && addDragger();
 			cm.markClean();
 			cm.clearHistory();
 			// Check for unsaved changes.
@@ -245,12 +299,26 @@ async function loadFileIntoCodeMirror(cm, path) {
 				cm.setValue(restoredVersion);
 				adviseUserEditsWereRestored();
 				}
-			doResize();
 			myCodeMirror.display.barWidth = 16;
+			cm.setSelection(cursorFileStartPos, cursorFileEndPos, {
+				scroll : true
+			});
+
+			loadTOC(originalPath);
+
+			getLineNumberForTocEntries();
 			addAutoLinks();
+
+			doResize();
+
+			updateToggleBigMoveLimit();
+			updateTogglePositions();
+
 			setTimeout(function() {
 				cmEditorRejumpToAnchor();
 				}, 600);
+			lazyOnScroll = JD.debounce(onScroll, 100);
+			cm.on("scroll", lazyOnScroll);
 			hideSpinner();
 			}
 		else
@@ -264,7 +332,41 @@ async function loadFileIntoCodeMirror(cm, path) {
 	catch(error) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error!</p>';
+		e1.innerHTML = '<p>loadFileIntoCodeMirror connection error!</p>';
+		hideSpinner();
+	}
+}
+
+async function loadTOC(path) {
+	if (tocHolderName === '')
+		{
+		hideSpinner();
+		return;
+		}
+	
+	path = encodeURIComponent(path);
+	try {
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadTOC&file=' + path;
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = decodeURIComponent(await response.text());
+			let e1 = document.getElementById(tocHolderName);
+			e1.innerHTML = text;
+			hideSpinner();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
+			hideSpinner();
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>loadTOC connection error!</p>';
 		hideSpinner();
 	}
 }
@@ -361,12 +463,16 @@ function onCodeMirrorChange() {
 	btn = document.getElementById("redo-button");
 	ur.redo ? removeClass(btn, 'disabled-submit-button') : addClass(btn, 'disabled-submit-button');
 
-	// Restore marks when editing pauses for a couple of seconds.
-	debouncedAddLinks();
+	if (!myCodeMirror.doc.isClean())
+		{
+		// Restore marks when editing pauses for a couple of seconds.
+		debouncedAddLinks();
+		}
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
 async function saveFile(path) {
+	let originalPath = path;
 	let e1 = document.getElementById(errorID);
 	let sve = document.getElementById("save-button");
 	if (hasClass(sve, 'disabled-submit-button'))
@@ -425,6 +531,13 @@ async function saveFile(path) {
 				//clearSavedDiffs();
 				setSavedText(myCodeMirror.doc.getValue());
 				notifyFileChangedAndRememberCursorLine(path);
+
+				let lineNum = currentTOCLineNum();
+				loadTOC(originalPath);
+				//Too soon: scrollTocEntryIntoView(lineNum, false, true);
+				setTimeout(function() {
+					scrollTocEntryIntoView(lineNum, false, true);
+					}, 600);	
 				}
 			hideSpinner();
 			}
@@ -433,7 +546,7 @@ async function saveFile(path) {
 			// We reached our target server, but it returned an error
 			// TODO make this less offensive.
 			let e1 = document.getElementById("editor_error");
-			e1.innerHTML = '<p>Error, server reached but it could not open the file!</p>';
+			e1.innerHTML = '<p>Error, server reached but it could not save the file!</p>';
 			hideSpinner();
 			}
 	}
@@ -441,7 +554,7 @@ async function saveFile(path) {
 		// There was a connection error of some sort
 		// TODO make this less vague.
 		let e1 = document.getElementById("editor_error");
-		e1.innerHTML = '<p>Connection error while attempting to open file!</p>';
+		e1.innerHTML = '<p>Connection error while attempting to save file!</p>';
 		hideSpinner();
 	}
 }
@@ -474,6 +587,10 @@ function notifyFileChangedAndRememberCursorLine(path) {
 
 function makeDebouncedClearAddLinks() {
 	debouncedAddLinks = JD.debounce(clearAndAddAutoLinks, 2000);
+}
+
+function makeDebouncedOnWindowResize() {
+	debouncedOnWindowResize = JD.debounce(onWindowResize, 200);
 }
 
 function addClickHandler(id, fn) {

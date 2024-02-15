@@ -1,5 +1,5 @@
 # Interface to exuberant ctags with support for table of contents
-# for various languages. See toc_local.pm for example usage.
+# for various languages. See toc_local.pm for example usage. 
 
 package ex_ctags;
 require Exporter;

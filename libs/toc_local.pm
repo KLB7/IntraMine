@@ -40,16 +40,40 @@ my $m_icon = '<span class="circle_red">m</span>';		# method
 my $f_icon = '<span class="circle_red">f</span>';		# function
 my $s_icon = '<span class="circle_red">s</span>';		# subroutine
 
+my $HashHeadingRequireBlankBefore;
+
 sub InitTocLocal {
-	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir) = @_;
+	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir, $hashHeadingRequireBlankBefore) = @_;
+	$HashHeadingRequireBlankBefore = $hashHeadingRequireBlankBefore;
 	InitExCtags($firstPartOfPath, $portListen, $logDir, $ctags_dir);
 }
+
+# 1 if Table Of Contents is supported, else 0;
+sub CanHaveTOC {
+	my ($filePath) = @_;
+	my $result = 0;
+
+	if ( $filePath =~ m!\.(p[lm]|cgi|t)$!i
+	  || $filePath =~ m!\.pod$!i
+	  || $filePath =~ m!\.(txt|log|bat)$!i
+	  || $filePath =~ m!\.go$!i
+	  || $filePath =~ m!\.(f|f77|f90|f95|f03|for)$!i
+	  || $filePath =~ m!\.(cob|cpy|cbl)$!i
+	  || $filePath =~ m!\.(bas|cls|ctl|frm|vbs|vba|vb)$!i
+	  || $filePath =~ m!\.css$!i
+	  || IsSupportedByCTags($filePath) )
+		{
+		$result = 1;
+		}
+	
+	return($result);
+	}
 
 # GetCMToc: Get Table of Contents Etc for a source file.
 # => $filePath
 # <= $toc_R: the Table of Contents
 sub GetCMToc {
-	my ($filePath, $toc_R, $HashHeadingRequireBlankBefore) = @_;
+	my ($filePath, $toc_R) = @_;
 	$$toc_R = '';
 
 	# Processing depends on the file extension, most are handled by
@@ -66,11 +90,11 @@ sub GetCMToc {
 		}
 	elsif ($filePath =~ m!\.pod$!i)
 		{
-		; # This one is hard, maybe later
+		GetPodTOC($filePath, $toc_R);
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
-		GetTextTOC($filePath, $toc_R, $HashHeadingRequireBlankBefore);
+		GetTextTOC($filePath, $toc_R);
 		}
 	# 3.1 go: CodeMirror for the main view with a custom Table of Contents
 	elsif ($filePath =~ m!\.go$!i)
@@ -124,8 +148,48 @@ sub GetCMToc {
 
 use ExportAbove;
 
+sub GetPodTOC {
+	my ($filePath, $toc_R) = @_;
+	my $contents;
+	my $octets;
+	if (!LoadTextFileContents($filePath, \$contents, \$octets))
+		{
+		return;
+		}
+
+	my @lines = split(/\n/, $octets);
+	my @jumpList;
+	my $lineNum = 1;
+	my %sectionIdExists; # used to avoid duplicated anchor id's for sections.
+	my $numLines = @lines;
+
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ($lines[$i] =~ m!^=head(\d)\s+(.+)$!i)
+			{
+			my $level = $1;
+			my $headerProper = $2;
+
+			if ($i > 0)
+				{
+				++$level; # head 1 becomes h2, head2 becomes h3
+				}
+
+			my ($jumperHeader, $id) = GetTextJumperHeaderAndId($headerProper, \@jumpList, \%sectionIdExists);
+			my $contentsClass = 'h' . $level;
+
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $i);'>";
+			my $jlEnd = "</a></li>";
+			push @jumpList, $jlStart . $jumperHeader . $jlEnd;
+			}
+		++$lineNum;
+		}
+	
+	$$toc_R = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n"  . join("\n", @jumpList) . "</ul>\n";
+	}
+
 sub GetTextTOC {
-	my ($filePath, $toc_R, $HashHeadingRequireBlankBefore) = @_;
+	my ($filePath, $toc_R) = @_;
 	my $contents;
 	my $octets;
 	if (!LoadTextFileContents($filePath, \$contents, \$octets))

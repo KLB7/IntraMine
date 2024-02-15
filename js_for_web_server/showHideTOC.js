@@ -29,11 +29,11 @@ function toggleTOC(toggleElem) {
 		let widthTOC = parseFloat(widthStrTOC);
 		let widthParent = parseFloat(widthStrParent);
 		let oldTocWidthPC = 100 * widthTOC / widthParent;
-		let paneSep = document.getElementById('panes-separator');;
+		let paneSeparator = document.getElementById('panes-separator');;
 		let widthPaneSep = 3; // pixels
-		if (paneSep !== null)
+		if (paneSeparator !== null)
 			{
-			let widthStrSep = window.getComputedStyle(paneSep, null).getPropertyValue('width');
+			let widthStrSep = window.getComputedStyle(paneSeparator, null).getPropertyValue('width');
 			widthPaneSep = parseFloat(widthStrSep); // pixels
 			}
 		let newWidthPaneSep = widthPaneSep / widthParent * 100;
@@ -654,13 +654,19 @@ function getTocWidthPixels() {
 	
 	let leftPaneWidthStr = localStorage.getItem(leftPaneWidthKey);
 	widthLeftPane = parseFloat(leftPaneWidthStr);
+	if (widthLeftPane < 50)
+		{
+		//leftPaneWidthStr = "100.0";
+		widthLeftPane = 100.0;
+		}
 	
+
 	return(widthLeftPane);
 }
 
 // Use width in pixels of table of contents column as last save
 // to set widths of table of contents and text in percentages.
-function restoreColumnWidths() {
+function restoreColumnWidths() {	
 	let leftPane = document.getElementById('scrollContentsList'); // TOC column
 	let panesContainer = document.getElementById('scrollAdjustedHeight');
 	let paneSep = document.getElementById('panes-separator');
@@ -674,12 +680,24 @@ function restoreColumnWidths() {
 	let widthPanesContainer = parseFloat(panesContainerWidthStr);
 	let paneSepWidthStr = window.getComputedStyle(paneSep, null).getPropertyValue('width');
 	let paneSepWidth = parseFloat(paneSepWidthStr);
+	//let paneSepInfo = paneSep.getBoundingClientRect();
+	//let paneSepWidth = paneSepInfo.width;
 	let separatorPercent = paneSepWidth / widthPanesContainer * 100;
 	let leftPanePC = widthLeftPane / widthPanesContainer * 100;
 	leftPane.style.width = leftPanePC + '%';
 	let right = (100-leftPanePC-separatorPercent);
 	rightPane.style.width = right + '%';
+
+	//TEST ONLY
+	// console.log("widthLeftPane: " + widthLeftPane);
+	// console.log("panesContainerWidthStr: " + panesContainerWidthStr);
+	// //console.log("paneSepWidthStr: " + paneSepWidthStr);
+	// console.log("paneSepWidth: " + paneSepWidth);
+	// console.log("separatorPercent: " + separatorPercent);
+	// console.log("leftPanePC: " + leftPanePC);
+	// console.log("right: " + right);
 }
+
 
 window.addEventListener("load", function() {
 	addTocToggle('tocShrinkExpand');

@@ -28,6 +28,7 @@ use common;
 use swarmserver;
 use win_wide_filepaths;
 use win_user32_local;
+use toc_local;
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
@@ -45,9 +46,15 @@ my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
+my $LogDir = FullDirectoryPath('LogDir');
+my $ctags_dir = CVal('CTAGS_DIR');
+my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
+InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore);
+
 my %RequestAction;
 $RequestAction{'href'} = \&FullFile; 			# href=anything, treated as a file path
 $RequestAction{'req|loadfile'} = \&LoadTheFile; # req=loadfile
+$RequestAction{'req|loadTOC'} = \&GetTOC; 		# req=loadTOC
 $RequestAction{'req|save'} = \&Save; 			# req=save
 # not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
@@ -74,6 +81,7 @@ sub FullFile {
 
 <link rel="stylesheet" type="text/css" href="cm_viewer.css" />
 <link rel="stylesheet" type="text/css" href="cm_editor_fix.css" />
+<link rel="stylesheet" type="text/css" href="dragTOC.css" />
 
 <script type="text/javascript" src="tooltip.js"></script>
 
@@ -82,6 +90,7 @@ let thePath = '_PATH_';
 let theEncodedPath = '_ENCODEDPATH_';
 let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
+let tocHolderName = '_TOCHOLDERNAME_';
 let ourServerPort = '_THEPORT_';
 let errorID = "editor_error";
 
@@ -96,6 +105,7 @@ let linkerShortName = '_LINKERSHORTNAME_';
 let filesShortName = '_FILESSHORTNAME_';
 let peeraddress = '_PEERADDRESS_';	// ip address of client
 let b64ToggleImage = '';
+let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
 
 let weAreEditing = true; // Don't adjust user selection or do internal links if editing.
@@ -109,7 +119,7 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 _TOPNAV_
 <span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
-<div id='scrollAdjustedHeight'><div id='scrollText'></div></div>
+<div id='scrollAdjustedHeight'>_TOCANDCONTENTHOLDER_</div>
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
@@ -136,10 +146,14 @@ _TOPNAV_
 <script src="viewerLinks.js" ></script>
 <script src="cmTocAnchors.js" ></script>
 <script src="cmAutoLinks.js" ></script>
+<script src="showHideTOC.js" ></script>
+<script src="cmShowSearchItems.js" ></script>
 <script src="cmToggle.js" ></script>
 <script src="cmMobile.js" ></script>
 <script src="diff_match_patch_uncompressed.js" ></script>
 <script src="restore_edits.js" ></script>
+<script src="cmScrollTOC.js" ></script>
+<script src="dragTOC.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
 <script src="editor_auto_refresh.js" ></script>
 <script>
@@ -222,16 +236,25 @@ FINIS
 	$title = &HTML::Entities::encode($title);
 	$theBody =~ s!_TITLEHEADER_!$title!;
 
+	my $canHaveTOC = CanHaveTOC($filePath);
+
 	# Watch out for apostrophe in path, it's a killer in the JS above.
 	$filePath =~ s!'!\\'!g;
 
 	$theBody =~ s!_PATH_!$ctrlSPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 	
-	my $cmTextHolderName = 'scrollText';
+	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents': 'scrollText';
+	my $tocHolderName = $canHaveTOC ? 'scrollContentsList': '';
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$cmTextHolderName!g;
+	$theBody =~ s!_TOCHOLDERNAME_!$tocHolderName!g;
 	my $usingCM = 'true';
 	$theBody =~ s!_USING_CM_!$usingCM!;
+
+	# Put in the TOC and contents divs.
+	my $holderHTML = $canHaveTOC ? "<div id='scrollContentsList'></div><div class='panes-separator' id='panes-separator'></div><div id='scrollTextRightOfContents'></div>": 
+		"<div id='scrollText'></div>";
+	$theBody =~ s!_TOCANDCONTENTHOLDER_!$holderHTML!g;
 	
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
@@ -260,6 +283,10 @@ FINIS
 
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
+
+	# Hilight class for table of contents selected element - see also non_cm_test.css
+	# and cm_viewer.css.
+	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -282,12 +309,30 @@ sub LoadTheFile {
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	if ($filepath ne '')
 		{
-		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		$result =  uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		
 		#$result = encode_utf8(ReadTextFileDecodedWide($filepath));
 		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
 		}
 	
 	return($result);		
+	}
+
+sub GetTOC {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = '';
+
+	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+	if ($filepath ne '')
+		{
+		GetCMToc($filepath, \$result);
+		if ($result ne '')
+			{
+			$result = uri_escape_utf8($result);
+			}
+		}
+	
+	return($result);
 	}
 
 # Called by editor.js#saveFile() (via "req=save").

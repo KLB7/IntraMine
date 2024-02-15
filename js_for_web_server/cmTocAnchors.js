@@ -604,3 +604,35 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 	
 	return(tocElem);
 }
+
+// Get line number (1-based) from currently selected Table Of Contents <li> element,
+function currentTOCLineNum() {
+	let tocElement = document.getElementById("scrollContentsList");
+	if (tocElement === null)
+		{
+		return(0);
+		}
+	let lineNum = 0;
+	let tocEntries = tocElement.getElementsByTagName("li");
+	for (let i = 0; i < tocEntries.length; i++)
+		{
+		if (hasClass(tocEntries[i], selectedTocId))
+			{
+			let fullAnchor = tocEntries[i].innerHTML;
+			let mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>([^<]+)\</.exec(fullAnchor);
+			if (mtch === null)
+				{
+				mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>([^<]+)\</.exec(fullAnchor);
+				}
+			if (mtch === null)
+				{
+				mtch = /goToAnchor\(([^,]+), (\d+)[^>]+\>\<span[^>]+?\>.\<\/span\>\<strong\>([^<]+)\</.exec(fullAnchor);
+				}
+			if (mtch !== null)
+				{
+				lineNum = parseInt(mtch[2], 10);
+				}
+			}
+		}
+	return(lineNum);
+}
