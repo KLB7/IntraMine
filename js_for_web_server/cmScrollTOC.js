@@ -16,6 +16,11 @@ function scrollTocEntryIntoView(lineNum, inContent, scrolling) {
 	else if (scrolling)
 		{
 		let el = document.getElementById(cmTextHolderName);
+		if (el === null)
+			{
+			console.log("cmScrollTOC.js#scrollTocEntryIntoView cmTextHolderName is missing!");
+			return;
+			}
 		let limitLineNum = lastVisibleLineNumber(el);
 		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.		
 		if (tocElem === null)

@@ -134,6 +134,11 @@ function rememberLocation() {
 	else // text mainly
 		{
 		let el = document.getElementById(cmTextHolderName);
+        if (el === null)
+            {
+            console.log("dragTOC.js#rememberLocation cmTextHolderName is missing!");
+            return;
+            }
 		let lineNumber = firstVisibleLineNumber(el);
         topLineNumber = lineNumber.toString();
 		}
@@ -159,6 +164,11 @@ function getFirstVisibleLineNumber() {
 	else // text mainly
 		{
 		let el = document.getElementById(cmTextHolderName);
+        if (el === null)
+            {
+            console.log("dragTOC.js#getFirstVisibleLineNumber cmTextHolderName is missing!");
+            return(0);
+            }
 		firstLineNumber = firstVisibleLineNumber(el);
  		}
 

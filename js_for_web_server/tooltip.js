@@ -718,6 +718,11 @@ function createhintbox() {
 	document.body.appendChild(divblock);
 
 	hintElement = document.getElementById("hintbox");
+	if (hintElement === null)
+		{
+		console.log("tooptip.js#createhintbox cannot create hintbox!");
+		return;
+		}
 	hintElement.style.visibility = "hidden";
 	hintElement.style.left = "-500px";
 	

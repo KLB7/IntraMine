@@ -146,6 +146,82 @@ sub GetCMToc {
 		}
 	}
 
+# Get text file as a big string. Returns 1 if successful, 0 on failure.
+sub LoadTextFileContents {
+	my ($filePath, $contentsR, $octetsR) = @_;
+	
+	$$octetsR = ReadTextFileWide($filePath);
+	if (!defined($$octetsR))
+		{
+		$$contentsR .= "Error, could not open $filePath.";
+		return(0);
+		}
+	my $decoder = Encode::Guess->guess($$octetsR);
+	
+	my $eightyeightFired = 0;
+	if (ref($decoder))
+		{
+		my $decoderName = $decoder->name();
+		if ($decoderName =~ m!iso-8859-\d+!)
+			{
+			$$octetsR = $decoder->decode($$octetsR);
+			$eightyeightFired = 1;
+			}
+		}
+	
+	if (!$eightyeightFired)
+		{
+		$$octetsR = decode_utf8($$octetsR);
+		}
+	
+	return(1);
+	}
+
+sub GetHtmlEncodedTextFile {
+	my ($filePath) = @_;
+	my $result = '';
+	
+	if (FileOrDirExistsWide($filePath) != 1)
+	#if (!(-f $filePath))
+		{
+		return('');
+		}
+	else
+		{
+		return(GetHtmlEncodedTextFileWide($filePath));
+		}
+	}
+
+# Sort line numbers, first stripping any initial 'a'.
+sub LineNumComp {
+	my ($numA, $numB) = @_;
+	if (index($numA, 'a') == 0)
+		{
+		$numA = substr($numA, 1);
+		}
+	if (index($numB, 'a') == 0)
+		{
+		$numB = substr($numB, 1);
+		}
+	
+	return($numA <=> $numB);
+	}
+
+sub UniqueTocID {
+	my ($id, $idExists_H) = @_;
+
+	my $idBump = 2;
+	my $idBase = $id;
+	while ($id eq '' || defined($idExists_H->{$id}))
+		{
+		$id = $idBase . $idBump;
+		++$idBump;
+		}
+	$idExists_H->{$id} = 1;
+
+	return($id);
+	}
+
 use ExportAbove;
 
 sub GetPodTOC {
@@ -284,37 +360,6 @@ sub GetTextTOC {
 		}
 
 	$$toc_R = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n"  . join("\n", @jumpList) . "</ul>\n";
-	}
-
-# Get text file as a big string. Returns 1 if successful, 0 on failure.
-sub LoadTextFileContents {
-	my ($filePath, $contentsR, $octetsR) = @_;
-	
-	$$octetsR = ReadTextFileWide($filePath);
-	if (!defined($$octetsR))
-		{
-		$$contentsR .= "Error, could not open $filePath.";
-		return(0);
-		}
-	my $decoder = Encode::Guess->guess($$octetsR);
-	
-	my $eightyeightFired = 0;
-	if (ref($decoder))
-		{
-		my $decoderName = $decoder->name();
-		if ($decoderName =~ m!iso-8859-\d+!)
-			{
-			$$octetsR = $decoder->decode($$octetsR);
-			$eightyeightFired = 1;
-			}
-		}
-	
-	if (!$eightyeightFired)
-		{
-		$$octetsR = decode_utf8($$octetsR);
-		}
-	
-	return(1);
 	}
 
 # Pick up hashtag and underlined headings, make up <li>...goToAnchor(...)</li> entries for them.
@@ -841,36 +886,6 @@ sub GetCTagsTOCForFile {
 		{
 		unlink($tempFilePath);
 		}
-	}
-
-sub UniqueTocID {
-	my ($id, $idExists_H) = @_;
-
-	my $idBump = 2;
-	my $idBase = $id;
-	while ($id eq '' || defined($idExists_H->{$id}))
-		{
-		$id = $idBase . $idBump;
-		++$idBump;
-		}
-	$idExists_H->{$id} = 1;
-
-	return($id);
-	}
-
-# Sort line numbers, first stripping any initial 'a'.
-sub LineNumComp {
-	my ($numA, $numB) = @_;
-	if (index($numA, 'a') == 0)
-		{
-		$numA = substr($numA, 1);
-		}
-	if (index($numB, 'a') == 0)
-		{
-		$numB = substr($numB, 1);
-		}
-	
-	return($numA <=> $numB);
 	}
 
 # Table of contents for a Fortan file. Types, and procedures (subroutines and functions).
@@ -1455,20 +1470,5 @@ sub PushVBTag {
 	my $jlEnd = "</a></li>";
 	push @$listA, $jlStart . $icon . $tagName . $jlEnd;
 	push @$namesA, $tagName;
-	}
-
-sub GetHtmlEncodedTextFile {
-	my ($filePath) = @_;
-	my $result = '';
-	
-	if (FileOrDirExistsWide($filePath) != 1)
-	#if (!(-f $filePath))
-		{
-		return('');
-		}
-	else
-		{
-		return(GetHtmlEncodedTextFileWide($filePath));
-		}
 	}
 1;

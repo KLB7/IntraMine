@@ -25,6 +25,10 @@ function showSpinner() {
 //	spinnerParent.innerHTML = "<div id='spinnerParent'><img id='spinner' src='globe.gif' " + "alt='' width='43.3' height='36' /></div>\n";
 		spinnerTimeoutTimer = setTimeout(hideSpinner, 20000);
 		}
+	else
+		{
+		console.log("spinner.js#showSpinner, no parent!");
+		}
 }
 
 function hideSpinner() {
@@ -41,5 +45,9 @@ function hideSpinner() {
 		spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
 		+ "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a>\n";
 //		spinnerParent.innerHTML = "<div id='spinnerParent'><a href='./" + contentsName + "' target='_blank'>" + "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a></div>\n";
+		}
+	else
+		{
+		console.log("spinner.js#hideSpinner, no parent!");
 		}
 }

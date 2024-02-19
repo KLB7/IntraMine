@@ -884,7 +884,7 @@ sub LoadCssCtags {
 	
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!)
+		if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
 			{
 			my $displayedTagname = $1;
 			my $lineNumber = $2;
@@ -929,6 +929,10 @@ sub LoadCssCtags {
 				}
 			}
 		}
+
+	$itemCount = keys %$tagDisplayedNameForLineH; # Approximate, but good enough.
+
+	return($itemCount);
 	}
 } ##### Exuberant Ctags Support
 

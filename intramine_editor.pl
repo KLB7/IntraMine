@@ -405,19 +405,3 @@ sub olderSave {
 	
 	return($status);
 	}
-
-# HTML encoded file contents, NOT USED.
-sub GetHtmlEncodedTextFile {
-	my ($filePath) = @_;
-	my $result = '';
-	
-	if (FileOrDirExistsWide($filePath) != 1)
-	#if (!(-f $filePath))
-		{
-		return('');
-		}
-	else
-		{
-		return(GetHtmlEncodedTextFileWide($filePath)); # win_wide_filepaths.pm#GetHtmlEncodedTextFileWide()
-		}
-	}

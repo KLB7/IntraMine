@@ -138,6 +138,10 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	if (!willScroll)
 		{
 		let el = document.getElementById(cmTextHolderName);
+		if (el === null)
+			{
+			console.log("cmTocSnchors.js#jumpToLine !willScroll cmTextHolderName element is missing!");
+			}
 		let limitLineNum = lastVisibleLineNumber(el);
 		let tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.
 		if (tocElem === null)
@@ -154,6 +158,10 @@ function jumpToLine(lineNum, adjustToShowComment) {
 		{
 		// Initial load, call update the TOC highlight after a delay.
 		let el = document.getElementById(cmTextHolderName);
+		if (el === null)
+			{
+			console.log("cmTocSnchors.js#jumpToLine cmTextHolderName element is missing!");
+			}
 		let limitLineNum = lastVisibleLineNumber(el);
 		let tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.
 		if (tocElem === null)
@@ -234,7 +242,12 @@ function lineNumberForAnchor(anchor) {
 		anchor = anchor.replace(/^#/, '');
 		if (isNaN(anchor))
 			{
-			let tocElement = document.getElementById("scrollContentsList"); // 
+			let tocElement = document.getElementById("scrollContentsList");
+			if (tocElement === null)
+				{
+				console.log("cmTocAnchors.js#lineNumberForAnchor tocElement is null!");
+				return;
+				}
 			let tocEntries = tocElement.getElementsByTagName("li");
 			for (let i = 0; i < tocEntries.length; i++)
 				{
@@ -302,7 +315,13 @@ function linkForInternalAnchor(anchor) {
 		anchor = anchor.replace(/^#/, '');
 		if (isNaN(anchor))
 			{
-			let tocElement = document.getElementById("scrollContentsList"); // 
+			let tocElement = document.getElementById("scrollContentsList");
+			if (tocElement === null)
+				{
+				console.log("cmTocAnchors.js#linkForInternalAnchor tocElement is null!");
+				return;
+				}
+
 			let tocEntries = tocElement.getElementsByTagName("li");
 			for (let i = 0; i < tocEntries.length; i++)
 				{
@@ -593,7 +612,11 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 			}
 		}
 	
-	if (tocElem === null && nextTocElem !== null)
+	if (lineNum <= 1 && tocEntries.length > 0)
+		{
+		tocElem = tocEntries[0];
+		}
+	else if (tocElem === null && nextTocElem !== null)
 		{
 		tocElem = nextTocElem;
 		}

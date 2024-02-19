@@ -90,6 +90,11 @@ function rememberTopLineForResize() {
 
 function doResize() {
 	let rule = document.getElementById("rule_above_editor");
+	if (rule === null)
+		{
+		console.log("cmViwerStart.js#doResize rule element is null!");
+		return;
+		}
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
 	let ruleHeight = rect.height;
@@ -132,7 +137,10 @@ function onWindowResize() {
 
 	location.hash = topLineForResize;
 	restoreColumnWidths();
-	myCodeMirror.refresh();
+	setTimeout(function() {
+		myCodeMirror.refresh();
+		}, 500);
+	//myCodeMirror.refresh();
     reJump();
 	lazyMouseUp();
 	repositionTocToggle();
@@ -162,6 +170,11 @@ function reJump() {
 
 function setTextViewPosition(rule_id, id) {
 	let rule = document.getElementById(rule_id);
+	if (rule === null)
+		{
+		console.log("cmViwerStart.js#setTextViewPosition rule element is null!");
+		return;
+		}
 	let pos = getPosition(rule);
 	let rect = rule.getBoundingClientRect();
 	let ruleHeight = rect.height;

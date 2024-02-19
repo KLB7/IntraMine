@@ -21,6 +21,11 @@ function toggleTOC(toggleElem) {
 	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
+	if (elementToAdjust === null || textElement)
+		{
+		console.log("showHideTOC.js#toggleTOC top elements are missing!");
+		return (false);
+		}
 	let divContainer = elementToAdjust.parentElement;
 	if (elementToAdjust !== null && textElement !== null)
 		{
@@ -139,6 +144,7 @@ function repositionTocToggle() {
 	let rule = document.getElementById("rule_above_editor");
 	if (toggleElem === null || rule === null)
 		{
+		//console.log("showHideTOC.js#repositionTocToggle elements are missing!");
 		return;
 		}
 	let pos = getPosition(rule);
