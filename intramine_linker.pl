@@ -473,7 +473,7 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
-	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
@@ -494,8 +494,9 @@ sub EvaluateLinkCandidates {
 		my $haveQuotation = ((index($captured, '"') == 0) || (index($captured, "'") == 0));
 		my $badQuotation = 0;
 		my $insideID = 0;
-		
 		my $quoteChar = '';
+		my $hasPeriod = (index($captured, '.') >= 0);
+
 		if ($haveQuotation || $haveDirSpecifier)
 			{
 			# Check for non-word or BOL before first quote, non-word or EOL after second.
@@ -504,7 +505,9 @@ sub EvaluateLinkCandidates {
 				my $charBefore = substr($strippedLine, $startPos - 1, 1);
 				# Reject if char before first quote is a word char or '='
 				# (as in class="...", as found in syntax highlighting etc).
-				if ($charBefore !~ m!\W|! || $charBefore eq '=')
+				# For '=', don't mark as bad if $captured contains a '.'
+				# (hinting that there might be a file extension in there).
+				if ($charBefore !~ m!\W|! || ($charBefore eq '=' && !$hasPeriod))
 					{
 					$badQuotation = 1;
 					}
@@ -538,7 +541,7 @@ sub EvaluateLinkCandidates {
 				my $charAfter = substr($strippedLine, $endPos, 1);
 				# Reject if char after is a word char or '>'
 				# (as in class="quoted">).
-				if ($charAfter !~ m!\W! || $charAfter eq '>')
+				if ($charAfter !~ m!\W! || ($charAfter eq '>' && !$hasPeriod))
 					{
 					$badQuotation = 1;
 					}
@@ -547,20 +550,23 @@ sub EvaluateLinkCandidates {
 			# Skip quotes that are inside HTML tags.
 			# Is quote at $startPos at a bad position? Skip.
 			# Is quote at $endPos at a bad position? Reset to next good position, or skip.
-			if (IsBadQuotePosition($startPos))
+			if (!$hasPeriod)
 				{
-				$badQuotation = 1;
-				}
-			elsif (IsBadQuotePosition($endPos-1))
-				{
-				my $nextGoodQuotePos = NextGoodQuotePosition($endPos-1);
-				if ($nextGoodQuotePos >= 0)
-					{
-					$endPos = $nextGoodQuotePos + 1;
-					}
-				else
+				if (IsBadQuotePosition($startPos))
 					{
 					$badQuotation = 1;
+					}
+				elsif (IsBadQuotePosition($endPos-1))
+					{
+					my $nextGoodQuotePos = NextGoodQuotePosition($endPos-1);
+					if ($nextGoodQuotePos >= 0)
+						{
+						$endPos = $nextGoodQuotePos + 1;
+						}
+					else
+						{
+						$badQuotation = 1;
+						}
 					}
 				}
 			
@@ -592,6 +598,11 @@ sub EvaluateLinkCandidates {
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
 				my $hashPos = index($captured, '#');
+				if ($hashPos < 0)
+					{
+					$hashPos = index($captured, ':');
+					}
+
 				if ($hashPos >= 0)
 					{
 					my $quotePos = index($captured, '"', $hashPos);
@@ -622,6 +633,10 @@ sub EvaluateLinkCandidates {
 			if ($anchorWithNum ne '' && !$haveURL && !$haveQuotation && !$haveTextHref)
 				{
 				my $pos = index($extProper, '#');
+				if ($pos < 0)
+					{
+					$pos = index($extProper, ':');
+					}
 				$extProper = substr($extProper, 0, $pos);
 				}
 			
@@ -635,6 +650,12 @@ sub EvaluateLinkCandidates {
 			# Potentially a text file mention or an image.
 			if ($haveGoodExtension)
 				{
+				# At the last minute, suppress #anchorWithNum if it has a leading
+				# space or tab.
+				if (index($anchorWithNum, ' ') == 1 || index($anchorWithNum, "\t") == 1)
+					{
+					$anchorWithNum = '';
+					}
 				$haveGoodMatch = RememberTextOrImageFileMention($startPos,
 						$previousRevEndPos, $captured, $extProper,
 						$haveQuotation, $haveTextExtension, $haveImageExtension,
@@ -683,7 +704,7 @@ sub ExtensionBeforeHashOrEnd {
 	my ($captured) = @_;
 	my $result = '';
 	
-	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
+	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)([#:]|$)!)
 		{
 		$result = $1;
 		}
@@ -1050,7 +1071,12 @@ sub GetTextFileRep {
 			}
 		}
 	
-	# FOr C++, shorten constructor/destructor anchors.
+	# Change leading ':' to '#' in $anchorWithNum.
+	if (index($anchorWithNum, ':') == 0)
+		{
+		$anchorWithNum = '#' . substr($anchorWithNum, 1);
+		}
+	# For C++, shorten constructor/destructor anchors.
 	if ($extProper eq 'cpp' || $extProper eq 'cxx' ||
 		$extProper eq 'hpp' || $extProper eq 'h' ||
 		$extProper eq 'hh' || $extProper eq 'hxx')

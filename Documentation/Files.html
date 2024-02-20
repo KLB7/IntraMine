@@ -5623,6 +5623,11 @@ function createhintbox() {
 	document.body.appendChild(divblock);
 
 	hintElement = document.getElementById("hintbox");
+	if (hintElement === null)
+		{
+		console.log("tooptip.js#createhintbox cannot create hintbox!");
+		return;
+		}
 	hintElement.style.visibility = "hidden";
 	hintElement.style.left = "-500px";
 	
@@ -6244,6 +6249,11 @@ function toggleTOC(toggleElem) {
 	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
+	if (elementToAdjust === null || textElement)
+		{
+		console.log("showHideTOC.js#toggleTOC top elements are missing!");
+		return (false);
+		}
 	let divContainer = elementToAdjust.parentElement;
 	if (elementToAdjust !== null && textElement !== null)
 		{
@@ -6362,6 +6372,7 @@ function repositionTocToggle() {
 	let rule = document.getElementById("rule_above_editor");
 	if (toggleElem === null || rule === null)
 		{
+		//console.log("showHideTOC.js#repositionTocToggle elements are missing!");
 		return;
 		}
 	let pos = getPosition(rule);
@@ -8939,6 +8950,11 @@ function rememberLocation() {
 	else // text mainly
 		{
 		let el = document.getElementById(cmTextHolderName);
+        if (el === null)
+            {
+            console.log("dragTOC.js#rememberLocation cmTextHolderName is missing!");
+            return;
+            }
 		let lineNumber = firstVisibleLineNumber(el);
         topLineNumber = lineNumber.toString();
 		}
@@ -8964,6 +8980,11 @@ function getFirstVisibleLineNumber() {
 	else // text mainly
 		{
 		let el = document.getElementById(cmTextHolderName);
+        if (el === null)
+            {
+            console.log("dragTOC.js#getFirstVisibleLineNumber cmTextHolderName is missing!");
+            return(0);
+            }
 		firstLineNumber = firstVisibleLineNumber(el);
  		}
 

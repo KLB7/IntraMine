@@ -151,8 +151,6 @@ async function openDirectoryWithPort(href, port, viewerPort) {
 			{
 			useFilesService = true;
 			let theAction = 'http://' + mainIP + ':' + filesPort + '/' + filesShortName + '/?req=main' + '&directory=' + href;
-			// TEST ONLY
-			console.log("Dir: |" + href + "|");
 			
 			window.open(theAction, "_blank");
 			}

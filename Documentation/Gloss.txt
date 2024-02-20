@@ -149,9 +149,9 @@ Linking to headings, functions, and classes in other files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A FLASH link can include a specific location in a file, specifically a heading in a text file or a function/method or class name in a source file. For the file specifier part, the same rules apply as for FLASH links above.
 
-To link to a heading in a text file: Use a '#' to separate the file name from the heading, and enclose it all in quotes. For example, "Using IntraMine.txt#Indexing additional folders".
+To link to a heading in a text file: Use a '#' or ':' to separate the file name from the heading, and enclose it all in quotes. For example, "Using IntraMine.txt#Indexing additional folders".
 
-If you're linking to a function/method, you can optionally include parentheses to help the link stand out, and you don't need quotes. For example, autolinking_demo.pl#FindBestLinkFor() or autolinking_demo.pl#FindBestLinkFor.
+If you're linking to a function/method, you can optionally include parentheses to help the link stand out, and you don't need quotes. For example, autolinking_demo.pl#FindBestLinkFor() or autolinking_demo.pl#FindBestLinkFor or intramine_linker.pl:ShortenedClassAnchor().
 
 You can link to classes and methods in much the same way, eg
 googlesuggest.h#GSuggestCompletion for a class
@@ -162,7 +162,7 @@ googlesuggest.cpp#GSuggestCompletion::eventFilter also gives a method link.
 
 Linking to a line number in a file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can also link to a specific line number in a file, eg autolinking_demo.pl#102. No quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult.
+You can also link to a specific line number in a file, eg autolinking_demo.pl#102 or viewer.js:431. No quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult, and for error messages that contain line numbers such as those from Chrome.
 
 Linking to directories
 ~~~~~~~~~~~~~~~~~~~~~~
