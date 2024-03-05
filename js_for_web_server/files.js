@@ -99,11 +99,31 @@ function openTheFile(el, file) {
 	else
 		// Viewer anchor, read only
 		{
+		let isVideo = false;
+		const reVIDEO = /VIDEO$/;
+		if (reVIDEO.test(trimmedFile))
+			{
+			isVideo = true;
+			trimmedFile = trimmedFile.replace(reVIDEO, '');
+			}
+
 		let url =
 		'http://' + theHost + ':' + theMainPort + '/' + viewerShortName + '/?href='
 			+ trimmedFile + '&rddm=' + String(getRandomInt(1, 65000));
-		window.open(url, "_blank");
+		
+		if (isVideo)
+			{
+			openView(url, videoShortName);
+			}
+		else
+			{
+			window.open(url, "_blank");
+			}
 		}
+}
+
+async function openVideo(href) {
+	const response = await fetch(href); // ignore response
 }
 
 function dummyCollapse(dir) {

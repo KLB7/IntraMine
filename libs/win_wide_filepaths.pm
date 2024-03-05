@@ -56,6 +56,10 @@ BEGIN {
 		Kernel32 => qq{BOOL RemoveDirectoryW(LPWSTR lpFileName)}
 		);
 	
+	# Symbolic links.
+	Win32::API::More->Import(
+		Kernel32 => qq{BOOL CreateSymbolicLinkW(LPWSTR link, LPWSTR path, DWORD opt)}
+		);
 
 	# For FindFileWide:
 	Win32::API::Struct->typedef('FILETIME', qw(
@@ -178,6 +182,32 @@ sub WriteTextFileWide {
 		#carp("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
 		return(0);
 		}
+	
+	print $fileH "$contents";
+	close($fileH);
+	
+	return(1);
+	}
+
+sub WriteUTF8FileWide {
+	my ($filePath, $contents) = @_;
+	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
+
+	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+	if (!$F)
+		{
+		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+		return(0);
+		}
+	
+	my $fileH;
+	if (!Win32API::File::OsFHandleOpen($fileH = IO::Handle->new(), $F, "w"))
+		{
+		#carp("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
+		return(0);
+		}
+	
+	binmode( $fileH, ":encoding(UTF-8)" );
 	
 	print $fileH "$contents";
 	close($fileH);
@@ -807,6 +837,13 @@ sub ActualPathIfTooDeep {
 	my $actualPath = $foundIt ? "$dirPath/$fileName" : $proposedFilePath;
 
 	return($actualPath);
+	}
+
+sub CreateSymlinkWide {
+	my ($symPath, $existingPath) = @_;
+	my $symPathWin  = encode("UTF-16LE", "$symPath\0");
+	my $existingPathWin  = encode("UTF-16LE", "$existingPath\0");
+	return(CreateSymbolicLinkW($symPathWin, $existingPathWin, 0));
 	}
 
 use ExportAbove;

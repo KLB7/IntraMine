@@ -15,7 +15,7 @@
 #
 #
 # See intramine_main.pl#StartServerSwarm() for the cmd line that starts a server.
-# perl C:\perlprogs\mine\temp\intramine_boilerplate.pl pagename shortname mainport ourport
+# perl C:\perlprogs\intramine\intramine_boilerplate.pl pagename shortname mainport ourport
 
 ##### COPY THIS TO YOUR NEW SERVER.
 use strict;

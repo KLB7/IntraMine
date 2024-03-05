@@ -172,6 +172,7 @@ let viewerShortName = '_VIEWERSHORTNAME_';
 let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let filesShortName = '_FILESSHORTNAME_';
+let videoShortName = '_VIDEOSHORTNAME_';
 let errorID = "loadError";
 
 let onMobile = false; // Set below, true if we have touch events.
@@ -226,7 +227,7 @@ FINIS
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $filesShortName = CVal('FILESSHORTNAME');
-
+	my $videoShortName = CVal('VIDEOSHORTNAME');
 
 	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
 	my $useAppForEditing = 0;
@@ -243,6 +244,7 @@ FINIS
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
+	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;

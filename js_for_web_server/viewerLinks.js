@@ -98,12 +98,23 @@ async function editWithIntraMine(href) {
 
 // Viewer links. Get a good port, do a window.open().
 // openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
-async function openView(href) {
+async function openView(href, serviceShortName) {
+	// TEST ONLY
+	//console.log(mainIP + " " + theMainPort + " " + serviceShortName);
+	
+	let actualShortName = serviceShortName;
+
+	// We want the port for a Viewer, there is no actual Video service.
+	if (serviceShortName === videoShortName)
+		{
+		actualShortName = viewerShortName;
+		}
+	
 	try {
-		const port = await fetchPort(mainIP, theMainPort, viewerShortName, errorID);
+		const port = await fetchPort(mainIP, theMainPort, actualShortName, errorID);
 		if (port !== "")
 			{
-			openViewWithPort(href, theMainPort, port);
+			openViewWithPort(href, theMainPort, port, serviceShortName);
 			}
 	}
 	catch(error) {
@@ -114,10 +125,25 @@ async function openView(href) {
 }
 
 // Open a view of a file, using the Viewer (intramine_file_viewer_cm.pl).
-function openViewWithPort(href, port, viewerPort) {
-	let rePort = new RegExp(port);
-	href = href.replace(rePort, viewerPort);
-	window.open(href, "_blank");
+function openViewWithPort(href, port, servicePort, serviceShortName) {
+	const rePort = /\:\d+/;
+	href = href.replace(rePort, ":" + servicePort);
+
+	if (serviceShortName === videoShortName)
+		{
+		// Replace videoShortName with viewerShortName.
+		const reName = /videoShortName/;
+		href = href.replace(reName, viewerShortName);
+		openVideo(href);
+		}
+	else
+		{
+		window.open(href, "_blank");
+		}
+}
+
+async function openVideo(href) {
+	const response = await fetch(href); // ignore response
 }
 
 // Call back to IntraMine's Viewer

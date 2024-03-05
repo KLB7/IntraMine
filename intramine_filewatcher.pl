@@ -396,6 +396,8 @@ sub IndexChangedFiles {
 		else
 			{
 			PeriodicallyConsolidate();
+			# This is somewhat opportunistic, get rid of old temp files.
+			DeleteOldTempFiles();
 			}
 		}
 	
@@ -857,14 +859,14 @@ sub FileShouldBeIndexed {
 	return($result);
 	}
 
-# True if path is for known image type and isn't a "nuisance" file. Note there is
+# True if path is for known image or video type and isn't a "nuisance" file. Note there is
 # no check that the file exists. Image paths are remembered, though of course the
 # image file itself is not sent to Elasticsearch.
-sub IsImageFilePath {
+sub IsImageOrVideoFilePath {
 	my ($fullPath) = @_;
 	my $result = 0;
 	
-	if ($fullPath !~ m!/\.! && $fullPath !~ m!/(temp|junk)/!i && EndsWithImageExtension($fullPath))
+	if ($fullPath !~ m!/\.! && $fullPath !~ m!/(temp|junk)/!i && EndsWithImageOrVideoExtension($fullPath))
 		{
 		$result = 1;
 		}
@@ -918,7 +920,7 @@ sub AskElasticsearchToIndexChanges {
 			}
 		else
 			{
-			if (!IsImageFilePath($fullPath))
+			if (!IsImageOrVideoFilePath($fullPath))
 				{
 				$pathsOfChangedFilesA->[$i] = '';
 				}
@@ -1159,12 +1161,78 @@ sub RememberTimeOfLastConsolidation {
 	}
 } ##### Full paths consolidation
 
+sub DeleteOldTempFiles {
+	my @tempFileList;
+	my $fileCountMax = 50;
+	my $tempFileCount = GetTempFilesOlderFirst(\@tempFileList);
+
+	if ($tempFileCount > $fileCountMax)
+		{
+		my $numFilesLeft = $tempFileCount;
+		for (my $i = 0; $i < $tempFileCount; ++$i)
+			{
+			if (!DeleteFileWide($tempFileList[$i]))
+				{
+				Output("Error, could not delete |$tempFileList[$i]|!\n");
+				print("Error, could not delete |$tempFileList[$i]|!\n");
+				last;
+				}
+			--$numFilesLeft;
+			if ($numFilesLeft <= $fileCountMax)
+				{
+				last;
+				}
+			}
+		}
+	}
+
+sub GetTempFilesOlderFirst {
+	my ($sortedFileListA) = @_;
+	my $LogDir = FullDirectoryPath('LogDir');
+	my $tempDir = $LogDir . 'temp/';
+	my @fileList;
+	my @logFileList;
+	my %modTimeForPath;
+	
+	GetTopFilesInFolder($tempDir, \@fileList);
+
+	# Count old logs and get mod times.
+	for (my $i = 0; $i < @fileList; ++$i)
+		{
+		my $mtime = GetFileModTimeWide($fileList[$i]);
+		push @logFileList, $fileList[$i];
+		my $j = @logFileList - 1;
+		$modTimeForPath{$logFileList[$j]} = $mtime;
+		}
+		
+	my $oldLogCount = @logFileList;
+	if ($oldLogCount >= 1)
+		{
+		if ($oldLogCount == 1)
+			{
+			push @$sortedFileListA, $logFileList[0];
+			}
+		else
+			{
+			# Note older modTimes are smaller than newer, std sort order $a <=> $b works
+			# since we want to delete older logs first.
+			my @sortedFileList = sort {$modTimeForPath{$a} <=> $modTimeForPath{$b}} @logFileList;
+			for (my $i = 0; $i < @sortedFileList; ++$i)
+				{
+				push @$sortedFileListA, $sortedFileList[$i];
+				}
+			}
+		}
+	
+	return($oldLogCount);
+	}
+
 # FileWatcher logs are renamed and become inactive when log size reaches about 10 MB.
 # Delete all but the latest two old logs.
 sub CleanOutOldFileWatcherLogs {
 	my @logFileList;
 	my $oldLogCount = GetLogsOlderFirst(\@logFileList);
-	my $result = '';
+
 	if ($oldLogCount >= 3)
 		{
 		my $numLogsLeft = $oldLogCount;

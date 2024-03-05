@@ -25,7 +25,8 @@ use Text::Tabs;
 $tabstop = 4;
 use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL doesn't seem to do much
 use Time::HiRes qw ( time );
-use Win32::Process; # for calling Exuberant ctags.exe
+use Win32::Process 'STILL_ACTIVE';  # for calling Exuberant ctags.exe etc
+#use Win32::Process; # for calling Exuberant ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
@@ -62,6 +63,19 @@ my $D_icon = '<span class="circle_blue">D</span>';		# Data
 my $m_icon = '<span class="circle_red">m</span>';		# method
 my $f_icon = '<span class="circle_red">f</span>';		# function
 my $s_icon = '<span class="circle_red">s</span>';		# subroutine
+
+my %VideMimeTypeForExtension;
+$VideMimeTypeForExtension{'mp4'} = 'video/mp4';
+$VideMimeTypeForExtension{'m4v'} = 'video/MP4V-ES';
+$VideMimeTypeForExtension{'webm'} = 'video/webm';
+$VideMimeTypeForExtension{'3gp'} = 'video/3gpp';
+$VideMimeTypeForExtension{'mkv'} = 'video/x-matroska';
+$VideMimeTypeForExtension{'avi'} = 'video/x-msvideo';
+$VideMimeTypeForExtension{'mpeg'} = 'video/mpeg';
+$VideMimeTypeForExtension{'ogv'} = 'video/ogg';
+$VideMimeTypeForExtension{'ts'} = 'video/mp2t';
+$VideMimeTypeForExtension{'3g2'} = 'video/3gpp2';
+$VideMimeTypeForExtension{'ogg'} = 'application/ogg';
 
 #LoadCobolKeywords();
 
@@ -266,6 +280,13 @@ sub FullFile {
 		$ctrlSPath = encode_utf8($ctrlSPath);
 		$ctrlSPath =~ s!%!%25!g;
 		$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+
+		# Added Feb 2024, if it's a video throw it up in a new browser tab.
+		if (EndsWithVideoExtension($filePath))
+			{
+			ShowVideo($obj, $formH, $peeraddress, $clientIsRemote);
+			return("1");
+			}
 		
 		# Categories: see GetContentBasedOnExtension() below. Here we handle HTML.
 		# 1.1
@@ -366,11 +387,13 @@ sub FullFile {
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
 	my $filesShortName = CVal('FILESSHORTNAME');
+	my $videoShortName = CVal('VIDEOSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
 	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
+	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
 	#$theBody =~ s!_FILESERVERPORT_!$fileServerPort!g;
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
@@ -477,6 +500,7 @@ let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
 let filesShortName = '_FILESSHORTNAME_';
+let videoShortName = '_VIDEOSHORTNAME_';
 let peeraddress = '_PEERADDRESS_';	// ip address of client
 let errorID = "editor_error";
 let highlightItems = [_HIGHLIGHTITEMS_];
@@ -3161,4 +3185,144 @@ sub AddInternalLinksToPerlLine {
 			}
 		$$txtR = $line;
 		}
+	}
+
+############## Video support
+# Create a temporary .bat file containing the full path of the video,
+# run the .bat file to open the video using default video player.
+# chcp 65001 is done first to allow "Unicode" in the path.
+# (goto) 2>nul & del \"%~f0\" deletes the bat file after the video player is closed.
+# (If delete doesn't happen for some reason, intramine_filewatcher.pl#DeleteOldTempFiles()
+# will limit the number of temp files every now and then.)
+# Typical .bat file contents:
+#    chcp 65001
+#    "c:/perlprogs/intramine/test/video/rabbit320 × %.mp4"
+#    (goto) 2>nul & del \"%~f0\"
+sub ShowVideo {
+	my ($obj, $formH, $peeraddress, $clientIsRemote) = @_;
+	# Remote video viewing is not (yet) possible.
+	if ($clientIsRemote)
+		{
+		return;
+		}
+	
+	if (defined($formH->{'href'}))
+		{
+		$formH->{'FULLPATH'} = $formH->{'href'};
+		}
+
+	my $filePath = $formH->{'FULLPATH'};
+	my $exists = FileOrDirExistsWide($filePath);
+	if (!$exists)
+		{
+		$filePath = "Error, |$filePath| not found on disk.\n";
+		}
+	else
+		{
+		# Experiment: open video directly in bat file.
+		my $proc;
+		my $status = ''; # Not used
+		my $batContents = "chcp 65001\n\"$filePath\"\n(goto) 2>nul & del \"%~f0\"\n";
+		my $tempBatPath = TempVideoPath('bat');
+		WriteUTF8FileWide($tempBatPath, $batContents);
+		# Run the .bat file.
+		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c \"$tempBatPath\" >nul", 0, 0, ".")
+					|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+		}
+	}
+
+# Make up a file path, hiding the file in IntraMine's Log folder.
+sub TempVideoPath {
+	my ($extNoPeriod) = @_;
+	my $LogDir = FullDirectoryPath('LogDir');
+	my $basePath = $LogDir . 'temp/tempvideo';
+	my $randomInteger2 = random_int_between(1001, 60000);
+	my $tempVideoPath = $basePath . time . $randomInteger2 . '.' . $extNoPeriod;
+	return($tempVideoPath);
+	}
+
+# Some of the code below opens a video in the browser, not currently used.
+
+# Not used
+sub VideoFileTemplate {
+	my $theBody = <<'FINIS';
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>_TITLE_</title>
+</head>
+<body>
+<h2>_TITLEHEADER_</h2>
+_FILECONTENTS_
+</body></html>
+FINIS
+
+	return($theBody);
+	}
+
+# Not used
+sub VideoElement {
+	my ($filePath) = @_;
+
+my $theBody = <<'FINIS';
+<video controls>
+  <source src="_FILEPATH_"_MIMETYPE_ />
+  <p>Sorry, your browser doesn't support this video.</p>
+</video>
+FINIS
+
+	$filePath =~ s!\\!/!g;
+	$theBody =~ s!_FILEPATH_!$filePath!;
+	my $mimeType = VideoMimeTypeForPath($filePath);
+	my $mimeTypeAtt = '';
+	if ($mimeType ne '')
+		{
+		$mimeTypeAtt = " type='$mimeType'";
+		}
+	$theBody =~ s!_MIMETYPE_!$mimeTypeAtt!;
+
+	return($theBody);
+	}
+
+# Not used
+sub VideoMimeTypeForPath {
+	my ($filePath) = @_;
+	my $mimeType = '';
+
+	$filePath =~ m!\.([^.]+)$!;
+	my $ext = $1;
+	$ext ||= '';
+
+	if (defined($VideMimeTypeForExtension{$ext}))
+		{
+		$mimeType = $VideMimeTypeForExtension{$ext};
+		}
+	
+	return($mimeType);
+	}
+
+# Not used
+sub SaveTempVideoFile {
+	my ($theBody) = @_;
+	my $LogDir = FullDirectoryPath('LogDir');
+	my $basePath = $LogDir . 'temp/tempvideo';
+	my $randomInteger2 = random_int_between(1001, 60000);
+	my $tempVideoPath = $basePath . time . $randomInteger2 . '.html';
+	# TEST ONLY
+	#print("SaveTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
+	WriteBinFileWide($tempVideoPath, $theBody);
+	return($tempVideoPath);
+	}
+
+# Not used
+sub OpenTempVideoFile {
+	my ($tempVideoPath) = @_;
+	my $proc;
+	my $status = '';
+	# TEST ONLY
+	#print("OpenTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
+
+	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $tempVideoPath", 0, 0, ".")
+			|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
 	}

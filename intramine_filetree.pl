@@ -129,6 +129,7 @@ let viewerShortName = '_VIEWERSHORTNAME_';
 let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
+let videoShortName = '_VIDEOSHORTNAME_';
 let contentID = 'scrollAdjustedHeight';
 let errorID = "errorMessage";
 let initialDirectoryPath = '_INITIALDIR_';
@@ -196,10 +197,12 @@ FINIS
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
+	my $videoShortName = CVal('VIDEOSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
+	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
 	
 	my $initialDirectory = defined($formH->{'directory'}) ? $formH->{'directory'}: '';
 	# Encode: this goes with decodeURIComponent at top of files.js#showDirectory().
@@ -253,6 +256,18 @@ sub GetDirsAndFiles {
 		{
 		my $sortOrder = (defined($formH->{'sort'})) ? $formH->{'sort'}: '';
 		SortFilesDatesAndSizes($sortOrder, \@files, \@modDates, \@fileSizes);
+
+		my $rmt = defined($formH->{'rmt'}) ? $formH->{'rmt'}: 'undef';
+		if ($rmt eq 'false')
+			{
+			$rmt = 0;
+			}
+		else
+			{
+			$rmt = 1;
+			}
+		# TEST ONLY
+		#print("\$rmt: |$rmt|\n");
 		
 		my @modDatesStrings;
 		my @fileSizesStrings;
@@ -260,7 +275,7 @@ sub GetDirsAndFiles {
 		GetDateSizeStringsAndColumnWidths(\@files, \@modDates, \@fileSizes,
 			\@modDatesStrings, \@fileSizesStrings, \@widths);
 		
-		PutFiles($dir, $formH, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths, \$result);
+		PutFiles($dir, $formH, $rmt, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths, \$result);
 		}
 		
 	if ($total)
@@ -417,7 +432,7 @@ sub GetDateSizeStringsAndColumnWidths {
 # For each file: file icon based on extension, file name, datetime, size in bytes.
 # Fixed-width inline-block <span>s are used to align entries.
 sub PutFiles {
-	my ($dir, $formH, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) = @_;
+	my ($dir, $formH, $rmt, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) = @_;
 	my $numFiles = @$filesA;
 	my $clientIsRemote = ($formH->{'rmt'} eq 'false') ? 0 : 1;
 	my $allowEditing = ($formH->{'edt'} eq 'false') ? 0 : 1;
@@ -433,13 +448,19 @@ sub PutFiles {
 		
 		$file =~ /\.([^.]+)$/;
 		my $ext = $1;
-		
+
 		# Gray out unsuported file types. Show thumbnail on hover for images.
-		if (defined($ext) && IsTextDocxPdfOrImageExtensionNoPeriod($ext))
+		# Note videos cannot be viewed remotely (at least for now).
+		if (defined($ext) && IsTextDocxPdfOrImageOrVideoExtensionNoPeriod($ext)
+		  && !(IsVideoExtensionNoPeriod($ext) && $rmt))
 			{
 			if (IsImageExtensionNoPeriod($ext))
 				{
 				$$resultR .= ImageLine($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA);
+				}
+			elsif (IsVideoExtensionNoPeriod($ext))
+				{
+				$$resultR .= VideoLine($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA);
 				}
 			else # Text, for the most part - could also be pdf or docx
 				{
@@ -447,7 +468,7 @@ sub PutFiles {
 							$allowEditing, $clientIsRemote, $widthsA);
 				}
 			}
-		else # Unsupported type, can't produce a read-only HTML view. So no link.
+		else # Unsupported type (and remote videos), can't produce a read-only HTML view. So no link.
 			{
 			my $dateSpanStart = "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>";
 			my $sizesSpanStart = "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>";
@@ -520,6 +541,25 @@ sub ImageLine {
 	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
 	$size . '</span></li>';
 			
+	return($result);
+	}
+
+sub VideoLine {
+	my ($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA) = @_;
+	my $imagePath = $dir . $file . 'VIDEO';
+	my $imageName = $file;
+	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine.
+	$imagePath = &HTML::Entities::encode($imagePath);
+
+	my $result = '<li class="file ext_' . $ext . '">' .
+	"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
+	'<a href="#" rel="' . $imagePath . '"'  . '>' .
+	"$imageName" . '</a></span>' .
+	"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
+	$modDate . '</span>' .
+	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
+	$size . '</span></li>';
+
 	return($result);
 	}
 

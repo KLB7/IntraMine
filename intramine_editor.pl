@@ -11,7 +11,7 @@
 # editor.js#loadFileIntoCodeMirror() then calls LoadTheFile() here with a 'req=loadfile' request.
 # (March 2022) The Editor also shows autolinks an hover images.
 
-# perl C:\perlprogs\mine\intramine_editor.pl server_port our_listening_port
+# perl C:\perlprogs\intramine\intramine_editor.pl server_port our_listening_port
 
 use strict;
 use warnings;
@@ -103,6 +103,7 @@ let openerShortName = '_OPENERSHORTNAME_';
 let editorShortName = '_EDITORSHORTNAME_';
 let linkerShortName = '_LINKERSHORTNAME_';
 let filesShortName = '_FILESSHORTNAME_';
+let videoShortName = '_VIDEOSHORTNAME_';
 let peeraddress = '_PEERADDRESS_';	// ip address of client
 let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
@@ -275,11 +276,13 @@ FINIS
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
 	my $filesShortName = CVal('FILESSHORTNAME');
+	my $videoShortName = CVal('VIDEOSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
 	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
+	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
 
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;

@@ -73,8 +73,6 @@ function addAutoLinks() {
 			line : lastVisibleLineNum
 		});
 
-		// Mark up local file, image, and web links in visible text.
-		// console.log('Calling requestLinkMarkup');
 		requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
 		}
 }
@@ -369,6 +367,10 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		{
 		nameOfCSSclass = "cmAutoLinkNoEdit";
 		}
+	else if (linkType === "video")
+		{
+		nameOfCSSclass = "cmAutoLinkVideo";
+		}
 	else if (linkType === "directory")
 		{
 		nameOfCSSclass = "cmAutoLinkDirectory";
@@ -470,6 +472,11 @@ function typeAndClass(target, checkForIMG) {
 		{
 		linkType = "file";
 		className = "cmAutoLink";
+		}
+	else if (hasClass(target, "cmAutoLinkVideo"))
+		{
+		linkType = "video";
+		className = "cmAutoLinkVideo";
 		}
 	else if (hasClass(target, "cmAutoLinkDirectory"))
 		{
@@ -797,7 +804,20 @@ function fireOneLink(target, linkType, className, forEdit) {
 		{
 		if (linkType === "file")
 			{
-			fireOneFileLink(linkPath, forEdit);
+			let serviceName = '';
+			if (forEdit)
+				{
+				serviceName = editorShortName;
+				}
+			else
+				{
+				serviceName = viewerShortName;
+				}
+			fireOneFileLink(linkPath, forEdit, serviceName);
+			}
+		else if (linkType === "video")
+			{
+			fireOneFileLink(linkPath, forEdit, videoShortName);
 			}
 		else if (linkType === "directory")
 			{
@@ -821,7 +841,8 @@ function fireOneLink(target, linkType, className, forEdit) {
 // <a href="http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/data/swarmserver.txt"
 // target="_blank">swarmserver.txt</a>... - file
 // Link can be for view only or for editing. Dispatch accordingly to other JS functions.
-function fireOneFileLink(linkPath, forEdit) {
+// Added later, link can be for a video in which case serviceName is videoShortName.
+function fireOneFileLink(linkPath, forEdit, serviceName) {
 	// Encode the linkPath
 	let hrefMatch = /href\=\"([^"]+)\"/.exec(linkPath);
 	if (hrefMatch !== null)
@@ -847,7 +868,13 @@ function fireOneFileLink(linkPath, forEdit) {
 
 			let href2Enc = href2;
 
-			if (forEdit)
+			if (serviceName === videoShortName)
+				{
+				let hrefEnc = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
+				fireOneViewerLink(hrefEnc, serviceName);
+				}
+
+			else if (forEdit)
 				{
 				if (allowEditing)
 					{
@@ -867,14 +894,14 @@ function fireOneFileLink(linkPath, forEdit) {
 				let hrefEnc = href.replace(/href\=(.+)$/, 'href=' + href2Enc);
 				//window.open(hrefEnc, "_blank");
 				// Replace the "81" with a good Viewer port, call window.open().
-				fireOneViewerLink(hrefEnc);
+				fireOneViewerLink(hrefEnc, serviceName);
 				}
 			}
 		}
 }
 
-function fireOneViewerLink(href) {
-	openView(href); // See viewerLinks.js#openView()
+function fireOneViewerLink(href, serviceName) {
+	openView(href, serviceName); // See viewerLinks.js#openView()
 }
 
 // linkPath: |<a href="c:/perlprogs/intramine/docs/" onclick="openDirectory(this.href); return false;">"docs"</a>|
@@ -1014,11 +1041,7 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 		widthMatch = widthMatch.replace(/'/g, ""); // get rid of single quotes
 		if (shouldDecodeMatch)
 			{
-			// TEST ONLY
-			//console.log("hintContent before re-encoding: " + hintContent);
 			hintContent = encodeURIComponent(hintContent);
-			// TEST ONLY
-			//console.log("hintContent after: " + hintContent);
 			}
 		
 		showhint(hintContent, target, e, widthMatch, isImgMatch, shouldDecodeMatch); // tooltip.js#showhint()

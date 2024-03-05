@@ -44,6 +44,13 @@
 	cursor: pointer;
 }
 
+/* Same as cmAutoLinkNoEdit, we just need a unique name. */
+.cmAutoLinkVideo {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
 .cmAutoLinkMobile {
 	text-decoration: underline;
 	cursor: pointer;

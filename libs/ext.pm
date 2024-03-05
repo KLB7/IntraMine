@@ -14,10 +14,13 @@ use strict;
 # Text and image extensions. Includes .t .bat and .pod, excludes .docx and .pdf.
 my $textExtensions = qr/\.(1|2|3|4|4th|5|6|7|8|9|BUILD|R|apl|asc|asn|asn1|aspx|b|bash|bat|bf|bzl|c|cc|cbl|cfg|cgi|cl|clj|cljc|cljs|cljx|cmake|cob|coffee|conf|cpp|cpy|cql|cr|cs|css|cxx|cyp|cypher|d|dart|dat|def|diff|dtd|dyalog|dyl|dylan|e|ecl|edn|ejs|el|elm|erb|erl|f|f77|f90|f95|f03|factor|feature|for|forth|fs|fth|fun|go|gradle|groovy|gss|h|haml|handlebars|hbs|hh|hpp|hs|htm|html|hx|hxml|hxx|in|ini|ino|intr|j2|jade|java|jinja|jinja2|jl|js|json|jsonld|jsp|jsx|ksh|kt|less|lhs|lisp|list|log|ls|ltx|lua|m|map|markdown|mbox|md|mkd|ml|mli|mll|mly|mm|mo|mps|msc|mscgen|mscin|msgenny|nb|nq|nsh|nsi|nt|nut|oz|p|pas|patch|pgp|php|php3|php4|php5|php7|phtml|pig|pl|pls|pm|pod|pp|pro|properties|proto|ps1|psd1|psm1|pug|pxd|pxi|py|pyw|pyx|q|r|rb|rq|rs|rst|s|sas|sass|scala|scm|scss|sh|sieve|sig|siv|slim|smackspec|sml|soy|sparql|spec|sql|ss|st|styl|sv|svg|svh|swift|t|tcl|tex|text|textile|toml|tpl|ts|tsx|ttcn|ttcn3|ttcnpp|ttl|txt|v|vb|vbs|vhd|vhdl|vtl|vue|webidl|xml|xquery|xsd|xsl|xu|xy|yaml|yml|ys|z80)$/i;
 my $imageExtensions = qr/\.(png|gif|jpe?g|ico|webp)$/i;
+my $videoExtensions = qr/\.(mp4|mpeg|m4v|webm|3gp|mkv|avi|ogv|ts|3g2|ogg)$/i;
 my $textExtensionsNoPeriod = qr/(1|2|3|4|4th|5|6|7|8|9|BUILD|R|apl|asc|asn|asn1|aspx|b|bash|bat|bf|bzl|c|cc|cbl|cfg|cgi|cl|clj|cljc|cljs|cljx|cmake|cob|coffee|conf|cpp|cpy|cql|cr|cs|css|cxx|cyp|cypher|d|dart|dat|def|diff|dtd|dyalog|dyl|dylan|e|ecl|edn|ejs|el|elm|erb|erl|f|f77|f90|f03|f95|factor|feature|for|forth|fs|fth|fun|go|gradle|groovy|gss|h|haml|handlebars|hbs|hh|hpp|hs|htm|html|hx|hxml|hxx|in|ini|ino|intr|j2|jade|java|jinja|jinja2|jl|js|json|jsonld|jsp|jsx|ksh|kt|less|lhs|lisp|list|log|ls|ltx|lua|m|map|markdown|mbox|md|mkd|ml|mli|mll|mly|mm|mo|mps|msc|mscgen|mscin|msgenny|nb|nq|nsh|nsi|nt|nut|oz|p|pas|patch|pgp|php|php3|php4|php5|php7|phtml|pig|pl|pls|pm|pod|pp|pro|properties|proto|ps1|psd1|psm1|pug|pxd|pxi|py|pyw|pyx|q|r|rb|rq|rs|rst|s|sas|sass|scala|scm|scss|sh|sieve|sig|siv|slim|smackspec|sml|soy|sparql|spec|sql|ss|st|styl|sv|svg|svh|swift|t|tcl|tex|text|textile|toml|tpl|ts|tsx|ttcn|ttcn3|ttcnpp|ttl|txt|v|vb|vbs|vhd|vhdl|vtl|vue|webidl|xml|xquery|xsd|xsl|xu|xy|yaml|yml|ys|z80)$/i;
 my $imageExtensionsNoPeriod = qr/(png|gif|jpe?g|ico|webp)$/i;
+my $videoExtensionsNoPeriod = qr/(mp4|mpeg|m4v|webm|3gp|mkv|avi|ogv|ts|3g2|ogg)$/i;
 my $exactTextExtensionsNoPeriod = qr/^(1|2|3|4|4th|5|6|7|8|9|BUILD|R|apl|asc|asn|asn1|aspx|b|bash|bat|bf|bzl|c|cc|cbl|cfg|cgi|cl|clj|cljc|cljs|cljx|cmake|cob|coffee|conf|cpp|cpy|cql|cr|cs|css|cxx|cyp|cypher|d|dart|dat|def|diff|dtd|dyalog|dyl|dylan|e|ecl|edn|ejs|el|elm|erb|erl|f|f77|f90|f03|f95|factor|feature|for|forth|fs|fth|fun|go|gradle|groovy|gss|h|haml|handlebars|hbs|hh|hpp|hs|htm|html|hx|hxml|hxx|in|ini|ino|intr|j2|jade|java|jinja|jinja2|jl|js|json|jsonld|jsp|jsx|ksh|kt|less|lhs|lisp|list|log|ls|ltx|lua|m|map|markdown|mbox|md|mkd|ml|mli|mll|mly|mm|mo|mps|msc|mscgen|mscin|msgenny|nb|nq|nsh|nsi|nt|nut|oz|p|pas|patch|pgp|php|php3|php4|php5|php7|phtml|pig|pl|pls|pm|pod|pp|pro|properties|proto|ps1|psd1|psm1|pug|pxd|pxi|py|pyw|pyx|q|r|rb|rq|rs|rst|s|sas|sass|scala|scm|scss|sh|sieve|sig|siv|slim|smackspec|sml|soy|sparql|spec|sql|ss|st|styl|sv|svg|svh|swift|t|tcl|tex|text|textile|toml|tpl|ts|tsx|ttcn|ttcn3|ttcnpp|ttl|txt|v|vb|vbs|vhd|vhdl|vtl|vue|webidl|xml|xquery|xsd|xsl|xu|xy|yaml|yml|ys|z80)$/i;
-my $exactImageExtensionsNoPeriod = qr/^(png|gif|jpe?g|ico|webp)$/i;
+my $exactImageExtensionsNoPeriod = qr/^(png|gif|jpe?g|ico|webp|avi)$/i;
+my $exactVideoExtensionsNoPeriod = qr/^(mp4|mpeg|m4v|webm|3gp|mkv|ogv|ts|3g2|ogg)$/i;
 
 # Includes .t .bat and .pod, also .docx and .pdf.
 my $textDocxPdfExtensions = qr/\.(1|2|3|4|4th|5|6|7|8|9|BUILD|R|apl|asc|asn|asn1|aspx|b|bash|bat|bf|bzl|c|cc|cbl|cfg|cgi|cl|clj|cljc|cljs|cljx|cmake|cob|coffee|conf|cpp|cpy|cql|cr|cs|css|cxx|cyp|cypher|d|dart|dat|def|diff|docx|dtd|dyalog|dyl|dylan|e|ecl|edn|ejs|el|elm|erb|erl|f|f77|f90|f03|f95|factor|feature|for|forth|fs|fth|fun|go|gradle|groovy|gss|h|haml|handlebars|hbs|hh|hpp|hs|htm|html|hx|hxml|hxx|in|ini|ino|intr|j2|jade|java|jinja|jinja2|jl|js|json|jsonld|jsp|jsx|ksh|kt|less|lhs|lisp|list|log|ls|ltx|lua|m|map|markdown|mbox|md|mkd|ml|mli|mll|mly|mm|mo|mps|msc|mscgen|mscin|msgenny|nb|nq|nsh|nsi|nt|nut|oz|p|pas|patch|pdf|pgp|php|php3|php4|php5|php7|phtml|pig|pl|pls|pm|pod|pp|pro|properties|proto|ps1|psd1|psm1|pug|pxd|pxi|py|pyw|pyx|q|r|rb|rq|rs|rst|s|sas|sass|scala|scm|scss|sh|sieve|sig|siv|slim|smackspec|sml|soy|sparql|spec|sql|ss|st|styl|sv|svg|svh|swift|t|tcl|tex|text|textile|toml|tpl|ts|tsx|ttcn|ttcn3|ttcnpp|ttl|txt|v|vb|vbs|vhd|vhdl|vtl|vue|webidl|xml|xquery|xsd|xsl|xu|xy|yaml|yml|ys|z80)$/i;
@@ -34,10 +37,27 @@ sub EndsWithImageExtension {
 	return($text =~ $imageExtensions);
 	}
 
+sub EndsWithVideoExtension {
+	my ($text) = @_;
+	return($text =~ $videoExtensions);
+	}
+
+sub EndsWithImageOrVideoExtension {
+	my ($text) = @_;
+	return($text =~ $imageExtensions || $text =~ $videoExtensions);
+	}
+
+
 sub EndsWithTextOrImageExtension {
 	my ($text) = @_;
 	return($text =~ $textExtensions || $text =~ $imageExtensions);	
 	}
+
+sub EndsWithTextOrImageOrVideoExtension {
+	my ($text) = @_;
+	return($text =~ $textExtensions || $text =~ $imageExtensions || $text =~ $videoExtensions);	
+	}
+
 	
 sub GetTextExtension {
 	my ($text) = @_;
@@ -51,11 +71,25 @@ sub GetImageExtension {
 	return($result);
 	}
 
+sub GetVideoExtension {
+	my ($text) = @_;
+	my $result = ($text =~ $videoExtensions) ? $1: '';
+	return($result);
+	}
+
+
 sub GetTextOrImageExtension {
 	my ($text) = @_;
 	my $result = ($text =~ $textExtensions || $text =~ $imageExtensions) ? $1: '';
 	return($result);
 	}
+
+sub GetTextOrImageOrVideoExtension {
+	my ($text) = @_;
+	my $result = ($text =~ $textExtensions || $text =~ $imageExtensions || $text =~ $videoExtensions) ? $1: '';
+	return($result);
+	}
+
 	
 sub EndsWithTextExtensionNoPeriod {
 	my ($text) = @_;
@@ -67,9 +101,20 @@ sub EndsWithImageExtensionNoPeriod {
 	return($text =~ $imageExtensionsNoPeriod);
 	}
 
+sub EndsWithVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $videoExtensionsNoPeriod);
+	}
+
+
 sub EndsWithTextOrImageExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $textExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod);	
+	}
+
+sub EndsWithTextOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $textExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod || $text =~ $videoExtensionsNoPeriod);	
 	}
 
 sub GetTextExtensionNoPeriod {
@@ -84,9 +129,21 @@ sub GetImageExtensionNoPeriod {
 	return($result);
 	}
 
+sub GetVideoExtensionNoPeriod {
+	my ($text) = @_;
+	my $result = ($text =~ $videoExtensionsNoPeriod) ? $1: '';
+	return($result);
+	}
+
 sub GetTextOrImageExtensionNoPeriod {
 	my ($text) = @_;
 	my $result = ($text =~ $textExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod) ? $1: '';
+	return($result);
+	}
+
+sub GetTextOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	my $result = ($text =~ $textExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod || $text =~ $videoExtensionsNoPeriod) ? $1: '';
 	return($result);
 	}
 
@@ -100,9 +157,19 @@ sub IsImageExtensionNoPeriod {
 	return($text =~ $exactImageExtensionsNoPeriod);		
 	}
 
+sub IsVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $exactVideoExtensionsNoPeriod);		
+	}
+
 sub IsTextOrImageExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $exactTextExtensionsNoPeriod || $text =~ $exactImageExtensionsNoPeriod);		
+	}
+
+sub IsTextOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $exactTextExtensionsNoPeriod || $text =~ $exactImageExtensionsNoPeriod || $text =~ $exactVideoExtensionsNoPeriod);		
 	}
 
 # Including docx and pdf:
@@ -122,6 +189,12 @@ sub GetTextDocxPdfOrImageExtension {
 	return($result);
 	}
 
+sub GetTextDocxPdfOrImageOrVideoExtension {
+	my ($text) = @_;
+	my $result = ($text =~ $textDocxPdfExtensions || $text =~ $imageExtensions || $text =~ $videoExtensions) ? $1: '';
+	return($result);
+	}
+
 sub EndsWithTextDocxPdfExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $textDocxPdfExtensionsNoPeriod);
@@ -130,6 +203,11 @@ sub EndsWithTextDocxPdfExtensionNoPeriod {
 sub EndsWithTextDocxPdfOrImageExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $textDocxPdfExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod);
+	}
+
+sub EndsWithTextDocxPdfOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $textDocxPdfExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod || $text =~ $videoExtensionsNoPeriod);
 	}
 
 sub GetTextDocxPdfExtensionNoPeriod {
@@ -144,6 +222,12 @@ sub GetTextDocxPdfOrImageExtensionNoPeriod {
 	return($result);
 	}
 
+sub GetTextDocxPdfOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	my $result = ($text =~ $textDocxPdfExtensionsNoPeriod || $text =~ $imageExtensionsNoPeriod || $text =~ $videoExtensionsNoPeriod) ? $1: '';
+	return($result);
+	}
+
 sub IsTextDocxPdfExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $exactTextDocxPdfExtensionsNoPeriod);
@@ -152,6 +236,11 @@ sub IsTextDocxPdfExtensionNoPeriod {
 sub IsTextDocxPdfOrImageExtensionNoPeriod {
 	my ($text) = @_;
 	return($text =~ $exactTextDocxPdfExtensionsNoPeriod || $text =~ $exactImageExtensionsNoPeriod);		
+	}
+
+sub IsTextDocxPdfOrImageOrVideoExtensionNoPeriod {
+	my ($text) = @_;
+	return($text =~ $exactTextDocxPdfExtensionsNoPeriod || $text =~ $exactImageExtensionsNoPeriod || $text =~ $exactVideoExtensionsNoPeriod);		
 	}
 
 # Extensions for all languages supported by CodeMirror.

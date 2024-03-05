@@ -1,7 +1,6 @@
 # elasticsearch_bulk_indexer.pm: add files to Elasticsearch index, a bunch at a time
 # with a bulk indexer. Tested with elasticsearch-6.5.1, 6.8.0.
 # Used for example in elastic_indexer.pl, which indexes all files in a list of directories.
-# NOTE this should not (yet) be used with Elasticsearch 7.
 
 package elasticsearch_bulk_indexer;
 

@@ -40,7 +40,7 @@
 # In the Files service's front end JavaScript:
 # - FullPathForPartial() is called by files.js#openAutoLink(), via "req=autolink".
 
-# perl C:\perlprogs\mine\intramine_linker.pl
+# perl C:\perlprogs\intramine\intramine_linker.pl
 
 use strict;
 use warnings;
@@ -71,11 +71,12 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-# Needed for linking, to call a service by its Short name.
+# For calling a service by its Short name.
 my $VIEWERNAME = CVal('VIEWERSHORTNAME');
 my $EDITORNAME = CVal('EDITORSHORTNAME');
 my $OPENERNAME = CVal('OPENERSHORTNAME');
 my $FILESNAME = CVal('FILESSHORTNAME');
+my $VIDEONAME = CVal('VIDEOSHORTNAME');
 
 # Common locations for images.
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
@@ -642,24 +643,29 @@ sub EvaluateLinkCandidates {
 			
 			# "$haveTextExtension" includes docx|pdf
 			my $haveTextExtension = (!$haveURL && !$haveTextHref && IsTextDocxPdfExtensionNoPeriod($extProper));
-			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && !$haveTextHref && IsImageExtensionNoPeriod($extProper)); 
-			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension); # else URL or [text](href)
+			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && !$haveTextHref && IsImageExtensionNoPeriod($extProper));
+			my $haveVideoExtension = (!$haveURL && !$haveTextHref && IsVideoExtensionNoPeriod($extProper));
+			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension || $haveVideoExtension); # else URL or [text](href)
 			
 			my $linkIsMaybeTooLong = 0;
 			
 			# Potentially a text file mention or an image.
 			if ($haveGoodExtension)
 				{
-				# At the last minute, suppress #anchorWithNum if it has a leading
-				# space or tab.
-				if (index($anchorWithNum, ' ') == 1 || index($anchorWithNum, "\t") == 1)
+				# Skip video link if client is remote, no way yet to handle that.
+				if (!($haveVideoExtension && $clientIsRemote))
 					{
-					$anchorWithNum = '';
+					# At the last minute, suppress #anchorWithNum if it has a leading
+					# space or tab.
+					if (index($anchorWithNum, ' ') == 1 || index($anchorWithNum, "\t") == 1)
+						{
+						$anchorWithNum = '';
+						}
+					$haveGoodMatch = RememberTextOrImageOrVideoFileMention($startPos,
+							$previousRevEndPos, $captured, $extProper,
+							$haveQuotation, $haveTextExtension, $haveImageExtension,
+							$haveVideoExtension, $quoteChar, $anchorWithNum);
 					}
-				$haveGoodMatch = RememberTextOrImageFileMention($startPos,
-						$previousRevEndPos, $captured, $extProper,
-						$haveQuotation, $haveTextExtension, $haveImageExtension,
-						$quoteChar, $anchorWithNum);
 				} # if known extensions
 			elsif ($haveURL)
 				{
@@ -715,9 +721,9 @@ sub ExtensionBeforeHashOrEnd {
 # in @repStr, @repLen etc. We go for the longest valid path.
 # We're searching backwards for the file name and directories when an extension has
 # been spotted.
-sub RememberTextOrImageFileMention {
+sub RememberTextOrImageOrVideoFileMention {
 	my ($startPos, $previousRevEndPos, $captured, $extProper, $haveQuotation,
-		$haveTextExtension, $haveImageExtension, $quoteChar, $anchorWithNum) = @_;
+		$haveTextExtension, $haveImageExtension, $haveVideoExtension, $quoteChar, $anchorWithNum) = @_;
 	my $linkIsMaybeTooLong = 0;
 	
 	# To allow for spaces in #anchors where file#anchor hasn't been quoted, grab the
@@ -726,7 +732,11 @@ sub RememberTextOrImageFileMention {
 	if ($extProper eq 'txt' && !$haveQuotation && $anchorWithNum ne '')
 		{
 		my $anchorPosOnLine = $startPos;
-		$anchorPosOnLine = index($strippedLine, '#', $anchorPosOnLine);
+		$anchorPosOnLine = index($strippedLine, '#', $startPos);
+		if ($anchorPosOnLine < 0)
+			{
+			$anchorPosOnLine = index($strippedLine, ':', $startPos);
+			}
 		$anchorWithNum = substr($strippedLine, $anchorPosOnLine, 100);
 		# Remove any HTML junk there.
 		$anchorWithNum =~ s!\</[A-Za-z]+\>!!g;
@@ -750,6 +760,10 @@ sub RememberTextOrImageFileMention {
 		{
 		my $pathToCheck = $captured;
 		my $pos = index($pathToCheck, '#');
+		if ($pos < 0)
+			{
+			$pos = index($pathToCheck, ':');
+			}
 		if ($pos > 0)
 			{
 			$pathToCheck = substr($pathToCheck, 0, $pos);
@@ -773,7 +787,7 @@ sub RememberTextOrImageFileMention {
 	# For image files only, we look in a couple of standard places for just the file name.
 	# This can sometimes be expensive, but we look at the standard locations only until
 	# either a slash is seen or a regular mention is found.
-	my $checkStdImageDirs = ($haveImageExtension) ? 1 : 0;
+	my $checkStdImageDirs = ($haveImageExtension || $haveVideoExtension) ? 1 : 0;
 	my $commonDirForImageName = ''; # Set if image found one of the std image dirs
 	my $imageName = ''; 			# for use if image found in one of std image dirs
 	
@@ -810,11 +824,19 @@ sub RememberTextOrImageFileMention {
 			GetTextFileRep($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
 							$anchorWithNum, $displayTextForAnchor, \$repString);
 			}
-		else # currently only image extension
+		else # image or video extension
 			{
-			$linkType = 'image'; # For CodeMirror
+			# For CodeMirror
+			if ($haveVideoExtension)
+				{
+				$linkType = 'video'; 
+				}
+			else
+				{
+				$linkType = 'image'; 
+				}
 			GetImageFileRep($haveQuotation, $quoteChar, $usingCommonImageLocation,
-							$imageName, $displayTextForAnchor, \$repString);
+							$imageName, $displayTextForAnchor, $haveVideoExtension, \$repString);
 			}
 			
 		push @repStr, $repString;
@@ -1084,7 +1106,7 @@ sub GetTextFileRep {
 		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
 		}
 	
-	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
 	}
 
@@ -1124,7 +1146,8 @@ sub ShortenedClassAnchor {
 
 # Do up a view/hover link for image in $bestVerifiedPath, put that in $$repStringR.
 sub GetImageFileRep {
-	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $displayTextForAnchor, $repStringR) = @_;
+	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $displayTextForAnchor, $haveVideoExtension, $repStringR) = @_;
+	my $serviceName = ($haveVideoExtension) ? $VIDEONAME : $VIEWERNAME;
 	if ($haveRefToText)
 		{
 		$bestVerifiedPath =~ s!%!%25!g;
@@ -1136,7 +1159,7 @@ sub GetImageFileRep {
 		}
 	
 	my $fullPath = $bestVerifiedPath;
-	my $imagePath = "http://$host:$port/$VIEWERNAME/$fullPath";
+	my $imagePath = "http://$host:$port/$serviceName/$fullPath";
 	my $originalPath = $usingCommonImageLocation ? $imageName : $longestSourcePath;
 
 	my $displayedLinkName = $displayTextForAnchor;
@@ -1144,24 +1167,43 @@ sub GetImageFileRep {
 	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
 
-	if ($haveRefToText)
+	if ($haveRefToText) # "text", not CM
 		{
-		if ($shouldInlineImages)
+		if ($shouldInlineImages && !$haveVideoExtension)
 			{
-			# TEST ONLY
 			my $imgPath = "http://$host:$port/$fullPath";
 			$$repStringR = "<img src='$imgPath'>";
 			}
 		else
 			{
-			$$repStringR = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+			if ($haveVideoExtension)
+				{
+				if (!$clientIsRemote)
+					{
+					$$repStringR = "<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+					}
+				}
+			else
+				{
+				$$repStringR = "<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+				}
 			}
 		}
-	else
+	else # CodeMirror
 		{
 		$imagePath =~ s!%!%25!g;
-		my $imageOpenHref = "http://$host:$port/$VIEWERNAME/?href=$fullPath";
-		$$repStringR = "<a href=\"$imageOpenHref\" target='_blank' onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+		my $imageOpenHref = "http://$host:$port/$serviceName/?href=$fullPath";
+		if ($haveVideoExtension)
+			{
+			if (!$clientIsRemote)
+				{
+				$$repStringR = "<a href=\"$imageOpenHref\" target='_blank'>$displayedLinkName</a>";
+				}
+			}
+		else
+			{
+			$$repStringR = "<a href=\"$imageOpenHref\" target='_blank' onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+			}
 		}
 
 	}
@@ -1921,7 +1963,7 @@ sub ModuleLink {
 			$editLink = " <a href='' class='canedit' onclick=\"editOpen('$fullPath'); return false;\">"
 						. "<img src='edit1.png' width='17' height='12' />" . '</a>';
 			}
-		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayText</a>";
+		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayText</a>";
 		$result = "$viewerLink$editLink";
 		}
 	else # path not found, or path found but in main Perl or Perl64 folder
@@ -1932,7 +1974,7 @@ sub ModuleLink {
 		# Link to file if possible, follow with meta-cpan link.
 		if ($fullPath ne '')
 			{
-			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayText</a>";
+			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayText</a>";
 			$result = "$viewerLink$docsLink";
 			}
 		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z].
