@@ -207,6 +207,35 @@ sub GetImageCache {
 	return($ImageCache);
 }
 
+# Make up an HTML file that shows the video.
+# (Used also in gloss2html.pl.)
+sub MakeHTMLFileForVideo {
+	my ($filePath) = @_;
+	my $videoPath = $filePath;
+	$filePath =~ s!\.\w+$!.html!;
+	if (FileOrDirExistsWide($filePath))
+		{
+		return;
+		}
+	my $theBody = VideoFileTemplate();
+	my $justFileName = FileNameFromPath($videoPath);
+	my $videoElement = VideoElement($justFileName);
+	$theBody =~ s!_TITLE_!$justFileName!;
+	$theBody =~ s!_TITLEHEADER_!$justFileName!;
+	$theBody =~ s!_FILECONTENTS_!$videoElement!;
+	SaveTempVideoFile($filePath, $theBody);
+	}
+
+# (Used also in gloss2html.pl.)
+sub LocationIsImageSubdirectory {
+	my ($path, $contextDir) = @_;
+	$path = lc($path);
+	$path =~ s!\\!/!g;
+	my $fileName = lc(FileNameFromPath($path));
+	my $acceptedPath = lc($contextDir . 'images/' . $fileName);
+	return($path eq $acceptedPath);
+	}
+
 use ExportAbove;
 ################# Internal subs to the end ###################
 
@@ -995,6 +1024,8 @@ sub AddLinks {
 		my $entityQuote1 = $9;
 		my $entityQuote2 = $11;
 
+		$haveGoodMatch = 0;
+
         my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
         my $quoteChar = '';
         if ($haveQuotation)
@@ -1085,9 +1116,19 @@ sub AddLinks {
 					}
 				}
 
+			if (!$isFullKnownPath && IsVideoExtensionNoPeriod($fileExtension))
+				{
+				$fullFilePath = VideoFileNamePath($pathToCheck, $contextDir);
+				if ($fullFilePath ne '')
+					{
+					MakeHTMLFileForVideo($fullFilePath);
+					$isFullKnownPath = 1;
+					}
+				}
+			
             if ($isFullKnownPath && $fileExtension ne '')
                 {
-                RememberTextOrImageFileMentionGloss($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages);
+                RememberTextOrImageFileMentionGloss($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages, $contextDir);
 				$haveGoodMatch = 1;
                 }
 			else # possibly a directory
@@ -1183,6 +1224,89 @@ sub ImageFileNamePath {
 	return($filePath);
 	}
 
+# Create an HTML file that will load the video, return the actual video file path.
+sub VideoFileNamePath {
+	my ($fileName, $contextDir) = @_;
+	my $filePath = '';
+	# Only videos in the /images/ directory are linkable.
+	my $justFileName = FileNameFromPath($fileName);
+	if ($contextDir ne '' && FileOrDirExistsWide($contextDir . 'images/' . $justFileName) == 1)
+		{
+		$filePath = $contextDir . 'images/' . $justFileName;
+		}
+	if ($filePath eq '')
+		{
+		return('');
+		}
+
+	return($filePath);
+	}
+
+sub VideoFileTemplate {
+	my $theBody = <<'FINIS';
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>_TITLE_</title>
+</head>
+<body>
+<h2>_TITLEHEADER_</h2>
+_FILECONTENTS_
+</body></html>
+FINIS
+
+	return($theBody);
+	}
+
+
+sub VideoElement {
+	my ($fileName) = @_;
+
+my $theBody = <<'FINIS';
+<video controls>
+  <source src="_FILEPATH_"_MIMETYPE_ />
+  <p>Sorry, your browser doesn't support this video.</p>
+</video>
+FINIS
+
+	$theBody =~ s!_FILEPATH_!./$fileName!;
+	my $mimeType = VideoMimeTypeForFileName($fileName);
+	my $mimeTypeAtt = '';
+	if ($mimeType ne '')
+		{
+		$mimeTypeAtt = " type='$mimeType'";
+		}
+	$theBody =~ s!_MIMETYPE_!$mimeTypeAtt!;
+
+	return($theBody);
+	}
+
+
+sub VideoMimeTypeForFileName {
+	my ($fileName) = @_;
+	my $mimeType = '';
+	# mime type isn't really needed.
+	return($mimeType);
+
+	# $fileName =~ m!\.([^.]+)$!;
+	# my $ext = $1;
+	# $ext ||= '';
+
+	# if (defined($VideMimeTypeForExtension{$ext}))
+	# 	{
+	# 	$mimeType = $VideMimeTypeForExtension{$ext};
+	# 	}
+	
+	# return($mimeType);
+	}
+
+
+sub SaveTempVideoFile {
+	my ($filePath, $theBody) = @_;
+	WriteUTF8FileWide($filePath, $theBody);
+	}
+
 # From http://www.bin-co.com/perl/scripts/str_replace.php.
 # Replace a string without using RegExp.
 sub str_replace {
@@ -1264,7 +1388,8 @@ sub TextWithSpanBreaks {
 # $repStartPosA: where the replacement starts in the original text
 # $repLenA: length of text being replaced.
 sub RememberTextOrImageFileMentionGloss {
-    my ($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages) = @_;
+    my ($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages, $contextDir) = @_;
+
     my $ext = $extOriginal; # $ext for href, $extOriginal when caculating $repLength
     $ext = str_replace("\t", '/t', $ext);
     my $pathToCheck = $ext;
@@ -1287,6 +1412,15 @@ sub RememberTextOrImageFileMentionGloss {
 		}
     my $haveImageExtension = IsImageExtensionNoPeriod($fileExtension);
     my $haveTextExtension = IsTextExtensionNoPeriod($fileExtension);
+	my $haveVideoExtension = IsVideoExtensionNoPeriod($fileExtension);
+
+	# At this stage only video links in "standalone" HTML popups are handled, for which
+	# $mainServerPort is undef.
+	if ($haveVideoExtension && defined($mainServerPort))
+		{
+		return;
+		}
+	
     my $repString = '';
 
     my $repLength = length($extOriginal);
@@ -1298,9 +1432,14 @@ sub RememberTextOrImageFileMentionGloss {
         }
     elsif ($haveImageExtension)
         {
-       GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
+        GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
 							$fullFilePath, $pathToCheck, \$repString, $inlineImages);
         }
+	elsif ($haveVideoExtension && LocationIsImageSubdirectory($fullFilePath, $contextDir))
+		{
+		GetVideoRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
+							$fullFilePath, $pathToCheck, \$repString, $inlineImages);
+		}
 	else
 		{
 		return;
@@ -1463,6 +1602,30 @@ sub GetImageFileRepGloss {
 		$$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '600px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 		}
     }
+
+# Only standalone HTML popups are handled at the moment.
+sub GetVideoRepGloss {
+	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages) = @_;
+
+	my $fullPath = $longestSourcePath;
+	# Change from video extension to .html to call the HTML stub file.
+	$fullPath =~ s!\.\w+$!.html!;
+	$fullPath =~ s!\\!/!g;
+	#$fullPath =~ s!%!%25!g;	
+	$fullPath =~ s!\+!\%2B!g;
+	my $htmlFileName = FileNameFromPath($fullPath);
+
+	my $displayedLinkName = $properCasedPath;
+    # In a ToDo item a full link can be too wide too often.
+    # So shorten the displayed link name to just the file name with anchor.
+	# $inlineImages true means we're doing eg glossary definitions, where
+	# we have lots of room. If it's false, we're doing Gloss in a ToDo
+	# item, which is narrow.
+	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+    $displayedLinkName = ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
+
+	$$repStringR = "<a href='./images/$htmlFileName' target='_blank'>$displayedLinkName</a>";
+	}
 
 # 
 sub GetLoadedImageFileRep {

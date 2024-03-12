@@ -15,6 +15,7 @@ use warnings;
 use utf8;
 use HTML::Entities;
 #use Win32::FindFile;
+#use Time::HiRes qw ( time ); # For testing
 use Time::Piece;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -236,6 +237,7 @@ sub GetDirsAndFiles {
 	my @files;
 	my @modDates;
 	my @fileSizes;
+	
 	GetFoldersFilesDatesAndSizes($dir, \@folders, \@files, \@modDates, \@fileSizes);
 	
 	my $numFolders = @folders;
@@ -489,10 +491,18 @@ sub FileDatesAndSizes {
 	for (my $i = 0; $i < $numFiles; ++$i)
 		{
 		my $file = $filesA->[$i];
-		my $modDate = GetFileModTimeWide($dir . $file);
-		my $sizeBytes = GetFileSizeWide($dir . $file);
-		push @$modDatesA, $modDate;
-		push @$sizesA, $sizeBytes;
+		my @a;
+		GetFileModTimeAndSizeWide($dir . $file, \@a);
+		if (!defined($a[0]))
+			{
+			$a[0] = '';
+			}
+		if (!defined($a[1]))
+			{
+			$a[1] = '';
+			}
+		push @$modDatesA, $a[0];
+		push @$sizesA, $a[1];
 		}
 	}
 

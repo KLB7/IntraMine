@@ -1438,6 +1438,8 @@ sub EvaluateLinkCandidates {
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url
+
+		$haveGoodMatch = 0;
 		
 		my $haveQuotation = ((index($ext, '"') == 0) || (index($ext, "'") == 0));
 		my $quoteChar = '';
@@ -1514,8 +1516,9 @@ sub EvaluateLinkCandidates {
 			
 			# "$haveTextExtension" includes docx|pdf
 			my $haveTextExtension = (!$haveURL && IsTextDocxPdfExtensionNoPeriod($extProper));
-			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && IsImageExtensionNoPeriod($extProper)); 
-			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension); # else URL
+			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && IsImageExtensionNoPeriod($extProper));
+			my $haveVideoExtension = (!$haveURL && IsVideoExtensionNoPeriod($extProper));
+			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension || $haveVideoExtension); # else URL
 			
 			my $linkIsMaybeTooLong = 0;
 			
@@ -1523,7 +1526,7 @@ sub EvaluateLinkCandidates {
 			if ($haveGoodExtension)
 				{
 				$haveGoodMatch = CheckForTextOrImageFile($startPos, $previousRevEndPos, $ext, $extProper,
-							$haveQuotation, $haveTextExtension,
+							$haveQuotation, $haveTextExtension, $haveVideoExtension,
 							$quoteChar, $anchorWithNum, $isGlossaryFile);
 				} # if known extensions
 			elsif ($haveURL)
@@ -1545,9 +1548,10 @@ sub EvaluateLinkCandidates {
 		} # while another extension matched
 	}
 
+# Look for matching text or image or video file.
 sub CheckForTextOrImageFile {
 	my ($startPos, $previousRevEndPos, $ext, $extProper, $haveQuotation,
-		$haveTextExtension, $quoteChar, $anchorWithNum, $isGlossaryFile) = @_;
+		$haveTextExtension, $haveVideoExtension, $quoteChar, $anchorWithNum, $isGlossaryFile) = @_;
 	my $linkIsMaybeTooLong = 0;
 	my $checkStdImageDirs = (!$haveTextExtension) ? 1 : 0;
 	
@@ -1630,7 +1634,8 @@ sub CheckForTextOrImageFile {
 	
 	my $haveGoodMatch = 0;
 	if (($longestSourcePath ne '' || $commonDirForImageName ne '')
-		&& ($extProper =~ m!txt|(html?)$!i || $extProper =~ m!(png|jpeg|jpg|gif|webp)$!i))
+		&& ($extProper =~ m!txt|(html?)$!i || $extProper =~ m!(png|jpeg|jpg|gif|webp)$!i
+		|| $haveVideoExtension))
 		{
 		my $linkType = 'file'; # For CodeMirror
 		my $usingCommonImageLocation = 0;
@@ -1645,6 +1650,12 @@ sub CheckForTextOrImageFile {
 			{
 			GetTextFileRep($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
 							$anchorWithNum, \$repString);
+			}
+		# Video is limited to the /images/ subdirectory for the moment.
+		elsif ($haveVideoExtension && LocationIsImageSubdirectory($bestVerifiedPath, $contextDir))
+			{
+			GetVideoFileRep($haveQuotation, $quoteChar, $usingCommonImageLocation,
+							$imageName, $isGlossaryFile, \$repString);
 			}
 		else # currently only image extension
 			{
@@ -1806,6 +1817,70 @@ sub GetTextFileRep {
 	
 	$$repStringR = "<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
 	}
+
+sub GetVideoFileRep {
+	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName,
+		$isGlossaryFile, $repStringR) = @_;
+	
+	#$bestVerifiedPath =~ s!%!%25!g;
+	#$bestVerifiedPath =~ s!\+!\%2B!g;
+
+	my $fileName = lc(FileNameFromPath($bestVerifiedPath));
+	my $acceptedPath = lc($contextDir . 'images/' . $fileName);
+
+	MakeHTMLFileForVideo($acceptedPath);
+	GetVideoRep($haveQuotation, $quoteChar, 0,
+							$acceptedPath, $acceptedPath, $repStringR, $inlineImages);
+	
+	}
+
+sub GetVideoRep {
+	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages) = @_;
+
+	my $fullPath = $longestSourcePath;
+	# Change from video extension to .html to call the HTML stub file.
+	$fullPath =~ s!\.\w+$!.html!;
+	$fullPath =~ s!\\!/!g;
+	#$fullPath =~ s!%!%25!g;	
+	$fullPath =~ s!\+!\%2B!g;
+	my $htmlFileName = FileNameFromPath($fullPath);
+	$htmlFileName =~ s!\.\w+$!.html!;
+
+	my $displayedLinkName = $properCasedPath;
+    # In a ToDo item a full link can be too wide too often.
+    # So shorten the displayed link name to just the file name with anchor.
+	# $inlineImages true means we're doing eg glossary definitions, where
+	# we have lots of room. If it's false, we're doing Gloss in a ToDo
+	# item, which is narrow.
+	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+    $displayedLinkName = ShortenedText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
+
+	$$repStringR = "<a href='./images/$htmlFileName' target='_blank'>$displayedLinkName</a>";
+	}
+
+# Truncate displayed link text.
+# Set $truncLimit to about 28 for ToDo item links.
+sub ShortenedText {
+    my ($text, $quoteChar, $truncLimit) = @_;
+	my $quoteLen = length($quoteChar);
+	if ($quoteLen > 0)
+		{
+		$truncLimit += 2 * length($quoteChar);
+		$truncLimit -= 2;
+		}
+	
+    my $filename = FileNameFromPath($text);
+
+    my $len = length($filename);
+
+	if ($len > $truncLimit)
+		{
+		my $offset = $len - $truncLimit;
+		$filename = substr($filename, $offset);
+		}
+
+    return($filename);
+}
 
 sub GetImageFileRep {
 	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName,
@@ -2502,8 +2577,11 @@ sub LoadGlossary {
 			@currentTerms = split(/,\s*/, lc($term));
 			my $entry = $lines[$i];
 			chomp($entry);
-			$entry = &HTML::Entities::encode($entry);
-			$entry =~ s!\&#39;!\&#8216;!g;
+
+			# OUT - this was bad, left in as a reminder.
+			###$entry = &HTML::Entities::encode($entry);
+			###$entry =~ s!\&#39;!\&#8216;!g;
+
 			#$Definition{$currentTerm} = "<p>$entry</p>";
 			for (my $j = 0; $j < @currentTerms; ++$j)
 				{
@@ -2516,8 +2594,8 @@ sub LoadGlossary {
 			chomp($entry);
 			if ($entry ne '')
 				{
-				$entry = &HTML::Entities::encode($entry);
-				$entry =~ s!\&#39;!\&#8216;!g;
+				###$entry = &HTML::Entities::encode($entry);
+				###$entry =~ s!\&#39;!\&#8216;!g;
 				#$Definition{$currentTerm} .= "<p>$entry</p>";
 				for (my $j = 0; $j < @currentTerms; ++$j)
 					{
@@ -2746,13 +2824,22 @@ sub GetReplacementHint {
 				$termShown = ucfirst($synonyms[0]);
 				}
 
+			# TEST ONLY
+			#print("PRE: |$gloss|\n");
+
 			# Apply Gloss to the glossary entry (sorry about that);
 			Gloss("**$termShown**: " . $gloss . $altList, $host, $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context, undef, undef);
+
+			# TEST ONLY
+			#print("BEFORE: |$glossed|\n");
 
 			$glossed =~ s!&amp;#8216;!'!g;
 			$glossed =~ s!&amp;quot;!"!g;
 
 			$glossed = uri_escape_utf8($glossed);
+
+			# TEST ONLY
+			#print("AFTER: |$glossed|\n");
 
 			#$glossed =~ s!&amp;#8216;!'!g;
 

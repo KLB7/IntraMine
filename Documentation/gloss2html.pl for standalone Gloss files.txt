@@ -54,6 +54,10 @@ As an example, many of IntraMine's help docs in the Documentation folder contain
 
 When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
 
+(New) Video links
+--------------------
+Video links are now supported, in a limited way. In the folder containing the .txt files that you want to convert to .html, place any videos that you want links to in an /images/ subfolder - no other locations are supported. Then put the link in double quotes in your .txt document, eg "myvideo.mp4", where the link text is just the video name. If you copy the resulting HTML documents to another location and want the videos to play, you will need to also copy along the /images/ subfolder together with any contained video files and HTML stub files for the videos. The stub files are created when running gloss2html.pl and have the same names as the videos but with a .html extension, eg for myvideo.mp4 you will also find a file named myvideo.html in the /images/ folder. The stub file opens a new tab in your browser that contains a <video> element for the corresponding video.
+
 Links to web pages
 =======================
 Links to web pages are supported, eg https://github.com/. Anything starting with http:// or https:// is treated as a web link.
@@ -67,7 +71,6 @@ If you have a folder of several documents to convert, you can add a table of con
 Then add the names of other files in the same folder that you want listed in your table of contents. No quotes are needed, and you can have section headings if you want. Take a look at  IntraMine's /Documentation/contents.txt table of contents file and you'll see how to do it at a glance.
 
 If you'd prefer your table of contents file to be plain (no old paper background, no artistic flourish, more modern fonts) then the simplest way is to not put "CONTENTS" on the first line - use "Contents" for example. Or you can call the file something else, such as "index.txt". Or open data/intramine_config.txt and set INDEX_GETS_SPECIAL_TREATMENT around line 235 to 0 if you don't want "special" treatment for any table of contents files ever.
- 
 
 Adding a glossary
 =================
@@ -111,7 +114,7 @@ where that image is in IntraMine's Documentation/images folder.
 
 Using Gloss in your glossary
 ----------------------------
-Glossary definitions don't have to be just plain text or one image: you can take advantage of almost all of IntraMine's Gloss markdown variant, as described in "Glossary popups.txt".
+Glossary definitions don't have to be just plain text or one image: you can take advantage of almost all of IntraMine's Gloss markdown variant, as described in "Glossary popups.txt". In particular, you can have multiple images mixed with text in one definition.
 
 For a full example of a glossary file, see Documentation/glossary.txt.
 

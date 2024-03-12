@@ -1820,7 +1820,7 @@ AABJRU5ErkJggg==
 <tr id='R86'><td n='86'></td><td>52</td><td>WaitForPageToLoad() waits until the page has loaded into Chrome.</td></tr>
 <tr id='R87'><td n='87'></td><td>58..192</td><td>Calls to Selenium subs through the $driver retrieve various parts of the loaded page from Chrome. If you want to retrieve the entire page, you have a choice between $driver->get_page_source() which retrieves the "raw" HTML source for the page, and $driver->get_body() which retrieves the text of the body. There are also subs for retrieving elements, sending keystrokes to an element, clicking on an element, finding child elements etc as provided by Selenium: see <a href='https://metacpan.org/pod/Selenium::Remote::Driver' target='_blank'>https://metacpan.org/pod/Selenium::Remote::Driver</a> for details.</td></tr>
 <tr id='R88'><td n='88'></td><td>196</td><td>"$driver->shutdown_binary;" should be called at the end to shut down the ChromeDriver, which also closes the web page that was opened.</td></tr>
-<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EConsole%20window%3C%2Fstrong%3E%3A%20The%20window%20you%20can%20type%20commands%20in%20when%20you%20run%20%22C%3A%2FWindows%2FSystem32%2Fcmd.exe%22.%20To%20make%20life%20easier%2C%20once%20you%27ve%20found%20it%20put%20a%20shortcut%20to%20it%20on%20your%20desktop.%20You%20can%20have%20two%20shortcuts%2C%20and%20set%20one%20of%20them%20to%20always%20%22Run%20as%20administrator%22%20%28to%20do%20that%2C%20right-click%20and%20then%20Properties-%26amp%3Bgt%3BShortcut-%26amp%3Bgt%3BAdvanced...%20and%20check%20%22Run%20as%20administrator%22%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table><tbody>
+<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EConsole%20window%3C%2Fstrong%3E%3A%20The%20window%20you%20can%20type%20commands%20in%20when%20you%20run%20%22C%3A%2FWindows%2FSystem32%2Fcmd.exe%22.%20To%20make%20life%20easier%2C%20once%20you%27ve%20found%20it%20put%20a%20shortcut%20to%20it%20on%20your%20desktop.%20You%20can%20have%20two%20shortcuts%2C%20and%20set%20one%20of%20them%20to%20always%20%22Run%20as%20administrator%22%20%28to%20do%20that%2C%20right-click%20and%20then%20Properties-%3EShortcut-%3EAdvanced...%20and%20check%20%22Run%20as%20administrator%22%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table><tbody>
 <tr id='R90'><td n='90'></td><td></td></tr>
 <tr id='R91'><td n='91'></td><td><h3 id="Adding_a_test_action">Adding a test action</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -4654,9 +4654,14 @@ function getSelectionText() {
 				// Re-capture the selection for later restoration.
 				if (typeof theSelection.ltRange !== 'undefined')
 					{
-					let startContainer = theSelection.ltRange.startContainer;
-					theSelection.ltRange.setStart(startContainer, beginOffset);
-					theSelection.ltRange.setEnd(startContainer, endOffset);
+					try  {
+						let startContainer = theSelection.ltRange.startContainer;
+						theSelection.ltRange.setStart(startContainer, beginOffset);
+						theSelection.ltRange.setEnd(startContainer, endOffset);
+						}
+					catch(e) {
+						; // not much we can do.
+						}
 					}
 				}
 			}
@@ -6195,6 +6200,13 @@ function setImagesButtonText() {
 // Given popup hint text containing image placeholders such as '__img__cache__00007',
 // replace with bin64 image from imageCache.
 function loadCachedImages(text) {
+
+	// If we get here too early before imageCache is defined, just leave.
+	if (typeof imageCache === 'undefined')
+		{
+		return;
+		}
+
 	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
 	const imagePositions = [];
 	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');

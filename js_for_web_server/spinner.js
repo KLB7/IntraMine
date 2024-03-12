@@ -33,12 +33,16 @@ function showSpinner() {
 
 function hideSpinner() {
 	// Wait a bit if page hasn't loaded yet.
-	if (document.readyState !== "complete")
-		{
-		spinnerTimeoutTimer = setTimeout(hideSpinner, 100);
-		return;
-		}
-	clearTimeout(spinnerTimeoutTimer);
+	// Removed, sometimes it seems "complete" isn't reached for
+	// a long time on the Search page, nevertheless the page is usable.
+	// In general there are no delays any more that are long enough to need this.
+	// if (document.readyState !== "complete")
+	// 	{
+	// 	spinnerTimeoutTimer = setTimeout(hideSpinner, 100);
+	// 	return;
+	// 	}
+	// clearTimeout(spinnerTimeoutTimer);
+
 	let spinnerParent = document.getElementById('spinnerParent');
 	if (spinnerParent !== null)
 		{

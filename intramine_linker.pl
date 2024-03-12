@@ -449,7 +449,6 @@ sub EvaluateLinkCandidates {
 	my $previousEndPos = 0;
 	my $previousRevEndPos = $len;
 	my $haveGoodMatch = 0; # check-back distance is not adjusted if there is no good current match.
-	my $hadGoodMatch = 0; # Don't advance $startPos if there was previous match.
 	
 	# Collect positions of quotes and HTML tags (start and end of both start and end tags).
 	# And <mark> tags, which can interfere with links.
@@ -482,6 +481,8 @@ sub EvaluateLinkCandidates {
 		my $haveTextHref = (index($captured, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $captured : '';
 		my $haveDirSpecifier = 0;
+
+		$haveGoodMatch = 0;
 		
 		# $9, $10: (\"[^"]+\")|(\'[^']+\')
 		# These are checked for after other quote patterns, and if triggered
@@ -982,6 +983,9 @@ sub GetLongestGoodPath {
 				}
 			# Pick up next reversed term, including space etc if any.
 			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $numChars);
+
+			# TEST ONLY
+			#print("\$nextRevTerm |$nextRevTerm|\n");
 			
 			# Drop out if we see a double quote.
 			if (index($nextRevTerm, '"') >= 0)

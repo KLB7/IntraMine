@@ -8,6 +8,13 @@
 // Given popup hint text containing image placeholders such as '__img__cache__00007',
 // replace with bin64 image from imageCache.
 function loadCachedImages(text) {
+
+	// If we get here too early before imageCache is defined, just leave.
+	if (typeof imageCache === 'undefined')
+		{
+		return;
+		}
+
 	let keyLength = 19; // Length of __img__cache__ plus 5 for the digits
 	const imagePositions = [];
 	let cacheKeyRegExp = new RegExp('__img__cache__[0-9][0-9][0-9][0-9][0-9]', 'g');

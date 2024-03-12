@@ -633,9 +633,14 @@ function getSelectionText() {
 				// Re-capture the selection for later restoration.
 				if (typeof theSelection.ltRange !== 'undefined')
 					{
-					let startContainer = theSelection.ltRange.startContainer;
-					theSelection.ltRange.setStart(startContainer, beginOffset);
-					theSelection.ltRange.setEnd(startContainer, endOffset);
+					try  {
+						let startContainer = theSelection.ltRange.startContainer;
+						theSelection.ltRange.setStart(startContainer, beginOffset);
+						theSelection.ltRange.setEnd(startContainer, endOffset);
+						}
+					catch(e) {
+						; // not much we can do.
+						}
 					}
 				}
 			}

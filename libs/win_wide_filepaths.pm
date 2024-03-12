@@ -788,6 +788,31 @@ sub GetFileModTimeWide {
 	return($result);
 	}
 
+# This is faster than GetFileSizeWide() separately, because it does
+# a stat first and only calls GetFileSizeWide() if stat fails.
+# See eg intramine_filetree.pl#FileDatesAndSizes().
+sub GetFileModTimeAndSizeWide {
+	my ($filePath, $arr) = @_;
+
+	$arr->[0] = undef;
+	$arr->[1] = undef;
+
+	my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+			$atime, $modtime, $ctime, $blksize, $blocks) = stat $filePath;
+	if (defined($size) && defined($modtime))
+		{
+		$arr->[0] = $modtime;
+		$arr->[1] = $size;
+		}
+	else
+		{
+		my $theTime = GetFileModTimeWide($filePath);
+		my $theSize = GetFileSizeWide($filePath);
+		$arr->[0] = $theTime;
+		$arr->[1] = $theSize;
+		}
+	}
+
 # ActualPathIfTooDeep (not currently used in IntraMine):
 # If for example
 # $proposedFilePath = "C:/perlprogs/mine/t/Swarmserver/data/serverlist.txt"
