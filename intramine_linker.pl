@@ -1110,7 +1110,7 @@ sub GetTextFileRep {
 		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
 		}
 	
-	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
 	}
 
@@ -1967,7 +1967,7 @@ sub ModuleLink {
 			$editLink = " <a href='' class='canedit' onclick=\"editOpen('$fullPath'); return false;\">"
 						. "<img src='edit1.png' width='17' height='12' />" . '</a>';
 			}
-		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayText</a>";
+		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
 		$result = "$viewerLink$editLink";
 		}
 	else # path not found, or path found but in main Perl or Perl64 folder
@@ -1978,7 +1978,7 @@ sub ModuleLink {
 		# Link to file if possible, follow with meta-cpan link.
 		if ($fullPath ne '')
 			{
-			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, $VIEWERNAME); return false;\"  target=\"_blank\">$displayText</a>";
+			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
 			$result = "$viewerLink$docsLink";
 			}
 		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z].

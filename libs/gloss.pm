@@ -1524,7 +1524,7 @@ sub GetTextFileRepGloss {
 		}
 
 
-    my $viewerLink = "<a href=\"http://$host:$port/$ViewerShortName/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+    my $viewerLink = "<a href=\"http://$host:$port/$ViewerShortName/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$ViewerShortName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
     }
 
@@ -1599,7 +1599,7 @@ sub GetImageFileRepGloss {
 		my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
 		my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
 
-		$$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '600px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+		$$repStringR = "<a href=\"http://$host:$port/$ViewerShortName/?href=$fullPath\" onclick=\"openView(this.href, '$ViewerShortName'); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '600px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 		}
     }
 
