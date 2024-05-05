@@ -54,7 +54,9 @@ As an example, many of IntraMine's help docs in the Documentation folder contain
 
 When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
 
-(New) Video links
+At this point, if you use IntraMine's Viewer or Editor to display your text file then FLASH links will be shown for files outside of your folder holding the files for conversion, in addition to links to files in the same folder. This is possibly not the correct choice. If you view the HTML version after converting then only links to files in the same folder will be shown, as mentioned above.
+
+Video links
 --------------------
 Video links are now supported, in a limited way. In the folder containing the .txt files that you want to convert to .html, place any videos that you want links to in an /images/ subfolder - no other locations are supported. Then put the link in double quotes in your .txt document, eg "myvideo.mp4", where the link text is just the video name. If you copy the resulting HTML documents to another location and want the videos to play, you will need to also copy along the /images/ subfolder together with any contained video files and HTML stub files for the videos. The stub files are created when running gloss2html.pl and have the same names as the videos but with a .html extension, eg for myvideo.mp4 you will also find a file named myvideo.html in the /images/ folder. The stub file opens a new tab in your browser that contains a <video> element for the corresponding video.
 
@@ -77,6 +79,10 @@ Adding a glossary
 The glossary file
 -------------------
 To provide glossary popup entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being converted from text to HTML.
+
+Which glossary now?
+----------------------
+IntraMine's Viewer and Editor both display glossary entries. The default display comes from all entries in your glossary_master.txt files, which can be stored anywhere in an indexed folder. If there's a glossary.txt file alongside a .txt file though, that glossary.txt file is used to display glossary entries. This allows you to better preview what your standalone HTML files will look like.
 
 Glossary term appearance
 --------------------------

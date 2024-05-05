@@ -2565,7 +2565,7 @@ sub LoadPerlFileContents {
 			}
 		}
 		
-	# TEST ONLY codathon
+	# TEST ONLY track Perl load time
 #	print("Perl highlighting...");
 #	my $t1 = time;
 	my $formatter = GetPerlHighlighter();
@@ -3309,8 +3309,6 @@ sub SaveTempVideoFile {
 	my $basePath = $LogDir . 'temp/tempvideo';
 	my $randomInteger2 = random_int_between(1001, 60000);
 	my $tempVideoPath = $basePath . time . $randomInteger2 . '.html';
-	# TEST ONLY
-	#print("SaveTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
 	WriteBinFileWide($tempVideoPath, $theBody);
 	return($tempVideoPath);
 	}
@@ -3320,8 +3318,6 @@ sub OpenTempVideoFile {
 	my ($tempVideoPath) = @_;
 	my $proc;
 	my $status = '';
-	# TEST ONLY
-	#print("OpenTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
 
 	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $tempVideoPath", 0, 0, ".")
 			|| ($status = Win32::FormatMessage( Win32::GetLastError() ));

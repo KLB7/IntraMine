@@ -695,12 +695,34 @@ function cmEditorRejumpToAnchor() {
 	if (anchor.length > 1)
 		{
 		anchor = anchor.replace(/^#/, '');
-		if (!isNaN(anchor))
+		// Remove any trailing '&rddm=1234' type stuff.
+		anchor = anchor.replace(/\&.+$/, '');
+		anchor = anchor.replace(/ /g, '_');
+		anchor = anchor.replace(/\%20/g, '_');
+		anchor = anchor.replace(/\(\)$/, '');
+
+		let result = cmEditorRejumpToHeading(anchor);
+		if (!result && !isNaN(anchor))
 			{
 			let lineNum = parseInt(anchor, 10);
 			cmEditorRejumpToLine(lineNum);
 			}
 		}
+}
+
+function cmEditorRejumpToHeading(h) {
+	h = decodeURIComponent(h);
+	let result = false;
+
+	let lineNum = lineNumberForAnchor(h);
+
+	if (lineNum >= 0)
+		{
+		cmEditorRejumpToLine(lineNum);
+		result = true;
+		}
+
+	return(result);
 }
 
 function cmEditorRejumpToLine(lineNum) {
@@ -714,6 +736,10 @@ function cmEditorRejumpToLine(lineNum) {
 		ch : 0
 	}, "local").top;
 	myCodeMirror.scrollTo(null, t);
+}
+
+function codeMirrorIsDirty() {
+	return(!myCodeMirror.doc.isClean());
 }
 
 pasteDateTimeOnF4();

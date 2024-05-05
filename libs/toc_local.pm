@@ -504,7 +504,7 @@ sub GetPerlTOC {
 				}
 			$anchorLineNum -= $numCommentLines;
 			++$anchorLineNum;
-			my $jlStart = "<li class='h2'><a onmousedown='goToAnchor(\"$subName\", $lineNum;'>";
+			my $jlStart = "<li class='h2'><a onmousedown='goToAnchor(\"$subName\", $lineNum);'>";
 			push @jumpList, $jlStart . $s_icon . $subName . $jlEnd;
 			}
 		elsif ($lines[$i] =~ m!^{\s*##+\s+(.+)$!)
@@ -518,7 +518,7 @@ sub GetPerlTOC {
 				$id = "hdr_$anchorNumber";
 				}
 			$sectionIdExists{$id} = 1;
-			my $jlStart = "<li class='h2'><a onmousedown='goToAnchor(\"$id\", $lineNum;'>";
+			my $jlStart = "<li class='h2'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			push @sectionList, $jlStart . $S_icon . $sectionName . $jlEnd;
 			push @sectionNames, $sectionName;
 			}

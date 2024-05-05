@@ -1,50 +1,17 @@
 Viewer
 =======
 2020-02-28 16_07_51-elasticsearcher.pm.png
-The Viewer service provides HTML views of your source and text files. It kicks in when you click on a link in Search results, or the Files page, or a link in a view that you're looking at. These are all "regular" links as opposed to the links on the little pencil icons (edit1.png) that follow most regular links - those invoke the editor. 
 
-This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.
+What it's for
+==================
+The Viewer service provides HTML views of your source and text files in your browser. It kicks in when you click on a link in Search results, or the Files page, or a link in a view that you're looking at. These are all links to the Viewer, as opposed to the links on the little pencil icons (edit1.png) that follow most regular links - those invoke the Editor. Note IntraMine's Editor packs the Viewer and Editor links into one, and the Edit link is the purple part at the right end of the link( eg editorlink.png).
 
-CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full Gloss treatment including a table of contents (see "Gloss.txt"), but all source and text files have  links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL) - support for other languages is planned.
+The Viewer is especially good at displaying .txt files that have been marked up using Gloss. For more on Gloss, see "Gloss.txt".
 
 An attempt has been made to display views of .docx and PDF files, with indifferent results.
 
-Links to image files (png gif jpg ico) are also supported. They're bracketed by little yellow hummingbirds (hoverright.png). An image link will also produce a view of the image behind the link if you pause your cursor over it.
-
-Main back-end Perl files
--------------------
- - **intramine_viewer.pl** delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" fetch() retrieves the file contents, for display by CodeMirror.
- - **win_wide_filepaths.pm** is included here and in many other servers, to properly handle file names and paths that contain non-ASCII characters of the UTF-16 sort that Windows uses.
- 
- 
-Main front-end JavaScript files
---------------------------
-CodeMirror-based views
-~~~~~~~~~~~~~~~~~~~~~~
- - **cmViewerStart.js** starts things going by setting up a CodeMirror instance, and loading the file with loadFileIntoCodeMirror().
- - **codemirror.js** and other CodeMirror JavaScript files are included
- - **cmAutoLinks.js** calls the back-end intramine_linker.pl#CmLinks() to put file and other links on any text seen for the first time. For CodeMirror, the links are done using an overlay layer.
- - **tooltip.js** handles "image hovers", showing the image when the cursor stops over a link to an image.
-
-
-Other (non-CodeMirror) source and text views
-~~~~~~~~~~~
- - **viewerStart.js** handles a few little things to get a view started, such as resizing the main text element, but it's mainly concerned with managing highlights in the text and on the scrollbar for selected text, and for any initial highlights representing words that were searched for, if we arrive at the view from Search results.
- - **autoLink.js** calls back to intramine_viewer.pl#NonCmLinks() to insert file and other links directly into the displayed HTML when text is seen for the first time.
- - **tooltip.js** is also used for these views to handle "image hovers".
-
-Related servers
----------------
-TABLE
-Short name			Main Perl file        		Description
-Linker				intramine_linker.pl		provides links of all sorts, in response to a fetch()
-Search				intramine_search.pl		puts links to the Viewer on all of its search hits
-Files				intramine_filetree.pl	shows directory lists, and all source and text files there have links to the Viewer
-Editor				intramine_editor.pl		shows an editable display of a source or text file, brought up when the little pencil icon next to a regular Viewer link is clicked. The display and editing are managed by CodeMirror
-Opener				intramine_open_with.pl	directs edit link clicks to your preferred editing app instead of IntraMine's built-in Editor, if IntraMine has been configured that way (see "Editing documents.txt")
-
 Viewer configuration
---------------------
+===================
 In intramine_config.txt:
 ---
 COMMON_IMAGES_DIR	C:/common/images/
@@ -65,7 +32,7 @@ Viewer features
 ===============
 Syntax highlighting
 -------------------
-CodeMirror generates the syntax highlighting for most files. Perl file highlighting is done using the Syntax::Highlight::Perl::Improved module, with pod being a special case (see pod2thml_intramine.pm). Markdown (.md) files are formatted using Text::MultiMarkdown. Text (.txt) files are formatted using Gloss, IntraMine's version of "markdown" as described in Gloss.txt - Gloss has true autolinking, an automatically generated table of contents and many other features you might find useful, with little or no overhead to memorize.
+CodeMirror generates the syntax highlighting for most files. Perl file highlighting is done using the Syntax::Highlight::Perl::Improved module, with pod being a special case (see libs/pod2thml_intramine.pm). Markdown (.md) files are formatted using Text::MultiMarkdown. Text (.txt) files are formatted using Gloss, IntraMine's version of "markdown" as described in Gloss.txt - Gloss has true autolinking, an automatically generated table of contents, glossary popups, and many other features you might find useful, with little or no overhead to memorize.
 
 Table of contents
 -----------------
@@ -91,16 +58,37 @@ Internal function or class	searchSubmit(), GoogleSuggest			None.
 Web						http://google.com			None. Can be quoted.
 Note all link mentions can be enclosed in double quotes if desired, to improve visibility in the original text.
 
-In Perl files, "use Module;" receives a Viewer link and a link to metacpan if it's a standard module, versus a Viewer link and an Editor link if it appears to be a module that you own. See the image at top of this file.
+In Perl files, "use Module;" receives a Viewer link and a link to metacpan if it's a standard module, otherwise a Viewer link and an Editor link if it appears to be a module that you own. See the image at top of this file.
 
-Details can be found in Gloss.txt. 
+Details can be found in Gloss.txt.
+
+Glossary popups
+----------------
+If you're using IntraMine to view this file, you might have noticed that some words and short phrases are underlined (for example, glossary popups), and that if you pause your cursor over them an explanation or definition will pop up. These are glossary popups. They can be made available in all source and text files, and using them can increase comprehension speed, as well as cutting the Gordian knot of using terms before they have been defined.
+
+Glossary popups are most excellent for bringing new people up to speed, creating in-house user's guides, and even reminding yourself of tricky details.
+
+As an example of tricky details, here's one I have in one of my own glossary_master.txt files:
+---
+Need escaping, needs escaping: only    .^$*+?()[{\|   need escaping in regex outside of a character class, and only   ^-]\   inside one.
+---
+
+For the details on how to make and use your own glossaries see "glossary popups.txt".
+
+Standalone is special
+~~~~~~~~~~~~~~~~~~~~~
+For most .txt files, links will be put in for any file specifier that matches an indexed file, and glossary entries will be taken from your collection of glossary_master.txt files. However, there are .txt files that need different handling, namely those that you are using as sources for standalone HTML files, as generated by gloss2html.pl. For those, you want to see glossary entries taken from any glossary.txt file in the same folder, and also limit links to files in the same folder, so there's a match with the resulting HTML version of the file. This happens in both the Editor and Viewer if you have a glossary.txt file in the same folder.
 
 Image hovers
 -------------
 topnav.png
-*Stop your cursor over the image name and it pops up.*
+*Just an image to catch your attention.*
 
-If you pause your cursor over the name of a linked image file, a view of the image will pop up. Move your mouse and it goes away. For more, see Gloss.txt. If you're viewing this file with IntraMine, or you're looking at Viewer.html from the Documentation/ folder, you've already seen some examples.
+When you're using the Viewer to display .txt files you'll find a button at top right labelled "Inline Images" / "Hover Images". This toggle switches between displaying "hover links" (the default) and displaying the images fully inline. Your preference for hover/inline will be remembered on a per-file basis.
+
+For the default of "Hover Images" the image is not displayed, but rather you'll see a link to the image bracketed by two small yellow hummingbirds. If you pause your cursor over the link, the image will pop up. Move your mouse and it goes away. And if you click on the link, the image will open in a new browser tab.
+
+For details on creating image links, see "Gloss.txt#Images". (Spoiler, it's easy.)
 
 Hit and selection highlighting
 ------------
@@ -122,7 +110,7 @@ Text files (.txt) are run through a Gloss preprocessor to give you all of the ab
 
 Editor links
 -------------
-The how-to is described in "Editing documents.txt", but in brief any local or NAS file can have a link to the editor of your choice, as configured in data/intramine_config.txt. So you can jump over to Eclipse or notepad++ or Visual Studio Code with one click. Or use IntraMine's built-in Editor if you're after making small simple edits.
+The how-to is described in "Editing documents.txt", but in brief any local or NAS file can have a link to the editor of your choice, as configured in data/intramine_config.txt. So you can jump over to Eclipse or notepad++ or Visual Studio Code with one click. Or use IntraMine's built-in Editor if you want to make documents that are marked up with Gloss.
 
 Editor links appear as small pencils (edit1.png) to the right of regular links on files.
 
@@ -130,8 +118,39 @@ Auto-refresh
 ----------------
 When you use any editor to save a file, any view displayed with IntraMine's Viewer will automatically refresh. This is instant if the change was made using IntraMine's Editor, and takes 1-2 seconds if the change was made with some other editor. This is especially handy for working on Markdown or Gloss files: open a file in the Viewer and any editor, then see your changes rendered immediately.
 
+Standalone is special
+----------------------
+For most .txt files, links will be put in for any file specifier that matches an indexed file, and glossary entries will be taken from your collection of glossary_master.txt files. However, there's a special kind of .txt file that needs different handling, namely those that you are using as sources for standalone HTML files, as generated by gloss2html.pl. For those, you want to see glossary entries taken from any glossary.txt file in the same folder, and also limit links to files in the same folder, so there's a match with the resulting HTML version of the file. This happens in both the Editor and Viewer if you have a glossary.txt file in the same folder.
+
 Under the hood
 ==============
+
+The Viewer is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.
+
+CodeMirror generates the basic views for most source files, but Perl and .txt files have their own custom views. ".txt" files are given the full Gloss treatment including a table of contents (see "Gloss.txt"), but all source and text files have links to other indexed source and text files, images in indexed folders, web pages, and headers or classes or functions in the same document. Any short text selection will be highlighted throughout the document with occurrences marked in the scroll bar. If the view is arrived at as a result of clicking on a Search hit, search words will also be highlighted similarly, in different colors. Some source files also have a synchronized table of contents (Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL) - support for other languages is planned.
+
+Main back-end Perl files
+-------------------
+ - **intramine_viewer.pl** delivers the HTML for a file view (see FullFile() there). For text and Perl files, the view is mostly generated and delivered with the initial request: for CodeMirror views, just a skeleton of the page is delivered, and a "req=loadfile" fetch() retrieves the file contents, for display by CodeMirror.
+ - **win_wide_filepaths.pm** is included here and in many other servers, to properly handle file names and paths that contain non-ASCII characters of the UTF-16 sort that Windows uses.
+
+Main front-end JavaScript files
+--------------------------
+CodeMirror-based views
+~~~~~~~~~~~~~~~~~~~~~~
+ - **cmViewerStart.js** starts things going by setting up a CodeMirror instance, and loading the file with loadFileIntoCodeMirror().
+ - **codemirror.js** and other CodeMirror JavaScript files are included
+ - **cmAutoLinks.js** calls the back-end intramine_linker.pl#CmLinks() to put file and other links on any text seen for the first time. For CodeMirror, the links are done using an overlay layer.
+ - **tooltip.js** handles "image hovers", showing the image when the cursor stops over a link to an image.
+
+
+Other (non-CodeMirror) source and text views
+~~~~~~~~~~~
+ - **viewerStart.js** handles a few little things to get a view started, such as resizing the main text element, but it's mainly concerned with managing highlights in the text and on the scrollbar for selected text, and for any initial highlights representing words that were searched for, if we arrive at the view from Search results.
+ - **autoLink.js** calls back to intramine_viewer.pl#NonCmLinks() to insert file and other links directly into the displayed HTML when text is seen for the first time.
+ - **tooltip.js** is also used for these views to handle "image hovers".
+
+
 Request Actions
 ----------------
 The %RequestAction hash near the top of intramine_viewer.pl associates callbacks with patterns in incoming http requests.
@@ -173,6 +192,16 @@ Gloss processing happens in several passes through the text:
  - external links (autolinks) are added after the view is loaded to the browser window, see Linker.txt for details.
 
 Non-text files receive limited Gloss processing, mainly autolinks for source, text, image, and web mentions. And views for supported languages (see above) receive a table of contents, and links on names of functions and classes defined in the file.
+
+Related servers
+---------------
+TABLE
+Short name			Main Perl file        		Description
+Linker				intramine_linker.pl		provides links of all sorts, in response to a fetch()
+Search				intramine_search.pl		puts links to the Viewer on all of its search hits
+Files				intramine_filetree.pl	shows directory lists, and all source and text files there have links to the Viewer
+Editor				intramine_editor.pl		shows an editable display of a source or text file, brought up when the little pencil icon next to a regular Viewer link is clicked. The display and editing are managed by CodeMirror
+Opener				intramine_open_with.pl	directs edit link clicks to your preferred editing app instead of IntraMine's built-in Editor, if IntraMine has been configured that way (see "Editing documents.txt")
 
 API
 =====

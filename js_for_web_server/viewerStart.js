@@ -126,6 +126,8 @@ function reJump(delayMsec) {
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		
+		h = decodeURIComponent(h);
+		
 		if (isNaN(h))
 			{
 			let el = getElementForHash(h);

@@ -60,7 +60,7 @@ When you hit the "Search" button you'll be shown links to up to 100 matching doc
 
 If you click on a "regular" link in the Search hit results, IntraMine's Viewer will display the file in a new browser tab. Your search words (or phrase) will be highlighted - and there's a Show/Hide Initial Hits button at the top of the view.
 
-If you click on the pencil icon (edit1.png) that follows a regular link, the file will open in an editor. This can be IntraMine's simple editor or the editor of your choice. See "Editing documents.txt" for the how-to.
+If you click on the pencil icon (edit1.png) that follows a regular link, the file will open in an editor. This can be IntraMine's simple editor or the editor of your choice. In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so: editorlink.png. See "Editing documents.txt" for the how-to.
 
 If a word or function or class name that you're searching for isn't common, you'll find there's no need to limit the search by directory or language.
 

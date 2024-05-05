@@ -3,6 +3,8 @@ Editing documents
 
 As presented in Search hits and IntraMine's views of documents, most links to source and text files have a little pencil icon (edit1.png) beside them. Click the pencil to open the document in either IntraMine's Editor or the editor of your choice. If you disable editing, you won't see the little pencils.
 
+In IntraMine's Editor the edit link is a purple rectangle at the end of the link rather than a pencil, like so: editorlink.png. To save tedium, the edit link is referred to as the "pencil" below.
+
 Options
 ========
 You can choose to:

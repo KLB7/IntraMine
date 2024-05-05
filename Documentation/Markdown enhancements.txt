@@ -17,7 +17,8 @@ To bring up a Markdown (.md) file in IntraMine's Viewer:
  - or click any regular link to it in some other document being displayed by IntraMine's Viewer or Editor.
  
 To bring up a Markdown (.md) file in the Editor:
- - in Search results or on the Files page or in another document, click on the "pencil" icon () next to the regular link
+ - in Search results or on the Files page or in another document displayed by the Viewer, click on the "pencil" icon () next to the regular link
+ - in IntraMine's Editor, click on the purple rectangle at the right end of a link (eg editorlink.png)
  - or click on the Edit button up top in the Viewer display of a .md file.
 
 ---

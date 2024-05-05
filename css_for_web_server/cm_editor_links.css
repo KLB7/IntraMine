@@ -1,0 +1,213 @@
+/* cm_viewer.css: used by intramine_viewer.pl for CodeMirror based file displays. */
+
+#scrollText {
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+}
+
+#scrollTextRightOfContents {
+     top: 0; right: 0; bottom: 0;
+     overflow: visible;
+}
+
+/* Tweak nav bar position for CodeMirror. */
+#nav {
+	margin-top: 16px;
+}
+
+.CodeMirror {
+  border: 1px solid #eee;
+  height: 100%;
+  /*font: normal 9pt/12pt Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;*/
+  font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}
+
+/* File, directory, and web links. This is a span, we would like it to look and act like a link. */
+.cmAutoLink, .cmAutoLinkDirectory {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Edit icon after links */
+.cmAutoLink:after {
+    content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(edit7.png) no-repeat; /* a purplish patch */
+
+	/*position: absolute;*/
+	margin-left: -17px;
+  	/*left: -15px;*/
+	opacity: 0.35;
+
+}
+
+.cmAutoLink:hover:after {
+	background: url(edit9.png) no-repeat; /* a purplish patch that says "Edit" */
+	opacity: 1.0;
+}
+
+/* cmAutoLink, without the :after img. */
+.cmAutoLinkNoEdit {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Same as cmAutoLinkNoEdit, we just need a unique name. */
+.cmAutoLinkVideo {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
+.cmAutoLinkMobile {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+/* Like cmAutoLink, but for internal links in a file. */
+.cmInternalLink {
+	text-decoration: underline;
+	text-decoration-style: dotted;
+	cursor: pointer;
+}
+
+/* For image links, with before and after up arrows. */
+.cmAutoLinkImg {
+	text-decoration: underline;
+	background-image: linear-gradient(0deg, Lavender, Beige);
+	cursor: pointer;
+}
+
+/*
+.cmAutoLinkImg:before {
+    content: "";
+    display: inline-block;
+    margin-right: 5px;
+	width: 17px;
+    height: 12px;
+	background: url(chleft.png) no-repeat;
+    margin-right: -17px;
+	opacity: 1.0;
+}
+
+.cmAutoLinkImg:after {
+    content: "";
+    display: inline-block;
+    margin-left: 5px;
+	width: 17px;
+    height: 12px;
+	background: url(chright.png) no-repeat;
+    margin-left: -17px;
+	opacity: 1.0;
+}
+*/
+
+/* For image links, without before and after images. */
+.cmAutoLinkImgMobile {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmAutoLinkGlossary {
+	text-decoration: underline dotted #CCC;
+	cursor: pointer;
+}
+
+/* TOC shrink/expand element */
+#tocShrinkExpand {
+	position: absolute;
+	display: inline-block;
+	cursor: pointer;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+/* Helpful hint for Find on iPad */
+input#search-button:after {
+    content: "Shift to Uncap";
+    padding: 2px;
+    display:none;
+    
+    position: relative;
+    top: -20px;
+    right: -30px;
+    width: 150px;
+    text-align: center;
+    background-color: #fef4c5;
+    border: 1px solid #d4b943;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -ms-border-radius: 2px;
+    border-radius: 2px;
+    
+}
+
+input#search-button:hover:after {
+	display: block;
+}
+
+.cm-matchhighlight {
+	background-color: lightgreen;
+	/* Test, put a border. 
+	border-style: solid;
+	border-width: 16px;
+	border-color: lightgreen;
+	*/
+	}
+
+.CodeMirror-selection-highlight-scrollbar {
+	background-color: green;
+	}
+
+.marker-highlight {
+	background-color: lightgreen;
+}
+
+.scroll-hilite {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+div#indicator {
+    position: absolute;
+    z-index: 99;
+    top: 0px;
+    /*left: 3px;*/
+    right: 0.66%;
+    opacity: .5;
+    width: 2px;
+    height: 20px;
+    background-color: #888;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Table of Contents highlight for current item. */
+.tocitup {
+	background-color: lightgreen;
+}
+
+/* For Gloss display of *!* wrapped code bits. */
+code {
+	background-color:#ECF6CE;
+}
+
+/* iPad */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+	.CodeMirror {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}

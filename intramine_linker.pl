@@ -159,8 +159,17 @@ sub HandleBroadcastRequest {
 		elsif ($formH->{'signal'} eq 'glossaryChanged')
 			{
 			my $filePath = defined($formH->{'path'}) ? $formH->{'path'} : 'BOGUS PATH';
-			#print("Glossary changed seen: |$filePath|\n");
-			LoadGlossary($filePath);
+			if ($filePath =~ m!glossary\.txt$!i) # standalone glossary file
+				{
+				my $context = DirectoryFromPathTS($filePath);
+				LoadGlossary($filePath, $context, 1);
+				my $contextDir = lc(DirectoryFromPathTS($filePath));
+				ForgetDirChecked($contextDir);
+				}
+			else
+				{
+				LoadGlossary($filePath);
+				}
 			}
 		}
 
@@ -223,10 +232,11 @@ sub CmLinks {
 	if (defined($formH->{'text'}) && defined($formH->{'path'})
 	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
 		{
-		my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
+		my $path = lc($formH->{'path'});
+		#my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
 		my $clientIsRemote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
 		my $allowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
-		CmGetLinksForText($formH, $dir, $clientIsRemote, $allowEditing, \$result);
+		CmGetLinksForText($formH, $path, $clientIsRemote, $allowEditing, \$result);
 		}
 		
 	return($result);
@@ -272,13 +282,14 @@ sub NonCmLinks {
 	if (defined($formH->{'text'}) && defined($formH->{'path'})
 	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
 		{
-		my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
+		my $path = lc($formH->{'path'});
+		#my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
 		my ($baseName, $ext) = FileNameProperAndExtensionFromFileName($formH->{'path'});
 		$ext = lc($ext);
 		my $clientIsRemote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
 		my $allowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
 		my $shouldInline = (defined($formH->{'shouldInline'})) ? $formH->{'shouldInline'}: '0';
-		GetLinksForText($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, \$result);
+		GetLinksForText($formH, $path, $ext, $clientIsRemote, $allowEditing, $shouldInline, \$result);
 		}
 	
 	return($result);
@@ -397,7 +408,7 @@ my $shouldInlineImages; # True = use img element, false = use showhint().
 # Adn that leads to a very long underlined link, which looks a bit ugly.
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
-		$shouldInline, $currentLineNumber, $linksA) = @_;
+		$shouldInline, $restrictLinks, $currentLineNumber, $linksA) = @_;
 	
 	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
 		{
@@ -427,7 +438,7 @@ sub AddWebAndFileLinksToLine {
 	$shouldInlineImages = $shouldInline;
 	
 	# Look for all of: single or double quoted text, a potential file extension, or a url.
-	EvaluateLinkCandidates();
+	EvaluateLinkCandidates($restrictLinks);
 	
 	my $numReps = @repStr;
 	if ($numReps)
@@ -446,6 +457,8 @@ sub AddWebAndFileLinksToLine {
 # Look for all of: single or double quoted text, a potential file extension, or a url.
 # Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
 sub EvaluateLinkCandidates {
+	my ($restrictLinks) = @_;
+
 	my $previousEndPos = 0;
 	my $previousRevEndPos = $len;
 	my $haveGoodMatch = 0; # check-back distance is not adjusted if there is no good current match.
@@ -665,7 +678,7 @@ sub EvaluateLinkCandidates {
 					$haveGoodMatch = RememberTextOrImageOrVideoFileMention($startPos,
 							$previousRevEndPos, $captured, $extProper,
 							$haveQuotation, $haveTextExtension, $haveImageExtension,
-							$haveVideoExtension, $quoteChar, $anchorWithNum);
+							$haveVideoExtension, $quoteChar, $anchorWithNum, $restrictLinks);
 					}
 				} # if known extensions
 			elsif ($haveURL)
@@ -724,7 +737,7 @@ sub ExtensionBeforeHashOrEnd {
 # been spotted.
 sub RememberTextOrImageOrVideoFileMention {
 	my ($startPos, $previousRevEndPos, $captured, $extProper, $haveQuotation,
-		$haveTextExtension, $haveImageExtension, $haveVideoExtension, $quoteChar, $anchorWithNum) = @_;
+		$haveTextExtension, $haveImageExtension, $haveVideoExtension, $quoteChar, $anchorWithNum, $restrictLinks) = @_;
 	my $linkIsMaybeTooLong = 0;
 	
 	# To allow for spaces in #anchors where file#anchor hasn't been quoted, grab the
@@ -738,7 +751,11 @@ sub RememberTextOrImageOrVideoFileMention {
 			{
 			$anchorPosOnLine = index($strippedLine, ':', $startPos);
 			}
+		
+		# TODO if the anchor is a line number just grab the number.
+		# (But how to tell a line number from a heading?)
 		$anchorWithNum = substr($strippedLine, $anchorPosOnLine, 100);
+
 		# Remove any HTML junk there.
 		$anchorWithNum =~ s!\</[A-Za-z]+\>!!g;
 		$anchorWithNum =~ s!\<[A-Za-z]+\>!!g;				
@@ -770,7 +787,15 @@ sub RememberTextOrImageOrVideoFileMention {
 			$pathToCheck = substr($pathToCheck, 0, $pos);
 			}
 		
-		my $verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm		
+		my $verifiedPath = '';
+		if ($restrictLinks)
+			{
+			$verifiedPath = RestrictedFullPath($pathToCheck, $contextDir);
+			}
+		else
+			{
+			$verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm					}
+			}
 		if ($verifiedPath ne '')
 			{
 			$longestSourcePath = $pathToCheck;
@@ -793,7 +818,7 @@ sub RememberTextOrImageOrVideoFileMention {
 	my $imageName = ''; 			# for use if image found in one of std image dirs
 	
 	GetLongestGoodPath($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $fileTail,
-					\$imageName, \$commonDirForImageName);
+					\$imageName, \$commonDirForImageName, $restrictLinks);
 	
 	my $haveGoodMatch = 0;
 	if ($longestSourcePath ne '' || $commonDirForImageName ne '')
@@ -907,7 +932,7 @@ sub RememberDirMention {
 # The longest good path if any is left in $longestSourcePath.
 sub GetLongestGoodPath {
 	my ($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $currentPath,
-		$imageNameR, $commonDirForImageNameR) = @_;
+		$imageNameR, $commonDirForImageNameR, $restrictLinks) = @_;
 	my $trimmedCurrentPath = $currentPath;
 	my $slashSeen = 0; 				# stop checking standard locs for image if a dir slash is seen
 	my $checkToEndOfLine = 0;
@@ -968,7 +993,7 @@ sub GetLongestGoodPath {
 		if ($currentRevPos >= 0) 
 			{
 			my $numChars = $currentRevPos - $prevSubRevPos + 1;
-			#print("|$revStrLength| |$currentRevPos| |$prevSubRevPos| |$numChars|\n");
+			
 			if ($prevSubRevPos + $numChars > $revStrLength - 1)
 				{
 				$numChars = $revStrLength - $prevSubRevPos;
@@ -983,9 +1008,6 @@ sub GetLongestGoodPath {
 				}
 			# Pick up next reversed term, including space etc if any.
 			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $numChars);
-
-			# TEST ONLY
-			#print("\$nextRevTerm |$nextRevTerm|\n");
 			
 			# Drop out if we see a double quote.
 			if (index($nextRevTerm, '"') >= 0)
@@ -1012,8 +1034,15 @@ sub GetLongestGoodPath {
 				&& index($trimmedCurrentPath, '>') < 0 && index($trimmedCurrentPath, '|') < 0
 				&& index($trimmedCurrentPath, '?') < 0)
 				{
-				# See reverse_filepaths.pm#FullPathInContextNS().
-				$verifiedPath = FullPathInContextNS($trimmedCurrentPath, $contextDir);
+				if ($restrictLinks)
+					{
+					$verifiedPath = RestrictedFullPath($trimmedCurrentPath, $contextDir);
+					}
+				else
+					{
+					# See reverse_filepaths.pm#FullPathInContextNS().
+					$verifiedPath = FullPathInContextNS($trimmedCurrentPath, $contextDir);
+					}
 				}
 
 			if ($verifiedPath ne '')
@@ -1059,6 +1088,41 @@ sub GetLongestGoodPath {
 			$checkStdImageDirs = 0;
 			}
 		} # while ($currentRevPos >= 0 ...
+	}
+
+sub RestrictedFullPath {
+	my ($pathToCheck, $contextDir) = @_;
+	$pathToCheck = lc($pathToCheck);
+	$pathToCheck =~ s!\\!/!g;
+	
+	if ($pathToCheck !~ m!^//!)
+		{
+		$pathToCheck =~ s!^/!!;
+		}
+	my $result = '';
+
+	if (FileOrDirExistsWide($pathToCheck) == 1)
+		{
+		$result = $pathToCheck;
+		}
+	elsif (FileOrDirExistsWide($contextDir . $pathToCheck) == 1)
+		{
+		$result = $contextDir . $pathToCheck;
+		}
+	elsif (FileOrDirExistsWide($contextDir . 'images/' . $pathToCheck) == 1)
+		{
+		$result = $contextDir . 'images/' . $pathToCheck;
+		}
+	elsif (FileOrDirExistsWide($IMAGES_DIR . $pathToCheck) == 1)
+		{
+		$result = $IMAGES_DIR . $pathToCheck;
+		}
+	elsif ($COMMON_IMAGES_DIR ne '' && FileOrDirExistsWide($COMMON_IMAGES_DIR . $pathToCheck) == 1)
+		{
+		$result = $COMMON_IMAGES_DIR . $pathToCheck;
+		}
+	
+	return($result);
 	}
 
 # Stop chars limit search for next word to add to the string being tested as a target specifier.
@@ -1516,7 +1580,7 @@ sub PositionIsInsideAnchorOrImage {
 	}
 } ##### AutoLink
 
-{ ##### HTML tag, quote, and <mark> positions.
+{ ##### HTML tag, quote, and mark positions.
 my @htmlTagStartPos;
 my @htmlTagEndPos;
 my $numHtmlTags;
@@ -1707,36 +1771,52 @@ sub LineHasMarkTags {
 	my $result = ($numTags > 0);
 	return($result);
 	}
-} ##### HTML tag, quote, and <mark> positions.
+} ##### HTML tag, quote, and mark positions.
 
 # Get links (except internal headers) for a range of lines in a CodeMirror view.
 # Called by CmGetLinksForText().
 sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
-	my ($text, $firstLineNum, $contextDir, $linksA, $host, $port,
+	my ($text, $firstLineNum, $path, $linksA, $host, $port,
 		$clientIsRemote, $allowEditing) = @_;
 	my @lines = split(/\n/, $text);
+
+	my $contextDir = DirectoryFromPathTS($path);
+
+	my $restrictLinks = IsStandaloneTextFile($path, $contextDir);
+
 	#my $doingCM = 1;
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
 		my $currentLineNumber = $firstLineNum + $counter;
 		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port,
-					$clientIsRemote, $allowEditing, '0', $currentLineNumber, $linksA);
+					$clientIsRemote, $allowEditing, '0', $restrictLinks, $currentLineNumber, $linksA);
 
-		AddGlossaryHints($lines[$counter], $contextDir, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
+		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
 		}
 	}
 
 # Get links, for non-CodeMirror (txt pl etc) files.
 sub AddWebAndFileLinksToVisibleLines {
-	my ($text, $dir, $ext, $serverAddr, $server_port,
+	my ($text, $path, $ext, $serverAddr, $server_port,
 		$clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
 	my @lines = split(/\n/, $text);
+
+	my $dir = DirectoryFromPathTS($path);
+
+	# If there's a glossary.txt file in the folder holding $path, at the same level,
+	# then it's likely intended for conversion to HTML using gloss2html.pl: in
+	# this case, links are restricted to the containing folder, and glossary popups
+	# are taken from the glossary.txt file instead of glossary_master.txt files.
+	my $restrictLinks = IsStandaloneTextFile($path, $dir);
 	
 	if (IsTextFileExtension($ext) || IsPodExtension($ext))
 		{
-		for (my $counter = 0; $counter < @lines; ++$counter)
+		if (!$restrictLinks)
 			{
-			AddModuleLinkToText(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
+			for (my $counter = 0; $counter < @lines; ++$counter)
+				{
+				AddModuleLinkToText(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
+				}
 			}
 		}
 	elsif(IsPerlExtension($ext))
@@ -1745,7 +1825,7 @@ sub AddWebAndFileLinksToVisibleLines {
 			{
 			if ($lines[$counter] =~ m!(use|import)\s*</span>!)
 				{
-				AddModuleLinkToPerl(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
+				AddModuleLinkToPerl(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $AllowLocalEditing);
 				}
 			}
 		}
@@ -1753,13 +1833,54 @@ sub AddWebAndFileLinksToVisibleLines {
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
 		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
-								$clientIsRemote, $allowEditing, $shouldInline);
-		AddGlossaryHints(\${lines[$counter]}, $dir, $serverAddr, $server_port, $VIEWERNAME);
+								$clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
+		AddGlossaryHints(\${lines[$counter]}, $path, $serverAddr, $server_port, $VIEWERNAME);
 		}
 
 	#$$resultR = join("\n", @lines);
 	$$resultR = encode_utf8(join("\n", @lines));
 	}
+
+{ ##### Check directory has a glossary.txt file.
+# $DirHasGlossary{$dir} == 1 if $dir has been checked and has a glossary.txt file,
+# else 0 if checked and no glossary, undef if dir not checked.
+# Only for .txt files at the moment.
+my %DirHasGlossary;
+
+# Requires: $dir has a trailing forward slash.
+sub IsStandaloneTextFile {
+	my ($path, $dir) = @_;
+	my $result = 0;
+	if ($path =~ m!\.txt$!i)
+		{
+		if (!defined($DirHasGlossary{$dir}))
+			{
+			CheckDirHasGlossary($dir);
+			}
+		$result = $DirHasGlossary{$dir};
+		}
+	
+	return($result);
+	}
+
+sub CheckDirHasGlossary {
+	my ($dir) = @_;
+
+	my $hasGlossary = 0;
+	my $glossaryPath = $dir . "glossary.txt";
+	if (FileOrDirExistsWide($glossaryPath) == 1)
+		{
+		$hasGlossary = 1;
+		}
+
+	$DirHasGlossary{$dir} = $hasGlossary;
+	}
+
+sub ForgetDirChecked {
+	my ($dir) = @_;
+	delete($DirHasGlossary{$dir});
+	}
+} ##### Check directory has a glossary.txt file.
 
 sub WebLink {
 	my ($url, $host, $port, $linkName) = @_; # $linkName is optional, == $url if not supplied.

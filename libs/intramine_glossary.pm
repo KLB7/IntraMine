@@ -25,6 +25,10 @@ my $callbackFullDirectoryPath;
 
 my %GlossaryModDates; 		# $GlossaryModDates{glossary file path} = mod date for file as string.
 my %Definition;				# $Definition{'term'} = 'definition';
+# For standalone .txt files in a folder that has a glossary.txt file at the same
+# level, use that glossary instead of entries from the glossary_master.txt files.
+my %StandaloneDefinition; # $StandaloneDefinition{$context}{term} = definition;
+my %ContextCheckedForGlossary; # $ContextCheckedForGlossary{$context} exists if checked.
 my %DefinitionSeenInDocument; # Not implemented here, might re-instate.
 
 my $haveRefToText; 	# For CodeMirror we get the text not a ref, and this is 0.
@@ -66,7 +70,6 @@ sub LoadAllGlossaries {
 	
 	for (my $i = 0; $i < @paths; ++$i)
 		{
-		#print("Loading glossary |$paths[$i]|\n");
 		LoadGlossary($paths[$i]);
 		}
 
@@ -74,12 +77,24 @@ sub LoadAllGlossaries {
 	#print("$numDefs glossary terms loaded.\n");
 }
 
+# Load glossary entries for file glossary.txt in the $context folder
+# into the hash $StandaloneDefinition{$context}.
+sub LoadStandaloneGlossary {
+	my ($path, $context) = @_;
+	my $glossaryPath = $context . "glossary.txt";
+
+	LoadGlossary($glossaryPath, $context);
+	}
+
 # Load glossary entries from glossary_master.txt. Called by
 # LoadAllGlossaries() above, and by
 # intramine_linker.pl#HandleBroadcastRequest() in response to
 # a signal received from intramine_filewatcher.pl#BroadcastGlossaryFilesChangedOrNew().
+# If $context is defined, load $StandaloneDefinition{$context}, otherwise
+# load into %Definition.
+# If $forceInit is defined, clean out the hash. Applies only to $StandaloneDefinition{$context.
 sub LoadGlossary {
-	my ($filePath) = @_;
+	my ($filePath, $context, $forceInit) = @_;
 	
 	if (FileOrDirExistsWide($filePath) != 1)
 		{
@@ -94,6 +109,22 @@ sub LoadGlossary {
 		}
 	
 	SetGlossaryModDate($filePath);
+
+	my $definitionHashRef;
+	if (defined($context))
+		{
+		if (defined($forceInit) || !defined($StandaloneDefinition{$context}))
+			{
+			%{$StandaloneDefinition{$context}} = ();
+			#$StandaloneDefinition{$context}{'absolutely utterly completely bogus term'} = 'oink';
+			}
+		$definitionHashRef = $StandaloneDefinition{$context};
+		}
+	else
+		{
+		$definitionHashRef = \%Definition;
+		}
+
 	
 	my @lines = split(/\n/, $octets);
 	
@@ -117,7 +148,7 @@ sub LoadGlossary {
 			
 			for (my $j = 0; $j < @currentTerms; ++$j)
 				{
-				$Definition{$currentTerms[$j]} = "<p>$entry</p>";
+				$definitionHashRef->{$currentTerms[$j]} = "<p>$entry</p>";
 				}
 			}
 		elsif (@currentTerms != 0) # Skip top lines without colons
@@ -129,7 +160,7 @@ sub LoadGlossary {
 				$entry =~ s!\&#39;!\&#8216;!g;
 				for (my $j = 0; $j < @currentTerms; ++$j)
 					{
-					$Definition{$currentTerms[$j]} .= "<p>$entry</p>";
+					$definitionHashRef->{$currentTerms[$j]} .= "<p>$entry</p>";
 					}
 				}
 			}
@@ -206,7 +237,7 @@ sub IsGlossaryPath {
 	}
 
 sub AddGlossaryHints {
-	my ($txtR, $context, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA) = @_;
+	my ($txtR, $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA) = @_;
 	# Note $currentLineNumber, $linksA are set only for CodeMirror ($haveRefToText == 0).
 
 	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
@@ -228,7 +259,41 @@ sub AddGlossaryHints {
 	@repLen = ();		# length of substr to replace in line, eg length('#Header within doc')
 	@repStartPos = ();	# where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
 
-	EvaluateGlossaryCandidates($context, $host, $port, $VIEWERNAME);
+	my $context = DirectoryFromPathTS($path);
+
+	# As a special case,
+	# Use $StandaloneDefinition{$context} instead of \%Definition if we have a
+	# .txt file and $StandaloneDefinition{$context} is defined.
+	# Otherwise use the default %Definition glossary.
+	my $definitionHashRef;
+	if ($path =~ m!\.txt$!i)
+		{
+		if(!defined($StandaloneDefinition{$context}))
+			{
+			# Have we looked for a glossary?
+			if (!defined($ContextCheckedForGlossary{$context})
+			  || $ContextCheckedForGlossary{$context} != 1)
+				{
+				# Pass the path to the glossary file, not the file being viewed.
+				LoadStandaloneGlossary($path, $context);
+				$ContextCheckedForGlossary{$context} = 1;
+				}
+			}
+		if(defined($StandaloneDefinition{$context}))
+			{
+			$definitionHashRef = $StandaloneDefinition{$context};
+			}
+		else
+			{
+			$definitionHashRef = \%Definition;
+			}
+		}
+	else
+		{
+		$definitionHashRef = \%Definition;
+		}
+
+	EvaluateGlossaryCandidates($definitionHashRef, $context, $host, $port, $VIEWERNAME);
 
 	# Do all reps in reverse order for non-CodeMirror.
 	my $numReps = @repStr;
@@ -271,7 +336,7 @@ sub AddGlossaryHints {
 # looking for entries one..four words long. So results are sorted.
 # Do just one glossary entry per line for any particular glossary term.
 sub EvaluateGlossaryCandidates {
-	my ($context, $host, $port, $VIEWERNAME) = @_;
+	my ($definitionHashRef, $context, $host, $port, $VIEWERNAME) = @_;
 	
 	my @startPosSeen; # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen; # Length of a matched term, also indexed by $startPos
@@ -286,9 +351,6 @@ sub EvaluateGlossaryCandidates {
 	# Four-word matches down to one-word matches:
 	my $nWords = 4;
 
-	# TEST ONLY
-	#print("Evaluating hints for line |$line|\n");
-	
 	while ($nWords >= 1)
 		{
 		my $nWordsMinusOne = $nWords - 1;
@@ -302,7 +364,7 @@ sub EvaluateGlossaryCandidates {
 				my $len = $endPos - $startPos;
 				my $words = substr($line, $wordStartPos[$i], $len);
 				my $term = lc($words);	# glossary terms are lower case in %Definition
-				if (defined($Definition{$term}) && !RangeOverlapsExistingAnchor($startPos, $endPos))
+				if (defined($definitionHashRef->{$term}) && !RangeOverlapsExistingAnchor($startPos, $endPos))
 					{
 					# Skip if current term formed part of a previous term.
 					my $overlapped = 0;
@@ -319,7 +381,7 @@ sub EvaluateGlossaryCandidates {
 						{
 						my $definitionAlreadySeen = 0;
 						###my $definitionAlreadySeen = (defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
-						my $replacementHint = GetReplacementHint($term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
+						my $replacementHint = GetReplacementHint($definitionHashRef, $term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
 						my $repLength = length($words);
 						my $repStartPosition = $startPos;
 						push @repStr, $replacementHint;
@@ -386,9 +448,9 @@ sub GetLineWordStartsAndEnds {
 # If the entry has synonyms, remove them from the term being defined and show them
 # as "Alt: " in a new paragraph at the bottom of the hint.
 sub GetReplacementHint {
-	my ($term, $originalText, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME) = @_;
+	my ($definitionHashRef, $term, $originalText, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME) = @_;
 	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
-	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
+	my $gloss = $definitionHashRef->{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
 	my $result = '';
 	
 	# If the $gloss is just an image name, put in the image path as content of showhint() popup,

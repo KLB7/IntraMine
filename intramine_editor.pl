@@ -79,7 +79,7 @@ sub FullFile {
 <link rel="stylesheet" type="text/css" media="screen" href="cm_edit.css" />
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 
-<link rel="stylesheet" type="text/css" href="cm_viewer.css" />
+<link rel="stylesheet" type="text/css" href="cm_editor_links.css" />
 <link rel="stylesheet" type="text/css" href="cm_editor_fix.css" />
 <link rel="stylesheet" type="text/css" href="dragTOC.css" />
 
@@ -288,7 +288,7 @@ FINIS
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
 
 	# Hilight class for table of contents selected element - see also non_cm_test.css
-	# and cm_viewer.css.
+	# and cm_editor_links.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
 	
 	# Put in main IP, main port, our short name for JavaScript.
@@ -352,49 +352,6 @@ sub Save {
 		my $contents = $formH->{'contents'};
 		# Does not help, in fact it hurts: $contents = encode_utf8($contents);
 		$contents = uri_unescape($contents);
-		
-		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
-			{
-			$status = "FILE ERROR! Could not save file to |$filepath|.\n";
-			}
-		}
-	else
-		{
-		print("ERROR, file_editor received empty file path!\n");
-		}
-	
-	return($status);
-	}
-
-# Called by editor.js#saveFile() (via "req=save").
-# OBSOLETE
-sub olderSave {
-	my ($obj, $formH, $peeraddress) = @_;
-	my $status = 'OK';
-	
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
-	if ($filepath ne '')
-		{
-		$filepath =~ s!\\!/!g;
-		# TEST ONLY codathon save to a different path.
-		if ($filepath =~ m!^(.+?)\.(\w+)$!)
-			{
-			my $pre = $1;
-			my $post = $2;
-			$filepath = $pre . '1.' . $post;
-			}
-		else
-			{
-			print("FILE RENAME FAIL in Save()!\n");
-			return('OK');
-			}
-		Output("Saving |$filepath|\n");
-		
-		my $contents = $formH->{'contents'};
-		# TEST ONLY
-		$contents =~ s!\&amp;!\&!g;
-		
-		$contents = encode_utf8($contents);
 		
 		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
 			{

@@ -747,6 +747,7 @@ a.embedded_image {
 	margin-left: 6px;
 }
 
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 #theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
@@ -3972,6 +3973,8 @@ function reJump(delayMsec) {
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
+		
+		h = decodeURIComponent(h);
 		
 		if (isNaN(h))
 			{

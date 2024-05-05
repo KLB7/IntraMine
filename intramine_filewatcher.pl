@@ -62,7 +62,10 @@ my $FileWatcherLogPath = $FileWatcherDir . CVal('FILEWATCHER_LOG');
 my $FileWatcherLogPathModDate = 0;
 my $TimeStampPath = $FileWatcherDir . CVal('FWTIMESTAMPFILE');
 my $CudPath = $FileWatcherDir . CVal('FWCURRENTCHANGESFILE');	# Changed Updated Deleted path
-my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
+# With apologies, the keys for the two different glossary names are
+# very close.
+my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME')); # default glossary_master.txt
+my $STANDALONEGLOSSARYFILENAME = lc(CVal('GLOSSARY_FILE_NAME')); # default glossary.txt
 
 # filewatcher.pl responds to common default requests (id, signal),
 # and also signal=FILESYSTEMCHANGE, a request to re-index Elasticsearch and rebuild file paths list.
@@ -1040,7 +1043,7 @@ sub SaveLastTimeStamp {
 sub IsGlossaryFile {
 	my ($filePath) = @_;
 	my $result = 0;
-	if ($filePath =~ m!$GLOSSARYFILENAME$!i)
+	if ($filePath =~ m!$GLOSSARYFILENAME$!i || $filePath =~ m!$STANDALONEGLOSSARYFILENAME$!i)
 		{
 		$result = 1;
 		}

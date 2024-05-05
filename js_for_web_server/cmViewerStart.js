@@ -266,7 +266,7 @@ cfg.highlightSelectionMatches = highlightSelectionMatches;
 cfg.readOnly = true;
 
 // Experiment, does path affect actual path used for addons?
-cfg.path = 'BOGUS/';
+// cfg.path = 'BOGUS/'; // no effect
 
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);

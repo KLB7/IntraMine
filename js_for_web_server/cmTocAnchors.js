@@ -182,13 +182,14 @@ function cmRejumpToAnchor() {
 	let anchor = location.hash;
 	if (anchor.length > 1)
 		{
+		anchor = decodeURIComponent(anchor);
 		anchor = anchor.replace(/^#/, '');
+
 		if (isNaN(anchor))
 			{
 			let lineNumber = lineNumberForAnchor(anchor);
 			if (lineNumber >= 0)
 				{
-				//goingToAnchor = true;
 				jumpToLine(lineNumber, true);
 				}
 			}
