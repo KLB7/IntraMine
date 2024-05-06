@@ -1578,6 +1578,21 @@ sub PositionIsInsideAnchorOrImage {
 		
 	return($result);
 	}
+
+sub SpellCheck {
+	my ($txtR) = @_;
+
+	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
+		{
+		return;
+		}
+	else # not a ref, so doing CodeMirror
+		{
+		$haveRefToText = 0;
+		$line = $txtR;
+		}
+
+	}
 } ##### AutoLink
 
 { ##### HTML tag, quote, and mark positions.
@@ -1784,7 +1799,10 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 
 	my $restrictLinks = IsStandaloneTextFile($path, $contextDir);
 
-	#my $doingCM = 1;
+	my ($baseName, $ext) = FileNameProperAndExtensionFromFileName($path);
+	$ext = lc($ext);
+	my $isText = IsTextFileExtension($ext);
+
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
 		my $currentLineNumber = $firstLineNum + $counter;
@@ -1792,6 +1810,11 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 					$clientIsRemote, $allowEditing, '0', $restrictLinks, $currentLineNumber, $linksA);
 
 		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
+
+		if ($isText)
+			{
+			SpellCheck($lines[$counter], $currentLineNumber, $linksA);
+			}
 		}
 	}
 
