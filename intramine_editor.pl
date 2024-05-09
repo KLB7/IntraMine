@@ -118,7 +118,7 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_<span id="editor_error">&nbsp;</span>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>_TOCANDCONTENTHOLDER_</div>
 
@@ -140,6 +140,7 @@ _TOPNAV_
 <script src="addon/search/match-highlighter.js"></script>
 <script src="addon/search/jump-to-line.js"></script>
 <script src="debounce.js"></script>
+<script src="spellcheck.js"></script>
 <script type="text/javascript" src="editor.js" ></script>
 <!-- <script type="text/javascript" src="cmMobile.js" ></script> -->
 
@@ -216,6 +217,13 @@ FINIS
 	my $undoRedo =  "<input id=\"undo-button\" class=\"submit-button\" type=\"submit\" value=\"Undo\" /> " .
 					"<input id=\"redo-button\" class=\"submit-button\" type=\"submit\" value=\"Redo\" />";
 	$theBody =~ s!_UNDOREDO_!$undoRedo!;
+	# Spell check is only for .txt files in the editor.
+	my $checkSpelling = '';
+	if ($filePath =~ m!\.txt$!i)
+		{
+		$checkSpelling = "<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
+		}
+	$theBody =~ s!_CHECKSPELLING_!$checkSpelling!;
 	
 	my $togglePositionButton = '';
 	# Mardown Toggle won't work because there are no line numbers.
@@ -342,6 +350,8 @@ sub GetTOC {
 sub Save {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
+
+	ReportActivity($SHORTNAME);
 	
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	if ($filepath ne '')

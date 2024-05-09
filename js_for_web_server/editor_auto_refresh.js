@@ -83,9 +83,9 @@ function handleFileChanged(message) {
 
 function reloadUnlessUserSaysNo() {
 	if (!codeMirrorIsDirty() || userSaysReload())
-	{
-	window.location.reload();
-	}
+		{
+		window.location.reload();
+		}
 }
 
 function userSaysReload() {

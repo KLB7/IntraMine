@@ -99,13 +99,14 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
+	let spellcheckRequest = (shouldSpellCheck()) ? '&spellcheck=true': '&spellcheck=false';
 
 	try {
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
 		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
 		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
 		+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
-		+ lastVisibleLineNum;
+		+ lastVisibleLineNum + spellcheckRequest;
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
@@ -379,6 +380,11 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		{
 		nameOfCSSclass = "cmAutoLinkGlossary";
 		}
+	else if (linkType === "spelling")
+		{
+		nameOfCSSclass = "cmAutoLinkSpelling";
+		}
+	
 
 	let charEnd = chStart + len;
 
@@ -513,7 +519,7 @@ function typeAndClass(target, checkForIMG) {
 		linkType = "file";
 		className = "cmAutoLink";
 		}
-	// glossary, return linkType "" since it doesn't respond to clicks.
+	// glossary, spelling, return linkType "" since it doesn't respond to clicks.
 	return {theType: linkType, theClass: className};
 }
 

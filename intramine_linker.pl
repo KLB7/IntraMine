@@ -60,6 +60,7 @@ use reverse_filepaths;
 use win_wide_filepaths;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 use intramine_glossary;
+use intramine_spellcheck;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -107,6 +108,11 @@ $RequestAction{'req|cmLinks'} = \&CmLinks; 				# req=cmLinks... - linking for Co
 $RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 		# req=nonCmLinks... - linking for non-CodeMirror files
 $RequestAction{'req|autolink'} = \&FullPathForPartial; 	# req=autolink&partialpath=...
 $RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
+
+# List of English words, for spell checking.
+my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
+#print("Loading list of English words for spell checking in .txt files from $wordListPath.\n");
+InitDictionary($wordListPath);
 
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
 # which can take some time.
@@ -229,6 +235,8 @@ sub CmLinks {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
 	
+	ReportActivity($SHORTNAME);
+
 	if (defined($formH->{'text'}) && defined($formH->{'path'})
 	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
 		{
@@ -255,9 +263,18 @@ sub CmGetLinksForText {
 	my $json = ''; 	# JSON string for this replaces $$resultR if $numLinksFound
 	my @links; 		# This array holds (object) contents of what in JS will be resp.arr[].
 	my $serverAddr = ServerAddress();
+	my $checkSpelling = (defined($formH->{'spellcheck'})) ? $formH->{'spellcheck'}: 0;
+	if ($checkSpelling eq 'true')
+		{
+		$checkSpelling = 1;
+		}
+	else
+		{
+		$checkSpelling = 0;
+		}
 	
 	AddWebAndFileLinksToVisibleLinesForCodeMirror($text, $firstLineNum, $dir, \@links, $serverAddr,
-										$server_port, $clientIsRemote, $allowEditing);
+										$server_port, $clientIsRemote, $allowEditing, $checkSpelling);
 	
 	my $numLinksFound = @links;
 	if ($numLinksFound)
@@ -278,6 +295,8 @@ sub CmGetLinksForText {
 sub NonCmLinks {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
+
+	ReportActivity($SHORTNAME);
 	
 	if (defined($formH->{'text'}) && defined($formH->{'path'})
 	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
@@ -1579,20 +1598,6 @@ sub PositionIsInsideAnchorOrImage {
 	return($result);
 	}
 
-sub SpellCheck {
-	my ($txtR) = @_;
-
-	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
-		{
-		return;
-		}
-	else # not a ref, so doing CodeMirror
-		{
-		$haveRefToText = 0;
-		$line = $txtR;
-		}
-
-	}
 } ##### AutoLink
 
 { ##### HTML tag, quote, and mark positions.
@@ -1792,7 +1797,8 @@ sub LineHasMarkTags {
 # Called by CmGetLinksForText().
 sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 	my ($text, $firstLineNum, $path, $linksA, $host, $port,
-		$clientIsRemote, $allowEditing) = @_;
+		$clientIsRemote, $allowEditing, $checkSpelling) = @_;
+	$checkSpelling ||= 0;
 	my @lines = split(/\n/, $text);
 
 	my $contextDir = DirectoryFromPathTS($path);
@@ -1811,7 +1817,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 
 		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
 
-		if ($isText)
+		if ($checkSpelling && $isText)
 			{
 			SpellCheck($lines[$counter], $currentLineNumber, $linksA);
 			}

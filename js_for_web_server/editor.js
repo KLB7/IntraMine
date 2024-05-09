@@ -306,8 +306,10 @@ async function loadFileIntoCodeMirror(cm, path) {
 
 			loadTOC(originalPath);
 
+			initializeSpellCheck();
+
 			getLineNumberForTocEntries();
-			addAutoLinks();
+			// Too soon, see setTimeout below: addAutoLinks();
 
 			doResize();
 
@@ -316,6 +318,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 
 			setTimeout(function() {
 				cmEditorRejumpToAnchor();
+				addAutoLinks();
 				}, 600);
 			lazyOnScroll = JD.debounce(onScroll, 100);
 			cm.on("scroll", lazyOnScroll);
@@ -746,3 +749,4 @@ pasteDateTimeOnF4();
 addClickHandler("undo-button", editorUndo);
 addClickHandler("redo-button", editorRedo);
 addClickHandler("search-button", showSearch);
+addClickHandler("spellcheck-button", toggleSpellCheck);

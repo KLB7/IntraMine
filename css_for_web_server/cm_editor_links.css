@@ -116,6 +116,12 @@
 	cursor: pointer;
 }
 
+.cmAutoLinkSpelling {
+	text-decoration-line: underline;
+	text-decoration-style: wavy;
+	text-decoration-color: #FF8080;
+  }
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;

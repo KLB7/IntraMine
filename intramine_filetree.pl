@@ -495,7 +495,7 @@ sub FileDatesAndSizes {
 		GetFileModTimeAndSizeWide($dir . $file, \@a);
 		if (!defined($a[0]))
 			{
-			$a[0] = '';
+			$a[0] = '0';
 			}
 		if (!defined($a[1]))
 			{

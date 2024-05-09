@@ -279,6 +279,10 @@
 	cursor: default;
 }
 
+.buttonIsOn {
+   color: #fff;
+}
+
 /* Smaller buttons, for the Status page Start/Stop/Restart buttons.
 and DBX delete buttons. */
 .statusButtonHolder button, .delButtonHolder {

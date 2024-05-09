@@ -258,6 +258,7 @@ sub AddGlossaryHints {
 	@repStr = ();		# new link, eg <a href="#Header_within_doc">#Header within doc</a>
 	@repLen = ();		# length of substr to replace in line, eg length('#Header within doc')
 	@repStartPos = ();	# where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
+	@repLinkType = (); # For CodeMirror, the "type" of link (file image dir etc)
 
 	my $context = DirectoryFromPathTS($path);
 
@@ -428,6 +429,11 @@ sub SortGlossaryResultsForOneLine {
 	@repStr = @repStr[@idx];
 	@repLen = @repLen[@idx];
 	@repStartPos = @repStartPos[@idx];
+	my $numLinkTypes = @repLinkType;
+	if ($numLinkTypes)
+		{
+		@repLinkType = @repLinkType[@idx];
+		}
 	}
 
 # Find start and end positions of words in line.
