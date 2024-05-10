@@ -99,7 +99,12 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
-	let spellcheckRequest = (shouldSpellCheck()) ? '&spellcheck=true': '&spellcheck=false';
+
+	let spellcheckRequest = '&spellcheck=false';
+	if (typeof shouldSpellCheck === "function")
+		{
+		spellcheckRequest = (shouldSpellCheck()) ? '&spellcheck=true': '&spellcheck=false';
+		}
 
 	try {
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'

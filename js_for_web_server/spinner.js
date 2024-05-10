@@ -21,7 +21,9 @@ function showSpinner() {
 	if (spinnerParent !== null)
 		{
 		spinnerParent.innerHTML = "<img id='spinner' src='globe.gif' "
-									+ "alt='' width='43.3' height='36' />\n";
+									+ "width='30.0' height='24.0' />\n";
+		//spinnerParent.style.marginTop = "0";
+		document.getElementById("spinner").style.objectPosition = "0 4px";
 //	spinnerParent.innerHTML = "<div id='spinnerParent'><img id='spinner' src='globe.gif' " + "alt='' width='43.3' height='36' /></div>\n";
 		spinnerTimeoutTimer = setTimeout(hideSpinner, 20000);
 		}
@@ -47,7 +49,9 @@ function hideSpinner() {
 	if (spinnerParent !== null)
 		{
 		spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
-		+ "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a>\n";
+		+ "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a>\n";
+		//spinnerParent.style.marginTop = "-4px";
+		document.getElementById("spinner").style.objectPosition = "0 -4px";
 //		spinnerParent.innerHTML = "<div id='spinnerParent'><a href='./" + contentsName + "' target='_blank'>" + "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a></div>\n";
 		}
 	else

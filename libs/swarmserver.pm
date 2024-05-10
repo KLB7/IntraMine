@@ -241,7 +241,7 @@ sub MakeTopNavTemplate {
 			}
 		$theTopNav .= $entry;
 		}
-	$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='globe.gif' alt='' width='43.3' height='36' /></div>\n";
+	$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='globe.gif' width='30.0' height='24.0' /></div>\n";
 	$theTopNav .= "</ul>\n";
 	$theTopNav .= "<div class='shimclear'></div>\n";
 	$TopNavTemplate = $theTopNav;

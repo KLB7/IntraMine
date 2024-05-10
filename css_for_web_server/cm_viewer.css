@@ -12,7 +12,7 @@
 
 /* Tweak nav bar position for CodeMirror. */
 #nav {
-	margin-top: 16px;
+	margin-top: 0;
 }
 
 .CodeMirror {
