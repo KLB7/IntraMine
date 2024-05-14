@@ -197,7 +197,11 @@ function positionAndShowHint() {
 
 	hintElement.innerHTML = hintContents;
 
-	hintElement.style.visibility = "visible";
+	//hintElement.style.visibility = "visible";
+	setTimeout(function() {
+		hintElement.style.visibility = "visible";
+		}, 100);
+
 }
 
 // Calculate tip all four ways, pick the way that produces least shrinkage.

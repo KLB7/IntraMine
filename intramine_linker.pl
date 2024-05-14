@@ -138,6 +138,7 @@ sub HandleBroadcastRequest {
 			my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 			my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 			LoadIncrementalDirectoryFinderLists($fullFilePathListPath);
+			LoadAndRemoveDeletesFromHashes($fullFilePathListPath);
 			}
 		elsif ($formH->{'signal'} eq 'folderrenamed')
 			{
@@ -930,7 +931,9 @@ sub RememberDirMention {
 	if ($directoryPath ne '')
 		{
 		my $linkType = 'directory'; # For CodeMirror
-		my $repString = "<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\">$displayedDir</a>";
+		# Show a hint with the dir path.
+		my $dirHint = " onmouseover=\"showhint('$directoryPath', this, event, '500px', false);\"";
+		my $repString = "<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
 		
 		push @repStr, $repString;
 		push @repLen, $repLength;
@@ -1192,8 +1195,12 @@ sub GetTextFileRep {
 		{
 		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
 		}
+
+	# Show a hint with the actual full path for the file specifier.
+	my $fullPathHint = " onmouseover=\"showhint('$viewerPath', this, event, '500px', false);\"";
+
 	
-	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\"$fullPathHint>$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
 	}
 

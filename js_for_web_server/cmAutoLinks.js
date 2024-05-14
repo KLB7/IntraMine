@@ -967,8 +967,10 @@ function fireOneInternalLink(targetText, lineNum) {
 function handleMouseOver(e) {
 	let className = "cmAutoLinkImg";
 	let classNameGlossary = "cmAutoLinkGlossary";
+	let classNameFile = "cmAutoLink";
+	let classNameDir = "cmAutoLinkDirectory";
 	let target = e.target;
-	if (hasClass(target, className) || hasClass(target, classNameGlossary))
+	if (hasClass(target, className) || hasClass(target, classNameGlossary) || hasClass(target, classNameFile) || hasClass(target, classNameDir))
 		{
 		let targetText = target.textContent;
 		if (targetText === "")

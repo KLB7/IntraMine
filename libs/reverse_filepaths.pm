@@ -65,6 +65,7 @@ sub InitDirectoryFinder {
 	my $pathCount = InitFullPathList($filePath);
 	BuildPartialPathList(\%FileNameForFullPath);
 	LoadIncrementalDirectoryFinderLists($filePath);
+	LoadAndRemoveDeletesFromHashes($filePath);
 	
 	return($pathCount);
 	}
@@ -92,8 +93,7 @@ sub InitFullPathList {
 		{
 		print("WARNING (will continue) in reverse_filepaths.pm#InitFullPathList(), |$FullPathListPath| did not load. First run maybe.\n");
 		}
-	
-	return($pathCount);
+		return($pathCount);
 	}
 
 # From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
@@ -258,6 +258,115 @@ sub AddIncrementalNewPaths {
 		}
 	}
 
+# Remove entries from reverse_filepaths.pm %FileNameForFullPath and %FullPathsForFileName.
+# Add paths to DEL_fullpaths.out so they'll be remembered for restart.
+sub RemoveDeletes {
+	my ($pathsOfDeletedFilesH, $fileWatcherDir) = @_;
+
+	RemoveDeletesFromHashes($pathsOfDeletedFilesH);
+
+	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
+	RememberDeletedPaths($pathsOfDeletedFilesH, $deletedFilesPath);
+	}
+
+sub RemoveDeletesFromHashes {
+	my ($pathsOfDeletedFilesH) = @_;
+
+	foreach my $fullPath (keys %$pathsOfDeletedFilesH)
+		{
+		DeleteFullPath($fullPath); #  reverse_filepaths.pm#DeleteFullPath()
+		}
+	}
+
+# Delete $path from %FileNameForFullPath and %FullPathsForFileName.
+sub DeleteFullPath {
+	my ($path) = @_;
+	$path = lc($path);
+
+	delete $FileNameForFullPath{$path};
+
+	my $fileName = FileNameFromPath($path);
+	my $allpaths = GetAllPathsForFileName($fileName);
+	my @paths;
+	if ($allpaths =~ m!\|!) # more than one candidate full path
+		{
+		@paths = split(/\|/, $allpaths);
+		}
+	else
+		{
+		push @paths, $allpaths;
+		}
+
+	my @remainingPaths;
+	for (my $i = 0; $i < @paths; ++$i)
+		{
+		if ($paths[$i] ne $path)
+			{
+			push @remainingPaths, $paths[$i];
+			}
+		}
+
+	my $numPathsLeft = @remainingPaths;
+	if ($numPathsLeft)
+		{
+		if ($numPathsLeft > 1)
+			{
+			$FullPathsForFileName{$fileName} = join('|', @remainingPaths);
+			}
+		else
+			{
+			$FullPathsForFileName{$fileName} = $remainingPaths[0];
+			}
+		}
+	else
+		{
+		delete $FullPathsForFileName{$path};
+		}
+	}
+
+sub RememberDeletedPaths {
+	my ($pathsOfDeletedFilesH, $deletedFilesPath) = @_;
+
+	my $fileH = FileHandle->new(">> $deletedFilesPath") or return("File Error, could not open |$deletedFilesPath|!");
+	binmode($fileH, ":utf8");
+	foreach my $key (sort(keys %{$pathsOfDeletedFilesH}))
+		{
+		$key = lc($key);
+		print $fileH "$key\t1\n";
+		}
+	close $fileH;
+	}
+
+sub LoadDeletedPaths {
+	my ($pathsOfDeletedFilesH, $deletedFilesPath) = @_;
+	%{$pathsOfDeletedFilesH} = ();
+	my $fileH = FileHandle->new("< $deletedFilesPath") or return;
+	binmode($fileH, ":utf8");
+	my $line;
+	while ($line = <$fileH>)
+		{
+		chomp($line);
+		my @kv = split(/\t/, $line, 2);
+        $pathsOfDeletedFilesH->{$kv[0]} = $kv[1];
+		}
+	close($fileH);
+	}
+
+sub LoadAndRemoveDeletesFromHashes {
+	my ($filePath) = @_;
+
+	my $fileWatcherDir = DirectoryFromPathTS($filePath);
+	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
+	my %pathsOfDeletedFiles;
+	LoadDeletedPaths(\%pathsOfDeletedFiles, $deletedFilesPath);
+	RemoveDeletesFromHashes(\%pathsOfDeletedFiles);
+
+	# TEST ONLY
+	# my $numPathEntries = keys %pathsOfDeletedFiles;
+	# my $tipPaths = $FullPathsForFileName{'tooltip.js'};
+	# print("$numPathEntries paths, tip paths: |$tipPaths|\n");
+}
+
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
 # All paths are lowercase and use forward slashes.
@@ -348,10 +457,14 @@ sub ConsolidateFullPathLists {
 	my $ext = $2;
 	my $num = 2;
 	my $fragPath = $base . $num . $ext;
+	my $fileWatcherDir = DirectoryFromPathTS($FullPathListPath);
+	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
+
 	if ( $forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)) )
 		{
 		unlink($FullPathListPath);
 		unlink($fragPath);
+		unlink($deletedFilesPath);
 		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");
 	    foreach my $key (sort(keys %FileNameForFullPath))

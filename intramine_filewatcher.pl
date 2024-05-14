@@ -87,6 +87,7 @@ my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexT
 my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 my $filePathCount = InitFullPathList($fullFilePathListPath);
 LoadIncrementalFullPathLists($fullFilePathListPath);
+LoadAndRemoveDeletesFromHashes($fullFilePathListPath);
 
 LoadLastTimeStamp();
 
@@ -381,6 +382,7 @@ sub IndexChangedFiles {
 	
 	if ($numDeleted)
 		{
+		RemoveDeletes(\%PathsOfDeletedFiles, $FileWatcherDir); # Remove from in-memory hashes and arrays
 		UpdateSearchIndexForDeletes(\%PathsOfDeletedFiles);
 		}
 	
@@ -877,14 +879,16 @@ sub IsImageOrVideoFilePath {
 	return($result);
 	}
 
-# "Memorable" if not a nuisance file (eg in a /temp/ folder) and had a
+# "Memorable" if dir or file name doesn't start with a '.' and has a
 # recognized extension (text or image).
+# (Note /temp/ and /junk/ folders are no longer being skipped
+# because sometimes a file there ends up masking the preferred path
+# when inferring the best FLASH link.
 sub DeletedFileWasMemorable {
 	my ($fullPath) = @_;
 	my $result = 0;
 	if (   $fullPath !~ m!/\.!
-	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
-	  &&   $fullPath !~ m!/(temp|junk)/!i )
+	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i) )
 		{
 		if (  EndsWithTextOrImageExtension($fullPath)
           || ($IndexIfNoExtension && $fullPath !~ m!\.\w+$!)  )
@@ -895,6 +899,27 @@ sub DeletedFileWasMemorable {
 	
 	return($result);
 	}
+
+# Replace by above, no longer skipping /temp/ and /junk/ folders.
+# "Memorable" if not a nuisance file (eg in a /temp/ folder) and had a
+# recognized extension (text or image).
+# sub xDeletedFileWasMemorable {
+# 	my ($fullPath) = @_;
+# 	my $result = 0;
+# 	if (   $fullPath !~ m!/\.!
+# 	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
+# 	  &&   $fullPath !~ m!/(temp|junk)/!i )
+# 		{
+# 		if (  EndsWithTextOrImageExtension($fullPath)
+#           || ($IndexIfNoExtension && $fullPath !~ m!\.\w+$!)  )
+#         	{
+#         	$result = 1;
+#         	}
+# 		}
+	
+# 	return($result);
+# 	}
+
 
 # We handle new and changed, but not delete. I'm thinking the simplest way to "delete" a file
 # from the Elasticsearch index is to re-index it with empty content, but haven't tried it.

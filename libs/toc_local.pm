@@ -288,6 +288,7 @@ sub GetTextTOC {
 	my $linesToCheck = 20;				
 	my $hasSameHashesInARow = 0;		# Consecutive # or ## etc means not headings
 	my $previousHashesCount = 0;
+	my $insideCodeBlock = 0;			# 1 == inside CODE/ENDCODE block
 	if ($linesToCheck > $numLines)
 		{
 		$linesToCheck = $numLines;
@@ -333,27 +334,40 @@ sub GetTextTOC {
 			$lineIsBlank = 0;
 			}
 
-		# Hashed heading eg ## Heading. Require blank line before # heading
-		# (or first line).
-		if ( $allowOctothorpeHeadings && $lines[$i] =~ m!^#+\s+!
-			&& ($lineBeforeIsBlank || !$HashHeadingRequireBlankBefore) )
+		if ($lines[$i] eq 'CODE')
 			{
-			NoteTextHeading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
-			$justDidHeadingOrHr = 1;
-			}
-		# Underlines -> hr or heading. Heading requires altering line before underline.
-		elsif ($i > 0 && $lines[$i] =~ m!^[=~-][=~-][=~-]([=~-]+)$!)
-			{
-			my $underline = $1;
-			if ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
-				{
-				NoteTextHeading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-				}
-			$justDidHeadingOrHr = 1;
-			}
-		else
-			{
+			$insideCodeBlock = 1;
 			$justDidHeadingOrHr = 0;
+			}
+		elsif ($lines[$i] eq 'ENDCODE')
+			{
+			$insideCodeBlock = 0; 
+			}
+
+		if (!$insideCodeBlock)
+			{
+			# Hashed heading eg ## Heading. Require blank line before # heading
+			# (or first line).
+			if ( $allowOctothorpeHeadings && $lines[$i] =~ m!^#+\s+!
+				&& ($lineBeforeIsBlank || !$HashHeadingRequireBlankBefore) )
+				{
+				NoteTextHeading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
+				$justDidHeadingOrHr = 1;
+				}
+			# Underlines -> hr or heading. Heading requires altering line before underline.
+			elsif ($i > 0 && $lines[$i] =~ m!^[=~-][=~-][=~-]([=~-]+)$!)
+				{
+				my $underline = $1;
+				if ($justDidHeadingOrHr == 0) # a heading - put in anchor and add to jump list too
+					{
+					NoteTextHeading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
+					}
+				$justDidHeadingOrHr = 1;
+				}
+			else
+				{
+				$justDidHeadingOrHr = 0;
+				}
 			}
 
 		++$lineNum;
