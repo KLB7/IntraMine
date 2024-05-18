@@ -87,7 +87,7 @@ my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexT
 my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 my $filePathCount = InitFullPathList($fullFilePathListPath);
 LoadIncrementalFullPathLists($fullFilePathListPath);
-LoadAndRemoveDeletesFromHashes($fullFilePathListPath);
+LoadAndRemoveDeletesFromHashes();
 
 LoadLastTimeStamp();
 
@@ -97,6 +97,9 @@ my $NumTimeoutsBeforeSignalledIndexing = 2; # Delay re-indexing after signal rec
 my $NumTimeoutsBeforeHeartbeatCheck = 70;
 
 StartPowerShellFolderMonitor();
+
+# Start up db for tracking deleted files.
+InitDeletesDB();
 
 # Note we call IndexChangedFiles() once a minute (30 two-second timeouts).
 MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFiles);
@@ -345,6 +348,10 @@ sub IndexChangedFiles {
 			}
 		}
 
+	# Remove new files from list of deleted files - this means a deleted file
+	# has been re-created and is no longer deleted. Beating it to death there:)
+	RemoveNewFilesFromDeletes(\%PathsOfCreatedFiles);
+
 	# Send out messages via WebSockets for changed files, so the Viewer can update.
 	# (This needs more work, sometimes the WebSockets message doesn't go through.)
 	SendFileContentsChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
@@ -382,7 +389,7 @@ sub IndexChangedFiles {
 	
 	if ($numDeleted)
 		{
-		RemoveDeletes(\%PathsOfDeletedFiles, $FileWatcherDir); # Remove from in-memory hashes and arrays
+		RemoveDeletes(\%PathsOfDeletedFiles); # Remove from in-memory hashes and arrays
 		UpdateSearchIndexForDeletes(\%PathsOfDeletedFiles);
 		}
 	
@@ -393,10 +400,7 @@ sub IndexChangedFiles {
 		if ($numNew || $numDeleted)
 			{
 			# Tell Viewer(s) to update directory lists.
-			if ($numNew)
-				{
-				RequestBroadcast('signal=reindex');
-				}
+			RequestBroadcast('signal=reindex');
 			}
 		else
 			{

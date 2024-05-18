@@ -44,6 +44,7 @@ use warnings;
 use utf8;
 use FileHandle;
 use File::Basename;
+use DBM::Deep;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 # For syntax check only: use lib path($0)->absolute->parent->parent->child('libs')->stringify;
@@ -58,6 +59,10 @@ my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{c:/
 my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
 my %FullDirectoryPathsForDirName; # Eg $FullDirectoryPathsForDirName{'docs'} = '|c:/proj1/docs|c:/p2/docs|';
 my %LastDirForFullDirPath; # $LastDirForFullDirPath{'c:/proj1/docs'} = 'docs';
+
+# For tracking deleted files.
+my $DeletesDbPath;
+my $DeletesDB;
 
 # Load %IntKeysForPartialPath, and build %IntKeysForPartialPath from it.
 sub InitDirectoryFinder {
@@ -208,6 +213,8 @@ sub LoadIncrementalDirectoryFinderLists {
 			{
 			my %newFileNameForFullPath;
 			keys %rawFileNameForFullPath;
+
+			# Prepare to add files that aren't currently being tracked.
 			while (my ($path, $fileName) = each %rawFileNameForFullPath)
 				{
 				if (!FullPathIsKnown($path))
@@ -216,6 +223,7 @@ sub LoadIncrementalDirectoryFinderLists {
 					}
 				}
 				
+			# Track the genuinely new files.
 			my $numNewEntries = keys %newFileNameForFullPath;
 			if ($numNewEntries)
 				{
@@ -258,15 +266,27 @@ sub AddIncrementalNewPaths {
 		}
 	}
 
+# Path to the deletes.db little database used to recorded full paths of deleted files.
+sub DeletesDbPath {
+	my $scriptFullPath = $0; # path of calling program
+	my $scriptDirTS = DirectoryFromPathTS($scriptFullPath);
+	my $path = $scriptDirTS . 'data/deletes.db';
+	return($path);
+	}
+
+sub InitDeletesDB {
+	$DeletesDbPath = DeletesDbPath();
+	$DeletesDB = DBM::Deep->new($DeletesDbPath);
+	}
+
 # Remove entries from reverse_filepaths.pm %FileNameForFullPath and %FullPathsForFileName.
-# Add paths to DEL_fullpaths.out so they'll be remembered for restart.
+# Add paths to $DeletesDB so they'll be remembered for restart.
 sub RemoveDeletes {
-	my ($pathsOfDeletedFilesH, $fileWatcherDir) = @_;
+	my ($pathsOfDeletedFilesH) = @_;
 
 	RemoveDeletesFromHashes($pathsOfDeletedFilesH);
 
-	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
-	RememberDeletedPaths($pathsOfDeletedFilesH, $deletedFilesPath);
+	RememberDeletedPaths($pathsOfDeletedFilesH);
 	}
 
 sub RemoveDeletesFromHashes {
@@ -327,38 +347,26 @@ sub DeleteFullPath {
 sub RememberDeletedPaths {
 	my ($pathsOfDeletedFilesH, $deletedFilesPath) = @_;
 
-	my $fileH = FileHandle->new(">> $deletedFilesPath") or return("File Error, could not open |$deletedFilesPath|!");
-	binmode($fileH, ":utf8");
 	foreach my $key (sort(keys %{$pathsOfDeletedFilesH}))
 		{
 		$key = lc($key);
-		print $fileH "$key\t1\n";
+		$DeletesDB->{$key} = 1;
 		}
-	close $fileH;
 	}
 
 sub LoadDeletedPaths {
-	my ($pathsOfDeletedFilesH, $deletedFilesPath) = @_;
+	my ($pathsOfDeletedFilesH) = @_;
 	%{$pathsOfDeletedFilesH} = ();
-	my $fileH = FileHandle->new("< $deletedFilesPath") or return;
-	binmode($fileH, ":utf8");
-	my $line;
-	while ($line = <$fileH>)
+
+	while (my ($key, $value) = each %$DeletesDB)
 		{
-		chomp($line);
-		my @kv = split(/\t/, $line, 2);
-        $pathsOfDeletedFilesH->{$kv[0]} = $kv[1];
+		$pathsOfDeletedFilesH->{$key} = $value;
 		}
-	close($fileH);
 	}
 
 sub LoadAndRemoveDeletesFromHashes {
-	my ($filePath) = @_;
-
-	my $fileWatcherDir = DirectoryFromPathTS($filePath);
-	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
 	my %pathsOfDeletedFiles;
-	LoadDeletedPaths(\%pathsOfDeletedFiles, $deletedFilesPath);
+	LoadDeletedPaths(\%pathsOfDeletedFiles);
 	RemoveDeletesFromHashes(\%pathsOfDeletedFiles);
 
 	# TEST ONLY
@@ -366,6 +374,17 @@ sub LoadAndRemoveDeletesFromHashes {
 	# my $tipPaths = $FullPathsForFileName{'tooltip.js'};
 	# print("$numPathEntries paths, tip paths: |$tipPaths|\n");
 }
+
+# Remove $path from deletes db if file was re-created.
+sub RemoveNewFilesFromDeletes {
+	my ($pathsOfCreatedFilesH) = @_;
+
+	foreach my $key (sort(keys %{$pathsOfCreatedFilesH}))
+		{
+		$key = lc($key);
+		$DeletesDB->delete($key);
+		}
+	}
 
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
@@ -458,13 +477,15 @@ sub ConsolidateFullPathLists {
 	my $num = 2;
 	my $fragPath = $base . $num . $ext;
 	my $fileWatcherDir = DirectoryFromPathTS($FullPathListPath);
-	my $deletedFilesPath = $fileWatcherDir . 'DEL_fullpaths.out';
 
 	if ( $forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)) )
 		{
 		unlink($FullPathListPath);
 		unlink($fragPath);
-		unlink($deletedFilesPath);
+
+		unlink($DeletesDbPath);
+		$DeletesDB = DBM::Deep->new($DeletesDbPath);
+
 		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");
 	    foreach my $key (sort(keys %FileNameForFullPath))

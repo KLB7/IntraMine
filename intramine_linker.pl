@@ -114,6 +114,9 @@ my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
 #print("Loading list of English words for spell checking in .txt files from $wordListPath.\n");
 InitDictionary($wordListPath);
 
+# Start up db for tracking deleted files.
+InitDeletesDB();
+
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
 # which can take some time.
 MainLoop(\%RequestAction, undef, undef, \&callbackInitPathsAndGlossary);
@@ -138,7 +141,7 @@ sub HandleBroadcastRequest {
 			my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 			my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 			LoadIncrementalDirectoryFinderLists($fullFilePathListPath);
-			LoadAndRemoveDeletesFromHashes($fullFilePathListPath);
+			LoadAndRemoveDeletesFromHashes();
 			}
 		elsif ($formH->{'signal'} eq 'folderrenamed')
 			{
