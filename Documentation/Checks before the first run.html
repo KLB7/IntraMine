@@ -14,7 +14,7 @@ h1 {
 }
 
 .shimclear {
-	height: 6px;
+	height: 2px;
 	float: none;
 }
 
@@ -86,7 +86,7 @@ UL.jqueryFileTree A {
 	position: relative;
 	display: block;
 	margin: 0;
-	margin-top: 8px;
+	margin-top: 2px;
 	padding: 7px 6px 0;
 	line-height: 100%;
 	border-radius: .4em;
@@ -105,7 +105,8 @@ UL.jqueryFileTree A {
 }
 #nav li {
 	margin: 0 5px;
-	padding: 0 0 8px;
+	/*padding: 0 0 8px;*/
+	padding: 0;
 	float: left;
 	position: relative;
 	list-style: none;
@@ -117,7 +118,8 @@ UL.jqueryFileTree A {
 	text-decoration: none;
 	border-bottom: none;
 	display: block;
-	padding:  8px 15px;
+	/*padding:  8px 15px;*/
+	padding: 4px 8px;
 	margin: 0;
 	-webkit-border-radius: .4em;
 	-moz-border-radius: .4em;
@@ -237,9 +239,12 @@ html[xmlns] #nav {
 	position: relative;
 	display: inline-block;
 	width: 43.4px;
-	height: 36px;
-	margin: 0;
+	/*height: 36px;*/
+	height: 24px;
+	/*margin: 0;*/
+	/*margin-top: -4px;*/
 	padding: 0;
+	/*margin-top: 4px;*/
 }
 #spinner {
 	position: absolute;
@@ -248,7 +253,7 @@ html[xmlns] #nav {
 	padding: 0;
 	top: 0;
 	left: 0;
-	top: -4px;
+	/*top: -4px;*/
 	cursor: pointer;
 }
 
@@ -698,7 +703,7 @@ a.embedded_image {
 #viewEditTitle {
 	margin-right: 12px;
 	display: inline-block;
-	font-size: 1.4em;
+	font-size: 1.2em;
 	font-weight: bold;
 }
 
@@ -2021,7 +2026,11 @@ function positionAndShowHint() {
 
 	hintElement.innerHTML = hintContents;
 
-	hintElement.style.visibility = "visible";
+	//hintElement.style.visibility = "visible";
+	setTimeout(function() {
+		hintElement.style.visibility = "visible";
+		}, 100);
+
 }
 
 // Calculate tip all four ways, pick the way that produces least shrinkage.

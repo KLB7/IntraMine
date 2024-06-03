@@ -35,7 +35,10 @@ function addAutoLinks() {
 		{
 		let visibleText = getVisibleText(firstVisibleLineNum, lastVisibleLineNum);
 		// Mark up local file, image, and web links in visible text.
-		requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds);
+		if (visibleText !== '')
+			{
+			requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds);
+			}
 		}
 }
 

@@ -321,6 +321,11 @@ sub LoadTheFile {
 	if ($filepath ne '')
 		{
 		$result =  uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+
+		if ($result eq '')
+			{
+			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
+			}
 		
 		#$result = encode_utf8(ReadTextFileDecodedWide($filepath));
 		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));

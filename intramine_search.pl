@@ -352,7 +352,7 @@ FINIS
 	return $theSource;
 	}
 
-# See intramine_search.js#showDirectoryPicker() for use. This is a simplied version of the picker
+# See intramine_search.js#showDirectoryPicker() for use. This is a simplified version of the picker
 # used on the Files page, the main difference is that file links are omitted here.
 sub DirectoryPicker {
 my $theSource = <<'FINIS';

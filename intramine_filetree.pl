@@ -47,6 +47,12 @@ my $FILENAMEWIDTH = 0;
 my $DATETIMEWIDTH = 1;
 my $SIZEWIDTH = 2;
 
+# For file names when making a new file.
+my $GOODNAME = 1; 		# eg file.txt
+my $BADNAME = 2;		# eg COM7
+my $BADCHAR = 3;		# eg file?.txt
+my $MISSINGNAME = 4; 	# ''
+
 my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
 my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
@@ -57,6 +63,7 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 my %RequestAction;
 $RequestAction{'req|main'} = \&FileTreePage; 				# req=main
 $RequestAction{'dir'} = \&GetDirsAndFiles; 					# $formH->{'dir'} is directory path
+$RequestAction{'req|new'} = \&NewFile; 				# req=new, $formH->{'path'} holds new path
 
 # Over to swarmserver.pm.
 MainLoop(\%RequestAction);
@@ -81,15 +88,22 @@ sub FileTreePage {
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <link rel="stylesheet" type="text/css" href="forms.css" />
 <link rel="stylesheet" type="text/css" href="jqueryFileTree.css" />
+<link rel="stylesheet" type="text/css" href="newFileButton.css" />
 
 </head>
 <body>
 _TOPNAV_
+<table>
+<tr><td>
 <!-- Simple input field with Open button, allow opening file from a typed-in path. -->
 <form class="form-container" id="fileOpenForm" method="get" action=_ACTION_ onsubmit="openUserPath(this); return false;">
 <input id="openfile" class="form-field" type="search" name="openthis" placeholder='file name or partial or full path' required />
 <input class="submit-button" type="submit" value="Open" />
 </form>
+</td><td>
+<input id="new-button" class="submit-button" type="submit" value="New..." style="display: inline; margin-top: -22px; margin-left: 12px;" />
+</td></tr></table>
+_NEWFILEPICKER_
 
 <div id='scrollAdjustedHeight'>
 	<div id='fileTreeLeft'>
@@ -145,6 +159,7 @@ let initialDirectoryPath = '_INITIALDIR_';
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
 <script src="viewerLinks.js"></script>
+<script src="newFileButton.js"></script>
 <script src="files.js"></script>
 </body></html>
 FINIS
@@ -211,7 +226,9 @@ FINIS
 	# The Files page will open to the $initialDirectory if provided. This is used
 	# when opening directory links (see intramine_viewer.pl#OpenDirectory() etc).
 	$theBody =~ s!_INITIALDIR_!$initialDirectory!;
-	
+
+	my $newFilePicker = NewFilePicker();
+	$theBody =~ s!_NEWFILEPICKER_!$newFilePicker!;
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -608,5 +625,102 @@ sub TextDocxPdfLine {
 		$size . '</span></li>';
 		}
 	
+	return($result);
+	}
+
+# This is a simplified version of the file picker, file links are omitted here
+# and there is a text field for entering the name of the new file.
+sub NewFilePicker {
+my $theSource = <<'FINIS';
+<!--<form id="dirform">-->
+<div id='dirpickerMainContainer'>
+	<p id="directoryPickerTitle">New File</p>
+	<div id='dirpicker'>
+		<div id="scrollAdjustedHeightDirPicker">
+			<div id="fileTreeNew">
+				<select id="driveselector_3" name="drive selector" onchange="driveChangedNew('scrollDriveListNew', this.value);">
+				  _DRIVESELECTOROPTIONS_
+				</select>
+				<div id='scrollDriveListNew'>placeholder for drive list
+				</div>
+			</div>
+		</div>
+		<div id="pickerDisplayDiv">Selected directory:&nbsp;<span id="pickerDisplayedDirectory"></span></div>
+		<div id="newFileDiv">File name: <input type="text" id="newFileName" name="newFileName" required minlength="3"></div>
+	</div>
+	<div id="okCancelHolder">
+		<input type="button" id="dirOkButton" value="OK" onclick="setFullPathFromPicker(); return false;" />
+		<input type="button" id="dirCancelButton" value="Cancel" onclick="hideNewFilePicker(); return false;" />
+	</div>
+	<input type="hidden" id="newFullPathField" name="newFullPathField" />
+</div>
+
+<!--</form>-->
+FINIS
+	
+	# Put a list of drives in the drive selector.
+	my $driveSelectorOptions = DriveSelectorOptions();
+	$theSource =~ s!_DRIVESELECTOROPTIONS_!$driveSelectorOptions!g;
+	return $theSource;
+	}
+
+# Returns ok, noname, badname, badchar, exists, error (latter if system trouble).
+# Note this will not overwrite an existing file unless $formH->{'allowOverwrite'} is defined.
+# (That's currently not supported.)
+sub NewFile {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $path = (defined($formH->{'path'})) ? $formH->{'path'} : '';
+	if ($path eq '')
+		{
+		return('nopath');
+		}
+	my $fileName = FileNameFromPath($path);
+	my $nameStatus = IsGoodFileName($fileName);
+	if ($nameStatus == $BADNAME)
+		{
+		return('badname');
+		}
+	elsif ($nameStatus == $BADCHAR)
+		{
+		return('badchar');
+		}
+	elsif ($nameStatus == $MISSINGNAME)
+		{
+		return('noname');
+		}
+	if (FileOrDirExistsWide($path) == 1 && !defined($formH->{'allowOverwrite'}))
+		{
+		return('exists');
+		}
+	
+	if (!WriteTextFileWide($path, ''))
+		{
+		return('error');
+		}
+	
+	return('ok');
+}
+
+# Returns
+# my $GOODNAME = 1; 	# eg file.txt
+# my $BADNAME = 2;		# eg COM7
+# my $BADCHAR = 3;		# eg file?.txt
+# my $MISSINGNAME = 4; 	# ''
+sub IsGoodFileName {
+	my ($fileName) = @_;
+	my $result = $GOODNAME;
+	if ($fileName eq '')
+		{
+		$result = $MISSINGNAME;
+		}
+	elsif ($fileName =~ m!^CON|PRN|AUX|NUL|COM0|COM1|COM2|COM3|COM4|COM5|COM6|COM7|COM8|COM9|LPT0|LPT1|LPT2|LPT3|LPT4|LPT5|LPT6|LPT7|LPT8|LPT9$!i)
+		{
+		$result = $BADNAME;
+		}
+	elsif ($fileName =~ m!["*:<>?/\\|]!)
+		{
+		$result = $BADCHAR;
+		}
+
 	return($result);
 	}

@@ -67,6 +67,8 @@ function startFileTreeUp() {
 			showDirectory(initialDirectoryPath);
 			}
 		}
+
+	initNewFileDialog();
 }
 
 // Link clicked, respond by opening the file in IntraMine's Viewer or an editor, depending
@@ -576,6 +578,8 @@ function setSelectBoxByText(id, etxt) {
 			}
 		}
 }
+
+
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 window.addEventListener("load", startFileTreeUp);

@@ -1,6 +1,8 @@
 # intramine_spellcheck.pm: spell checking.
 # At present spell checking is only available in the Editor for .txt files.
 # SpellCheck() is called by intramine_linker.pl#AddWebAndFileLinksToVisibleLinesForCodeMirror().
+# The English word list is mostly taken from
+# https://www.lemoda.net/perl/text-fuzzy-spellchecker/index.html
 
 package intramine_spellcheck;
 require Exporter;

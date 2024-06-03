@@ -294,7 +294,8 @@ sub AddGlossaryHints {
 		$definitionHashRef = \%Definition;
 		}
 
-	EvaluateGlossaryCandidates($definitionHashRef, $context, $host, $port, $VIEWERNAME);
+	my $linksArg = ($haveRefToText) ? undef: $linksA;
+	EvaluateGlossaryCandidates($definitionHashRef, $context, $host, $port, $VIEWERNAME, $linksArg, $currentLineNumber);
 
 	# Do all reps in reverse order for non-CodeMirror.
 	my $numReps = @repStr;
@@ -325,7 +326,6 @@ sub AddGlossaryHints {
 				}
 			}
 		}
-	
 	}
 
 # Loop over the words on a line. Look for one to four-word glossary entries.
@@ -337,8 +337,9 @@ sub AddGlossaryHints {
 # looking for entries one..four words long. So results are sorted.
 # Do just one glossary entry per line for any particular glossary term.
 sub EvaluateGlossaryCandidates {
-	my ($definitionHashRef, $context, $host, $port, $VIEWERNAME) = @_;
-	
+	my ($definitionHashRef, $context, $host, $port, $VIEWERNAME, $linksA, $currentLineNumber) = @_;
+	my $haveLinksA = (defined($linksA)) ? 1 : 0;
+
 	my @startPosSeen; # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen; # Length of a matched term, also indexed by $startPos
 	my $posIndex = 0;
@@ -380,22 +381,54 @@ sub EvaluateGlossaryCandidates {
 					
 					if (!$overlapped && !defined($DefinitionSeenOnLine{$term}))
 						{
-						my $definitionAlreadySeen = 0;
-						###my $definitionAlreadySeen = (defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
-						my $replacementHint = GetReplacementHint($definitionHashRef, $term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
+						# Skip if term is inside a FLASH link.
+						my $insideLink = 0;
 						my $repLength = length($words);
 						my $repStartPosition = $startPos;
-						push @repStr, $replacementHint;
-						push @repLen, $repLength;
-						push @repStartPos, $repStartPosition;
-						if (!$haveRefToText)
+
+						if ($haveLinksA)
 							{
-							push @repLinkType, 'glossary';
+							# Don't put the popup if we are inside a FLASH link.
+							my $nextLinkPos = @$linksA;
+							if ($repLength > 0 && $nextLinkPos > 0)
+								{
+								for (my $j = 0; $j < $nextLinkPos; ++$j)
+									{
+									my $lineNum = $linksA->[$j]{'lineNumInText'};
+									if ($lineNum == $currentLineNumber)
+										{
+										my $previousStartPos = $linksA->[$j]{'columnInText'};
+										if ($previousStartPos <= $repStartPosition)
+											{
+											my $previousRepLen = length($linksA->[$j]{'textToMarkUp'});
+											if ($previousStartPos + $previousRepLen >= $repStartPosition)
+												{
+												$insideLink = 1;
+												last;
+												}
+											}
+										}
+									}
+								}
 							}
-						$startPosSeen[$posIndex] = $startPos;
-						$endPosSeen[$posIndex++] = $startPos + $repLength;
-						###$DefinitionSeenInDocument{$term} = 1;
-						$DefinitionSeenOnLine{$term} = 1;
+
+						if (!$insideLink)
+							{
+							my $definitionAlreadySeen = 0;
+							###my $definitionAlreadySeen = (defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
+							my $replacementHint = GetReplacementHint($definitionHashRef, $term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
+							push @repStr, $replacementHint;
+							push @repLen, $repLength;
+							push @repStartPos, $repStartPosition;
+							if (!$haveRefToText)
+								{
+								push @repLinkType, 'glossary';
+								}
+							$startPosSeen[$posIndex] = $startPos;
+							$endPosSeen[$posIndex++] = $startPos + $repLength;
+							###$DefinitionSeenInDocument{$term} = 1;
+							$DefinitionSeenOnLine{$term} = 1;
+							}
 						}
 					
 					$i += $nWords;

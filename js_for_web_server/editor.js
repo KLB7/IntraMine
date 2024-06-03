@@ -284,6 +284,12 @@ async function loadFileIntoCodeMirror(cm, path) {
 			{
 			startDiffer();
 			let text = decodeURIComponent(await response.text());
+			// Alas, there is trouble loading an empty file so the workaround
+			// is to set the text to a message indicating same, and remove it here.
+			if (text === '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___')
+				{
+				text = '';
+				}
 			setSavedText(text); // For comparison against edited text
 			cm.setValue(text);
 			addDragger && addDragger();
@@ -537,6 +543,9 @@ async function saveFile(path) {
 
 				let lineNum = currentTOCLineNum();
 				loadTOC(originalPath);
+
+				myCodeMirror.focus();
+				
 				//Too soon: scrollTocEntryIntoView(lineNum, false, true);
 				setTimeout(function() {
 					scrollTocEntryIntoView(lineNum, false, true);

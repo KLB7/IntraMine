@@ -1,0 +1,55 @@
+/* newFileButton.css: for the directory/filename picker on the Files page. */
+
+/* From search.css */
+#dirpickerMainContainer {
+	display: none;
+	position:absolute;
+	top: 100px;
+	left: 100px;
+	background: #eeeeee;
+	width: 600px;
+	border: 1px solid #447314;
+	text-shadow: #addc7e 0 1px 0;
+	z-index: 100;
+}
+
+#dirpicker {
+	position: relative;
+	border: 1px solid #bababa;
+}
+
+#pickerDisplayedDirectory {
+	display: inline-block;
+	border: 1px solid #bababa;
+	width: 450px;
+	/*height: 20px;*/
+}
+
+#directoryPickerTitle {
+	font-size: 1.2em;
+	text-align: center;
+	background: #285B42;
+	color: #ffffff;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 4px;
+}
+
+#pickerDisplayDiv {
+	height: 20px;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+#scrollDriveListNew {
+	overflow: auto;
+	height: 80%;
+	margin-left:15px;
+	padding-left:10px;
+}
+
+/* Directory picker, limit width so scroll bar will show. */
+#fileTreeNew {
+	width: 100%;
+}
+

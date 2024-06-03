@@ -300,6 +300,12 @@ async function loadFileIntoCodeMirror(cm, path) {
 			{
 			let respText = await response.text();
 			let text = decodeURIComponent(respText);
+
+			// Empty files are sent with a marker to avoid comm errors.
+			if (text === '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___')
+				{
+				text = '';
+				}
 			cm.setValue(text);
 			// No good: cm.setValue(decodeHTMLEntities(request.responseText));
 			// Add divider between table of contents and text. This also restores

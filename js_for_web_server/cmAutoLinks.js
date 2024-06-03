@@ -73,7 +73,10 @@ function addAutoLinks() {
 			line : lastVisibleLineNum
 		});
 
-		requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
+		if (visibleText !== '')
+			{
+			requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
+			}
 		}
 }
 

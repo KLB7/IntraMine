@@ -1206,16 +1206,31 @@ sub ReceiveServerUp {
 		my $senderPort = $formH->{'port'};
 
 		# Announce specific server has started, short name and port.
+		my $isPageServer = 1;
 		my $srvr = (defined($ShortServerNameForPort{$senderPort})) ? $ShortServerNameForPort{$senderPort}: '';
 		if ($srvr eq '')
 			{
+			$isPageServer = 0;
 			$srvr = (defined($ShortBackgroundServerNameForPort{$senderPort})) ? 
 					$ShortBackgroundServerNameForPort{$senderPort}: '(PORT NOT RECOGNISED)';
 			}
 		Output("$srvr server has started on port $senderPort.\n");
 		if (!$kDISPLAYMESSAGES) # Avoid duplicated print.
 			{
-			print("$srvr server has started on port $senderPort.\n");
+			if ($isPageServer)
+				{
+				my $crudePadLength = 8 - length($srvr) + 2;
+				if ($crudePadLength < 2)
+					{
+					$crudePadLength = 2;
+					}
+				my $spacer = ' ' x $crudePadLength;
+				print("$srvr server has started on port $senderPort.$spacer(localhost:$port_listen/$srvr)\n");
+				}
+			else # User cannot visit background services, so no example URL.
+				{
+				print("$srvr server has started on port $senderPort.\n");
+				}
 			}
 			
 		SetServerOnPortIsStarting($senderPort, 0);
@@ -1244,7 +1259,9 @@ sub BroadcastAllServersUp {
 	my $ob = '/?signal=allServersUp';
 	my $ignoredPeerAddress = '';
 	# TEST ONLY
+	ShowHummingbird();
 	print("All $TotalServersWanted servers have started.\n");
+
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}
 
@@ -2811,6 +2828,25 @@ sub RedirectBasedOnShortName {
 		}
 	
 	return($theBody);
+	}
+
+# https://ascii.co.uk/art/hummingbird
+sub ShowHummingbird {
+	my $bird = <<'FINIS';
+    ,_                             ___  ___  ________  ___
+     :`.            .--._         |\  \|\  \|\   __  \|\  \
+      `.`-.        /  ',-""""'    \ \  \\\  \ \  \|\  \ \  \
+        `. ``~-._.'_."/            \ \  \\\  \ \   ____\ \  \
+          `~-._ .` `~;              \ \  \\\  \ \  \___|\ \__\
+               ;.    /               \ \_______\ \__\    \|__|
+              /     /                 \|_______|\|__|
+         ,_.-';_,.'`                                        |\__\
+          `"-;`/                                            \|__|
+            ,'`                   
+
+FINIS
+
+	print("$bird");
 	}
 
 {##### TESTING

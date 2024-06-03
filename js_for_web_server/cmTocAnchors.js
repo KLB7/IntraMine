@@ -192,6 +192,16 @@ function cmRejumpToAnchor() {
 				{
 				jumpToLine(lineNumber, true);
 				}
+			else
+				{
+				// CSS can have hyphens in names, they need to be converted to underscores.
+				anchor = anchor.replace(/-/g, '_');
+				lineNumber = lineNumberForAnchor(anchor);
+				if (lineNumber >= 0)
+					{
+					jumpToLine(lineNumber, true);
+					}
+				}
 			}
 		else
 			{

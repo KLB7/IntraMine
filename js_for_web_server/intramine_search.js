@@ -882,6 +882,13 @@ function setDirectoryFromPicker() {
 // file links here, and clicking a file just selects its enclosing directory. Clicking on
 // a directory both selects it and expands (or collapses) it.
 function initDirectoryDialog() {
+	let driveSelector = document.getElementById('driveselector_1');
+	if (driveSelector !== null)
+		{
+		let driveSelected = driveSelector.value;
+		selectTheDirectory(null, driveSelected);
+		}
+
 	$('#scrollDriveListLeft').fileTree({
 		root : 'C:/',
 		script : 'http://' + theHost + ':' + thePort + '/',
@@ -906,6 +913,8 @@ function initDirectoryDialog() {
 function driveChanged(tree_id, value) {
 	let e1 = document.getElementById(tree_id);
 	e1.innerHTML = '';
+	selectTheDirectory(e1, value);
+	
 	$('#' + tree_id).fileTree({
 		root : value,
 		script : 'http://' + theHost + ':' + thePort + '/',

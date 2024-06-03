@@ -890,6 +890,10 @@ sub LoadTheFile {
 	if ($filepath ne '')
 		{
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		if ($result eq '' && FileOrDirExistsWide($filepath) == 1)
+			{
+			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
+			}
 		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
 		}
 	

@@ -49,8 +49,11 @@ function textWithEditsRestored() {
 
 function setDiffs(newText) {
 	clearSavedDiffs();
-	let diff = dmp.patch_make(savedText, newText);
-	const textDiff = dmp.patch_toText(diff);
-	localStorage.setItem(diffKey, textDiff);
+	if (typeof newText !== 'undefined')
+		{
+		let diff = dmp.patch_make(savedText, newText);
+		const textDiff = dmp.patch_toText(diff);
+		localStorage.setItem(diffKey, textDiff);
+		}
 }
 

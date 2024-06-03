@@ -81,10 +81,12 @@
  
  #fileOpenForm {
 	margin-bottom: 20px;
+   width: 45em;
 }
 
 #fileOpenForm .form-field {
-	width: 650px;
+	/*width: 650px;*/
+   width: 500px;
 	margin-bottom: 0;
 }
 

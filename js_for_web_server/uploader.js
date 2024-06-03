@@ -56,7 +56,7 @@ function clearStatus() {
 	progress.innerHTML = '&nbsp';
 }
 
-// Note this has been left as an XMLHttpRequest() rather that using fetch.
+// Note this has been left as an XMLHttpRequest() rather than using fetch.
 function sendXHRequest(formData, uri) {
 	// Get an XMLHttpRequest instance
 	let xhr = new XMLHttpRequest();

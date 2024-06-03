@@ -428,7 +428,7 @@ my $shouldInlineImages; # True = use img element, false = use showhint().
 # OK the quotes aren't really needed, but your resulting links will look better if you use them,
 # since without the quotes an arbitrary 100 characters will be grabbed as the potential
 # header string, leaving it to the receiving end to figure out which header is meant.
-# Adn that leads to a very long underlined link, which looks a bit ugly.
+# And that leads to a very long underlined link, which looks a bit ugly.
 sub AddWebAndFileLinksToLine {
 	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
 		$shouldInline, $restrictLinks, $currentLineNumber, $linksA) = @_;
@@ -509,7 +509,7 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
-	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
@@ -935,7 +935,7 @@ sub RememberDirMention {
 		{
 		my $linkType = 'directory'; # For CodeMirror
 		# Show a hint with the dir path.
-		my $dirHint = " onmouseover=\"showhint('$directoryPath', this, event, '500px', false);\"";
+		my $dirHint = " onmouseover=\"showhint('<br>$directoryPath<br>&nbsp;', this, event, '500px', false);\"";
 		my $repString = "<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
 		
 		push @repStr, $repString;
@@ -1200,7 +1200,7 @@ sub GetTextFileRep {
 		}
 
 	# Show a hint with the actual full path for the file specifier.
-	my $fullPathHint = " onmouseover=\"showhint('$viewerPath', this, event, '500px', false);\"";
+	my $fullPathHint = " onmouseover=\"showhint('<br>$viewerPath<br>&nbsp;', this, event, '500px', false);\"";
 
 	
 	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\"$fullPathHint>$displayedLinkName</a>";
