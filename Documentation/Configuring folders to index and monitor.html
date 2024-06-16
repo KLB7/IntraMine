@@ -752,6 +752,16 @@ a.embedded_image {
 	margin-left: 6px;
 }
 
+.brace-highlight {
+	color: green;
+	background-color: rgb(200, 255, 200);
+	font-weight: bold;
+}
+
+.CodeMirror-matchingbracket {
+	background-color: rgb(200, 255, 200);
+	font-weight: bold;
+}
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
@@ -5074,6 +5084,144 @@ function noteHintboxClicked() {
 	linkClicked = true;
 }
 
+// Match braces, for Perl only.
+const braceElements = [];
+const braceSearchLinesMax = 1000;
+
+function matchBraces() {
+	let dir = 0;
+	let withinPRE = false;
+	let currSelection = window.getSelection();
+	let rangeCount = currSelection.rangeCount;
+	if (rangeCount === 1)
+		{
+		let currRange = currSelection.getRangeAt(0);
+		let commonA = currRange.commonAncestorContainer;
+		let tdElem = commonA;
+			
+		while (tdElem !== null && tdElem.nodeName !== "TD")
+			{
+			if (tdElem.nodeName === "PRE")
+				{
+				withinPRE = true;
+				// PRE is not currently handled.
+				return;
+				}
+			tdElem = tdElem.parentNode;
+			}
+		
+		if (tdElem !== null)
+			{
+			let tdChildren = tdElem.children;
+			for (let i = 0; i < tdChildren.length; ++i)
+				{
+				if (tdChildren[i].nodeName === "SPAN")
+					{
+					let classes = tdChildren[i].className;
+					if (classes.indexOf('Symbol') >= 0 && classes.indexOf('b-') >= 0)
+						{
+						// Contains curly brace { or }
+						let brace = tdChildren[i].textContent; // or innerHTML?
+						if (brace === '{')
+							{
+							dir = 1;
+							}
+						else if (brace === '}')
+							{
+							dir = 2;
+							}
+						// else serious error somewhere
+						// Remember and highlight the span. First remove old highlights.
+						removeBraceHighlights();
+						addClass(tdChildren[i], 'brace-highlight');
+						braceElements.push(tdElem);
+
+						// Now find, remember, and highlight the other end.
+						let braceClassMatches = classes.match(/(b-\d+)/i);
+						if (braceClassMatches !== null)
+							{
+							let braceClass = braceClassMatches[1];
+							// TEST ONLY
+							//console.log("Brace class: " + braceClass);
+							doOtherBrace(tdElem, dir, braceClass);
+							}
+						break;
+						}
+					}
+				}
+			}
+		}
+	
+		if (dir > 0)
+			{
+			;//console.log("braceSeen: " + braceSeen);
+			}
+		
+		return(dir);
+	}
+
+function removeBraceHighlights() {
+	while (braceElements.length > 0)
+		{
+		let tdElem = braceElements.pop();
+		let tdChildren = tdElem.children;
+		for (let i = 0; i < tdChildren.length; ++i)
+			{
+			removeClass(tdChildren[i], 'brace-highlight');
+			}
+		}
+}
+
+// dir: 1 == down/forward, 2 == back/upwards
+function doOtherBrace(firstTD, dir, braceClass) {
+	let parent = firstTD.parentElement;
+	if (parent === null)
+		{
+		return;
+		}
+
+	let prevTR = parent;
+	let foundIt = false;
+	let counter = 0;
+	while (prevTR !== null && !foundIt)
+		{
+		if (prevTR.firstChild !== null)
+			{
+			let tdElem = prevTR.firstChild.nextSibling;
+			if (tdElem !== null)
+				{
+				let tdChildren = tdElem.children;
+				for (let i = 0; i < tdChildren.length; ++i)
+					{
+					if (tdChildren[i].nodeName === "SPAN")
+						{
+						let classes = tdChildren[i].className;
+						if (classes.indexOf('Symbol') >= 0 && classes.indexOf(braceClass) >= 0)
+							{
+							if (counter > 0 || classes.indexOf('brace-highlight') < 0)
+								{
+								addClass(tdChildren[i], 'brace-highlight');
+								braceElements.push(tdElem);
+								foundIt = true;
+								break;
+								}
+							}
+						}
+					}
+				}
+			else
+				{
+				break;
+				}
+			if (++counter >= braceSearchLinesMax)
+				{
+				break;
+				}
+			}
+		prevTR = (dir === 1) ? prevTR.nextSibling : prevTR.previousSibling;
+		}
+}
+
 let addHintTimer; // onMobile, to keep trying addHintboxListener() until it succeeds.
 
 function addHintboxListener() {
@@ -5091,6 +5239,11 @@ if (onMobile)
 	}
 
 document.addEventListener("mousedown", notelinkClicked);
+
+if (thePath.match(/\.(pl|pm|cgi|t)$/i))
+	{
+	document.addEventListener("mouseup", matchBraces);
+	}
 
 ready(finishStartup);
 
