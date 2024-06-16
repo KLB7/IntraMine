@@ -825,6 +825,7 @@ sub CodeMirrorJS {
 <script src="addon/search/searchcursor.js"></script>
 <script src="addon/search/match-highlighter.js"></script>
 <script src="addon/search/jump-to-line.js"></script>
+<script src="addon/edit/matchbrackets.js"></script>
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
@@ -1048,7 +1049,8 @@ sub GetPrettyPerlFileContents {
 	my @sectionNames;
 	my $lineNum = 1;
 	my %sectionIdExists; # used to avoid duplicated anchor id's for sections.
-	
+	my $braceDepth = 0; # Valid depth >= 1, 0 means not inside any {}
+
 	for (my $i = 0; $i < @lines; ++$i)
 		{
 		# Turn 'use Package::Module;' into a link to metacpan. One wrinkle, if it's a local-only module
@@ -1064,8 +1066,8 @@ sub GetPrettyPerlFileContents {
 		# <span class='line_number'>204</span>&nbsp;<span class='Keyword'>sub</span> <span class='Subroutine'>
 		# And also <span class='String'>sub Subname {</span>, since the parser breaks
 		# if it encounters '//' sometimes.
-		if ($lines[$i] =~ m!^\<span\s+class=\'Keyword\'\>\s*sub\s*\<\/span\>\s*\<span\s+class=\'Subroutine\'\>(\w+)\<\/span\>!
-		  || $lines[$i] =~ m!^<span\s+class=\'String\'>\s*sub\s+(\w+)!)
+		if ($lines[$i] =~ m!^\<span\s+class=['"]Keyword['"]\>\s*sub\s*\<\/span\>\s*\<span\s+class=['"]Subroutine['"]\>(\w+)\<\/span\>!
+		  || $lines[$i] =~ m!^<span\s+class=['"]String['"]>\s*sub\s+(\w+)!)
 			{
 			# Use $subName as the $id
 			my $subName = $1;
@@ -1122,6 +1124,25 @@ sub GetPrettyPerlFileContents {
 			push @sectionList, $jlStart . $S_icon . $sectionName . $jlEnd;
 			push @sectionNames, $sectionName;
 			$lines[$i] =~ s!$sectionName!$destAnchorStart$sectionName$destAnchorEnd!;			
+			}
+
+		# Curly brace tracking
+		while ($lines[$i] =~ m!<span class=['"]Symbol['"]>([{}])</span>!)
+			{
+			my $brace = $1;
+			my $braceClass = '';
+			if ($brace eq '{')
+				{
+				++$braceDepth;
+				$braceClass = 'b-' . $braceDepth;
+				}
+			else # '}'
+				{
+				$braceClass = 'b-' . $braceDepth;
+				--$braceDepth;
+				}
+			
+			$lines[$i] =~ s!<span class=['"]Symbol['"]>[{}]</span>!<span class='Symbol $braceClass'>$brace</span>!;
 			}
 		# mini MultiMarkdown:
 		$lines[$i] =~ s!(^|[ #/])(TODO)!$1<span class='notabene'>$2</span>!;

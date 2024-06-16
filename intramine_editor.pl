@@ -139,6 +139,8 @@ _TOPNAV_
 <script src="addon/search/matchesonscrollbar.js"></script>
 <script src="addon/search/match-highlighter.js"></script>
 <script src="addon/search/jump-to-line.js"></script>
+<script src="addon/selection/active-line.js"></script>
+<script src="addon/edit/matchbrackets.js"></script>
 <script src="debounce.js"></script>
 <script src="spellcheck.js"></script>
 <script type="text/javascript" src="editor.js" ></script>

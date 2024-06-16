@@ -743,6 +743,16 @@ a.embedded_image {
 	margin-left: 6px;
 }
 
+.brace-highlight {
+	color: green;
+	background-color: rgb(200, 255, 200);
+	font-weight: bold;
+}
+
+.CodeMirror-matchingbracket {
+	background-color: rgb(200, 255, 200);
+	font-weight: bold;
+}
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {

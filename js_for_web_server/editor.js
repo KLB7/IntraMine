@@ -238,6 +238,10 @@ cfg.highlightSelectionMatches = true;
 cfg.indentUnit = 4;
 cfg.indentWithTabs = true;
 
+cfg.styleActiveLine = {nonEmpty: true};
+//cfg.autoMatchParens = true;
+cfg.matchBrackets = true;
+
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
 

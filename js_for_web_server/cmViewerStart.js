@@ -265,6 +265,8 @@ cfg.highlightSelectionMatches = highlightSelectionMatches;
 // For the viewer, no editing.
 cfg.readOnly = true;
 
+cfg.matchBrackets = true;
+
 // Experiment, does path affect actual path used for addons?
 // cfg.path = 'BOGUS/'; // no effect
 
