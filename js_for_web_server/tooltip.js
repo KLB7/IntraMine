@@ -413,6 +413,7 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
+	
 	return(text);
 }
 
@@ -527,6 +528,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	if (document.getElementById("hintbox") !== null)
 		{
 		hintElement = document.getElementById("hintbox");
+
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{

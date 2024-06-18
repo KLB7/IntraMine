@@ -1555,8 +1555,8 @@ sub GetImageFileRepGloss {
 
     my $fullPath = $longestSourcePath;
 	$fullPath =~ s!\\!/!g;
-	#$fullPath =~ s!%!%25!g;	
 	$fullPath =~ s!\+!\%2B!g;
+	$fullPath =~ s!%!%25!g;
 
     my $host = $serverAddr;
 	my $port = $mainServerPort;

@@ -2500,7 +2500,11 @@ sub ImageBase64 {
 	$$encContentsR = '';
 	
 	my $filePath = '';
-	if (FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
+	if (FileOrDirExistsWide($fileName) == 1)
+		{
+		$filePath = $fileName;
+		}
+	elsif (FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
 		{
 		$filePath = $IMAGES_DIR . $fileName;
 		}

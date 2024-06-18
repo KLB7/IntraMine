@@ -211,6 +211,7 @@ function doNewFilePickerResize() {
 }
 
 async function requestNewFile(newFilePath) {
+
 	let theAction = 'http://' + mainIP + ':' + ourSSListeningPort + '/' + shortServerName + '/?req=new&path=' + encodeURIComponent(newFilePath);
 
 	try {
@@ -221,7 +222,7 @@ async function requestNewFile(newFilePath) {
 			let text = await response.text();
 			if (text === 'ok')
 				{
-				showNewFile(newFilePath);
+				showNewFile(encodeURIComponent(newFilePath));
 				}
 			else
 				{

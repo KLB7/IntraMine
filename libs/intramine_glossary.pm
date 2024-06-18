@@ -491,7 +491,7 @@ sub GetReplacementHint {
 	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
 	my $gloss = $definitionHashRef->{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
 	my $result = '';
-	
+
 	# If the $gloss is just an image name, put in the image path as content of showhint() popup,
 	# otherwise it's a text popup using the $gloss verbatim.
 	my $glossaryImageName = ImageNameFromGloss($gloss);
@@ -595,15 +595,19 @@ sub ImageNameFromGloss {
 				}
 			}
 		}
-	
+
 	return($result);
 	}
 
 sub FullPathForImageFileName {
 	my ($fileName, $contextDir) = @_;
-	
+
 	my $filePath = '';
-	if (FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
+	if (FileOrDirExistsWide($fileName) == 1) # is $fileName a full path
+		{
+		$filePath = $fileName;
+		}
+	elsif (FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
 		{
 		$filePath = $IMAGES_DIR . $fileName;
 		}
@@ -620,6 +624,13 @@ sub FullPathForImageFileName {
 		$filePath = $contextDir . 'images/' . $fileName;
 		}
 
+	# Welcome to the Twilight Zone. '%' in a path here is not currently
+	# supported, so we punt to full glossary popup handling as done by
+	# gloss.pm#Gloss(), which does handle '%' properly.
+	if (index($filePath, '%') >= 0)
+		{
+		$filePath = '';
+		}
 	return($filePath);
 	}
 

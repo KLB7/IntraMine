@@ -4104,7 +4104,13 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	}
 
 function decodeHint(text) {
+	//console.log("Before: " + text + "|");
 	text = decodeURIComponent(text);
+	
+	//const regex = new RegExp("__PC__", "g");
+	//text = text.replace(regex, "%25");
+	//console.log(" After: " + text + "|");
+
 	return(text);
 }
 
@@ -4219,6 +4225,7 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 	if (document.getElementById("hintbox") !== null)
 		{
 		hintElement = document.getElementById("hintbox");
+
 		hintElement.innerHTML = hintContents;
 		if (isAnImage)
 			{
