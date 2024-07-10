@@ -48,6 +48,11 @@ td:first-child:after, th:first-child:after {
     content: attr(n);
 }
 
+td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
+    background-color: rgb(200, 255, 200);
+}
+
+
 
 h1, h2, h3, h4 {
 	font-family: helvetica, arial, sans-serif;
@@ -229,7 +234,7 @@ paragraph (ie not the first paragraph in the item).
     background-color: #F8F8F8;
 	color: #808080;
 	text-align: right;
-	min-width: 4em;
+	min-width: 3em;
 }
 
 .bordered th:first-child {

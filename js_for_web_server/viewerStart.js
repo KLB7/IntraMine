@@ -1173,6 +1173,8 @@ const braceElements = [];
 const braceSearchLinesMax = 1000;
 
 function matchBraces() {
+	removeBraceHighlights();
+
 	let dir = 0;
 	let withinPRE = false;
 	let currSelection = window.getSelection();
@@ -1215,9 +1217,10 @@ function matchBraces() {
 							dir = 2;
 							}
 						// else serious error somewhere
-						// Remember and highlight the span. First remove old highlights.
-						removeBraceHighlights();
+						// Remember and highlight the span.
 						addClass(tdChildren[i], 'brace-highlight');
+						// Put color on the TD for line number.
+						addClass(tdElem.previousSibling, 'brace-line-highlight');
 						braceElements.push(tdElem);
 
 						// Now find, remember, and highlight the other end.
@@ -1248,6 +1251,7 @@ function removeBraceHighlights() {
 	while (braceElements.length > 0)
 		{
 		let tdElem = braceElements.pop();
+		removeClass(tdElem.previousSibling, 'brace-line-highlight');
 		let tdChildren = tdElem.children;
 		for (let i = 0; i < tdChildren.length; ++i)
 			{
@@ -1285,6 +1289,8 @@ function doOtherBrace(firstTD, dir, braceClass) {
 							if (counter > 0 || classes.indexOf('brace-highlight') < 0)
 								{
 								addClass(tdChildren[i], 'brace-highlight');
+								// Put color on the TD for line number.
+								addClass(tdElem.previousSibling, 'brace-line-highlight');
 								braceElements.push(tdElem);
 								foundIt = true;
 								break;
@@ -1292,6 +1298,9 @@ function doOtherBrace(firstTD, dir, braceClass) {
 							}
 						}
 					}
+				// No good, with too many line numbers colored, removal is glitchy.
+				//addClass(tdElem.previousSibling, 'brace-line-highlight');
+				braceElements.push(tdElem);
 				}
 			else
 				{
@@ -1299,8 +1308,10 @@ function doOtherBrace(firstTD, dir, braceClass) {
 				}
 			if (++counter >= braceSearchLinesMax)
 				{
+				removeBraceHighlights();
 				break;
 				}
+
 			}
 		prevTR = (dir === 1) ? prevTR.nextSibling : prevTR.previousSibling;
 		}

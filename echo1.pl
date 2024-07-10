@@ -11,3 +11,4 @@ while (defined(my $arg = shift @ARGV))
 	}
 my $allArgs = join("|", @args);
 print("Args: |$allArgs|\n");
+sleep(3);

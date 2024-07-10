@@ -267,7 +267,7 @@ sub AddIncrementalNewPaths {
 	}
 
 # Path to the deletes.db little database used to recorded full paths of deleted files.
-sub DeletesDbPath {
+sub TheDeletesDbPath {
 	my $scriptFullPath = $0; # path of calling program
 	my $scriptDirTS = DirectoryFromPathTS($scriptFullPath);
 	my $path = $scriptDirTS . 'data/deletes.db';
@@ -275,7 +275,7 @@ sub DeletesDbPath {
 	}
 
 sub InitDeletesDB {
-	$DeletesDbPath = DeletesDbPath();
+	$DeletesDbPath = TheDeletesDbPath();
 	$DeletesDB = DBM::Deep->new($DeletesDbPath);
 	}
 
@@ -483,6 +483,10 @@ sub ConsolidateFullPathLists {
 		unlink($FullPathListPath);
 		unlink($fragPath);
 
+		if (!defined($DeletesDbPath))
+			{
+			$DeletesDbPath = TheDeletesDbPath();
+			}
 		unlink($DeletesDbPath);
 		$DeletesDB = DBM::Deep->new($DeletesDbPath);
 
