@@ -1,6 +1,9 @@
 Installing File Watcher
 =======================
 
+IntraMine includes a copy of File Watcher. You can find the original at
+https://sourceforge.net/projects/fwutilities/
+
 Preamble
 ========
 Here's the scoop on installing File Watcher as a service, and configuring it to monitor the folders on locally attached storage that are also being indexed. First,a bit of devsplaining.

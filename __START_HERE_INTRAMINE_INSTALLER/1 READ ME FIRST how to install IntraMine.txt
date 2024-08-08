@@ -1,0 +1,97 @@
+1 READ ME FIRST how to install IntraMine
+========================================
+
+Hover your cursor over terms with a dotted underline to see more. Hummingbirds flank images that pop up if you pause your cursor over the image names. Like this image of a server: "Server-128x128 60.png"
+
+Key requirements
+====================
+Elasticsearch 8.8.1 will be installed by the quick install below. If this would conflict with a version of Elasticsearch that you've already installed, please use the installation approach described in the "DETAILED MORE FLEXIBLE INSTALL" section of Documentation/contents.html.
+
+IPv4 must be enabled (this is overwhelmingly the default), IPv6 can be on or off.
+
+IntraMine's main service will run on port 81. If you would rather run on a different port, you can still use the installer, but after the installer finishes immediately stop IntraMine, then open data/intramine_config.txt and change INTRAMINE_MAIN_PORT near the top to your preferred number, save that and restart IntraMine.
+To stop IntraMine double-click on bats/STOP_INTRAMINE.bat
+To start IntraMine again, double-click on bats/START_INTRAMINE.bat
+
+Impatient?
+==============
+And who could blame you. If you're in a hurry:
+1. Allow PowerShell scripts to run:
+1.1 For Windows 11: bring up Settings -> System -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..."
+ "localps.png"
+1.2 For Windows 10: bring up Settings -> Update & Security -> For developers, scroll down to the PowerShell section, click on "Change execution policy...", and (IMPORTANT) click the Apply button if you see one.
+2. Open a PowerShell terminal using "Run as administrator": using the task bar search, search for "Windows PowerShell" and over on the right side of the results click on "Run as Administrator"
+ "psrunas.png"
+3. Back to the folder where you found this file, and double-click on "2_Make_Install_Commands.bat" to bring up a window listing the five specific-to-you lines needed for installing IntraMine.
+ "cmds.png"
+ *An example result just above, yours will differ in the paths*
+4. Copy the indicated five lines from that window, Paste into your PowerShell window, and press Enter.
+5. The installer will first ask you to specify which directories you want IntraMine to index for searching and monitor for changes. After roughly 20 minutes you'll be asked to type a "y" and hit Enter to agree to a license for a Perl module. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
+6. As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that finishes and IntraMine has fully started. This can take from five minutes to one hour, depending on how many files there are in the folders that you selected for indexing in step 5 above.
+7. And you're done!
+
+Otherwise, if you're patient and want all the details on using IntraMine's installer, continue reading.
+
+What to expect
+================
+The installer will ask for your input at various times, so don't wander too far away. Installation will take roughly half an hour to an hour, and will proceed in several stages. Along the way, here's what you'll be asked to do:
+1. You'll be advised by the script that your input will be required now and then
+2. Right after that you'll be asked to edit your list of directories for Elasticsearch indexing. The file to edit is IntraMine\data\search_directories.txt, and it will be opened for you in your default text editor. There are instructions at the top of the file, and if you want slightly more detail you can take a look at "Documentation/Configuring folders to index and monitor.txt"
+3. After roughly 20 minutes you'll be asked to type a "y" and hit Enter to agree to a license for a Perl module. Sorry about that, I couldn't get rid of it.
+4. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
+
+As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that happens. This can take from five minutes to one hour, depending on how many files there are in the folders that you selecting for indexing in step 3 above.
+
+Acessing and controlling IntraMine
+--------------------------------------
+After IntraMine starts:
+TABLE IntraMine basics
+What you want to do		How to do it
+Visit IntraMine		enter http://localhost:81/Search in your browser (you can click on it here)
+Visit IntraMine on another PC	enter http://NNN.NNN.NNN.NNN:81/Search, where the "NNN..." is your local IPv4  address (find it with **ipconfig /all**)
+Stop IntraMine		double-click on /bats/STOP_INTRAMINE.bat (no need to Run as administrator)
+Start IntraMine again	double-click on /bats/START_INTRAMINE.bat (no need to Run as administrator)
+Read the docs		click on the '?' at the right end of IntraMine's navigation bar or open Documentation/contents.html
+Add/remove services	edit /data/serverlist.txt, then stop and start IntraMine
+Change which folders are indexed and monitored	edit /data/search_directories.txt and then run /bats/IM_INIT_INDEX.bat using Run as administrator (right-click on the file name and pick Run as administrator).
+
+What will be installed
+=========================
+ - Strawberry Perl, and some needed Perl modules
+ - Elasticsearch version 8
+ - Exuberant ctags
+ - File Watcher service (from a copy included with IntraMine)
+ - a /data/ folder at the top of your IntraMine folder, holding your copy of configuration values
+
+Requirements
+=================
+ - allow 3-4 GB of RAM for IntraMine (including Elasticsearch etc)
+ - Windows 11 is recommended, Windows 10 is fine if you're still using it
+ - you must leave "IntraMine" as the name of your IntraMine main folder
+ - if you already have Strawberry Perl installed, that's ok
+ - if you have Elasticsearch installed, and it's version 8.x.x but not version 8.8.1, please either: open "installer.ps1" in an editor and do a global replace of 8.8.1 with your version number, or; follow the "manual" installation approach described in the first section of IntraMine's documentation (see /Documentation/contents.html). If you have a version of Elasticsearch installed that's not in the version 8 series, you should alas pass on installing IntraMine, it probably won't work, sorry.
+ - IPv4 must be enabled (overwhelmingly the default), IPv6 can be on or off
+ - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and FLASH linking, but changes to them won't be detected, so that's fine for library files but not your own work
+ - and you should limit the number of files you want to index to roughly at most 500,000. This is admittedly a guess, only 250,000 has been tested.
+
+Running the PowerShell installer
+======================
+1. Let's check that your PC will **allow local PowerShell scripts to run**.
+For Windows 11: bring up Settings -> System -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..."
+"localps.png"
+
+If "For developers" doesn't appear under System -> Settings, most likely because you're running an older version of Windows 11 or Windows 10, try going to to  Settings -> Privacy & security -> For developers (under Windows 11) or Settings -> Update & Security -> For developers (under Windows 10), and look for the PowerShell setting there.
+
+2. Open a PowerShell terminal using "Run as administrator": using the task bar search, search for "Windows PowerShell" and over on the right side of the results click on "Run as Administrator"
+ "psrunas.png"
+3. Back to the folder where you found this file, and double-click on "2_Make_Install_Commands.bat" to bring up a window listing the five lines needed for installing IntraMine.
+4. Copy the indicated five lines from that window, Paste into your PowerShell window, and press Enter.
+5. The installer will immediately pause to let you read a message about specifying which directories you want IntraMine to index for searching and monitor for changes. After roughly 20 minutes you'll be asked to type a "y" and hit Enter to agree to a license for a Perl module. Sorry about that, I couldn't get rid of it. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
+6. As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that happens. This can take from five minutes to one hour, depending on how many files there are in the folders that you selecting for indexing in step 5 above.
+
+To stop IntraMine double-click on bats/STOP_INTRAMINE.bat
+To start IntraMine again, double-click on bats/START_INTRAMINE.bat
+To visit IntraMine, enter the address http://localhost:81/Search in your browser.
+Others on your intranet can visit your instance of IntraMine, just substitute your intranet IP address for "localhost". To see your (IPv4) address, type **ipconfig /all** at a command prompt. You probably knew that, but you've probably also concluded that I'm trying to spell out the details even if it makes me look pedantic.
+
+[If you are interested in making documents like this one, take a look at Documentation/Gloss.html and Documentation/gloss2html.pl for standalone Gloss files.html.]

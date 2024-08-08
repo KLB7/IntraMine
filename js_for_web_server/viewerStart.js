@@ -301,7 +301,7 @@ function positionViewItems() {
 }
 
 function finishStartup() {
-	if (thePath.match(/\.txt$/))
+	if (thePath.match(/\.(txt|log|bat)$/))
 		{
 		// use lolight highlighting
 		putInLolightElements();

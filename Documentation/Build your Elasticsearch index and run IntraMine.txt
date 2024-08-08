@@ -18,6 +18,33 @@ to set up your initial list of directories and drives. Come on back when you're 
 
 Done? Ok, you've told IntraMine which folders and drives you want to monitor and index, and IntraMine will use that list when you build your Elasticsearch index soon. And the batch file "IM_INIT_INDEX.bat" that builds the index will also call "make_filewatcher_config.pl" to create a configuration file for the File Watcher service, using the directories you've listed for monitoring in data/search_directories.txt.
 
+Enable PowerShell and unblock a script
+===================
+First, let's allow your PC to execute PowerShell scripts. Then we'll "unblock" the one script that IntraMine needs.
+
+Enable PowerShell
+-----------------
+For Windows 11: bring up Settings -> System -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..."
+"localps.png"
+
+(If "For developers" doesn't appear under System -> Settings, try going to to Settings -> Privacy & security -> For developers, and look for the PowerShell setting there. And, just saying, your version of Windows 11 is out of date.)
+
+If you don't allow local PowerShell scripts to run, IntraMine won't respond quickly to file changes, and will miss file and folder renames. So please allow it.
+
+Unblock foldermonitor.ps1
+-------------------------
+This script provides IntraMine with rapid feedback on file changes Without it, there could be a 30-second delay before Intramine picks up on a file change and file/folder renames will be missed.
+
+To unblock foldermonitor.ps1:
+1. Bring up a Windows PowerShell prompt using "Run as Administrator". You can do that by searching for "Windows PowerShell" in the Search field on your task bar
+ "psrunas.png"
+2. Then go to IntraMine's bats/ folder and double-click on bats/Make_foldermonitor_command.bat
+ "mfc.png"
+ *example Unblock-File command in that image, your path will be different*
+3. As suggested in the results of running that, copy the "Unblock..." line there (select, CTRL+C)
+4. Back in your PowerShell prompt window, Paste and press Enter. Then you can close the window.
+
+
 Index and run
 ==============
 This is easy enough, but building your initial file index may take a few minutes.

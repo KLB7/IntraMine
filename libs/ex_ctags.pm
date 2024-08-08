@@ -1,4 +1,4 @@
-# Interface to exuberant ctags with support for table of contents
+# Interface to universal ctags with support for table of contents
 # for various languages. See toc_local.pm for example usage. 
 
 package ex_ctags;
@@ -8,13 +8,13 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
-use Win32::Process; # for calling Exuberant ctags.exe
+use Win32::Process; # for calling Universal ctags.exe
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use win_wide_filepaths;
 
-{ ##### Exuberant Ctags Support
+{ ##### Universal Ctags Support
 # Ctags is used to generate a list of tags and their locations in
 # a source file, which in turn is used to generate a table of contents.
 
@@ -40,7 +40,7 @@ sub InitExCtags {
 
 	if (!(-f $CTAGS_EXE))
 		{
-		die("ex_ctags.pm InitCtags error, terminating, could not find exuberant ctags.exe in |$CTAGS_DIR|! Did you set CTAGS_DIR in /data/intramine_config.txt?");
+		die("ex_ctags.pm InitCtags error, terminating, could not find universal ctags.exe in |$CTAGS_DIR|! Did you set CTAGS_DIR in /data/intramine_config.txt?");
 		}
 	GetCTagSupportedTypes();
 	}
@@ -934,7 +934,7 @@ sub LoadCssCtags {
 
 	return($itemCount);
 	}
-} ##### Exuberant Ctags Support
+} ##### Universal Ctags Support
 
 use ExportAbove;
 1;

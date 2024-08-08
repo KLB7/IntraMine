@@ -583,6 +583,7 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
+/* Non-CodeMirror line gutter. */
 .line_number {
 	background-color: #F8F8F8;
 	color: #808080;
@@ -590,6 +591,12 @@ html[xmlns] #nav {
 	min-width: 3em;
 	display: inline-block;
 }
+
+/* CodeMirror line gutter. */
+.CodeMirror-linenumbers {
+	min-width: 3em;
+}
+
 a.embedded_image {
 	text-decoration: none;
 }
@@ -1703,96 +1710,108 @@ span.ll-com { /* comments */
 <div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <ul>
 <li class='h1' im-text-ln='1'><a href='#IntraMine_initial_install'>IntraMine initial install</a></li>
-<li class='h2' im-text-ln='11'><a href='#IPv4_must_be_enabled'>IPv4 must be enabled</a></li>
-<li class='h2' im-text-ln='17'><a href='#Moving_and_renaming_your_IntraMine_folder'>Moving and renaming your IntraMine folder</a></li>
-<li class='h2' im-text-ln='23'><a href='#IMPORTANT_Make_your_own_data_folder'>IMPORTANT Make your own data folder</a></li>
-<li class='h2' im-text-ln='41'><a href='#Installing_Strawberry_Perl'>Installing Strawberry Perl</a></li>
-<li class='h2' im-text-ln='59'><a href='#Verifying_Strawberry_Perl_is_installed'>Verifying Strawberry Perl is installed</a></li>
-<li class='h2' im-text-ln='67'><a href='#Tell_Windows_what_a_Perl_file_is_for'>Tell Windows what a Perl file is for</a></li>
-<li class='h2' im-text-ln='74'><a href='#Punch_a_hole_in_your_firewall'>Punch a hole in your firewall</a></li>
-<li class='h2' im-text-ln='86'><a href='#Installing_additional_Strawberry_Perl_modules'>Installing additional Strawberry Perl modules</a></li>
-<li class='h3' im-text-ln='89'><a href='#All_at_once'>All at once</a></li>
-<li class='h3' im-text-ln='102'><a href='#One_by_one'>One by one</a></li>
-<li class='h2' im-text-ln='131'><a href='#Optional_modules'>Optional modules</a></li>
-<li class='h3' im-text-ln='143'><a href='#Use_the_EM_(Extract_Method)_service_instead'>Use the "EM" (Extract Method) service instead</a></li>
-<li class='h2' im-text-ln='147'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
+<li class='h2' im-text-ln='4'><a href='#YOU_PROBABLY_DONT_WANT_TO_BE_HERE'>YOU PROBABLY DON'T WANT TO BE HERE</a></li>
+<li class='h2' im-text-ln='17'><a href='#IPv4_must_be_enabled'>IPv4 must be enabled</a></li>
+<li class='h2' im-text-ln='23'><a href='#Moving_and_renaming_your_IntraMine_folder'>Moving and renaming your IntraMine folder</a></li>
+<li class='h2' im-text-ln='29'><a href='#IMPORTANT_Make_your_own_data_folder'>IMPORTANT Make your own data folder</a></li>
+<li class='h2' im-text-ln='52'><a href='#Installing_Strawberry_Perl'>Installing Strawberry Perl</a></li>
+<li class='h2' im-text-ln='70'><a href='#Verifying_Strawberry_Perl_is_installed'>Verifying Strawberry Perl is installed</a></li>
+<li class='h2' im-text-ln='78'><a href='#Tell_Windows_what_a_Perl_file_is_for'>Tell Windows what a Perl file is for</a></li>
+<li class='h2' im-text-ln='85'><a href='#Punch_a_hole_in_your_firewall'>Punch a hole in your firewall</a></li>
+<li class='h2' im-text-ln='97'><a href='#Installing_additional_Strawberry_Perl_modules'>Installing additional Strawberry Perl modules</a></li>
+<li class='h3' im-text-ln='100'><a href='#All_at_once'>All at once</a></li>
+<li class='h3' im-text-ln='113'><a href='#One_by_one'>One by one</a></li>
+<li class='h2' im-text-ln='142'><a href='#Optional_modules'>Optional modules</a></li>
+<li class='h3' im-text-ln='154'><a href='#Use_the_EM_(Extract_Method)_service_instead'>Use the "EM" (Extract Method) service instead</a></li>
+<li class='h2' im-text-ln='158'><a href='#Verifying_module_installation'>Verifying module installation</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="IntraMine_initial_install">IntraMine initial install</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
-<tr id='R4'><td n='4'></td><td>There are a few steps to getting IntraMine up and running, but the first steps consist of putting your IntraMine folder somewhere appropriate, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs.</td></tr>
-<tr id='R5'><td n='5'></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>IntraMine is available at</td></tr>
-<tr id='R7'><td n='7'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
-<tr id='R8'><td n='8'></td><td></td></tr>
-<tr id='R9'><td n='9'></td><td>You can clone it, or download a zip.</td></tr>
-<tr id='R10'><td n='10'></td><td></td></tr>
-<tr id='R11'><td n='11'></td><td><h2 id="IPv4_must_be_enabled">IPv4 must be enabled</h2></td></tr>
+<tr id='R4'><td n='4'></td><td><h2 id="YOU_PROBABLY_DONT_WANT_TO_BE_HERE">YOU PROBABLY DON'T WANT TO BE HERE</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R13'><td n='13'></td><td>You can enable or disable IPv6 as you please and IntraMine will work. However, IPv4 must be enabled. This is overwhelming the default for new Windows installs (unless your company is very very concerned about security). If you're not sure, run "ipconfig /all" at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an NNN.NNN.NNN.NN address such as 192.168.40.8 listed, you have IPv4 enabled.</td></tr>
+<tr id='R6'><td n='6'></td><td>This document starts off the slow and very hands-on but flexible approach to installing IntraMine. If you haven't already, please open the __START_HERE_INTRAMINE_INSTALLER folder and double-click on "1 READ ME FIRST how to install IntraMine.html". There you'll find a quicker more automated way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a>, you should be able to use the "Quick Install" approach instead of this one.</td></tr>
+<tr id='R7'><td n='7'></td><td></td></tr>
+<tr id='R8'><td n='8'></td><td>Still here? Ok let's go.</td></tr>
+<tr id='R9'><td n='9'></td><td></td></tr>
+<tr id='R10'><td n='10'></td><td>There are a few steps to getting IntraMine up and running, but the first step consists of putting your IntraMine folder somewhere appropriate, making your own data/ folder, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs. Each step has a link at the bottom to the next step.</td></tr>
+<tr id='R11'><td n='11'></td><td></td></tr>
+<tr id='R12'><td n='12'></td><td>IntraMine is available at</td></tr>
+<tr id='R13'><td n='13'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
 <tr id='R14'><td n='14'></td><td></td></tr>
-<tr id='R15'><td n='15'></td><td>To enable or disable IPv6 or IPv4: search on your PC for "Network connections", right-click on your network adapter and pick "Properties", and select or de-select IPv4 or IPv6. For pictures and more words, see "<a href='https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11' target='_blank'>https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11</a>".</td></tr>
+<tr id='R15'><td n='15'></td><td>You can clone it, or download a zip.</td></tr>
 <tr id='R16'><td n='16'></td><td></td></tr>
-<tr id='R17'><td n='17'></td><td><h2 id="Moving_and_renaming_your_IntraMine_folder">Moving and renaming your IntraMine folder</h2></td></tr>
+<tr id='R17'><td n='17'></td><td><h2 id="IPv4_must_be_enabled">IPv4 must be enabled</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R19'><td n='19'></td><td>If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.</td></tr>
+<tr id='R19'><td n='19'></td><td>You can enable or disable IPv6 as you please and IntraMine will work. However, IPv4 must be enabled. This is overwhelming the default for new Windows installs (unless your company is very very concerned about security). If you're not sure, run "ipconfig /all" at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an NNN.NNN.NNN.NN address such as 192.168.40.8 listed, you have IPv4 enabled.</td></tr>
 <tr id='R20'><td n='20'></td><td></td></tr>
-<tr id='R21'><td n='21'></td><td>If you cloned IntraMine, wherever it ended up is ok, no need to move or rename it.</td></tr>
+<tr id='R21'><td n='21'></td><td>To enable or disable IPv6 or IPv4: search on your PC for "Network connections", right-click on your network adapter and pick "Properties", and select or de-select IPv4 or IPv6. For pictures and more words, see "<a href='https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11' target='_blank'>https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11</a>".</td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
-<tr id='R23'><td n='23'></td><td><h2 id="IMPORTANT_Make_your_own_data_folder">IMPORTANT Make your own data folder</h2></td></tr>
+<tr id='R23'><td n='23'></td><td><h2 id="Moving_and_renaming_your_IntraMine_folder">Moving and renaming your IntraMine folder</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R25'><td n='25'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R25'><td n='25'></td><td>If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything, but life is probably simpler if you don't.</td></tr>
+<tr id='R26'><td n='26'></td><td></td></tr>
+<tr id='R27'><td n='27'></td><td>If you cloned IntraMine, wherever it ended up is ok, no need to move or rename it.</td></tr>
+<tr id='R28'><td n='28'></td><td></td></tr>
+<tr id='R29'><td n='29'></td><td><h2 id="IMPORTANT_Make_your_own_data_folder">IMPORTANT Make your own data folder</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R31'><td n='31'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R26'><td n='26'></td><td>Don't miss this step!</td></tr>
-<tr id='R27'><td n='27'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R32'><td n='32'></td><td>Don't miss this step!</td></tr>
+<tr id='R33'><td n='33'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R28'><td n='28'></td><td>If you're installing IntraMine at a location for the <strong>first time</strong>:</td></tr>
-<tr id='R29'><td n='29'></td><td><p class="ol-1">1. In your IntraMine folder, locate the '_copy_and_rename_to_data' folder.</p></td></tr>
-<tr id='R30'><td n='30'></td><td><p class="ol-1">2. Make a copy of it at the same level (select, Copy, Paste).</p></td></tr>
-<tr id='R31'><td n='31'></td><td><p class="ol-1">3. Rename the copy to 'data'.</p></td></tr>
-<tr id='R32'><td n='32'></td><td></td></tr>
-<tr id='R33'><td n='33'></td><td>This new data/ folder is your own copy of IntraMine's configuration data. The .gitignore file at the top of the IntraMine folder contains</td></tr>
-<tr id='R34'><td n='34'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R35'><td n='35'></td><td>data/</td></tr>
-<tr id='R36'><td n='36'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R37'><td n='37'></td><td>which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update.</td></tr>
+<tr id='R34'><td n='34'></td><td>If you're installing IntraMine at a location for the <strong>first time</strong>:</td></tr>
+<tr id='R35'><td n='35'></td><td><p class="ol-1">1. In your IntraMine folder, locate the '_copy_and_rename_to_data' folder.</p></td></tr>
+<tr id='R36'><td n='36'></td><td><p class="ol-1">2. Make a copy of it at the same level (select, Copy, Paste).</p></td></tr>
+<tr id='R37'><td n='37'></td><td><p class="ol-1">3. Rename the copy to 'data'.</p></td></tr>
 <tr id='R38'><td n='38'></td><td></td></tr>
-<tr id='R39'><td n='39'></td><td>From time to time additional configuration values are added to IntraMine. These are shipped in numbered configuration files in the '_copy_and_rename_to_data' folder. When you (re)start IntraMine, it copies any new such file to your data/ folder. The numbers are always new, so old configuration values are never overwritten. Blah blah I hear you say perhaps, but this was hard to figure out and I'm proud of it.</td></tr>
+<tr id='R39'><td n='39'></td><td>This new data/ folder is your own copy of IntraMine's configuration data.</td></tr>
 <tr id='R40'><td n='40'></td><td></td></tr>
-<tr id='R41'><td n='41'></td><td><h2 id="Installing_Strawberry_Perl">Installing <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a></h2></td></tr>
+<tr id='R41'><td n='41'></td><td>[ <em>Digression that you can skip</em></td></tr>
+<tr id='R42'><td n='42'></td><td>The .gitignore file at the top of the IntraMine folder contains</td></tr>
+<tr id='R43'><td n='43'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R44'><td n='44'></td><td>data/</td></tr>
+<tr id='R45'><td n='45'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R46'><td n='46'></td><td>which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update.</td></tr>
+<tr id='R47'><td n='47'></td><td></td></tr>
+<tr id='R48'><td n='48'></td><td>From time to time additional configuration values are added to IntraMine. These are shipped in numbered configuration files in the '_copy_and_rename_to_data' folder. When you (re)start IntraMine, it copies any new such file to your data/ folder. The numbers are always new, so old configuration values are never overwritten. Blah blah I hear you say perhaps, but this was hard to figure out and I'm proud of it.</td></tr>
+<tr id='R49'><td n='49'></td><td><em>End digression</em></td></tr>
+<tr id='R50'><td n='50'></td><td>]</td></tr>
+<tr id='R51'><td n='51'></td><td></td></tr>
+<tr id='R52'><td n='52'></td><td><h2 id="Installing_Strawberry_Perl">Installing <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R43'><td n='43'></td><td>If you already have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> installed, whatever you have should be fine. However, I'm sorry that I can't predict how far back you can go. Anything before version 5.8 is not recommended, but that was released in 2002 and if your Perl is that old then something has gone wrong and it's time to upgrade.</td></tr>
-<tr id='R44'><td n='44'></td><td></td></tr>
-<tr id='R45'><td n='45'></td><td>You can skip ahead slightly to <a href="#Installing_additional_Strawberry_Perl_modules">"Installing additional Strawberry Perl modules</a>" if you have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry perl</a> installed.</td></tr>
-<tr id='R46'><td n='46'></td><td></td></tr>
-<tr id='R47'><td n='47'></td><td>If you don't have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> yet:</td></tr>
-<tr id='R48'><td n='48'></td><td></td></tr>
-<tr id='R49'><td n='49'></td><td>Head off to</td></tr>
-<tr id='R50'><td n='50'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R54'><td n='54'></td><td>If you already have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> installed, whatever you have should be fine. However, I'm sorry that I can't predict how far back you can go. Anything before version 5.8 is not recommended, but that was released in 2002 and if your Perl is that old then something has gone wrong and it's time to upgrade.</td></tr>
+<tr id='R55'><td n='55'></td><td></td></tr>
+<tr id='R56'><td n='56'></td><td>You can skip ahead slightly to <a href="#Installing_additional_Strawberry_Perl_modules">"Installing additional Strawberry Perl modules</a>" if you have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry perl</a> installed.</td></tr>
+<tr id='R57'><td n='57'></td><td></td></tr>
+<tr id='R58'><td n='58'></td><td>If you don't have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> yet:</td></tr>
+<tr id='R59'><td n='59'></td><td></td></tr>
+<tr id='R60'><td n='60'></td><td>Head off to</td></tr>
+<tr id='R61'><td n='61'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R51'><td n='51'></td><td><a href='http://strawberryperl.com/' target='_blank'>http://strawberryperl.com/</a></td></tr>
-<tr id='R52'><td n='52'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R62'><td n='62'></td><td><a href='http://strawberryperl.com/' target='_blank'>http://strawberryperl.com/</a></td></tr>
+<tr id='R63'><td n='63'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R53'><td n='53'></td><td>Download the "Recommended version" or "System installer version" from the pink box on the right. IntraMine has been tested with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.</td></tr>
-<tr id='R54'><td n='54'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAABiCAIAAADcLv/CAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+<tr id='R64'><td n='64'></td><td>Download the "Recommended version" or "System installer version" from the pink box on the right. IntraMine has been tested with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.</td></tr>
+<tr id='R65'><td n='65'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAABiCAIAAADcLv/CAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
 AA7dSURBVHhe7Z0/blw5EsZ9BV9JUGoYewFjo4GgyNAZpMRjGJtuYgEewNiFgwka8MCOFc062kRn
 GDjZG3j5yKpiVbHI/qdmt+SP+AVqNh9ZLH71vdcG3P3sBxoaGtrEBtNBQ0Ob2mA6aGhoUxtMBw0N
@@ -1863,137 +1882,137 @@ Kfp3wunwU0Bh8CzgPhCFH/pOh1ONtsRD5qIaTAcAcBBgOgCAqcB0AABTgekAAKYC0wEATGUL0wEA
 gIeCzEU1mA4A4ICQuagWdKGhoaEdrsF00NDQpjaYDhoa2tQG00FDQ5vYfvz4P/swTWG00LtrAAAA
 AElFTkSuQmCC
 "  /></td></tr>
-<tr id='R55'><td n='55'></td><td>(<em>the pink box is for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested</em>)</td></tr>
-<tr id='R56'><td n='56'></td><td></td></tr>
-<tr id='R57'><td n='57'></td><td>After downloading, run the msi file to install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>.</td></tr>
-<tr id='R58'><td n='58'></td><td></td></tr>
-<tr id='R59'><td n='59'></td><td><h2 id="Verifying_Strawberry_Perl_is_installed">Verifying <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> is installed</h2></td></tr>
+<tr id='R66'><td n='66'></td><td>(<em>the pink box is for an earlier version of Perl, 5.32.1.1 64bit is the latest version that's been tested</em>)</td></tr>
+<tr id='R67'><td n='67'></td><td></td></tr>
+<tr id='R68'><td n='68'></td><td>After downloading, run the msi file to install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>.</td></tr>
+<tr id='R69'><td n='69'></td><td></td></tr>
+<tr id='R70'><td n='70'></td><td><h2 id="Verifying_Strawberry_Perl_is_installed">Verifying <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> is installed</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R61'><td n='61'></td><td>Open a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>, and type the usual</td></tr>
-<tr id='R62'><td n='62'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R72'><td n='72'></td><td>Open a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>, and type the usual</td></tr>
+<tr id='R73'><td n='73'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R63'><td n='63'></td><td>perl -v</td></tr>
-<tr id='R64'><td n='64'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R74'><td n='74'></td><td>perl -v</td></tr>
+<tr id='R75'><td n='75'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R65'><td n='65'></td><td>If <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> has been installed, you'll see some version info. If not, well I don't know what to tell you, it should have worked. Talk to a friend, try again!</td></tr>
-<tr id='R66'><td n='66'></td><td></td></tr>
-<tr id='R67'><td n='67'></td><td><h2 id="Tell_Windows_what_a_Perl_file_is_for">Tell Windows what a Perl file is for</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R69'><td n='69'></td><td>If you haven't used Perl before on the PC where you just installed <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>:</td></tr>
-<tr id='R70'><td n='70'></td><td><p class="outdent-unordered">&nbsp;&bull; right-click on any of the .pl files at the top of your IntraMine folder (eg "codemirror_extensions.pl")</p></td></tr>
-<tr id='R71'><td n='71'></td><td><p class="outdent-unordered">&nbsp;&bull; pick Properties</p></td></tr>
-<tr id='R72'><td n='72'></td><td><p class="outdent-unordered">&nbsp;&bull; if needed, change "Opens with:" to "Perl interpreter".</p></td></tr>
-<tr id='R73'><td n='73'></td><td></td></tr>
-<tr id='R74'><td n='74'></td><td><h2 id="Punch_a_hole_in_your_firewall">Punch a hole in your firewall</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R76'><td n='76'></td><td>It's best to allow Perl through the firewall now, rather than waiting for a prompt later - sometimes the prompt can be tardy.</td></tr>
+<tr id='R76'><td n='76'></td><td>If <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> has been installed, you'll see some version info. If not, well I don't know what to tell you, it should have worked. Talk to a friend, try again!</td></tr>
 <tr id='R77'><td n='77'></td><td></td></tr>
-<tr id='R78'><td n='78'></td><td><p class="ol-1">1. Bring up Settings, and search for firewall</p></td></tr>
-<tr id='R79'><td n='79'></td><td><p class="ol-1">2. Select "Allow an app through Windows Firewall"</p></td></tr>
-<tr id='R80'><td n='80'></td><td><p class="ol-1">3. Click "Change settings"</p></td></tr>
-<tr id='R81'><td n='81'></td><td><p class="ol-1">4. Select "Allow another app..."</p></td></tr>
-<tr id='R82'><td n='82'></td><td><p class="ol-1">5. Browse to C:\strawberry\perl\bin\perl.exe and add it.</p></td></tr>
-<tr id='R83'><td n='83'></td><td></td></tr>
-<tr id='R84'><td n='84'></td><td>Now you'll want to grab a few modules.</td></tr>
-<tr id='R85'><td n='85'></td><td></td></tr>
-<tr id='R86'><td n='86'></td><td><h2 id="Installing_additional_Strawberry_Perl_modules">Installing additional <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> modules</h2></td></tr>
+<tr id='R78'><td n='78'></td><td><h2 id="Tell_Windows_what_a_Perl_file_is_for">Tell Windows what a Perl file is for</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R80'><td n='80'></td><td>If you haven't used Perl before on the PC where you just installed <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>:</td></tr>
+<tr id='R81'><td n='81'></td><td><p class="outdent-unordered">&nbsp;&bull; right-click on any of the .pl files at the top of your IntraMine folder (eg "codemirror_extensions.pl")</p></td></tr>
+<tr id='R82'><td n='82'></td><td><p class="outdent-unordered">&nbsp;&bull; pick Properties</p></td></tr>
+<tr id='R83'><td n='83'></td><td><p class="outdent-unordered">&nbsp;&bull; if needed, change "Opens with:" to "Perl interpreter".</p></td></tr>
+<tr id='R84'><td n='84'></td><td></td></tr>
+<tr id='R85'><td n='85'></td><td><h2 id="Punch_a_hole_in_your_firewall">Punch a hole in your firewall</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R87'><td n='87'></td><td>It's best to allow Perl through the firewall now, rather than waiting for a prompt later - sometimes the prompt can be tardy.</td></tr>
 <tr id='R88'><td n='88'></td><td></td></tr>
-<tr id='R89'><td n='89'></td><td><h3 id="All_at_once">All at once</h3></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R91'><td n='91'></td><td>Find /bats/install_perl_modules.bat in your new IntraMine folder, and run it at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. If you don't have a habitual way of bring up a command window, here's one: in the Search box at the left end of your Task Bar, type "cmd" and then select "Command Prompt" from the list that pops up.</td></tr>
-<tr id='R92'><td n='92'></td><td></td></tr>
-<tr id='R93'><td n='93'></td><td>And the quickest way to run that .bat file is to find it with File Explorer and then drag it into your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Command Prompt</a> window. Press Enter and off it goes.</td></tr>
+<tr id='R89'><td n='89'></td><td><p class="ol-1">1. Bring up Settings, and search for firewall</p></td></tr>
+<tr id='R90'><td n='90'></td><td><p class="ol-1">2. Select "Allow an app through Windows Firewall"</p></td></tr>
+<tr id='R91'><td n='91'></td><td><p class="ol-1">3. Click "Change settings"</p></td></tr>
+<tr id='R92'><td n='92'></td><td><p class="ol-1">4. Select "Allow another app..."</p></td></tr>
+<tr id='R93'><td n='93'></td><td><p class="ol-1">5. Browse to C:\strawberry\perl\bin\perl.exe and add it.</p></td></tr>
 <tr id='R94'><td n='94'></td><td></td></tr>
-<tr id='R95'><td n='95'></td><td>You can also run it by entering its full path and pressing Enter.</td></tr>
+<tr id='R95'><td n='95'></td><td>Now you'll want to grab a few modules.</td></tr>
 <tr id='R96'><td n='96'></td><td></td></tr>
-<tr id='R97'><td n='97'></td><td>How long will it take? About half an hour depending on the horsepower of you PC and how cranky Windows is on the day.</td></tr>
-<tr id='R98'><td n='98'></td><td></td></tr>
-<tr id='R99'><td n='99'></td><td>Kindly note that just before install_perl_modules.bat file finishes it will ask you a question about accepting a licence. Press "y" and Enter to continue. The batch file will then finish within a few seconds.</td></tr>
-<tr id='R100'><td n='100'></td><td></td></tr>
-<tr id='R101'><td n='101'></td><td></td></tr>
-<tr id='R102'><td n='102'></td><td><h3 id="One_by_one">One by one</h3></td></tr>
+<tr id='R97'><td n='97'></td><td><h2 id="Installing_additional_Strawberry_Perl_modules">Installing additional <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R104'><td n='104'></td><td>If for some reason you don't want to install the needed Perl modules all at once, you can do them one by one.</td></tr>
+<tr id='R99'><td n='99'></td><td></td></tr>
+<tr id='R100'><td n='100'></td><td><h3 id="All_at_once">All at once</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R102'><td n='102'></td><td>Find /bats/install_perl_modules.bat in your new IntraMine folder, and run it at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. If you don't have a habitual way of bring up a command window, here's one: in the Search box at the left end of your Task Bar, type "cmd" and then select "Command Prompt" from the list that pops up.</td></tr>
+<tr id='R103'><td n='103'></td><td></td></tr>
+<tr id='R104'><td n='104'></td><td>And the quickest way to run that .bat file is to find it with File Explorer and then drag it into your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Command Prompt</a> window. Press Enter and off it goes.</td></tr>
 <tr id='R105'><td n='105'></td><td></td></tr>
-<tr id='R106'><td n='106'></td><td>Installing modules for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> one at a time is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. (cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompt; I had no luck with it.)</td></tr>
+<tr id='R106'><td n='106'></td><td>You can also run it by entering its full path and pressing Enter.</td></tr>
 <tr id='R107'><td n='107'></td><td></td></tr>
-<tr id='R108'><td n='108'></td><td>cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just thinking hard.</td></tr>
+<tr id='R108'><td n='108'></td><td>How long will it take? About half an hour depending on the horsepower of you PC and how cranky Windows is on the day.</td></tr>
 <tr id='R109'><td n='109'></td><td></td></tr>
-<tr id='R110'><td n='110'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00006%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and press Enter:</td></tr>
-<tr id='R111'><td n='111'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R112'><td n='112'></td><td>cpan PREACTION/Log-Any-1.716.tar.gz</td></tr>
-<tr id='R113'><td n='113'></td><td>cpan Search::<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr>
-<tr id='R114'><td n='114'></td><td>cpan ExportAbove</td></tr>
-<tr id='R115'><td n='115'></td><td>cpan Math::SimpleHisto::XS</td></tr>
-<tr id='R116'><td n='116'></td><td>cpan File::ReadBackwards</td></tr>
-<tr id='R117'><td n='117'></td><td>cpan IO::Socket::Timeout</td></tr>
-<tr id='R118'><td n='118'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
-<tr id='R119'><td n='119'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
-<tr id='R120'><td n='120'></td><td>cpan Text::MultiMarkdown</td></tr>
-<tr id='R121'><td n='121'></td><td>cpan Win32::RunAsAdmin</td></tr>
-<tr id='R122'><td n='122'></td><td>cpan Text::Unidecode</td></tr>
-<tr id='R123'><td n='123'></td><td>cpan Selenium::Remote::Driver</td></tr>
-<tr id='R124'><td n='124'></td><td>cpan Protocol::WebSocket::Client</td></tr>
-<tr id='R125'><td n='125'></td><td>cpan Net::WebSocket::Server</td></tr>
-<tr id='R126'><td n='126'></td><td>cpan URI::Encode</td></tr>
-<tr id='R127'><td n='127'></td><td>cpan Date::Business</td></tr>
-<tr id='R128'><td n='128'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
-aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
-AABJRU5ErkJggg==
-" width='98%' height='3' /></td></tr>
-<tr id='R129'><td n='129'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
-<tr id='R130'><td n='130'></td><td></td></tr>
-<tr id='R131'><td n='131'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
+<tr id='R110'><td n='110'></td><td>Kindly note that just before install_perl_modules.bat file finishes it will ask you a question about accepting a licence. Press "y" and Enter to continue. The batch file will then finish within a few seconds.</td></tr>
+<tr id='R111'><td n='111'></td><td></td></tr>
+<tr id='R112'><td n='112'></td><td></td></tr>
+<tr id='R113'><td n='113'></td><td><h3 id="One_by_one">One by one</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R133'><td n='133'></td><td>[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. It was used only for presenting an "Extract Method" interface for Perl subs. Use the "EM" (Extract Method) service instead.]</td></tr>
-<tr id='R134'><td n='134'></td><td></td></tr>
-<tr id='R135'><td n='135'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
-<tr id='R136'><td n='136'></td><td></td></tr>
-<tr id='R137'><td n='137'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
-<tr id='R138'><td n='138'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R115'><td n='115'></td><td>If for some reason you don't want to install the needed Perl modules all at once, you can do them one by one.</td></tr>
+<tr id='R116'><td n='116'></td><td></td></tr>
+<tr id='R117'><td n='117'></td><td>Installing modules for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> one at a time is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. (cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompt; I had no luck with it.)</td></tr>
+<tr id='R118'><td n='118'></td><td></td></tr>
+<tr id='R119'><td n='119'></td><td>cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just thinking hard.</td></tr>
+<tr id='R120'><td n='120'></td><td></td></tr>
+<tr id='R121'><td n='121'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00006%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and press Enter:</td></tr>
+<tr id='R122'><td n='122'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R139'><td n='139'></td><td>cpan Tk::BrowseEntry</td></tr>
-<tr id='R140'><td n='140'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R123'><td n='123'></td><td>cpan PREACTION/Log-Any-1.716.tar.gz</td></tr>
+<tr id='R124'><td n='124'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr>
+<tr id='R125'><td n='125'></td><td>cpan ExportAbove</td></tr>
+<tr id='R126'><td n='126'></td><td>cpan Math::SimpleHisto::XS</td></tr>
+<tr id='R127'><td n='127'></td><td>cpan File::ReadBackwards</td></tr>
+<tr id='R128'><td n='128'></td><td>cpan IO::Socket::Timeout</td></tr>
+<tr id='R129'><td n='129'></td><td>cpan HTML::CalendarMonthSimple</td></tr>
+<tr id='R130'><td n='130'></td><td>cpan Syntax::Highlight::Perl::Improved</td></tr>
+<tr id='R131'><td n='131'></td><td>cpan Text::MultiMarkdown</td></tr>
+<tr id='R132'><td n='132'></td><td>cpan Win32::RunAsAdmin</td></tr>
+<tr id='R133'><td n='133'></td><td>cpan Text::Unidecode</td></tr>
+<tr id='R134'><td n='134'></td><td>cpan Selenium::Remote::Driver</td></tr>
+<tr id='R135'><td n='135'></td><td>cpan Protocol::WebSocket::Client</td></tr>
+<tr id='R136'><td n='136'></td><td>cpan Net::WebSocket::Server</td></tr>
+<tr id='R137'><td n='137'></td><td>cpan URI::Encode</td></tr>
+<tr id='R138'><td n='138'></td><td>cpan Date::Business</td></tr>
+<tr id='R139'><td n='139'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R141'><td n='141'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
-<tr id='R142'><td n='142'></td><td></td></tr>
-<tr id='R143'><td n='143'></td><td><h3 id="Use_the_EM_(Extract_Method)_service_instead">Use the "EM" (Extract Method) service instead</h3></td></tr>
+<tr id='R140'><td n='140'></td><td>The last one on the list, Date::Business, will ask you to accept a licence agreement: hit"y" and Enter, and it will finish in a few seconds.</td></tr>
+<tr id='R141'><td n='141'></td><td></td></tr>
+<tr id='R142'><td n='142'></td><td><h2 id="Optional_modules">Optional modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R145'><td n='145'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
-<tr id='R146'><td n='146'></td><td></td></tr>
-<tr id='R147'><td n='147'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R149'><td n='149'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
-<tr id='R150'><td n='150'></td><td></td></tr>
-<tr id='R151'><td n='151'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
-<tr id='R152'><td n='152'></td><td></td></tr>
-<tr id='R153'><td n='153'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
-<tr id='R154'><td n='154'></td><td></td></tr>
-<tr id='R155'><td n='155'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R144'><td n='144'></td><td>[DEPRECATED: Tk::BrowseEntry is a huge install, don't bother. It was used only for presenting an "Extract Method" interface for Perl subs. Use the "EM" (Extract Method) service instead.]</td></tr>
+<tr id='R145'><td n='145'></td><td></td></tr>
+<tr id='R146'><td n='146'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
+<tr id='R147'><td n='147'></td><td></td></tr>
+<tr id='R148'><td n='148'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
+<tr id='R149'><td n='149'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R156'><td n='156'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
-<tr id='R157'><td n='157'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+<tr id='R150'><td n='150'></td><td>cpan Tk::BrowseEntry</td></tr>
+<tr id='R151'><td n='151'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R152'><td n='152'></td><td>You can expect the installation of that to proceed with all sorts of neon warnings, mainly due to the authors hot-dogging pointer casts and such.</td></tr>
+<tr id='R153'><td n='153'></td><td></td></tr>
+<tr id='R154'><td n='154'></td><td><h3 id="Use_the_EM_(Extract_Method)_service_instead">Use the "EM" (Extract Method) service instead</h3></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R156'><td n='156'></td><td><span class='notabene'>NOTE</span> as an alternative to the standalone program extract_method.pl, IntraMine includes the "EM" service, an "Extract Method" refactor service for Perl code. EM can be accessed anywhere on your intranet where IntraMine can be reached, unlike the extract_method.pl which can be used only on the computer where it is run. EM also handles Unicode and references better, and does not require the installation of Tk. To use "EM" instead, see <a href="./EM.html" target="_blank">"EM.txt"</a>.</td></tr>
+<tr id='R157'><td n='157'></td><td></td></tr>
+<tr id='R158'><td n='158'></td><td><h2 id="Verifying_module_installation">Verifying module installation</h2></td></tr>
+<tr class='shrunkrow'><td></td><td></td></tr>
+<tr id='R160'><td n='160'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
+<tr id='R161'><td n='161'></td><td></td></tr>
+<tr id='R162'><td n='162'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
+<tr id='R163'><td n='163'></td><td></td></tr>
+<tr id='R164'><td n='164'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
+<tr id='R165'><td n='165'></td><td></td></tr>
+<tr id='R166'><td n='166'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr>
+<tr id='R167'><td n='167'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R168'><td n='168'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
@@ -4412,7 +4431,7 @@ function positionViewItems() {
 }
 
 function finishStartup() {
-	if (thePath.match(/\.txt$/))
+	if (thePath.match(/\.(txt|log|bat)$/))
 		{
 		// use lolight highlighting
 		putInLolightElements();

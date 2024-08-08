@@ -190,7 +190,7 @@ Gloss processing
 Full Gloss processing is applied only to text files, by intramine_viewer.pl#GetPrettyTextContents(). File and web links are added after loading for all files including text files, as described in "Linker.txt#Autolink sequence".
 
 Gloss processing happens in several passes through the text:
- - table of contents generation, either during other processing (.txt etc, see eg intramine_viewer.pl#GetPrettyTextContents()) or separately by calling exuberant ctags (.go etc, see intramine_viewer.pl#GetCTagsTOCForFile())
+ - table of contents generation, either during other processing (.txt etc, see eg intramine_viewer.pl#GetPrettyTextContents()) or separately by calling universal ctags (.go etc, see intramine_viewer.pl#GetCTagsTOCForFile())
  - emphasis (bold, italic), ordered/unordered lists, horizontal rules, headings, and Perl module mentions
  - TABLE handling (.txt only)  - see intramine_viewer.pl#PutTablesInText()
  - internal links, referencing headings in the current document.

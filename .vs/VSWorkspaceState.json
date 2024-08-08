@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\js_for_web_server"
   ],
-  "SelectedNode": "\\make_filewatcher_config.pl",
+  "SelectedNode": "\\js_for_web_server\\autoLinks.js",
   "PreviewInSolutionExplorer": false
 }

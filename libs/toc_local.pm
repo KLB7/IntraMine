@@ -1,4 +1,3 @@
-# WORK IN PROGRESS, not useful yet.
 # toc_local.pm: generate a Table of Contents for a source file.
 #
 # perl -c C:\perlprogs\IntraMine\libs\toc_local.pm
@@ -18,7 +17,7 @@ use Text::Tabs;
 $tabstop = 4;
 use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL
 use Time::HiRes qw ( time );
-use Win32::Process; # for calling Exuberant ctags.exe
+use Win32::Process; # for calling Universal ctags.exe
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
@@ -77,7 +76,7 @@ sub GetCMToc {
 	$$toc_R = '';
 
 	# Processing depends on the file extension, most are handled by
-	# exuberant CTags but some are custom.
+	# universal CTags but some are custom.
 	# Note not all extensions are supported, eg .pdf, .docx. Only extensions
 	# that can be edited with CodeMirror are here. Some, such as .md,
 	# can be edited with CM but don't support a Table of Contents.

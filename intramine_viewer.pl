@@ -6,12 +6,12 @@
 # headings, lists, tables, autolinks, image hovers, special characters,
 # horizontal rules and a table of contents on the left.
 # Files with tables of contents: txt, pl, pm, pod, C(++), js, css, go,
-# and many others supported by ctags such as PHP, Ruby - see GetCTagSupportedTypes() below.
+# and many others supported by ctags such as PHP, Ruby - see libs/toc_local.pm and ex_ctags.pm.
 # This is not a "top" server, meaning it doesn't have an entry in IntraMine's top navigation bar.
 # Typically it's called by click on a link in Search page results, the Files page lists,
 # or a link in a view provided by this Viewer or the Editor service.
 
-# perl C:\perlprogs\mine\intramine_viewer.pl
+# perl C:\perlprogs\IntraMine\intramine_viewer.pl
 
 use strict;
 use warnings;
@@ -25,8 +25,8 @@ use Text::Tabs;
 $tabstop = 4;
 use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL doesn't seem to do much
 use Time::HiRes qw ( time );
-use Win32::Process 'STILL_ACTIVE';  # for calling Exuberant ctags.exe etc
-#use Win32::Process; # for calling Exuberant ctags.exe etc
+use Win32::Process 'STILL_ACTIVE';  # for calling Universal ctags.exe etc
+#use Win32::Process; # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
@@ -1191,38 +1191,30 @@ sub GetPrettyMD {
 		return;
 		}
 
+	# Turn GitHub-sourced images of the form
+	# ![..](...)
+	# into
+	# ![..](...?raw=true).
+	my @lines = split(/\n/, $octets);
+	for (my $i = 0; $i < @lines; ++$i)
+		{
+		if ($lines[$i] =~ m!\!\[[^\]]+]\([^)]+\)!)
+			{
+			$lines[$i] =~ s!(\!\[[^\]]+]\([^)]+)\)!$1\?raw\=true\)!;
+			}
+		}
+	$octets = join("\n", @lines);
+
 	my $m = Text::MultiMarkdown->new(
 	    empty_element_suffix => '>',
 	    tab_width => 4,
 	    use_wikilinks => 0,
 		);
 	my $html = $m->markdown( $octets );
-
-	# Regex to add raw=true has been moved to autoLinks.jsrequestLinkMarkupWithPortForMarkdown().
-	##$html = FixGithubLinks($html);
 	
 	$$contentsR = "<div id='scrollText'>" . $html . "</div>";
 	
 	$$contentsR = encode_utf8($$contentsR);
-	}
-
-# Add raw=true to github links.
-sub FixGithubLinks {
-	my ($src) = @_;
-
-	my @lines = split(/\n/, $src);
-	for (my $i = 0; $i < @lines; ++$i)
-		{
-		# Add ?raw=true to github img src.
-		if (index($lines[$i], "?raw=true") < 0)
-			{
-			$lines[$i] =~ s!https://github.com/([^'"]+)(['"])!https://github.com/$1?raw=true$2!g;
-			}
-		}
-
-	my $result = join("\n", @lines);
-
-	return($result);
 	}
 
 # Call LoadPodFileContents() to get an HTML version using Pod::Simple::HTML,

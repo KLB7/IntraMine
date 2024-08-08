@@ -1,31 +1,23 @@
 Location				Index	Monitor
-# See Documentation/Configuring folders to index and monitor.txt for the how-to
-# if you want more details after reading the below.
-# Lines that start with '#' are commented out.
-# Add folders here for IntraMine to index and/or monitor.
-# "Index" means index file contents with Elasticsearch, as well
-# as collecting full paths for all contained source and text files.
-# "Monitor" is short for monitor the folder and its contents for all changes.
-# IntraMines' Search page will let you search all indexed files.
-# And the full paths lists will help you create file links easily.
-# Feel free to add all folders containing source or text files
-# that are of interest to you up to a rough limit of 500,000 files.
-# Format
-# The format is full folder path <tab(s)> Index 1 or 0 <tab(s)> Monitor 1 or 0.
-# A line starting with # is a comment line.
-# "Index" 1 means the folder will be indexed by Elasticsearch.
-# Put a 1 in the Index field for all entries.
-# "Monitor" 1 means monitor the folder for changes. All locally attached
-# drives should have a 1 in the Monitor field. Mapped network drives
-# should have a 0 in the Monitor field since they can't be monitored reliably.
-# However, you can put a 1 there if you want IntraMine to try monitoring the folder.
+# Enter paths to the folders you would like Elasticsearch to index and monitor.
+# All source and text files in indexed folders will be available for searching.
+# Full paths from the folders will also be collected, for linking.
+# There are three fields per entry, separated by one or more tabs.
+# The format is full folder path <tab(s)> Index 1 or 0 <tab(s)> Monitor 1 or 0
+# Put the full path to the folder first.
+# Then after tab(s) put a 1 to have the folder indexed.
+# Then after more tab(s) put a 1 to have the folder monitored for changes
+# or a 0 if it's a mapped (NAS) drive, they can't be monitored reliably.
+# NOTE try to keep total files indexed under 500,000.
+# Lines that start with '#' are comments, ignored.
+# Examples, with a # and space in front
+# C:\qtprojects\project51		1	1
+# Q:/qtlibs/src					1	0
+#    (project51 will be indexed and monitored,
+#    src will be indexed but not monitored for changes):
 #
-# Example entries (with "# " up front to comment them out):
-# C:\My main projects\Python Projects	1	1
-#   - will be indexed and monitored.
-# Z:/FancyLib/src	1	0
-#   - where Z is a mapped NAS drive, src will be indexed but not monitored for changes.
-#
+# See Documentation/Configuring folders to index and monitor.html
+# if you want more details.
 #
 # The following line includes the IntraMine folder for indexing and monitoring.
 # You can comment it out with a leading '#' if you want.

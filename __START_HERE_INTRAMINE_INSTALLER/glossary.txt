@@ -1,0 +1,9 @@
+Definitions etc for the IntraMine installer.
+
+open a powershell terminal: search for "Windows PowerShell" in the task bar
+search field, and select "Run as administrator".
+"psrunas.png"
+Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearch for indexing source and text files, and searching them. It's a bit huge, details can be found at "https://www.elastic.co/elasticsearch/".
+File Watcher: a service that monitors folders for changes and logs details. Used by IntraMine as part of its file and folder monitoring. For details see https://sourceforge.net/projects/fwutilities/
+Exuberant ctags: IntraMine uses ctags to identify functions and classes etc in source files, in order to make entries for those in the file's table of contents. See https://github.com/universal-ctags
+dotted underline: a dotted underline signals a glossary popup. Pause your cursor over an underlined word or phrase to see a definition or process.

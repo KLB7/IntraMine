@@ -1,7 +1,13 @@
 IntraMine initial install
 =========================
 
-There are a few steps to getting IntraMine up and running, but the first steps consist of putting your IntraMine folder somewhere appropriate, installing Strawberry Perl, and installing some modules for Strawberry Perl that IntraMine needs.
+YOU PROBABLY DON'T WANT TO BE HERE
+==================================
+This document starts off the slow and very hands-on but flexible approach to installing IntraMine. If you haven't already, please open the __START_HERE_INTRAMINE_INSTALLER folder and double-click on "1 READ ME FIRST how to install IntraMine.html". There you'll find a quicker more automated way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using Elasticsearch, you should be able to use the "Quick Install" approach instead of this one.
+
+Still here? Ok let's go.
+
+There are a few steps to getting IntraMine up and running, but the first step consists of putting your IntraMine folder somewhere appropriate, making your own data/ folder, installing Strawberry Perl, and installing some modules for Strawberry Perl that IntraMine needs. Each step has a link at the bottom to the next step.
 
 IntraMine is available at
 https://github.com/KLB7/IntraMine
@@ -16,7 +22,7 @@ To enable or disable IPv6 or IPv4: search on your PC for "Network connections", 
 
 Moving and renaming your IntraMine folder
 =========================================
-If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything.
+If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a NAS drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything, but life is probably simpler if you don't.
 
 If you cloned IntraMine, wherever it ended up is ok, no need to move or rename it.
 
@@ -30,13 +36,18 @@ If you're installing IntraMine at a location for the **first time**:
 2. Make a copy of it at the same level (select, Copy, Paste).
 3. Rename the copy to 'data'.
 
-This new data/ folder is your own copy of IntraMine's configuration data. The .gitignore file at the top of the IntraMine folder contains
+This new data/ folder is your own copy of IntraMine's configuration data.
+
+[ *Digression that you can skip*
+The .gitignore file at the top of the IntraMine folder contains
 ---
 data/
 ---
 which will skip the data/ folder for staging etc, so you won't have to worry about having your own config values overwritten by an update.
 
 From time to time additional configuration values are added to IntraMine. These are shipped in numbered configuration files in the '_copy_and_rename_to_data' folder. When you (re)start IntraMine, it copies any new such file to your data/ folder. The numbers are always new, so old configuration values are never overwritten. Blah blah I hear you say perhaps, but this was hard to figure out and I'm proud of it.
+*End digression*
+]
 
 Installing Strawberry Perl
 ==========================

@@ -583,6 +583,7 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
+/* Non-CodeMirror line gutter. */
 .line_number {
 	background-color: #F8F8F8;
 	color: #808080;
@@ -590,6 +591,12 @@ html[xmlns] #nav {
 	min-width: 3em;
 	display: inline-block;
 }
+
+/* CodeMirror line gutter. */
+.CodeMirror-linenumbers {
+	min-width: 3em;
+}
+
 a.embedded_image {
 	text-decoration: none;
 }
@@ -4349,7 +4356,7 @@ function positionViewItems() {
 }
 
 function finishStartup() {
-	if (thePath.match(/\.txt$/))
+	if (thePath.match(/\.(txt|log|bat)$/))
 		{
 		// use lolight highlighting
 		putInLolightElements();

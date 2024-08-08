@@ -22,9 +22,8 @@ function showSpinner() {
 		{
 		spinnerParent.innerHTML = "<img id='spinner' src='globe.gif' "
 									+ "width='30.0' height='24.0' />\n";
-		//spinnerParent.style.marginTop = "0";
-		document.getElementById("spinner").style.objectPosition = "0 4px";
-//	spinnerParent.innerHTML = "<div id='spinnerParent'><img id='spinner' src='globe.gif' " + "alt='' width='43.3' height='36' /></div>\n";
+		//document.getElementById("spinner").style.objectPosition = "0 0";
+		styleGlobe();
 		spinnerTimeoutTimer = setTimeout(hideSpinner, 20000);
 		}
 	else
@@ -34,28 +33,46 @@ function showSpinner() {
 }
 
 function hideSpinner() {
-	// Wait a bit if page hasn't loaded yet.
-	// Removed, sometimes it seems "complete" isn't reached for
-	// a long time on the Search page, nevertheless the page is usable.
-	// In general there are no delays any more that are long enough to need this.
-	// if (document.readyState !== "complete")
-	// 	{
-	// 	spinnerTimeoutTimer = setTimeout(hideSpinner, 100);
-	// 	return;
-	// 	}
-	// clearTimeout(spinnerTimeoutTimer);
-
 	let spinnerParent = document.getElementById('spinnerParent');
 	if (spinnerParent !== null)
 		{
 		spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
 		+ "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a>\n";
-		//spinnerParent.style.marginTop = "-4px";
-		document.getElementById("spinner").style.objectPosition = "0 -4px";
-//		spinnerParent.innerHTML = "<div id='spinnerParent'><a href='./" + contentsName + "' target='_blank'>" + "<img id='spinner' src='question4-44.png' alt='' width='43.3' height='36' /></a></div>\n";
+		
+		setTimeout(styleQuestionMark, 50);
 		}
 	else
 		{
 		console.log("spinner.js#hideSpinner, no parent!");
+		}
+}
+
+function styleGlobe() {
+	let spinnerParent = document.getElementById('spinnerParent');
+	if (spinnerParent === null)
+		{
+		return;
+		}
+	let img = document.getElementById('spinner');
+	if (img !== null)
+		{
+		img.style.display="inline-block";
+		img.style.objectPosition = "0 0";
+		}
+}
+
+function styleQuestionMark() {
+	let spinnerParent = document.getElementById('spinnerParent');
+	if (spinnerParent === null)
+		{
+		return;
+		}
+	let img = document.getElementById('spinner');
+	if (img !== null)
+		{
+		img.style.display="inline-block";
+		img.style.objectPosition = "0 -4px";
+		clearTimeout(spinnerTimeoutTimer);
+		spinnerTimeoutTimer = 0;
 		}
 }

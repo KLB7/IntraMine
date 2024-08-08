@@ -583,6 +583,7 @@ html[xmlns] #nav {
 	font-size: 1.2em;
 }
 
+/* Non-CodeMirror line gutter. */
 .line_number {
 	background-color: #F8F8F8;
 	color: #808080;
@@ -590,6 +591,12 @@ html[xmlns] #nav {
 	min-width: 3em;
 	display: inline-block;
 }
+
+/* CodeMirror line gutter. */
+.CodeMirror-linenumbers {
+	min-width: 3em;
+}
+
 a.embedded_image {
 	text-decoration: none;
 }
@@ -2873,7 +2880,7 @@ AAAAAACg0kCwAgAAAACASgPBCgAAAAAAKsyDB/8fVYVBXabtF2sAAAAASUVORK5CYII=
 <tr id='R9'><td n='9'></td><td><h3 id="Main_back-end_Perl_files">Main back-end Perl files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_search.pl: the main file. It delivers the Search HTML page, and calls <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> to do searches, sending hit results back to the Search page.</p></td></tr>
-<tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; elasticsearcher.pm uses the "Search::<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a>" module to carry out test searches, and formats hit results, complete with <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinks%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinks</a>.</p></td></tr>
+<tr id='R12'><td n='12'></td><td><p class="outdent-unordered">&nbsp;&bull; elasticsearcher.pm uses the "Search::<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a>" module to carry out test searches, and formats hit results, complete with <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinks%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinks</a>.</p></td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
 <tr id='R14'><td n='14'></td><td><h3 id="Main_front-end_JavaScript_files">Main front-end JavaScript files</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -12685,7 +12692,7 @@ function positionViewItems() {
 }
 
 function finishStartup() {
-	if (thePath.match(/\.txt$/))
+	if (thePath.match(/\.(txt|log|bat)$/))
 		{
 		// use lolight highlighting
 		putInLolightElements();

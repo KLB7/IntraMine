@@ -109,7 +109,9 @@
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i
 #
 # perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\Documentation\gloss.txt"
-
+#
+# For txt docs in the _INSTALLER folder:
+# perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\_INSTALLER\1 IntraMine installation instructions.txt"
 
 # Syntax check:
 # perl -c C:\perlprogs\mine\gloss2html.pl

@@ -41,3 +41,10 @@ div#indicator {
     border: none;
     margin: 5px 0 5px 0;
 }
+
+.footnote {
+	vertical-align: baseline;
+	position: relative;
+	font-size: 70%;
+	top: -0.6em;
+}

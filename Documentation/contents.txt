@@ -2,7 +2,10 @@ CONTENTS
 
 Read Me First.txt
 
-*INSTALLING AND RUNNING INTRAMINE*
+*QUICK INSTALL*
+How to do a quick install.txt
+
+*DETAILED MORE FLEXIBLE INSTALL*
 IntraMine initial install.txt
 Installing Elasticsearch.txt
 Installing File Watcher.txt

@@ -84,9 +84,11 @@ And you can set it to always "Run as administrator" by right-clicking on the sho
 
 Map network drive: Open a File Explorer window, click on "This PC" on the left, and then select "Map network drive" at the top. Enter the \\\\host-name\\share-name you want to map, and then select a drive letter to map it to on the PC you're sitting at. Whether or not you'll want to reconnect using a different account is up to you, depending on how you've set things up.
 
-Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended).
+Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended though not required).
 
 See "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
+
+FLASH is short for Fast Local Automatic Source and text Hyperlinks. And yes, it does encourage "FLASH links" which suffers from RAS syndrome. I'll fix that when we all stop saying "PIN number."
 
 Linker: IntraMine's hyperlink service, implementing FLASH links in particular. Also glossary popups. For more see "Linker.html".
 

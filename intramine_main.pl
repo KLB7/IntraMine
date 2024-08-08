@@ -1258,9 +1258,13 @@ sub BroadcastAllServersUp {
 	#my $ob = '/?signal=allServersUp&name=PageServers';
 	my $ob = '/?signal=allServersUp';
 	my $ignoredPeerAddress = '';
-	# TEST ONLY
+	
+	# This is a good opportunity to notify the user too:)
 	ShowHummingbird();
 	print("All $TotalServersWanted servers have started.\n");
+	print("Access IntraMine in your browser at http://localhost:81/Search\n");
+	print("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
+	print("To start IntraMine again , double-click bats/START_INTRAMINE.bat\n");
 
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}

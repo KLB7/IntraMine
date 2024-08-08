@@ -1,0 +1,33 @@
+Unblocking foldermonitor
+========================
+
+IntraMine wants to run a PowerShell script called foldermonitor.ps1 in the bats/ folder in order to speed up the detection of changes in folders that you've listed in your data/search_directories.txt file. If it doesn't run then change detection could take up to 30 seconds, and file/folder renames will be missed.
+
+So please allow foldermonitor.ps1 to run as explained below.
+
+Enable PowerShell and unblock a script
+===================
+First, let's allow your PC to execute PowerShell scripts. Then we'll "unblock" the one script that IntraMine needs.
+
+Enable PowerShell
+-----------------
+For Windows 11: bring up Settings -> System -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..."
+"localps.png"
+
+(If "For developers" doesn't appear under System -> Settings, try going to to Settings -> Privacy & security -> For developers, and look for the PowerShell setting there. Be sure to click "Apply" if you see it.)
+
+Unblock foldermonitor.ps1
+-------------------------
+To unblock foldermonitor.ps1:
+1. Bring up a Windows PowerShell prompt using "Run as Administrator". You can do that by searching for "Windows PowerShell" in the Search field on your task bar and clicking on "Run as Administrator" over on the right
+ "psrunas.png"
+2. Then go to IntraMine's bats/ folder and double-click on bats/Make_foldermonitor_command.bat to produce the specific PowerShell that you need
+ "mfc.png"
+ *note your specific command will have a different path from the one shown above*
+3. As suggested in the results of running that, copy the "Unblock..." line there (select, CTRL+C)
+4. Back in your PowerShell prompt window, Paste (CTRL+V) and press Enter. Then you can close the window.
+
+Restart IntraMine if it's running in order for foldermonitor.ps1 to start.
+
+If you want to verify that the unblock worked: right-click on bats/foldermonitor.ps1, select Properties and look for an "Unblock..." checkbox at lower right: if you don't see it, the unblock worked. If against odds you *do* see it, check it and click Apply and OK.
+"unblock.png"
