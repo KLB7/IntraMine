@@ -3,10 +3,6 @@
 *Fast search, easy linking, and glossary popups for your Windows source and text files.*
 
 
-## Correction
-
-IntraMine uses a PowerShell script (bats/foldermonitor.ps1) to speed up file change detection and handle file/folder renames. If you installed IntraMine before August 8 2024 and didn't use the *QUICK INSTALL* there's a chance that foldermonitor.ps1 is blocked from running. To fix that please download the latest IntraMine and see [Unblocking foldermonitor](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Unblocking%20foldermonitor.html).
-
 ## Overview
 
 IntraMine provides browser-accessed Editor, Viewer, and Search services on your intranet that are designed to ease the creation and reading of in-house documentation, and speed up code comprehension. It's for Windows only.
@@ -23,7 +19,7 @@ For wider distribution of your documents IntraMine includes [**gloss2html.pl**](
 
 And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Search.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
 
-If you like IntraMine (and you might, it's been under development for more than eight years) pester your favorite IDE's developers and they might add enough of IntraMine's features that you won't need it any more.
+If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
 
 ## Installation
 
@@ -46,11 +42,11 @@ _A simple glossary popup. The cursor is paused over "FLASH link". Links in the d
 
 
 _A glossary popup showing off. This is the popup for "Gloss", IntraMine's Markdown for intranet use._
-![Fancy glossary popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/gloss1.png)
+![Fancy popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/gloss1.png)
 
 
 ## Free as in free
-If you see a use for IntraMine's FLASH link algorithms etc in your own work, go right ahead: all original work is covered by an UNLICENSE. (Some software included with or used by IntraMine, such as Perl, CodeMirror and Elasticsearch, is covered by separate license agreements.)
+If you see a use for IntraMine's FLASH link algorithms etc in your own work, go right ahead: all original work is covered by an UNLICENSE. (Some software included with or used by IntraMine, such as Perl, Unversal ctags, CodeMirror and Elasticsearch, is covered by separate license agreements.)
 
 ## Requirements
 

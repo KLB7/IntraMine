@@ -1445,14 +1445,18 @@ sub StopPowerShellFolderMonitor {
 	}
 
 sub RestartFolderMonitor {
-	print("Restarting foldermonitor.ps1 is too slow to respond, restarting...\n");
+	print("bats/foldermonitor.ps1 is slow or not running.\n");
+	print("If you see this message repeatedly, and you have not\n");
+	print("just dumped a huge number of files into an indexed folder,\n");
+	print("please read /Documentation/Unblocking foldermonitor.html.\n");
+	print("Restarting foldermonitor.ps1...\n");
 	StopPowerShellFolderMonitor();
 	# 1 millisecond == 1000 microseconds
 	usleep(300000); # 0.3 seconds
 	my $result = StartPowerShellFolderMonitor();
 	if ($result)
 		{
-		print("foldermonitor.ps1 has been restarted.\n");
+		print("foldermonitor.ps1 restart attempt complete.\n");
 		}
 	}
 } ##### PowerShell folder monitor start/stop

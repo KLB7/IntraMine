@@ -43,6 +43,10 @@ my @repLen;			# length of substr to replace in line, eg length('#Header within d
 my @repStartPos;	# where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
 my @repLinkType; 	# For CodeMirror, 'glossary' is the only type here.
 
+# Special handling is needed for Markdown files, skip
+# glossary terms inside alt tags.
+my $isMarkdown = 0;
+
 sub ClearDocumentGlossaryTermsSeen {
 	%DefinitionSeenInDocument = ();
 }
@@ -295,6 +299,13 @@ sub AddGlossaryHints {
 		}
 
 	my $linksArg = ($haveRefToText) ? undef: $linksA;
+
+	# Special handling for .md, avoid terms inside alt tags.
+	$isMarkdown = 0;
+	if ($path =~ m!\.md$!i)
+		{
+		$isMarkdown = 1;
+		}
 	EvaluateGlossaryCandidates($definitionHashRef, $context, $host, $port, $VIEWERNAME, $linksArg, $currentLineNumber);
 
 	# Do all reps in reverse order for non-CodeMirror.
@@ -414,20 +425,29 @@ sub EvaluateGlossaryCandidates {
 
 						if (!$insideLink)
 							{
-							my $definitionAlreadySeen = 0;
-							###my $definitionAlreadySeen = (defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
-							my $replacementHint = GetReplacementHint($definitionHashRef, $term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
-							push @repStr, $replacementHint;
-							push @repLen, $repLength;
-							push @repStartPos, $repStartPosition;
-							if (!$haveRefToText)
+							# Avoid terms inside <img alt="a term"...>, for .md
+							# files only.
+							my $probablyInsideAlt = 0;
+							if ($isMarkdown && index($line, '<img') == 0)
 								{
-								push @repLinkType, 'glossary';
+								$probablyInsideAlt = 1;
 								}
-							$startPosSeen[$posIndex] = $startPos;
-							$endPosSeen[$posIndex++] = $startPos + $repLength;
-							###$DefinitionSeenInDocument{$term} = 1;
-							$DefinitionSeenOnLine{$term} = 1;
+
+							if (!$probablyInsideAlt)
+								{
+								my $definitionAlreadySeen = 0;
+								my $replacementHint = GetReplacementHint($definitionHashRef, $term, $words, $definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
+								push @repStr, $replacementHint;
+								push @repLen, $repLength;
+								push @repStartPos, $repStartPosition;
+								if (!$haveRefToText)
+									{
+									push @repLinkType, 'glossary';
+									}
+								$startPosSeen[$posIndex] = $startPos;
+								$endPosSeen[$posIndex++] = $startPos + $repLength;
+								$DefinitionSeenOnLine{$term} = 1;
+								}
 							}
 						}
 					
