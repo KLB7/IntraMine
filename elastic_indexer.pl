@@ -27,12 +27,13 @@
 # Default is 0, skip them.
 #
 # Command line (see bats/elastic_stop_INIT_rebuild_start.bat etc for a better way to run this
-# if you want to completely rebuild your index):
+# if you want to completely rebuild your index): 
 # perl C:\perlprogs\mine\elastic_indexer.pl
 
 use strict;
 use utf8;
 use FileHandle;
+use Win32::RunAsAdmin qw(force);
 use File::Find;
 use Math::SimpleHisto::XS;
 use Path::Tiny qw(path);

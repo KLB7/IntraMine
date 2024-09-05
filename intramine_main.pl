@@ -1217,6 +1217,16 @@ sub ReceiveServerUp {
 		Output("$srvr server has started on port $senderPort.\n");
 		if (!$kDISPLAYMESSAGES) # Avoid duplicated print.
 			{
+			# Check if it's a top level Page Server or just a helper.
+			# If it's a helper, don't show a URL.
+			if ($isPageServer)
+				{
+				my $pageNameForShortName = $PageNameForShortServerName{$srvr};
+				if ($pageNameForShortName ne $srvr)
+					{
+					$isPageServer = 0;
+					}
+				}
 			if ($isPageServer)
 				{
 				my $crudePadLength = 8 - length($srvr) + 2;
@@ -1227,7 +1237,7 @@ sub ReceiveServerUp {
 				my $spacer = ' ' x $crudePadLength;
 				print("$srvr server has started on port $senderPort.$spacer(localhost:$port_listen/$srvr)\n");
 				}
-			else # User cannot visit background services, so no example URL.
+			else # User cannot visit this one, so no example URL.
 				{
 				print("$srvr server has started on port $senderPort.\n");
 				}
@@ -1264,7 +1274,7 @@ sub BroadcastAllServersUp {
 	print("All $TotalServersWanted servers have started.\n");
 	print("Access IntraMine in your browser at http://localhost:81/Search\n");
 	print("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
-	print("To start IntraMine again , double-click bats/START_INTRAMINE.bat\n");
+	print("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
 
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}

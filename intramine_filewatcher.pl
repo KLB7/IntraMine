@@ -830,7 +830,11 @@ sub UpdateFullPathsForFolderRenames {
 		my $startTime = time;
 		my %newPathForOldPath;
 		UpdatePathsForFolderRenames($remainingRenameCount, \@renamedFolderPaths, \@oldFolderPaths, \%newPathForOldPath);
-		ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
+		my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
+		if ($howItWent ne "ok")
+			{
+			print("$howItWent\n");
+			}
 		my $endTime = time;
 		my $elapsedSecs = int($endTime - $startTime + 0.5);
 		print("Full paths update for folder rename complete, took $elapsedSecs s.\n");
@@ -1157,7 +1161,11 @@ sub PeriodicallyConsolidate {
 		{
 		RememberTimeOfLastConsolidation();
 		my $startTime = time;
-		ConsolidateFullPathLists(0); # reverse_filepaths.pm#ConsolidateFullPathLists(), 0==no forcing
+		my $howItWent = ConsolidateFullPathLists(0); # reverse_filepaths.pm#ConsolidateFullPathLists(), 0==no forcing
+		if ($howItWent ne "ok")
+			{
+			print("$howItWent\n");
+			}
 		my $endTime = time;
 		my $elapsedSecs = int($endTime - $startTime + 0.5);
 		my $timeNow = NiceToday();

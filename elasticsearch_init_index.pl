@@ -63,6 +63,7 @@
 use strict;
 use utf8;
 use FileHandle;
+use Win32::RunAsAdmin qw(force);
 use File::Find;
 use Path::Tiny qw(path);
 use Search::Elasticsearch;

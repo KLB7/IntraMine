@@ -176,7 +176,7 @@ _TOPNAV_
 				<td><input id="fruitnametext" class="form-field" type="search" name="fruitname" placeholder='name a fruit' required /></td>
 				<td><h2>Rating&nbsp;</h2></td>
 				<td>
-				<select name="fruitrating" id="fruitratingtext"">
+				<select name="fruitrating" id="fruitratingtext">
 					<option value="1">1</option>
 					<option value="2">2</option>
 					<option value="3">3</option>

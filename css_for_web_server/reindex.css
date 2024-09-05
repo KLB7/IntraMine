@@ -1,0 +1,9 @@
+/* for intreamine_reindex.pl */
+
+#directories_table {
+	border: 1px solid #AAAAAA;
+}
+
+.badDirectory {
+	background-color: #ffaaaa;
+}

@@ -30,26 +30,26 @@
 # Watcher Windows Service is in 'fwws...', so look for the extra w).
 
 # perl C:\perlprogs\mine\make_filewatcher_config.pl
-
+ 
 use strict;
 use utf8;
 use FileHandle;
-use Win32::RunAsAdmin;
+use Win32::RunAsAdmin qw(force);
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use intramine_config;
 
-if (not Win32::RunAsAdmin::check) {
-   print("Sorry, this program must be started with administrator privileges.\n");
-   print("If you started this by running a shortcut to a .bat file,\n");
-   print("right-click on the shortcut, select Properties->Shortcut->Advanced...->Run as administrator,\n");
-   print("then run your shortcut again.\n");
-   print("If you started this by running perl at a cmd prompt, try again in a new cmd prompt\n");
-   print("window started by right-clicking and choosing \"Run as administrator\".\n");
-   print("This program will end with exit(1) now, terminating any .bat file that invoked it.\n");
-   exit(1);
-}
+# if (not Win32::RunAsAdmin::check) {
+#    print("Sorry, this program must be started with administrator privileges.\n");
+#    print("If you started this by running a shortcut to a .bat file,\n");
+#    print("right-click on the shortcut, select Properties->Shortcut->Advanced...->Run as administrator,\n");
+#    print("then run your shortcut again.\n");
+#    print("If you started this by running perl at a cmd prompt, try again in a new cmd prompt\n");
+#    print("window started by right-clicking and choosing \"Run as administrator\".\n");
+#    print("This program will end with exit(1) now, terminating any .bat file that invoked it.\n");
+#    exit(1);
+# }
 
 
 my $TESTING = 0; # ==1: make fwatcher.xml.txt instead of fwatcher.xml.
