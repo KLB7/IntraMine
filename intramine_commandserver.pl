@@ -216,6 +216,7 @@ FINIS
 	# An example of starting an exe on the server without monitoring, in this case
 	# available to everyone.
 	# Last two args to OneCommandString are 0,0 meaning no restart, no monitoring.
+	# Note it will start on the IntraMine pc.
 	###$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word From Anywhere', 0, 0);
 
 	$theBody =~ s!_COMMANDS_!$cmdLs!;
