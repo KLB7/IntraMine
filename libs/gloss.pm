@@ -1203,11 +1203,11 @@ sub ImageFileNamePath {
 				}
 			}
 
-		if (FileOrDirExistsWide($IMAGESDIR . $fileName) == 1)
+		if (defined($IMAGESDIR) && FileOrDirExistsWide($IMAGESDIR . $fileName) == 1)
 			{
 			$filePath = $IMAGESDIR . $fileName;
 			}
-		elsif ($COMMONIMAGESDIR ne '' && FileOrDirExistsWide($COMMONIMAGESDIR . $fileName) == 1)
+		elsif (defined($COMMONIMAGESDIR) && $COMMONIMAGESDIR ne '' && FileOrDirExistsWide($COMMONIMAGESDIR . $fileName) == 1)
 			{
 			$filePath = $COMMONIMAGESDIR . $fileName;
 			}

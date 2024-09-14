@@ -135,3 +135,7 @@ Glossary popup, glossary popups: for general use with IntraMine, glossary popup 
 A separate glossary is available for use with gloss2html.pl. It should be called "glossary.txt" and placed at the top level of any folder containing text files that you want to convert to standalone HTML using gloss2html. For details see "gloss2html.pl for standalone Gloss files.html".
 
 Shortcut on your desktop: To make a shortcut to any file, in a Windows File Explorer view hold down the Shift and Ctrl keys and drag the file to your desktop, or wherever you want the shortcut.
+
+Watcher, FILEWATCHER: the name for intramine_filewatcher.pl, a BACKGROUND service that monitors directories for changes based on your directory list in data/search_directories.txt. It checks in regularly with the log from File Watcher Utilities, and also runs and listens to bats/foldermonitore.ps1, which pushes change notifications more quickly.
+
+Reindex service: the Reindex page has two buttons, to edit your list of directories to index and monitor, and to completely rebuild your search index. For details see "Reindex.html".

@@ -6,6 +6,11 @@
 let lineSeen = {};
 let isMarkdown = false;
 
+// "sleep" for ms milliseconds.
+function sleepABit(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Called by addScrollListenerAndSetMarkdown() below, and viewerStart.js#reJumpAndHighlight() on "load".
 function addAutoLinks() {
 	let el = document.getElementById(cmTextHolderName);
@@ -44,18 +49,39 @@ function addAutoLinks() {
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
 async function requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds) {
-	try {
-		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
-		if (port !== "")
+	let tryCounter = 0;
+	let maxTries = 2;
+	let retry = true;
+
+	while (retry)
+		{
+		try
 			{
-			requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, port);
+			retry = false;
+			const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+			if (port !== "")
+				{
+				requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds, port);
+				}
 			}
-	}
-	catch(error) {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-	}
+		catch(error)
+			{
+			++tryCounter;
+			if (tryCounter > maxTries)
+				{
+				retry = false;
+				// There was a connection error of some sort
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+				}
+			else
+				{
+				retry = true;
+				// Try again, after a brief pause.
+				await sleepABit(1000);
+				}
+			}
+		}
 }
 
 //Add link markup to view for newly exposed lines. Remember the lines have been marked up.
@@ -137,18 +163,39 @@ function addAutoLinksForMarkdown() {
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
 async function requestLinkMarkupForMarkdown(visibleText, el) {
-	try {
-		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
-		if (port !== "")
+	let tryCounter = 0;
+	let maxTries = 2;
+	let retry = true;
+
+	while (retry)
+		{
+		try
 			{
-			requestLinkMarkupWithPortForMarkdown(visibleText, port, el);
+			retry = false;
+			const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+			if (port !== "")
+				{
+				requestLinkMarkupWithPortForMarkdown(visibleText, port, el);
+				}
 			}
-	}
-	catch(error) {
-		// There was a connection error of some sort
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
-	}
+		catch(error)
+			{
+			++tryCounter;
+			if (tryCounter > maxTries)
+				{
+				retry = false;
+				// There was a connection error of some sort
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+				}
+			else
+				{
+				retry = true;
+				// Try again, after a brief pause.
+				await sleepABit(1000);
+				}
+			}
+		}
 }
 
 // Add link markup to view all lines. Remember the lines have been marked up.

@@ -23,6 +23,7 @@ use Time::HiRes qw(usleep);
 # For stopping PowerShell script:
 use Win32::Process 'STILL_ACTIVE';
 use DateTime;
+use Time::Local qw( timelocal_modern );
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -100,6 +101,10 @@ StartPowerShellFolderMonitor();
 
 # Start up db for tracking deleted files.
 InitDeletesDB();
+
+# Detect large number of files added or deleted.
+my $Congested = 0;
+my $CongestionMinimum = 100; # Somewhat arbitrary, count of files receive all at once
 
 # Note we call IndexChangedFiles() once a minute (30 two-second timeouts).
 MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFiles);
@@ -279,6 +284,7 @@ my %TimeStampForPath; # $TimeStampForPath{'C:/folder/file.txt'} = '2023-10-31 5-
 
 # Read FileWatcher Service log(s), ask Elasticsearch to index changed/new, remember full
 # paths of any new files. If a folder is renamed, tell Viewer to reload partial path list.
+
 sub IndexChangedFiles {
 	
 	# Look for fwatcher.log. Everything here depends on it.
@@ -422,6 +428,35 @@ sub IndexChangedFiles {
 		RequestBroadcast('signal=filechange');
 		}
 	
+	# Notify if many files are coming in at once.
+	# And again when the load drops off.
+	if ($numNew || $numDeleted)
+		{
+		my $numTotal = $numNew + $numDeleted;
+		if ($numTotal >= $CongestionMinimum)
+			{
+			$Congested = 1;
+			if ($numTotal > $CongestionMinimum*10)
+				{
+				print("VERY heavy load on Watcher, $numTotal file system changes.\n");
+				}
+			else
+				{
+				print("Heavy load on Watcher, $numTotal file system changes.\n");
+				}
+			}
+		elsif ($Congested)
+			{
+			print("Watcher load has dropped off.\n");
+			$Congested = 0;
+			}
+		}
+	elsif ($Congested)
+		{
+		print("Watcher load has dropped off.\n");
+		$Congested = 0;
+		}
+
 	# Make the Status light flash for this server.
 	ReportActivity($SHORTNAME);
 	}
@@ -461,7 +496,51 @@ sub SendOneFileContentsChanged {
 	
 	$filePath =~ s!%!%25!g;
 	$filePath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	my $msg = 'changeDetected 0 ' . $filePath . '     ' . $timeStamp;
+
+	# Revision Sept 2024, for the time stamp send seconds since
+	# the Epoch () instead of a readable string.
+	# Typical $timeStamp coming in: 2024-09-11 11-13-40 AM
+	# Regex: !^(\d\d\d\d)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)\s(\w+)$!
+	# my $time = timelocal_modern($sec, $min, $hour, $mday, $mon, $year);
+	# $sec: 0..59
+	# $min: 0..59
+	# $hour: 0..23
+	# $mday: 1..31
+	# $mon: 0..11
+	# $year: 4 digits
+	my $messageTime = 0;
+	if ($timeStamp =~ m!^(\d\d\d\d)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)\s(\w+)$!)
+		{
+		my $year = $1;
+		my $mon = $2;
+		my $mday = $3;
+		my $hour = $4;
+		my $min = $5;
+		my $sec = $6;
+		my $ampm = $7;
+
+		$mon -= 1;
+		if ($ampm =~ m!pm!i)
+			{
+			$hour += 12;
+			}
+		if ($hour >= 24)
+			{
+			$hour -= 24;
+			}
+
+		if ($year > 2020 && $year < 2038 && $mon >= 0 && $mon < 12 && $mday >= 1
+			&& $mday <= 31 && $hour >= 0 && $hour < 24 && $min >= 0 && $min < 60
+			&& $sec >= 0 && $sec < 60)
+			{
+			# Time in seconds since Jan 1, 1970.
+			$messageTime = timelocal_modern($sec, $min, $hour, $mday, $mon, $year);
+			# Make it milliseconds, to agree with JavaScript down the road.
+			$messageTime *= 1000;
+			}
+		}
+
+	my $msg = 'changeDetected 0 ' . $filePath . '     ' . $messageTime;
 
 	# TEST ONLY
 	#print("CHANGED: $msg\n");

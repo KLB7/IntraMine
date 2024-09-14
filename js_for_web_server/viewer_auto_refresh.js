@@ -43,6 +43,7 @@ function handleFileChanged(message) {
 			// number, 0 means don't jump (since line number is unknown).
 			if (lineNumberStr > 0) // "0" means line number unknown
 				{
+				// Message is from IntraMine's Editor, always reload.
 				location.hash = lineNumberStr;
 				window.location.reload();
 				}
@@ -70,7 +71,31 @@ function handleFileChanged(message) {
 					{
 					if (previousTimestamp !== timeStamp)
 						{
-						window.location.reload();
+						// Last check, reload only if Editor here and the timeStamp
+						// from the Watcher WebSockets message
+						// disagree by more than three thousand milliseconds.
+						let timesAreClose = false;
+						if (lastEditorUpdateTime >= 0 && timeStamp >= 0)
+							{
+							let diffMsecs = timeStamp - lastEditorUpdateTime;
+							if (diffMsecs < 0)
+								{
+								diffMsecs = -diffMsecs;
+								}
+							if (diffMsecs <= 3000)
+								{
+								timesAreClose = true;
+								}
+							}
+						if (!timesAreClose)
+							{
+							window.location.reload();
+							}
+						// TEST ONY
+						else
+							{
+							console.log("Reload skipped, times are close.");
+							}
 						}
 					}
 				// else too soon, ignore message from Watcher

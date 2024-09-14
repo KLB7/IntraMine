@@ -19,14 +19,13 @@
 # THE MOST DANGEROUS SERVER EVER.
 ##############################################
 # There are no restrictions on access here, so anyone who can get at this Cmd server can run
-# any program they want on the IntraMine box. This server is suitable for running
-# *only* on an intranet with adequate security, with access given only to people you trust.
+# any program they want on the IntraMine box.
 #
 # This server is disabled by default. To run it, uncomment the line
 #1	Cmd					Cmd			intramine_commandserver.pl	PERSISTENT
 # in data/serverlist.txt
 
-# perl C:\perlprogs\mine\intramine_commandserver.pl 81 43130
+# perl -c C:\perlprogs\IntraMine\intramine_commandserver.pl 81 43130
 
 use strict;
 use warnings;

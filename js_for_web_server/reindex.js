@@ -1,5 +1,5 @@
-// reindex.js: Add/remove folders from index list,
-// fire off a re-index which is handled by intramine_reindex.pl#Reindex().
+// reindex.js: size adjustment for the div that holds output.
+// Goes with intramine_reindex.pl, reindex.js.
 
 // Call fn when ready.
 function ready(fn) {
@@ -13,44 +13,7 @@ function ready(fn) {
 		}
 }
 
-// Position and resize scrollAdjustedHeight (holding progress messages).
-function xdoResize() {
-	let dirTableHolder = document.getElementById(dirtable);
-	if (dirTableHolder === null)
-		{
-		console.log("Error, cannot find div id " + dirtable);
-		return;
-		}
-	let pos = getPosition(dirTableHolder);
-	let rect = dirTableHolder.getBoundingClientRect();
-	let holderHeight = rect.height;
-	let windowHeight = window.innerHeight;
-	let elHeight = windowHeight - pos.y - holderHeight - 16;
-	let newHeightPC = (elHeight / windowHeight) * 100;
-	let el = document.getElementById("scrollAdjustedHeight");
-	el.style.height = newHeightPC + "%";
-	el.style.width = window.innerWidth - 4 + "px";
-
-
-
-	// let buttonHolder = document.getElementById("top_buttons");
-	// if (buttonHolder === null)
-	// 	{
-	// 	console.log("Error, cannot find div id 'top_buttons'!");
-	// 	return;
-	// 	}
-	// let pos = getPosition(buttonHolder);
-	// let rect = buttonHolder.getBoundingClientRect();
-	// let holderHeight = rect.height;
-	
-	// let windowHeight = window.innerHeight;
-	// let elHeight = windowHeight - pos.y - holderHeight - 16;
-	// let newHeightPC = (elHeight / windowHeight) * 100;
-	// let el = document.getElementById("scrollAdjustedHeight");
-	// el.style.height = newHeightPC + "%";
-	// el.style.width = window.innerWidth - 4 + "px";
-}
-
+// Adjust the command output container to fill the bottom of the window.
 function doResize() {
 	let el = document.getElementById(cmdOutputContainerDiv);
 
@@ -64,15 +27,17 @@ function doResize() {
 	el.style.width = windowWidth - 4 + "px";
 }
 
-// function addReindexHandler() {
-// 	let el = document.getElementById("reindexButton");
-// 	if (el !== null)
-// 		{
-// 		el.addEventListener('click', reindex, false);
-// 		}
-// }
+// If we're not on the IntraMine PC, disable
+// the Reindex button.
+function disableReindexIfRemote() {
+	if (weAreRemote)
+		{
+		let showRunMessage = false;
+		xableCmdAnchors(false, showRunMessage); // cmd_monitor.js#xableCmdAnchors()
+		}
+}
 
 ready(doResize);
 ready(hideSpinner);
-//ready(addReindexHandler);
+ready(disableReindexIfRemote);
 window.addEventListener("resize", doResize);

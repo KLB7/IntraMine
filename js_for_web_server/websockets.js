@@ -37,9 +37,10 @@ function addCallback(trigger, callback) {
 //	commandTable[trigger] = function() { callback(); };
 	}
 
-// Messages have the form "MG_trigger stuff_MG_" and there
+// Messages have the form "_MG_trigger stuff_MG_" and there
 // can be several messages received at once, many not
 // containing a trigger word that we're interested in here.
+// (MG: Message Guard)
 function doCallback(message) {
 	for (const trigger in commandTable)
 		{

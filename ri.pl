@@ -1,5 +1,6 @@
 # ri.pl: re-index Elasticsearch, and create a new full path list
-# based on directories listed in data/search_directories.txt
+# based on directories listed in data/search_directories.txt,
+# as well as setting directories for File Watcher Utilities to monitor.
 # The name is deliberately cryptic, it should only be run
 # via the Reindex service. All progress messages are written
 # to a file which can then be read by some other program
@@ -8,15 +9,18 @@
 # make_filewatcher_config.pl
 # elasticsearch_init_index.pl
 # elastic_indexer.pl -addTestDoc
-# but with progress messages written to a temp file.
+# with stop/start of the Linker and Watcher services
+# and with progress messages written to a temp file.
+# Run as administrator is requested when starting.
 
 # Summary
 # Force to Run as admin
 # Phase 1, configure File Watcher to watch new list of directories
-# Stop IntraMine
 # Phase 2 init Elasticsearch index and delete full paths list.
 # PHASE 3 rebuild the Elasticsearch index and full paths list.
-# Restart IntraMine (done by a separate call in IM_REINDEX.bat).
+# Stop Linker and Watcher
+# PHASE 3 concluded Save the new full paths list
+# Restart Linker and Watcher
 
 use strict;
 use utf8;
@@ -46,7 +50,7 @@ use ext;	# For ext.pm#EndsWithTextExtension()
 # First, force Run as admin.
 # Borrowed from Win32::RunAsAdmin,
 # the only change is a fifth argument of 0 to ShellExecute
-# below around l.63.
+# below around l.77 to suppress the console.
 restart() if (!check());
 
 sub check { Win32::IsAdminUser(); }
@@ -86,9 +90,9 @@ if ($AddTestDocuments =~ m!addTestDoc!i)
 
 my $TESTING = 0; # ==1: make fwatcher.xml.txt instead of fwatcher.xml.
 
-select((select(STDOUT), $|=1)[0]); # Unbuffer output.
+select((select(STDOUT), $|=1)[0]); 	# Unbuffer output.
 
-LoadConfigValues();				# intramine_config.pm
+LoadConfigValues('SRVR');			# intramine_config.pm
 
 my $LogDir = FullDirectoryPath('LogDir');
 InitCmdOutput($LogDir . 'temp/tempout_' . 'REINDEX' . '.txt');
@@ -103,25 +107,48 @@ InitCmdOutput($LogDir . 'temp/tempout_' . 'REINDEX' . '.txt');
 # WriteDoneAndCloseOutput();
 # exit(0);
 
+Output("Starting\n");
+
+# Get our IP, which is saved to disk by IntraMine each time it starts.
+my $ServerAddress = CVal('SERVER_ADDRESS');
+if ($ServerAddress eq '')
+	{
+	Output("Error, cannot continue, could not determine IntraMine's IP address!\n");
+	WriteDoneAndCloseOutput();
+	die("Error no IP address found for IntraMine in config 'SERVER_ADDRESS'.");
+	}
+
+my $MainPort = CVal('INTRAMINE_MAIN_PORT');
+if ($MainPort eq '')
+	{
+	Output("Error, cannot continue, could not determine IntraMine's main port!\n");
+	WriteDoneAndCloseOutput();
+	die("Error no main port found for IntraMine in config 'INTRAMINE_MAIN_PORT'.");
+	}
 
 # Stop and start the File Watcher service, to pick up the config changes made here.
 my $startFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_START_SERVICE');
 my $stopFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_STOP_SERVICE');
 if (!(-f $startFileWatcherServicePath))
 	{
+	Output("Error, cannot continue, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt\n");
+	WriteDoneAndCloseOutput();
 	die ("Maintenance error, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt! Expecting path to start_filewatcher_service.bat.")
 	}
 if (!(-f $stopFileWatcherServicePath))
 	{
+	Output("Error, cannot continue, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt\n");
+	WriteDoneAndCloseOutput();
 	die ("Maintenance error, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt! Expecting path to stop_filewatcher_service.bat.")
 	}
 
 my $ConfigFilePath = CVal('FWWS_CONFIG');
-die("Error |FWWS_CONFIG| not found in /data/intramine_config.txt") if ($ConfigFilePath eq '');
-
-# FWWS_CONFIG file might be missing on a first run, so ignore error if it doesn't exist yet.
-#die ("Please install File Watcher and set |FWWS_CONFIG| in /data/intramine_config.txt")
-#	if (!(-f $ConfigFilePath));
+if ($ConfigFilePath eq '')
+	{
+	Output("Error, cannot continue, |FWWS_CONFIG| not found in /data/intramine_config.txt!\n");
+	WriteDoneAndCloseOutput();
+	die("Error |FWWS_CONFIG| not found in /data/intramine_config.txt");
+	}
 
 if ($TESTING)
 	{
@@ -133,47 +160,43 @@ my $SearchDirectoriesPath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
 my $batresult = system(1, "\"$stopFileWatcherServicePath\">nul 2>&1");
 if ($batresult == -1)
 	{
+	Output("Error, cannot continue, could not stop the File Watcher service with |$stopFileWatcherServicePath|!\n");
+	WriteDoneAndCloseOutput();	
 	die("ERROR, could not stop the File Watcher service with |$stopFileWatcherServicePath|!\n");
 	}
 
 # Allow a few seconds for File Watcher to stop.
+Output("Waiting briefly for File Watcher to stop.\n");
 sleep(5);
 
+Output("Making File Watcher Utility config file.\n");
 my $EntryCount = MakeConfigFiles($ConfigFilePath, $EntryTemplatePath, $SearchDirectoriesPath);
 
 # And let the dust settle on that, in case the disk gerbil is a bit tired today.
 sleep(2);
 
+Output("Starting File Watcher.\n");
+
 $batresult = system(1, "\"$startFileWatcherServicePath\">nul 2>&1");
 if ($batresult == -1)
 	{
+	Output("Error, cannot continue, could not restart the File Watcher service with |$startFileWatcherServicePath|!\n");
+	WriteDoneAndCloseOutput();	
 	die("ERROR, could not restart the File Watcher service with |$startFileWatcherServicePath|!\n");
 	}
 
 Output("$EntryCount directories will be monitored by File Watcher, see |$ConfigFilePath|.\n");
 
-##### Stop IntraMine
-# 'SRVR' loads current 'SERVER_ADDRESS' as saved by intramine_main.pl#InitServerAddress().
-LoadConfigValues('SRVR');
-my $port_listen = CVal('INTRAMINE_MAIN_PORT'); 			# default 81
-
-my $serverAddress = CVal('SERVER_ADDRESS');
-if ($serverAddress eq '')
-	{
-	# This is an error, but we will try to carry on.
-	Output("We will continue, using 'localhost' as the server address.\n");
-	$serverAddress = 'localhost';
-	}
-
-AskServerToExit($port_listen, $serverAddress);
-sleep(2); # let the dust settle
-
 ##### PHASE 2, init Elasticsearch index and delete full paths list.
+Output("Beginning Elasticsearch index and full path list rebuild.\n");
+
 my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
 my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
 if ($esIndexName eq '' || $esTextIndexType eq '')
 	{
-	die("ERROR, intramine_config.pm could not find values for ES_INDEXNAME and ES_TEXTTYPE!");
+	Output("Error, cannot continue, intramine_config.pm does not have values for ES_INDEXNAME and ES_TEXTTYPE!\n");
+	WriteDoneAndCloseOutput();	
+	die("ERROR, intramine_config.pm does not have values for ES_INDEXNAME and ES_TEXTTYPE!");
 	}
 
 my $numShards = CVal('ELASTICSEARCH_NUMSHARDS') + 0;
@@ -197,7 +220,8 @@ if ($e->indices->exists(index => $esIndexName))
 			index => $esIndexName
 		);
 	ShowResponse($response, "$esIndexName index deletion");
-	sleep(10);
+	Output("Pausing for a few seconds to allow deletion to complete.\n");
+	sleep(12);
 	}
 else
 	{
@@ -225,27 +249,9 @@ $response = $e->indices->create(
 	}
 );
 
- # For Elasticsearch 6.5.1, this worked fine: it doesn't have the "settings" wrapper.
-#$response = $e->indices->create(
-#	index      => $esIndexName,
-#	"body" => {
-#       number_of_shards 	=> $numShards,			# default 5
-#       number_of_replicas 	=> $numReplicas,		# default 0
-#       auto_expand_replicas	=> 'false',				# prevents autocreating unwanted replica(s)
-#		"analysis" => {
-#			"analyzer" => {
-#				"index_analyzer" => {
-#					"char_filter" 	=> "icu_normalizer",
-#					"tokenizer" 	=> "icu_tokenizer",
-#					"filter"    	=> "icu_folding"
-#				}
-#			}
-#		}
-#	}
-#);
 ShowResponse($response, "$esIndexName index creation");
 
-Output("Done Elasticsearch index init.\n");
+Output("Finished Elasticsearch index init.\n");
 
 ##### PHASE 3 rebuild the Elasticsearch index and full paths list.
 InitFullPathList($fullFilePathListPath);
@@ -280,7 +286,7 @@ my @folders;
 
 for (my $i = 0; $i < $numDirs; ++$i)
 	{
-	# _INTRAMINE_ stands for the dir that holds this program, and by default all IntraMine files.
+	# _INTRAMINE_ stands for the dir that holds this program, and all IntraMine files.
 	if ($DirectoriesToIndex[$i] eq '_INTRAMINE_')
 		{
 		$DirectoriesToIndex[$i] = path($0)->absolute->parent->stringify;
@@ -315,8 +321,8 @@ for (my $i = 0; $i < @files; ++$i)
 	}
 
 # Connect to Elasticsearch.
-my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
-my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
+#my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
+#my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
 my $maxFileSizeKB = CVal('ELASTICSEARCH_MAXFILESIZE_KB');
 my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexType, $maxFileSizeKB);
 
@@ -327,7 +333,7 @@ if ($AddTestDocuments)
 	}
 
 # Run through all files, load and index them into Elasticsearch.
-Output("Indexing files\n");
+Output("File list gathered, indexing files.\n");
 my $numDocs = keys %myFileNameForPath;
 my $docCounter = 0;
 my $numDocsIndexed = 0;
@@ -372,6 +378,10 @@ else
 	Output("\nODD, no documents were found for indexing!\n");
 	}
 
+# Stop services that rely on the full paths list.
+Output("Briefly stopping Linker and Watcher services.\n");
+StopLinkerAndWatcherServices();
+
 # Save file listing full paths to all files found in indexed directories,
 # for use by intramine_fileserver.pl etc when turning file paths into links.
 # (intramine_filewatcher.pl runs as part of IntraMine to keep the list up to date,
@@ -387,21 +397,25 @@ AddIncrementalNewPaths(\%rawPathList);
 # Consolidate will do the right thing, even though the name isn't quite right
 # (mainly it's used by intramine_filewatcher.pl when IntraMine is running,
 # to consolidate the two full path files during the wee hours of the night).
-my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation
-if ($howItWent ne "ok")
-	{
-	Output("$howItWent\n");
-	}
+ConsolidateFullPathLists(1); # 1 == force consolidation
 
 # Dump a table of file counts in various size ranges.
 DumpFileSizeBinCountsAndLargeFiles();
 
-Output("\nDone. Full path list is in |$fullFilePathListPath|.\n");
+Output("\nIndexing complete. Full path list is in |$fullFilePathListPath|.\n");
+
+# Full paths list has been recreated, so start up stopped services.
+StartLinkerAndWatcherServices();
+
+Output("Linker and Watcher services have been restarted.\n").
+Output("All done!\n");
 
 # All finished. Write an "all done" message to the output progress file.
 WriteDoneAndCloseOutput();
 
 ############## subs
+# Note this has nothing to do with common.pm#Output(), I was
+# just lazy in picking the name, sorry.
 sub Output {
 	my ($txt) = @_;
 	WriteToOutput($txt);
@@ -414,7 +428,12 @@ sub Output {
 sub MakeConfigFiles {
 	my ($configFilePath, $entryTemplatePath, $searchDirectoriesPath) = @_;
 	my $configTemplate = LoadConfigTemplate($entryTemplatePath);
-	die("Error, |$entryTemplatePath| is missing or empty!") if ($configTemplate eq '');
+	if ($configTemplate eq '')
+		{
+		Output("Error, cannot continue, |$entryTemplatePath| is missing or empty!\n");
+		WriteDoneAndCloseOutput();
+		die("Error, |$entryTemplatePath| is missing or empty!");
+		}
 	my %daemonNames; # Avoid duplicate <daemonName> entries in fwatcher.xml
 	my %loadedDirs;
 	my $dirCount = 0;
@@ -426,6 +445,8 @@ sub MakeConfigFiles {
 		}
 	else
 		{
+		Output("Error, cannot continue, |$searchDirectoriesPath| not found!\n");
+		WriteDoneAndCloseOutput();
 		die("ERROR, |$searchDirectoriesPath| not found!");
 		}
 									
@@ -446,14 +467,22 @@ sub MakeConfigFiles {
 			{
 			my $before = $configFilePath . '.old';
 			my $after = $configFilePath . '.old2';
-			rename($before, $after) or
+			if (!rename($before, $after))
+				{
+				Output("Error, cannot continue, could not rename |$before| to |$after|!\n");
+				WriteDoneAndCloseOutput();
 				die("File error, could not rename |$before| to |$after|!");
+				}
 			}
 		my $before = $configFilePath;
 		my $after = $configFilePath . '.old';
 		unlink($after);
-		rename($before, $after) or
+		if (!rename($before, $after))
+			{
+			Output("Error, cannot continue, could not rename |$before| to |$after|!\n");
+			WriteDoneAndCloseOutput();
 			die("File error, could not rename |$before| to |$after|!");
+			}
 		}
 
 	my $configXML = '<?xml version="1.0" standalone="yes"?>' . "\n<fWatcherConfig>\n";
@@ -505,8 +534,14 @@ sub MakeConfigFiles {
 	$configXML .= "</fWatcherConfig>";
 	
 	unlink($configFilePath);
-	my $fh = FileHandle->new(">$configFilePath")
-		or die("File error, could not open |$configFilePath|!");
+	my $fh = FileHandle->new(">$configFilePath");
+	if (!defined($fh))
+		{
+		Output("Error, cannot continue, could not open |$configFilePath|!\n");
+		WriteDoneAndCloseOutput();
+		die("File error, could not open |$configFilePath|!");
+		}
+
 	print $fh "$configXML";
 	close($fh);
 	
@@ -534,7 +569,7 @@ sub GetDirsToMonitor {
 		$rawDirs{$dir} = 1;
 		}
 	
-	# Avoid nested dirs, eg c:\stuff and c:\stuff\run.
+	# Avoid nested dirs, eg c:\spot and c:\spot\run.
 	foreach my $dir (sort keys %rawDirs)
 		{
 		my $pathAbove = $dir;
@@ -602,8 +637,14 @@ sub MakeFolderListForFolderMonitor {
 	
 	# Default location data/foldermonitorlist.txt.
 	my $folderMonitorFolderListPath = FullDirectoryPath('FOLDERMONITOR_FOLDERLISTPATH');
-	my $fh = FileHandle->new(">$folderMonitorFolderListPath")
-		or die("File error, could not open |$folderMonitorFolderListPath|!");
+	my $fh = FileHandle->new(">$folderMonitorFolderListPath");
+	if (!defined($fh))
+		{
+		Output("Error, cannot continue, could not open |$folderMonitorFolderListPath|!\n");
+		WriteDoneAndCloseOutput();
+		die("File error, could not open |$folderMonitorFolderListPath|!");
+		}
+
 	foreach my $dir (sort keys %$dirsH)
 		{
 		print $fh "$dir\n";
@@ -647,6 +688,8 @@ sub LoadDirectoriesToIndex {
 		}
 	else
 		{
+		Output("Error, cannot continue, could not find |$configFilePath|!\n");
+		WriteDoneAndCloseOutput();
 		die("ERROR, |$configFilePath| not found!");
 		}
 		
@@ -701,29 +744,49 @@ sub AddOneTestDocument {
 		}
 	}
 
-# Subs for stopping IntraMine
-########### subs
-sub ErrorReport{
-        Output('intramine_all_stop.pl says: ' . Win32::FormatMessage( Win32::GetLastError() ));
+# Start/stop services.
+sub StopLinkerAndWatcherServices {
+	my $serverAddress = $ServerAddress;
+	my $portNumber = $MainPort;
+	my $msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Linker';
+	Output("Stopping Linker service\n");
+	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	sleep(1);
+
+	$msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Watcher';
+	Output("Stopping Watcher service\n");
+	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	}
+
+sub StartLinkerAndWatcherServices {
+	my $serverAddress = $ServerAddress;
+	my $portNumber = $MainPort;
+	my $msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Linker';
+	Output("Starting Linker service\n");
+	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	sleep(1);
+
+	$msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Watcher';
+	Output("Starting Watcher service\n");
+	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	}
+
+sub SendStartStopRequest {
+	my ($serverAddress, $portNumber, $msg) = @_;
+	my $main = IO::Socket::INET->new(
+				Proto   => 'tcp',       		# protocol
+				PeerAddr=> "$serverAddress", 	# Address of server
+				PeerPort=> "$portNumber"      	# port of server typ. 43124..up
+				) or (ServerErrorReport() && return);
+	
+	print $main "GET /?$msg HTTP/1.1\n\n";
+	close $main;	# No reply needed.
+	}
+
+sub ServerErrorReport{
+        print Win32::FormatMessage( Win32::GetLastError() );
         return 1;
     }
-
-# Ask main server to stop. This will in turn request all servers to stop.
-sub AskServerToExit {
-	my ($portNumber, $serverAddress) = @_;
-	
-	Output("Attempting to stop $serverAddress:$portNumber\n");
-	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       # protocol
-	                PeerAddr=> "$serverAddress", # Address of server
-	                PeerPort=> "$portNumber"      # port of server, 81 591 or 8080 are standard variants
-	                ) or (ErrorReport() && return);
-#	print "intramine_stop.pl Connected to ", $remote->peerhost, # Info message
-#	      " on port: ", $remote->peerport, "\n";
-	
-	print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n";
-	close $remote;
-	}
 
 { ##### File sizes histogram
 # Of occasional interest, just how many big files are in the source directories?
@@ -770,8 +833,12 @@ sub AddToFileSizeBin {
 sub DumpFileSizeBinCountsAndLargeFiles {
 	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 	my $fileSizePath = $FileWatcherDir . CVal('FILESIZE_BIN_NAME'); # .../filesizes.out
-	my $fileH = FileHandle->new("> $fileSizePath")
-		or die("FILE ERROR could not make $fileSizePath! (Index is not affected.)");
+	my $fileH = FileHandle->new("> $fileSizePath");
+	if (!defined($fileH))
+		{
+		Output("Error (will continue), could not open $fileSizePath\n");
+		return;
+		}
 	
 	# 1 Coarse file counts in 100 KB bins.
 	my $values = $hist->all_bin_contents();

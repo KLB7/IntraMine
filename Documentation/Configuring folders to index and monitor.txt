@@ -56,11 +56,13 @@ By default, IntraMine will not index:
  - .log, .out files
  - files with an unknown extension ($textExtensions in libs/ext.pm lists the 225 extensions known to IntraMine).
 
-In theory IntraMine could index extensionless files, if "ES_INDEX_NO_EXTENSION" is set to 1 in data/intramine_config.txt. However, this is untested, so don't do that unless you have everything backed up.
+In theory IntraMine could index extensionless files, if "ES_INDEX_NO_EXTENSION" is set to 1 in data/intramine_config.txt. However, this is untested, so don't do that unless you are prepared to curse and revert.
 
 Adding a directory
 ==================
 After running IntraMine for a bit, you might want to add a directory or two and not have to completely rebuild your Elasticsearch index (which can take some time). To do that, see "Using IntraMine.txt#Indexing additional folders".
+
+You might prefer to just do a complete reindex instead, since it doesn't take that long. To do that, see "Reindex.html".
 
 Why the Index and Monitor fields?
 =================================

@@ -627,11 +627,11 @@ sub FullPathForImageFileName {
 		{
 		$filePath = $fileName;
 		}
-	elsif (FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
+	elsif (defined($IMAGES_DIR) &&& FileOrDirExistsWide($IMAGES_DIR . $fileName) == 1)
 		{
 		$filePath = $IMAGES_DIR . $fileName;
 		}
-	elsif ($COMMON_IMAGES_DIR ne '' && FileOrDirExistsWide($COMMON_IMAGES_DIR . $fileName) == 1)
+	elsif (defined($COMMON_IMAGES_DIR) && $COMMON_IMAGES_DIR ne '' && FileOrDirExistsWide($COMMON_IMAGES_DIR . $fileName) == 1)
 		{
 		$filePath = $COMMON_IMAGES_DIR . $fileName;
 		}

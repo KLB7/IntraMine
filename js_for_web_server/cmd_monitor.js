@@ -1,7 +1,10 @@
-/**
- * cmdServer.js: for intramine_commandserver.pl.
- * Load Cmd page, run a command, monitor its output.
- */
+// cmd_monitor.js: for intramine_commandserver.pl
+// and intramine_reindex.pl
+ // Start a command off, and monitor its output.
+
+// Avoid duplicated output monitoring of a run with a unique ID.
+// See runTheCommand() and monitorCmdOutUntilDone().
+let runID = "0";
 
 //  Unused.
 function getRandomInt(min, max) {
@@ -14,8 +17,8 @@ function sleepABit(ms) {
 }
 
 // Enable/disable all Cmd anchors.
-// They have id's Cmd1, Cmd2 etc.
-function xableCmdAnchors(enableThem) {
+// They have id's Cmd1, Cmd2 etc in sequence.
+function xableCmdAnchors(enableThem, showRunMessage = false) {
 	let baseId = "Cmd";
 	let cmdNumber = 1;
 	let id = baseId + String(cmdNumber);
@@ -45,13 +48,13 @@ function xableCmdAnchors(enableThem) {
 	let runSpan = document.getElementById('running');
 	if (runSpan !== null)
 		{
-		if (enableThem)
+		if (enableThem || !showRunMessage)
 			{
 			runSpan.innerHTML = '';
 			}
 		else
 			{
-				runSpan.innerHTML = ' Running';
+			runSpan.innerHTML = ' Running';
 			}
 		}
 }
@@ -59,6 +62,7 @@ function xableCmdAnchors(enableThem) {
 // Load and set page content.
 // See intramine_commandserver.pl#CommandPage() for theHost and thePort.
 // 'req=content' goes to the $RequestAction{'req|content'} handler.
+// (Note the Reindex page doesn't use this.)
 async function loadPageContent() {
 	showSpinner();
 
@@ -92,6 +96,7 @@ async function loadPageContent() {
 // Call intramine_commandserver.pl's $RequestAction{'req|open'} handler to run a command,
 // optionally monitor restart or command output.
 // See intramine_commandserver.pl#OneCommandString() for the call to this function.
+// And intramine_reindex.pl req|open has another example.
 async function runTheCommand(ank) {
 	let hrefplusRand = ank.href;
 	let arrayMatch = /^([^?]+)\?(.*)$/.exec(hrefplusRand);
@@ -106,6 +111,9 @@ async function runTheCommand(ank) {
 	let properHref = properHref2.replace(localRegex, '');
 	let otherArgs = additionalArgsForCommand(ank);
 	properHref += otherArgs;
+
+	// Set the run ID.
+	runID = uniqueRunID();
 	
 	// Send "activity" message.
 	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
@@ -116,11 +124,13 @@ async function runTheCommand(ank) {
 	ank.style.color = '#88FF88';
 
 	// Disable commands while one is running.
-	wsSendMessage("StartCmd:" + shortServerName);
+	wsSendMessage("StartCmd:" + shortServerName + ":" + runID);
+
+	let theAction = 'http://' + theHost + ':' + thePort + '/?req=open&file=' + properHref + '&'
+		+ trailer;
 
 	try {
-		let theAction = 'http://' + theHost + ':' + thePort + '/?req=open&file=' + properHref + '&'
-		+ trailer;
+		
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
@@ -143,7 +153,7 @@ async function runTheCommand(ank) {
 					{
 					ank.style.color = '#808080';
 					await sleepABit(5000);
-					monitorUntilRestart(ank);
+					monitorUntilRestart(ank, true);
 					}
 				else if (trailer.indexOf("monitor=1") >= 0) // Ask regularly for cmd output and display it
 					{
@@ -156,7 +166,7 @@ async function runTheCommand(ank) {
 					e1.innerHTML = '';
 					ank.style.color = '#88FF88';
 					await sleepABit(1000);
-					monitorCmdOutUntilDone(ank);
+					monitorCmdOutUntilDone(ank, true, '');
 					}
 				else
 					{
@@ -181,6 +191,7 @@ async function runTheCommand(ank) {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(runMessageDiv);
 		e1.innerHTML = 'Connection error while attempting to run command!';
+		console.log(error);
 		wsSendMessage("StopCmd:" + shortServerName);
 		hideSpinner();
 		ank.style.color = '#FFFFFF';
@@ -235,12 +246,17 @@ function additionalArgsForCommand(ank) {
 
 // Repeatedly ping main server. We're waiting for a restart, then clear pacifier.
 // Errors are unlikely, will probably be due to a maintenance err.
-async function monitorUntilRestart(ank) {
+async function monitorUntilRestart(ank, originator = false) {
 	let e1 = document.getElementById(runMessageDiv);
 	e1.innerHTML = 'Waiting for main server restart...';
 
-	let theAction = 'http://' + theHost + ':' + thePort + '/?req=ping';
 	let keepGoing = true;
+	let theAction = 'http://' + theHost + ':' + thePort + '/?req=ping';
+	let haveAnk = true;
+	if (ank === "ignore")
+		{
+		haveAnk = false;
+		}
 
 	while (keepGoing)
 		{
@@ -256,8 +272,14 @@ async function monitorUntilRestart(ank) {
 						keepGoing = false;
 						let e1 = document.getElementById(runMessageDiv);
 						e1.innerHTML = '&nbsp;';
-						ank.style.color = '#FFFFFF';
-						wsSendMessage("StopCmd:" + shortServerName);
+						if (haveAnk)
+							{
+							ank.style.color = '#FFFFFF';
+							}
+						if (originator)
+							{
+							wsSendMessage("StopCmd:" + shortServerName);
+							}
 						hideSpinner();
 						}
 					else // not restarted yet, keep going but don't be a pest
@@ -270,8 +292,14 @@ async function monitorUntilRestart(ank) {
 					keepGoing = false;
 					let e1 = document.getElementById(runMessageDiv);
 					e1.innerHTML = 'ERROR: ' + text;
-					ank.style.color = '#FF8888';
-					wsSendMessage("StopCmd:" + shortServerName);
+					if (haveAnk)
+						{
+						ank.style.color = '#FF8888';
+						}
+					if (originator)
+						{
+						wsSendMessage("StopCmd:" + shortServerName);
+						}
 					hideSpinner();
 					}
 				}
@@ -281,8 +309,14 @@ async function monitorUntilRestart(ank) {
 				keepGoing = false;
 				let e1 = document.getElementById(runMessageDiv);
 				e1.innerHTML = 'Error, Main server reached but it ran into trouble!';
-				ank.style.color = '#FF8888';
-				wsSendMessage("StopCmd:" + shortServerName);
+				if (haveAnk)
+					{
+					ank.style.color = '#FF8888';
+					}
+				if (originator)
+					{
+					wsSendMessage("StopCmd:" + shortServerName);
+					}
 				hideSpinner();
 				}
 			}
@@ -291,8 +325,14 @@ async function monitorUntilRestart(ank) {
 			keepGoing = false;
 			let e1 = document.getElementById(runMessageDiv);
 			e1.innerHTML = 'Connection error to Main while attempting to monitor restart!';
-			ank.style.color = '#FF8888';
-			wsSendMessage("StopCmd:" + shortServerName);
+			if (haveAnk)
+				{
+				ank.style.color = '#FF8888';
+				}
+			if (originator)
+				{
+				wsSendMessage("StopCmd:" + shortServerName);
+				}
 			hideSpinner();
 			}
 		}
@@ -300,35 +340,76 @@ async function monitorUntilRestart(ank) {
 
 // Ask for output from current "command" being run, show it on the Cmd page.
 // Called by runTheCommand() above.
-// Send a 'req=monitor' request to this server, which calls the Perl
+// Send a 'req=monitor' request to our server, which calls the Perl
 // sub CommandOutput() and sends back new output to here in its response.
-// This is slightly 'delicate' in that three specific text strings are prepended
+// This is slightly 'delicate' in that three specific text strings are added
 // to the responseText to signal what's happening:
-// ***A-L-L***D-O-N-E*** - command has finished running
-// ***E-R-R-O-R*** - something blew up, command has stopped abnormally
-// ***N-O-T-H-I-N-G***N-E-W*** - no new output since last request
+// ***A-L-L***D-O-N-E*** anywhere - command has finished running
+// ***E-R-R-O-R*** at start - something blew up, command has stopped abnormally
+// ***N-O-T-H-I-N-G***N-E-W*** at start - no new output since last request
 // and absence of those means something new in response, to be added to displayed results.
 // Of course, if the command being run outputs "***E-R-R-O-R***"" then that could cause
 // us to drop out here, so it's not perfect.
-async function monitorCmdOutUntilDone(ank) {
-	let theAction = 'http://' + theHost + ':' + thePort + '/?req=monitor';
+async function monitorCmdOutUntilDone(ank, originator, requestedRunID) {
+	// Bail if we're already monitoring
+	if (requestedRunID === runID)
+		{
+		return;
+		}
+
+	if (requestedRunID !== '')
+		{
+		runID = requestedRunID;
+		}
+
+	// 'originator' is the page where the button was clicked. Other
+	// web pages can be open on the same service, and for them
+	// originator will be false.
+	if (!originator)
+		{
+		e1 = document.getElementById(commandOutputDiv);
+		e1.innerHTML = '';
+		}
+	
 	let keepGoing = true;
+	let filePosition = "0"; // Passed back to and updated by Perl back end.
+	let baseAction = 'http://' + theHost + ':' + thePort + '/?req=monitor';
+	let haveAnk = true;
+	if (ank === "ignore")
+		{
+		haveAnk = false;
+		}
 
 	while (keepGoing)
 		{
 		try {
+			let theAction = baseAction + '&filepos=' + filePosition;
 			const response = await fetch(theAction);
 			if (response.ok)
 				{
 				let text = await response.text();
 
-				if (text.indexOf("***A-L-L***D-O-N-E***") >= 0)
+				// Extract file position from start of string.
+				let filePosMatch = /^\|(\d+)\|/.exec(text);
+				if (filePosMatch !== null)
 					{
+					filePosition = filePosMatch[1];
+					text = text.replace(/^\|\d+\|/, '');
+					}
+
+				if (text.indexOf("***A-L-L***D-O-N-E***") >= 0)
+					{					
 					keepGoing = false;
 					let e1 = document.getElementById(runMessageDiv);
 					e1.innerHTML = '&nbsp;';
-					ank.style.color = '#FFFFFF';
-					wsSendMessage("StopCmd:" + shortServerName);
+					if (haveAnk)
+						{
+						ank.style.color = '#FFFFFF';
+						}
+					if (originator)
+						{						
+						wsSendMessage("StopCmd:" + shortServerName);
+						}
 
 					let textNoDone = text.replace("***A-L-L***D-O-N-E***", "");;
 					e1 = document.getElementById(commandOutputDiv);
@@ -344,20 +425,32 @@ async function monitorCmdOutUntilDone(ank) {
 					let errorMessage = text.replace(/^\*\*\*E-R-R-O-R\*\*\*/, '');
 					let e1 = document.getElementById(runMessageDiv);
 					e1.innerHTML = 'Command Exec Error: ' + errorMessage;
-					ank.style.color = '#FF8888';
-					wsSendMessage("StopCmd:" + shortServerName);
+					if (haveAnk)
+						{
+						ank.style.color = '#FF8888';
+						}
+					if (originator)
+						{
+						wsSendMessage("StopCmd:" + shortServerName);
+						}
 					hideSpinner();
 					}
 				else if (text.indexOf("***N-O-T-H-I-N-G***N-E-W***") === 0)
 					{
 					// Send an additional StartCmd message, in the rare
 					// case that someone opens a new tab on our service.
-					wsSendMessage("StartCmd:" + shortServerName);
+					if (originator)
+						{
+						wsSendMessage("StartCmd:" + shortServerName + ":" + runID);
+						}
 					await sleepABit(1000);
 					}
 				else // we have something to show
 					{
-					wsSendMessage("StartCmd:" + shortServerName);
+					if (originator)
+						{
+						wsSendMessage("StartCmd:" + shortServerName + ":" + runID);
+						}
 					let e1 = document.getElementById(commandOutputDiv);
 					e1.innerHTML += text;
 					doResize();
@@ -372,8 +465,14 @@ async function monitorCmdOutUntilDone(ank) {
 				keepGoing = false;
 				let e1 = document.getElementById(runMessageDiv);
 				e1.innerHTML = 'Error, server reached but it ran into trouble!';
-				ank.style.color = '#FF8888';
-				wsSendMessage("StopCmd:" + shortServerName);
+				if (haveAnk)
+					{
+					ank.style.color = '#FF8888';
+					}
+				if (originator)
+					{
+					wsSendMessage("StopCmd:" + shortServerName);
+					}
 				hideSpinner();
 				}
 			}
@@ -382,9 +481,19 @@ async function monitorCmdOutUntilDone(ank) {
 			keepGoing = false;
 			let e1 = document.getElementById(runMessageDiv);
 			e1.innerHTML = 'Connection error while attempting to monitor output!';
-			ank.style.color = '#FF8888';
-			wsSendMessage("StopCmd:" + shortServerName);
+			if (haveAnk)
+				{
+				ank.style.color = '#FF8888';
+				}
+			if (originator)
+				{
+				wsSendMessage("StopCmd:" + shortServerName);
+				}
 			hideSpinner();
 			}
 		} // while keepGoing
 	}
+
+function uniqueRunID() {
+	return("id" + Math.random().toString(16).slice(2));
+}

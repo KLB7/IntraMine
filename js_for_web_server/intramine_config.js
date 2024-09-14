@@ -8,6 +8,11 @@ So this file should now be called something more like "fetchPort.js",
 sorry about that.
 */
 
+// "sleep" for ms milliseconds.
+function sleepForSomeMilliseconds(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Since this file is included in all IntraMine services, fetchPort() is snuck
 // in here.
 // Return appropriate port number for service named short_name.
@@ -15,44 +20,84 @@ sorry about that.
 // Eg: const port = await fetchPort(mainIP, mainPort, 'Search', errorID);
 async function fetchPort(main_ip, main_port, short_name, errorID) {
 	let shortPort = "";
+	let tryCounter = 0;
+	let maxTries = 10;
+	let retry = true;
 	
-	try {
-	let theAction = 'http://' + main_ip + ':' + main_port + '/' + short_name + '/?req=portNumber';
-	const response = await fetch(theAction);
-	if (response.ok)
+	while (retry)
 		{
-		let text = await response.text();
-		if (isNaN(text))
+		try
 			{
-			let e1 = document.getElementById(errorID);
-			if (e1 !== null)
+			let theAction = 'http://' + main_ip + ':' + main_port + '/' + short_name + '/?req=portNumber';
+			const response = await fetch(theAction);
+			if (response.ok)
 				{
-				e1.innerHTML = '<p>Error, server reached but it did not return a numeric port for ' + short_name + '!</p>';
+				let text = await response.text();
+				if (isNaN(text))
+					{
+					++tryCounter;
+					if (tryCounter > maxTries)
+						{
+						retry = false;
+						let e1 = document.getElementById(errorID);
+						if (e1 !== null)
+							{
+							e1.innerHTML = '<p>Error, server reached but it did not return a numeric port for ' + short_name + '!</p>';
+							}
+						}
+					else
+						{
+						retry = true;
+						// Try again, after a brief pause.
+						await sleepForSomeMilliseconds(1000);
+						}
+					}
+				else
+					{
+					retry = false;
+					shortPort = text;
+					}
+				}
+			else
+				{
+				++tryCounter;
+				if (tryCounter > maxTries)
+					{
+						retry = false;
+					// We reached our target server, but it returned an error
+					let e1 = document.getElementById(errorID);
+					if (e1 !== null)
+						{
+						e1.innerHTML = '<p>Error, server reached but it did not return a port for ' + short_name + '!</p>';
+						}
+					}
+				else
+					{
+					retry = true;
+					// Try again, after a brief pause.
+					await sleepForSomeMilliseconds(1000);
+					}
 				}
 			}
-		else
+		catch(error)
 			{
-			shortPort = text;
+			// There was a connection error of some sort
+			++tryCounter;
+			if (tryCounter > maxTries)
+				{
+				retry = false;
+				// There was a connection error of some sort
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = '<p>Connection error while attempting to get port for ' + short_name + '!: ' + error + '</p>';
+				}
+			else
+				{
+				retry = true;
+				// Try again, after a brief pause.
+				await sleepForSomeMilliseconds(1000);
+				}
 			}
-		}
-	else
-		{
-		// We reached our target server, but it returned an error
-		let e1 = document.getElementById(errorID);
-		if (e1 !== null)
-			{
-			e1.innerHTML = '<p>Error, server reached but it did not return a port for ' + short_name + '!</p>';
-			}
-		}
-	}
-	catch(error) {
-	// There was a connection error of some sort
-	let e1 = document.getElementById(errorID);
-	if (e1 !== null)
-		{
-		e1.innerHTML = '<p>Connection error while attempting to get port for ' + short_name + '!: ' + error + '</p>';
-		}
-	}
+		} // while retry
 	
 	return(shortPort);
 }

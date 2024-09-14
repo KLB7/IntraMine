@@ -381,7 +381,7 @@ my $NumServerPages;				# Count of entries that appear in the top nav on each bro
 my @PageNames;					# $PageNames[1] = 'Files' indexed by page
 my @PageServerNames;			# $PageServerNames[1][2] = 'intramine_open_with.pl' indexed by server
 my %PageProcIDs;				# proc ID, used when restarting and to check server process is still running
-my %PageIndexForPageName;		# $PageIndexForPageName['Files'] = 1 indexed by page
+my %PageIndexForPageName;		# $PageIndexForPageName{'Files'} = 1 indexed by page
 my @ShortServerNames;			# $ShortServerNames[1][2] = 'Opener' indexed by server
 my %ShortServerNameForPort;		# $ShortServerNameForPort{'43129'} = 'Viewer'
 my %PageNameForShortServerName;	# $PageNameForShortServerName{'Viewer'} = 'Search';
@@ -1275,6 +1275,8 @@ sub BroadcastAllServersUp {
 	print("Access IntraMine in your browser at http://localhost:81/Search\n");
 	print("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
 	print("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
+	print("\nNOTE\n");
+	print("Refresh any open IntraMine browser tabs to restore full service.\n\n");
 
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}
@@ -1809,72 +1811,207 @@ sub AddOneServerBasedOnShortName {
 	}
 
 # Start up a server on specific port that has been stopped.
+# Accepts port number, or Short name. For a Short name,
+# start all stopped instances with that name.
 sub StartOneServer {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'ERROR unknown port number!';
+	my @portNumbers;
 	if (defined($formH->{'portNumber'}))
 		{
-		my $portNumber = $formH->{'portNumber'};
+		push @portNumbers, $formH->{'portNumber'};
+		}
+	elsif (defined($formH->{'shortName'})
+		&& defined($PortForShortBackgroundServerName{$formH->{'shortName'}}))
+		{
+		push @portNumbers, $PortForShortBackgroundServerName{$formH->{'shortName'}};
+		}
+	elsif (defined($formH->{'shortName'}))
+		{
+		# There can be more than one instance of a Page server running. If we have received
+		# a Short name instead of a port number, start all instances
+		# with that name.
+		my $receivedName = $formH->{'shortName'};
+		my $numServers = @ServerCommandLines;
+		for (my $i = 0; $i < $numServers; ++$i)
+			{
+			my $port = $ServerCommandPorts[$i];
+			my $name = $ShortServerNameForPort{$port};
+			if ($name eq $receivedName)
+				{
+				push @portNumbers, $port;
+				}
+			}
+		}
+	
+	my $numPortNumbers = @portNumbers;
+	if ($numPortNumbers)
+		{
+		$result = "";
+		}
+	
+	for (my $i = 0; $i < @portNumbers; ++$i)
+		{
+		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsStopped($portNumber))
 			{
 			StartOneServerBasedOnPort($portNumber, \$result);
 			}
+		else
+			{
+			$result .= "(service on $portNumber is already running)";
+			}
 		}
-		
+			
+	if ($result eq '')
+		{
+		$result = 'Error could not start service';
+		}
 	return($result);
 	}
 
 sub StartOneServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
+	my $isBackgroundServer = 0;
 	my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
-	if ($shortName ne '') # just a double check, not really needed
+
+	if ($shortName ne '')
 		{
-		my $cmdLine = '';
-		my $numServers = @ServerCommandLines;
-		for (my $i = 0; $i < $numServers; ++$i)
+		StartOnePageServerBasedOnPort($portNumber, $resultR);
+		}
+	else
+		{
+		$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+		if ($shortName ne '')
 			{
-			my $port = $ServerCommandPorts[$i];
-			if ($port == $portNumber)
-				{
-				if (defined($PageProcIDs{$ServerCommandLines[$i]}))
-					{
-					$cmdLine = $ServerCommandLines[$i];
-					last;
-					}
-				}
-			}
-		if ($cmdLine ne '')
-			{
-			Output("   (re)STARTING '$cmdLine' \n");
-			my $proc;
-			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $cmdLine", 0, 0, ".")
-				|| die ServerErrorReport();
-			$PageProcIDs{$cmdLine} = $proc;
-			SetServerPortIsRunning($portNumber, 1);
-			$$resultR = 'OK';
+			StartOneBackgroundServerBasedOnPort($portNumber, $resultR);
 			}
 		}
 	}
 
-# Stop a running server on specific port.
+sub StartOnePageServerBasedOnPort {
+	my ($portNumber, $resultR) = @_;
+	my $cmdLine = '';
+	my $numServers = @ServerCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $ServerCommandPorts[$i];
+		if ($port == $portNumber)
+			{
+			if (defined($PageProcIDs{$ServerCommandLines[$i]}))
+				{
+				$cmdLine = $ServerCommandLines[$i];
+				last;
+				}
+			}
+		}
+	if ($cmdLine ne '')
+		{
+		Output("   (re)STARTING '$cmdLine' \n");
+		my $proc;
+		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $cmdLine", 0, 0, ".")
+			|| die ServerErrorReport();
+		$PageProcIDs{$cmdLine} = $proc;
+		SetServerPortIsRunning($portNumber, 1);
+		$$resultR .= 'OK';
+		}
+	}
+
+sub StartOneBackgroundServerBasedOnPort {
+	my ($portNumber, $resultR) = @_;
+	my $cmdLine = '';
+	my $numServers = @BackgroundCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $port = $BackgroundCommandPorts[$i];
+		if ($port == $portNumber)
+			{
+			if (defined($BackgroundProcIDs{$BackgroundCommandLines[$i]}))
+				{
+				$cmdLine = $BackgroundCommandLines[$i];
+				last;
+				}
+			}
+		}
+	if ($cmdLine ne '')
+		{
+		Output("   (re)STARTING '$cmdLine' \n");
+		my $proc;
+		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $cmdLine", 0, 0, ".")
+			|| die ServerErrorReport();
+		$BackgroundProcIDs{$cmdLine} = $proc;
+		SetServerPortIsRunning($portNumber, 1);
+		$$resultR .= 'OK';
+		}
+	}
+
+# Stop a running server on specific port. See also StartOneServer().
 sub StopOneServer {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'ERROR unknown port number!';
+	my @portNumbers;
 	if (defined($formH->{'portNumber'}))
 		{
-		my $portNumber = $formH->{'portNumber'};
+		push @portNumbers, $formH->{'portNumber'};
+		}
+	elsif (defined($formH->{'shortName'})
+		&& defined($PortForShortBackgroundServerName{$formH->{'shortName'}}))
+		{
+		push @portNumbers, $PortForShortBackgroundServerName{$formH->{'shortName'}};
+		}
+	elsif (defined($formH->{'shortName'}))
+		{
+		# There can be more than one instance of a Page server running. If we have received
+		# a Short name instead of a port number, start all instances
+		# with that name.
+		my $receivedName = $formH->{'shortName'};
+		my $numServers = @ServerCommandLines;
+		for (my $i = 0; $i < $numServers; ++$i)
+			{
+			my $port = $ServerCommandPorts[$i];
+			my $name = $ShortServerNameForPort{$port};
+			if ($name eq $receivedName)
+				{
+				push @portNumbers, $port;
+				}
+			}
+		}
+
+	my $numPortNumbers = @portNumbers;
+	if ($numPortNumbers)
+		{
+		$result = "";
+		}
+
+	for (my $i = 0; $i < @portNumbers; ++$i)
+		{
+		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsRunning($portNumber))
 			{
 			StopOneServerBasedOnPort($portNumber, \$result);
 			}
+		else
+			{
+			$result .= "(service on $portNumber is already stopped)";
+			}
 		}
 		
+	if ($result eq '')
+		{
+		$result = 'Error could not stop service';
+		}
+
 	return($result);
 	}
 
 sub StopOneServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
 	my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
+	if ($shortName eq '')
+		{
+		$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+		}
+	
 	if ($shortName ne '') # just a double check, not really needed
 		{
 		my $srvrAddr = ServerAddress();
@@ -1888,16 +2025,58 @@ sub StopOneServerBasedOnPort {
 sub RestartOneServer {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'ERROR unknown port number!';
+	my @portNumbers;
 	if (defined($formH->{'portNumber'}))
 		{
-		my $portNumber = $formH->{'portNumber'};
+		push @portNumbers, $formH->{'portNumber'};
+		}
+	elsif (defined($formH->{'shortName'})
+		&& defined($PortForShortBackgroundServerName{$formH->{'shortName'}}))
+		{
+		push @portNumbers, $PortForShortBackgroundServerName{$formH->{'shortName'}};
+		}
+	elsif (defined($formH->{'shortName'}))
+		{
+		# There can be more than one instance of a Page server running. If we have received
+		# a Short name instead of a port number, start all instances
+		# with that name.
+		my $receivedName = $formH->{'shortName'};
+		my $numServers = @ServerCommandLines;
+		for (my $i = 0; $i < $numServers; ++$i)
+			{
+			my $port = $ServerCommandPorts[$i];
+			my $name = $ShortServerNameForPort{$port};
+			if ($name eq $receivedName)
+				{
+				push @portNumbers, $port;
+				}
+			}
+		}
+
+	my $numPortNumbers = @portNumbers;
+	if ($numPortNumbers)
+		{
+		$result = "";
+		}
+
+	for (my $i = 0; $i < @portNumbers; ++$i)
+		{
+		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsRunning($portNumber))
 			{
 			StopOneServerBasedOnPort($portNumber, \$result);
+			# Not sure how long to wait, this might need adjusting.
+			# There's no easy way to tell if a service is completely stopped.
+			sleep(2);
 			}
 		StartOneServerBasedOnPort($portNumber, \$result);
 		}
-		
+
+	if ($result eq '')
+		{
+		$result = 'Error could not restart service';
+		}
+
 	return($result);
 	}
 

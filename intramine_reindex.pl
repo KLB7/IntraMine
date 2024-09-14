@@ -1,7 +1,11 @@
-# DO NOT USE, it just doesn't work.
-# intramine_reindex.pl: an attempt at providing a service to rebuild the
-# Elasticsearch index and set directories to monitor.
-# In the end, I couldn't improve on IM_INIT_INDEX.bat and gave up.
+# intramine_reindex.pl: a service to rebuild the
+# Elasticsearch index, set directories to monitor,
+# and build a list of full paths of interest
+# from the contents of those directories.
+# Directories are listed in data/search_directories.txt.
+# ri.pl is run to do the actual work.
+
+# To install and run this service see Documentation/Reindex.html (or .txt).
 
 # perl c:\perlprogs\IntraMine\intramine_reindex.pl
 
@@ -40,10 +44,9 @@ my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
 
 my %RequestAction;
 $RequestAction{'req|main'} = \&OurPage; 			# req=main
-$RequestAction{'req|open'} = \&RunTheCommand; 			# req=open
+$RequestAction{'req|open'} = \&RunTheCommand; 			# req=open, called by Reindex button
 $RequestAction{'req|ping'} = \&MainServerResponse; 		# req=ping
 $RequestAction{'req|monitor'} = \&CommandOutput; 		# req=monitor
-#$RequestAction{'req|reindex'} = \&Reindex; 			# req=reindex
 
 MainLoop(\%RequestAction);
 
@@ -153,8 +156,8 @@ FINIS
 	my $folderList = ReindexFolderList();
 	$theBody =~ s!_FOLDER_LIST_!$folderList!;
 
-	# Note Reindex button must be made before Edit button, so
-	# Reindex has an id of Cmd1. Edit button's id is stripped.
+	# Note the Reindex button must be made before Edit button, so that
+	# Reindex has an id of Cmd1. Edit button's id Cmd2 is stripped.
 	# If it were made first, there would be no Cmd1 id and
 	# the Reindex button would not be disabled during a run.
 	# A bit ugly, sorry about that.
@@ -165,34 +168,11 @@ FINIS
 	$theBody =~ s!_EDIT_BUTTON_!$editButton!;
 
 
-	# Put in main IP, main port (def. 81), and our Short name (DBX) for JavaScript.
+	# Put in main IP, main port (def. 81), and our Short name (Reindex) for JavaScript.
 	# These are needed in intramine_config.js for example
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 	
 	return($theBody);
-	}
-
-sub Reindex {
-	my ($obj, $formH, $peeraddress) = @_;
-	my $result = 'OK';
-
-	print("Reindex started.\n");
-
-	my $serverDirectory = BaseDirectory(); # intramine_config.pm#BaseDirectory()
-	my $proc; # not used
-	my $reindexBatPath = $serverDirectory . 'bats/IM_REINDEX.bat';
-
-	# TEST ONLY
-	#$reindexBatPath = $serverDirectory . 'test/test_reindex.bat';
-
-	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $reindexBatPath", 0, CREATE_NEW_CONSOLE, ".")
-			|| ($result = Win32::FormatMessage( Win32::GetLastError() ));
-
-	if ($result ne 'OK')
-		{
-		print("ERROR could not start IM_REINDEX.bat: $result\n");
-		}
-	return($result);
 	}
 
 sub ReindexDescription {
@@ -210,6 +190,7 @@ sub ReindexDescription {
 	return $description;
 	}
 
+# A button to bring up data/search_directories.txt in an editor.
 sub EditButton {
 	my ($peeraddress) = @_;
 
@@ -238,8 +219,6 @@ sub EditButton {
 			"</a>";
 		}
 
-	#my $button = '<input id="editButton" class="submit-button" type="submit" value="Edit" />';
-
 	return($button);
 	}
 
@@ -249,6 +228,9 @@ sub ReindexFolderList {
 	return($list);
 	}
 
+# Return a list of directories with index and monitor 0/1 values
+# from data/search_directories.txt, as an HTML table.
+# Comments are optionally skipped, to keep the list short.
 sub ReadIndexList {
 	my ($skipComments) = @_;
 
@@ -317,22 +299,18 @@ sub ReadIndexList {
 	return($list);
 	}
 
+# The "reindex" button (see _REINDEX_BUTTON_ above).
 sub ReindexButton {
 	my $serverDirectory = BaseDirectory(); # intramine_config.pm#BaseDirectory()
-	my $cmdLs .= OneCommandButton($serverDirectory . 'bats/IM_REINDEX.bat', 'Reindex', 0, 1, "reindexButton");
+	my $btn = OneCommandButton($serverDirectory . 'bats/IM_REINDEX.bat', 'Reindex', 0, 1, "reindexButton");
 
-	# TEST ONLY
-	# my $cmdLs .= OneCommandButton($serverDirectory . 'test_programs/test_backwards_tell.pl', 'Reindex', 0, 1, "reindexButton");
-
-	return($cmdLs);
+	return($btn);
 	}
 
+# Called in response to req=open request.
+# See cmd_monitor.js#runTheCommand() for the call.
 sub RunTheCommand {
 	my ($obj, $formH, $peeraddress) = @_;
-
-	# Make the Status light flash for this server.
-	# Not needed, see cmd_monitor.js#runTheCommand.
-	#ReportActivity($SHORTNAME);
 
 	my $ignoreProc = 1;
 	my $status = _RunTheCommand($obj, $formH, $peeraddress, $ignoreProc);

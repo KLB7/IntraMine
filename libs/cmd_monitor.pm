@@ -1,6 +1,8 @@
-# cmd_monitor.pm: run a monitor a process, typically
-# a cmd.exe. Save output to a text file and report when
-# asked to a web page, to show feedback.
+# cmd_monitor.pm: run and monitor a process, typically
+# a cmd.exe, .bat, or a perl script.
+# Save output to a text file and report when
+# asked (CommandOutput()) to a web page, to show feedback.
+# See eg intramine_reindex.pl and intramine_commandserver.pl.
 
 package cmd_monitor;
 require Exporter;
@@ -16,6 +18,7 @@ use IO::Select;
 use Win32::Process;
 # To grab output from command being run and show it in main page.
 use Win32::Process 'STILL_ACTIVE';
+use Time::HiRes qw(usleep);
 use HTML::Entities;
 
 { ##### Command Strings
@@ -41,6 +44,7 @@ sub InitCommandStrings {
 # id='theTextWithoutJumpList' div that follows the commands (see cmdServer.js#monitorCmdOutUntilDone()).
 # To run something and not monitor it set, $willRestart and $monitorUntilDone to 0, eg
 #	$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word From Anywhere', 0, 0);
+# For examples see intramine_commandserver.pl#Commands().
 sub OneCommandString {
 	my @passedIn = @_;
 	my $idx = 0;
@@ -102,8 +106,9 @@ sub OneCommandString {
 	return($cmdString);	
 	}
 
-# Like above, but a button instead of table row, and extra arguments are not supported.
-# Instead, pass an id as the last argument.
+# Like above, but an input button instead of table row, and extra arguments are not supported.
+# Pass a unique (on your web page) id as the last argument.
+# For an example see intramine_reindex.pl#ReindexButton().
 sub OneCommandButton {
 	my @passedIn = @_;
 	my $idx = 0;
@@ -274,30 +279,53 @@ sub CommandFilePath {
 # We trust the JavaScript fetch() monitoring function will call this at reasonable
 # intervals, at most once per second. This is called in response to 'req=monitor', which
 # in turn is triggered by cmdServer.js#runTheCommand() 'req=open&monitor=1'.
+# File position is kept in $FilePosition by default, but if
+# $formH->{'filepos'} is defined then it's used instead to start the read
+# and passed back in the $result, so that multiple clients can independently
+# read and display results from the same run.
+# For a sample call see intramine_reindex.pl#44 for the back end request handling
+# and cmd_monitor.js#monitorCmdOutUntilDone() for the fetch().
 sub CommandOutput {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = ''; # NOTE there must be some result, else an error 404 is triggered.
+	my $reportAllDone = 0;
 
 	if (!ShouldIgnoreProc())
 		{
 		my $proc = GetProc();
 		if (!defined($proc))
 			{
-			return('***A-L-L***D-O-N-E***');
-			}
-
-		my $exitcode = 1;
-		$proc->GetExitCode($exitcode);
-		if ($exitcode == STILL_ACTIVE)
-			{
-			; # business as usual
+			# We are done, but might not have read all of the output yet.
+			# 1 millisecond == 1000 microseconds
+			usleep(300000); # 0.3 seconds
+			$reportAllDone = 1;
 			}
 		else
 			{
-			ClearProc();
+			my $exitcode = 1;
+			$proc->GetExitCode($exitcode);
+			if ($exitcode == STILL_ACTIVE)
+				{
+				; # business as usual
+				}
+			else
+				{
+				ClearProc();
+				# 1 millisecond == 1000 microseconds
+				usleep(300000); # 0.3 seconds
+				$reportAllDone = 1;
+				}
 			}
 		}
 	
+	my $usePassedInFilePosition = 0;
+	my $lastFilePosition = $FilePosition;
+	if (defined($formH->{'filepos'}))
+		{
+		$usePassedInFilePosition = 1;
+		$lastFilePosition = $formH->{'filepos'};
+		}
+
 	# Read, even if not still active, to pick up all lines.
 	my $cmdFilePath = CommandFilePath();
 	if (-f $cmdFilePath)
@@ -309,7 +337,7 @@ sub CommandOutput {
 		
 		my @lines;
 		my $currentFilePosition = $newFilePosition;
-		while ($currentFilePosition > $FilePosition && defined($line = $bw->readline))
+		while ($currentFilePosition > $lastFilePosition && defined($line = $bw->readline))
 			{
 			chomp($line);
 			unshift @lines, $line;
@@ -320,12 +348,22 @@ sub CommandOutput {
 		my $numLines = @lines;
 		if ($numLines > 0)
 			{
-			$FilePosition = $newFilePosition;
+			if ($usePassedInFilePosition)
+				{
+				$lastFilePosition = $newFilePosition;
+				}
+			else
+				{
+				$FilePosition = $newFilePosition;
+				}
 			$result = join("<br>\n", @lines) . "<br>\n";
 			}
 		else
 			{
-			$result = '***N-O-T-H-I-N-G***N-E-W***';
+			if (!$reportAllDone)
+				{
+				$result = '***N-O-T-H-I-N-G***N-E-W***';
+				}
 			}
 		}
 	else
@@ -333,16 +371,29 @@ sub CommandOutput {
 		++$FileMissingCheckCount;
 		if ($FileMissingCheckCount <= 300)
 			{
-			$result = '***N-O-T-H-I-N-G***N-E-W***';
+			if (!$reportAllDone)
+				{
+				$result = '***N-O-T-H-I-N-G***N-E-W***';
+				}
 			}
 		else
 			{
 			ClearProc();
 			$result = "***E-R-R-O-R***'$cmdFilePath' cannot be found after waiting five minutes!\n";
-			$result .= "***A-L-L***D-O-N-E***";
+			$reportAllDone = 1;
 			}
 		}
 
+	if ($usePassedInFilePosition)
+		{
+		$result = "|$lastFilePosition|" . $result;
+		}
+	
+	if ($reportAllDone)
+		{
+		$result .= "***A-L-L***D-O-N-E***";
+		}
+	
 	return($result);
 	}
 } ##### Monitor Command Output

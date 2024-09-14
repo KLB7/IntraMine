@@ -45,11 +45,17 @@ for (; $i < 25; ++$i)
 	}
 #print("--\n");
 
-for (; $i < 100; ++$i)
+for (; $i < 80; ++$i)
 	{
 	print("Hello $i\n");
 	}
 sleep(1);
+
+for (; $i < 100; ++$i)
+	{
+	print("Hello $i\n");
+	}
+#sleep(1);
 for (; $i < 200; ++$i)
 	{
 	print("Hello $i\n");

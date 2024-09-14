@@ -1,0 +1,52 @@
+Reindex
+===========
+
+Reindex.png
+
+Allow at least two minutes between Reindexes
+======================
+Elasticsearch is brilliant, but might struggle if you ask it to Reindex a second time after only a few seconds. To be safe, allow at least two minutes after indexing finishes before hitting Reindex again. The symptom is that Reindex stops responding near the start after reporting that the intramine index was deleted: if nothing happens for a whole minute, refresh the page and wait that two minutes and then try again.
+
+
+What does Reindex do?
+========================
+The Reindex page has a **Reindex** button that when clicked will completely rebuild your Elasticsearch index and also your list of full paths of interest to you, based on the directories listed in your data/search_directories.txt file. Your list of directories for change monitoring will also be reset.
+
+IntraMine will continue to run while the reindexing takes place, except for a quick restart of the Linker and Watcher services towards the end. You'll see progress messages as the reindexing continues. The Editor and Linker will continue to function, but links and glossary popups will be based on your old directory list until reindexing finishes. Search will work better and better as the reindexing continues, but since the search index is being completely rebuilt there won't be many results at first.
+
+If you have other instances of the Reindex page opened anywhere on your intranet you'll also see progress messages there.
+
+Note Reindex can only be started on the IntraMine PC.
+
+The **Edit search_directories.txt** button will open data/search_directories.txt using your default text editor if you're on the IntraMine box, or IntraMine's Editor if you are elsewhere. Unless you've overridden which editor Intramine should use (see "Editing documents.html" for how to change your default editor).
+
+Can I run a Reindex remotely?
+======================
+Alas, no, the Reindex button is disabled if the Reindex page is not being displayed on the PC where IntraMine is running. This is mainly because Reindex requests elevated privileges (Run as administrator) and the prompt for that will appear only on the PC where Intramine is running. It's not such a bad thing, rebuilding IntraMine's file indexes and paths is disruptive no matter how it's done, so having only one place to do it will reduce cursing.
+
+Reindex versus IM_INIT_INDEX.bat
+======================
+The other way to do a rebuild of your Elasticsearch index and full paths list is to right-click on bats/IM_INIT_INDEX.bat and pick "Run as administrator". Unlike Reindex, this batch file immediately shuts down IntraMine completely, and restarts it when indexing is finished. Otherwise, it does the same things as "Reindex".
+
+A suggestion: use IM_INIT_INDEX.bat if you reindex only now and then: do it when things are quiet. If you find yourself reindexing a lot and want to keep using IntraMine while the indexing happens, or you want to be able to monitor reindexing progress remotely, use the "Reindex" page.
+
+Enabling Reindex
+====================
+Open your data/serverlist.txt and look for a line containing
+---
+1	Reindex				Reindex		intramine_reindex.pl
+---
+If it's there but has a leading '#', remove that. If it's not there, copy from just above and paste it in. Save serverlist.txt and restart IntraMine to see "Reindex" in the top navigation bar of any IntraMine page.
+Here's a link to take you there after you've done the above:
+http://localhost:81/Reindex
+(assuming you have left IntraMine's main port at 81).
+
+As usual, to access from another PC besides the one IntraMine is running on you'll need to know the lan IP address of your IntraMine PC. You can discover that by running
+ipconfig /all
+at a command prompt and looking for your **IPv4 Address**. With an address of 192.168.1.20 for example, you can then enter
+http://192.168.1.20:81/Reindex
+in your remote browser to get at the Reindex page.
+
+---
+contents.txt
+---

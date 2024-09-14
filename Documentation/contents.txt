@@ -44,6 +44,7 @@ FILEWATCHER.txt
 WS.txt
 Chat.txt
 SSE.txt
+Reindex.txt
 Other services.txt
 
 Other Perl programs.txt

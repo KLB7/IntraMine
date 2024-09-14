@@ -25,7 +25,6 @@ use Carp;
 use utf8;
 use Encode qw/encode decode/;
 use Win32API::File;
-#use Win32API::File::Time qw{GetFileTime};
 use Win32::API;
 use IO::Handle;
 use Encode;
@@ -785,6 +784,11 @@ sub GetFileModTimeWide {
 		$result = $modtime;
 		}
 	
+	if (!defined($mtime)) # not sure why this happens now and then
+		{
+		$mtime = 0;
+		}
+
 	return($result);
 	}
 

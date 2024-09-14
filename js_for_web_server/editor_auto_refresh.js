@@ -51,6 +51,11 @@ function handleFileChanged(message) {
 				}
 			else
 				{
+				// TEST ONLY
+				//console.log(" Editor timestamp: |" + lastEditorUpdateTime + "|");
+				//console.log("Watcher timestamp: |" + timeStamp + "|");
+
+
 				let timestampKey = theEncodedPath + '?' + 'timestamp';
 				let previousTimestamp = "0";
 
@@ -72,7 +77,26 @@ function handleFileChanged(message) {
 					{
 					if (previousTimestamp !== timeStamp)
 						{
-						reloadUnlessUserSaysNo();
+						// Last check, reload only if Editor here and the timeStamp
+						// from the Watcher WebSockets message
+						// disagree by more than three thousand milliseconds.
+						let timesAreClose = false;
+						if (lastEditorUpdateTime >= 0 && timeStamp >= 0)
+							{
+							let diffMsecs = timeStamp - lastEditorUpdateTime;
+							if (diffMsecs < 0)
+								{
+								diffMsecs = -diffMsecs;
+								}
+							if (diffMsecs <= 3000)
+								{
+								timesAreClose = true;
+								}
+							}
+						if (!timesAreClose)
+							{
+							reloadUnlessUserSaysNo();
+							}
 						}
 					}
 				// else too soon, ignore message from Watcher
