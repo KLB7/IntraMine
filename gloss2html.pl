@@ -2768,7 +2768,7 @@ sub GetReplacementHint {
 	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
 	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
 	my $result = '';
-	
+
 	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
 	# otherwise apply GLoss (IntraMine's Markdown variant for intranet use).
 	my $glossaryImagePath = ImageNameFromGloss($gloss);
@@ -2830,24 +2830,13 @@ sub GetReplacementHint {
 				$termShown = ucfirst($synonyms[0]);
 				}
 
-			# TEST ONLY
-			#print("PRE: |$gloss|\n");
-
 			# Apply Gloss to the glossary entry (sorry about that);
 			Gloss("**$termShown**: " . $gloss . $altList, $host, $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context, undef, undef);
-
-			# TEST ONLY
-			#print("BEFORE: |$glossed|\n");
 
 			$glossed =~ s!&amp;#8216;!'!g;
 			$glossed =~ s!&amp;quot;!"!g;
 
 			$glossed = uri_escape_utf8($glossed);
-
-			# TEST ONLY
-			#print("AFTER: |$glossed|\n");
-
-			#$glossed =~ s!&amp;#8216;!'!g;
 
 			# Spurious LF's, stomp them with malice.
 			$glossed =~ s!\%0A!!g;
@@ -2871,7 +2860,11 @@ sub ImageNameFromGloss {
 	my $result = '';
 	
 	if ( $gloss =~ m!^\<p\>[^:]+\:\s*\&quot\;([^\>]+)\&quot\;\.?\</p\>$!i
-	  || $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\&quot\;(.+?)\&quot\;\.?\</p\>$!i )
+	|| $gloss =~ m!^\<p\>[^:]+\:\s*\"([^\>]+)\"\.?\</p\>$!i
+	|| $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\&quot\;(.+?)\&quot\;\.?\</p\>$!i
+	|| $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\"(.+?)\"\.?\</p\>$!i)
+	# if ( $gloss =~ m!^\<p\>[^:]+\:\s*\&quot\;([^\>]+)\&quot\;\.?\</p\>$!i
+	#   || $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\&quot\;(.+?)\&quot\;\.?\</p\>$!i )
 		{
 		my $imageName = $1;
 		if ($imageName =~ m!\.(\w+)$!)

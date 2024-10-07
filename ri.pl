@@ -97,16 +97,6 @@ LoadConfigValues('SRVR');			# intramine_config.pm
 my $LogDir = FullDirectoryPath('LogDir');
 InitCmdOutput($LogDir . 'temp/tempout_' . 'REINDEX' . '.txt');
 
-# TEST ONLY
-# Output("TESTING\n");
-# for (my $i = 0; $i < 100; ++$i)
-# 	{
-# 	Output("Hello $i\n");
-# 	}
-# sleep(5);
-# WriteDoneAndCloseOutput();
-# exit(0);
-
 Output("Starting\n");
 
 # Get our IP, which is saved to disk by IntraMine each time it starts.
@@ -270,7 +260,8 @@ my $IndexIfNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 
 # Load up list of directories to index. Default location is data/search_directories.txt.
 my @DirectoriesToIndex;
-my $dirCount = LoadDirectoriesToIndex(\@DirectoriesToIndex);
+my @DirectoriesToIgnore;
+my $dirCount = LoadDirectoriesToIndex(\@DirectoriesToIndex, \@DirectoriesToIgnore);
 if (!$dirCount)
 	{
 	Output("No directories were found for indexing.\n");
@@ -312,12 +303,12 @@ for (my $i = 0; $i < @files; ++$i)
 	
 	my $lcpathForwardSlashes = $pathForwardSlashes;
 	$lcpathForwardSlashes = lc($lcpathForwardSlashes);
-	$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
 	# Indexing. Optionally skip .log files. 
-	if (FileShouldBeIndexed($pathForwardSlashes))
+	if (FileShouldBeIndexed($lcpathForwardSlashes, \@DirectoriesToIgnore))
 		{
 		$myFileNameForPath{$pathForwardSlashes} = $sourceFileName;
-		}	
+		$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
+		}
 	}
 
 # Connect to Elasticsearch.
@@ -441,7 +432,8 @@ sub MakeConfigFiles {
 	if (-f $searchDirectoriesPath)
 		{
 		my %indexDummyHash;
-		LoadSearchDirectoriesToHashes($searchDirectoriesPath, \%indexDummyHash, \%loadedDirs);
+		my %ignoreDummyHash;
+		LoadSearchDirectoriesToHashes($searchDirectoriesPath, \%indexDummyHash, \%loadedDirs, \%ignoreDummyHash);
 		}
 	else
 		{
@@ -449,13 +441,14 @@ sub MakeConfigFiles {
 		WriteDoneAndCloseOutput();
 		die("ERROR, |$searchDirectoriesPath| not found!");
 		}
-									
-	if (defined($loadedDirs{'_INTRAMINE_'}))
-		{
-		my $intramineDir = path($0)->absolute->parent->stringify;
-		$loadedDirs{$intramineDir} = 1;
-		delete $loadedDirs{'_INTRAMINE_'};
-		}
+
+	# This is now done in LoadSearchDirectoriesToHashes.
+	# if (defined($loadedDirs{'_INTRAMINE_'}))
+	# 	{
+	# 	my $intramineDir = path($0)->absolute->parent->stringify;
+	# 	$loadedDirs{$intramineDir} = 1;
+	# 	delete $loadedDirs{'_INTRAMINE_'};
+	# 	}
 	
 	my %dirs;
 	$dirCount = GetDirsToMonitor(\%loadedDirs, \%dirs);
@@ -569,35 +562,6 @@ sub GetDirsToMonitor {
 		$rawDirs{$dir} = 1;
 		}
 	
-	# Avoid nested dirs, eg c:\spot and c:\spot\run.
-	foreach my $dir (sort keys %rawDirs)
-		{
-		my $pathAbove = $dir;
-		$pathAbove =~ s!\\([^\\]+)$!!;
-		if ($pathAbove !~ m!\\([^\\]+)$!)
-			{
-			$pathAbove = '';
-			}
-		while ($pathAbove ne '')
-			{
-			if (defined($rawDirs{$pathAbove}))
-				{
-				Output("(skipping |$dir|, it is included under |$pathAbove|.)\n");
-				$rawDirs{$dir} = 'skip';
-				last;
-				}
-			if ($pathAbove !~ m!\\([^\\]+)$!)
-				{
-				$pathAbove = '';
-				}
-			else
-				{
-				$pathAbove =~ s!\\([^\\]+)$!!;
-				}
-			}
-		}
-
-	#my %dirs;
 	foreach my $dir (sort keys %rawDirs)
 		{
 		if ($rawDirs{$dir} ne 'skip')
@@ -669,7 +633,7 @@ sub ShowResponse {
 # Load array with directories to index. Default file is data/search_directories.txt.
 # If it's not the default, then only you know where it is:)
 sub LoadDirectoriesToIndex {
-	my ($directoriesToIndexA) = @_;
+	my ($directoriesToIndexA, $directoriesToIgnoreA) = @_;
 	my $configFilePath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
 	my $dirCount = 0;
 	
@@ -677,7 +641,7 @@ sub LoadDirectoriesToIndex {
 		{
 		my @dummyMonitorArray;
 		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, $directoriesToIndexA,
-						\@dummyMonitorArray); # intramine_config.pm#LoadSearchDirectoriesToArrays()
+						\@dummyMonitorArray, $directoriesToIgnoreA); # intramine_config.pm#LoadSearchDirectoriesToArrays()
 		
 		$dirCount = @$directoriesToIndexA;
 
@@ -697,8 +661,10 @@ sub LoadDirectoriesToIndex {
 	}
 
 # True if file exists and isn't a "nuisance" file and has a good extension.
+# And not in a subfolder that should be ignored, as listed in
+# data/search_directories.txt.
 sub FileShouldBeIndexed {
-	my ($fullPath) = @_;
+	my ($fullPath, $directoriesToIgnoreA) = @_;
 	my $result = 0;
 	if (   $fullPath !~ m!/\.!
 	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
@@ -709,6 +675,16 @@ sub FileShouldBeIndexed {
         	{
         	$result = 1;
         	}
+		}
+
+	my $numIgnoreDirs = @$directoriesToIgnoreA;
+	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+		{
+		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
+			{
+			$result = 0;
+			last;
+			}
 		}
 	
 	return($result);

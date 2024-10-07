@@ -284,72 +284,181 @@ sub SaveExtraConfigValues {
 # "Monitor" 1 means update Elasticsearch and file paths on any changes to the location.
 # Comment lines starting with 'whitespace*#' are skipped.
 # Both subs below return 1 if anything is loaded, 0 otherwise.
+# Subdirectories can be ignored, using the format
+# IGNORE tabs directory_path
+# where directory_path must start with a path that will be monitored or indexed.
 sub LoadSearchDirectoriesToHashes {
-	my ($filePath, $indexThesePathsH, $monitorThesePathsH) = @_;
-	my $fileH = FileHandle->new("$filePath") or return(0);
-	
-	binmode($fileH, ":utf8");
-	my $line;
-	
-	while ($line = <$fileH>)
-    	{
-        chomp($line);
+	my ($filePath, $indexThesePathsH, $monitorThesePathsH, $ignoreTheseDirectoriesH) = @_;
+	my $contents = ReadTextFileDecodedWide($filePath, 1);
+	my @lines = split(/\n/, $contents);
+	my %ignoreDirs;
+	my %allIMPaths; # All paths to Index or Monitor, lc, forward slashes.
+
+	for (my $i = 0; $i < @lines; ++$i)
+		{
+		my $line = $lines[$i];
         if (length($line) && $line !~ m!^\s*#!)
          	{
         	my @kv = split(/\t+/, $line, 3);
         	my $numEntriesOnLine = @kv;
-        	if ($numEntriesOnLine == 3)
+        	if ($numEntriesOnLine == 3) # path tabs index tabs monitor
         		{
-        		if ($kv[1] eq '1') # Index
+ 				my $dir = $kv[0];
+				# _INTRAMINE_ stands in for the actual path to the IntraMine folder.
+				if ($dir eq '_INTRAMINE_')
+					{
+					$dir = path($0)->absolute->parent->stringify;
+					$dir =~ s!\\!/!g;
+					while ($dir !~ m!/IntraMine$!i && $dir =~ m!^(.+?)/[^/]+$!)
+						{
+						$dir = $1;
+						}
+					if ($dir !~ m!/IntraMine$!i)
+						{
+						# Give up on it, but keep going.
+						$dir = $kv[0];
+						}
+					}
+				$dir = lc($dir);
+				$dir =~ s!\\!/!g;
+
+	       		if ($kv[1] eq '1') # Index
         			{
-        			$indexThesePathsH->{$kv[0]} = 1;
+					$allIMPaths{$dir} = 1;
+        			$indexThesePathsH->{$dir} = 1;
         			}
         		if ($kv[2] eq '1') # Monitor
         			{
-        			$monitorThesePathsH->{$kv[0]} = 1;
+					$allIMPaths{$dir} = 1;
+        			$monitorThesePathsH->{$dir} = 1;
         			}
          		}
+			elsif ($numEntriesOnLine == 2) # IGNORE tabs path
+				{
+				if ($kv[0] =~ m!^ignore$!i)
+					{
+					my $dir = lc($kv[1]);
+					$dir =~ s!\\!/!g;
+					if ($dir !~ m!/$!)
+						{
+						$dir = $dir . '/';
+						}
+					$ignoreDirs{$dir} = 1;
+					}
+				}
         	}
-        }
-    close $fileH;
-    
-    my $count = keys %$indexThesePathsH;
+		}
+
+	# Remove overlap, eg C:\spot vs C:\spot\run.
+	RemoveOverlappingDirs($indexThesePathsH);
+	RemoveOverlappingDirs($monitorThesePathsH);
+
+	# Second pass, add $dir to $ignoreTheseDirectoriesH if $dir
+	# starts with a dir to be monitored or indexed.
+	foreach my $dir (keys %ignoreDirs)
+		{
+		my $goodDir = 0;
+
+		foreach my $path (keys %allIMPaths)
+			{
+			if (index($dir, $path) == 0)
+				{
+				$goodDir = 1;
+				last;
+				}
+			}
+
+		if ($goodDir)
+			{
+			$ignoreTheseDirectoriesH->{$dir} = 1;
+			}
+		}
+		
+  	my $count = keys %$indexThesePathsH;
     $count += keys %$monitorThesePathsH;
     my $result = ($count) ? 1 : 0;
 	return($result);
 	}
 
+sub RemoveOverlappingDirs {
+	my ($loadedDirs_H) = @_;
+
+	my %rawDirs;
+	foreach my $dir (sort keys %$loadedDirs_H)
+		{
+		$dir =~ s!/!\\!g;			# Use backslashes
+		$dir =~ s![\\/]$!!;			# Trim any trailing slash
+		# Arg, put  a slash back at the end if it was the only one (for a drive letter)
+		if ($dir !~ m!\\!)
+			{
+			$dir .= "\\";
+			}
+		$rawDirs{$dir} = 1;
+		}
+
+	# Avoid nested dirs, eg c:\spot and c:\spot\run.
+	foreach my $dir (sort keys %rawDirs)
+		{
+		my $pathAbove = $dir;
+		$pathAbove =~ s!\\([^\\]+)$!!;
+		if ($pathAbove !~ m!\\([^\\]+)$!)
+			{
+			$pathAbove = '';
+			}
+		while ($pathAbove ne '')
+			{
+			if (defined($rawDirs{$pathAbove}))
+				{
+				$rawDirs{$dir} = 'skip';
+				last;
+				}
+			if ($pathAbove !~ m!\\([^\\]+)$!)
+				{
+				$pathAbove = '';
+				}
+			else
+				{
+				$pathAbove =~ s!\\([^\\]+)$!!;
+				}
+			}
+		}
+
+	# At this point %rawDirs holds good entries and "skip" entries.
+	# Empty the original $loadedDirs_H hash.
+	%{$loadedDirs_H} = ();
+	# Fill in the good entries.
+	foreach my $dir (sort keys %rawDirs)
+		{
+		if ($rawDirs{$dir} ne 'skip')
+			{
+			$loadedDirs_H->{$dir} = 1;
+			}
+		}
+	}
+
 # Like above, but arrays instead of hashes.
 sub LoadSearchDirectoriesToArrays {
-	my ($filePath, $indexThesePathsA, $monitorThesePathsA) = @_;
-	my $fileH = FileHandle->new("$filePath") or return(0);
-	
-	binmode($fileH, ":utf8");
-	my $line;
-	
-	while ($line = <$fileH>)
-    	{
-        chomp($line);
-        if (length($line) && $line !~ m!^\s*#!)
-         	{
-        	my @kv = split(/\t+/, $line, 3);
-        	my $numEntriesOnLine = @kv;
-        	if ($numEntriesOnLine == 3)
-        		{
-        		if ($kv[1] eq '1') # Index
-        			{
-        			push @$indexThesePathsA, $kv[0];
-        			}
-        		if ($kv[2] eq '1') # Monitor
-        			{
-        			push @$monitorThesePathsA, $kv[0];
-        			}
-         		}
-        	}
-        }
-    close $fileH;
-    
-    my $count = @$indexThesePathsA;
+	my ($filePath, $indexThesePathsA, $monitorThesePathsA, $ignoreTheseDirectoriesA) = @_;
+	# A bit of a hack, load all as hashes and convert to arrays.
+	my %indexThesePaths;
+	my %monitorThesePaths;
+	my %ignoreTheseDirectories;
+	my $count = LoadSearchDirectoriesToHashes($filePath, \%indexThesePaths, \%monitorThesePaths, \%ignoreTheseDirectories);
+
+	foreach my $dir (sort keys %indexThesePaths)
+		{
+		push @$indexThesePathsA, $dir;
+		}
+	foreach my $dir (sort keys %monitorThesePaths)
+		{
+		push @$monitorThesePathsA, $dir;
+		}
+	foreach my $dir (sort keys %ignoreTheseDirectories)
+		{
+		push @$ignoreTheseDirectoriesA, $dir;
+		}
+
+	$count = @$indexThesePathsA;
     $count += @$monitorThesePathsA;
     my $result = ($count) ? 1 : 0;
 	return($result);

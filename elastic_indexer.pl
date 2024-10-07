@@ -79,7 +79,8 @@ my $IndexIfNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 
 # Load up list of directories to index. Default location is data/search_directories.txt.
 my @DirectoriesToIndex;
-my $dirCount = LoadDirectoriesToIndex(\@DirectoriesToIndex);
+my @DirectoriesToIgnore;
+my $dirCount = LoadDirectoriesToIndex(\@DirectoriesToIndex, \@DirectoriesToIgnore);
 if (!$dirCount)
 	{
 	print("No directories were found for indexing.\n");
@@ -121,11 +122,11 @@ for (my $i = 0; $i < @files; ++$i)
 	
 	my $lcpathForwardSlashes = $pathForwardSlashes;
 	$lcpathForwardSlashes = lc($lcpathForwardSlashes);
-	$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
 	# Indexing. Optionally skip .log files. 
-	if (FileShouldBeIndexed($pathForwardSlashes))
+	if (FileShouldBeIndexed($pathForwardSlashes, \@DirectoriesToIgnore))
 		{
 		$myFileNameForPath{$pathForwardSlashes} = $sourceFileName;
+		$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
 		}	
 	}
 
@@ -219,7 +220,7 @@ sub Output {
 # Load array with directories to index. Default file is data/search_directories.txt.
 # If it's not the default, then only you know where it is:)
 sub LoadDirectoriesToIndex {
-	my ($directoriesToIndexA) = @_;
+	my ($directoriesToIndexA, $directoriesToIgnoreA) = @_;
 	my $configFilePath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
 	my $dirCount = 0;
 	
@@ -227,7 +228,7 @@ sub LoadDirectoriesToIndex {
 		{
 		my @dummyMonitorArray;
 		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, $directoriesToIndexA,
-						\@dummyMonitorArray); # intramine_config.pm#LoadSearchDirectoriesToArrays()
+						\@dummyMonitorArray, $directoriesToIgnoreA); # intramine_config.pm#LoadSearchDirectoriesToArrays()
 		
 		$dirCount = @$directoriesToIndexA;
 
@@ -246,7 +247,7 @@ sub LoadDirectoriesToIndex {
 
 # True if file exists and isn't a "nuisance" file and has a good extension.
 sub FileShouldBeIndexed {
-	my ($fullPath) = @_;
+	my ($fullPath, $directoriesToIgnoreA) = @_;
 	my $result = 0;
 	if (   $fullPath !~ m!/\.!
 	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
@@ -259,6 +260,16 @@ sub FileShouldBeIndexed {
         	}
 		}
 	
+	my $numIgnoreDirs = @$directoriesToIgnoreA;
+	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+		{
+		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
+			{
+			$result = 0;
+			last;
+			}
+		}
+
 	return($result);
 	}
 

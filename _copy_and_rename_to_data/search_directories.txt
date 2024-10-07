@@ -9,12 +9,19 @@ Location				Index	Monitor
 # Then after more tab(s) put a 1 to have the folder monitored for changes
 # or a 0 if it's a mapped (NAS) drive, they can't be monitored reliably.
 # NOTE try to keep total files indexed under 500,000.
+#
 # Lines that start with '#' are comments, ignored.
-# Examples, with a # and space in front
+#
+# For convenience, specific subfolders can be skipped.
+# To ignore (skip) a subfolder, put
+# IGNORE <tab(s)> path_to_folder
+# Examples, with a # and space in front:
 # C:\qtprojects\project51		1	1
 # Q:/qtlibs/src					1	0
+# IGNORE	C:\qtprojects\project51\test
 #    (project51 will be indexed and monitored,
-#    src will be indexed but not monitored for changes):
+#    however its \test subfolder will be skipped.
+#    Q:/qtlibs/src will be indexed but not monitored for changes)
 #
 # See Documentation/Configuring folders to index and monitor.html
 # if you want more details.

@@ -570,6 +570,7 @@ function scrollFolderIntoView(leftList, ank) {
 		}
 }
 
+// Not used.
 function setSelectBoxByText(id, etxt) {
 	let eid = document.getElementById(id);
      for (var i = 0; i < eid.options.length; ++i) {

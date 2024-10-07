@@ -75,6 +75,10 @@ _DESCRIPTION_
 <table id="directories_table">
 _FOLDER_LIST_
 </table>
+<h2>IGNORE list</h2>
+<table id="ignore_table">
+_IGNORE_LIST_
+</table>
 <div id="cmdcontainer">
  
 </div>
@@ -153,9 +157,10 @@ FINIS
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_THEPORT_!$port!;
 
-	my $folderList = ReindexFolderList();
+	my ($folderList, $ignoreList) = ReindexFolderList();
 	$theBody =~ s!_FOLDER_LIST_!$folderList!;
-
+	$theBody =~ s!_IGNORE_LIST_!$ignoreList!;
+	
 	# Note the Reindex button must be made before Edit button, so that
 	# Reindex has an id of Cmd1. Edit button's id Cmd2 is stripped.
 	# If it were made first, there would be no Cmd1 id and
@@ -224,8 +229,8 @@ sub EditButton {
 
 sub ReindexFolderList {
 	my $skipComments = 1;
-	my $list = ReadIndexList($skipComments);
-	return($list);
+	my ($list, $ignoreList) = ReadIndexList($skipComments);
+	return($list, $ignoreList);
 	}
 
 # Return a list of directories with index and monitor 0/1 values
@@ -238,6 +243,8 @@ sub ReadIndexList {
 	my $list = ReadTextFileDecodedWide($searchDirectoriesPath);
 	my @lines = split(/\n/, $list);
 	my @tableLines;
+	my $ignoreList = '';
+	my @ignoreTableLines = '';
 
 	my $firstLine = $lines[0];
 	my $firstLineToDo = 0;
@@ -247,11 +254,15 @@ sub ReadIndexList {
 		}
 	my $headerRow = "<tr><th>Location</th><th>Index</th><th>Monitor</th></tr>";
 	push @tableLines, $headerRow;
+	my $ignoreHeaderRow = "<tr><th>Location</th></tr>";
+	push @ignoreTableLines, $ignoreHeaderRow;
 
 	for (my $i = $firstLineToDo; $i < @lines; ++$i)
 		{
 		my $line = $lines[$i];
+		$line =~ s!\\!/!g;
 		my $nextRow = '';
+		my $nextIgnoreRow = '';
 		if (length($line) && $line !~ m!^\s*#!)
 			{
 			my @kv = split(/\t+/, $line, 3);
@@ -267,11 +278,24 @@ sub ReadIndexList {
 				
 				if ($exists)
 					{
-					$nextRow = "<tr><td>$kv[0]</td><td>$kv[1]</td><td>$kv[2]</td></tr>"
+					$nextRow = "<tr><td>$kv[0]</td><td>$kv[1]</td><td>$kv[2]</td></tr>";
 					}
 				else
 					{
-					$nextRow = "<tr><td><span class='badDirectory'>$kv[0]</span></td><td>$kv[1]</td><td>$kv[2]</td></tr>"
+					$nextRow = "<tr><td><span class='badDirectory'>$kv[0]</span></td><td>$kv[1]</td><td>$kv[2]</td></tr>";
+					}
+				}
+			elsif ($numEntriesOnLine == 2 && $kv[0] =~ m!IGNORE!i)
+				{
+				my $dir = $kv[1];
+				my $exists = (FileOrDirExistsWide($dir) == 2);
+				if ($exists)
+					{
+					$nextIgnoreRow = "<tr><td>$dir</td></tr>";
+					}
+				else
+					{
+					$nextIgnoreRow = "<tr><td><span class='badDirectory'>$dir</span></td></tr>";
 					}
 				}
 			else
@@ -293,10 +317,34 @@ sub ReadIndexList {
 			{
 			push @tableLines, $nextRow;
 			}
+		elsif ($nextIgnoreRow ne '')
+			{
+			push @ignoreTableLines, $nextIgnoreRow;
+			}
 		}
 
+	# Embolden the main folder part of an IGNORE subfolder.
+	for (my $i = 0; $i < @ignoreTableLines; ++$i)
+		{
+		my $ig = lc($ignoreTableLines[$i]);
+		for (my $j = 0; $j < @tableLines; ++$j)
+			{
+			my $line = lc($tableLines[$j]);
+			# "<tr><td>$kv[0]</td><td>$kv[1]</td><td>$kv[2]</td></tr>"
+			if ($line =~ m!^<tr><td>([^<]+)<!)
+				{
+				my $dir = $1;
+				if ($ig =~ m!$dir!i)
+					{
+					$ignoreTableLines[$i] =~ s!$dir!<strong>$dir</strong>!i;
+					last;
+					}
+				}
+			}
+		}
 	$list = join("\n", @tableLines);
-	return($list);
+	$ignoreList = join("\n", @ignoreTableLines);
+	return($list, $ignoreList);
 	}
 
 # The "reindex" button (see _REINDEX_BUTTON_ above).

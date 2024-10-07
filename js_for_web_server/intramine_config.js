@@ -54,6 +54,7 @@ async function fetchPort(main_ip, main_port, short_name, errorID) {
 					}
 				else
 					{
+					// Success!
 					retry = false;
 					shortPort = text;
 					}
@@ -63,7 +64,7 @@ async function fetchPort(main_ip, main_port, short_name, errorID) {
 				++tryCounter;
 				if (tryCounter > maxTries)
 					{
-						retry = false;
+					retry = false;
 					// We reached our target server, but it returned an error
 					let e1 = document.getElementById(errorID);
 					if (e1 !== null)

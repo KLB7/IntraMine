@@ -33,6 +33,7 @@ use reverse_filepaths;
 use tocmaker;
 use win_wide_filepaths;
 use ext; # for ext.pm#EndsWithTextOrImageExtension() etc.
+use intramine_config; # For LoadSearchDirectoriesToArrays()
 
 $|  = 1;
 
@@ -105,6 +106,8 @@ InitDeletesDB();
 # Detect large number of files added or deleted.
 my $Congested = 0;
 my $CongestionMinimum = 100; # Somewhat arbitrary, count of files receive all at once
+
+GetDirectoriesToIgnore();
 
 # Note we call IndexChangedFiles() once a minute (30 two-second timeouts).
 MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFiles);
@@ -275,6 +278,7 @@ my %FileOnPathWasChanged; 		# For detecting a rapid deleted/created/changed - ju
 my %PathsOfDeletedFiles;
 my @RenamedFolderPaths;			# holds full path to folder, with the new folder name
 my @RenamedFilePaths;			# holds full path to renamed file, using the new name
+my @DirectoriesToIgnore;
 
 # For reading filewatcher log.
 my %CurrentPathAlreadySeen; 	# Avoid doing the same file twice here, File Watcher can be a bit repetitive.
@@ -282,9 +286,40 @@ my $MostRecentTimeStampThisTimeAround;
 my %FilesForMostRecentFileStamp;	# Files at end of current check (transferred to %FilesForLastFileStamp when done check)
 my %TimeStampForPath; # $TimeStampForPath{'C:/folder/file.txt'} = '2023-10-31 5-49-24 PM'
 
+sub GetDirectoriesToIgnore {
+	my $configFilePath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
+	if (-f $configFilePath)
+		{
+		my @dummyIndexArray;
+		my @dummyMonitorArray;
+		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, \@dummyIndexArray,
+						\@dummyMonitorArray, \@DirectoriesToIgnore); # intramine_config.pm#LoadSearchDirectoriesToArrays()
+		}
+	}
+
+# Ignore file path if it starts with path to a folder to ignore, as
+# listed in data/search_directories.txt. Comparisons are done
+# in lower case with forward slashes only.
+sub ShouldIgnoreFile {
+	my ($fullPath) = @_; # lc, / only
+	#$fullPath = lc($fullPath);
+	#$fullPath =~ s!\\!/!g;
+	my $result = 0;
+
+	for (my $i = 0; $i < @DirectoriesToIgnore; ++$i)
+		{
+		if (index($fullPath, $DirectoriesToIgnore[$i]) == 0)
+			{
+			$result = 1;
+			last;
+			}
+		}
+
+	return($result);
+	}
+
 # Read FileWatcher Service log(s), ask Elasticsearch to index changed/new, remember full
 # paths of any new files. If a folder is renamed, tell Viewer to reload partial path list.
-
 sub IndexChangedFiles {
 	
 	# Look for fwatcher.log. Everything here depends on it.
@@ -497,7 +532,7 @@ sub SendOneFileContentsChanged {
 	$filePath =~ s!%!%25!g;
 	$filePath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 
-	# Revision Sept 2024, for the time stamp send seconds since
+	# Revision Sept 2024, for the time stamp send milliseconds since
 	# the Epoch () instead of a readable string.
 	# Typical $timeStamp coming in: 2024-09-11 11-13-40 AM
 	# Regex: !^(\d\d\d\d)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)\s(\w+)$!
@@ -717,6 +752,11 @@ sub GetLogChanges {
 			# Folder renamed if see renamed and quoted path is for a folder.
 			if (!$sawFileLastTime)
 				{
+				# Skip if should ignore containing folder.
+				if (ShouldIgnoreFile($path))
+					{
+					next;
+					}
 				if ($line !~ m!File or folder deleted!i)
 					{
 					if ($line =~ m!File or folder renamed!i)
@@ -910,7 +950,7 @@ sub UpdateFullPathsForFolderRenames {
 		my %newPathForOldPath;
 		UpdatePathsForFolderRenames($remainingRenameCount, \@renamedFolderPaths, \@oldFolderPaths, \%newPathForOldPath);
 		my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
-		if ($howItWent ne "ok")
+		if ($howItWent ne "ok" && $howItWent ne "1")
 			{
 			print("$howItWent\n");
 			}
@@ -1241,7 +1281,7 @@ sub PeriodicallyConsolidate {
 		RememberTimeOfLastConsolidation();
 		my $startTime = time;
 		my $howItWent = ConsolidateFullPathLists(0); # reverse_filepaths.pm#ConsolidateFullPathLists(), 0==no forcing
-		if ($howItWent ne "ok")
+		if ($howItWent ne "" && $howItWent ne "ok" && $howItWent ne "1")
 			{
 			print("$howItWent\n");
 			}

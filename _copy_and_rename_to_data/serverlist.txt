@@ -63,4 +63,5 @@
 1	FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND
 0	Chat				Chat		intramine_chat.pl
 1	EM					EM			intramine_EM.pl
-# OBSOLETE 1	SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND
+0	Reindex				Reindex		intramine_reindex.pl
+

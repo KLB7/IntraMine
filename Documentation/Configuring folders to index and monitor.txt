@@ -1,7 +1,7 @@
 Configuring folders to index and monitor
 ========================================
 
-The list of directories that you put in **data/search_directories.txt** will be used to tell Elasticsearch which directories to index, and also to create an XML config file for the File Watcher service that tells it which directories to monitor for changes, so that the changed files can be re-indexed.
+The list of directories that you put in **data/search_directories.txt** will be used to tell Elasticsearch which directories to index, and also to create an XML config file for the File Watcher service that tells it which directories to monitor for changes, so that the changed files can be re-indexed. Specific subfolders can also be ignored (skipped) for indexing and monitoring.
 
 Open up your data/search_directories.txt and let's get to it.
 
@@ -15,6 +15,22 @@ Each directory entry in data/search_directories.txt has three fields, separated 
 
 **Monitor**: set the Monitor field to 1 for all local storage, and set it to 0 for all NAS (network attached storage).
 ---
+
+Full paths are not case sensitive, and can use forward or back slashes (/ or \). A trailing slash is optional.
+
+IGNORE subfolders
+================
+For convenience, specific subfolders can be skipped.
+To ignore (skip) a subfolder, put
+IGNORE <tab(s)> path_to_folder
+An example, with tabs in between fields:
+---
+C:\qtprojects\project51		1	1
+IGNORE	C:\qtprojects\project51\test
+ignore	C:\qtprojects\project51\logs/
+---
+project51 will be indexed and monitored,
+however its \test and \logs subfolders will be skipped for both indexing and monitoring.
 
 NAS locations
 ==============

@@ -4,6 +4,7 @@
 // If a file watcher change notice is received within these many seconds
 // of a notice from IntraMine's Editor, we ignore it.
 let doubleNoticeSeconds = 3;
+let doubleNoticeMilliseconds = 3000;
 // Also ignore any request from the Editor itself if received soon after a Save.
 let selfTriggerMsecs = 1500;
 let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
@@ -88,7 +89,7 @@ function handleFileChanged(message) {
 								{
 								diffMsecs = -diffMsecs;
 								}
-							if (diffMsecs <= 3000)
+							if (diffMsecs <= doubleNoticeMilliseconds)
 								{
 								timesAreClose = true;
 								}

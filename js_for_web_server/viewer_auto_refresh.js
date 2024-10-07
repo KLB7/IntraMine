@@ -15,6 +15,7 @@
 // If a file watcher change notice is received within these many seconds
 // of a notice from IntraMine's Editor, we ignore it.
 let doubleNoticeSeconds = 3;
+let doubleNoticeMilliseconds = 3000;
 let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
 
 // Register callback for the auto refresh, "changeDetected".
@@ -82,7 +83,7 @@ function handleFileChanged(message) {
 								{
 								diffMsecs = -diffMsecs;
 								}
-							if (diffMsecs <= 3000)
+							if (diffMsecs <= doubleNoticeMilliseconds)
 								{
 								timesAreClose = true;
 								}
@@ -92,10 +93,10 @@ function handleFileChanged(message) {
 							window.location.reload();
 							}
 						// TEST ONY
-						else
-							{
-							console.log("Reload skipped, times are close.");
-							}
+						// else
+						// 	{
+						// 	console.log("Reload skipped, times are close.");
+						// 	}
 						}
 					}
 				// else too soon, ignore message from Watcher

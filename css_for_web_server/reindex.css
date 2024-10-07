@@ -4,6 +4,10 @@
 	border: 1px solid #AAAAAA;
 }
 
+#ignore_table {
+	border: 1px solid #AAAAAA;
+}
+
 .badDirectory {
 	background-color: #ffaaaa;
 }

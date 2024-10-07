@@ -29,7 +29,8 @@ my $IndexIfNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 
 # Load up list of directories to index.
 my @DirectoriesToIndex;
-LoadDirectoriesToIndex(\@DirectoriesToIndex);
+my @DirectoriesToIgnore;
+LoadDirectoriesToIndex();
 
 
 my $MaximumDepth = 0;
@@ -56,26 +57,20 @@ sub Output {
 	}
 
 sub LoadDirectoriesToIndex {
-	my ($directoriesToIndexA) = @_;
 	my $configFilePath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
 	my $dirCount = 0;
 	
 	if (-f $configFilePath)
 		{
 		my @dummyMonitorArray;
-		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, $directoriesToIndexA,
-							\@dummyMonitorArray);
+		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, \@DirectoriesToIndex,
+							\@dummyMonitorArray, \@DirectoriesToIgnore);
 		
-		$dirCount = @$directoriesToIndexA;
+		$dirCount = @DirectoriesToIndex;
 		
 		if (!$dirCount)
 			{
 			die("ERROR, no directories found in |$configFilePath|\n");
-			}
-
-		for (my $i = 0; $i < $dirCount; ++$i)
-			{
-			$directoriesToIndexA->[$i] =~ s!\\!/!g;
 			}
 		}
 	else
@@ -100,15 +95,39 @@ sub DoOne {
     else
         {
 		# Full path list. Set %rawPathList for *all* files, eg to pick up folders that are all images.
-		my $pathForwardSlashes = $sourceFileFullPath;
+		my $pathForwardSlashes = lc($sourceFileFullPath);
 		$pathForwardSlashes =~ s![\\]!/!g;
-		my $slashCount = $pathForwardSlashes =~ tr!/!!;
-		if ($MaximumDepth < $slashCount)
+		if (!ShouldIgnoreFile($pathForwardSlashes))
 			{
-			$MaximumDepth = $slashCount;
-			$PathForMaximumDepth = $pathForwardSlashes;
-			Output ("Depth $MaximumDepth for |$PathForMaximumDepth|\n");
+			my $slashCount = $pathForwardSlashes =~ tr!/!!;
+			if ($MaximumDepth < $slashCount)
+				{
+				$MaximumDepth = $slashCount;
+				$PathForMaximumDepth = $pathForwardSlashes;
+				Output ("Depth $MaximumDepth for |$PathForMaximumDepth|\n");
+				}
 			}
         }
+	}
+
+# Ignore file path if it starts with path to a folder to ignore, as
+# listed in data/search_directories.txt. Comparisons are done
+# in lower case with forward slashes only.
+sub ShouldIgnoreFile {
+	my ($fullPath) = @_; # lc, / only
+	#$fullPath = lc($fullPath);
+	#$fullPath =~ s!\\!/!g;
+	my $result = 0;
+
+	for (my $i = 0; $i < @DirectoriesToIgnore; ++$i)
+		{
+		if (index($fullPath, $DirectoriesToIgnore[$i]) == 0)
+			{
+			$result = 1;
+			last;
+			}
+		}
+
+	return($result);
 	}
 

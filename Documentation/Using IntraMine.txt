@@ -51,8 +51,9 @@ Count	Page name			Short name	Program						Option	Docs
 1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
 0		Chat				Chat		intramine_chat.pl			 	Chat.txt
 1		EM					EM			intramine_EM.pl 			EM.txt
-0		SERVERSENTEVENTS	SSE			intramine_SSE.pl			BACKGROUND	SSE.txt
-(SSE is deprecated, and has been replaced by a WebSockets service "WS" which is always started. See WS.txt for details.)
+0		Reindex				Reindex		intramine_reindex.pl		 	Reindex.txt
+
+
 
 The "Count" field controls how many of each server to start.
 
@@ -100,6 +101,7 @@ If IntraMine's Watcher goes DEAD, this typically means it's very very busy index
 
 More to explore
 ===============
+
 ### FLASH links
 (Fast Local Automatic Source and text Hyperlinks)
 Type just the file name and get the right link: how can that work? IntraMine knows the full paths to all files of interest to you, and when there's more than one matching file it picks the one closest to where you're writing. "Closest" means the the minimum number of directory moves up and down to get from where you're typing to your intended target file. In rare cases where that's not enough you can supply all or part of the path to the target file: the path need not be complete, the directory names need not be in order. In text files and source file comments you don't even need quotes, unless you've included '#' followed by a function or class or header name. Here's one: contents.html.

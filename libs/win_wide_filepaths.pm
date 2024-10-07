@@ -502,7 +502,7 @@ sub RemoveDirWide {
 	return($result);
 	}
 
-# Return an array of all files and subdirs at the top level of $dir.
+# Return an array of all file and subdir names at the top level of $dir.
 # Can be dropped in as a replacement for readdir.
 # Eg replace
 #  opendir my $dh, $dir or something bad happened;
@@ -512,12 +512,27 @@ sub RemoveDirWide {
 # See eg intramine_filetree.pl#GetDirsAndFiles().
 sub FindFileWide {
 	my ($dir) = @_;
-	$dir =~ s!/!\\!g;
+	# Make $dir end in /* or \*. Not perfect, but it should help.
 	my $lastChar = substr($dir, -1);
-	if ($lastChar ne '*')
+	my $penChar = substr($dir, -2, 1); # penultimate char
+	if (!($lastChar eq '*' && ($penChar eq '/' || $penChar eq '\\')))
 		{
-		$dir .= '*';
+		if ($lastChar eq '*')
+			{
+			# $penChar is not a slash.
+			$dir = substr($dir, 0, length($dir) - 1) . '/*';
+			}
+		elsif ($lastChar eq '/' || $lastChar eq '\\')
+			{
+			$dir .= '*';
+			}
+		else
+			{
+			$dir .= '/*';
+			}
 		}
+	$dir =~ s!/!\\!g;
+
 	my $dirPathWin  = encode("UTF-16LE", "$dir\0");
 	# WIN32_FIND_DATA struct has 58 + 2x260 = 578 bytes, round up to 600. It's not 318.
 	my $memoryBucket = chr(0) x 600;
@@ -548,10 +563,16 @@ sub FindFileWide {
 	}
 
 # "Go deep", call FindFileWide() recursively on subdirs. Sets separate arrays of
-# files and subdirectories.
+# full paths to files and subdirectories.
 # See eg elastic_indexer.pl#101.
 sub DeepFindFileWide {
 	my ($dir, $filesA, $dirsA) = @_;
+	my $lastChar = substr($dir, -1);
+	# Trailing slash of either sort is required, doesn't matter which.
+	if ($lastChar ne '/' && $lastChar ne '\\')
+		{
+		$dir .= '/';
+		}
 
 	my @allEntries = FindFileWide($dir);
 
