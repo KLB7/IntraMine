@@ -87,8 +87,8 @@ $SourceDataFolder = -join($IntraMineDir, "\_copy_and_rename_to_data")
 $DestDataFolder = -join($IntraMineDir, "\data")
 $DirectoriesListPath = -join($IntraMineDir, "\data\search_directories.txt")
 $PerlBinFile = "C:\Strawberry\perl\bin\perl.exe"
-$DownloadPerlURL = "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_53822_64bit/strawberry-perl-5.38.2.2-64bit.msi"
-$DownloadPerlPath = "$env:TEMP\perl53822.msi"
+$DownloadPerlURL = "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit.msi"
+$DownloadPerlPath = "$env:TEMP\perl540.msi"
 $BatsFolder = -join($IntraMineDir, "\bats")
 $PerlModulesBatsPath = -join($BatsFolder, "\install_perl_modules.bat")
 $EsInstalledFolder = "C:\elasticsearch-8.8.1"
@@ -330,7 +330,7 @@ if ($StageCompleted -eq $PerlInstallCompleted)
 	{
 	Write-Host "Installing additional Perl modules..." -f Yellow
 	Write-Host "If you are asked about running Perl, please click Allow." -f Yellow
-	Write-Host "NOTE please type y when requested," -f Yellow
+	Write-Host "NOTE please type y if requested," -f Yellow
 	Write-Host "which will be in roughly 20 minutes." -f Yellow
 	Read-Host -Prompt "Press Enter to continue"
 

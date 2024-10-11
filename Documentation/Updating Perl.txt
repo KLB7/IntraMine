@@ -1,0 +1,20 @@
+Updating Perl
+=====================
+
+First off, if you're just using Perl for IntraMine then there's really no need to keep up with the latest version of Strawberry Perl. Any version 5.30 or later will do just fine.
+
+The most recent version of Strawberry Perl that's been tested with IntraMine is 5.40.
+
+Here's how to do it if you want to anyway:
+1. Visit https://strawberryperl.com and download an appropriate release
+2. Stop IntraMine, and any other running Perl programs you might have started
+3. Uninstall Strawberry Perl (using Settings -> System -> Installed apps)
+4. Run the Strawberry Perl installer
+5. At a command prompt, run bats/INSTALL_MODULES.bat
+6. Restart IntraMine
+7. After restarting Intramine wait about 20 minutes before actively using it, IF your Strawberry Perl folder has been included in data/search_directories.txt for indexing (to allow all the new files to be indexed). Otherwise, you can use IntraMine immediately.
+
+---
+contents.txt
+---
+

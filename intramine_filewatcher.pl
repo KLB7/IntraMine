@@ -358,9 +358,6 @@ sub IndexChangedFiles {
 		return;
 		}
 	
-	# TEST ONLY
-	#print("Indexing\n");
-
 	# Remove %PathsOfDeletedFiles entry if it was also seen as 'created', trying to work around
 	# problem where a file can be reported as deleted (and also created) when it has been created
 	# and not deleted at all whatsoever (unless notepad++ is doing something sneaky).

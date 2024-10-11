@@ -318,6 +318,9 @@ sub ReloadChangedDeletedFilesList {
 # The arrays are limited in length above in ReloadChangedDeletedFilesList();
 sub FileStatusHTML {
 	my ($obj, $formH, $peeraddress) = @_;
+
+	# TEST ONLY
+	#print("FileStatusHTML top\n");
 	
 	# Check if Viewer is available. If so, links will be put on
 	# the New / Changed Files entries.
@@ -366,6 +369,10 @@ sub FileStatusHTML {
 		}
 	
 	$result .= '</table>' . "\n";
+
+	# TEST ONLY
+	#print("FileStatusHTML bottom\n");
+
 	return($result);
 	}
 

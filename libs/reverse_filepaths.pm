@@ -56,7 +56,7 @@ use win_wide_filepaths;
 { ##### Directory list
 my $FullPathListPath;		# For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{c:/dir1/dir2/dir3/file.txt} = 'file.txt';
-my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
+my %FullPathsForFileName;	# Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
 my %FullDirectoryPathsForDirName; # Eg $FullDirectoryPathsForDirName{'docs'} = '|c:/proj1/docs|c:/p2/docs|';
 my %LastDirForFullDirPath; # $LastDirForFullDirPath{'c:/proj1/docs'} = 'docs';
 
@@ -276,7 +276,7 @@ sub TheDeletesDbPath {
 
 sub InitDeletesDB {
 	$DeletesDbPath = TheDeletesDbPath();
-	$DeletesDB = DBM::Deep->new($DeletesDbPath);
+	eval {$DeletesDB = DBM::Deep->new($DeletesDbPath);}
 	}
 
 # Remove entries from reverse_filepaths.pm %FileNameForFullPath and %FullPathsForFileName.
@@ -345,12 +345,14 @@ sub DeleteFullPath {
 	}
 
 sub RememberDeletedPaths {
-	my ($pathsOfDeletedFilesH, $deletedFilesPath) = @_;
+	my ($pathsOfDeletedFilesH) = @_;
 
 	foreach my $key (sort(keys %{$pathsOfDeletedFilesH}))
 		{
 		$key = lc($key);
-		$DeletesDB->{$key} = 1;
+		# TEST ONLY
+		#print("Remembering deleted path |$key|\n");
+		eval {$DeletesDB->{$key} = 1;}
 		}
 	}
 
@@ -358,9 +360,12 @@ sub LoadDeletedPaths {
 	my ($pathsOfDeletedFilesH) = @_;
 	%{$pathsOfDeletedFilesH} = ();
 
-	while (my ($key, $value) = each %$DeletesDB)
+	eval
 		{
-		$pathsOfDeletedFilesH->{$key} = $value;
+		while (my ($key, $value) = each %$DeletesDB)
+			{
+			$pathsOfDeletedFilesH->{$key} = $value;
+			}
 		}
 	}
 
@@ -377,13 +382,18 @@ sub LoadAndRemoveDeletesFromHashes {
 
 # Remove $path from deletes db if file was re-created.
 sub RemoveNewFilesFromDeletes {
-	my ($pathsOfCreatedFilesH) = @_;
+	 my ($pathsOfCreatedFilesH) = @_;
 
-	foreach my $key (sort(keys %{$pathsOfCreatedFilesH}))
-		{
-		$key = lc($key);
-		$DeletesDB->delete($key);
-		}
+	  foreach my $key (sort(keys %{$pathsOfCreatedFilesH}))
+	  	{
+	  	$key = lc($key);
+	  	if ($key ne '')
+	  		{
+	 		# TEST ONLY
+	 		#print("Removing |$key| from deletes db.\n");
+	  		eval { $DeletesDB->delete($key); }
+	  		}
+	  	}
 	}
 
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
@@ -483,12 +493,12 @@ sub ConsolidateFullPathLists {
 		unlink($FullPathListPath);
 		unlink($fragPath);
 
-		if (!defined($DeletesDbPath))
-			{
-			$DeletesDbPath = TheDeletesDbPath();
-			}
-		unlink($DeletesDbPath);
-		$DeletesDB = DBM::Deep->new($DeletesDbPath);
+		  if (!defined($DeletesDbPath))
+		  	{
+		  	$DeletesDbPath = TheDeletesDbPath();
+		  	}
+		  unlink($DeletesDbPath);
+		  eval {$DeletesDB = DBM::Deep->new($DeletesDbPath);};
 
 		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");

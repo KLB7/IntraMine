@@ -52,7 +52,7 @@ If you see a use for IntraMine's FLASH link algorithms etc in your own work, go 
 
  - Windows 10 / 11.
  - IPv4 must be enabled on the PC where IntraMine is installed (this is overwhelmingly the default). IPv6 can be enabled or disabled as you wish.
- - Strawberry Perl 5 version 30 or later (install instructions are included). The "Quick Install" will install version 3.8.
+ - Strawberry Perl 5 version 30 or later (install instructions are included). The "Quick Install" will install version 5.40.
  - roughly 4 GB of RAM for IntraMine (including Elasticsearch).
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and FLASH linking, but changes to them won't be detected, so that's fine for library files but not your own work.
  - IntraMine is for use only on an intranet, and provides no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.

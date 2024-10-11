@@ -1433,6 +1433,10 @@ sub ServerStatus {
 
 sub ReportOnPageServers {
 	my ($resultR) = @_;
+
+	# TEST ONLY
+	#print("ReportOnPageServers top\n");
+
 	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
@@ -1499,12 +1503,21 @@ sub ReportOnPageServers {
 			}
 		}
 	$$resultR .= "</tbody></table><div>&nbsp;</div>";
+
+	# TEST ONLY
+	#print("ReportOnPageServers bottom\n");
+
 	}
 
 # Report if servers are UP DEAD etc.
 # The WEBSOCKET server is just checked to see if it responds, so UP or DEAD.
 sub ReportOnBackgroundServers {
 	my ($resultR) = @_;
+
+	# TEST ONLY
+	#print("ReportOnBackgroundServers top\n");
+
+
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
 
@@ -1563,6 +1576,10 @@ sub ReportOnBackgroundServers {
 			}
 		}
 	$$resultR .= '</tbody></table>' . "\n";
+
+	# TEST ONLY
+	#print("ReportOnBackgroundServers bottom\n");
+
 	}
 
 # Show ports, num servers etc, and throw in links to configuration files.

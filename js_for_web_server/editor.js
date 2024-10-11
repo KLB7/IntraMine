@@ -234,7 +234,12 @@ cfg.extraKeys = {
 // 		cm.undo();
 // 	}
 // };
-cfg.highlightSelectionMatches = true;
+
+let highlightSelectionMatches = new Object();
+highlightSelectionMatches.showToken = false;
+highlightSelectionMatches.highlightWordAroundCursor = false;
+highlightSelectionMatches.annotateScrollbar = true;
+cfg.highlightSelectionMatches = highlightSelectionMatches;
 cfg.indentUnit = 4;
 cfg.indentWithTabs = true;
 
