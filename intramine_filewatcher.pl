@@ -358,6 +358,9 @@ sub IndexChangedFiles {
 		return;
 		}
 	
+	# Notify user in Cmd window if indexing is under heavy load.
+	ReportIfCongested();
+
 	# Remove %PathsOfDeletedFiles entry if it was also seen as 'created', trying to work around
 	# problem where a file can be reported as deleted (and also created) when it has been created
 	# and not deleted at all whatsoever (unless notepad++ is doing something sneaky).
@@ -460,11 +463,18 @@ sub IndexChangedFiles {
 		RequestBroadcast('signal=filechange');
 		}
 	
-	# Notify if many files are coming in at once.
-	# And again when the load drops off.
-	if ($numNew || $numDeleted)
+	# Make the Status light flash for this server.
+	ReportActivity($SHORTNAME);
+	}
+
+# Notify if many files are coming in at once.
+# And again when the load drops off.
+sub ReportIfCongested {
+	my $numChangedNewFiles = @PathsOfChangedFiles; # includes new
+	my $numDeletedFilles = keys %PathsOfDeletedFiles;
+	if ($numChangedNewFiles || $numDeletedFilles)
 		{
-		my $numTotal = $numNew + $numDeleted;
+		my $numTotal = $numChangedNewFiles + $numDeletedFilles;
 		if ($numTotal >= $CongestionMinimum)
 			{
 			$Congested = 1;
@@ -488,9 +498,6 @@ sub IndexChangedFiles {
 		print("Watcher load has dropped off.\n");
 		$Congested = 0;
 		}
-
-	# Make the Status light flash for this server.
-	ReportActivity($SHORTNAME);
 	}
 
 # Use WebSockets to send 'changeDetected' messages out to everyone, in particular
