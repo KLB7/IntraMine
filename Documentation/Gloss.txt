@@ -221,6 +221,8 @@ Web links
 ~~~~~~~~~
 Web links are full auto, with no need to type double quotes or anything extra. Any text starting with http:// or https:// will become a link. Such as http://google.com.
 
+In views of text files (.txt), Markdown files (.md), and POD files (.pod) IntraMine also supports Markdown-style web links such as [Google](https://www.google.com).
+
 Perl Module links
 ~~~~~~~~~~~~
 Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file viewing. So in Perl files if you "use" a module, you'll get a link to the corresponding file on your system. If you installed the module using cpan (or cpanm etc) you'll also get a link to metacpan.org for the modules. And if it's a module you wrote and are storing locally, there will also be a "pencil" icon link to open the file for editing.
@@ -529,7 +531,6 @@ Definition list		Gloss provides glossary popups instead. A definition is availab
 Heading ID			Gloss links headings automatically: put the heading mentions in double quotes, for example "Overview".
 Footnotes			Something for grander documents.
 Alt text for images	Gloss pops up a view of the image when you put your cursor over the image name. If alt text is needed, you can type it before or after the image name.
-Titles for links	Honestly, too much bother for an intranet document.
 Blockquote			Put it in quotes and italicize the author, good enough for most uses.
 Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
 ---

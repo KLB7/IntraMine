@@ -509,21 +509,26 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
-	while ($strippedLine =~ m!((_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~ m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $captured = $1;		# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
 		my $haveTextHref = (index($captured, '_LB_') == 0);
 		my $textHref = ($haveTextHref) ? $captured : '';
+		my $haveMarkdownLink = (defined($3)) ? 1 : 0; # [...](http...)
+		my $doMarkdownLink = ($haveMarkdownLink && $haveRefToText); # otherwise do just the http link part
+		my $markdownDisplayText = ($doMarkdownLink) ? $3: '';
+		my $markdownLink = ($doMarkdownLink) ? $4: '';
+		my $charBefore = ($startPos > 0) ? substr($strippedLine, $startPos - 1, 1) : '';
 		my $haveDirSpecifier = 0;
 
 		$haveGoodMatch = 0;
 		
-		# $9, $10: (\"[^"]+\")|(\'[^']+\')
+		# $12, $13: (\"[^"]+\")|(\'[^']+\')
 		# These are checked for after other quote patterns, and if triggered
 		# we're dealing with a potential directory specifier.
-		if (defined($9) || defined($10))
+		if (defined($12) || defined($13))
 			{
 			$haveDirSpecifier = 1;
 			}
@@ -540,7 +545,6 @@ sub EvaluateLinkCandidates {
 			# Check for non-word or BOL before first quote, non-word or EOL after second.
 			if ($startPos > 0)
 				{
-				my $charBefore = substr($strippedLine, $startPos - 1, 1);
 				# Reject if char before first quote is a word char or '='
 				# (as in class="...", as found in syntax highlighting etc).
 				# For '=', don't mark as bad if $captured contains a '.'
@@ -631,7 +635,7 @@ sub EvaluateLinkCandidates {
 		else
 			{
 			my $haveURL = (!$haveTextHref && index($captured, 'http') == 0);
-			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($12)) ? $12 : ''; # includes '#'
+			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($15)) ? $15 : ''; # includes '#'
 			# Need to sort out actual anchor if we're dealing with a quoted chunk.
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
@@ -722,6 +726,20 @@ sub EvaluateLinkCandidates {
 			elsif ($haveDirSpecifier)
 				{
 				$haveGoodMatch = RememberDirMention($startPos, $captured);
+				}
+			elsif ($haveMarkdownLink)
+				{
+				if ($doMarkdownLink)
+					{
+					RememberMarkdownLink($startPos, $captured, $markdownDisplayText, $markdownLink);
+					$haveGoodMatch = 1;
+					}
+				else # Handle like $haveURL using $4
+					{
+					my $urlStartPos = $startPos + length($3) + 3; # + name + []()
+					RememberUrl($urlStartPos, 0, '', $4);
+					$haveGoodMatch = 1;
+					}
 				}
 			
 			if ($haveGoodMatch)
@@ -1355,6 +1373,17 @@ sub RememberUrl {
 		{
 		push @repLinkType, 'web';
 		}
+	}
+
+sub RememberMarkdownLink {
+	my ($startPos, $captured, $markdownDisplayText, $markdownLink) = @_;
+
+	my $repString = "<a href='$markdownLink' target='_blank'>$markdownDisplayText</a>";
+	my $repLength = length($captured);
+	push @repStr, $repString;
+	push @repLen, $repLength;
+	push @repStartPos, $startPos;
+	push @linkIsPotentiallyTooLong, 0;
 	}
 
 # For [text](href) links, present in POD text only.

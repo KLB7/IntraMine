@@ -1320,16 +1320,24 @@ sub ServerIsUp {
 		}
 	else
 		{
-		my $remote = IO::Socket::INET->new(
-		                Proto   => 'tcp',       		# protocol
-		                PeerAddr=> "$serverAddress", 	# Address of server
-		                PeerPort=> "$portNumber"      	# port of server 591 or 8008 are standard HTML variants
-		                ) or (return(0));
-		print $remote "GET /?req=id HTTP/1.1\n\n";
-		my $line = <$remote>;
-		chomp($line) if (defined($line));
-		close $remote;
-		$result = (defined($line) && length($line) > 0);
+		my $count = 0;
+		while (!$result && ++$count <= 2) # Try twice if not responding.
+			{
+			my $remote = IO::Socket::INET->new(
+							Proto   => 'tcp',       		# protocol
+							PeerAddr=> "$serverAddress", 	# Address of server
+							PeerPort=> "$portNumber"      	# port of server 591 or 8008 are standard HTML variants
+							) or (return(0));
+			print $remote "GET /?req=id HTTP/1.1\n\n";
+			my $line = <$remote>;
+			chomp($line) if (defined($line));
+			close $remote;
+			$result = (defined($line) && length($line) > 0);
+			if (!$result)
+				{
+				sleep(1);
+				}
+			}
 		}
 	
 	return($result);
@@ -1434,9 +1442,6 @@ sub ServerStatus {
 sub ReportOnPageServers {
 	my ($resultR) = @_;
 
-	# TEST ONLY
-	#print("ReportOnPageServers top\n");
-
 	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
 	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
@@ -1503,10 +1508,6 @@ sub ReportOnPageServers {
 			}
 		}
 	$$resultR .= "</tbody></table><div>&nbsp;</div>";
-
-	# TEST ONLY
-	#print("ReportOnPageServers bottom\n");
-
 	}
 
 # Report if servers are UP DEAD etc.

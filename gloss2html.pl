@@ -1435,11 +1435,14 @@ sub EvaluateLinkCandidates {
 	# 'ext#optional heading'
 	# .ext up to 7 chars
 	# http:// or https://
-	while ($line =~ m!((\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($line =~ m!((\[([^\]]+)]\((https?://[^)]+)\))|(\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
 		my $endPos = $+[0];		# pos of char after end of entire match
 		my $ext = $1;			# double-quoted chunk, or extension (plus any anchor), or url
+		my $doMarkdownLink = (defined($3)) ? 1 : 0;
+		my $markdownDisplayText = ($doMarkdownLink) ? $3: '';
+		my $markdownLink = ($doMarkdownLink) ? $4: '';
 
 		$haveGoodMatch = 0;
 		
@@ -1491,7 +1494,7 @@ sub EvaluateLinkCandidates {
 		else
 			{
 			my $haveURL = (index($ext, 'http') == 0);
-			my $anchorWithNum = (!$haveQuotation && !$haveURL && defined($9)) ? $9 : ''; # includes '#'
+			my $anchorWithNum = (!$haveQuotation && !$haveURL && defined($9)) ? $12 : ''; # includes '#'
 			# Need to sort out actual anchor if we're dealing with a quoted chunk.
 			if ($haveQuotation && !$haveURL)
 				{
@@ -1534,6 +1537,11 @@ sub EvaluateLinkCandidates {
 			elsif ($haveURL)
 				{
 				PackUpUrlRep($startPos, $haveQuotation, $quoteChar, $url);
+				$haveGoodMatch = 1;
+				}
+			elsif ($doMarkdownLink)
+				{
+				PackUpMarkdownLinkRep($startPos, $ext, $markdownDisplayText, $markdownLink);
 				$haveGoodMatch = 1;
 				}
 			
@@ -1970,6 +1978,19 @@ sub PackUpUrlRep {
 	push @repLen, $repLength;
 	push @repStartPos, $repStartPosition;
 	push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
+	}
+
+sub PackUpMarkdownLinkRep {
+	my ($startPos, $captured, $markdownDisplayText, $markdownLink) = @_;
+
+	my $repString = "<a href='$markdownLink' target='_blank'>$markdownDisplayText</a>";
+	my $repLength = length($captured);
+	my $repStartPosition = $startPos;
+
+	push @repStr, $repString;
+	push @repLen, $repLength;
+	push @repStartPos, $repStartPosition;
+	push @linkIsPotentiallyTooLong, 0;
 	}
 
 # Remember all the replacement link strings for a line, and put placeholders (markers)
