@@ -396,6 +396,29 @@ sub RemoveNewFilesFromDeletes {
 	  	}
 	}
 
+# Remove old entries from %FileNameForFullPath, add new entries.
+# %FileNameForFullPath keys and values are in lowercase, eg
+# $FileNameForFullPath{'C:/project51/main.cpp'} = 'main.cpp'
+sub UpdatePathsForFileRenames {
+	my ($newPathForOldPathH) = @_;
+
+	my %lcNewForOldH;
+	foreach my $key (keys %{$newPathForOldPathH})
+		{
+		$lcNewForOldH{lc($key)} = lc($newPathForOldPathH->{$key});
+		}
+
+	foreach my $key (keys %lcNewForOldH)
+		{
+		if (exists($FileNameForFullPath{$key}))
+			{
+			delete($FileNameForFullPath{$key});
+			}
+		my $fileName = FileNameFromPath($lcNewForOldH{$key});
+		$FileNameForFullPath{$lcNewForOldH{$key}} = $fileName;
+		}
+	}
+
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
 # All paths are lowercase and use forward slashes.

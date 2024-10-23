@@ -404,7 +404,14 @@ sub IndexChangedFiles {
 	if ($numFileRenames)
 		{
 		GuessOldPathsForRenamedFiles($numFileRenames, \@RenamedFilePaths, \@OldFilePath);
-		UpdateSearchIndexForFileRenames($numFileRenames, \@RenamedFilePaths,\ @OldFilePath);
+		my $pathsChanged = UpdateFullPathsForFileRenames($numFileRenames, \@RenamedFilePaths,\ @OldFilePath);
+
+		# Tell Viewer(s) to re-init all full and partial paths.
+		if ($pathsChanged)
+			{
+			# File and folder rename handling is the same.
+			RequestBroadcast('signal=folderrenamed');
+			}
 		}
 	
 	# Folder renames, the hardest part of all this.
@@ -909,26 +916,61 @@ sub BestGuessAtOldFolderPath {
 	return($oldFolderPath);
 	}
 
-sub UpdateSearchIndexForFileRenames {
-	my ($numRenames, $renamedFolderPathsA, $oldFolderPathA) = @_;
-	
-	# Remove bad entries, where $oldFolderPathA->[$i] is blank.
+sub UpdateFullPathsForFileRenames {
+	my ($numRenames, $renamedFilePathsA, $oldFilePathA) = @_;
+
+	# Remove bad entries, where $oldFilePathA->[$i] is blank.
 	my %newPathForOldPath;
 	for (my $i = 0; $i < $numRenames; ++$i)
 		{
-		if ($oldFolderPathA->[$i] ne '')
+		if ($oldFilePathA->[$i] ne '')
 			{
-			$newPathForOldPath{$oldFolderPathA->[$i]} = $renamedFolderPathsA->[$i];
+			$newPathForOldPath{$oldFilePathA->[$i]} = $renamedFilePathsA->[$i];
 			}
 		}
-	
+
 	my $remainingRenameCount = %newPathForOldPath;
 	if ($remainingRenameCount)
 		{
+		print("Starting full paths update for file rename(s).\n");
+		my $startTime = time;
+		# Update reverse_filepaths.pm %FileNameForFullPath.
+		UpdatePathsForFileRenames(\%newPathForOldPath);
+		my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
+		if ($howItWent ne "ok" && $howItWent ne "1")
+			{
+			print("$howItWent\n");
+			}
+		my $endTime = time;
+		my $elapsedSecs = int($endTime - $startTime + 0.5);
+		print("Full paths update for file rename(s) complete, took $elapsedSecs s.\n");
 		# Now update Elasticsearch entries corresponding to the new paths.
 		AskElasticsearchToUpdateFilePaths(\%newPathForOldPath);
 		}
+
+	return($remainingRenameCount);
 	}
+
+# sub xUpdateSearchIndexForFileRenames {
+# 	my ($numRenames, $renamedFilePathsA, $oldFilePathA) = @_;
+	
+# 	# Remove bad entries, where $oldFilePathA->[$i] is blank.
+# 	my %newPathForOldPath;
+# 	for (my $i = 0; $i < $numRenames; ++$i)
+# 		{
+# 		if ($oldFilePathA->[$i] ne '')
+# 			{
+# 			$newPathForOldPath{$oldFilePathA->[$i]} = $renamedFilePathsA->[$i];
+# 			}
+# 		}
+	
+# 	my $remainingRenameCount = %newPathForOldPath;
+# 	if ($remainingRenameCount)
+# 		{
+# 		# Now update Elasticsearch entries corresponding to the new paths.
+# 		AskElasticsearchToUpdateFilePaths(\%newPathForOldPath);
+# 		}
+# 	}
 
 sub UpdateFullPathsForFolderRenames {
 	my ($numRenames, $renamedFolderPathsA, $oldFolderPathA) = @_;
@@ -949,7 +991,7 @@ sub UpdateFullPathsForFolderRenames {
 	my $remainingRenameCount = @renamedFolderPaths;
 	if ($remainingRenameCount)
 		{
-		print("Starting full paths update for rename.\n");
+		print("Starting full paths update for folder rename.\n");
 		my $startTime = time;
 		my %newPathForOldPath;
 		UpdatePathsForFolderRenames($remainingRenameCount, \@renamedFolderPaths, \@oldFolderPaths, \%newPathForOldPath);

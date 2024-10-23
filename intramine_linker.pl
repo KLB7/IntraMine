@@ -152,7 +152,7 @@ sub HandleBroadcastRequest {
 			# be taken out of service for maintenance one at a time.
 			# See also intramine_main.pl#BroadcastSignal()
 			# and  intramine_main.pl#HandleMaintenanceSignal().
-			print("Linker on port <$port_listen> is pausing to reload changed paths due to folder rename.\n");
+			print("Linker on port <$port_listen> is pausing to reload changed paths due to file or folder rename.\n");
 			print("  On this server instance only, new read-only views will not be available,\n");
 			print("  and autolinks will not be shown in CodeMirror views after scrolling.\n");
 			print("  Other Linker instances running will not be affected, and Main will redirect\n");
