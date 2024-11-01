@@ -89,15 +89,7 @@ However, doing a complete reindex instead doesn't take that long. To do that, ad
 
 Adding files to indexed folders
 ===============================
-If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by Elasticsearch and is being monitored for changes, this can swamp IntraMine's Watcher with changes to the point where it will lose track, and not index the newly added files.
-
-To avoid swamping IntraMine's Watcher, stop IntraMine with bats/STOP_INTRAMINE.bat before adding the thousands of files. Then, to have IntraMine index the newly added files, you have two options. Either:
- - treat the folder where you've added files as an "additional folder", and follow the steps just above for adding a folder to be indexed, pretending that the folder you just added files to is an "additional" folder. This will re-index older files in the folder as well as indexing newly added files, but that's harmless.
- - or completely re-index all files by running bats/IM_INIT_INDEX.bat. This will take a fair bit longer probably, but involves less fussing: in particular there's no need to change data/search_directories.txt.
-
-Having warned about adding too many files at once to an indexed folder, I should add that IntraMine's theoretical "swamp limit" should be on the order of 40,000 files at one time. But I haven't tested it. I *have* tested adding about 4,000 files to an indexed folder while IntraMine was running, and everything was fine.
-
-If IntraMine's Watcher goes DEAD, this typically means it's very very busy indexing newly added files. Give it a while, and it will probably recover (worst case about an hour). If it does recover, no file additions or changes will have been skipped. If it doesn't, your best recourse is to blow away your current Elasticsearch index and full paths list and rebuild them, by running bats/IM_INIT_INDEX.bat (Run as administrator, see "Build your Elasticsearch index and run IntraMine.txt#Index and run").
+If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by Elasticsearch and is being monitored for changes, this can swamp IntraMine's Watcher with changes to the point where it will stop responding for a while, meaning you won't see FLASH link or glossary popup updates until the Watcher churns through the backlog. Be patient, it might take ten minutes, but service will return to normal:)
 
 More to explore
 ===============

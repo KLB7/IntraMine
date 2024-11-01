@@ -294,8 +294,10 @@ function swapLangExt() {
 // elasticsearcher.pm#FormatHitResults() inserts calls to this, to open a file
 // in the Viewer (intramine_file_viewer_cm.pl).
 function viewerOpenAnchor(href) {
+	// Browser keeps tacking on file:, which wrecks the link.
 	let properHref = href.replace(/^file\:\/\/\//, '');
-	
+	properHref = properHref.replace(/^file:/, '');
+
 // Argument-based 'href=path' approach:
 	let url = 'http://' + theHost + ':' + theMainPort + '/' + viewerShortName + '/?href=' +
 				properHref + '&rddm=' + String(getRandomInt(1, 65000));

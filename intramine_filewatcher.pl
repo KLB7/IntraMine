@@ -1112,12 +1112,12 @@ sub AskElasticsearchToIndexChanges {
 			Output("Index updated for |$fileName|, |$fullPath|\n");
 			$ElasticIndexer->AddDocumentToIndex($fileName, $fullPath);
 			++$numIndexedPaths;
-			if (($numIndexedPaths%500) == 0)
-				{
-				Output("  FLUSHING ES Indexer, and waiting a few...\n");
-				$ElasticIndexer->Flush();	
-				sleep(5);
-				}
+#			if (($numIndexedPaths%500) == 0)
+#				{
+				#Output("  FLUSHING ES Indexer, and waiting a few...\n");
+				#$ElasticIndexer->Flush();	
+				#sleep(5);
+#				}
 			}
 		else
 			{
@@ -1150,15 +1150,16 @@ sub AskElasticsearchToUpdateFilePaths {
 			my $fileName = FileNameFromPath($oldpath);
 			$ElasticIndexer->UpdatePath($fileName, $oldpath, $newPathForOldPathH->{$oldpath});
 			++$numIndexedPaths;
-			if (($numIndexedPaths%500) == 0)
-				{
-				Output("  FLUSHING ES Indexer during path update, and waiting a few...\n");
-				$ElasticIndexer->Flush();	
-				sleep(5);
-				}
+#			if (($numIndexedPaths%500) == 0)
+#				{
+				#Output("  FLUSHING ES Indexer during path update, and waiting a few...\n");
+				#$ElasticIndexer->Flush();	
+				#sleep(5);
+#				}
 			}
 		}
 	$ElasticIndexer->Flush();
+	sleep(1);
 	
 	my $endTime = time;
 	my $elapsedSecs = int($endTime - $startTime + 0.5);

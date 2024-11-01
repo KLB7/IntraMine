@@ -606,7 +606,6 @@ sub FormatHitResults {
 						$path =~ s!\+!\%2B!g;
 						
 						my $pathWithSearchItems = $path . $searchItems;
-						
 						my $anchor = "<a href='$pathWithSearchItems' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$title</a>";
 						my $editAnchor = '';
 						$path =~ /\.([^.]+)$/;

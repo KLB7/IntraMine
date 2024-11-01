@@ -265,6 +265,7 @@ my $dirCount = LoadDirectoriesToIndex(\@DirectoriesToIndex, \@DirectoriesToIgnor
 if (!$dirCount)
 	{
 	Output("No directories were found for indexing.\n");
+	WriteDoneAndCloseOutput();
 	exit(0);
 	}
 
@@ -335,12 +336,13 @@ foreach my $fullPath (sort keys %myFileNameForPath)
 		{
 		Output("  $docCounter / $numDocs... $fullPath\n");
 		}
-	if (($docCounter%500) == 0)
-		{
-		Output("  FLUSHING, and waiting a few...\n");
-		$ElasticIndexer->Flush();	
-		sleep(5);
-		}
+#	if (($docCounter%10000) == 0)
+#		{
+		#Output("  FLUSHING, and waiting five seconds...\n");
+		#my $flushResult = $ElasticIndexer->Flush();
+		#Output("  Flush result: |$flushResult|\n");
+		#sleep(5);
+#		}
 	# Note $fileSizeBytes is always set, whether or not added to index.
 	my $fileSizeBytes = 0;
 	my $wasIndexed = $ElasticIndexer->AddDocumentToIndex($myFileNameForPath{$fullPath},
@@ -362,7 +364,11 @@ if ($numDocs)
 	{
 	Output("\nElasticSearch final flush...\n");
 	$ElasticIndexer->Flush();
+	sleep(1);
 	Output("$numDocsIndexed out of $numDocs files indexed, $numDocsNotIndexed skipped due to being too large or file errors.\n");
+
+	my $healthResult = $ElasticIndexer->ClusterHealth();
+	Output("Elasticsearch cluster Health: |$healthResult|\n");
 	}
 else
 	{

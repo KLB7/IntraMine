@@ -78,6 +78,14 @@ sub new {
 	return $self;
     }
 
+sub ClusterHealth {
+	my ($self) = @_;
+	my $e = $self->{E};
+	my $health = $e->cluster->health();
+	my $result = (defined($health->{'status'})) ? $health->{'status'}: 'unknown';
+	return($result);
+	}
+
 # Add one document. HTML is parsed, other file types are just inhaled as-is.
 # $fileSizeBytesR is optional, set to file size if defined. Files larger than
 # $self->{MAXFILESIZE_KB} are skipped if it's > 0.
