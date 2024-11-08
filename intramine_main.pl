@@ -1229,13 +1229,14 @@ sub ReceiveServerUp {
 				}
 			if ($isPageServer)
 				{
-				my $crudePadLength = 8 - length($srvr) + 2;
+				my $crudePadLength = 10 - length($srvr);
 				if ($crudePadLength < 2)
 					{
 					$crudePadLength = 2;
 					}
 				my $spacer = ' ' x $crudePadLength;
-				print("$srvr server has started on port $senderPort.$spacer(localhost:$port_listen/$srvr)\n");
+				my $ipAddr = ServerAddress();
+				print("$srvr server has started on port $senderPort.$spacer($ipAddr:$port_listen/$srvr)\n");
 				}
 			else # User cannot visit this one, so no example URL.
 				{
