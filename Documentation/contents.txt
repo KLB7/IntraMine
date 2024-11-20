@@ -18,6 +18,7 @@ Upgrading to Windows 11.txt
 
 *INTRAMINE IMPORTANT BITS*
 Using IntraMine.txt
+Service management.txt
 Configuring IntraMine.txt
 Editing documents.txt
 Gloss.txt

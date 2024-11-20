@@ -1,15 +1,31 @@
 Status
 =======
 2020-02-27 22_40_46-Status.png
-The Status server shows the status of all IntraMine servers, and has buttons to stop and start servers as well as an "Add" button if you need one more of a particular server. It should more accurately be called "Status and Control" I suppose, but status checking happens much more often than starting and stopping, and top-level names need to be short in order to fit in the top navigation bar.
+The Status page shows the status of all IntraMine servers, and has buttons to **Stop** and **Start** servers as well as an **Add** button if you need one more of a particular server. It should more accurately be called "Status and Control" I suppose, but status checking happens much more often than starting and stopping, and top-level names need to be short in order to fit in the top navigation bar.
 
-There are also lists of New/Changes and Deleted files at the bottom.
+There are also lists of New/Changed Files and Deleted Files at the bottom.
 
-Only servers listed in data/serverlist.txt can be started, stopped, or added. "Background servers" are listed, but can't be started, stopped, or added. If you want more than one of a server, but without a top navigation entry, the trick is to assign it the same Page name as a top level server (such as "Search" or even "Status") and then a separate unique Short name in its listing in data/serverlist.txt. And of course don't put "BACKGROUND" at the end of the entry. Then you can stop and start and add all you like.
+Starting, stopping, restarting
+--------------------------------
+Servers listed under "Page servers" have buttons for stopping, starting, and restarting. "Background servers" are listed, but can't be started, stopped, or added.
 
+Adding
+---------
+To add a server, pick it from "Add one page server:" and click the **Add** button. Servers listed there include not only running servers but also servers with a zero Count field in data/serverlist (see next).
+
+Reserved servers
+-----------------
+A server with a Count field of 0 ("reserved server") will not be started initially, but you can add one or more instances later. It won't appear in the top navigation bar or under the "Page servers" list until you start it - thereafter you can stop and restart it with the buttons for it in the "Page servers" list. Elsewhere in the docs you'll see these zero-count servers referred to as "delayed start" or even "zombie" servers.
+
+A reserved server has a port number reserved for it, so it's guaranteed to start when you need it.
+
+Small details
+---------------
 The Status page refreshes every 30 seconds, but during startup it refreshes once a second so you can tell more accurately when everything's started.
 
-The server "lights" under the Status column will flash when a server is handling a request, but the duration of the flashing doesn't mean anything: an action could take a millisecond or a minute to handle, and in both cases the light will flash for a couple of seconds. To see a flash, if you're using IntraMine for its Search capabilities, change a source or text file that's in an indexed location and you'll see the "Watcher" server light up, roughly five seconds after the save. At that point the change will be indexed and will show up in search results.
+Any server that starts initially or is added later using "Add one page server:" will have an entry under Page servers or Background servers as appropriate. Those under Page servers will have Start and Stop buttons.
+
+The server "lights" under the Status column will flash when a server is handling a request, but the duration of the flashing doesn't mean anything: an action could take a millisecond or a minute to handle, and in both cases the light will flash for a couple of seconds. To see a flash, if you're using IntraMine for its Search capabilities, change a source or text file that's in an indexed location and you'll see the "Watcher" server light up, roughly two to five seconds after the save. At that point the change will be indexed and will show up in search results.
 
 Under the hood
 ===============
@@ -32,7 +48,7 @@ and so intramine_main.pl#ServerStatus() is called in response to the "req=filest
 
 API
 =====
-There isn't really anything worth calling here. Everything on the Status page is done through requests to Main. So kindly see "IntraMine Main.txt#API" for the details.
+Everything on the Status page is done through requests to Main. So kindly see "IntraMine Main.txt#API" for the details.
 
 
 ---

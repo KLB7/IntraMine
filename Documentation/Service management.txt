@@ -1,0 +1,10 @@
+Service management
+==================
+
+With apologies this is just a placeholder, because you want to know how to start stop and add services (or servers) and this is the logical place to look. Due to the chaos inherent in my thinking, the actual details on that are in
+Status.txt
+which please see.
+
+---
+contents.txt
+---

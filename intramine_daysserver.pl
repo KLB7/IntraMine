@@ -79,6 +79,7 @@ _TOPNAV_
 <script src="spinner.js"></script>
 <script src="tooltip.js"></script> <!-- Just for addClass -->
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script>

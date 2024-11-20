@@ -121,6 +121,7 @@ let portHolderClass = 'PORT_STATUS_HOLDER_CLASS';
 <script src="spinner.js"></script>
 <script src="status.js"></script>
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="statusEvents.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>

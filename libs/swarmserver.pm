@@ -115,6 +115,9 @@ my %ShortServerNames;			# A list of the short names, so we can recogize them and
 my %ShortServerNamesType;		# 'PERSISTENT', 'BACKGROUND', or ''
 my %PageIsPersistent;			# $PageIsPersistent{'Cmd'} = 1 means it survives a shutdown so it can continue monitoring status - this is mainly for the "Cmd" page
 my @PageIndexIsPersistent;		# $PageIndexIsPersistent[n] = 1 means associated Page is persistent, see line above
+# A 'zombie' service has a count of 0 in serverlist.txt. It won't be started when
+# this Main service starts, but will be available for starting on the Status page.
+my %ShortNameIsForZombie; # $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
 
 my $TopNavTemplate;
 
@@ -161,15 +164,23 @@ sub LoadServerList {
 		while ($line = <$fileH>)
 	    	{
 	        chomp($line);
-	        # Skip blank lines and comments and zero Count as we load in the details for each server.
-	        if (length($line) && $line !~ m!^\s*(#|$)! && $line !~ m!^0\s!)
+	        # Skip blank lines and comments as we load in the details for each 
+			# server. Zero count page services are loaded as "zombie" services,
+			# listed but not enabled.
+	        if (length($line) && $line !~ m!^\s*(#|$)!)
 	        	{
+				my $isZombie = ($line =~ m!^0\s!);
 	        	my @fields = split(/\t+/, $line); # Split on one or more tabs
 	        	my $instanceCount = $fields[0];
 	        	my $pageName = $fields[1];
 	        	my $shortServerName = $fields[2];
 	        	$ShortServerNames{$shortServerName} += 1;
 	        	$ShortServerNamesType{$shortServerName} = '';
+				if ($isZombie)
+					{
+					$ShortNameIsForZombie{$shortServerName} = 1;
+					}
+
 	        	my $serverProgramName = $fields[3];
 	        	my $specialType = (defined($fields[4])) ? $fields[4]: '';
 	        	# Skip BACKGROUND servers (they have no web pages, just lurk darkly).
@@ -229,15 +240,20 @@ sub MakeTopNavTemplate {
 		{
 		my $pageName = $PageNames[$pgIdx];
 		my $entry;
+		# Discover if the $pageName server has any running instances.
+		my $count = NumInstancesOfShortNameRunning($pageName);
+		my $hideShowClass = ($count <= 0) ? ' class=navHidden': '';
+		#my $zombieClass = ($ShortNameIsForZombie{$pageName}) ? ' class=navHidden': '';
+		#my $disabled = ($ShortNameIsForZombie{$pageName}) ? ' disabled': '';
 		if ($pageName =~ m!todo!i)
 			{
 			my $overdueCount = ToDoOverdueCount();
 			my $overdue = ($overdueCount > 0) ? " [$overdueCount]": '';
-			$entry = "<li$pageName><a href='_RESTRICTED_$pageName'>$pageName$overdue</a></li>\n";
+			$entry = "<li$pageName$hideShowClass><a href='_RESTRICTED_$pageName'>$pageName$overdue</a></li>\n";
 			}
 		else
 			{
-			$entry = "<li$pageName><a href='_RESTRICTED_$pageName'>$pageName</a></li>\n";
+			$entry = "<li$pageName$hideShowClass><a href='_RESTRICTED_$pageName'>$pageName</a></li>\n";
 			}
 		$theTopNav .= $entry;
 		}
@@ -264,8 +280,8 @@ sub TopNav {
 	my $mainServerPort = MainServerPort();
 	$theTopNav =~ s!_RESTRICTED_!http://$mainServerIP:$mainServerPort/${FULL_ACCESS_STR}!g;
 	# Set current page.
-	$theTopNav =~ s!$currentPageName! class=\"current\"!;
-	$theTopNav =~ s!<li\w+>!<li>!g;
+	$theTopNav =~ s!$currentPageName!$currentPageName class=\"current\"!;
+	$theTopNav =~ s!<li\w+!<li!g;
 	
 	return $theTopNav;
 	}
@@ -497,7 +513,6 @@ sub MainLoop {
 	
 	LoadServerList();
 	SetToDoOverdueCount(0);
-	MakeTopNavTemplate();
 	
 	# As shipped only the 'Cmd' page is PERSISTENT - see data/serverlist.txt.
 	my $pgName = OurPageName(); 					# As set by SSInitialize()
@@ -552,6 +567,9 @@ sub MainLoop {
 	$readable = IO::Select->new;     # Create a new IO::Select object
 	$readable->add($listener);          # Add the listener to it
 	InitServerAddress($listener);
+
+	#MakeTopNavTemplate(); # Is this needed?
+
 	
 	# Start up WebSocket communications.
 	InitWebSocketClient();
@@ -2012,6 +2030,41 @@ sub ServiceIsRunning {
 	if ($rawResult =~ m!yes\s*$!i)
 		{
 		$result = 1;
+		}
+
+	return($result);
+	}
+
+# Like above ServiceIsRunning, but returns count of running instances.
+sub NumInstancesOfShortNameRunning {
+	my ($shortName) = @_;
+	my $result = 0;
+
+	# TEST ONLY
+	#return(1);
+	
+	my $serverAddress = ServerAddress(); 			# This is common to all servers in IntraMine, local IP
+	my $portNumber = MainServerPort();				# Typ. 81
+	my $mains = IO::Socket::INET->new(
+	                Proto   => 'tcp',       		# protocol
+	                PeerAddr=> "$serverAddress",
+	                PeerPort=> "$portNumber"
+	                ) or (ServerErrorReport() && return(0));
+	
+	print $mains "GET /?req=servercount&shortname=$shortName HTTP/1.1\r\n\r\n";
+	my $line = '';
+	my $rawResult = '';
+
+	# Pick up some headers, and then a number at the end.
+	while ($line=<$mains>)
+		{
+		$rawResult .= $line . "\n";
+		}
+	close $mains;
+	
+	if ($rawResult =~ m!(\d+)\s*$!i)
+		{
+		$result = $1;
 		}
 
 	return($result);

@@ -830,6 +830,7 @@ sub CodeMirrorJS {
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script src="isW.js" ></script>
@@ -856,6 +857,7 @@ sub NonCodeMirrorJS {
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script src="isW.js" ></script>

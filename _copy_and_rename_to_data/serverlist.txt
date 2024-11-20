@@ -35,14 +35,23 @@
 # page servers are stopped, so it can provide feedback until the other servers are restarted.
 # (Note this is a "feature" you can safely ignore.)
 #
-#
+# Add remove start stop delayed start
+# -----------------------------------
 # Count indicates how many of each server to start.
-# Note the Status page has buttons to add, stop, start, and restart Page servers
-# for the current session only. Only instances of servers that were initially running
-# can be added. To add a Page server permanently in a way that survives a
-# restart of Intramine, adjust the Count field for it here.
+# The Status page has buttons to add, stop, start, and restart Page servers
+# for the current session only. To add a Page server permanently in a way that survives a
+# restart of IntraMine, set the Count field for it here to 1 or more.
 #
-# To remove a server, comment out its line with an initial '#' or set the first Count field to 0.
+# To remove a server, comment out its line with an initial '#'.
+#
+# Reserved servers
+# -----------------
+# To allow a server to be started manually after IntraMine starts, set the Count field for it to 0.
+# Servers with a Count of 0 will be available for starting under the "Add one page server:" menu
+# on the Status page. There will be no entry in the top navigation bar or listing on the Status
+# page until the server is started. After starting, it will appear under the "Page servers" list
+# and can be stopped and restarted there. A reserved server has a port number reserved for it,
+# and there will be no port conflict with some other application when you start it later.
 #
 #Count	Page name		Short name	Program						Option
 1	Search				Search		intramine_search.pl

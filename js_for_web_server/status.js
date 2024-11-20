@@ -202,6 +202,7 @@ function addStartStopRefreshButtons() {
 		{
 		let serverStatus = '';
 		let portNumber = '';
+		let shortName = row.children[1].innerText;
 		for (let j = 0, col; col = row.cells[j]; ++j)
 			{
 			for (let k = 0; k < col.children.length; ++k)
@@ -220,13 +221,13 @@ function addStartStopRefreshButtons() {
 						let restartDisable = (isUp) ? '' : ' disabled';
 						let startButton =
 								"<button type='button' onclick='startServer(" + portNumber
-										+ "); return false;'" + startDisable + ">Start</button>";
+										+ ", \"" + shortName + "\"); return false;'" + startDisable + ">Start</button>";
 						let stopButton =
 								"<button type='button' onclick='stopServer(" + portNumber
-										+ "); return false;'" + stopDisable + ">Stop</button>";
+								+ ", \"" + shortName + "\"); return false;'" + stopDisable + ">Stop</button>";
 						let restartButton =
 								"<button type='button' onclick='restartServer(" + portNumber
-										+ "); return false;'" + restartDisable
+								+ ", \"" + shortName + "\"); return false;'" + restartDisable
 										+ ">Restart</button>";
 						child.innerHTML =
 								startButton + '&nbsp;' + stopButton + '&nbsp;' + restartButton;
@@ -247,19 +248,19 @@ function addStartStopRefreshButtons() {
 		}
 }
 
-function startServer(port) {
+function startServer(port, shortName) {
 	console.log("Start for server " + port + " requested.");
-	startStopRestartSubmit('start_one_specific_server', port);
+	startStopRestartSubmit('start_one_specific_server', port, shortName);
 }
 
-function stopServer(port) {
+function stopServer(port, shortName) {
 	console.log("Stop for server " + port + " requested.");
-	startStopRestartSubmit('stop_one_specific_server', port);
+	startStopRestartSubmit('stop_one_specific_server', port, shortName);
 }
 
-function restartServer(port) {
+function restartServer(port, shortName) {
 	console.log("Restart for server " + port + " requested.");
-	startStopRestartSubmit('restart_one_specific_server', port);
+	startStopRestartSubmit('restart_one_specific_server', port, shortName);
 }
 
 function doResize() {
@@ -306,6 +307,9 @@ async function addServerSubmit(oFormElement) {
 	let adder = document.getElementById("addOne");
 	let selectedValue = adder.value;
 
+	// Send WebSocket message to show top nav entry for the service 'shortName'.
+	sendMessageToNav(selectedValue, "show");
+
 	try {
 		let addAction = "&req=add_one_specific_server&shortname=" + selectedValue;
 		let theAction = oFormElement.action + addAction;
@@ -331,7 +335,25 @@ async function addServerSubmit(oFormElement) {
 
 // Ask Main to stop/start/restart a Page server.
 // ssrText: 'start_one_specific_server', 'stop_one_specific_server', 'restart_one_specific_server'.
-async function startStopRestartSubmit(ssrText, port) {
+async function startStopRestartSubmit(ssrText, port, shortName) {
+
+	if (ssrText.indexOf('stop') === 0)
+		{
+		let count = await getRunningCountForShortName(shortName);
+		// TEST ONLY
+		// console.log("Count for " + shortName + "before stop is " + count);
+		if (count === 1)
+			{
+			// Send WebSocket message to hide top nav entry for the service 'shortName'.
+			sendMessageToNav(shortName, "hide");
+			}
+		}
+	else if (ssrText.indexOf('start') === 0)
+		{
+		// Send WebSocket message to show top nav entry for the service 'shortName'.
+		sendMessageToNav(shortName, "show");
+		}
+	
 	try {
 		let theAction =
 			"http://" + theHost + ":" + theMainPort + "/?rddm=1" + "&req=" + ssrText
@@ -356,6 +378,33 @@ async function startStopRestartSubmit(ssrText, port) {
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error! Main did not respond.</p>';
 	}
+}
+function sendMessageToNav(shortName, showhide) {
+	let msg = "Nav:" + shortName + ":" + showhide;
+	// TEST ONLY
+	//console.log(msg);
+	wsSendMessage(msg);
+	}
+
+async function getRunningCountForShortName(shortName) {
+	let count = -1;
+	try {
+		let theAction =
+			"http://" + theHost + ":" + theMainPort + "/?rddm=1" + "&req=servercount"
+					+ "&shortname=" + shortName;
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			count = await response.text();
+			count = parseInt(count);
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Connection error! Main did not respond.</p>';
+	}
+	
+	return(count);
 }
 
 // Flash an "LED" when there's some IntraMine activity on a port.

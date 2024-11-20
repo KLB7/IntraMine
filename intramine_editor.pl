@@ -125,6 +125,7 @@ _TOPNAV_
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script type="text/javascript" src="lib/codemirror.js" ></script>

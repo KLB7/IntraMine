@@ -139,3 +139,9 @@ Shortcut on your desktop: To make a shortcut to any file, in a Windows File Expl
 Watcher, FILEWATCHER: the name for intramine_filewatcher.pl, a BACKGROUND service that monitors directories for changes based on your directory list in data/search_directories.txt. It checks in regularly with the log from File Watcher Utilities, and also runs and listens to bats/foldermonitore.ps1, which pushes change notifications more quickly.
 
 Reindex service: the Reindex page has two buttons, to edit your list of directories to index and monitor, and to completely rebuild your search index. For details see "Reindex.html".
+
+Reserved service, reserved services, reserved server, reserved servers: A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started. To make a reserved server, set its Count field to 0 in data/serverlist.txt. To start one, use the "Add one page server" menu on the Status page. Once started if will appear under the "Page servers" list on the Status page, and have an entry in the top navigation bar if appropriate. A typical serverlist entry for a reserved server looks like
+0	Reindex				Reindex		intramine_reindex.pl
+(note there are tabs between the fields)
+
+Zombie: reserved servers are sometimes called "zombie" servers in the documentation. A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started.

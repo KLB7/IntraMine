@@ -185,6 +185,7 @@ if (typeof window.ontouchstart !== 'undefined')
 <script src="dragula.min.js"></script>
 <script src="datepicker-full.min.js"></script>
 <script src="websockets.js"></script>
+<script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script src="todo.js"></script>
