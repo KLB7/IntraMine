@@ -141,11 +141,25 @@ sub GetExistingReadFileHandleWide {
 	my ($filePath) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 	
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
 	if (!$F)
 		{
-		#carp("CreateFileW for read FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(undef);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(undef);
+			}
 		}
 
 	my $fileH;
@@ -168,11 +182,25 @@ sub WriteTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -195,8 +223,22 @@ sub WriteUTF8FileWide {
 	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -224,16 +266,32 @@ sub WriteBinFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::CREATE_ALWAYS, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
 	if (!Win32API::File::OsFHandleOpen($fileH = IO::Handle->new(), $F, "w"))
 		{
+		# TEST ONLY
+		print("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
 		#carp("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
 		return(0);
 		}
@@ -254,11 +312,25 @@ sub AppendToTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -283,11 +355,25 @@ sub AppendToExistingTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -308,11 +394,25 @@ sub AppendToBinFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_ALWAYS, 0, 0); # to append, goes with "wa"
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -335,11 +435,25 @@ sub AppendToExistingBinFileWide {
 	#my $octets = decode('utf8', $filePath);
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
 	if (!$F)
 		{
-		#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return(0);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [], Win32API::File::OPEN_EXISTING, 0, 0); # to append, goes with "wa"
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return(0);
+			}
 		}
 	
 	my $fileH;
@@ -771,12 +885,27 @@ sub GetFileSizeWide {
 	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
 	my $result = 0;
 
-	my $F  = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
 	if (!$F)
 		{
-		#carp("CreateFileW for read FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
-		return($result);
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1); # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ, Win32API::File::FILE_SHARE_READ, [], Win32API::File::OPEN_EXISTING, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return($result);
+			}
 		}
+
 	$result = Win32API::File::getFileSize($F);
 	Win32API::File::CloseHandle($F);
 	
