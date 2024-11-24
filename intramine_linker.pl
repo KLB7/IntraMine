@@ -181,6 +181,21 @@ sub HandleBroadcastRequest {
 				LoadGlossary($filePath);
 				}
 			}
+		elsif ($formH->{'signal'} eq 'dictionaryChanged')
+			{
+			my $filePath = defined($formH->{'path'}) ? $formH->{'path'} : 'BOGUS PATH';
+			my $dict = DictionaryPath();
+			$dict = lc($dict);
+			$filePath = lc($filePath);
+			$dict =~ s!\\!/!g;
+			$filePath =~ s!\\!/!g;
+			if ($dict eq $filePath)
+				{
+				print("Dictionary has changed, reloading.\n");
+				ReadDictionary();
+				print("Dictionary reloaded.\n");
+				}
+			}
 		}
 
 	return('OK');	# Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.

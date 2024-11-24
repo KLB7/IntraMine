@@ -14,8 +14,8 @@ use utf8;
 
 # Dictionary.
 my $dict; # Word list file full path
-my @wordsA;
-my %wordsH;
+
+my %wordsH; # Hash of all words, lower case.
 my $min_length = 4;
 # Known mistakes, don't repeat.
 my %known;
@@ -42,19 +42,24 @@ sub InitDictionary {
 	ReadDictionary();
 	}
 
+# Called just above, and by intramine_linker.pl#HandleBroadcastRequest().
 sub ReadDictionary
 	{
-    open my $din, "<", $dict or die "Can't open dictionary $dict: $!";
+	%wordsH = ();
+
+    open my $din, "<", $dict or return;
     while (<$din>)
 		{
         chomp;
 		my $lcword = lc($_);
-		push @wordsA, $lcword;
 		$wordsH{$lcword} = 1;
     	}
     close $din or die $!;
 	}
 
+sub DictionaryPath {
+	return($dict);
+	}
 
 # See intramine_linker.pl#AddWebAndFileLinksToVisibleLinesForCodeMirror().
 sub SpellCheck {

@@ -458,8 +458,8 @@ sub IndexChangedFiles {
 			}
 		}
 	
-	# Notify Linker if any glossary files have changed.
-	BroadcastGlossaryFilesChangedOrNew(\@PathsOfChangedFiles, \%NewPaths);
+	# Notify Linker if any glossary files or dictionary have changed.
+	BroadcastDefinitionFilesChangedOrNew(\@PathsOfChangedFiles, \%NewPaths);
 
 	# For displaying a list of changed files in monitored folders, save a list
 	# of changed (plus new) and deleted files, blowing away any old list.
@@ -1250,7 +1250,7 @@ sub IsGlossaryFile {
 	return($result);
 }
 
-sub BroadcastGlossaryFilesChangedOrNew {
+sub BroadcastDefinitionFilesChangedOrNew {
 	my ($pathsOfChangedFilesA, $newPathsH) = @_;
 	my $numPaths = @$pathsOfChangedFilesA;
 	my $numNew = keys %$newPathsH;
@@ -1266,6 +1266,11 @@ sub BroadcastGlossaryFilesChangedOrNew {
 				RequestBroadcast('signal=glossaryChanged&path=' . $filePath);
 				$pathSeen{$filePath} = 1;
 				}
+			elsif ($filePath =~ m!englishwords\.txt!i && !defined($pathSeen{$filePath}))
+				{
+				RequestBroadcast('signal=dictionaryChanged&path=' . $filePath);
+				$pathSeen{$filePath} = 1;
+				}
 			}
 		}
 	if ($numNew)
@@ -1276,6 +1281,13 @@ sub BroadcastGlossaryFilesChangedOrNew {
 			if (IsGlossaryFile($filePath) && !defined($pathSeen{$filePath}))
 				{
 				RequestBroadcast('signal=glossaryChanged&path=' . $filePath);
+				$pathSeen{$filePath} = 1;
+				}
+			# The dictionary EnglishWords.txt should not be deleted and recreated,
+			# but you never know....
+			elsif ($filePath =~ m!englishwords\.txt!i && !defined($pathSeen{$filePath}))
+				{
+				RequestBroadcast('signal=dictionaryChanged&path=' . $filePath);
 				$pathSeen{$filePath} = 1;
 				}
 			}
