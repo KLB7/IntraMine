@@ -235,14 +235,20 @@ sub LoadServerList {
 
 # Set $TopNavTemplate.
 sub MakeTopNavTemplate {
-	my $theTopNav = "<ul id='nav'>\n";
+	my ($forRefresh) = @_;
+	my $theTopNav = "\n";
+	if (!$forRefresh)
+		{
+		$theTopNav = "<ul id='nav'>\n";
+		}
+	
 	for (my $pgIdx = 0; $pgIdx < @PageNames; ++$pgIdx)
 		{
 		my $pageName = $PageNames[$pgIdx];
 		my $entry;
 		# Discover if the $pageName server has any running instances.
 		my $count = NumInstancesOfShortNameRunning($pageName);
-		my $hideShowClass = ($count <= 0) ? ' class=navHidden': '';
+		my $hideShowClass = ($count <= 0) ? ' class="navHidden"': '';
 		#my $zombieClass = ($ShortNameIsForZombie{$pageName}) ? ' class=navHidden': '';
 		#my $disabled = ($ShortNameIsForZombie{$pageName}) ? ' disabled': '';
 		if ($pageName =~ m!todo!i)
@@ -257,14 +263,26 @@ sub MakeTopNavTemplate {
 			}
 		$theTopNav .= $entry;
 		}
-	$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='globe.gif' width='30.0' height='24.0' /></div>\n";
-	$theTopNav .= "</ul>\n";
-	$theTopNav .= "<div class='shimclear'></div>\n";
+	if (!$forRefresh)
+		{
+		$theTopNav .= "<div id='spinnerParent'><img id='spinner' src='globe.gif' width='30.0' height='24.0' /></div>\n";
+		$theTopNav .= "</ul>\n";
+		$theTopNav .= "<div class='shimclear'></div>\n";
+		}
+	else
+		{
+		$theTopNav .= "<div id='spinnerParent'>" . "<a href='./" . "contents.html" . "' target='_blank'>"
+		. "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a></div>\n";
+		}
+
 	$TopNavTemplate = $theTopNav;
 	}
 
 sub TopNavTemplate {
-	MakeTopNavTemplate();
+	my ($forRefresh) = @_;
+	$forRefresh ||= 0;
+
+	MakeTopNavTemplate($forRefresh);
 	return($TopNavTemplate);
 	}
 
@@ -272,7 +290,7 @@ sub TopNavTemplate {
 # IntraMine server that wants an entry in the top navigation bar should call this.
 sub TopNav {
 	my ($currentPageName) = @_; # $PAGENAME in swarm server, eg my $PAGENAME = 'Cmd';
-	
+
 	my $theTopNav = TopNavTemplate();
 
 	my $FULL_ACCESS_STR = CVal('FULL_ACCESS_STR');
@@ -282,7 +300,25 @@ sub TopNav {
 	# Set current page.
 	$theTopNav =~ s!$currentPageName!$currentPageName class=\"current\"!;
 	$theTopNav =~ s!<li\w+!<li!g;
-	
+
+	return $theTopNav;
+	}
+
+sub TopNavForRefresh {
+	my ($obj, $formH, $peeraddress) = @_; # Not used
+
+	my $forRefresh = 1;
+	my $theTopNav = TopNavTemplate($forRefresh);
+	my $currentPageName =  OurPageName();
+
+	my $FULL_ACCESS_STR = CVal('FULL_ACCESS_STR');
+	my $mainServerIP = ServerAddress();
+	my $mainServerPort = MainServerPort();
+	$theTopNav =~ s!_RESTRICTED_!http://$mainServerIP:$mainServerPort/${FULL_ACCESS_STR}!g;
+	# Set current page.
+	$theTopNav =~ s!$currentPageName!$currentPageName class=\"current\"!;
+	$theTopNav =~ s!<li\w+!<li!g;
+
 	return $theTopNav;
 	}
 
@@ -549,6 +585,12 @@ sub MainLoop {
 		$ReqActions{'req|id'} = \&ServerIdentify;
 		}
 	
+	# Top nav bar refresh, called after IntraMine restarts (restart.js#refreshNavBar()).
+	if (!defined($ReqActions{'req|navbar'}))
+		{
+		$ReqActions{'req|navbar'} = \&TopNavForRefresh;
+		}
+
 	# Default handler for 'signal' broadcasts: the default is called first, then any
 	# server-specific 'signal' handler.
 	$ReqActions{'SIGNAL'} = \&DefaultBroadcastHandler;

@@ -912,31 +912,50 @@ sub GetFileSizeWide {
 	return($result);
 	}
 
-# Oct 21 2016, having random trouble with Win32API::File::Time GetFileTime. As a temporary
-# partial workaround, if it fails fall back to stat.
+# Prefer calling stat first, unless $preferWide.
 # See eg intramine_search.pl#FileDateAndSizeString().
 sub GetFileModTimeWide {
-	my ($filePath) = @_;
-	my $filePathWin  = encode("UTF-16LE", "$filePath\0");
-	my $result = undef;
-	local ${^WIDE_SYSTEM_CALLS} = 1;
-	my ($atime, $mtime, $ctime) = GetFileTime($filePathWin);
-	if (defined($mtime))
-		{
-		$result = $mtime;
-		}
-	else
-		{
-		# Hack, this is not a good solution, will fail for file names containing "unicode" (you know what I mean).
-		# But it does work in some cases where GetFileTime() fails.
-		my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
-			$atime, $modtime, $ctime, $blksize, $blocks) = stat $filePath;
-		$result = $modtime;
-		}
+	my ($filePath, $preferWide) = @_;
+	$preferWide ||= 0;
+	my $result = 0;
 	
-	if (!defined($mtime)) # not sure why this happens now and then
+	if ($preferWide)
 		{
-		$mtime = 0;
+		my $filePathWin  = encode("UTF-16LE", "$filePath\0");
+		local ${^WIDE_SYSTEM_CALLS} = 1;
+		my ($atime, $mtime, $ctime) = GetFileTime($filePathWin);
+		if (defined($mtime))
+			{
+			$result = $mtime;
+			}
+		else
+			{
+			my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+				$atime, $modtime, $ctime, $blksize, $blocks) = stat $filePath;
+			if (defined($modtime))
+				{
+				$result = $modtime;
+				}
+			}
+		}
+	else # prefer stat
+		{
+		my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+				$atime, $modtime, $ctime, $blksize, $blocks) = stat $filePath;
+		if (defined($modtime))
+			{
+			$result = $modtime;
+			}
+		else
+			{
+			my $filePathWin  = encode("UTF-16LE", "$filePath\0");
+			local ${^WIDE_SYSTEM_CALLS} = 1;
+			my ($atime, $mtime, $ctime) = GetFileTime($filePathWin);
+			if (defined($mtime))
+				{
+				$result = $mtime;
+				}
+			}
 		}
 
 	return($result);
@@ -960,7 +979,7 @@ sub GetFileModTimeAndSizeWide {
 		}
 	else
 		{
-		my $theTime = GetFileModTimeWide($filePath);
+		my $theTime = GetFileModTimeWide($filePath, 1);
 		my $theSize = GetFileSizeWide($filePath);
 		$arr->[0] = $theTime;
 		$arr->[1] = $theSize;

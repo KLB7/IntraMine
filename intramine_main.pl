@@ -1326,14 +1326,17 @@ sub BroadcastAllServersUp {
 	print("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
 	if (defined($PageNameForShortServerName{'Status'}))
 		{
-		print("To start/stop services, visit http://$ip:$mainPort/Status\n");
+		print("To start/stop/add services, visit http://$ip:$mainPort/Status\n");
 		}
 	else
 		{
 		print("(The Status service is not running, service management is not available.)\n");
 		}
-	print("\nNOTE\n");
-	print("Refresh any open IntraMine browser tabs to restore full service.\n\n");
+	
+	# No longer needed, web pages now detect a restart and re-establish
+	# their WebSockets connections (restart.js).
+	#print("\nNOTE\n");
+	#print("Refresh any open IntraMine browser tabs to restore full service.\n\n");
 
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}
@@ -1469,6 +1472,10 @@ sub ShortServerNameForPort {
 	my ($portNumber) = @_;
 	my $result = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
 	return($result);
+	}
+
+sub SessionStart {
+	return($StartTimeStamp);
 	}
 
 # Return an HTML table listing servers and status. One should preferably
@@ -2682,6 +2689,7 @@ sub SetUpRequestActionHandlers {
 	$RequestAction{'req|restart_one_specific_server'} = \&RestartOneServer; # $obj holds server port
 	$RequestAction{'req|ruthere'} = \&RUThere; 								# req=ruthere
 	$RequestAction{'req|serverstatus'} = \&ServerStatus; 					# req=serverstatus
+	$RequestAction{'req|sessionStart'} = \&SessionStart; 					# req=sessionStart
 	$RequestAction{'req|running'} = \&ServiceIsRunning; 					# req=running
 	$RequestAction{'req|servercount'} = \&NumInstancesOfShortNameRunning; 	# req=servercount
 	$RequestAction{'req|id'} = \&Identify; 									# req=id

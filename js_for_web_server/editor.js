@@ -287,7 +287,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 	let originalPath = path;
 	path = encodeURIComponent(path);
 	try {
-		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&rddm=' + String(getRandomInt(1, 65000));
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
@@ -505,6 +505,7 @@ async function saveFile(path) {
 
 	showSpinner();
 	let contents = myCodeMirror.doc.getValue();
+	let originalContents = contents;
 	// '%' needs encoding in contents, to survive the encodeURIComponent() below.
 	contents = contents.replace(/%/g, "%25");
 	// And the same for path.
@@ -547,7 +548,7 @@ async function saveFile(path) {
 				
 				onCodeMirrorChange();
 				//clearSavedDiffs();
-				setSavedText(myCodeMirror.doc.getValue());
+				setSavedText(originalContents);
 				notifyFileChangedAndRememberCursorLine(path);
 
 				let lineNum = currentTOCLineNum();
