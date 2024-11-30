@@ -105,7 +105,7 @@
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation\gloss.txt"
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation\Read Me First.txt"
 # With images inlined:
-# Currently used to generate IntraMine's HTML documentation:
+# CURRENTLY USED TO GENERATE INTRAMINE'S HTML DOCUMENTATION:
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i
 #
 # perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\Documentation\gloss.txt"

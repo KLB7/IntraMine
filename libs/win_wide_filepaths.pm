@@ -145,7 +145,7 @@ sub GetExistingReadFileHandleWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -186,7 +186,7 @@ sub WriteTextFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -224,7 +224,7 @@ sub WriteUTF8FileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -270,7 +270,7 @@ sub WriteBinFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -316,7 +316,7 @@ sub AppendToTextFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -359,7 +359,7 @@ sub AppendToExistingTextFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -398,7 +398,7 @@ sub AppendToBinFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -439,7 +439,7 @@ sub AppendToExistingBinFileWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
@@ -889,7 +889,7 @@ sub GetFileSizeWide {
 	if (!$F)
 		{
 		# Retry before failing
-		my $maxRetries = 10;
+		my $maxRetries = 30;
 		my $retryCount = 0;
 		while (!$F && ++$retryCount <= $maxRetries)
 			{
