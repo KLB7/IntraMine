@@ -1,4 +1,7 @@
 # intramine_chat.pl: a simple chat client for IntraMine.
+#
+# See also Documentation/Chat.html.
+#
 
 use strict;
 use warnings;

@@ -3,7 +3,7 @@ Configuring IntraMine
 
 Basic configuration
 ===================
-Most of IntraMine's configuration options are discussed where they naturally come up. And all of the values in data/intramine_config.txt, IntraMine's main configuration file, are described in that file where they are defined. If you sadly suffer from "compelled to read the entire manual" syndrome, as I do, then you might want to skim through data/intramine_config.txt to see what's available.
+Most of IntraMine's configuration options are discussed where they naturally come up. And all of the values in data/intramine_config.txt, IntraMine's main configuration file, are described in that file where they are defined. If you sadly suffer from "compelled to read the entire manual" syndrome, as I do, then you might want to skim through data/intramine_config.txt to see what's available. With the passage of time IntraMine has accumulated some additional configuration files called intramine_config_N.txt where N is an integer. Each has just one or two values. You'll find links to all of the configuration files on the Status page. And finally, each service can have its own config file. The locations is the data/ folder, and the naming convention is "Shortname_config.txt", for example DBX_config.txt.
 
 Here we'll mostly go the other way, with a guide to finding config values to make specific things happen. And a brief chat about adding your own configuration values if you're writing your own IntraMine service.
 
@@ -50,9 +50,9 @@ A full path from partial	FullDirectoryPath()	my $dbPath = FullDirectoryPath('DBE
 intramine_config.pm#FullDirectoryPath() expects the named partial path to go from the top of your IntraMine folder, wherever it is, down to the file you want. For example, consider the 
 DBEGPATH	data/dbeg.db
 entry in DBX_config.txt. My IntraMine folder is at C:/perlprogs/mine/. Calling
-my $dbPath = FullDirectoryPath('DBEGPATH');
-results in $dbPath == 'C:/perlprogs/mine/' . 'data/dbeg.db';
-ie $dbPath == 'C:/perlprogs/mine/data/dbeg.db';
+*!*my $dbPath = FullDirectoryPath('DBEGPATH');*!*
+results in *!*$dbPath == 'C:/perlprogs/mine/' . 'data/dbeg.db';*!*
+ie *!*$dbPath == 'C:/perlprogs/mine/data/dbeg.db';*!*
 
 intramine_config.pm#CVal() retrieves the string associated with a name, for example intramine_config.txt has
 TOTAL_SWARM_PORTS_TO_MONITOR	48

@@ -8,6 +8,7 @@
 #
 # For details on use, see "Writing your own IntraMine server.txt#WebSockets"
 # and the following section, "Writing your own IntraMine server.txt#IntraMine communications".
+# See also Documentation/WS.html.
 #
 # This service is started by intramine_main.pl and needs no entry in data/serverlist.txt
 # ( see "intramine_main.pl#LoadServerList()" ).
@@ -58,9 +59,7 @@ sub ListenForWSConnections {
 	                my ($conn, $msg) = @_;
 	                # TEST ONLY
 	                #print("utf8: |$msg|\n");
-					if ($msg =~ m!$MessageGuard(FORCEEXIT|EXITEXITEXIT)$MessageGuard!)	                
-	                # if (   $msg =~ m!^(..)?FORCEEXIT(..)?$!
-	                # 	|| $msg =~ m!^(..)?EXITEXITEXIT(..)?$! )
+					if ($msg =~ m!$MessageGuard(FORCEEXIT|EXITEXITEXIT)$MessageGuard!)
 	                	{
 	                	print("WS EXIT bye!\n");
 	                	exit(0);

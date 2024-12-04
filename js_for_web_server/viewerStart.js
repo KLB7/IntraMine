@@ -478,7 +478,7 @@ function updateMarkers(evt) {
 		return;
 		}
 
-	// No marking if selection is "too big" (spreads over more than on line).
+	// No marking if selection is "too big" (spreads over more than one line).
 	theSelection.selectionIsTooBig = selectionIsTooBig();
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
@@ -660,8 +660,6 @@ function getSelectionText() {
 
 // "Too big" means selected text spreads across two or more lines.
 // Or we're in a CODE block and more than a word is selected.
-// Revision, this affects the actual current selection so stop doing it.
-// I can't remember why I wrote the above line.
 function selectionIsTooBig() {
 	let selectionTooBig = false;
 	let withinPRE = false;
@@ -751,7 +749,7 @@ function getNodesInRange(range) {
     var nodes = [];
     var node;
 
-    // walk parent nodes from start to common ancestor
+    // Walk parent nodes from start to common ancestor.
     for (node = start.parentNode; node; node = node.parentNode)
     {
         nodes.push(node);
@@ -760,7 +758,7 @@ function getNodesInRange(range) {
     }
     nodes.reverse();
 
-    // walk children and siblings from start until end is found
+    // Walk children and siblings from start until end is found.
     for (node = start; node; node = getNextNode(node))
     {
         nodes.push(node);
@@ -851,10 +849,6 @@ function markHitsInScrollbar(textClassName, scrollHitClassName) {
 	
 	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
 	
-	// indicatorHeight: ideal height of the thumb. In practice the actual thumb height
-	// needs to be a minimum of about 18 pixels.
-	////let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
-
 	let elements = document.getElementsByClassName(textClassName);
 	for (let i = 0; i < elements.length; ++i)
 		{

@@ -84,69 +84,6 @@ function setUpIndicator() {
 		}
 	
 	recalculateIndicatorM();
-	// let rect = markerMainElement.getBoundingClientRect();
-	// let yTop = rect.top;
-	// let yBottom = rect.bottom;
-	// let textViewableHeight = yBottom - yTop;
-	// let mainScrolllHeight = markerMainElement.scrollHeight;
-	
-	// let viewWidth = rect.right - rect.left;
-	// let widthDifference = viewWidth - markerMainElement.clientWidth;
-	// let heightDifference = textViewableHeight - markerMainElement.clientHeight;
-	// let haveVerticalScroll = (widthDifference > 2) ? true : false;
-	// let haveHorizontalScroll = (heightDifference > 2) ? true : false;
-
-	// let arrowMultiplier = 2;
-	// if (typeof window.ontouchstart !== 'undefined')
-	// 	{
-	// 	arrowHeight = 2;
-	// 	}
-	// else
-	// 	{
-	// 	if (haveVerticalScroll)
-	// 		{
-	// 		if (widthDifference > 6.0 && widthDifference < 30.0)
-	// 			{
-	// 			arrowHeight = widthDifference;
-	// 			}
-	// 		if (haveHorizontalScroll)
-	// 			{
-	// 			arrowMultiplier = 3;
-	// 			}
-	// 		}
-	// 	else
-	// 		{
-	// 		arrowHeight = 0;
-	// 		}
-	// 	}
-
-	// let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
-	
-	// if (mainScrolllHeight > usableTextHeight)
-	// 	{
-	// 	let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
-		
-	// 	// Show the indicator only if thumb is too small to reflect actual page size.
-	// 	if (indicatorHeight <= 20)
-	// 		{
-	// 		indicatorM =
-	// 				(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
-	
-	// 		if (indicatorHeight < 2.0)
-	// 			{
-	// 			indicatorHeight = 2.0;
-	// 			}
-	// 		indicatorElem.style.height = indicatorHeight + "px";
-	// 		}
-	// 	else
-	// 		{
-	// 		indicatorM = 0;
-	// 		}
-	// 	}
-	// else
-	// 	{
-	// 	indicatorM = 0;
-	// 	}
 
 	lazyScroll();
 	

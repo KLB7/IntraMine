@@ -6,6 +6,9 @@
 # NOTE requests only come here when a preferred app has been specified as the editor of choice.
 # If IntraMine's Editor has been specified, that's handled in JavaScript directly and
 # this service isn't called. See eg viewerLinks.js#editWithIntraMine().
+#
+# See also Documentation/Opener.html.
+#
 
 # perl C:\perlprogs\mine\intramine_open_with.pl 81 43125
 

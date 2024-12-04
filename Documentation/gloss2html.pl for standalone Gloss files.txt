@@ -54,7 +54,7 @@ As an example, many of IntraMine's help docs in the Documentation folder contain
 
 When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
 
-At this point, if you use IntraMine's Viewer or Editor to display your text file then FLASH links will be shown for files outside of your folder holding the files for conversion, in addition to links to files in the same folder. This is possibly not the correct choice. If you view the HTML version after converting then only links to files in the same folder will be shown, as mentioned above.
+If you use IntraMine's Viewer or Editor to display your text file that's intended for conversion to HTML then FLASH links will NOT be shown for files outside of your folder holding the files for conversion. provided there's a glossary.txt file in the folder. Otherwise links to files outside the folder WILL be shown. The moral: provide a glossary.txt file, even it it's empty. There's only so clever I can get.
 
 Video links
 --------------------

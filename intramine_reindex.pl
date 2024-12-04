@@ -4,8 +4,11 @@
 # from the contents of those directories.
 # Directories are listed in data/search_directories.txt.
 # ri.pl is run to do the actual work.
+#
+# See also Documentation/Reindex.html.
+#
 
-# To install and run this service see Documentation/Reindex.html (or .txt).
+# To start and run this service see Documentation/Reindex.html (or .txt).
 
 # perl c:\perlprogs\IntraMine\intramine_reindex.pl
 
@@ -350,6 +353,7 @@ sub ReadIndexList {
 	}
 
 # The "reindex" button (see _REINDEX_BUTTON_ above).
+# IM_REINDEX.bat calls ri.pl to do the actual reindexing.
 sub ReindexButton {
 	my $serverDirectory = BaseDirectory(); # intramine_config.pm#BaseDirectory()
 	my $btn = OneCommandButton($serverDirectory . 'bats/IM_REINDEX.bat', 'Reindex', 0, 1, "reindexButton");

@@ -1,14 +1,16 @@
-# gloss.pm: a module for Gloss, as used by the ToDo page.
-# And now also by IntraMine's glossary popups,
-# see intramine_glossary.pm.
-# For usage, see Gloss.txt.
-# And see intramine_todolist.pl for an example of usage.
+# gloss.pm: a module for Gloss, IntraMine's minimal memorable Markdown variant for your intranet.
+# This module is used by:
+#  - intramine_todolist.pl
+#  - intramine_glossary.pm
+#  - gloss2html.pl
+# And intramine_glossary.pm is used in intramine_linker.pl only.
+# Full Gloss for text files is done in intramine_viewer.pl#GetPrettyTextContents().
 # This is a slightly reduced version of Gloss:
 # - linking: only web links and full paths in double quotes are supported
-# - cells in TABLEs should be separated by \t rather than actual tab
 # - there is no automatic table of contents
 # - line numbers are not supported
 # - lesser niceties, such as highlighting all instances of a selection, are not supported.
+# For usage, see Gloss.txt.
 
 package gloss;
 require Exporter;
@@ -65,7 +67,7 @@ sub Gloss {
    		$text = horribleUnescape($text);
 		}
  
-	# If the gloss is going in a toolip, inline the images.
+	# If the gloss is going in a tooltip, inline the images.
 	# We are doing a tooltip if $doEscaping is 0;
 	my $inlineImages = ($doEscaping) ? 0 : 1;
 
@@ -607,88 +609,6 @@ sub GetJumperHeaderAndId {
 
 	return($jumperHeader, $id);
 	}
-
-# Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-# Note if doing underlined header then line before will have td etc, but
-# if doing # header then the line we're on will be plain text.
-# Note line counts as # header only if the #'s are followed by at least one space.
-# Added Feb 2024, require blank line before # header, except at doc start (see above).
-# Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-# sub Heading {
-# 	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
-		
-# 	# Use text of header for anchor id if possible.
-# 	$$lineBeforeR =~ m!^(<tr><td>)(.*?)(</td></tr>)$!;
-# 	my $beforeHeader = $1;
-# 	my $headerProper = $2;
-# 	my $afterHeader = $3;
-
-# 	# No heading if the line before has no text.
-# 	if (!defined($headerProper) || $headerProper eq '')
-# 		{
-# 		return;
-# 		}
-	
-# 	my $id = $headerProper;
-# 	# Remove leading white from header, it looks better.
-# 	$headerProper =~ s!^\s+!!;
-# 	$headerProper =~ s!^&nbsp;!!g;
-# 	# A minor nuisance, we have span, strong, em wrapped around some or all of the header, get rid of that in the id.
-# 	# And thanks to links just being added, also remove <a ...> and </a> and <img ...>.
-# 	# Rev, remove from both TOC entry and id.
-# 	$id =~ s!<[^>]+>!!g;
-# 	$id =~ s!^\s+!!;
-# 	$id =~ s!\s+$!!;
-# 	$id =~ s!\t+! !g;
-# 	my $jumperHeader = $id;				
-# 	$id =~ s!\s+!_!g;
-# 	# File links can have &nbsp; Strip any leading ones, and convert the rest to _.
-# 	$id =~ s!^&nbsp;!!;
-# 	$id =~ s!&nbsp;!_!g;
-# 	$id =~ s!_+$!!;
-# 	# Quotes don't help either.
-# 	$id =~ s!['"]!!g;
-# 	# Remove unicode symbols from $id, especially the ones inserted by markdown above, to make
-# 	# it easier to type the headers in links. Eg 'server swarm.txt#TODO_List' for header '&#127895;TODO List'.
-# 	$id =~ s!\&#\d+;!!g; # eg &#9755;
-	
-# 	if ($id eq '' || defined($sectionIdExistsH->{$id}))
-# 		{
-# 		my $anchorNumber = @$jumpListA;
-# 		$id = "hdr_$anchorNumber";
-# 		}
-# 	$sectionIdExistsH->{$id} = 1;
-	
-# 	my $contentsClass = 'h2';
-# 	if (substr($underline,0,1) eq '-')
-# 		{
-# 		$contentsClass = 'h3';
-# 		}
-# 	elsif (substr($underline,0,1) eq '~')
-# 		{
-# 		$contentsClass = 'h4';
-# 		}
-# 	# if ($i == 1) # right at the top of the document, assume it's a document title <h1>
-# 	# 	{
-# 	# 	$contentsClass = 'h1';
-# 	# 	}
-	
-# 	# im-text-ln='$i' rather than $lineNum=$i+1, because we're on the
-# 	# underline here and want to record the heading line number on the line before.
-# 	my $jlStart = "<li class='$contentsClass'>";
-# 	my $jlEnd = "</li>";
-
-# 	# Turn the underline into a tiny blank row, make line before look like a header
-# 	$$lineR = "<tr class='shrunkrow'><td></td><td></td></tr>";
-# 	$$lineBeforeR = "$beforeHeader<$contentsClass>$headerProper</$contentsClass>$afterHeader";
-# 	# Back out any "outdent" wrapper that might have been added, for better alignment.
-# 	if ($jumperHeader =~ m!^<p!)
-# 		{
-# 		$jumperHeader =~ s!^<p[^>]*>!!;
-# 		$jumperHeader =~ s!</p>$!!;
-# 		}
-# 	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
-# 	}
 
 # Where a line begins with TABLE, convert lines following TABLE that contain tab(s) into an HTML table.
 # NOTE here "tab" means \t rather than an actual tab.

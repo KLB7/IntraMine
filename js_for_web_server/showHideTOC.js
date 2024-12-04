@@ -3,7 +3,7 @@
 // visible (which reminds one that it's there, and makes the design easier:).
 // TODO this is a bit fragile, scrollContentsList and scrollTextRightOfContents are hard-coded.
 // However, any ambitious person who changes those has bought the rights to full maintenance.
-// This is used in the Viewer (intramine_file_viewer_cm.pl) where a view has a table of contents,
+// This is used in the Viewer (intramine_file_viewer_cm.pl) when a view has a table of contents,
 // and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
 
 // Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
@@ -524,53 +524,6 @@ function lastVisibleLineNumber(elem) {
 		}
 
 	return (bottomPos);
-}
-
-// Not used.
-// Mainly for Non-CodeMirror, calculate an average line height in pixels.
-function getAverageLineHeight(elem) {
-	let averageHeight = 14; // Use an arbitrary but not horrible default.
-	if (usingCM)
-		{
-		averageHeight = myCodeMirror.defaultTextHeight();
-		}
-	else
-		{
-		let enclosingRect = elem.getBoundingClientRect();
-		let visiblePixels = enclosingRect.bottom - enclosingRect.top;
-		let firstVisibleLineNum = firstVisibleLineNum(elem);
-		let lastVisibleLineNum = lastVisibleLineNumber(elem);
-		let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
-		if (numVisibleLines > 0 && visiblePixels > 0)
-			{
-			averageHeight = visiblePixels / numVisibleLines;
-			}
-		}
-	
-	return(averageHeight);
-}
-
-// Unfinished, unused.
-// Calc a rough value for nonCM, based on average line height in pixels.
-function getNumVisibleLines(elem) {
-	let numVisibleLines = 0;
-	
-	if (usingCM)
-		{
-		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
-		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
-		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
-		numVisibleLines = lastVisibleLineNum - firstVisibleLineNum + 1;
-		}
-	else
-		{
-		let enclosingRect = elem.getBoundingClientRect();
-		let enclosingRectTop = enclosingRect.top;
-		let enclosingRectBottom = enclosingRect.bottom;
-		let numVisiblePixels = enclosingRectBottom - enclosingRectTop;
-		
-		}
-	return(numVisibleLines);
 }
 
 function restoreTopPosition(elem, topPos) {

@@ -2,7 +2,7 @@
 
 # Convert Gloss files to self-contained HTML. Your Gloss files should have a .txt
 # extension, and they will be converted to standalone .html versions.
-# Supply a single file path To a Gloss .txt file, or a folder holding all of your
+# Supply a single file path to a Gloss .txt file, or a folder holding all of your
 # Gloss files, as an argument to this program. If you want images to be expanded (rather
 # than popping up if you hover over a link) supply a second argument of -i or -inline.
 # A Gloss file is just a .txt file that uses Gloss for markup, see also Documentation/Gloss.txt for
@@ -18,7 +18,7 @@
 
 # Before running
 ################
-# Create a ccontext folder holding the one or more Gloss .txt files that you want to convert.
+# Create a context folder holding the one or more Gloss .txt files that you want to convert.
 # Also create an /images/ subfolder if you will have images in your files. If you mention an image
 # in your Gloss file, drop a copy of the image in the /images/ subfolder.
 #

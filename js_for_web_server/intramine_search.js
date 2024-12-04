@@ -62,7 +62,7 @@ async function loadPageContent() {
 			addFormClickListener();
 			initDirectoryDialog();
 
-			directoryCache = new LRUCache(6);
+			directoryCache = new LRUCache(8);
 			loadDirCache();
 			rebuildDirList();
 		
@@ -288,7 +288,6 @@ function swapLangExt() {
 			multiSummaryElement.textContent = '(all extensions are selected)';
 			}
 		}
-
 }
 
 // elasticsearcher.pm#FormatHitResults() inserts calls to this, to open a file
@@ -403,7 +402,6 @@ function doDirectoryPickerResize() {
 	let scrollDriveLeftElement = document.getElementById("scrollDriveListLeft");
 	let scrollDriveLeftHeight = scrollAdjustedHeight - driveSelectorHeight;
 	scrollDriveLeftElement.style.height = scrollDriveLeftHeight + "px";
-	
 }
 
 // Search results are in table cells. Within each cell, the (first) <p> contains the hitsummary.
@@ -773,11 +771,11 @@ function updateLanguageSummary() {
 		{
 		if (languagesBeingDone)
 			{
-				summary = '(no languages are selected)';
+			summary = '(no languages are selected)';
 			}
 		else
 			{
-				summary = '(no extensions are selected)';
+			summary = '(no extensions are selected)';
 			}
 		
 		}

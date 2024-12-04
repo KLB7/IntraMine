@@ -14,17 +14,17 @@
 # the contents of data\search_directories.txt with paths to the additional directories and then
 # run this program again. Your existing search index, and list of full paths corresponding to
 # files in your index folder, will be added to rather than replaced. Or, since a full reindex takes
-# only an hour or two, you could just alter your search_directories.txt file and then run
+# only an at most, you could just alter your search_directories.txt file and then run
 # elasticsearch_init_index.pl before running this prog, as mentioned above.
 #
 # NOTE normally you should run bats/IM_INIT_INDEX.bat with Administrator privileges
 # instead of running this program directly. Or run IM_ADD_INDEX.bat (as admin) to add a directory
 # to indexing. Both require listing the directories in data/search_directories.txt beforehand.
-# See ES_INDEXING for details.
+# See Documentation/Configuring folders to index and monitor.html for details.
 #
 # File extensions for files that will be indexed are in ext.pm. To allow indexing of
 # files without an extension, set ES_INDEX_NO_EXTENSION in data/intramine_config.txt to 1.
-# Default is 0, skip them.
+# Default is 0, skip them. Setting it to 1 is not well tested.
 #
 # Command line (see bats/elastic_stop_INIT_rebuild_start.bat etc for a better way to run this
 # if you want to completely rebuild your index): 
@@ -43,7 +43,7 @@ use intramine_config;
 use elasticsearch_bulk_indexer;
 use reverse_filepaths;
 use win_wide_filepaths; # for win_wide_filepaths.pm#DeepFindFileWide()
-use ext;	# For ext.pm#EndsWithTextExtension().
+use ext;				# For ext.pm#EndsWithTextExtension().
 
 # If called by bats/IM_INIT_INDEX.bat there will be an argument "-addTestDoc"
 # meaning add a test document or two, for later testing of Search if desired - see
@@ -74,7 +74,7 @@ InitFileSizeBinning();
 my $SKIPLOGFILES = 1;
 
 # Optionally allow files with no extension.
-# !!NOTE!! Setting ES_INDEX_NO_EXTENSION to 1 is COMPLETELY UNTESTED!
+# !!NOTE!! Setting ES_INDEX_NO_EXTENSION to 1 is not well tested!
 my $IndexIfNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 
 # Load up list of directories to index. Default location is data/search_directories.txt.

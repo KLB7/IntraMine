@@ -17,7 +17,7 @@ A **glossary** is a necessity for a project of any size. You've probably seen al
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt").
 
-And most of Gloss is available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main differences are that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt"), and that cell separation in tables is done with \t rather than an actual tab.
+And most of Gloss is available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main difference is that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt").
 
 Gloss is for developers (like you) who need to crank out good looking spec, design, test, how-to, development logs, meeting notes, and sundry other documents designed for in-house or personal use. And do so with the absolute minimum of additional markup characters, in a way that's easy to remember. You know, so you'll actually use it.
 
@@ -51,7 +51,8 @@ Table of Contents
 Gloss generates a Table of Contents (TOC) automatically for:
  - headings in text files (see just below)
  - function, method, class, and struct definitions in source files.
- - currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.
+
+Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.
  
 The Table of Contents is done alphabetically in source files, and in order of occurrence in text files.
 
@@ -178,7 +179,7 @@ googlesuggest.cpp#GSuggestCompletion::eventFilter also gives a method link.
 
 Linking to a line number in a file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can also link to a specific line number in a file, eg autolinking_demo.pl#102 or viewer.js:431. No quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult, and for error messages that contain line numbers such as those from Chrome.
+You can also link to a specific line number in a file, eg autolinking_demo.pl#102 or viewer.js:431. As with headings, use a '#' or ':' to separate the file name from the number. However, no quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult, and for error messages that contain line numbers such as those from Chrome.
 
 Linking to directories
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -221,7 +222,7 @@ Web links
 ~~~~~~~~~
 Web links are full auto, with no need to type double quotes or anything extra. Any text starting with http:// or https:// will become a link. Such as http://google.com.
 
-In views of text files (.txt), Markdown files (.md), and POD files (.pod) IntraMine also supports Markdown-style web links such as [Google](https://www.google.com).
+In views of text files (.txt), Markdown files (.md), and POD files (.pod) IntraMine also supports Markdown-style web links of the form [Displayed name](URL) such as [Google](https://www.google.com).
 
 Perl Module links
 ~~~~~~~~~~~~
@@ -230,7 +231,7 @@ Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file 
 
 On-demand linking
 ~~~~~~~~~~~
-Context-aware autolinking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking, so that lines of text are processed only when they become visible, and only once. However, the Editor does clear all links and redo the links for visible lines after an editing "spurt" is finished.
+Context-aware FLASH linking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking, so that lines of text are processed only when they become visible, and only once. However, the Editor does clear all links and redo the links for visible lines after an editing "spurt" is finished.
 
 Images
 ------
@@ -453,7 +454,7 @@ Gloss does *italic emphasis* and **bold emphasis** like this, and code as *!*let
 
 Code blocks
 ------------
-Please note code blocks are supported only in .txt files. To see a code block rendered in HTML open the .txt file using IntraMine's Viewer, or convert a .txt file to HTML using gloss2html.pl and open the result in your browser.
+Code blocks are supported only in .txt files. To see a code block rendered in HTML open the .txt file using IntraMine's Viewer, or convert a .txt file to HTML using gloss2html.pl and open the result in your browser.
 
 To create a code block in a .txt file:
  - put CODE on a line all by itself
@@ -503,6 +504,8 @@ Text in CODE/ENDCODE is given some minimal syntax styling using **lolight** (htt
 Special characters
 ------------------
 Gloss makes certain words and strings stand out a bit. With slight exceptions for "=>", and "NOTE" they are emphasized wherever they occur. Here's the list:
+special.png
+and here's how the Viewer displays them:
 TODO
 REMINDER
 REMINDERS
@@ -536,7 +539,7 @@ Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
 ---
 Gloss does do hashed headings, such as #### This is an h4 heading, but underlining with five or more of = - or ~ just looks better in the original.
 
-And the last thing not wanted is the line as a unit of comprehension. In a formatted text document there are words and sentences and paragraphs as units of comprehension, but not lines. In Gloss when you press Enter you end a paragraph, not a line, and line wrap keeps all the text visible. Adjust the width of your window to suit your personal line-width taste, and you're done with the concept. Perhaps using a line instead of a paragraph in some other Markdown versions was carried over from source files, where lines are usually important and paragraphs don't really exist.
+And the last thing not wanted is the line as a unit of comprehension. In a formatted text document there are words and sentences and paragraphs as units of comprehension, but not lines. In Gloss when you press Enter you end a paragraph, not a line, and line wrap keeps all the text visible. Adjust the width of your window to suit your personal line-width taste, and you're done with the concept. Perhaps using a line instead of a paragraph in some other Markdown versions was carried over from source files, where lines are usually important.
 
 contents.html
 ---

@@ -244,6 +244,11 @@ html[xmlns] #nav {
 	display: none;
 }
 
+#nav li > a.noIntraMine {
+	background-color: black;
+	color: red;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;
@@ -1878,7 +1883,7 @@ AABJRU5ErkJggg==
 <tr id='R99'><td n='99'></td><td><h3 id="Configuring_IntraMine_to_run_your_test_file">Configuring IntraMine to run your test file</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R101'><td n='101'></td><td>IntraMine has two master server lists, one for regular runs and one for testing. For testing, make an entry in <strong>data/serverlist_for_testing.txt</strong> for your new server, with a positive "Count" field.</td></tr>
-<tr id='R102'><td n='102'></td><td>For a top-level Page server, make the Page and Short names the same:</td></tr>
+<tr id='R102'><td n='102'></td><td>For a top-level <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPage%20server%3C%2Fstrong%3E%3A%20A%20top%20level%20or%20second%20level%20service.%20Page%20services%20typically%20have%20JavaScript%20and%20can%20interact%20with%20users.%20There%20can%20be%20more%20than%20one%20of%20each.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Page%20service%2C%20page%20services%2C%20page%20servers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Page server</a>, make the Page and Short names the same:</td></tr>
 <tr id='R103'><td n='103'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -1902,7 +1907,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R110'><td n='110'></td><td>For a background server, make the Page and Short names the same and add a tab and "BACKGROUND":</td></tr>
+<tr id='R110'><td n='110'></td><td>For a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBackground%20server%3C%2Fstrong%3E%3A%20has%20no%20navigation%20bar%20entry%2C%20and%20typically%20no%20JavaScript.%20It%20lurks%20in%20the%20background.%20Two%20are%20supplied%20with%20IntraMine%3A%20the%20Watcher%20service%20monitors%20the%20file%20system%20for%20changes%2C%20and%20WS%20handles%20WebSockets%20communication.%20There%20can%20be%20only%20one%20running%20instance%20of%20a%20background%20service.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Background%20service%2C%20background%20services%2C%20background%20servers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">background server</a>, make the Page and Short names the same and add a tab and "BACKGROUND":</td></tr>
 <tr id='R111'><td n='111'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA

@@ -10,10 +10,6 @@
 # intramine_db_example.pl you'll see how to use this module.
 # Then later if you decide to do something heroic like port IntraMine to go, well I've tried to
 # make the code below readable. I really did try.
-# [If this is a bit new to you and you're wondering how to send a request to another server,
-# local or world wide web, that's best done in JavaScript using fetch(). If you
-# search through IntraMine's /js_for_web_server/ folder, you'll find about 14 examples.]
-
  
 # perl -c C:/perlprogs/IntraMine/libs/swarmserver.pm
 
@@ -304,6 +300,8 @@ sub TopNav {
 	return $theTopNav;
 	}
 
+# For refreshing the top navigation bar, like above TopNav()
+# but leave off the <ul> wrapper.
 sub TopNavForRefresh {
 	my ($obj, $formH, $peeraddress) = @_; # Not used
 
@@ -610,9 +608,6 @@ sub MainLoop {
 	$readable->add($listener);          # Add the listener to it
 	InitServerAddress($listener);
 
-	#MakeTopNavTemplate(); # Is this needed?
-
-	
 	# Start up WebSocket communications.
 	InitWebSocketClient();
 	my $sname = OurShortName();
@@ -2211,21 +2206,6 @@ sub RequestBroadcast {
 	close $remote;
 	}
 
-# OBSOLETE. IntraMine is now using WebSockets instead.
-# See "Writing your own IntraMine server.txt" for the new approach.
-# ReportActivity() just below now uses WebSockets to report on activity.
-# 
-# Send event: $eventName to 'SSE' (Server-Sent Events) server, if it's running, with
-# Short name of active server.
-# Called eg to signal ToDo data has changed, see intramine_todolist.pl#PutData().
-# And by ReportActivity() below. (That's no longer true, WebSockets have entirely
-# replaced SSE in all of IntraMine.)
-sub BroadcastSSE {
-	my ($eventName, $activeShortName) = @_;
-	
-	RequestBroadcast("signal=$eventName&name=$ActivityMonitorShortName&activeserver=$activeShortName&port=$OurPort");
-	}
-
 # Send out an "activity" WebSockets message. This is picked up by statusEvents.js.
 # Note only FileWatcher calls this. Other activity reporting is done in web client JavaScript
 # using websockets.js#wsSendMessage().
@@ -2236,73 +2216,6 @@ sub ReportActivity {
 	my $port = OurListeningPort();
 	
 	WebSocketSend('activity ' . $name . ' ' . $port);
-	}
-
-
-# OBSOLETE.
-# For all browser clients registered to receive Server-Sent Events, send an activity notice
-# containing the Short Name of the active server. Default server with browser clients
-# wanting these is typically the 'Status' server.
-# Currently called only by intramine_SSE.pl#HandleBroadcastRequest() for 'signal=activity'.
-sub SendEventToClients {
-	my ($eventName, $activityServerName, $port) = @_;
-	foreach my $clientId (keys %socketForClientId)
-		{
-		my $isOK = 0;
-		my $socket = $socketForClientId{$clientId};
-		if ($socket->connected() && defined($socket->peername()))
-			{
-			$isOK = SendActivityEventToOneClient($socket, $clientId, $eventName, $activityServerName, $port);
-			}
-		}
-	}
-
-sub SendInitialSSEResponseToOneClient {
-	my ($readable, $s, $clientId, $eventName, $shortName) = @_;
-	my $result = 0;
-	
-	#print("ESTABLISHING SSE for $clientId\n");
-	if ($s->connected() && defined($s->peername()))
-		{
-		$result = print $s "HTTP/1.1 200 OK\r\n";
-		print $s "Access-Control-Allow-Origin: *\r\n";
-		print $s "Cache-Control: no-cache\r\n";
-		print $s "Content-Type: text/event-stream\r\n";
-		print $s "Connection: keep-alive\r\n";
-		print $s "\r\n";
-		print $s "event: activity\r\n";
-		print $s "data: $shortName 00000\r\n\r\n";
-		}
-	
-	if (!$result)
-		{
-		#print("ERROR connection to $clientId failed!\n");
-		$s->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 0);
-		$readable->remove($s);
-		$s->close;
-		delete($socketForClientId{$clientId});
-		}
-	}
-
-# For first response, $shortName is 'INITIAL_RESPONSE'.
-sub SendActivityEventToOneClient {
-	my ($s, $clientId, $eventName, $shortName, $port) = @_;
-	my $result = print $s "event: $eventName\r\n";
-	
-	if (!$result)
-		{
-		print("SSE send to $clientId failed!\n");
-		$s->setsockopt(SOL_SOCKET, SO_KEEPALIVE, 0);
-		$readable->remove($s);
-		$s->close;
-		delete($socketForClientId{$clientId});
-		}
-	else
-		{
-		print $s "data: $shortName $port\r\n\r\n";
-		}
-	
-	return($result);
 	}
 
 sub ServerErrorReport{

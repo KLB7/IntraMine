@@ -244,6 +244,11 @@ html[xmlns] #nav {
 	display: none;
 }
 
+#nav li > a.noIntraMine {
+	background-color: black;
+	color: red;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;
@@ -3606,7 +3611,7 @@ QC/A8QPQAroeBA0BsNjoehA0BMDCo0tC0BAAvQDHD0AL6HoQNATAYqPrQdAQAAuPLglBQwD0wKFD
 <tr id='R75'><td n='75'></td><td></td></tr>
 <tr id='R76'><td n='76'></td><td><h3 id="Broadcast_overdue_count">Broadcast overdue count</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R78'><td n='78'></td><td><strong>Action</strong>: broadcast a signal to all page services, the number of items overdue</td></tr>
+<tr id='R78'><td n='78'></td><td><strong>Action</strong>: broadcast a signal to all <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPage%20services%3C%2Fstrong%3E%3A%20A%20top%20level%20or%20second%20level%20service.%20Page%20services%20typically%20have%20JavaScript%20and%20can%20interact%20with%20users.%20There%20can%20be%20more%20than%20one%20of%20each.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Page%20service%2C%20page%20server%2C%20page%20servers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">page services</a>, the number of items overdue</td></tr>
 <tr id='R79'><td n='79'></td><td><strong>Request</strong>: /?signal=allServersUp or /?signal=dayHasChanged</td></tr>
 <tr id='R80'><td n='80'></td><td><strong>Response</strong>: request Main to broadcast "signal=todoCount&amp;count=$overdueCount&amp;name=PageServers"</td></tr>
 <tr id='R81'><td n='81'></td><td>where $overdueCount is the number of ToDo items overdue</td></tr>

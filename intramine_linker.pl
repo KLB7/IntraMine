@@ -8,13 +8,15 @@
 # FullPathForPartial() will return its best guess at a full path, given a single partial path
 # (use when there is no relevant "context").
 #
+# See also Documentation/Linker.html.
+#
 # Links suported here:
 # - FLASH links: if you type just a file name in a text file or a source file,
 #    IntraMine will link it to the closest known instance of that file, from amongst
 #    all the files of interest to you. Links to locations within files are also
 #    supported, such as "Linker.html#What the Linker does differently" or
 #    reverse_filepaths.pm#FullPathInContextNS().
-# - web links: http(s), eg https://www.google.com
+# - web links: http(s), eg https://www.google.com, [Goggle](https://www.google.com)
 # - Perl module links eg "use X::Y;"
 #
 # A "partial path" is a file name with extension) preceded by zero or more directory
@@ -198,7 +200,9 @@ sub HandleBroadcastRequest {
 			}
 		}
 
-	return('OK');	# Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.
+	# Returned value is ignored by broadcaster - this is more of a "UDP"
+	# than "TCP" approach to communicating.
+	return('OK');
 	}
 
 # Load list of all files and directories, and create a hash holding lists of all
@@ -431,9 +435,11 @@ my $shouldInlineImages; # True = use img element, false = use showhint().
 
 # AddWebAndFileLinksToLine: look for file and web address mentions, turn them into links.
 # Does the promised "autolinking", so no quotes etc are needed around file names even if
-# the file name contains spaces, and directories in the path are needed only if the file name isn't unique
-# and the file being mentioned isn't the "closest" one, where distance is measured as the number
-# of directory moves up and down from the referring file to the file being mentioned. So eg
+# the file name contains spaces, and directories in the path are needed only if the file
+# name isn't unique and the file being mentioned isn't the "closest" one, where distance
+# is measured as the number of directory moves up and down from the referring file to
+# the file being mentioned.
+# So for example
 # mentioning main.cpp is fine if the referring file is proj51/docs/design.txt and the file wanted
 # is proj51/src/main.cpp, but if the referring file is somewhere outside the proj51 folder then
 # it should be mentioned as eg proj51/main.cpp. See Gloss.txt for more about links.
@@ -476,6 +482,7 @@ sub AddWebAndFileLinksToLine {
 	$shouldInlineImages = $shouldInline;
 	
 	# Look for all of: single or double quoted text, a potential file extension, or a url.
+	# Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
 	EvaluateLinkCandidates($restrictLinks);
 	
 	my $numReps = @repStr;
@@ -524,6 +531,14 @@ sub EvaluateLinkCandidates {
 	
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
+	# So ok, this is a bit of a beast. Breaking it down:
+	# ((\[([^\]]+)]\((https?://[^)]+)\) : [displayed name](URL)
+	# (_LB_.+?_RB__LP_.+?_RP_ : ditto, but encoded, _LB_ == Left Bracket etc, POD files only
+	# (\"([^"]+)\.\w+([#:][^"]+)?\") : "quoted file specifier", must have file extension
+	# (\'([^']+)\.\w+([#:][^']+)?\') : 'quoted file specifier', must have file extension
+	# (\"[^"]+\")|(\'[^']+\')		 : "directory" | 'directory'
+	# \.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)? : unquoted file specifier, must have ext
+	# ((https?://([^\s)<\"](?\!ttp:))+)) : web link
 	while ($strippedLine =~ m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
 		{
 		my $startPos = $-[0];	# this does include the '.', beginning of entire match
@@ -668,11 +683,6 @@ sub EvaluateLinkCandidates {
 						$anchorWithNum = substr($captured, $hashPos); # includes '#'
 						}
 					}
-
-				#if ($captured =~ m!(\#[^"]+)!)
-				#	{
-				#	$anchorWithNum = $1; # includes '#'
-				#	}
 				}
 			my $url = $haveURL ? $captured : '';
 			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref && !$haveDirSpecifier) ? substr($captured, 1) : '';
@@ -681,7 +691,6 @@ sub EvaluateLinkCandidates {
 				{
 				my $foundExtension = ExtensionBeforeHashOrEnd($captured);
 				if ($foundExtension ne '')
-				#if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 					{
 					$extProper = $foundExtension;
 					#$extProper = $1;
@@ -722,7 +731,7 @@ sub EvaluateLinkCandidates {
 							$haveQuotation, $haveTextExtension, $haveImageExtension,
 							$haveVideoExtension, $quoteChar, $anchorWithNum, $restrictLinks);
 					}
-				} # if known extensions
+				} # if known extension
 			elsif ($haveURL)
 				{
 				# Skip first char if quoted.
@@ -1148,6 +1157,11 @@ sub GetLongestGoodPath {
 		} # while ($currentRevPos >= 0 ...
 	}
 
+# A restricted link can be a full path, a file at the top of
+# the current context directory, or a file in a known image location.
+# This is for links in txt files that have a glossary file at the
+# same level, indicating that they will be converted to
+# standalone HTML (see gloss2html.pl).
 sub RestrictedFullPath {
 	my ($pathToCheck, $contextDir) = @_;
 	$pathToCheck = lc($pathToCheck);

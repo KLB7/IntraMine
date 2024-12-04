@@ -1,7 +1,7 @@
 // editor.js: CodeMirror handling for Edit views. Used in:
 // intramine_editor.pl.
 // Load, Save file, manage content resizing.
-// March 2022, autolinks are now supported.
+// March 2022, autolinks (FLASH links) are now supported.
 
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
@@ -121,8 +121,6 @@ function onWindowResize() {
 
 	location.hash = topLineForResize;
 	restoreColumnWidths();
-	/////myCodeMirror.refresh();
-    reJump();
 	lazyMouseUp();
 	repositionTocToggle();
 }
@@ -170,23 +168,6 @@ function doResize() {
 		}
 
 	updateToggleBigMoveLimit();
-}
-
-// TODO For the viewer mainly, this needs to go to a line number, not an element.
-function reJump() {
-	return;
-	let h = location.hash;
-	if (h.length > 1)
-		{
-		// strip leading '#'
-		h = h.replace(/^#/, '');
-
-		let el = document.getElementById(h);
-		if (el !== null)
-			{
-			el.scrollIntoView();
-			}
-		}
 }
 
 function setTextViewPosition(rule_id, id) {
@@ -283,6 +264,8 @@ function decodeHTMLEntities(text) {
 
 // Call back to intramine_editor.pl#LoadTheFile() with a req=loadfile request.
 // On success, start clean, resize the text area, and add autolinks.
+// The rddm=... arg is needed to avoid a reload from stale cache when
+// the browser's Back button is used.
 async function loadFileIntoCodeMirror(cm, path) {
 	let originalPath = path;
 	path = encodeURIComponent(path);
@@ -355,6 +338,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 	}
 }
 
+// Get a Table Of Contents.
 async function loadTOC(path) {
 	if (tocHolderName === '')
 		{

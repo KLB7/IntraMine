@@ -8,6 +8,8 @@
 # be created here running on different ports, and requests will be cycled through the running
 # instances.
 #
+# See also Documentation/IntraMine Main.html.
+#
 # A note on how requests are handled (this server is called "main" below, and the Search
 # server (which shows a Search dialog and shows search results) is used as an example server).
 # Request are matched up with servers based on the unique "Short name" of the
@@ -66,6 +68,9 @@
 # to run as administrator.
 # STOP INTRAMINE
 # Run bats/STOP_INTRAMINE.bat to stop all IntraMine services including this one.
+# MANAGE RUNNING SERVICES
+# Use the Status page (click on "Status" in the top navigation bar, or
+#   visit http://localhost:81/Status)
 # TEST INTRAMINE
 # Put the servers you want to test in data/serverlist_for_testing.txt, set their Count to 1,
 # and run
@@ -2778,29 +2783,6 @@ sub SockIsInListenerList {
 	
 	return($result);
 	}
-
-# Free up the lowest extra port that MainLoop is listening to, it will become
-# the port for our added server. The lowest entry 0 is our main port (eg),
-# first extra port is at index 1 in @listenerArray. There may be several
-# added servers, so shut down the first one after 0 that isn't ''.
-# sub ShutdownFirstExtraPortInUse {
-# 	my $result = 0;
-# 	my $numListeners = @listenerArray;
-# 	for (my $i = 1; $i < $numListeners; ++$i)
-# 		{
-# 		if ($listenerArray[$i] ne '')
-# 			{
-# 			$readable->remove($listenerArray[$i]);
-# 			shutdown($listenerArray[$i], 2);
-# 			$listenerArray[$i] = '';
-# 			#$listenerPortArray[$i] = '';
-# 			$result = 1;
-# 			last;
-# 			}
-# 		}
-	
-# 	return($result);
-# 	}
 
 sub DumpListeners {
 	my $numListeners = @listenerArray;

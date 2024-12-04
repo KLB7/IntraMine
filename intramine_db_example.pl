@@ -45,6 +45,9 @@
 # - $peeraddress is the your service address, which will be different from your
 #   numeric localhost address if you are accessing IntraMine from a remote PC (ie not directly
 #   on the PC where IntraMine is running).
+#
+# See also Documentation/DBX.html.
+#
 
 # Command line using default ports, as called by intramine_main.pl#StartServerSwarm():
 # 	perl C:\perlprogs\mine\intramine_db_example.pl DBX DBX 81 431NN

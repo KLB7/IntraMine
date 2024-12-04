@@ -2,6 +2,7 @@
 # This Editor does not have an entry in the top navigation bar. It's invoked by clicking
 # on an "edit" link. These can be found as pencil icons in Search result hits, file lists
 # under Files, autolinks within read-only views, and as Edit buttons in read-only views.
+# In rhw Editor itself, the edit link is a purple rectangle at the end of a link
 # CodeMirror is used for all edit views here, and it does all of the work of
 # presenting an editable view of a file complete with syntax highlighting - see editor.js.
 # This Perl file puts up the basic HTML for the view and provides load and save subs.
@@ -9,7 +10,10 @@
 # http://192.168.1.132:43128/Editor/?href=C:/perlprogs/mine/test/googlesuggest.cpp&rddm=49040
 # which triggers the 'href' handler FullFile() via the %RequestAction entry below.
 # editor.js#loadFileIntoCodeMirror() then calls LoadTheFile() here with a 'req=loadfile' request.
-# (March 2022) The Editor also shows autolinks an hover images.
+# The Editor also shows autolinks and hover images, and glossary popups.
+#
+# See also Documentation/Editor.html.
+#
 
 # perl C:\perlprogs\intramine\intramine_editor.pl server_port our_listening_port
 

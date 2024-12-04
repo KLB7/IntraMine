@@ -1,4 +1,4 @@
-// chat.js:
+// chat.js: the "front end" of intramine_chat.pl, a chat service.
 
 let peerAddress = '';
 let messageHeight = 0;
@@ -285,48 +285,6 @@ function deleteAllDisplayedMessages() {
 			}
 		}
 }
-
-// Unused.
-// Clear all messages in disk file for chat, and clear messages on screen.
-// function clearChat() {
-// 	showSpinner();
-// 	let request = new XMLHttpRequest();
-// 	request.open('get', 'http://' + theHost + ':' + thePort + '/?req=clearMessages', true);
-
-// 	request.onload = function() {
-// 		if (request.status >= 200 && request.status < 400)
-// 			{
-// 			// Success!
-// 			let theText = request.responseText;
-// 			if (theText !== 'ok')
-// 				{
-// 				let e1 = document.getElementById(errorID);
-// 				e1.innerHTML = 'Error, could not clear messages on disk!';
-// 				}
-// 			else
-// 				{
-// 				deleteAllDisplayedMessages();
-// 				}
-// 			hideSpinner();
-// 			}
-// 		else
-// 			{
-// 			// We reached our target server, but it returned an error
-// 			let e1 = document.getElementById(errorID);
-// 			e1.innerHTML = 'Error, server reached but it returned an error when trying to clear all messages!';
-// 			hideSpinner();
-// 			}
-// 	};
-
-// 	request.onerror = function() {
-// 		// There was a connection error of some sort
-// 		let e1 = document.getElementById(errorID);
-// 		e1.innerHTML = 'Connection error! Could not reach server when trying to clear all messages.';
-// 		hideSpinner();
-// 	};
-
-// 	request.send();
-// }
 
 // Colour for message, to distinguish different senders slightly.
 function colorForPeerAddress(peer) {

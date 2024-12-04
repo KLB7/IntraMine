@@ -1,3 +1,6 @@
+#
+# OBSOLETE, SSE has been replaced in IntraMine by WebSockets.
+#
 # intramine_SSE.pl: a separate port for handling Server-Sent Events.
 # On receiving a signal from Main (intramine_main.pl) call SendEventToClients()
 # which will in turn send a Server-Sent Event to any web page that has registered with

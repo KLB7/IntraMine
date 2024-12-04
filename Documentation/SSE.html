@@ -244,6 +244,11 @@ html[xmlns] #nav {
 	display: none;
 }
 
+#nav li > a.noIntraMine {
+	background-color: black;
+	color: red;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;
@@ -1741,7 +1746,7 @@ span.ll-com { /* comments */
 <tr id='R18'><td n='18'></td><td>Original doc follows.</td></tr>
 <tr id='R19'><td n='19'></td><td></td></tr>
 <tr id='R20'><td n='20'></td><td></td></tr>
-<tr id='R21'><td n='21'></td><td>SSE is a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBackground%20service%3C%2Fstrong%3E%3A%20has%20no%20navigation%20bar%20entry%2C%20and%20typically%20no%20JavaScript.%20It%20lurks%20in%20the%20background.%20Two%20are%20supplied%20with%20IntraMine%3A%20the%20Watcher%20service%20monitors%20the%20file%20system%20for%20changes%2C%20and%20WS%20handles%20WebSockets%20communication.%20There%20can%20be%20only%20one%20running%20instance%20of%20a%20background%20service.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">background service</a> that serves as IntraMine's registration and distribution center for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>.</td></tr>
+<tr id='R21'><td n='21'></td><td>SSE is a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBackground%20service%3C%2Fstrong%3E%3A%20has%20no%20navigation%20bar%20entry%2C%20and%20typically%20no%20JavaScript.%20It%20lurks%20in%20the%20background.%20Two%20are%20supplied%20with%20IntraMine%3A%20the%20Watcher%20service%20monitors%20the%20file%20system%20for%20changes%2C%20and%20WS%20handles%20WebSockets%20communication.%20There%20can%20be%20only%20one%20running%20instance%20of%20a%20background%20service.%20See%20data%2Fserverlist.txt%20for%20a%20list%20of%20services.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20background%20server%2C%20background%20services%2C%20background%20servers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">background service</a> that serves as IntraMine's registration and distribution center for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EServer-Sent%20Events%3C%2Fstrong%3E%3A%20%28SSE%20for%20short%29%20basically%2C%20a%20web%20page%20subscribes%20to%20a%20service%20for%20specific%20events%2C%20and%20the%20service%20publishes%20messages%20to%20the%20subscribed%20pages.%20IntraMine%20used%20to%20use%20these%2C%20but%20now%20WebSockets%20are%20used%20instead.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Server-Sent Events</a>.</td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td>Perl main files:</td></tr>
 <tr id='R24'><td n='24'></td><td><p class="outdent-unordered">&nbsp;&bull; intramine_SSE.pl</p></td></tr>

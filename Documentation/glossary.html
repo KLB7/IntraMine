@@ -244,6 +244,11 @@ html[xmlns] #nav {
 	display: none;
 }
 
+#nav li > a.noIntraMine {
+	background-color: black;
+	color: red;
+}
+
 #spinnerParent {
 	position: relative;
 	display: inline-block;
@@ -1720,7 +1725,7 @@ span.ll-com { /* comments */
 <ul>
 <li class='h2' im-text-ln='63'><a href='#<span_class=textsymbol_style=color'><span class='textSymbol' style='color</a></li>
 <li class='h2' im-text-ln='87'><a href='#autolinks,_automatic_links,_automatic_linking,_autolinking,_flash_link,_flash_links,_flash_linking'>Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking</a></li>
-<li class='h2' im-text-ln='31'><a href='#background_service'>Background service</a></li>
+<li class='h2' im-text-ln='31'><a href='#background_service,_background_server,_background_services,_background_servers'>Background service, background server, background services, background servers</a></li>
 <li class='h2' im-text-ln='97'><a href='#command_prompt'>Command prompt</a></li>
 <li class='h2' im-text-ln='103'><a href='#console_window'>Console window</a></li>
 <li class='h2' im-text-ln='111'><a href='#context_aware,_context_aware'>Context aware, context-aware</a></li>
@@ -1739,8 +1744,8 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='33'><a href='#nas'>NAS</a></li>
 <li class='h2' im-text-ln='107'><a href='#navigation_bar'>Navigation bar</a></li>
 <li class='h2' im-text-ln='17'><a href='#page_name'>Page name</a></li>
-<li class='h2' im-text-ln='29'><a href='#page_service'>Page service</a></li>
-<li class='h2' im-text-ln='71'><a href='#partial_path,_file_specifier,_link_specifier'>Partial path, file specifier, link specifier</a></li>
+<li class='h2' im-text-ln='29'><a href='#page_service,_page_server,_page_services,_page_servers'>Page service, page server, page services, page servers</a></li>
+<li class='h2' im-text-ln='71'><a href='#partial_path,_file_specifier,_link_specifier,_link_specifiers,_file_specifiers'>Partial path, file specifier, link specifier, link specifiers, file specifiers</a></li>
 <li class='h2' im-text-ln='129'><a href='#referencing_file'>Referencing file</a></li>
 <li class='h2' im-text-ln='141'><a href='#reindex_service'>Reindex service</a></li>
 <li class='h2' im-text-ln='143'><a href='#reserved_service,_reserved_services,_reserved_server,_reserved_servers'>Reserved service, reserved services, reserved server, reserved servers</a></li>
@@ -1786,9 +1791,9 @@ span.ll-com { /* comments */
 <tr id='R26'><td n='26'></td><td></td></tr>
 <tr id='R27'><td n='27'></td><td>The number of instances of a second level service to run is set by its "Count" field in data/serverlist.txt.</td></tr>
 <tr id='R28'><td n='28'></td><td></td></tr>
-<tr id='R29'><td n='29'></td><td><h2 id="page_service"><strong>Page service</strong>:</h2> A top level or second level service. Page services typically have JavaScript and can interact with users. There can be more than one of each. See data/serverlist.txt for a list of services.</td></tr>
+<tr id='R29'><td n='29'></td><td><h2 id="page_service,_page_server,_page_services,_page_servers"><strong>Page service, page server, page services, page servers</strong>:</h2> A top level or second level service. Page services typically have JavaScript and can interact with users. There can be more than one of each. See data/serverlist.txt for a list of services.</td></tr>
 <tr id='R30'><td n='30'></td><td></td></tr>
-<tr id='R31'><td n='31'></td><td><h2 id="background_service"><strong>Background service</strong>:</h2> has no navigation bar entry, and typically no JavaScript. It lurks in the background. Two are supplied with IntraMine: the Watcher service monitors the file system for changes, and WS handles WebSockets communication. There can be only one running instance of a background service. See data/serverlist.txt for a list of services.</td></tr>
+<tr id='R31'><td n='31'></td><td><h2 id="background_service,_background_server,_background_services,_background_servers"><strong>Background service, background server, background services, background servers</strong>:</h2> has no navigation bar entry, and typically no JavaScript. It lurks in the background. Two are supplied with IntraMine: the Watcher service monitors the file system for changes, and WS handles WebSockets communication. There can be only one running instance of a background service. See data/serverlist.txt for a list of services.</td></tr>
 <tr id='R32'><td n='32'></td><td></td></tr>
 <tr id='R33'><td n='33'></td><td><h2 id="nas"><strong>NAS</strong>:</h2> Network Attached Storage. These are drives accessed over Ethernet, as opposed to locally attached storage which is connected directly to your PC via USB or SATA. IntraMine can index files on NAS, but cannot monitor them for changes, so static source files in a library are fine, but constantly changing source files in a project you're working on would require regular manual re-indexing in order for IntraMine to show up-to-date search results.</td></tr>
 <tr id='R34'><td n='34'></td><td></td></tr>
@@ -3492,7 +3497,7 @@ YYOz8fLywlM46AQlfJomfmPlNzc/3icgqs1aGhpnGN/3/KwHsNbZ4KWD4Pj4OGmjjO/GO5B/wJhP
 QmCC
 "  />. For more see <a href="./Editor.html" target="_blank">"Editor.html"</a>.</td></tr>
 <tr id='R70'><td n='70'></td><td></td></tr>
-<tr id='R71'><td n='71'></td><td><h2 id="partial_path,_file_specifier,_link_specifier"><strong>Partial path, file specifier, link specifier</strong>:</h2> For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).</td></tr>
+<tr id='R71'><td n='71'></td><td><h2 id="partial_path,_file_specifier,_link_specifier,_link_specifiers,_file_specifiers"><strong>Partial path, file specifier, link specifier, link specifiers, file specifiers</strong>:</h2> For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).</td></tr>
 <tr id='R72'><td n='72'></td><td></td></tr>
 <tr id='R73'><td n='73'></td><td>For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.</td></tr>
 <tr id='R74'><td n='74'></td><td></td></tr>

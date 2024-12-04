@@ -6,6 +6,9 @@
 # To enable, uncomment the line
 #1	Upload				Upload		intramine_uploader.pl
 # in data/serverlist.txt.
+#
+# See also Documentation/Upload.html.
+#
 
 # perl -c C:\perlprogs\mine\intramine_uploader.pl mainPort ourListeningPort
 

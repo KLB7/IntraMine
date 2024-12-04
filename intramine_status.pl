@@ -1,13 +1,17 @@
 # intramine_status.pl:
-# 1. Status of all running servers (UP, NOT RESPONDING, DEAD). Status is refreshed with
+#### Status of all running servers (UP, NOT RESPONDING, DEAD). Status is refreshed with
 #    a periodic ajax call to the main server 'req=serverstatus' - see status.js#refreshStatus().
 #    Start/Stop/Restart for all servers.
-# 2. Add a server.
-# 3. List of new/changed or deleted files.
+#### A list of configuation files, with links,.
+#### Add a server.
+#### List of new/changed or deleted files.
 #    This is also refreshed by status.js#refreshStatus(), which invokes a second
 #    separate ajax call back to this server 'req=filestatus'
 #    to update the latest lists of file system changes.
 #    Only changes in folders monitored by File Watcher are reported.
+#
+# See also Documentation/Status.html.
+#
 
 # perl C:\perlprogs\mine\intramine_status.pl $server_port $port_listen
 
@@ -72,6 +76,7 @@ MainLoop(\%RequestAction);
 ################ subs
 # Status page: showing server status, an "Add one page server" form,
 # and new/changed/deleted files in indexed folders.
+# Added later, a list of configuration files.
 # Called in response to eg http://localhost:81/Status
 # which redirects to our port here, eg http://localhost:43138/Status/?req=main
 # 2020-02-17 15_57_58-Status.png

@@ -231,22 +231,6 @@ function addTocScrollListener(evt) {
 		}
 }
 
-// Not used.
-function addTocAndToggleListeners(evt) {
-	let el = document.getElementById(cmTextHolderName);
-	el.addEventListener("scroll", function(evt) {
-		// Clear our timeout throughout the scroll
-		window.clearTimeout( scrollingForToc );
-	
-		// Set a timeout to run after scrolling ends
-		scrollingForToc = setTimeout(function() {
-			// Run the callbacks.
-			scrollTocEntryIntoView(evt, true);
-			updateTogglePositions();
-		}, 66);
-	});
-}
-
 function updateTocHighlight(elem) {
 	if (elem === null)
 		{
@@ -271,5 +255,3 @@ function updateTocHighlight(elem) {
 }
 
 window.addEventListener("load", addTocScrollListener);
-//window.addEventListener("load", addTocAndToggleListeners);
-

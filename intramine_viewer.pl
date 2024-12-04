@@ -10,6 +10,9 @@
 # This is not a "top" server, meaning it doesn't have an entry in IntraMine's top navigation bar.
 # Typically it's called by click on a link in Search page results, the Files page lists,
 # or a link in a view provided by this Viewer or the Editor service.
+#
+# See also Documentation/Viewer.html.
+#
 
 # perl C:\perlprogs\IntraMine\intramine_viewer.pl
 
@@ -26,7 +29,6 @@ $tabstop = 4;
 use Syntax::Highlight::Perl::Improved ':BASIC';  # ':BASIC' or ':FULL' - FULL doesn't seem to do much
 use Time::HiRes qw ( time );
 use Win32::Process 'STILL_ACTIVE';  # for calling Universal ctags.exe etc
-#use Win32::Process; # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Path::Tiny qw(path);
@@ -40,7 +42,6 @@ use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 use html2gloss;
 use toc_local;
-#use cobol_keywords;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -123,7 +124,7 @@ my %RequestAction;
 $RequestAction{'href'} = \&FullFile; 					# Open file, href = anything
 $RequestAction{'/file/'} = \&FullFile; 					# RESTful alternative, /file/is followed by file path in $obj
 $RequestAction{'req|loadfile'} = \&LoadTheFile; 		# req=loadfile
-$RequestAction{'req|openDirectory'} = \&OpenDirectory; 		# req=openDirectory
+$RequestAction{'req|openDirectory'} = \&OpenDirectory; 	# req=openDirectory
 # The following two callbacks are needed if any css/js files
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
 $RequestAction{'req|css'} = \&GetRequestedFile; 		# req=css  see swarmserver.pm#GetRequestedFile()
@@ -194,41 +195,6 @@ sub FullFile {
 		return('');
 		}
 		
-	# Early return if file does not exist and it's not a bogus request from the browser.
-#	if (FileOrDirExistsWide($filePath) != 1)
-#		{
-#		# For RESTful (eg /file/path/goodfile.txt) requests, browser often asks for css and js using path
-#		# /file/path/goodfile.txt/this/that/afile.css. In this case, we should immediately return '', signalling
-#		# to the caller (typically swarmserver.pm#HandleRequestAction()) that it was a bad request
-#		# and caller should  keep trying (eg call swarmserver.pm#GetCssResult()).
-#		# Otherwise, if "$preFileName" does not exist on disk, we assume the $filePath really is bad
-#		# and return a nice result page with nav bar etc saying NOT RETRIEVED.
-#		print("Considering \$filePath |$filePath|\n");
-#		
-#		# Sometimes we need to strip off more than one part of the path to reveal the original
-#		# path, eg .../test/googlesuggest.cpp/addon/dialog/dialog.css
-#		my $filePathCopy = $filePath;
-#		my $fnPosition = rindex($filePathCopy, '/');
-#		
-#		while ($fnPosition > 3)
-#			{
-#			$filePathCopy = substr($filePathCopy, 0, $fnPosition);
-#			if ($filePathCopy =~ m!\.\w+$!)
-#				{
-#				if (FileOrDirExistsWide($filePathCopy) == 1)
-#					{
-#					print("BOGUS CALL, returning ''.\n");
-#					return('');
-#					}
-#				else
-#					{
-#					last; # Check once only if an extension is seen.
-#					}
-#				}
-#			$fnPosition = rindex($filePathCopy, '/');
-#			}
-#		}
-	
 	my $title = $filePath . ' NOT RETRIEVED!';
 	my $serverAddr = ServerAddress();
 
@@ -270,9 +236,7 @@ sub FullFile {
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 	
-	
 	my $exists = FileOrDirExistsWide($filePath);
-	
 	if ($exists == 1)
 		{
 		$title = $filePath;
@@ -366,8 +330,6 @@ sub FullFile {
 	# Why? It works. Otherwise Unicode is messed up.
 	$filePath = $ctrlSPath;
 
-
-	
 	$theBody =~ s!_PATH_!$filePath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 	
@@ -407,7 +369,7 @@ sub FullFile {
 	my $editAction = EditButton($host, $filePath, $clientIsRemote, $allowEditing);
 	$theBody =~ s!_EDITACTION_!$editAction!;
 	
-	# Experimental, trying to add Search/Find.
+	# Add Search/Find.
 	my $search = "<input id=\"search-button\" class=\"submit-button\" type=\"submit\" value=\"Find\" />";
 	$theBody =~ s!_SEARCH_!$search!;
 	
@@ -928,25 +890,6 @@ sub OpenDirectory {
 	return($result);
 	}
 
-# "req=loadfile" handling. For CodeMirror views, the text is loaded by JavaScript after the
-# page starts up, see cmViewerStart.js#loadFileIntoCodeMirror().
-sub olderLoadTheFile {
-	my ($obj, $formH, $peeraddress) = @_;
-	my $result = '';
-
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
-	if ($filepath ne '')
-		{
-		my $ctrlSPath = $filepath;
-		$ctrlSPath = encode_utf8($ctrlSPath);
-		$ctrlSPath =~ s!%!%25!g;
-		$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-		$result = GetHtmlEncodedTextFile($filepath);
-		}
-	
-	return($result);		
-	}
-
 # Straight HTML. Note resulting page has no TopNav.
 sub GetHTML {
 	my ($formH, $peeraddress, $contentsR) = @_;
@@ -1030,7 +973,7 @@ sub GetWordAsText {
 # Table Of Contents (TOC) on the left, highlighted Perl on the right.
 # Syntax::Highlight::Perl::Improved does the formatting.
 # Autolinks are added for source and text files, web addresses, and images.
-# "use Package::Module;" is given a local link and a link to metacpan,
+# "use Package::Module;" is given a local link and a link to metacpan.
 sub GetPrettyPerlFileContents {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
 	my $filePath = $formH->{'FULLPATH'};
@@ -2122,83 +2065,6 @@ sub GetJumperHeaderAndId {
 	$sectionIdExistsH->{$id} = 1;
 
 	return($jumperHeader, $id);
-	}
-
-# Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-sub xHeading {
-	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
-		
-	# Use text of header for anchor id if possible.
-	$$lineBeforeR =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)(.*?)(</td></tr>)$!;
-	my $beforeHeader = $1;
-	my $headerProper = $2;
-	my $afterHeader = $3;
-
-	# No heading if the line before has no text.
-	if (!defined($headerProper) || $headerProper eq '')
-		{
-		return;
-		}
-	
-	my $id = $headerProper;
-	# Remove leading white from header, it looks better.
-	$headerProper =~ s!^\s+!!;
-	$headerProper =~ s!^&nbsp;!!g;
-	# A minor nuisance, we have span, strong, em wrapped around some or all of the header, get rid of that in the id.
-	# And thanks to links just being added, also remove <a ...> and </a> and <img ...>.
-	# Rev, remove from both TOC entry and id.
-	$id =~ s!<[^>]+>!!g;
-	$id =~ s!^\s+!!;
-	$id =~ s!\s+$!!;
-	$id =~ s!\t+! !g;
-	my $jumperHeader = $id;				
-	$id =~ s!\s+!_!g;
-	# File links can have &nbsp; Strip any leading ones, and convert the rest to _.
-	$id =~ s!^&nbsp;!!;
-	$id =~ s!&nbsp;!_!g;
-	$id =~ s!_+$!!;
-	# Quotes don't help either.
-	$id =~ s!['"]!!g;
-	# Remove unicode symbols from $id, especially the ones inserted by markdown above, to make
-	# it easier to type the headers in links. Eg 'server swarm.txt#TODO_List' for header '&#127895;TODO List'.
-	$id =~ s!\&#\d+;!!g; # eg &#9755;
-	
-	if ($id eq '' || defined($sectionIdExistsH->{$id}))
-		{
-		my $anchorNumber = @$jumpListA;
-		$id = "hdr_$anchorNumber";
-		}
-	$sectionIdExistsH->{$id} = 1;
-	
-	my $contentsClass = 'h2';
-	if (substr($underline,0,1) eq '-')
-		{
-		$contentsClass = 'h3';
-		}
-	elsif (substr($underline,0,1) eq '~')
-		{
-		$contentsClass = 'h4';
-		}
-	if ($i == 1) # right at the top of the document, assume it's a document title <h1>
-		{
-		$contentsClass = 'h1';
-		}
-	
-	# im-text-ln='$i' rather than $lineNum=$i+1, because we're on the
-	# underline here and want to record the heading line number on the line before.
-	my $jlStart = "<li class='$contentsClass' im-text-ln='$i'><a href='#$id'>";
-	my $jlEnd = "</a></li>";
-
-	# Turn the underline into a tiny blank row, make line before look like a header
-	$$lineR = "<tr class='shrunkrow'><td></td><td></td></tr>";
-	$$lineBeforeR = "$beforeHeader<$contentsClass id=\"$id\">$headerProper</$contentsClass>$afterHeader";
-	# Back out any "outdent" wrapper that might have been added, for better alignment.
-	if ($jumperHeader =~ m!^<p!)
-		{
-		$jumperHeader =~ s!^<p[^>]*>!!;
-		$jumperHeader =~ s!</p>$!!;
-		}
-	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
 	}
 
 # Turn anchor eg

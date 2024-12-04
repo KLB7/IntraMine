@@ -6,6 +6,9 @@
 # The interface handling, and WebSockets handling, are done in JavaScript - 
 # see todo.js, todoFlash.js, and todoGetPutData.js.
 # jQuery is NOT used in this version.
+#
+# See also Documentation/ToDo.html.
+#
 
 # perl -c C:\perlprogs\IntraMine\intramine_todolist.pl
 
@@ -366,13 +369,6 @@ sub PutData {
 		
 		# Let other servers know if overdue count has changed.
 		BroadcastOverdueCount();
-		
-		# SSE handling in IntraMine has been replaced by WebSockets.
-		# See todoGetPutData.js#putData() for the new approach.
-		# Let other ToDo clients know ToDo data has changed.
-		#####BroadcastSSE('todochanged', $SHORTNAME); # swarmserver.pm#BroadcastSSE()
-		# Tell all web pages that ToDo has changed. Nav bar will flash.
-		#####BroadcastSSE('todoflash', $SHORTNAME);
 		
 		# Make the Status light flash for this server.
 		ReportActivity($SHORTNAME);

@@ -101,7 +101,7 @@ For the details, see "Gloss.html#Links".
 
 ### Glossary popups
 Why aren't you using a glossary? Possibly because it's a bit tedious: you see a term you're not sure about, open the glossary, and find it in alphabetical order (maybe), then go back to reading. How about this instead: you see a term, you know it's in the glossary because it has a subtle dotted underline, you pause your mouse over it, and the definition instantly pops up with a mix of styled text, clickable links, images, tables, lists, and a scroll bar if needed. Better, right? All glossary entries are automatically available in all source and text files on your PC or LAN when the file is viewed with IntraMine. Typing up a glossary definition is as easy as putting *term colon definition* in a file called "glossary_master.txt".
-For the how-to "Glossary popups.html", or the top of the "glossary_master.txt" example glossary file at the top of your IntraMine folder.
+For the how-to see "Glossary popups.html", or the top of the "glossary_master.txt" example glossary file at the top of your IntraMine folder.
 
 Here's an admittedly full-throttle example of a glossary definition being viewed:
 gloss1.png
@@ -115,9 +115,9 @@ Details are in "Search.html".
 If you like the idea of using some sort of markdown for your internal documents, but want something with very little overhead and memorable syntax that makes things like links and tables as easy as possible, take a look at "Gloss.txt".
 
 ### Gloss for standalone HTML
-Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style .txt documents to single-file completely standalone HTML. If you're reading this document after accessing it through IntraMine's "?" help on the navigation bar, the you're seeing such a file.
+Speaking of Gloss, IntraMine comes with **gloss2html.pl** for converting Gloss-style .txt documents to single-file completely standalone HTML. If you're reading this document after accessing it through IntraMine's "?" help on the navigation bar, then you're seeing such a file.
 
-You get all of Gloss's standard features, but FLASH links are limited to files in the directory. In particular, glossary popups are supported. You have the option of inlining images rather than having them pop up on a hover.
+You get all of Gloss's standard features, but FLASH links are limited to files in the same directory as the file being converted. In particular, glossary popups are supported. You have the option of inlining images rather than having them pop up on a hover.
 
 See "gloss2html.pl for standalone Gloss files.html" if you like the idea of having Markdown styling, FLASH links, a synchronized table of contents, glossary popups etc in your documentation without having to use IntraMine to view the resulting HTML files.
 

@@ -13,6 +13,7 @@
 # for another 47 consecutive numbers, so
 # http://localhost:43124/Bp through http://localhost:43172/Bp would also bring up this page.
 #
+# See also Documentation/Bp.html.
 #
 # See intramine_main.pl#StartServerSwarm() for the cmd line that starts a server.
 # perl C:\perlprogs\intramine\intramine_boilerplate.pl pagename shortname mainport ourport

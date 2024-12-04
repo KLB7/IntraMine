@@ -3,7 +3,7 @@
  * Periodically call back to Main to get a server status table
  * and a files new/changed/deleted table,
  * manage Start/Stop/Restart and Add buttons,
- * flash server lights in response to Server-Sent Events (see also statusEvents.js).
+ * flash server lights in response to events (see also statusEvents.js).
  */
 
 window.addEventListener("load", doResize);
@@ -427,8 +427,8 @@ function showActivity(data) {
 }
 
 // The "flashing" is done using CSS, see flashingLEDs.css. There's a call to flashOneServer()
-// to start flashing, and a call after a brief delay to stop flashing, done by
-// changing the class on the "LED".
+// to start flashing (all on its own),
+// and a call after a brief delay to stop flashing, done by changing the class on the "LED".
 function flashOneServerAFewTimes(port) {
 	flashOneServer(port, true);
 	

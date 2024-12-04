@@ -9,6 +9,9 @@
 # Uses http://www.abeautifulsite.net/jquery-file-tree/
 # which is invoked by files.js#startFileTreeUp().
 # perl C:\perlprogs\mine\intramine_filetree.pl 81 43131
+#
+# See also Documentation/Files.html.
+#
 
 use strict;
 use warnings;

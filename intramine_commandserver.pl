@@ -24,6 +24,9 @@
 # This server is disabled by default. To run it, uncomment the line
 #1	Cmd					Cmd			intramine_commandserver.pl	PERSISTENT
 # in data/serverlist.txt
+#
+# See also Documentation/Cmd.html.
+#
 
 # perl -c C:\perlprogs\IntraMine\intramine_commandserver.pl 81 43130
 

@@ -3,8 +3,7 @@
 # (Well, I left this in for a while and never consulted the "table of contents", so it's
 # not currently implemented by IntraMine. Play with it if you like :)
 # File names are listed alphabetically, with full paths on the right, slapped in a table to make it look pretty.
-# When IntraMine is running, intramine_filewatcher.pl#IndexChangedFiles() eventually calls ReMakeTocForDir() here
-# to rebuild any tables of contents affected by new or deleted files in watched directories.
+# ReMakeTocForDir() and MakeTocForDir() are the main calls.
 
 package tocmaker;
 require Exporter;

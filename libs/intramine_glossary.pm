@@ -1,4 +1,5 @@
 # intramine_glossary.pm: load and retrieve glossary definitions from glossary files.
+# Used by intramine_linker.pl (which calls AddGlossaryHints()).
 # Hints are shown in response to onmouseover, using tooltip.js#showhint().
 # See IntraMine's Documentation/Glossary popups.txt for usage.
 
@@ -744,6 +745,7 @@ sub RangeOverlapsExistingAnchor {
 	}
 
 # For glossary.txt only, add anchors for defined terms.
+# Not used.
 sub AddGlossaryAnchor {
 	my ($txtR) = @_;
 	

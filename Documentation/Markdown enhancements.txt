@@ -3,7 +3,7 @@ Markdown enhancements
 
 This is just a brief note to mention that when displayed with IntraMine's Viewer or Editor, a Markdown document (.md) will show FLASH links and glossary popups.
 
-Now, FLASH links won't be that useful to you immediately, simply because you haven't had a way to link to local files in Markdown before. Still, if you start putting in target specifiers for FLASH links you might find they speed up navigation.
+Now, FLASH links won't be that useful to you immediately, simply because you haven't had a way to link to local files in Markdown before. Still, if you start putting in link specifiers for FLASH links you might find they speed up navigation.
 
 For more about FLASH links, see "Gloss.txt#Links".
 

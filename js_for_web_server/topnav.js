@@ -33,13 +33,13 @@ function showHideServiceName(message) {
 		if (show)
 			{
 			// TEST ONLY
-			console.log("Showing " + shortName);
+			//console.log("Showing " + shortName);
 			removeClass(nameElem, "navHidden");
 			}
 		else // hide
 			{
 			// TEST ONLY
-			console.log("HIDING " + shortName);
+			//console.log("HIDING " + shortName);
 			addClass(nameElem, "navHidden");
 			}
 		}	

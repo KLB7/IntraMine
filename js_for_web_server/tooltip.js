@@ -4,7 +4,7 @@
  * This notice MUST stay intact for legal use 
  * Visit http://www.dynamicdrive.com/ for this script and 100s more.
  **********************************************************************************************/
-// (Significantly modified from the original 2018-19 and 2023 for use with IntraMine.)
+// (Modified from the original 2018-19 and 2023-4 for use with IntraMine.)
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
@@ -80,6 +80,7 @@ function isDescendant(parent, child) {
 	}
 	return false;
 }
+
 // Helper function to get an element's exact position.
 function getPosition(el) {
 	"use strict";
@@ -365,6 +366,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
+// The main event.
 function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
 

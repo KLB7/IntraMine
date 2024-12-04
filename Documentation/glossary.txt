@@ -26,9 +26,9 @@ Second level: A second level service is called by a top level service to fulfill
 
 The number of instances of a second level service to run is set by its "Count" field in data/serverlist.txt.
 
-Page service: A top level or second level service. Page services typically have JavaScript and can interact with users. There can be more than one of each. See data/serverlist.txt for a list of services.
+Page service, page server, page services, page servers: A top level or second level service. Page services typically have JavaScript and can interact with users. There can be more than one of each. See data/serverlist.txt for a list of services.
 
-Background service: has no navigation bar entry, and typically no JavaScript. It lurks in the background. Two are supplied with IntraMine: the Watcher service monitors the file system for changes, and WS handles WebSockets communication. There can be only one running instance of a background service. See data/serverlist.txt for a list of services.
+Background service, background server, background services, background servers: has no navigation bar entry, and typically no JavaScript. It lurks in the background. Two are supplied with IntraMine: the Watcher service monitors the file system for changes, and WS handles WebSockets communication. There can be only one running instance of a background service. See data/serverlist.txt for a list of services.
 
 NAS: Network Attached Storage. These are drives accessed over Ethernet, as opposed to locally attached storage which is connected directly to your PC via USB or SATA. IntraMine can index files on NAS, but cannot monitor them for changes, so static source files in a library are fine, but constantly changing source files in a project you're working on would require regular manual re-indexing in order for IntraMine to show up-to-date search results.
 
@@ -68,7 +68,7 @@ Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The View
 
 Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file. In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so: "editorlink.png". For more see "Editor.html".
 
-Partial path, file specifier, link specifier: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
+Partial path, file specifier, link specifier, link specifiers, file specifiers: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
 For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
 

@@ -5,7 +5,7 @@
 // See intramine_linker.pl#CmLinks(), which is called in response to a req=cmLinks
 // request. See requestLinkMarkupWithPort() below, which also adds links to internal headers.
 // Links are started off here with a call to addAutoLinks(), in response to a scroll, load
-// or (for the Editor) and edit.
+// or (for the Editor) an edit.
 
 // Track lines that have been looked at, by line number.
 let lineSeen = {};
@@ -644,7 +644,7 @@ function handleFileLinkClicks(evt) {
 
 	if (linkType !== "")
 		{
-		// If click is within 15 of right edge, it is in the edit "pencil" image.
+		// If click is within 15px of right edge, it is in the edit "pencil" image.
 		if (linkType === "file")
 			{
 			let pencilLeft = target.offsetLeft + target.offsetWidth - 15;
@@ -1079,7 +1079,6 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 			hintContent = decodeURIComponent(hintContent);
 			}
 		hintContent = hintContent.replace(/&quot;/g, '"');
-		hintContent = updatePortInHintContent(hintContent);
 		widthMatch = widthMatch.replace(/'/g, ""); // get rid of single quotes
 		if (shouldDecodeMatch)
 			{
@@ -1092,20 +1091,6 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 	// 	{
 	// 	console.log("showHintMatch is null!");
 	// 	}
-}
-
-// Change http://mainIP:theMainPort/Viewer to http://mainIP:port everywhere.
-// Strip the short server name (eg Viewer or Editor), it's not wanted.
-function updatePortInHintContent(hintContent) {
-	// TEST ONLY
-	return(hintContent);
-	
-	//testPortUpdate(ourSSListeningPort);
-
-	const regex = new RegExp("http://" + mainIP + ":" + theMainPort + "\/[^\/]+", "g");
-	hintContent = hintContent.replace(regex, "http://" + mainIP + ":" + ourSSListeningPort);
-	//hintContent = hintContent.replace(regex, "http://" + mainIP + ":" + port);
-	return(hintContent);
 }
 
 function testPortUpdate(port) {

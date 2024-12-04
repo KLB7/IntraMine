@@ -2,6 +2,8 @@
 # Return search form table, and any search results. This version uses Elasticsearch.
 #  https://www.elastic.co/guide/en/elasticsearch/client/perl-api/current/contents.html
 #
+# See also Documentation/Search.html.
+#
 # SearchPage() returns an HTML skeleton for the page, and sets some JavaScript variables.
 # The search form is loaded from JavaScript with a "req=frm" call, see also
 # intramine_search.js#loadPageContent(), which is called when the page is "ready".
@@ -201,21 +203,21 @@ sub SearchForm {
 	
 	# A dropdown of many languages and their extensions, with check boxes.
 	my $extsForLan = ExtensionsForLanguageHashRef();
-	my $popluarExtsForLan = PopularExtensionsForLanguageHashRef();
+	my $popularExtsForLan = PopularExtensionsForLanguageHashRef();
 	my $languageItems = '';
 
 	$languageItems .= "<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
 	$languageItems .= "<a href='javascript:selectAllOrNone(false);' class='allOrNone'>None</a>";
-	foreach my $key (sort keys %$popluarExtsForLan)
+	foreach my $key (sort keys %$popularExtsForLan)
 		{
-		my $nicerExtensionList = $popluarExtsForLan->{$key};
+		my $nicerExtensionList = $popularExtsForLan->{$key};
 		$nicerExtensionList =~ s!,!, !g;
 		$languageItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
 		}
 	$languageItems .= "<div>- - - - - - - - - - - - - - (and more below)</div>";
 	foreach my $key (sort keys %$extsForLan)
 		{
-		if (!defined($popluarExtsForLan->{$key}))
+		if (!defined($popularExtsForLan->{$key}))
 			{
 			my $nicerExtensionList = $extsForLan->{$key};
 			$nicerExtensionList =~ s!,!, !g;
@@ -321,17 +323,6 @@ FINIS
 	# Required by Chrome for "CORS-RFC1918 Support".
 	my $serverAddr = ServerAddress();
 	my $action = "http://$serverAddr:$port_listen/?rddm=1";
-
-	# my $action;
-	# my $serverAddr = ServerAddress();
-	# if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
-	# 	{
-	# 	$action = "http://$serverAddr:$port_listen/?rddm=1";
-	# 	}
-	# else
-	# 	{
-	# 	$action = "http://localhost:$port_listen/?rddm=1";
-	# 	}
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
 	
@@ -449,7 +440,7 @@ sub SearchResults {
 		# See elasticsearch_bulk_indexer.pm#AddDocumentToIndex() for details on the indexed
 		# fields (especially "folder1" "folder2". Those are used to speed up searching
 		# specific directories by looking only at files at a particular "depth", where depth is
-		# measured by the number of '/' slashes in the path to a folder.
+		# measured by the number of '/' slashes in the path to a folder).
 		# elasticsearcher.pm#GetPhraseHits() and getWordHits() build and exec the search.
 		$result .= "<div id='theTextWithoutJumpList'>" . $ElasticSearcher->GetSearchResults($rawquery, 
 			$remote, $alllowEditing, $useAppForEditing, \@wantedExt, $allExtensionsSelected,
@@ -791,7 +782,7 @@ sub FileDateAndSizeString {
 	}
 
 # Image lines in the directory picker get a "show image on mouse hover" onmouseover action.
-# Which isn't really needed, just showing off a bit:)
+# Which isn't really needed, just showing off a bit:) Images can't be searched for.
 # See GetDirsAndFiles() above.
 sub ImageLine {
 	my ($serverAddr, $dir, $file, $ext, $sizeDateStr) = @_;

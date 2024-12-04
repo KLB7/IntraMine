@@ -14,6 +14,8 @@
 # http://www.bofh.org.uk/2006/09/21/crossing-the-rubicon-again
 # by Piers Cawley and Jesse Vincent.
 #
+# See also Documentation/EM.html.
+#
 # My syntax check (your path will probably be different):
 # perl -c C:/perlprogs/IntraMine/intramine_EM.pl
 
