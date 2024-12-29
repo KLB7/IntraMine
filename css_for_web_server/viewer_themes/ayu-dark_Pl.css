@@ -1,0 +1,29 @@
+/* ayu-dark_Pl.css, for use with Perl files. */
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #626a73ff;
+}
+
+.Number {
+color: #e6b450ff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #39bae6cc;
+}
+
+.Keyword {
+color: #ff8f40ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #c2d94c;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #b3b1adff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

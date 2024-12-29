@@ -1,0 +1,41 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #151515;
+color: #e0e0e0;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #e0e0e0;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #e0e0e0; }
+#viewEditTitle { color: #e0e0e0; }
+#viewEditDateSize { color: #e0e0e0; }
+body { background: #151515; }
+.cmAutoLinkImg { background: #151515; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #434343ff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #151515; text-shadow: none; }
+.bordered>tr>th { background-color: #151515; }
+tr > th::after { background-color: #151515; }
+#scrollTextRightOfContents code { background-color: #5b5b5bff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #5b5b5bff; }
+#nav { border-top: solid 1px #6d6d6d; border-left: solid 1px #6d6d6d; border-right: solid 1px #6d6d6d; border-bottom: none; }
+.glossary:link, .glossary:link:hover, .glossary:link:visited, .cmAutoLinkGlossary { border-bottom: 1px dotted #ffffff; }
+mark.initial-scroll-h1 { background-color: red; }
+mark.scroll-hilite { background-color: #ccffcc; }
+.cm-matchhighlight { background-color: #ccffcc; }
+.CodeMirror-selection-highlight-scrollbar { background-color: #ccffcc; }
+.marker-highlight { background-color: #ccffcc; }
+.pre_line td { background: #434343ff; }
+.pre_line td:first-child  { background: #151515; }
+#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #B0B0B0 #808080; }
+pre { background-color: #434343ff; color: #e0e0e0; }
+pre.lolight { background: #d0d0d0ff; color: #e0e0e0; }
+.cmAutoLinkImg { color: #e0e0e0; }
+.CodeMirror-wrap .cmAutoLinkImg { color: #e0e0e0; }
+span.cm-comment.cmAutoLinkImg { color: #e0e0e0; }
+.cm-s-base16-dark .CodeMirror-linenumber { color: #969696ff; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-base16-dark span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-base16-dark .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

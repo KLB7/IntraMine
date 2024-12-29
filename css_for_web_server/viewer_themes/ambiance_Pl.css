@@ -1,0 +1,29 @@
+/* ambiance_Pl.css, for use with Perl files. */
+
+.Keyword {
+color: #cda869ff;
+}
+
+.Number {
+color: #78cf8aff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #aac6e3ff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #ffb795ff;
+}
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #555555ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #8f9d6aff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

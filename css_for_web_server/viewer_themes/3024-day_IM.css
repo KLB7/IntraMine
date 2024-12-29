@@ -1,0 +1,32 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #f7f7f7;
+color: #3a3432;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #3a3432;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #3a3432; }
+#viewEditTitle { color: #3a3432; }
+#viewEditDateSize { color: #3a3432; }
+body { background: #f7f7f7; }
+.cmAutoLinkImg { background: #f7f7f7; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #dededeff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #f7f7f7; text-shadow: none; }
+.bordered>tr>th { background-color: #f7f7f7; }
+tr > th::after { background-color: #f7f7f7; }
+#scrollTextRightOfContents code { background-color: #eaeaeaff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #eaeaeaff; }
+.pre_line td { background: #dededeff; }
+.pre_line td:first-child  { background: #f7f7f7; }
+pre { background-color: #dededeff; color: #3a3432; }
+.cmAutoLinkImg { color: #3a3432; }
+.CodeMirror-wrap .cmAutoLinkImg { color: #3a3432; }
+span.cm-comment.cmAutoLinkImg { color: #3a3432; }
+.cm-s-3024-day span.cm-string { color: #b1a501ff;}
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-3024-day span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-3024-day .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

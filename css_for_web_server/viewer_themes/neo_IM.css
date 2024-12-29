@@ -1,0 +1,31 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #ffffff;
+color: #2e383c;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #2e383c;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #2e383c; }
+#viewEditTitle { color: #2e383c; }
+#viewEditDateSize { color: #2e383c; }
+body { background: #ffffff; }
+.cmAutoLinkImg { background: #ffffff; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #e5e5e5ff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #ffffff; text-shadow: none; }
+.bordered>tr>th { background-color: #ffffff; }
+tr > th::after { background-color: #ffffff; }
+#scrollTextRightOfContents code { background-color: #f2f2f2ff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #f2f2f2ff; }
+.pre_line td { background: #e5e5e5ff; }
+.pre_line td:first-child  { background: #ffffff; }
+pre { background-color: #e5e5e5ff; color: #2e383c; }
+.cmAutoLinkImg { color: #2e383c; }
+.CodeMirror-wrap .cmAutoLinkImg { color: #2e383c; }
+span.cm-comment.cmAutoLinkImg { color: #2e383c; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-neo span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-neo .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

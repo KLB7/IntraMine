@@ -1,0 +1,10 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-idea span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-idea .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

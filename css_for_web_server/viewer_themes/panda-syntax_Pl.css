@@ -1,0 +1,29 @@
+/* panda-syntax_Pl.css, for use with Perl files. */
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #676b79ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #19f9d8ff;
+}
+
+.Number {
+color: #ffb86cff;
+}
+
+.Keyword {
+color: #ff75b5ff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #ffb86cff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #e6e6e6ff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

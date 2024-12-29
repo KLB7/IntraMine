@@ -1,0 +1,29 @@
+/* lesser-dark_Pl.css, for use with Perl files. */
+
+.Keyword {
+color: #599effff;
+}
+
+.Number {
+color: #b35e4dff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #ffffffff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #d9bf8cff;
+}
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #666666ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #BCD279;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

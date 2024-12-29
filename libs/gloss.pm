@@ -709,10 +709,10 @@ sub GetMaxColumns {
 sub StartNewTable {
 	my ($lines_A, $tableStartIdx, $cellMaximumChars_A, $numColumns) = @_;
 
-	if ($lines_A->[$tableStartIdx] =~ m!TABLE[_ \t:.-]\S!)
+	if ($lines_A->[$tableStartIdx] =~ m!TABLE[_ \t:.-]+\S!)
 		{
 		# Use supplied text after TABLE as table "caption".
-		if ($lines_A->[$tableStartIdx] =~ m!^(<tr><td>)TABLE[_ \t:.-](.+?)(</td></tr>)!)
+		if ($lines_A->[$tableStartIdx] =~ m!^(<tr><td>)TABLE[_ \t:.-]+(.+?)(</td></tr>)!)
 			{
 			# Arg, caption can be no wider than the table, disregarding the caption. ?!?!?
 			# So we'll just use text above the table if the caption is too long.

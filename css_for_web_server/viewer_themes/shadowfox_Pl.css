@@ -1,0 +1,29 @@
+/* shadowfox_Pl.css, for use with Perl files. */
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #939393ff;
+}
+
+.Keyword {
+color: #ff7de9ff;
+}
+
+.Number {
+color: #6b89ffff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #6B89FF;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #75bfffff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #b98effff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

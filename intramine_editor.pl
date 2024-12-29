@@ -87,6 +87,71 @@ sub FullFile {
 <link rel="stylesheet" type="text/css" href="cm_editor_fix.css" />
 <link rel="stylesheet" type="text/css" href="dragTOC.css" />
 
+<link rel="stylesheet" type="text/css"  href="/theme/3024-day.css">
+<link rel="stylesheet" type="text/css"  href="/theme/3024-night.css">
+<link rel="stylesheet" type="text/css"  href="/theme/abbott.css">
+<link rel="stylesheet" type="text/css"  href="/theme/abcdef.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ambiance.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ayu-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ayu-mirage.css">
+<link rel="stylesheet" type="text/css"  href="/theme/base16-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/bespin.css">
+<link rel="stylesheet" type="text/css"  href="/theme/base16-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/blackboard.css">
+<link rel="stylesheet" type="text/css"  href="/theme/cobalt.css">
+<link rel="stylesheet" type="text/css"  href="/theme/colorforth.css">
+<link rel="stylesheet" type="text/css"  href="/theme/dracula.css">
+<link rel="stylesheet" type="text/css"  href="/theme/duotone-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/duotone-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/eclipse.css">
+<link rel="stylesheet" type="text/css"  href="/theme/elegant.css">
+<link rel="stylesheet" type="text/css"  href="/theme/erlang-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/gruvbox-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/hopscotch.css">
+<link rel="stylesheet" type="text/css"  href="/theme/icecoder.css">
+<link rel="stylesheet" type="text/css"  href="/theme/isotope.css">
+<link rel="stylesheet" type="text/css"  href="/theme/juejin.css">
+<link rel="stylesheet" type="text/css"  href="/theme/lesser-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/liquibyte.css">
+<link rel="stylesheet" type="text/css"  href="/theme/lucario.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-darker.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-palenight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-ocean.css">
+<link rel="stylesheet" type="text/css"  href="/theme/mbo.css">
+<link rel="stylesheet" type="text/css"  href="/theme/mdn-like.css">
+<link rel="stylesheet" type="text/css"  href="/theme/midnight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/monokai.css">
+<link rel="stylesheet" type="text/css"  href="/theme/moxer.css">
+<link rel="stylesheet" type="text/css"  href="/theme/neat.css">
+<link rel="stylesheet" type="text/css"  href="/theme/neo.css">
+<link rel="stylesheet" type="text/css"  href="/theme/night.css">
+<link rel="stylesheet" type="text/css"  href="/theme/nord.css">
+<link rel="stylesheet" type="text/css"  href="/theme/oceanic-next.css">
+<link rel="stylesheet" type="text/css"  href="/theme/panda-syntax.css">
+<link rel="stylesheet" type="text/css"  href="/theme/paraiso-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/paraiso-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/pastel-on-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/railscasts.css">
+<link rel="stylesheet" type="text/css"  href="/theme/rubyblue.css">
+<link rel="stylesheet" type="text/css"  href="/theme/seti.css">
+<link rel="stylesheet" type="text/css"  href="/theme/shadowfox.css">
+<link rel="stylesheet" type="text/css"  href="/theme/solarized.css">
+<link rel="stylesheet" type="text/css"  href="/theme/the-matrix.css">
+<link rel="stylesheet" type="text/css"  href="/theme/tomorrow-night-bright.css">
+<link rel="stylesheet" type="text/css"  href="/theme/tomorrow-night-eighties.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ttcn.css">
+<link rel="stylesheet" type="text/css"  href="/theme/twilight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/vibrant-ink.css">
+<link rel="stylesheet" type="text/css"  href="/theme/xq-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/xq-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/yeti.css">
+<link rel="stylesheet" type="text/css"  href="/theme/idea.css">
+<link rel="stylesheet" type="text/css"  href="/theme/darcula.css">
+<link rel="stylesheet" type="text/css"  href="/theme/yonce.css">
+<link rel="stylesheet" type="text/css"  href="/theme/zenburn.css">
+_NON_CM_THEME_CSS_
+
 <script type="text/javascript" src="tooltip.js"></script>
 
 <script type="text/javascript">
@@ -112,6 +177,7 @@ let peeraddress = '_PEERADDRESS_';	// ip address of client
 let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
+let selectedTheme = '_THEME_';
 
 let weAreEditing = true; // Don't adjust user selection or do internal links if editing.
 
@@ -196,6 +262,17 @@ FINIS
 	
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
+
+	# Get the selected CodeMirror theme.
+	my $theme = CVal('THEME');
+	if ($theme eq '')
+		{
+		$theme = 'default';
+		}
+
+	# Determine non-CM CSS theme file. Add it in for non-CodeMirror parts of display.
+	my $nonCmThemeCssFile =  NonCodeMirrorThemeCSS($theme);
+	$theBody =~ s!_NON_CM_THEME_CSS_!$nonCmThemeCssFile!;
 	
 	if (FileOrDirExistsWide($filePath) == 1)
 		{
@@ -268,6 +345,9 @@ FINIS
 	my $usingCM = 'true';
 	$theBody =~ s!_USING_CM_!$usingCM!;
 
+	# Set the selected CodeMirror theme.
+	$theBody =~ s!_THEME_!$theme!;
+
 	# Put in the TOC and contents divs.
 	my $holderHTML = $canHaveTOC ? "<div id='scrollContentsList'></div><div class='panes-separator' id='panes-separator'></div><div id='scrollTextRightOfContents'></div>": 
 		"<div id='scrollText'></div>";
@@ -311,6 +391,34 @@ FINIS
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 	
 	return $theBody;	
+	}
+
+sub NonCodeMirrorThemeCSS {
+	my ($themeName) = @_;
+	# If css file doesn't exist, return '';
+	# Location is .../IntraMine/css_for_web_server/viewer_themes/$themeName.css
+	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
+	if (FileOrDirExistsWide($cssPath) != 1)
+		{
+		# TEST ONLY
+		#print("ERROR could not find |$cssPath|\n");
+		return('');
+		}
+
+	return("\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n");
+	}
+
+sub xNonCodeMirrorThemeCSS {
+	my ($themeName) = @_;
+	# If css file doesn't exist, return '';
+	# Location is .../IntraMine/css_for_web_server/viewer_themes/$themeName.css
+	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
+	if (FileOrDirExistsWide($cssPath) != 1)
+		{
+		return('');
+		}
+
+	return("\n" . '<link rel="stylesheet" type="text/css"  href="css_for_web_server/viewer_themes/' . $themeName . '_IM.css">' . "\n");
 	}
 
 sub PositionToggle {

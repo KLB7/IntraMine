@@ -101,6 +101,9 @@ sub LoadConfigValues {
 		# else no error, the server config file is optional.
 		}
 
+	# Load the selected theme from a list - pick the first line that doesn't
+	# start with '#'.
+	LoadSelectedTheme(\%ConfigValues,  $ScriptFullDirTS . "data/select_theme_here.txt");
 	}
 
 # Requires: the "base" config file has loaded. The "base" can be either the standard
@@ -270,6 +273,38 @@ sub SaveExtraConfigValues {
 		{
 		$ConfigValues{$key} = $allValues{$key};
 		}
+	}
+
+# Set config hash 'THEME' to first entry that doesn't contain '#'.
+# Typical entries:
+# default
+# darcula
+# elegant
+# solarized dark
+sub LoadSelectedTheme {
+	my ($hashRef, $filePath) = @_;
+	$hashRef->{'THEME'} = 'default';
+
+	my $fileH = FileHandle->new("$filePath") or return;
+	binmode($fileH, ":utf8");
+	my $line;
+	my $count = 0;
+	
+	while ($line = <$fileH>)
+    	{
+        chomp($line);
+		if (index($line, '#') < 0)
+			{
+			$line =~ s!^\s+!!;
+			$line =~ s!\s+$!!;
+			$hashRef->{'THEME'} = $line;
+			last;
+			}
+		}
+	close $fileH;
+
+	# Test only:
+	#print("Selected theme: $hashRef->{'THEME'}\n");
 	}
 } ##### Config values
 
@@ -463,7 +498,6 @@ sub LoadSearchDirectoriesToArrays {
     my $result = ($count) ? 1 : 0;
 	return($result);
 	}
-
 
 use ExportAbove;
 1;

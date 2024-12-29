@@ -854,6 +854,23 @@ a.embedded_image {
 	pointer-events: none;
 }
 
+.initial-scroll-h1 {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: green;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+
 .initial-hits-highlight {
 	background-color: #ffcccc;
 }
@@ -3297,7 +3314,7 @@ JD.debounce = function(func, wait, immediate) {
  * This notice MUST stay intact for legal use 
  * Visit http://www.dynamicdrive.com/ for this script and 100s more.
  **********************************************************************************************/
-// (Significantly modified from the original 2018-19 and 2023 for use with IntraMine.)
+// (Modified from the original 2018-19 and 2023-4 for use with IntraMine.)
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
@@ -3373,6 +3390,7 @@ function isDescendant(parent, child) {
 	}
 	return false;
 }
+
 // Helper function to get an element's exact position.
 function getPosition(el) {
 	"use strict";
@@ -3658,6 +3676,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 	return(topLeft);
 }
 
+// The main event.
 function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
 
@@ -4625,7 +4644,7 @@ function setIsMarkdown() {
 // visible (which reminds one that it's there, and makes the design easier:).
 // TODO this is a bit fragile, scrollContentsList and scrollTextRightOfContents are hard-coded.
 // However, any ambitious person who changes those has bought the rights to full maintenance.
-// This is used in the Viewer (intramine_file_viewer_cm.pl) where a view has a table of contents,
+// This is used in the Viewer (intramine_file_viewer_cm.pl) when a view has a table of contents,
 // and in gloss2html.pl (which generates HTML from .txt, and there is always a table of contents).
 
 // Shrink/expand the Table Of Contents when the "#tocShrinkExpand" element is clicked.
@@ -4643,7 +4662,7 @@ function toggleTOC(toggleElem) {
 	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
-	if (elementToAdjust === null || textElement)
+	if (elementToAdjust === null || textElement === null)
 		{
 		console.log("showHideTOC.js#toggleTOC top elements are missing!");
 		return (false);
@@ -5146,53 +5165,6 @@ function lastVisibleLineNumber(elem) {
 		}
 
 	return (bottomPos);
-}
-
-// Not used.
-// Mainly for Non-CodeMirror, calculate an average line height in pixels.
-function getAverageLineHeight(elem) {
-	let averageHeight = 14; // Use an arbitrary but not horrible default.
-	if (usingCM)
-		{
-		averageHeight = myCodeMirror.defaultTextHeight();
-		}
-	else
-		{
-		let enclosingRect = elem.getBoundingClientRect();
-		let visiblePixels = enclosingRect.bottom - enclosingRect.top;
-		let firstVisibleLineNum = firstVisibleLineNum(elem);
-		let lastVisibleLineNum = lastVisibleLineNumber(elem);
-		let numVisibleLines = lastVisibleLineNum - firstVisibleLineNum;
-		if (numVisibleLines > 0 && visiblePixels > 0)
-			{
-			averageHeight = visiblePixels / numVisibleLines;
-			}
-		}
-	
-	return(averageHeight);
-}
-
-// Unfinished, unused.
-// Calc a rough value for nonCM, based on average line height in pixels.
-function getNumVisibleLines(elem) {
-	let numVisibleLines = 0;
-	
-	if (usingCM)
-		{
-		let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
-		let firstVisibleLineNum = myCodeMirror.lineAtHeight(rect.top, "window");
-		let lastVisibleLineNum = myCodeMirror.lineAtHeight(rect.bottom, "window");
-		numVisibleLines = lastVisibleLineNum - firstVisibleLineNum + 1;
-		}
-	else
-		{
-		let enclosingRect = elem.getBoundingClientRect();
-		let enclosingRectTop = enclosingRect.top;
-		let enclosingRectBottom = enclosingRect.bottom;
-		let numVisiblePixels = enclosingRectBottom - enclosingRectTop;
-		
-		}
-	return(numVisibleLines);
 }
 
 function restoreTopPosition(elem, topPos) {
@@ -5813,7 +5785,7 @@ function updateMarkers(evt) {
 		return;
 		}
 
-	// No marking if selection is "too big" (spreads over more than on line).
+	// No marking if selection is "too big" (spreads over more than one line).
 	theSelection.selectionIsTooBig = selectionIsTooBig();
 	
 	if (!justUpdateScrollbar && currentSelectionTouchesLink())
@@ -5995,8 +5967,6 @@ function getSelectionText() {
 
 // "Too big" means selected text spreads across two or more lines.
 // Or we're in a CODE block and more than a word is selected.
-// Revision, this affects the actual current selection so stop doing it.
-// I can't remember why I wrote the above line.
 function selectionIsTooBig() {
 	let selectionTooBig = false;
 	let withinPRE = false;
@@ -6086,7 +6056,7 @@ function getNodesInRange(range) {
     var nodes = [];
     var node;
 
-    // walk parent nodes from start to common ancestor
+    // Walk parent nodes from start to common ancestor.
     for (node = start.parentNode; node; node = node.parentNode)
     {
         nodes.push(node);
@@ -6095,7 +6065,7 @@ function getNodesInRange(range) {
     }
     nodes.reverse();
 
-    // walk children and siblings from start until end is found
+    // Walk children and siblings from start until end is found.
     for (node = start; node; node = getNextNode(node))
     {
         nodes.push(node);
@@ -6186,10 +6156,6 @@ function markHitsInScrollbar(textClassName, scrollHitClassName) {
 	
 	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
 	
-	// indicatorHeight: ideal height of the thumb. In practice the actual thumb height
-	// needs to be a minimum of about 18 pixels.
-	////let indicatorHeight = (textViewableHeight / mainScrolllHeight) * textViewableHeight;
-
 	let elements = document.getElementsByClassName(textClassName);
 	for (let i = 0; i < elements.length; ++i)
 		{
@@ -6765,69 +6731,6 @@ function setUpIndicator() {
 		}
 	
 	recalculateIndicatorM();
-	// let rect = markerMainElement.getBoundingClientRect();
-	// let yTop = rect.top;
-	// let yBottom = rect.bottom;
-	// let textViewableHeight = yBottom - yTop;
-	// let mainScrolllHeight = markerMainElement.scrollHeight;
-	
-	// let viewWidth = rect.right - rect.left;
-	// let widthDifference = viewWidth - markerMainElement.clientWidth;
-	// let heightDifference = textViewableHeight - markerMainElement.clientHeight;
-	// let haveVerticalScroll = (widthDifference > 2) ? true : false;
-	// let haveHorizontalScroll = (heightDifference > 2) ? true : false;
-
-	// let arrowMultiplier = 2;
-	// if (typeof window.ontouchstart !== 'undefined')
-	// 	{
-	// 	arrowHeight = 2;
-	// 	}
-	// else
-	// 	{
-	// 	if (haveVerticalScroll)
-	// 		{
-	// 		if (widthDifference > 6.0 && widthDifference < 30.0)
-	// 			{
-	// 			arrowHeight = widthDifference;
-	// 			}
-	// 		if (haveHorizontalScroll)
-	// 			{
-	// 			arrowMultiplier = 3;
-	// 			}
-	// 		}
-	// 	else
-	// 		{
-	// 		arrowHeight = 0;
-	// 		}
-	// 	}
-
-	// let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
-	
-	// if (mainScrolllHeight > usableTextHeight)
-	// 	{
-	// 	let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
-		
-	// 	// Show the indicator only if thumb is too small to reflect actual page size.
-	// 	if (indicatorHeight <= 20)
-	// 		{
-	// 		indicatorM =
-	// 				(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
-	
-	// 		if (indicatorHeight < 2.0)
-	// 			{
-	// 			indicatorHeight = 2.0;
-	// 			}
-	// 		indicatorElem.style.height = indicatorHeight + "px";
-	// 		}
-	// 	else
-	// 		{
-	// 		indicatorM = 0;
-	// 		}
-	// 	}
-	// else
-	// 	{
-	// 	indicatorM = 0;
-	// 	}
 
 	lazyScroll();
 	
@@ -7324,22 +7227,6 @@ function addTocScrollListener(evt) {
 		}
 }
 
-// Not used.
-function addTocAndToggleListeners(evt) {
-	let el = document.getElementById(cmTextHolderName);
-	el.addEventListener("scroll", function(evt) {
-		// Clear our timeout throughout the scroll
-		window.clearTimeout( scrollingForToc );
-	
-		// Set a timeout to run after scrolling ends
-		scrollingForToc = setTimeout(function() {
-			// Run the callbacks.
-			scrollTocEntryIntoView(evt, true);
-			updateTogglePositions();
-		}, 66);
-	});
-}
-
 function updateTocHighlight(elem) {
 	if (elem === null)
 		{
@@ -7364,8 +7251,6 @@ function updateTocHighlight(elem) {
 }
 
 window.addEventListener("load", addTocScrollListener);
-//window.addEventListener("load", addTocAndToggleListeners);
-
 
 </script>
 <script type="text/javascript">

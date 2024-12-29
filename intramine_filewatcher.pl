@@ -107,7 +107,7 @@ InitDeletesDB();
 
 # Detect large number of files added or deleted.
 my $Congested = 0;
-my $CongestionMinimum = 100; # Somewhat arbitrary, count of files receive all at once
+my $CongestionMinimum = 200; # Somewhat arbitrary, count of files receive all at once
 
 GetDirectoriesToIgnore();
 

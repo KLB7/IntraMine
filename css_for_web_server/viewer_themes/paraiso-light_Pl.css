@@ -1,0 +1,29 @@
+/* paraiso-light_Pl.css, for use with Perl files. */
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #e96ba8ff;
+}
+
+.Number {
+color: #815ba4ff;
+}
+
+.Keyword {
+color: #ef6155ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #fec418;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #48b685ff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #f99b15ff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

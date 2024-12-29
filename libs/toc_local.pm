@@ -253,7 +253,7 @@ sub GetPodTOC {
 			my ($jumperHeader, $id) = GetTextJumperHeaderAndId($headerProper, \@jumpList, \%sectionIdExists);
 			my $contentsClass = 'h' . $level;
 
-			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $i);'>";
+			my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 			my $jlEnd = "</a></li>";
 			push @jumpList, $jlStart . $jumperHeader . $jlEnd;
 			}
@@ -435,7 +435,12 @@ sub NoteTextHeading {
 	my ($jumperHeader, $id) = GetTextJumperHeaderAndId($headerProper, $jumpListA, $sectionIdExistsH);
 	my $contentsClass = 'h' . $headerLevel;
 
-	my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $i);'>";
+	my $lineNum = $i; # + 1;
+	if ($isHashedHeader)
+		{
+		$lineNum += 1;
+		}
+	my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
 	my $jlEnd = "</a></li>";
 	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
 

@@ -2,7 +2,7 @@
 #### Status of all running servers (UP, NOT RESPONDING, DEAD). Status is refreshed with
 #    a periodic ajax call to the main server 'req=serverstatus' - see status.js#refreshStatus().
 #    Start/Stop/Restart for all servers.
-#### A list of configuation files, with links,.
+#### A list of configuration files, with links,.
 #### Add a server.
 #### List of new/changed or deleted files.
 #    This is also refreshed by status.js#refreshStatus(), which invokes a second

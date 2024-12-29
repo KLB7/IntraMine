@@ -1,0 +1,40 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #322931;
+color: #d5d3d5;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #d5d3d5;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #d5d3d5; }
+#viewEditTitle { color: #d5d3d5; }
+#viewEditDateSize { color: #d5d3d5; }
+body { background: #322931; }
+.cmAutoLinkImg { background: #322931; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #5b535aff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #322931; text-shadow: none; }
+.bordered>tr>th { background-color: #322931; }
+tr > th::after { background-color: #322931; }
+#scrollTextRightOfContents code { background-color: #6f696eff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #6f696eff; }
+#nav { border-top: solid 1px #6d6d6d; border-left: solid 1px #6d6d6d; border-right: solid 1px #6d6d6d; border-bottom: none; }
+.glossary:link, .glossary:link:hover, .glossary:link:visited, .cmAutoLinkGlossary { border-bottom: 1px dotted #ffffff; }
+mark.initial-scroll-h1 { background-color: red; }
+mark.scroll-hilite { background-color: #ccffcc; }
+.cm-matchhighlight { background-color: #ccffcc; }
+.CodeMirror-selection-highlight-scrollbar { background-color: #ccffcc; }
+.marker-highlight { background-color: #ccffcc; }
+.pre_line td { background: #5b535aff; }
+.pre_line td:first-child  { background: #322931; }
+#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #B0B0B0 #808080; }
+pre { background-color: #5b535aff; color: #d5d3d5; }
+pre.lolight { background: #d6d4d5ff; color: #d5d3d5; }
+.cmAutoLinkImg { color: #d5d3d5; }
+.CodeMirror-wrap .cmAutoLinkImg { color: #d5d3d5; }
+span.cm-comment.cmAutoLinkImg { color: #d5d3d5; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-hopscotch span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-hopscotch .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

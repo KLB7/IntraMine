@@ -1,0 +1,29 @@
+/* mbo_Pl.css, for use with Perl files. */
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #95958aff;
+}
+
+.Number {
+color: #00a8c6ff;
+}
+
+.Keyword {
+color: #ffb928ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #ffcf6c;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #ffffecff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #ffffecff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

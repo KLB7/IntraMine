@@ -130,6 +130,9 @@ IntraMine's Editor isn't fancy, but it's good enough for editing .txt files. The
 ### Write your own IntraMine server
 IntraMine takes care of basic issues such as HTTP communications, so you're free to write the interesting parts. See "Writing your own IntraMine server.txt".
 
+### Themes
+IntraMine comes with 59 themes that you can apply to the Viewer and Editor. To change your theme, open data/select_theme_here.txt in an editor and follow the instructions at top for selecting your theme.
+
 ---
 contents.txt
 ---

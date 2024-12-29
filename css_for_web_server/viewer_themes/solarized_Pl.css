@@ -1,0 +1,24 @@
+/* solarized_Pl.css, for use with Perl files. */
+
+.String { color: #8A0808ff; }
+.Symbol { color: #000000ff; }
+.Builtin_Function { color: #000000ff; }
+.CodeTerm { color: #000000ff; }
+.Bareword { color: #000000ff; }
+.Package { color: #000000ff; }
+.Label { color: #000000ff; }
+.Operator { color: #000000ff; }
+.Keyword { color: #A020F0ff; }
+.Comment_Normal { color: #004221ff; }
+.Variable_Hash { color: #0101DFff; }
+.Subroutine { color: #000000ff; }
+.Variable_Typeglob { color: #0101DFff; }
+.Variable_Array { color: #0101DFff; }
+.Quote { color: #8A0808ff; }
+.Variable_Scalar { color: #0101DFff; }
+.Directive { color: #000000ff; }
+.DATA { color: #000000ff; }
+.Comment_POD { color: #004221ff; }
+.Builtin_Operator { color: #000000ff; }
+.Number { color: #000000ff; }
+.Character { color: #000000ff; }

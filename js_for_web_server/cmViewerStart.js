@@ -267,8 +267,11 @@ cfg.readOnly = true;
 
 cfg.matchBrackets = true;
 
-// Experiment, does path affect actual path used for addons?
-// cfg.path = 'BOGUS/'; // no effect
+// Set desired theme.
+cfg.theme = selectedTheme;
+
+// TEST ONLY
+console.log("selected theme: |" + selectedTheme + "|");
 
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);

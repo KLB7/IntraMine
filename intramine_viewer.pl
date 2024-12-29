@@ -191,7 +191,7 @@ sub FullFile {
 	if ($usingRESTfulApproach && FileOrDirExistsWide($filePath) != 1)
 		{
 		# TEST ONLY codathon
-		print("FullFile REJECTED |$filePath|\n");
+		print("Could not find |$filePath|!\n");
 		return('');
 		}
 		
@@ -245,6 +245,14 @@ sub FullFile {
 		$ctrlSPath =~ s!%!%25!g;
 		$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 
+		# Set the selected CodeMirror theme.
+		my $theme = CVal('THEME');
+		if ($theme eq '')
+			{
+			$theme = 'default';
+			}
+		$theBody =~ s!_THEME_!$theme!;
+
 		# Added Feb 2024, if it's a video throw it up in a new browser tab.
 		if (EndsWithVideoExtension($filePath))
 			{
@@ -272,7 +280,7 @@ sub FullFile {
 			GetContentBasedOnExtension($formH, $peeraddress, $filePath, 
 			$clientIsRemote, $allowEditing, \$fileContents,
 			\$usingCM, \$meta, \$textTableCSS, \$customCSS,
-			\$textHolderName);
+			\$textHolderName, $theme);
 			}
 		}
 	else
@@ -335,6 +343,7 @@ sub FullFile {
 	
 	$theBody =~ s!_USING_CM_!$usingCM!;
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$textHolderName!g;
+
 	my $findTip = ''; #"(Unshift for lower case)"; I have forgotten why I did that
 	$theBody =~ s!_MESSAGE__!$findTip!;
 	
@@ -392,7 +401,7 @@ sub FullFile {
 	
 	# Hilight class for table of contents selected element - see also non_cm_test.css
 	# and cm_viewer.css.
-	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
+	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
 	
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -469,7 +478,9 @@ let highlightItems = [_HIGHLIGHTITEMS_];
 let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
+let selectedTheme = '_THEME_';
 let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
+
 </script>
 <script>
 	// Call fn when ready.
@@ -510,7 +521,7 @@ sub GetContentBasedOnExtension {
 	my ($formH, $peeraddress, $filePath, 
 		$clientIsRemote, $allowEditing, $fileContents_R,
 		$usingCM_R, $meta_R, $textTableCSS_R, $customCSS_R,
-		$textHolderName_R) = @_;
+		$textHolderName_R, $theme) = @_;
 
 	# CSS varies: CodeMirror, Markdown, (other) non-CodeMirror.
 	# CodeMirror CSS:
@@ -520,13 +531,22 @@ sub GetContentBasedOnExtension {
 '<link rel="stylesheet" type="text/css" href="addon/search/matchesonscrollbar.css" />' . "\n" .
 '<link rel="stylesheet" type="text/css" media="screen" href="addon/search/cm_small_tip.css" />' . "\n" .
 '<link rel="stylesheet" type="text/css" href="cm_viewer.css" />' . "\n";
+	$cssForCM .= CodeMirrorThemeCSS();
+
+	# Determine non-CM CSS theme file. Add it in for non-CodeMirror displays.
+	my $nonCmThemeCssFile =  NonCodeMirrorThemeCSS($theme, $filePath);
+
 	# Markdown CSS:
 	my $cssForMD = '<link rel="stylesheet" type="text/css" href="cm_md.css" />';
+	#$cssForMD .= $nonCmThemeCssFile;
 	# Non CodeMirror CSS:
 	my $cssForNonCm = '<link rel="stylesheet" type="text/css" href="non_cm_text.css" />';
+	#$cssForNonCm .= $nonCmThemeCssFile;
 	# For $textTableCSS variations, some table formatting.
 	my $cssForNonCmTables = '<link rel="stylesheet" type="text/css" href="non_cm_tables.css" />';
+	#$cssForNonCmTables .= $nonCmThemeCssFile;
 	my $cssForPod = '<link rel="stylesheet" type="text/css" href="pod.css" />';
+	#$cssForPod .= $nonCmThemeCssFile;
 
 
 	# 1.2 Images: entire "contents" of the page is just an img link.
@@ -550,7 +570,7 @@ sub GetContentBasedOnExtension {
 		GetWordAsText($formH, $peeraddress, $fileContents_R);
 		$$usingCM_R = 'false';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=windows-1252">';
-		$$textTableCSS_R = $cssForNonCmTables;
+		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		$$customCSS_R = $cssForNonCm;
 		}
 	# 2. pure custom with TOC: pl, pm, pod, txt, log, bat, cgi, t.
@@ -562,6 +582,7 @@ sub GetContentBasedOnExtension {
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 		$$customCSS_R = $cssForNonCm;
 		$$textTableCSS_R = $cssForNonCmTables;
+		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
 	elsif ($filePath =~ m!\.pod$!i)
 		{
@@ -570,7 +591,7 @@ sub GetContentBasedOnExtension {
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 		$$customCSS_R = $cssForNonCm . "\n" . $cssForPod;
-		$$textTableCSS_R = $cssForNonCmTables;
+		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
@@ -594,7 +615,7 @@ sub GetContentBasedOnExtension {
 			$cssForNonCm .= "\n" . '<link rel="stylesheet" href="lolight_custom.css" />';
 			}
 		$$customCSS_R = $cssForNonCm;
-		$$textTableCSS_R = $cssForNonCmTables;		
+		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;		
 		}
 	# 2.1 custom, no TOC: md (Markdown)
 	elsif ($filePath =~ m!\.md$!i)
@@ -604,7 +625,7 @@ sub GetContentBasedOnExtension {
 		$$textHolderName_R = 'scrollText';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 		$$customCSS_R = $cssForMD;
-		$$textTableCSS_R = $cssForNonCmTables;
+		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
 	else
 		{
@@ -614,13 +635,13 @@ sub GetContentBasedOnExtension {
 			{
 			$$textHolderName_R = 'scrollTextRightOfContents';
 			$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-			$$customCSS_R = $cssForCM;
+			$$customCSS_R = $cssForCM . $nonCmThemeCssFile;
 			$$fileContents_R = "<div id='scrollContentsList'>$toc</div>" . "<div id='scrollTextRightOfContents'></div>";
 			}
 		else
 			{
 			$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-			$$customCSS_R = $cssForCM;
+			$$customCSS_R = $cssForCM . $nonCmThemeCssFile;
 			$$fileContents_R = "<div id='scrollText'></div>";
 			}
 		}
@@ -769,6 +790,103 @@ sub InlineHoverButton {
 	$result = '<input onclick="toggleImagesButton();" id="inlineImages" class="submit-button" type="submit" value="Inline Images" />';
 
 	return($result);
+	}
+
+sub NonCodeMirrorThemeCSS {
+	my ($themeName, $filePath) = @_;
+	# If css file doesn't exist, return '';
+	# Location is .../IntraMine/css_for_web_server/viewer_themes/$themeName.css
+	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
+	if (FileOrDirExistsWide($cssPath) != 1)
+		{
+		# TEST ONLY
+		#print("ERROR could not find |$cssPath|\n");
+		return('');
+		}
+
+	my $imCssResult = "\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n";
+
+	my $perlCssResult = '';
+	if ($filePath =~ m!\.(p[lm]|cgi|t)$!i)
+		{
+		my $perlCssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_Pl.css';
+		if (FileOrDirExistsWide($perlCssPath) == 1)
+			{
+			$perlCssResult = "\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_Pl.css">' . "\n";
+			}
+		}
+
+	return($imCssResult . $perlCssResult);
+	}
+
+sub CodeMirrorThemeCSS {
+	my $cssFiles = <<'FINIS';
+<link rel="stylesheet" type="text/css"  href="/theme/3024-day.css">
+<link rel="stylesheet" type="text/css"  href="/theme/3024-night.css">
+<link rel="stylesheet" type="text/css"  href="/theme/abbott.css">
+<link rel="stylesheet" type="text/css"  href="/theme/abcdef.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ambiance.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ayu-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ayu-mirage.css">
+<link rel="stylesheet" type="text/css"  href="/theme/base16-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/bespin.css">
+<link rel="stylesheet" type="text/css"  href="/theme/base16-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/blackboard.css">
+<link rel="stylesheet" type="text/css"  href="/theme/cobalt.css">
+<link rel="stylesheet" type="text/css"  href="/theme/colorforth.css">
+<link rel="stylesheet" type="text/css"  href="/theme/dracula.css">
+<link rel="stylesheet" type="text/css"  href="/theme/duotone-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/duotone-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/eclipse.css">
+<link rel="stylesheet" type="text/css"  href="/theme/elegant.css">
+<link rel="stylesheet" type="text/css"  href="/theme/erlang-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/gruvbox-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/hopscotch.css">
+<link rel="stylesheet" type="text/css"  href="/theme/icecoder.css">
+<link rel="stylesheet" type="text/css"  href="/theme/isotope.css">
+<link rel="stylesheet" type="text/css"  href="/theme/juejin.css">
+<link rel="stylesheet" type="text/css"  href="/theme/lesser-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/liquibyte.css">
+<link rel="stylesheet" type="text/css"  href="/theme/lucario.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-darker.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-palenight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/material-ocean.css">
+<link rel="stylesheet" type="text/css"  href="/theme/mbo.css">
+<link rel="stylesheet" type="text/css"  href="/theme/mdn-like.css">
+<link rel="stylesheet" type="text/css"  href="/theme/midnight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/monokai.css">
+<link rel="stylesheet" type="text/css"  href="/theme/moxer.css">
+<link rel="stylesheet" type="text/css"  href="/theme/neat.css">
+<link rel="stylesheet" type="text/css"  href="/theme/neo.css">
+<link rel="stylesheet" type="text/css"  href="/theme/night.css">
+<link rel="stylesheet" type="text/css"  href="/theme/nord.css">
+<link rel="stylesheet" type="text/css"  href="/theme/oceanic-next.css">
+<link rel="stylesheet" type="text/css"  href="/theme/panda-syntax.css">
+<link rel="stylesheet" type="text/css"  href="/theme/paraiso-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/paraiso-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/pastel-on-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/railscasts.css">
+<link rel="stylesheet" type="text/css"  href="/theme/rubyblue.css">
+<link rel="stylesheet" type="text/css"  href="/theme/seti.css">
+<link rel="stylesheet" type="text/css"  href="/theme/shadowfox.css">
+<link rel="stylesheet" type="text/css"  href="/theme/solarized.css">
+<link rel="stylesheet" type="text/css"  href="/theme/the-matrix.css">
+<link rel="stylesheet" type="text/css"  href="/theme/tomorrow-night-bright.css">
+<link rel="stylesheet" type="text/css"  href="/theme/tomorrow-night-eighties.css">
+<link rel="stylesheet" type="text/css"  href="/theme/ttcn.css">
+<link rel="stylesheet" type="text/css"  href="/theme/twilight.css">
+<link rel="stylesheet" type="text/css"  href="/theme/vibrant-ink.css">
+<link rel="stylesheet" type="text/css"  href="/theme/xq-dark.css">
+<link rel="stylesheet" type="text/css"  href="/theme/xq-light.css">
+<link rel="stylesheet" type="text/css"  href="/theme/yeti.css">
+<link rel="stylesheet" type="text/css"  href="/theme/idea.css">
+<link rel="stylesheet" type="text/css"  href="/theme/darcula.css">
+<link rel="stylesheet" type="text/css"  href="/theme/yonce.css">
+<link rel="stylesheet" type="text/css"  href="/theme/zenburn.css">
+FINIS
+
+	return($cssFiles);
 	}
 
 # CodeMirror JavaScript and non-CodeMirror JS are rather different, especially in the way that
@@ -1339,7 +1457,14 @@ sub GetPrettyTextContents {
 			{
 			if ($lines[$i] ne '_STARTCB_FL_')
 				{
-				$lines[$i] = '_STARTCB_' . $lines[$i];
+				if ($lines[$i] eq '')
+					{
+					$lines[$i] = '_STARTCB_ ' . $lines[$i];
+					}
+				else
+					{
+					$lines[$i] = '_STARTCB_' . $lines[$i];
+					}
 				}
 			}
 		
@@ -1732,7 +1857,7 @@ sub AddEmphasis {
 		$$lineR =~ s!(IDEA\!)!<span class='textSymbol' style='color: Gold;'>\&#128161;</span>$1!;
 		$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 		$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
-		$$lineR =~ s!\:\)!<span class='textSymbol' style='color: DarkGreen;'>\&#128578;</span>!; # or \&#9786;
+		$$lineR =~ s!\:\)!<span class='textSymbol' style='color: lightgreen; background-color: #808080;'>\&#128578;</span>!g; # or \&#9786;
 		# No good, messes up glossary popups: $$lineR =~ s!FLASH!<span class='smallCaps'>FLASH</span>!g;
 		}
 	}
@@ -2226,10 +2351,10 @@ sub GetMaxColumns {
 sub StartNewTable {
 	my ($lines_A, $tableStartIdx, $cellMaximumChars_A, $numColumns) = @_;
 
-	if ($lines_A->[$tableStartIdx] =~ m!TABLE[_ \t:.-]\S!)
+	if ($lines_A->[$tableStartIdx] =~ m!TABLE[_ \t:.-]+\S!)
 		{
 		# Use supplied text after TABLE as table "caption".
-		if ($lines_A->[$tableStartIdx] =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)TABLE[_ \t:.-](.+?)(</td></tr>)!)
+		if ($lines_A->[$tableStartIdx] =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)TABLE[_ \t:.-]+(.+?)(</td></tr>)!)
 			{
 			# Arg, caption can be no wider than the table, disregarding the caption. ?!?!?
 			# So we'll just use text above the table if the caption is too long.
@@ -2237,6 +2362,7 @@ sub StartNewTable {
 			my $pre = $1;
 			my $caption = $2;
 			my $post = $3;
+
 			# If the caption will be roughly no wider than the resulting table,
 			# use a caption. But if the caption will be smaller than the table,
 			# just use slightly indented text. An empty line has

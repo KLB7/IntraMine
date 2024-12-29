@@ -1,0 +1,29 @@
+/* mdn-like_Pl.css, for use with Perl files. */
+
+.Keyword {
+color: #6262ffff;
+}
+
+.Number {
+color: #ca7841ff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #8da6ceff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #0077aaff;
+}
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #777777ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #0077aaff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

@@ -1,0 +1,28 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #002b36;
+color: #839496;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #839496;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #839496; }
+#viewEditTitle { color: #839496; }
+#viewEditDateSize { color: #839496; }
+body { background: #002b36; }
+.cmAutoLinkImg { background: #002b36; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #33555eff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #002b36; text-shadow: none; }
+.bordered>tr>th { background-color: #002b36; }
+tr > th::after { background-color: #002b36; }
+#scrollTextRightOfContents code { background-color: #4c6a72ff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #4c6a72ff; }
+#nav { border-top: solid 1px #6d6d6d; border-left: solid 1px #6d6d6d; border-right: solid 1px #6d6d6d; border-bottom: none; }
+.pre_line td { background: #33555eff; }
+.pre_line td:first-child  { background: #002b36; }
+#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #839496 #002b36; }
+pre { background-color: #33555eff; color: #839496; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+span .cm-matchhighlight { color: black; }

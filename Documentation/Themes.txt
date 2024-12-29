@@ -1,0 +1,7 @@
+Themes
+======
+
+IntraMine comes with 59 themes that you can apply to the Viewer and Editor. To change your theme, open data/select_theme_here.txt in an editor and follow the instructions at top for selecting your theme. Then restart the Viewer and Editor using the Status page, or restart IntraMine entirely if you prefer.
+
+For a demo of the themes see https://codemirror.net/5/demo/theme.html. The text there is editable, so you can paste in your own chunk of text and see previews under the different themes.
+

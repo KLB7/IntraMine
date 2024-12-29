@@ -8,7 +8,7 @@
 
 let markerArray = [];
 let markerArrayCleared = false;
-let scrollMarkerClass = "scroll-hilite";
+let scrollMarkerClass = "initial-scroll-h1"; // was scroll-hilite
 let initialSearchHitsAreShowing = false;
 let toggleHitsButtonID = "sihits";
 
@@ -30,7 +30,7 @@ function highlightInitialItems() {
 				line : cmline,
 				ch : charEnd
 			}, {
-				css : "background-color: #ffcccc"
+				css : "background-color: #ffcccc; color:black"
 			});
 			markerArray.push(thisMarker);
 			}

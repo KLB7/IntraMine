@@ -1,0 +1,31 @@
+#scrollTextRightOfContents, #scrollContentsList, #scrollText, #scrollText a:link, #scrollText a:visited, #scrollTextRightOfContents a:link, #scrollTextRightOfContents a:visited, td:first-child, th:first-child {
+background: #f5f5f5;
+color: #202020;
+}
+
+td:first-child, th:first-child { opacity: 0.8; }
+#scrollContentsList a:link, #scrollContentsList a:visited {color: #202020;}
+#scrollContentsList a:hover, #nav li:hover > a { color: #008000; }
+#nav .current a, #nav .current:hover > a { color: #008000; }
+h1, h2, h3, h4, h5 { color: #202020; }
+#viewEditTitle { color: #202020; }
+#viewEditDateSize { color: #202020; }
+body { background: #f5f5f5; }
+.cmAutoLinkImg { background: #f5f5f5; }
+#scrollTextRightOfContents .bordered th:not(:first-child) { background-color: #dcdcdcff; background-image: none; text-shadow: none; }
+.bordered td:first-child, .bordered th:first-child { background-color: #f5f5f5; text-shadow: none; }
+.bordered>tr>th { background-color: #f5f5f5; }
+tr > th::after { background-color: #f5f5f5; }
+#scrollTextRightOfContents code { background-color: #e8e8e8ff; }
+.CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #e8e8e8ff; }
+.pre_line td { background: #dcdcdcff; }
+.pre_line td:first-child  { background: #f5f5f5; }
+pre { background-color: #dcdcdcff; color: #202020; }
+.cmAutoLinkImg { color: #202020; }
+.CodeMirror-wrap .cmAutoLinkImg { color: #202020; }
+span.cm-comment.cmAutoLinkImg { color: #202020; }
+#scrollContentsList .tocitup a:link, #scrollContentsList .tocitup a:visited, #scrollContentsList .tocitup a::before { color: black; }
+#scrollContentsList .tocitup { color: black; }
+.cm-s-base16-light span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
+.bordered tr:hover { color: black; }
+.cm-s-base16-light .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }

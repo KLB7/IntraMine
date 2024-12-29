@@ -188,6 +188,22 @@ input#search-button:hover:after {
 	pointer-events: none;
 }
 
+.initial-scroll-h1  {
+	display: block;
+	position: fixed;
+	width: 12px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: .5;
+	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
 div#indicator {
     position: absolute;
     z-index: 99;

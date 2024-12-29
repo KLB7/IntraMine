@@ -228,6 +228,9 @@ cfg.styleActiveLine = {nonEmpty: true};
 //cfg.autoMatchParens = true;
 cfg.matchBrackets = true;
 
+// Set desired theme.
+cfg.theme = selectedTheme;
+
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
 

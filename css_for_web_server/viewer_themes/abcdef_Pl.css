@@ -1,0 +1,29 @@
+/* abcdef_Pl.css, for use with Perl files. */
+
+.Keyword {
+color: #b8860bff;
+}
+
+.Number {
+color: #ee82eeff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #fffabcff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #abcdefff;
+}
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #7a7b7cff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #2b4;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }

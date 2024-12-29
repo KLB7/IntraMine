@@ -21,7 +21,7 @@ function toggleTOC(toggleElem) {
 	
 	let elementToAdjust = document.getElementById('scrollContentsList');
 	let textElement = document.getElementById('scrollTextRightOfContents');
-	if (elementToAdjust === null || textElement)
+	if (elementToAdjust === null || textElement === null)
 		{
 		console.log("showHideTOC.js#toggleTOC top elements are missing!");
 		return (false);

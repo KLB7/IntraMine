@@ -105,6 +105,7 @@ sub SearchPage {
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <link rel="stylesheet" type="text/css" href="jqueryFileTree.css" />
 <link rel="stylesheet" type="text/css" href="search.css" />
+_THEME_
 </head>
 <body>
 _TOPNAV_
@@ -185,11 +186,35 @@ FINIS
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
-	
+
+	# Set the selected theme.
+	my $theme = CVal('THEME');
+	# DISABLED for now, perhaps later, there's a bit of work involved
+	# in getting the Search page to display properly. Some text should
+	# have a color change, and some shouldn't.
+	#my $nonCmThemeCssFile =  NonCodeMirrorThemeCSS($theme);
+	#$theBody =~ s!_THEME_!$nonCmThemeCssFile!;
+	$theBody =~ s!_THEME_!!;
+
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 	
 	return $theBody;
+	}
+
+sub NonCodeMirrorThemeCSS {
+	my ($themeName) = @_;
+	# If css file doesn't exist, return '';
+	# Location is .../IntraMine/css_for_web_server/viewer_themes/$themeName.css
+	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
+	if (FileOrDirExistsWide($cssPath) != 1)
+		{
+		# TEST ONLY
+		print("ERROR could not find |$cssPath|\n");
+		return('');
+		}
+
+	return("\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n");
 	}
 
 # Return the Search form, with the usual standard search fields.

@@ -1699,6 +1699,7 @@ sub GetConfigurationFileNames {
 		}
 	push @configFileNames, 'search_directories.txt';
 	push @configFileNames, 'serverlist.txt';
+	push @configFileNames, 'select_theme_here.txt';
 
 	@$configNamesA = @configFileNames;
 	}

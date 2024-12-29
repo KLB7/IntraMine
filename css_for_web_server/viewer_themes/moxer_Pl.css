@@ -1,0 +1,29 @@
+/* moxer_Pl.css, for use with Perl files. */
+
+.Keyword {
+color: #d46c6cff;
+}
+
+.Number {
+color: #7ca4c0ff;
+}
+
+.Builtin_Function, .Builtin_Operator, .CodeTerm, .Operator, .Package, .Subroutine {
+color: #f5dfa5ff;
+}
+
+.Bareword, .Character, .DATA, .Label, .Quote, .String, .Symbol {
+color: #b2e4aeff;
+}
+
+.Comment_Normal, .Comment_POD, .Directive {
+color: #3f445aff;
+}
+
+.Variable_Array, .Variable_Hash, .Variable_Scalar, .Variable_Typeglob {
+color: #8e95b4ff;
+}
+
+
+span.Symbol.brace-highlight { color: black !important; }
+mark.scroll-hilite { background-color: #ccffcc; }
