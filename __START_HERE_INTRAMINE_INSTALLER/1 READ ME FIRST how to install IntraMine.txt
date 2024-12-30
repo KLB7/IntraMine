@@ -28,7 +28,8 @@ And who could blame you. If you're in a hurry:
 4. Copy the indicated five lines from that window, Paste into your PowerShell window, and press Enter.
 5. The installer will first ask you to specify which directories you want IntraMine to index for searching and monitor for changes. After roughly 20 minutes you might be asked to type a "y" and hit Enter to agree to a license for a Perl module. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
 6. As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that finishes and IntraMine has fully started. This can take from five minutes to one hour, depending on how many files there are in the folders that you selected for indexing in step 5 above.
-7. And you're done!
+7. Sometimes, quite unpredictably, the Windows Cmd window will forget what a CRLF means and text output there will just run off the right of the window. If this happens, stop IntraMine by double-clicking on bats/STOP_INTRAMINE.bat, wait a few seconds, and start it again by double-clicking on bats/START_INTRAMINE.bat.
+8. And you're done!
 
 Otherwise, if you're patient and want all the details on using IntraMine's installer, continue reading.
 
