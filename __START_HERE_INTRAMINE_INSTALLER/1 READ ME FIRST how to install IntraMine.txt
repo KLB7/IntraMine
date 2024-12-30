@@ -17,7 +17,7 @@ Impatient?
 ==============
 And who could blame you. If you're in a hurry:
 1. Allow PowerShell scripts to run:
-1.1 For Windows 11: bring up Settings -> System -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..."
+1.1 For Windows 11: bring up Settings  -> (Either Privacy & security or System, depending on the whims of Microsoft) -> For developers, and click on "PowerShell" to expand settings there. Turn on "Change execution policy to allow local PowerShell scripts..." WATCH OUT you have to click "Apply" there even though it seems already applied!
  "localps.png"
 1.2 For Windows 10: bring up Settings -> Update & Security -> For developers, scroll down to the PowerShell section, click on "Change execution policy...", and (IMPORTANT) click the Apply button if you see one.
 2. Open a PowerShell terminal using "Run as administrator": using the task bar search, search for "Windows PowerShell" and over on the right side of the results click on "Run as Administrator"
