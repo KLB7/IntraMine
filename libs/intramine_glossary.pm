@@ -72,9 +72,12 @@ sub LoadAllGlossaries {
 		{
 		push @paths, $allpaths;
 		}
-	
+
 	for (my $i = 0; $i < @paths; ++$i)
 		{
+		# TEST ONLY
+		#print("Loading glossary |$paths[$i]|\n");
+
 		LoadGlossary($paths[$i]);
 		}
 
@@ -101,19 +104,31 @@ sub LoadStandaloneGlossary {
 sub LoadGlossary {
 	my ($filePath, $context, $forceInit) = @_;
 	
+	# TEST ONLY
+	#print("Checking for |$filePath|\n");
 	if (FileOrDirExistsWide($filePath) != 1)
 		{
+		# TEST ONLY
+		print("|$filePath| not found.\n");
 		return;
 		}
-	
+	# TEST ONLY
+	#print("After checking for |$filePath|\n");
+
 	my $octets;
 	if (!LoadTextFileContents($filePath, \$octets))
 		{
 		print("Error, could not load |$filePath|!\n");
 		return;
 		}
+
+	# TEST ONLY
+	#print("|$filePath| loaded.\n");
 	
 	SetGlossaryModDate($filePath);
+
+	# TEST ONLY
+	#print("|$filePath| ModDate set.\n");
 
 	my $definitionHashRef;
 	if (defined($context))
@@ -170,6 +185,9 @@ sub LoadGlossary {
 				}
 			}
 		}
+
+	# TEST ONLY
+	#print("|$filePath| load finished.\n");
 	}
 
 sub SetGlossaryModDate {
