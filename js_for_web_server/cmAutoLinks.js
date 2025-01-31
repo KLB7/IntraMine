@@ -149,6 +149,8 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 				{
 				let jsonResult = JSON.parse(resp);
 
+				cm.startOperation();
+
 				for (let ind = 0; ind < jsonResult.arr.length; ++ind)
 					{
 					let markupArrEntry = jsonResult.arr[ind];
@@ -169,12 +171,15 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 						markupArrEntry["lineNumInText"] = -1; // meaning already seen, skip for internal mentions
 						}
 					}
+
 				// Mark up mentions of Table of Contents entries, avoiding other links.
 				if (!weAreEditing)
 					{
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 						lastVisibleLineNum, jsonResult);
 					}
+
+				cm.endOperation();
 				}
 			else
 				{
@@ -183,8 +188,10 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 					// Maybe there are some TOC mentions, in spite of no file/image/web links.
 					let jsonResult = {};
 					jsonResult.arr = [];
+					cm.startOperation();
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 							lastVisibleLineNum, jsonResult);
+					cm.endOperation();
 					}
 				}
 

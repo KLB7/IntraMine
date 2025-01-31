@@ -109,7 +109,7 @@ sub LoadGlossary {
 	if (FileOrDirExistsWide($filePath) != 1)
 		{
 		# TEST ONLY
-		print("|$filePath| not found.\n");
+		#print("|$filePath| not found.\n");
 		return;
 		}
 	# TEST ONLY

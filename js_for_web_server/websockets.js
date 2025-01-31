@@ -129,7 +129,18 @@ async function wsSendMessage(message) {
 
 	if (wsIsConnected)
 		{
-		ws.send('_MG_' + message + '_MG_');
+		//ws.send('_MG_' + message + '_MG_');
+		if (wsIsConnected)
+			{
+			if (ws.readyState === WebSocket.OPEN)
+				{
+				ws.send('_MG_' + message + '_MG_');
+				}
+			else
+				{
+				console.log("ERROR, WebSockets not connected yet! Could not send |" + message + "|");
+				}
+			}
 		}
 	else
 		{
