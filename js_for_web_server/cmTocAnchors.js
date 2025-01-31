@@ -246,6 +246,9 @@ function quickJumpToLine(lineNum) {
 
 // Find the line number for an anchor, by looking through tocEntries[] for text that
 // matches the entry in the supplied anchor.
+// Revision, if exact match for "anchor" is not found, look for a match on
+// "::anchor$", eg if we are given "eventListen" where the exact match would be
+// "WebServer::eventListen".
 function lineNumberForAnchor(anchor) {
 	let lineNumber = -1; // not a good value
 	if (anchor.length > 1)
@@ -279,6 +282,33 @@ function lineNumberForAnchor(anchor) {
 						{
 						lineNumber = parseInt(lineStr, 10);
 						break;
+						}
+					}
+				}
+
+			// No exact match for anchor: try a partial match on ::anchor$.
+			if (lineNumber === -1)
+				{
+				let partialMatchObj = new RegExp("::" + anchor + "$");
+				for (let i = 0; i < tocEntries.length; i++)
+					{
+					let fullAnchor = tocEntries[i].innerHTML;
+					let idLineMatch = /goToAnchor\(([^,]+), (\d+)/.exec(fullAnchor);
+					if (idLineMatch !== null)
+						{
+						let anchorText = idLineMatch[1];
+						let lineStr = idLineMatch[2];
+						// anchorText is in quotes, strip them.
+						anchorText = anchorText.replace(/^&quot;/, '');
+						anchorText = anchorText.replace(/&quot;$/, '');
+						anchorText = anchorText.replace(/^"/, '');
+						anchorText = anchorText.replace(/"$/, '');
+						// This time go for partial match on ::anchor\W
+						if (partialMatchObj.test(anchorText))
+							{
+							lineNumber = parseInt(lineStr, 10);
+							break;
+							}
 						}
 					}
 				}

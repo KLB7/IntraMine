@@ -511,6 +511,13 @@ function updateMarkers(evt) {
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
 
+	// EXPERIMENT, try showing hint for Go to definition.
+	if (!theSelection.selectionIsTooBig)
+		{
+		let text = window.getSelection().toString();
+		showDefinitionHint(text, evt);
+		}
+
 	theSelection.doingDoubleClick = false;
 	justUpdateScrollbar = false;
 }

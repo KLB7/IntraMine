@@ -477,6 +477,8 @@ function onCodeMirrorChange() {
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
 async function saveFile(path) {
+	// TEST ONLY
+	//console.log("saveFile top");
 	let originalPath = path;
 	let e1 = document.getElementById(errorID);
 	let sve = document.getElementById("save-button");
@@ -501,8 +503,14 @@ async function saveFile(path) {
 	contents = encodeURIComponent(contents);
 	contents = encodeURIComponent(contents); // sic
 
+	// TEST ONLY
+	//console.log("saveFile about to try");
+
 	try {
 		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/';
+		// TEST ONLY
+		//console.log("theAction: |" + theAction + "|");
+
 		const response = await fetch(theAction, {
 			method: 'POST',
 			headers: {
@@ -516,11 +524,17 @@ async function saveFile(path) {
 			let resp = await response.text();
 			if (resp !== 'OK')
 				{
+				// TEST ONLY
+				//console.log("saveFile response NOT OK");
+
 				let e1 = document.getElementById("editor_error");
 				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
 				}
 			else
 				{
+				// TEST ONLY
+				//console.log("saveFile response OK");
+
 				myCodeMirror.doc.markClean();
 				let sve = document.getElementById("save-button");
 				addClass(sve, 'disabled-submit-button');
@@ -533,10 +547,22 @@ async function saveFile(path) {
 						}
 					}
 				
+				// TEST ONLY
+				//console.log("saveFile about to call onCodeMirrorChange");
+
 				onCodeMirrorChange();
+
+				// TEST ONLY
+				//console.log("saveFile AFTER onCodeMirrorChange");
 				//clearSavedDiffs();
 				setSavedText(originalContents);
+
+				// TEST ONLY
+				//console.log("saveFile about to call notifyFileChanged");
 				notifyFileChangedAndRememberCursorLine(path);
+
+				// TEST ONLY
+				//console.log("saveFile AFTER notifyFileChanged");
 
 				let lineNum = currentTOCLineNum();
 				loadTOC(originalPath);

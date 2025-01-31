@@ -31,7 +31,10 @@ function clearAndAddAutoLinks() {
 // Header mentions are done here in JS, for the others we call back to Perl.
 // We avoid doing the same line more than once.
 function addAutoLinks() {
-	
+	// TEST ONLY speed up needed.
+	//console.log("addAutoLinks top.");
+	//return;
+
 	if (!weAreEditing)
 		{
 		let tocElement = document.getElementById("scrollContentsList");
@@ -83,6 +86,9 @@ function addAutoLinks() {
 			requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
 			}
 		}
+
+	// TEST ONLY speed up needed.
+	//console.log("addAutoLinks BOTTOM.");
 }
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
@@ -125,6 +131,9 @@ async function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisib
 
 // Add link markup to view for newly exposed lines. Remember the lines have been marked up.
 async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
+	// TEST ONLY
+	//console.log("TOP of requestLinkMarkupWithPort");
+
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
 	let useAppValue = (useAppForEditing)? '1': '0';
@@ -134,20 +143,28 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 		{
 		spellcheckRequest = (shouldSpellCheck()) ? '&spellcheck=true': '&spellcheck=false';
 		}
-
+	
 	try {
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
 		+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
 		+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
 		+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
 		+ lastVisibleLineNum + spellcheckRequest;
+
+		// TEST ONLY
+		//console.log("About to fetch.");
+
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
 			let resp = await response.text();
 			if (resp != 'nope')
 				{
+				// TEST ONLY
+				//console.log("Good response text.");
 				let jsonResult = JSON.parse(resp);
+
+				cm.startOperation();
 
 				for (let ind = 0; ind < jsonResult.arr.length; ++ind)
 					{
@@ -169,22 +186,32 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 						markupArrEntry["lineNumInText"] = -1; // meaning already seen, skip for internal mentions
 						}
 					}
+
+				cm.endOperation();
+				
 				// Mark up mentions of Table of Contents entries, avoiding other links.
 				if (!weAreEditing)
 					{
+					cm.startOperation();
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 						lastVisibleLineNum, jsonResult);
+					cm.endOperation();
 					}
 				}
 			else
 				{
+				// TEST ONLY
+				//console.log("nope.");
 				if (!weAreEditing)
 					{
 					// Maybe there are some TOC mentions, in spite of no file/image/web links.
 					let jsonResult = {};
 					jsonResult.arr = [];
+
+					cm.startOperation();
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 							lastVisibleLineNum, jsonResult);
+					cm.endOperation();
 					}
 				}
 
@@ -194,13 +221,16 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 		else
 			{
 			// We reached server but it returned an error. Bummer, no links.
-			// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
+			console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
 			}
 	}
 	catch(error) {
 		// There was a connection error of some sort. Double bummer, no links.
 		console.log('requestLinkMarkupWithPort connection error!');
 	}
+
+	// TEST ONLY
+	//console.log("BOTTOM of requestMarkup.");
 }
 
 // iPad, add poke-a-link handlers. NOT USED.
@@ -687,6 +717,9 @@ function handleFileLinkMouseUp(evt) {
 		let startPos = myCodeMirror.doc.getCursor("anchor");
 		cmCursorStartPos = startPos;
 		cmCursorEndPos = myCodeMirror.doc.getCursor("head");
+
+		// EXPERIMENT, show hint with links to definitions.
+		showDefinitionHintForSelection(evt);
 		}
 	
 	// Reset goingToAnchor - it was used here to avoid setting the selection if goingToAnchor,
@@ -697,6 +730,17 @@ function handleFileLinkMouseUp(evt) {
 	setTimeout(function() {
         clearLineNumberForToc();
         }, 500);
+}
+
+function showDefinitionHintForSelection(evt) {
+	let text = myCodeMirror.doc.getSelection(); 
+	if (text === "")
+		{
+		let word = myCodeMirror.findWordAt(myCodeMirror.doc.getCursor());
+		text = myCodeMirror.doc.getRange(word.anchor, word.head);
+		}
+
+	showDefinitionHint(text, evt);
 }
 
 // Expand selection to any word under the cursor.
@@ -1169,7 +1213,12 @@ function adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum
 
 // Remove all mark-related data. For editor only.
 function clearMarks() {
+	myCodeMirror.startOperation();
+
 	markers.forEach(marker => marker.clear());
+
+	myCodeMirror.endOperation();
+
 	//lineSeen = {};
 	for (var member in lineSeen)
 		{

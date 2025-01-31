@@ -20,6 +20,8 @@ const DIRECTION_LEFT = 3;
 
 let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
 let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
+let definitionClassName = 'defhint'; // When showing links to a definition
+
 let overAnchorTimer = null;
 let shMainPort = 0; // See setMainPort() just below.
 let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
@@ -171,7 +173,7 @@ function positionAndShowHint() {
 	// Position tip (and scale if image).
 	// Try to keep tip close to mouse x,y position.
 	let tl = tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, windowHeight, gap);
-	
+
 	hintElement.style.top = tl.top;
 	hintElement.style.left = tl.left;
 	
@@ -560,6 +562,8 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		{
 		addClass(obj, hitAnchorClassName);
 		}
+
+	removeClass(hintElement, definitionClassName);
 	
 	hideTipJustInCase(obj);
 	
@@ -588,7 +592,19 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 	hintParams.x = e.clientX;
 	
 	let viewportOffset = obj.getBoundingClientRect();
-	hintParams.y = viewportOffset.top;
+	if (viewportOffset.top !== 0)
+		{
+		hintParams.y = viewportOffset.top;
+		}
+	else
+		{
+		// Soldier on, use the cursor position.
+		hintParams.y = e.pageY;
+		// Change the background color: mostly this will be triggered
+		// for a hint showing links to definitions.
+		addClass(hintElement, definitionClassName);
+		}
+	
 	hintParams.isAnImage = isAnImage;
 	
 	// Note we re-get the image_url since it might have changed.
@@ -617,6 +633,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		}, 500);
 		}
 }
+
 
 function handleMouseLeave() {
 	hideTip();
@@ -664,11 +681,29 @@ function mouseStillOverTipOwner(obj) {
 	let stillOver = false;
 
 	let anks = document.getElementsByClassName(anchorClassName);
+	let el = null;
 	if (anks.length > 0)
 		{
-		let el = anks[0];
+		el = anks[0];
+		}
+	else
+		{
+		el = obj;
+		}
+
+	if (el !== null)
+		{
 		let c = window.getComputedStyle(el).getPropertyValue('border-top-style');
 		stillOver = (c === 'hidden') ? true : false;
+		if (!stillOver)
+			{
+			let hoveredElement = document.querySelectorAll(':hover');
+			hoveredElement = hoveredElement[hoveredElement.length - 1];
+			if (typeof(hoveredElement) !== 'undefined' && typeof(hoveredElement.innerHTML) !== 'undefined' && hoveredElement.innerHTML === obj.innerHTML)
+				{
+				stillOver = true;
+				}
+			}
 		}
 
 	return (stillOver);
@@ -710,6 +745,7 @@ function hideTip(e) {
 			removeClass(anks[i], anchorClassName);
 			}
 		}
+
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);

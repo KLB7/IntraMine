@@ -54,9 +54,9 @@
 # and there will be no port conflict with some other application when you start it later.
 #
 #Count	Page name		Short name	Program						Option
+2	Search				Linker		intramine_linker.pl
 1	Search				Search		intramine_search.pl
 2	Search				Viewer		intramine_viewer.pl
-2	Search				Linker		intramine_linker.pl
 1	Search				Opener		intramine_open_with.pl
 1	Search				Editor		intramine_editor.pl
 1	Files				Files		intramine_filetree.pl

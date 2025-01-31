@@ -157,6 +157,16 @@ sub FullFile {
 	my $t1 = time;
 	my $fileServerPort = $port_listen;
 	my $usingRESTfulApproach = 0;
+
+	# TEST ONLY
+	if (defined($formH->{'href'}))
+		{
+		#print("FF href: |$formH->{'href'}|\n");
+		}
+	if (defined($formH->{'searchItems'}))
+		{
+		#print("FF si: |$formH->{'searchItems'}|\n");
+		}
 	
 	$formH->{'FULLPATH'} = '';
 	# Accept argument based 'href=filepath' in $formH or more RESTful /file/path in $obj.
@@ -389,7 +399,7 @@ sub FullFile {
 	$theBody =~ s!_HIGHLIGHTITEMS_!$highlightItems!;
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
 	my $togglePositionButton = '';
-	# Mardown Toggle won't work because there are no line numbers.
+	# Markdown Toggle won't work because there are no line numbers.
 	if ($filePath !~ m!\.md$!i)
 		{
 		$togglePositionButton = PositionToggle();
@@ -925,6 +935,7 @@ sub CodeMirrorJS {
 <script src="cmToggle.js" ></script>
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="go2def.js" ></script>
 <script src="viewer_auto_refresh.js" ></script>
 <script src="cmHandlers.js" ></script>
 FINIS
@@ -956,6 +967,7 @@ sub NonCodeMirrorJS {
 <script src="scrollTOC.js" ></script>
 <script src="viewer_auto_refresh.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="go2def.js" ></script>
 <script src="viewer_hover_inline_images.js" ></script>
 <script>
 hideSpinner();

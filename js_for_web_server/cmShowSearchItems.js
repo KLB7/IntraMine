@@ -16,8 +16,13 @@ let toggleHitsButtonID = "sihits";
 function highlightInitialItems() {
 	let cmDoc = myCodeMirror.doc;
 	// highlightItems: array of [cmline, charStart, charEnd].
+
+
 	if (!initialSearchHitsAreShowing && highlightItems.length > 0)
 		{
+		// Speed up display considerably by queuing redraw ops.
+		myCodeMirror.startOperation();
+
 		for (let i = 0; i < highlightItems.length; ++i)
 			{
 			let cmline = highlightItems[i][0];
@@ -34,6 +39,10 @@ function highlightInitialItems() {
 			});
 			markerArray.push(thisMarker);
 			}
+
+		// Draw all the changes at once.
+		myCodeMirror.endOperation();
+		
 		addInitialCmScrollMarkers(scrollMarkerClass);
 		initialSearchHitsAreShowing = true;
 		let toggleButton = document.getElementById(toggleHitsButtonID);

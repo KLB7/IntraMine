@@ -47,6 +47,11 @@ sub InitTocLocal {
 	InitExCtags($firstPartOfPath, $portListen, $logDir, $ctags_dir);
 }
 
+sub IsSupportedByExuberantCTags {
+	my ($filePath) = @_;
+	return(IsSupportedByCTags($filePath));
+	}
+
 # 1 if Table Of Contents is supported, else 0;
 sub CanHaveTOC {
 	my ($filePath) = @_;

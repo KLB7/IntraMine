@@ -302,11 +302,21 @@ sub GetDirectoriesToIgnore {
 # Ignore file path if it starts with path to a folder to ignore, as
 # listed in data/search_directories.txt. Comparisons are done
 # in lower case with forward slashes only.
+# Also ignore "nuisance" files in /temp/ or /junk/, and files
+# in folders that start with a period (eg /.tmp.driveupload/)
+# and file names that start with a period too.
 sub ShouldIgnoreFile {
 	my ($fullPath) = @_; # lc, / only
 	#$fullPath = lc($fullPath);
 	#$fullPath =~ s!\\!/!g;
 	my $result = 0;
+
+	# Nuisance files: no period in path, or in temp or junk
+	if (index($fullPath, '.') < 0 || $fullPath =~ m!/(temp|junk)/!
+	  || index($fullPath, '/.') > 0)
+		{
+		return(1);
+		}
 
 	for (my $i = 0; $i < @DirectoriesToIgnore; ++$i)
 		{

@@ -103,13 +103,14 @@ sub LoadStandaloneGlossary {
 # If $forceInit is defined, clean out the hash. Applies only to $StandaloneDefinition{$context.
 sub LoadGlossary {
 	my ($filePath, $context, $forceInit) = @_;
+	my $doingStandaloneGlossary = 0;
 	
 	# TEST ONLY
 	#print("Checking for |$filePath|\n");
 	if (FileOrDirExistsWide($filePath) != 1)
 		{
 		# TEST ONLY
-		print("|$filePath| not found.\n");
+		#print("|$filePath| not found.\n");
 		return;
 		}
 	# TEST ONLY
@@ -133,6 +134,7 @@ sub LoadGlossary {
 	my $definitionHashRef;
 	if (defined($context))
 		{
+		$doingStandaloneGlossary = 1;
 		if (defined($forceInit) || !defined($StandaloneDefinition{$context}))
 			{
 			%{$StandaloneDefinition{$context}} = ();
@@ -186,8 +188,11 @@ sub LoadGlossary {
 			}
 		}
 
-	# TEST ONLY
-	#print("|$filePath| load finished.\n");
+	
+	if (!$doingStandaloneGlossary)
+		{
+		; #print("|$filePath| glossary loaded.\n");
+		}
 	}
 
 sub SetGlossaryModDate {

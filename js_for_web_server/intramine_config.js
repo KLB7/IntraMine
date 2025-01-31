@@ -89,7 +89,10 @@ async function fetchPort(main_ip, main_port, short_name, errorID) {
 				retry = false;
 				// There was a connection error of some sort
 				let e1 = document.getElementById(errorID);
-				e1.innerHTML = '<p>Connection error while attempting to get port for ' + short_name + '!: ' + error + '</p>';
+				if (e1 !== null)
+					{
+					e1.innerHTML = '<p>Connection error while attempting to get port for ' + short_name + '!: ' + error + '</p>';
+					}
 				}
 			else
 				{

@@ -249,6 +249,8 @@ my %extensionsForLanguage; # NOTE includes %popularExtensionsForLanguage
 # Of those, the ones judged most popular (show at top of language dropdown).
 my %popularExtensionsForLanguage;
 
+my %languageForExtension;
+
 $extensionsForLanguage{'APL'} = 'dyalog,apl';
 $extensionsForLanguage{'ASN.1'} = 'asn,asn1';
 $extensionsForLanguage{'ASP.NET'} = 'aspx';
@@ -415,6 +417,10 @@ sub PopularExtensionsForLanguageHashRef {
 	return(\%popularExtensionsForLanguage);
 	}
 
+sub LanguageForExtensionHashRef {
+	return(\%languageForExtension);
+	}
+
 # Total number of (unique) extensions, to all determining if all extensions have been selected.
 # As of last count there are 226.
 sub NumExtensions {
@@ -435,4 +441,20 @@ sub NumExtensions {
 	}
 
 use ExportAbove;
+
+INIT {
+	SetLanguageForExtension();
+}
+
+sub SetLanguageForExtension {
+	foreach my $lang (keys %extensionsForLanguage)
+		{
+		my @extForLanguage = split(/,/, $extensionsForLanguage{$lang});
+		for (my $i = 0; $i < @extForLanguage; ++$i)
+			{
+			$languageForExtension{$extForLanguage[$i]} = $lang;
+			}
+		}
+}
+
 return 1;

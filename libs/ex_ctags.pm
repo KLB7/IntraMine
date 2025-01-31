@@ -210,6 +210,7 @@ sub MakeCtagsForFile {
 			#print("Making ctags\n");
 			my $randomInteger2 = random_int_between(1001, 60000);
 			$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger2 . '.txt';
+			# -numeric -unsorted tags, using -f output path.
 			my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " -n -u -f \"$CtagsOutputFilePath\" \"$tempFilePath\"", 0, 0, $tempDir);
 			if (!$didit)
 				{
@@ -226,6 +227,7 @@ sub MakeCtagsForFile {
 		{
 		my $randomInteger = random_int_between(1001, 60000);
 		$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger . '.txt';
+		# -numeric -unsorted tags, using -f output path.
 		my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " -n -u -f \"$CtagsOutputFilePath\" \"$fileName\"", 0, 0, $dir);
 		if (!$didit)
 			{

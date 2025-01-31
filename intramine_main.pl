@@ -1287,7 +1287,7 @@ sub ReceiveServerUp {
 					}
 				my $spacer = ' ' x $crudePadLength;
 				my $ipAddr = ServerAddress();
-				print("$srvr server has started on port $senderPort.$spacer($ipAddr:$port_listen/$srvr)\n");
+				print("$srvr server has started on port $senderPort.$spacer(http://$ipAddr:$port_listen/$srvr)\n");
 				}
 			else # User cannot visit this one, so no example URL.
 				{
@@ -1418,8 +1418,12 @@ sub RestartCommandServers {
 		{
 		my $pgIdx = $PageIndexForCommandLineIndex[$i];
 		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
-		# Command page server(s) might still be running - try to stop them before starting new instances.
-		if ($isPersistent)
+		my $shortName = $ShortNameForCmdIndex[$i];
+		my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
+		# Command page server(s) might still be running - try to stop them before
+		# starting new instances. Also don't start it it has a  reserved port
+		# number but it's not actually running (zombie).
+		if ($isPersistent && !$isZombie)
 			{
 			my $port = $ServerCommandPorts[$i];
 			if (ServerOnPortIsRunning($port))

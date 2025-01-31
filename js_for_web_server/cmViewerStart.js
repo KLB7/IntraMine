@@ -271,7 +271,7 @@ cfg.matchBrackets = true;
 cfg.theme = selectedTheme;
 
 // TEST ONLY
-console.log("selected theme: |" + selectedTheme + "|");
+//console.log("selected theme: |" + selectedTheme + "|");
 
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
