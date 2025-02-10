@@ -29,6 +29,8 @@ async function checkForRestartPeriodically()
 		try
 			{
 			await sleepMs(5000); // 5 seconds
+			// TEST ONLY
+			//console.log("About to check");
 			await checkAndHandleRestart();
 			}
 		catch(error)
@@ -50,11 +52,15 @@ async function checkAndHandleRestart()
 		if (response.ok)
 			{
 			let text = await response.text();
+			// TEST ONLY
+			//console.log("About to call handleRestartIfNeeded");
 			handleRestartIfNeeded(text);
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
+			// TEST ONLY
+			//console.log("About to call showIntraMineIsDown");
 			showIntraMineIsDown();
 			}
 		}
@@ -68,15 +74,31 @@ async function checkAndHandleRestart()
 // Re-establish WebSockets communication.
 async function handleRestartIfNeeded(latestSessionStart)
 	{
+	// TEST ONLY
+	//console.log("Top of handleRestartIfNeeded");
 	if (sessionStart !== '' && sessionStart !== latestSessionStart)
 		{
+		// For the Viewer, do a full reload
+		if (typeof shortServerName !== 'undefined')
+			{
+			if (shortServerName === 'Viewer')
+				{
+				window.location.reload();
+				// Probably not reached.
+				return;
+				}
+			}
+		
+		await sleepMs(1000); // 1 second
+		// TEST ONLY
+		//console.log("About to call wsInit");
 		wsInit();
 		// Try navbar a few times, sometimes things are slow.
 		let numRetries = 5;
 		for (let tryCount = 0; tryCount < 5; ++tryCount)
 			{
 			let didIt = refreshNavBar();
-			if (didIt == true)
+			if (didIt === true)
 				{
 				break;
 				}
@@ -85,6 +107,8 @@ async function handleRestartIfNeeded(latestSessionStart)
 		
 		}
 	sessionStart = latestSessionStart;
+	// TEST ONLY
+	//console.log("Bottom of handleRestartIfNeeded");
 	}
 
 function showIntraMineIsDown()
@@ -116,15 +140,17 @@ async function refreshNavBar()
 		{
 		return(true);
 		}
-	intramineIsUp = true;
+	
 	let navbar = document.getElementById("nav");
 	if (navbar === null)
 		{
+		intramineIsUp = true;
 		return(true);
 		}
 
 	if ((typeof ourSSListeningPort === 'undefined') || (typeof theHost === 'undefined'))
 		{
+		intramineIsUp = true;
 		return(true);
 		}
 	
@@ -136,19 +162,20 @@ async function refreshNavBar()
 			{
 			let text = await response.text();
 			navbar.innerHTML = text;
-			return(false);
+			intramineIsUp = true;
+			return(true);
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
 			//console.log("We reached our target server, but it returned an error.");
-			return(true);
+			return(false);
 			}		
 		}
 	catch(error)
 		{
 		//console.log("Try failed.");
-		return(true);
+		return(false);
 		}
 	}
 

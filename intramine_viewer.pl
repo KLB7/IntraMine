@@ -31,6 +31,7 @@ use Time::HiRes qw ( time );
 use Win32::Process 'STILL_ACTIVE';  # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
+use Win32;
 use Path::Tiny qw(path);
 use Pod::Simple::HTML;
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -44,6 +45,9 @@ use html2gloss;
 use toc_local;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 

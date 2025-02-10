@@ -21,6 +21,10 @@ use strict;
 use warnings;
 use utf8;
 use Net::WebSocket::Server;
+use Win32;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
@@ -43,7 +47,7 @@ sub ListenForWSConnections {
 	my $MessageGuard = '_MG_';
 	
 	# TEST ONLY
-	print("$short_name is listening on port |$port_listen|\n");
+	#print("$short_name is listening on port |$port_listen|\n");
 	
 	Net::WebSocket::Server->new
 		(

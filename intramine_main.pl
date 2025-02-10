@@ -90,6 +90,10 @@ use FileHandle;
 use IO::Socket;
 use IO::Select;
 use Win32::Process 'STILL_ACTIVE';
+use Win32;
+use Encode qw/encode decode/;
+use Time::HiRes qw(usleep);
+use Win32::Console;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -116,9 +120,15 @@ else
 
 my $SERVERNAME = 'IM_MAIN';
 
-#$|  = 1;
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
+
+$|  = 1;
 
 SetCommonOutput(\&Output); # common.pm
+
+# TEST ONLY newline
+print("\n\nStarting up.\n");
 
 # Copy any new config files from /_copy_and_rename_to_data to /data.
 CopyNewConfigFiles();
@@ -185,12 +195,29 @@ my $CommandServersHaveBeenRestarted = 0;
 # Each affected server should send 'signal=backinservice&sender=SenderShortServerName'
 # when the outage due to maintenance is over.
 # For an example, search all of IntraMine's main Perl files for "folderrenamed".
+
+# TEST ONLY newline
+#print("Calling LoadMaintenanceSignalsForServers.\n");
+
+# my $scriptFullPath = $0; # path of calling program
+# my $scriptDirTS = DirectoryFromPathTS($scriptFullPath);
+# my $tempPath = $scriptDirTS . 'logs/startuplog.txt';
+# MakeDirectoriesForFile($tempPath);
+
+#InitStartupMessageQueue();
+
 LoadMaintenanceSignalsForServers();
 
 # Start up all the swarm servers, based on the list in data/serverlist.txt.
+
+# TEST ONLY newline
+#print("Calling StartServerSwarmStartServerSwarm.\n");
+
 StartServerSwarm($kSwarmServerStartingPort);
 
 my $WebSockIsUp = 0;
+
+SetMaintenanceIntervalSeconds(2);
 
 # Listen for requests.
 MainLoop($port_listen);
@@ -471,6 +498,9 @@ sub StartServerSwarm {
 	
 	CreateCommandLinesForServers(\$currentPort, $scriptFullDir, \$webSocketPort);
 
+	# TEST ONLY newline
+	#print("Calling StartAllServers.\n");
+
 	StartAllServers($currentPort);
 	}
 
@@ -566,6 +596,70 @@ sub CreateCommandLinesForServers {
 	}
 
 sub StartAllServers {
+	my ($currentPort) = @_;
+
+	# Postpone 'persistent' (command) server starts if any are running.
+	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
+	
+	my $numServersStarted = 0;
+	
+	# Start one of each BACKGROUND (or WEBSOCKET) server.
+	my $numServers = @BackgroundCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		# TEST ONLY newline
+		QueueMessage("Starting '$BackgroundCommandLines[$i]' \n");
+		
+		Output("   Starting '$BackgroundCommandLines[$i]' \n");
+		my $proc;
+		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $BackgroundCommandLines[$i]", 0, 0, ".")
+			|| die ServerErrorReport();
+		$BackgroundProcIDs{$BackgroundCommandLines[$i]} = $proc;
+		++$numServersStarted;
+
+		# TEST ONLY slow down
+		#sleep(1);
+		}
+	Output("$numServers background server starts attempted\n------------\n");
+
+	$TotalServersWanted = $numServers;
+
+	# Start the Page servers, from $PageIndexForCommandLineIndex[].
+	$numServers = @ServerCommandLines;
+	for (my $i = 0; $i < $numServers; ++$i)
+		{
+		my $pgIdx = $PageIndexForCommandLineIndex[$i];
+		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
+		
+		if (!$isPersistent || !$SomeCommandServerIsRunning)
+			{
+			my $shortName = $ShortNameForCmdIndex[$i];
+			my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
+			if (!$isZombie)
+				{
+				# TEST ONLY newline
+				QueueMessage("Starting '$ServerCommandLines[$i]' \n");
+
+				Output("   Starting '$ServerCommandLines[$i]' \n");
+				my $proc;
+				Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]", 0, 0, ".")
+					|| die ServerErrorReport();
+				$PageProcIDs{$ServerCommandLines[$i]} = $proc;
+				++$numServersStarted;
+				}
+			}
+		else
+			{
+			Output("(Command server, skipping for now since it's already running.)\n");
+			}
+		}
+	Output("$numServers page server starts attempted\n------------\n");
+		
+	$TotalServersWanted += $numServers;
+	$HighestInitialServerPort = $currentPort - 1;
+	}
+
+sub xStartAllServers {
 	my ($currentPort) = @_;
 
 	# Postpone 'persistent' (command) server starts if any are running.
@@ -1287,11 +1381,12 @@ sub ReceiveServerUp {
 					}
 				my $spacer = ' ' x $crudePadLength;
 				my $ipAddr = ServerAddress();
-				print("$srvr server has started on port $senderPort.$spacer(http://$ipAddr:$port_listen/$srvr)\n");
+
+				QueueMessage("$srvr server has started on port $senderPort.$spacer(http://$ipAddr:$port_listen/$srvr)\n");
 				}
 			else # User cannot visit this one, so no example URL.
 				{
-				print("$srvr server has started on port $senderPort.\n");
+				QueueMessage("$srvr server has started on port $senderPort.\n");
 				}
 			}
 			
@@ -1323,21 +1418,24 @@ sub BroadcastAllServersUp {
 	
 	# This is a good opportunity to notify the user too:)
 	ShowHummingbird();
-	print("IntraMine has started.\n");
+	QueueMessage("IntraMine has started.\n");
 	my $ip = ServerAddress();
 	my $mainPort = $port_listen;
-	print("Access IntraMine in your browser at http://$ip:$mainPort/Search\n");
-	print("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
-	print("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
+	QueueMessage("Access IntraMine in your browser at http://$ip:$mainPort/Search\n");
+	QueueMessage("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
+	QueueMessage("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
 	if (defined($PageNameForShortServerName{'Status'}))
 		{
-		print("To start/stop/add services, visit http://$ip:$mainPort/Status\n");
+		QueueMessage("To start/stop/add services, visit http://$ip:$mainPort/Status\n");
 		}
 	else
 		{
-		print("(The Status service is not running, service management is not available.)\n");
+		QueueMessage("(The Status service is not running, service management is not available.)\n");
 		}
 	
+	# Trigger a maintenance interval slowdown from 2 seconds to 60 seconds.
+	QueueMessage('FULLY STARTED');
+
 	# No longer needed, web pages now detect a restart and re-establish
 	# their WebSockets connections (restart.js).
 	#print("\nNOTE\n");
@@ -2359,10 +2457,18 @@ my $ServerAddress;
 # After, it can be retrieved with $addr = ServerAddress();
 sub InitServerAddress {
 	my ($S) = @_;
+
+	# TEST ONLY slow down
+	#sleep(2);
 	
 	my $ipaddr = GetReadableAddress($S);
 	$ServerAddress = $ipaddr;
-	print "Main Server IP: $ipaddr\n";
+
+	QueueMessage("Main Server IP: $ipaddr\n");
+	#print("\n");
+
+	# TEST ONLY slow down
+	#sleep(1);
 
 	# Save server address for use by other programs, as CVal('SERVER_ADDRESS');
 	my %addrH;
@@ -2451,7 +2557,6 @@ sub GetCurrentTime {
 sub MainLoop {
 	my ($port_listen) = @_;
 	
-	my $maintenanceTimeoutSeconds = 60;
 	
 	$Date = DateYYYYMMDD();
 	
@@ -2459,6 +2564,9 @@ sub MainLoop {
 	SetUpRequestActionHandlers();
 	
 	$readable = IO::Select->new;     # Create a new IO::Select object
+
+	# TEST ONLY newline
+	#print("Calling AddAllListeners\n");
 	
 	AddAllListeners($readable);
 	
@@ -2482,6 +2590,7 @@ sub MainLoop {
 	
 	while(1)
 		{
+		my $maintenanceTimeoutSeconds = MaintenanceSeconds();
 		my ($ready) = IO::Select->select($readable, undef, undef, $maintenanceTimeoutSeconds);
 		
 		my $forcePeriodic = 0;
@@ -2767,6 +2876,9 @@ sub AddAllListeners {
 
 	# TEST ONLY
 	#DumpListeners();
+
+	#TEST ONLY newline
+	#print("Calling InitServerAddress\n");
 	
 	InitServerAddress($listener);	
 	}
@@ -3220,8 +3332,12 @@ sub RUThere {
 	}
 
 # Called once a minute or so, check for important changes such as change of date.
+# (Revision, testing doing this every two seconds to see if it helps
+# with the "newline problem" (newlines in console treated as unicode characters));
 sub DoMaintenance {
 	HandleDateChange();
+
+	my $numDumpedMessages = ShowMessages();
 	
 	# Call WebSocketReceiveAllMessages() periodically (currently one a minute)
 	# to "drain" all pending WebSockets messages.
@@ -3341,8 +3457,75 @@ sub ShowHummingbird {
 
 FINIS
 
-	print("$bird");
+	QueueMessage("$bird");
 	}
+
+{ ##### Messages queued for delayed print by DoMaintenance()
+my @Messages;
+#my $STDOUT;
+
+# sub InitStartupMessageQueue {
+# 	$STDOUT = Win32::Console->new(STD_OUTPUT_HANDLE);
+# }
+
+sub QueueMessage {
+	my ($msg) = @_;
+	push @Messages, $msg;
+	#AppendToTextFileWide($tempFilePath, $msg);
+	}
+
+sub NumQueuedMessages {
+	my $numMessages = @Messages;
+	return($numMessages);
+	}
+
+sub ShowMessages {
+	my $numMessages = @Messages;
+
+	if ($numMessages)
+		{
+		# 1 millisecond == 1000 microseconds
+		usleep(200000); # 0.2 seconds
+		}
+	
+	my $setSlowerMaintenance = 0;
+	for (my $i = 0; $i < @Messages; ++$i)
+		{
+		if ($Messages[$i] ne 'FULLY STARTED')
+			{
+			#$STDOUT->Write("$Messages[$i]");
+			print("$Messages[$i]");
+			}
+		else
+			{
+			$setSlowerMaintenance = 1;
+			}
+		}
+		
+	@Messages = ();
+
+	if ($setSlowerMaintenance)
+		{
+		SetMaintenanceIntervalSeconds(60);
+		}
+	
+	return($numMessages);
+	}
+
+} ##### Messages queued for delayed print by DoMaintenance()
+
+{ ##### Maintenance timeout
+my $MaintenanceTimeout;
+
+sub SetMaintenanceIntervalSeconds {
+	my ($maintenanceTimeoutSeconds) = @_;
+	$MaintenanceTimeout = $maintenanceTimeoutSeconds;
+	}
+
+sub MaintenanceSeconds {
+	return($MaintenanceTimeout);
+	}
+} ##### Maintenance timeout
 
 {##### TESTING
 my $NumServersUnderTest;

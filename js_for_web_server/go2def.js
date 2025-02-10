@@ -72,7 +72,7 @@ async function showDefinitionHintWithPort(term, event, linkerPort) {
 
 // A shameless copy while I'm fooling around.
 function viewerOpenAnchor(href) {
-	// Browser keeps tacking on file:, which wrecks the link.	
+	// Browser keeps tacking on file:///, which wrecks the link.	
 	let properHref = href.replace(/^file\:\/\/\//, '');
 	properHref = properHref.replace(/^file:/, '');
 

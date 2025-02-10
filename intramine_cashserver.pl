@@ -50,11 +50,15 @@ use Carp;
 use warnings;
 use FileHandle;
 use Win32::Process;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use cashflow;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;

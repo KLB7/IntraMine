@@ -26,6 +26,7 @@ Glossary popups.txt
 gloss2html.pl for standalone Gloss files.txt
 Markdown enhancements.txt
 Themes.txt
+Go to Anything.txt
 
 *SUPPLIED SERVICES*
 IntraMine Main.txt

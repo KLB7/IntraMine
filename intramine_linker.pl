@@ -54,6 +54,7 @@ use HTML::Entities;
 use URI::Escape;
 use Time::HiRes qw ( time );
 use JSON::MaybeXS qw(encode_json);
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -66,6 +67,9 @@ use intramine_spellcheck;
 use elasticsearch_find_def;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
@@ -105,6 +109,11 @@ if ($DoGo2Def eq '1')
 else
 	{
 	$DoGo2Def = 0;
+	}
+my $GoToLinksMax = CVal('GO2LINKSMAX');
+if ($GoToLinksMax !~ m!^\d+$!)
+	{
+	$GoToLinksMax = 8;
 	}
 
 # Preferred extensions, for Go to definition
@@ -242,9 +251,7 @@ sub callbackInitPathsAndGlossary {
 	# we need the server address.
 	my $esIndexName = 'intramine';
 	my $maxNumHits = 40;
-	my $maxShownHits = 5;
-	# my $maxNumHits = 10;
-	# my $maxShownHits = 5;
+	my $maxShownHits = $GoToLinksMax; # Links actually, not hits.
 
 	# TEST ONLY
 	#print("Just before ServerAddress\n");
@@ -256,6 +263,9 @@ sub callbackInitPathsAndGlossary {
 	my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
 	$ElasticSearcher = elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, \@preferredExtensions);
+
+	# Test, sometimes we stall going back to the main loop, searching for a fix:
+	sleep(1);
 
 	# TEST ONLY
 	#print("Just AFTER \$ElasticSearcher init\n");
@@ -270,13 +280,13 @@ sub LoadAllGlossaryFiles {
 	my $paths = GetAllPathsForFileName($glossaryFileName);
 	if ($paths ne '')
 		{
-		print("Loading glossaries...\n");
+		#print("Loading glossaries...\n");
 		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR,
 			\&FullPathInContextNS, \&BestMatchingFullDirectoryPath);
 		}
 	else
 		{
-		print("No files called $glossaryFileName were found, no glossaries loaded.\n");
+		#print("No files called $glossaryFileName were found, no glossaries loaded.\n");
 		}
 	}
 	
@@ -661,13 +671,8 @@ sub AddWebAndFileLinksToLine {
 	
 	# Look for all of: single or double quoted text, a potential file extension, or a url.
 	# Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
-
-	if ($line =~ m![:'"]|\.\w!)
-		{
-		EvaluateLinkCandidates($restrictLinks);
-		}
-
-
+	EvaluateLinkCandidates($restrictLinks);
+	
 	my $numReps = @repStr;
 	if ($numReps)
 		{
@@ -2063,7 +2068,8 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
 		my $currentLineNumber = $firstLineNum + $counter;
-		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port, $clientIsRemote, $allowEditing, '0', $restrictLinks, $currentLineNumber, $linksA);
+		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port,
+					$clientIsRemote, $allowEditing, '0', $restrictLinks, $currentLineNumber, $linksA);
 
 		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
 
@@ -2111,7 +2117,8 @@ sub AddWebAndFileLinksToVisibleLines {
 
 	for (my $counter = 0; $counter < @lines; ++$counter)
 		{
-		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
+		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
+								$clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
 		AddGlossaryHints(\${lines[$counter]}, $path, $serverAddr, $server_port, $VIEWERNAME);
 		}
 

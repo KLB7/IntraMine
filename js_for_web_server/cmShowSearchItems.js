@@ -17,7 +17,6 @@ function highlightInitialItems() {
 	let cmDoc = myCodeMirror.doc;
 	// highlightItems: array of [cmline, charStart, charEnd].
 
-
 	if (!initialSearchHitsAreShowing && highlightItems.length > 0)
 		{
 		// Speed up display considerably by queuing redraw ops.

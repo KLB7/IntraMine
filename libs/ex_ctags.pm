@@ -1,4 +1,4 @@
-# Interface to universal ctags with support for table of contents
+# ex_ctagsex_ctags.pm: interface to universal ctags with support for table of contents
 # for various languages. See toc_local.pm for example usage. 
 
 package ex_ctags;
@@ -211,7 +211,7 @@ sub MakeCtagsForFile {
 			my $randomInteger2 = random_int_between(1001, 60000);
 			$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger2 . '.txt';
 			# -numeric -unsorted tags, using -f output path.
-			my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " -n -u -f \"$CtagsOutputFilePath\" \"$tempFilePath\"", 0, 0, $tempDir);
+			my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$tempFilePath\"", 0, 0, $tempDir);
 			if (!$didit)
 				{
 				my $status = Win32::FormatMessage( Win32::GetLastError() );
@@ -228,7 +228,7 @@ sub MakeCtagsForFile {
 		my $randomInteger = random_int_between(1001, 60000);
 		$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger . '.txt';
 		# -numeric -unsorted tags, using -f output path.
-		my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " -n -u -f \"$CtagsOutputFilePath\" \"$fileName\"", 0, 0, $dir);
+		my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$fileName\"", 0, 0, $dir);
 		if (!$didit)
 			{
 			my $status = Win32::FormatMessage( Win32::GetLastError() );

@@ -202,12 +202,15 @@ sub GetAnyLinks {
 
 	# TEST ONLY
 	#print("GetAnyLinks \$fullPath: |$fullPath|\n");
+	#print("GetAnyLinks looking for |$rawquery|\n");
 
 	my $e = $self->{SEARCHER};
 	my $rawResults = '';
 	my $result = '';
 
 	# First try preferred extensions. If no hits, try ALL extensions.
+	# TEST ONLY
+	my @testExtensions;
 	my $numHits = GetDefinitionHits($self, $rawquery, \@PreferredExtensions, $e, \$rawResults);
 	if ($numHits)
 		{
@@ -233,6 +236,11 @@ sub GetAnyLinks {
 			{
 			$result = '<p>nope</p>';
 			}
+		}
+	# TEST ONLY
+	else
+		{
+		;#print("getDefinitionHits for |$rawquery| failed! Extensions |@PreferredExtensions|\n");
 		}
 
 	if ($result eq '' || $result eq '<p>nope</p>')
@@ -272,6 +280,9 @@ sub GetAnyLinks {
 			}
 		else
 			{
+			# TEST ONLY
+			#print("GetAnyHits failed for |$rawquery|\n");
+
 			$result = '<p>nope</p>';
 			}
 		}
@@ -291,6 +302,18 @@ sub GetAnyLinks {
 # https://stackoverflow.com/questions/30020178/executing-a-multi-match-phrase-query-in-elastic-search
 sub GetDefinitionHits {
 	my ($self, $query, $extA, $e, $rawResultsR) = @_;
+
+	# Hack for stifled periods such as "jsonResult.arr": such non-English periods are
+	# converted to ' __D_ ' when indexing, so do the same sub here when searching.
+	# This also applies to file extensions, title 'gloss.txt' is indexed as 'gloss __D_ txt'.
+	$query =~ s!(\w)\.(\w)!$1 __D_ $2!g;
+	# Dollar signs are converted to '__DS_' for indexing, so sub that here for searching.
+	# And similarly for '~' and '%' and '@'.
+	$query =~ s!\$([A-Za-z])!__DS_$1!g;
+	$query =~ s!\~([A-Za-z])!__L_$1!g;
+	$query =~ s!\%([A-Za-z])!__PC_$1!g;
+	$query =~ s!\@([A-Za-z])!__AT_$1!g;
+
 	
 	$$rawResultsR = $e->search(
 	#			index => $self->{INDEX_NAME},
@@ -340,6 +363,17 @@ sub GetDefinitionHits {
 
 sub GetAnyHits {
 	my ($self, $query, $e, $rawResultsR) = @_;
+
+	# Hack for stifled periods such as "jsonResult.arr": such non-English periods are
+	# converted to ' __D_ ' when indexing, so do the same sub here when searching.
+	# This also applies to file extensions, title 'gloss.txt' is indexed as 'gloss __D_ txt'.
+	$query =~ s!(\w)\.(\w)!$1 __D_ $2!g;
+	# Dollar signs are converted to '__DS_' for indexing, so sub that here for searching.
+	# And similarly for '~' and '%' and '@'.
+	$query =~ s!\$([A-Za-z])!__DS_$1!g;
+	$query =~ s!\~([A-Za-z])!__L_$1!g;
+	$query =~ s!\%([A-Za-z])!__PC_$1!g;
+	$query =~ s!\@([A-Za-z])!__AT_$1!g;
 
 	$$rawResultsR = $e->search(
 	#			index => $self->{INDEX_NAME},
@@ -442,9 +476,9 @@ sub FormatDefinitionResults {
 						###my $anchor = "<a href='$pathWithSearchItems' onclick=\"viewerOpenAnchor(this.href); return false;\"  target=\"_blank\">$displayedPath</a>";
 
 
-						#my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+						my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
-						my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithDefinition\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+						#my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithDefinition\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
 						# my $anchor = "<a href='$pathWithDefinition' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$displayedPath</a>";
 
@@ -606,12 +640,12 @@ sub WinnowFullPathsUsingCtags {
 		# Check summary file for wanted term.
 		if ($ctagsFilePath eq '' || length($errorMsg) > 0)
 			{
-			continue;
+			next;
 			}
 		my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
 		if (!defined($octets))
 			{
-			continue;
+			next;
 			}
 		my @lines = split(/\n/, $octets);
 		my $numLines = @lines;
@@ -623,6 +657,13 @@ sub WinnowFullPathsUsingCtags {
 				push @$winnowedFullPathsA, $filePath;
 				last;
 				}
+			}
+
+		# Get rid of the one or two temp files made while getting ctags.
+		unlink($ctagsFilePath);
+		if ($tempFilePath ne '')
+			{
+			unlink($tempFilePath);
 			}
 		}
 
