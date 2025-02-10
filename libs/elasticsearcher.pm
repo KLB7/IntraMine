@@ -9,8 +9,6 @@ use warnings;
 use utf8;
 use HTML::Entities;
 use Carp;
-use warnings;
-use utf8;
 use FileHandle;
 use Text::Tabs;
 $tabstop = 4;
@@ -154,6 +152,7 @@ sub GetSearchResults {
 	
 	$$numHitsR = $numHits;
 	$$numFilesR = $numFiles;
+	
 	return $result;
 	}
 
@@ -346,7 +345,7 @@ sub GetWordHits {
 			);
 		}
 		
-	return($$rawResultsR->{'hits'}{'total'});
+	return($$rawResultsR->{'hits'}{'total'}{'value'});
 	}
 
 # Match words supplied as a phrase, in order.
@@ -540,7 +539,7 @@ sub GetPhraseHits {
 			);
 		}
 
-	return($$rawResultsR->{'hits'}{'total'});
+	return($$rawResultsR->{'hits'}{'total'}{'value'});
 	}
 
 # Return HTML table rows holding formatted search hit results.
@@ -549,7 +548,7 @@ sub FormatHitResults {
 	my %fullPathSeen; # Avoid showing the same file twice.
 	my $hitCounter = 0;
 
-	my $numHits = $rawResults->{'hits'}{'total'};
+	my $numHits = $rawResults->{'hits'}{'total'}{'value'};
 	
 	if (defined($numHits) && $numHits > 0)
 		{

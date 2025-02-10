@@ -26,6 +26,7 @@ use Encode::Guess;
 use HTML::Entities;
 use Text::Tabs;
 $tabstop = 4;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -33,6 +34,9 @@ use swarmserver;
 use win_wide_filepaths;
 use win_user32_local;
 use toc_local;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
@@ -188,7 +192,7 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_<span id="editor_error">&nbsp;</span>
+<span id="viewEditTitle">_TITLEHEADER_</span>_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON_<span id="editor_error">&nbsp;</span>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>_TOCANDCONTENTHOLDER_</div>
 
@@ -230,6 +234,7 @@ _TOPNAV_
 <script src="restore_edits.js" ></script>
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="go2def.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
 <script src="editor_auto_refresh.js" ></script>
 <script>
@@ -309,6 +314,11 @@ FINIS
 		$checkSpelling = "<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
 		}
 	$theBody =~ s!_CHECKSPELLING_!$checkSpelling!;
+
+	my $viewerShortName = CVal('VIEWERSHORTNAME');
+	my $viewButton = ViewButton($filePath);
+	$theBody =~ s!_VIEWBUTTON_!$viewButton!;
+	
 	
 	my $togglePositionButton = '';
 	# Mardown Toggle won't work because there are no line numbers.
@@ -367,7 +377,6 @@ FINIS
 	$theBody =~ s!_THEPORT_!$port!g;
 	$theBody =~ s!_PEERADDRESS_!$peeraddress!g;
 	
-	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
@@ -495,4 +504,22 @@ sub Save {
 		}
 	
 	return($status);
+	}
+
+sub ViewButton {
+	my ($filePath, $viewerShortName) = @_;
+	my $result = <<'FINIS';
+<a href='_FILEPATH_' onclick='viewerOpenAnchor(this.href); return false;'><input class="submit-button" type="submit" value="View" /></a>
+FINIS
+		# TEST ONLY encode_utf8 out
+		my $encFilePath = $filePath;
+		#my $encFilePath = encode_utf8($filePath);
+		$encFilePath =~ s!\\!/!g;
+		$encFilePath =~ s!^file\:///!!;
+		$encFilePath =~ s!%!%25!g;
+		$encFilePath =~ s!\+!\%2B!g;
+		# prob not needed $encFilePath = &HTML::Entities::encode($encFilePath);
+		$result =~ s!_FILEPATH_!$encFilePath!;
+
+		return($result);
 	}

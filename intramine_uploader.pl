@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use utf8;
 use Win32::Process;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -23,6 +24,9 @@ use swarmserver;
 use win_wide_filepaths;
 # Added Jan 2023, check to see if file to be copied has a known file extension.
 use ext;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;

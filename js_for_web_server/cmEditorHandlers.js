@@ -1,6 +1,8 @@
 // cmEditorHandlers.js: some event handlers for the built-in editor (intramine_editor.pl).
 
-myCodeMirror.on("scroll", JD.debounce(addAutoLinks, 250));
+let lazyAddAutoLinks;
+lazyAddAutoLinks = JD.debounce(addAutoLinks, 250);
+myCodeMirror.on("scroll", lazyAddAutoLinks);
 
 myCodeMirror.getWrapperElement().addEventListener("mouseover", function(e) {
 	handleMouseOver(e);

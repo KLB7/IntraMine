@@ -56,24 +56,42 @@ function doCallback(message) {
 
 // First request the WS (WebSockets) port number from Main, then connect to the WS service.
 async function wsInit() {
-	try {
-		let theAction = 'http://' + mainIP + ':' + theMainPort + '/' + wsShortName +  '/?req=portNumber';
-		const response = await fetch(theAction);
-		if (response.ok)
+	let tryCount = 0;
+	let doRetry = true;
+
+	while (tryCount < 5)
+		{
+			try {
+				let theAction = 'http://' + mainIP + ':' + theMainPort + '/' + wsShortName +  '/?req=portNumber';
+				const response = await fetch(theAction);
+				if (response.ok)
+					{
+					doRetry = false;
+					let text = await response.text();
+					wsInitWithPort(text);
+					}
+				else
+					{
+					// We reached our target server, but it returned an error
+					console.log('Error, server reached but it could not handle request for ' + wsShortName + ' port number!');
+					}
+			}
+			catch(error) {
+				// There was a connection error of some sort
+				console.log('CONNECTION ERROR while attempting to retrieve ' + wsShortName + ' port number!');
+			}
+
+		if (doRetry)
 			{
-			let text = await response.text();
-			wsInitWithPort(text);
+			await sleepMS(1000);
 			}
 		else
 			{
-			// We reached our target server, but it returned an error
-			console.log('Error, server reached but it could not handle request for ' + wsShortName + ' port number!');
+			break;
 			}
-	}
-	catch(error) {
-		// There was a connection error of some sort
-		console.log('Connection error while attempting to retrieve ' + wsShortName + ' port number!');
-	}
+		
+		++tryCount;
+		}
 }
 
 // Connect to the WS (WebSockets) service, and handle open and message received events.

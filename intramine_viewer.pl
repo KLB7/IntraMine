@@ -31,6 +31,7 @@ use Time::HiRes qw ( time );
 use Win32::Process 'STILL_ACTIVE';  # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
+use Win32;
 use Path::Tiny qw(path);
 use Pod::Simple::HTML;
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -44,6 +45,9 @@ use html2gloss;
 use toc_local;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
@@ -389,7 +393,7 @@ sub FullFile {
 	$theBody =~ s!_HIGHLIGHTITEMS_!$highlightItems!;
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
 	my $togglePositionButton = '';
-	# Mardown Toggle won't work because there are no line numbers.
+	# Markdown Toggle won't work because there are no line numbers.
 	if ($filePath !~ m!\.md$!i)
 		{
 		$togglePositionButton = PositionToggle();
@@ -925,6 +929,7 @@ sub CodeMirrorJS {
 <script src="cmToggle.js" ></script>
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="go2def.js" ></script>
 <script src="viewer_auto_refresh.js" ></script>
 <script src="cmHandlers.js" ></script>
 FINIS
@@ -956,6 +961,7 @@ sub NonCodeMirrorJS {
 <script src="scrollTOC.js" ></script>
 <script src="viewer_auto_refresh.js" ></script>
 <script src="dragTOC.js" ></script>
+<script src="go2def.js" ></script>
 <script src="viewer_hover_inline_images.js" ></script>
 <script>
 hideSpinner();

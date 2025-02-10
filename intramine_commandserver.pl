@@ -33,11 +33,15 @@
 use strict;
 use warnings;
 use utf8;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use cmd_monitor;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 

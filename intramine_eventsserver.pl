@@ -18,6 +18,7 @@ use warnings;
 use utf8;
 use Win32::Process;
 use HTML::CalendarMonthSimple;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -25,6 +26,8 @@ use holidays; 	# holidays for EventsPage()
 use swarmserver;
 
 # Start standard boilerplate.
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;
 

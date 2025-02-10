@@ -19,12 +19,16 @@ use JSON;
 use URI::Escape;
 # TEST ONLY
 use Data::Dumper;
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use win_wide_filepaths;
 use swarmserver;
 use gloss;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
 $|  = 1;

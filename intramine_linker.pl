@@ -54,6 +54,7 @@ use HTML::Entities;
 use URI::Escape;
 use Time::HiRes qw ( time );
 use JSON::MaybeXS qw(encode_json);
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -63,8 +64,12 @@ use win_wide_filepaths;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 use intramine_glossary;
 use intramine_spellcheck;
+use elasticsearch_find_def;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
@@ -95,6 +100,26 @@ my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
 my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
 my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
 
+# Go to definition (in the Viewer).
+my $DoGo2Def = CVal('GOTODEFINITION');
+if ($DoGo2Def eq '1')
+	{
+	$DoGo2Def = 1;
+	}
+else
+	{
+	$DoGo2Def = 0;
+	}
+my $GoToLinksMax = CVal('GO2LINKSMAX');
+if ($GoToLinksMax !~ m!^\d+$!)
+	{
+	$GoToLinksMax = 8;
+	}
+
+# Preferred extensions, for Go to definition
+my $preferred = CVal('PREFERRED_EXTENSIONS');
+my @preferredExtensions = split(/,/, $preferred);
+
 my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
 my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
@@ -109,6 +134,7 @@ $RequestAction{'signal'} = \&HandleBroadcastRequest;	# signal=reindex or folderr
 $RequestAction{'req|cmLinks'} = \&CmLinks; 				# req=cmLinks... - linking for CodeMirror files
 $RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 		# req=nonCmLinks... - linking for non-CodeMirror files
 $RequestAction{'req|autolink'} = \&FullPathForPartial; 	# req=autolink&partialpath=...
+$RequestAction{'req|defs'} = \&Definitions; 			# req=defs, find definitions
 $RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
 
 # List of English words, for spell checking.
@@ -118,6 +144,10 @@ InitDictionary($wordListPath);
 
 # Start up db for tracking deleted files.
 InitDeletesDB();
+
+# For "Go to definition", an ElasticSearch definition finder. This is
+# set properly in callbackInitPathsAndGlossary().
+my $ElasticSearcher = '';
 
 # Over to swarmserver.pm. The callback sub loads in a hash of full paths for partial paths,
 # which can take some time.
@@ -216,6 +246,29 @@ sub callbackInitPathsAndGlossary {
 	my $filePathCount = InitDirectoryFinder($fullFilePathListPath);
 
 	LoadAllGlossaryFiles();
+
+	# Also init the definition finder, delayed until here because
+	# we need the server address.
+	my $esIndexName = 'intramine';
+	my $maxNumHits = 40;
+	my $maxShownHits = $GoToLinksMax; # Links actually, not hits.
+
+	# TEST ONLY
+	#print("Just before ServerAddress\n");
+	my $host = ServerAddress();
+	# TEST ONLY
+	#print("Just AFTER ServerAddress\n");
+	my $LogDir = FullDirectoryPath('LogDir');
+	my $ctags_dir = CVal('CTAGS_DIR');
+	my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
+
+	$ElasticSearcher = elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, \@preferredExtensions);
+
+	# Test, sometimes we stall going back to the main loop, searching for a fix:
+	sleep(1);
+
+	# TEST ONLY
+	#print("Just AFTER \$ElasticSearcher init\n");
 	}
 
 sub LoadAllGlossaryFiles {
@@ -227,13 +280,13 @@ sub LoadAllGlossaryFiles {
 	my $paths = GetAllPathsForFileName($glossaryFileName);
 	if ($paths ne '')
 		{
-		print("Loading glossaries...\n");
+		#print("Loading glossaries...\n");
 		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR,
 			\&FullPathInContextNS, \&BestMatchingFullDirectoryPath);
 		}
 	else
 		{
-		print("No files called $glossaryFileName were found, no glossaries loaded.\n");
+		#print("No files called $glossaryFileName were found, no glossaries loaded.\n");
 		}
 	}
 	
@@ -243,6 +296,141 @@ sub ReinitDirFinder {
 	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
 	my $filePathCount = ReinitDirectoryFinder($fullFilePathListPath); # reverse_filepaths.pm#ReinitDirectoryFinder()
 	}
+
+# Call into elasticsearch_find_def.pm to retrieve links to files
+# that contain definitions for the $rawquery word. The $fullPath is
+# needed only for its extension, to determine the language wanted.
+# $DoGo2Def is set from 'GOTODEFINITION' in data/intramine_config_8.txt.
+sub Definitions {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $rawquery = defined($formH->{'findthis'})? $formH->{'findthis'}: '';
+	my $fullPath =  defined($formH->{'path'})? $formH->{'path'}: '';
+	if ($DoGo2Def == 0 || $rawquery eq '' || $fullPath eq '')
+		{
+		return('<p>nope</p>');
+		}
+	
+	my $result = '';
+
+	# TEST ONLY
+	#print("Top of Definitions looking for |$rawquery| in |$fullPath|\n");
+
+	my @wantedExt;
+	GetExtensionsForDefinition($fullPath, \@wantedExt);
+	my $numExtensions = @wantedExt;
+	if ($numExtensions == 0)
+		{
+		# TEST ONLY
+		#print("NO EXTENSIONS.\n");
+		return('<p>nope</p>');
+		}
+
+	my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
+	if ($definitionKeyword eq '')
+		{
+		# TEST ONLY
+		#print("NO DEF KEYWORD.\n");
+
+		# If extension is supported by exuberant ctags we can continue
+		# the hard way (use ctags to find files with definitions).
+		if ($ElasticSearcher->HasCtagsSupport($fullPath))
+			{
+			# TEST ONLY
+			#print("|$fullPath| is supported by ctags.\n");
+			#return(CtagsDefinitions($rawquery, \@wantedExt));
+			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt);
+			}
+		}
+	
+	if ($result ne '' && $result ne '<p>nope</p>')
+		{
+		return($result);
+		}
+	
+	my @keywords;
+	if ($definitionKeyword ne '')
+		{
+		if (index($definitionKeyword, '|') > 0)
+			{
+			@keywords = split(/\|/, $definitionKeyword);
+			}
+		else
+			{
+			push @keywords, $definitionKeyword;
+			}
+		}
+
+	my $numHits;
+	my $numFiles;
+	for (my $i = 0; $i < @keywords; ++$i)
+		{
+		my $query = $keywords[$i] . ' ' . $rawquery;
+		$numHits = 0;
+		$numFiles = 0;
+		# TEST ONLY
+		#print("Searching for |$query|, wanted ext |@wantedExt|\n");
+		$result = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles);
+		if ($result ne '' && $result ne '<p>nope</p>')
+			{
+			last;
+			}
+		}
+
+	# TEST ONLY
+	#print("Definitions \$result |$result|\n");
+
+	# Faint hope: perhaps the selected term is defined in some other
+	# language? We'll try .js and .css. Maybe .pl, .pm.
+	if ($result eq '' || $result eq '<p>nope</p>')
+		{
+		# TEST ONLY
+		$numHits = 0;
+		$numFiles = 0;
+		#print("EXTENDED SEARCH for |$rawquery|\n"); 
+		$result = $ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits, \$numFiles);
+		}
+	
+	if ($result eq '' || $result eq '<p>nope</p>')
+		{
+		# TEST ONLY
+		#print("GetAnyLinks called for |$rawquery|\n");
+
+		$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath);
+		}
+
+	return($result);
+	}
+
+# Determine language based on $fullPath extension, then
+# push all extensions for the corresponding language.
+sub GetExtensionsForDefinition {
+	my ($fullPath, $wantedExtA) = @_;
+	if ($fullPath =~ m!\.(\w+)$!)
+		{
+		my $ext = lc($1);
+		my $langH = LanguageForExtensionHashRef();
+		if (defined($langH->{$ext}))
+			{
+			my $languageName = $langH->{$ext};
+			my $extsForLan = ExtensionsForLanguageHashRef();
+			my $rawExtensions = $extsForLan->{$languageName};
+			my @extForLanguage = split(/,/, $rawExtensions);
+			for (my $i = 0; $i < @extForLanguage; ++$i)
+				{
+				# Some such as pod should be skipped.
+				if ($extForLanguage[$i] ne 'pod')
+					{
+					push @{$wantedExtA}, $extForLanguage[$i];
+					}
+				}
+			}
+		}
+	}
+
+# sub CtagsDefinitions {
+# 	my ($rawquery, $wantedExtA) = @_;
+# 	return($ElasticSearcher->GetCtagsDefinitionLinks($rawquery, $wantedExtA));
+# 	}
 
 # For all files where the view is generated by CodeMirror ("CodeMirror files").
 # Get links for all local file, image, and web links in $formH->{'text'}.

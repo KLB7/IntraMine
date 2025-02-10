@@ -1,0 +1,5 @@
+# 1/0 activate/de-activate "Go to definition" in the Viewer.
+# See "Documentation/Go to definition.html"
+GOTODEFINITION	1
+GO2LINKSMAX		8
+PREFERRED_EXTENSIONS	pl,pm,js,css,cpp,cc,c,cxx,hpp,h,hh,hxx,cs,go,java,php,php3,php4,php5,php7,ps1,py,pyw,rb,rs,swift,ts,vb,vbs

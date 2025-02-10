@@ -11,6 +11,9 @@
 let lineSeen = {};
 let linkOrLineNumForText = new Map();
 
+// Group CodeMirror redraw operations when scrolling (not editing).
+let useStartEndOperation = true;
+
 // "sleep" for ms milliseconds.
 function sleepABit(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -22,6 +25,7 @@ const markers = [];
 
 // Editor only, clear all marks before re-marking the autolinks.
 function clearAndAddAutoLinks() {
+	useStartEndOperation = false;
 	clearMarks();
 	addAutoLinks();
 }
@@ -34,6 +38,9 @@ function addAutoLinks() {
 	
 	if (!weAreEditing)
 		{
+		// Shouldn't be needed, but you never know....
+		useStartEndOperation = true;
+
 		let tocElement = document.getElementById("scrollContentsList");
 		if (tocElement === null)
 			{
@@ -83,6 +90,8 @@ function addAutoLinks() {
 			requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum);
 			}
 		}
+
+	useStartEndOperation = true;
 }
 
 // Get a Linker port from Main, then call the real "requestLinkMarkup" fn.
@@ -112,6 +121,7 @@ async function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisib
 				// There was a connection error of some sort
 				let e1 = document.getElementById(errorID);
 				e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+				useStartEndOperation = true;
 				}
 			else
 				{
@@ -149,7 +159,10 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 				{
 				let jsonResult = JSON.parse(resp);
 
-				cm.startOperation();
+				if (useStartEndOperation)
+					{
+					cm.startOperation();
+					}
 
 				for (let ind = 0; ind < jsonResult.arr.length; ++ind)
 					{
@@ -178,8 +191,12 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 						lastVisibleLineNum, jsonResult);
 					}
-
-				cm.endOperation();
+				
+				if (useStartEndOperation)
+					{
+					cm.endOperation();
+					}
+				useStartEndOperation = true;
 				}
 			else
 				{
@@ -188,10 +205,17 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 					// Maybe there are some TOC mentions, in spite of no file/image/web links.
 					let jsonResult = {};
 					jsonResult.arr = [];
-					cm.startOperation();
+					if (useStartEndOperation)
+						{
+						cm.startOperation();
+						}
 					markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum,
 							lastVisibleLineNum, jsonResult);
-					cm.endOperation();
+					if (useStartEndOperation)
+						{
+						cm.endOperation();
+						}
+					useStartEndOperation = true;
 					}
 				}
 
@@ -200,11 +224,13 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 			}
 		else
 			{
+			useStartEndOperation = true;
 			// We reached server but it returned an error. Bummer, no links.
 			// console.log('Error, requestLinkMarkupWithPort request status: ' + request.status + '!');
 			}
 	}
 	catch(error) {
+		useStartEndOperation = true;
 		// There was a connection error of some sort. Double bummer, no links.
 		console.log('requestLinkMarkupWithPort connection error!');
 	}
@@ -694,6 +720,27 @@ function handleFileLinkMouseUp(evt) {
 		let startPos = myCodeMirror.doc.getCursor("anchor");
 		cmCursorStartPos = startPos;
 		cmCursorEndPos = myCodeMirror.doc.getCursor("head");
+
+		// Show hint with links to definitions.
+		showDefinitionHintForSelection(evt);
+		}
+	// Try the Editor too
+	else if (linkType === "" && !goingToAnchor)
+		{
+		let startPos = myCodeMirror.doc.getCursor("anchor");
+		cmCursorStartPos = startPos;
+		cmCursorEndPos = myCodeMirror.doc.getCursor("head");
+
+		if (!(cmCursorStartPos.line === cmCursorEndPos.line && cmCursorStartPos.ch === cmCursorEndPos.ch))
+			{
+			let text = myCodeMirror.doc.getSelection(); 
+			const re = /^[~$@%\w]+$/;
+			if (re.test(text))
+				{
+				// Show hint with links to definitions.
+				showDefinitionHintForSelection(evt);
+				}
+			}
 		}
 	
 	// Reset goingToAnchor - it was used here to avoid setting the selection if goingToAnchor,
@@ -704,6 +751,17 @@ function handleFileLinkMouseUp(evt) {
 	setTimeout(function() {
         clearLineNumberForToc();
         }, 500);
+}
+
+function showDefinitionHintForSelection(evt) {
+	let text = myCodeMirror.doc.getSelection(); 
+	if (text === "")
+		{
+		let word = myCodeMirror.findWordAt(myCodeMirror.doc.getCursor());
+		text = myCodeMirror.doc.getRange(word.anchor, word.head);
+		}
+
+	showDefinitionHint(text, evt);
 }
 
 // Expand selection to any word under the cursor.

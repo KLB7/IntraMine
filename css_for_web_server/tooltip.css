@@ -44,6 +44,15 @@ margin: 3px 8px;
 	border-top-style: hidden;
 }
 
+.showHintAnchorClass:hover {
+	background-color: lavender;
+}
+
+/* For hints showing links to definitions. */
+.defhint {
+	background-color: #f9f3ff !important;
+}
+
 /* Additions for Gloss display of tooltips. */
 
 #hintbox td:nth-child(1) {

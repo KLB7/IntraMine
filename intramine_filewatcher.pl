@@ -26,6 +26,7 @@ use Time::HiRes qw(usleep);
 use Win32::Process 'STILL_ACTIVE';
 use DateTime;
 use Time::Local qw( timelocal_modern );
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -36,6 +37,9 @@ use tocmaker;
 use win_wide_filepaths;
 use ext; # for ext.pm#EndsWithTextOrImageExtension() etc.
 use intramine_config; # For LoadSearchDirectoriesToArrays()
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
@@ -302,11 +306,22 @@ sub GetDirectoriesToIgnore {
 # Ignore file path if it starts with path to a folder to ignore, as
 # listed in data/search_directories.txt. Comparisons are done
 # in lower case with forward slashes only.
+# Also ignore "nuisance" files in /temp/ or /junk/, and files
+# in folders that start with a period (eg /.tmp.driveupload/)
+# and file names that start with a period too.
 sub ShouldIgnoreFile {
 	my ($fullPath) = @_; # lc, / only
 	#$fullPath = lc($fullPath);
 	#$fullPath =~ s!\\!/!g;
 	my $result = 0;
+
+	# Nuisance files: no period in path, or in temp or junk
+	# or "ini" extension.
+	if (index($fullPath, '.') < 0 || $fullPath =~ m!/(temp|junk)/!
+	  || index($fullPath, '/.') > 0 || index($fullPath, '.ini') > 0)
+		{
+		return(1);
+		}
 
 	for (my $i = 0; $i < @DirectoriesToIgnore; ++$i)
 		{
@@ -494,6 +509,13 @@ sub ReportIfCongested {
 			else
 				{
 				print("Heavy load on Watcher, $numTotal file system changes.\n");
+				}
+
+			# TEST ONLY
+			print("First few files:\n");
+			for (my $i = 0; $i < @PathsOfChangedFiles && $i < 5; ++$i)
+				{
+				print("    $PathsOfChangedFiles[$i]\n");
 				}
 			}
 		elsif ($Congested)

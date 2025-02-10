@@ -623,6 +623,12 @@ sub MainLoop {
 		$callbackInit->();
 		}
 
+	# TEST ONLY Loading glossaries stall
+	# if ($sname eq 'Linker')
+	# 	{
+	# 	print("Linker about to broadcast serverup.\n");
+	# 	}
+	
 	# We are started at this point, let the main server know. See intramine_main.pl#ReceiveInfo().
 	RequestBroadcast('ssinfo=serverUp&port=' . $OurPort);
 	
@@ -630,6 +636,13 @@ sub MainLoop {
 	
 	# Over to main loop proper.
 	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
+
+	# TEST ONLY Loading glossaries stall
+	# if ($sname eq 'Linker')
+	# 	{
+	# 	print("Linker about to enter _MainLoop.\n");
+	# 	}
+
 	_MainLoop($listener, $readable, \%InputLines, $timeout, $DoPeriodic);
 	}
 

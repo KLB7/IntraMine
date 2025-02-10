@@ -58,10 +58,14 @@ use strict;
 use warnings;
 use utf8;
 use DBM::Deep; # not really needed in your own server, most likely
+use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
+
+binmode(STDOUT, ":encoding(UTF-8)");
+Win32::SetConsoleCP(65001);
 
 $|  = 1;
 

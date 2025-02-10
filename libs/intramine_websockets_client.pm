@@ -219,6 +219,7 @@ sub WebSocketSend {
 	# TEST ONLY
 	#print("Confirming |$msg|...\n");
 
+	my $antilockkCount = 0; # for anti-lock breaking
 	while (1)
 		{
 		my $recv_data;
@@ -260,7 +261,13 @@ sub WebSocketSend {
 			# Removed, it can be misleading - as far as I can tell,
 			# the message goes through, the trouble is just with the response
 			# (which is ignored).
-			#print("WebSocketSend TIMEOUT COULD NOT READ for |$msg|!\n");
+			#print("WebSocketSend TIMEOUT COULD NOT READ reply for |$msg|!\n");
+			last;
+			}
+		++$antilockkCount;
+		if ($antilockkCount > 5)
+			{
+			print("WebSocketSend FAIL COULD NOT READ reply for |$msg|!\n");
 			last;
 			}
 		}
