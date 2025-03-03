@@ -40,6 +40,7 @@ use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
 use win_wide_filepaths;
 use intramine_websockets_client;
+use mon;
 
 my $QUICKDRIVELIST = 1; # Set to 0 for slower but more accurate list
 
@@ -152,19 +153,28 @@ sub LoadServerList {
 	
 	if (-f $configFilePath)
 		{
-		my $fileH = FileHandle->new("$configFilePath") or
-									die("No config file found at |$configFilePath|!\n");
-		my $line;
+		my $contents = ReadTextFileDecodedWide($configFilePath, 1);
+		my @lines = split(/\n/, $contents);
+		# Force Mon service to be listed, at the right end of the nav bar.
+		# (See also intramine_main.pl#LoadServerList().)
+		my $monLine = '1	Mon			Mon			intramine_mon.pl';
+		push @lines, $monLine;
+		my $monIsLoaded = 0; # Avoid loading Mon twice.
+
 		my $pageIndex = 0;
 		my $previousPageName = '';
-		while ($line = <$fileH>)
+		for (my $i = 0; $i < @lines; ++$i)
 	    	{
-	        chomp($line);
+			my $line = $lines[$i];
 	        # Skip blank lines and comments as we load in the details for each 
 			# server. Zero count page services are loaded as "zombie" services,
 			# listed but not enabled.
-	        if (length($line) && $line !~ m!^\s*(#|$)!)
+	        if (length($line) && $line !~ m!^\s*(#|$)! && !($monIsLoaded && $line =~ m!intramine_mon\.pl!))
 	        	{
+				if ($line =~ m!intramine_mon\.pl!)
+					{
+					$monIsLoaded = 1;
+					}
 				my $isZombie = ($line =~ m!^0\s!);
 	        	my @fields = split(/\t+/, $line); # Split on one or more tabs
 	        	my $instanceCount = $fields[0];
@@ -210,7 +220,6 @@ sub LoadServerList {
 	        		}
 	        	}
 	        }
-	    close $fileH;
 	
 		if ($count == 0)
 			{
@@ -419,6 +428,16 @@ sub SSInitialize {
 	# A wee sleep to allow Main to set any additional config values.
 	sleep(1);
 	LoadConfigValues($$shortNameR, 'SRVR');		# intramine_config.pm
+
+	# Prepare to log messages from QueueMessage calls, for later
+	# display by the Mon services.
+	my $LogDir = FullDirectoryPath('LogDir');
+	my $monitorFileName = CVal('INTRAMINE_MAIN_LOG');
+	if ($monitorFileName eq '')
+		{
+		$monitorFileName = 'IM_LOG.txt';
+		}
+	ServiceInitIntraMineMonitor($LogDir . $monitorFileName, \&WebSocketSend);
 	}
 
 sub GrabParameter {
@@ -612,8 +631,11 @@ sub MainLoop {
 	InitWebSocketClient();
 	my $sname = OurShortName();
 	$WebSockIsUp = WebSocketSend("$sname checking in");
-	
-	
+
+
+	# Now ok to call WebSocketSend().
+	MonNowOkToSend();
+
 	if (defined($callbackInit))
 		{
 		# Speak to main if there is an init callback that might take some time, we are starting up.

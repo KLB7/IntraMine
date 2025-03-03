@@ -1,0 +1,46 @@
+Go2
+=================
+
+go2scroll.png
+*In a JavaSript file, after selecting scrollAdjustedHeight a popup appears in less than a second showing relevant links to the CSS selector.*
+
+How to Go2
+============
+go2.gif
+When displaying a file with IntraMine, click on a word (Viewer) or double-click to select a word (Editor). Or, in either the Viewer or Editor, select a short phrase with the mouse, and keep your cursor fairly still (+/- about 20 pixels). In a second or so you will see one or more clickable links pop up, up to a default maximum of 8. Select a link and the corresponding file will open in a new tab, with instances of the word or phrase highlighted in the text and marked in the scrollbar.
+
+How to NOT Go2
+=================
+Open data/intramine_config_8.txt and change the value of GOTODEFINITION from 1 to 0.
+
+Limitations
+========================
+IntraMine will only find words in files that are indexed, that is the file must be in a folder or subfolder that's listed in your data/search_directories.txt file (and not in an ignored folder).
+
+Support for C++ in particular is variable, since the source isn't being parsed. For example if you have twenty different implementations of a method called readAll(), you'll see a list of the first few that were found, without regard for any relevance to your specific circumstances.
+
+In general the less common a word is the more useful the popped-up links will be.
+
+You might sometimes be delighted
+========================
+Suppose you're looking at a JavaScript file and you see mention of a CSS selector called "#spinner". Select spinner (without the period), and you'll see a list of CSS files that contain rules for spinner. Click on the one you want, and the CSS file opens with all instances of spinner highlighted and marked in the scrollbar. Given that name, there will likely be only one CSS file listed.
+
+Suppose you're in a .txt file, perhaps a log you're keeping, and you've referred to "GetDefinitionLinks". Click on it and you'll see a list of files where that term is mentioned. This is actually the name of a Perl subroutine in IntraMine: if you've included the IntraMine folder in your search_directories.txt list then when you click on GetDefinitionLinks you'll see a popup with just one entry, and selecting it will open the file containing the subroutine definition and scroll you to it.
+
+If you're viewing a CSS file and see mention of a JavaScript function in a comment, click on it to see a link to the file where the JS function is defined.
+
+If you have tagged parts of a code revision with a rare word such as "update37" in multiple source files then clicking on update37 anywhere will produce a list of (up to eight) links to files where update37 is mentioned. Clicking on one of the links will open the source or text file and highlight all instances of update37, and mark them in the scrollbar.
+
+Changing the maximum number of links shown
+=====================
+Open data/intramine_config_8.txt and change the number for GO2LINKSMAX. The default entry is
+---
+GO2LINKSMAX		8
+---
+This value determines the maximum number of links shown in the Go2 popup.
+
+For the change to take effect, **restart IntraMine**. Or just restart the Linker using the Status page.
+
+---
+contents.txt
+---

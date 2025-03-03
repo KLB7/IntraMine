@@ -7,3 +7,6 @@ function addAutoLinks() {
 let isMarkdown = false;
 function setIsMarkdown() {
 }
+
+async function showDefinitionHint(term, event) {
+}

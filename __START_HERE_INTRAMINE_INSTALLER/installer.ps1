@@ -463,8 +463,8 @@ if ($StageCompleted -eq $CtagsCompleted)
 	{
 	Write-Host "Starting Elasticsearch index build." -f Yellow
 	Write-Host "This will happen in a separate window." -f Yellow
-	Write-Host "Please be patient, when indexing is finished you will see that" -f Yellow
-	Write-Host "IntraMine has started in that separate window." -f Yellow
+	Write-Host "Please be patient, when indexing is finished a new Mon tab" -f Yellow
+	Write-Host "will appear in your default browser showing IntraMine messages." -f Yellow
 	Start-Process $IMINITBatPath
 	
 	### All done.
@@ -501,16 +501,15 @@ if ($StageCompleted -eq $CtagsCompleted)
 		Remove-Item $CtagsDownloadPath
 		}
 	
-	Write-Host "Installation is finishing in a new window." -f Green
-	Write-Host "when it's done, you will see a hummingbird and UP! and then you can" -f Green
-	Write-Host "visit IntraMine in your browser at http://localhost:81/Search" -f Green
-	Write-Host "(No bird, just text off the right? That's a Cmd window bug," -f Green
-	Write-Host "visit IntraMine and it will almost certainly be there.)" -f Green
+	Write-Host "When your Elasticsearch index is built, the window where that's happening will minimize." -f Green
+	Write-Host "Then you'll see a new browser tab called 'Mon' with startup messages from Intramine." -f Green
+	Write-Host "When startup completes you'll see a hummingbird and 'UP!'." -f Green
+	Write-Host "From there you can use the top navigation bar in the Mon tab to visit Search, Files etc." -f Green
 	Write-Host "To STOP IntraMine double-click on bats/STOP_INTRAMINE.bat" -f Green
 	Write-Host "To START IntraMine again, double-click on bats/START_INTRAMINE.bat" -f Green
 	Write-Host ""
-	Read-Host -Prompt "Press Enter when you are done reading the above"
-	Write-Host "You can close this window now."	-f Green
+	Write-Host "Press Enter when you are done reading the above" -f Green
+	Write-Host "You can close this window now." -f Green
 	}
 
 } # End try

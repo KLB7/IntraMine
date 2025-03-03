@@ -1,7 +1,7 @@
 1 READ ME FIRST how to install IntraMine
 ========================================
 
-Hover your cursor over terms with a dotted underline to see more. Hummingbirds flank images that pop up if you pause your cursor over the image names. Like this image of a server: "Server-128x128 60.png"
+Hover your cursor over terms with a dotted underline to see more.
 
 Key requirements
 ====================
@@ -27,8 +27,8 @@ And who could blame you. If you're in a hurry:
  *An example result just above, yours will differ in the paths*
 4. Copy the indicated five lines from that window, Paste into your PowerShell window, and press Enter.
 5. The installer will first ask you to specify which directories you want IntraMine to index for searching and monitor for changes. After roughly 20 minutes you might be asked to type a "y" and hit Enter to agree to a license for a Perl module. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
-6. As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that finishes and IntraMine has fully started. This can take from five minutes to one hour, depending on how many files there are in the folders that you selected for indexing in step 5 above.
-7. Sometimes, quite unpredictably, the Windows Cmd window will forget what a CRLF means and text output there will just run off the right of the window. If this happens, stop IntraMine by double-clicking on bats/STOP_INTRAMINE.bat, wait a few seconds, and start it again by double-clicking on bats/START_INTRAMINE.bat.
+6. As the second-last step, a new window will open, and you'll see progress messages as your Elasticsearch index is built. Note the index build can take from five minutes to one hour, depending on how many files there are in the folders that you selected for indexing in step 5 above.
+7. Now IntraMine will start. That new window that was showing you the index build progress will be minimized, and a new tab called "Mon" will open in your default browser showing startup progress. You'll see a hummingbird and "UP!" in the Mon tab when IntraMine is fully started.
 8. And you're done!
 
 Otherwise, if you're patient and want all the details on using IntraMine's installer, continue reading.
@@ -43,7 +43,7 @@ The installer will ask for your input at various times, so don't wander too far 
 
 As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that happens. This can take from five minutes to one hour, depending on how many files there are in the folders that you selecting for indexing in step 3 above.
 
-Acessing and controlling IntraMine
+Accessing and controlling IntraMine
 --------------------------------------
 After IntraMine starts:
 TABLE IntraMine basics
@@ -60,7 +60,7 @@ What will be installed
 =========================
  - Strawberry Perl, and some needed Perl modules
  - Elasticsearch version 8
- - Exuberant ctags
+ - Universal ctags
  - File Watcher service (from a copy included with IntraMine)
  - a /data/ folder at the top of your IntraMine folder, holding your copy of configuration values
 
@@ -69,7 +69,7 @@ Requirements
  - allow 3-4 GB of RAM for IntraMine (including Elasticsearch etc)
  - Windows 11 is recommended, Windows 10 is fine if you're still using it
  - you must leave "IntraMine" as the name of your IntraMine main folder
- - if you already have Strawberry Perl installed, that's ok
+ - if you already have Strawberry Perl installed, that's ok. Your Perl version will not be updated.
  - if you have Elasticsearch installed, and it's version 8.x.x but not version 8.8.1, please either: open "installer.ps1" in an editor and do a global replace of 8.8.1 with your version number, or; follow the "manual" installation approach described in the first section of IntraMine's documentation (see /Documentation/contents.html). If you have a version of Elasticsearch installed that's not in the version 8 series, you should alas pass on installing IntraMine, it probably won't work, sorry.
  - IPv4 must be enabled (overwhelmingly the default), IPv6 can be on or off
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and FLASH linking, but changes to them won't be detected, so that's fine for library files but not your own work
@@ -88,7 +88,9 @@ If "For developers" doesn't appear under System -> Settings, most likely because
 3. Back to the folder where you found this file, and double-click on "2_Make_Install_Commands.bat" to bring up a window listing the five lines needed for installing IntraMine.
 4. Copy the indicated five lines from that window, Paste into your PowerShell window, and press Enter.
 5. The installer will immediately pause to let you read a message about specifying which directories you want IntraMine to index for searching and monitor for changes. After roughly 20 minutes you'll be asked to type a "y" and hit Enter to agree to a license for a Perl module. Sorry about that, I couldn't get rid of it. A few minutes later you will be asked to set Elasticsearch to start automatically, by changing a setting in a dialog that will appear (after doing that and closing the dialog, installation will continue)
-6. As the last step, a new window will open, your Elasticsearch index will be built, and IntraMine will start: you'll see a hummingbird and "UP!" when that happens. This can take from five minutes to one hour, depending on how many files there are in the folders that you selecting for indexing in step 5 above.
+6. As the second-last step, a new window will open, and you'll see progress messages as your Elasticsearch index is built. Note the index build can take from five minutes to one hour, depending on how many files there are in the folders that you selected for indexing in step 5 above.
+7. Now IntraMine will start. That new window that was showing you the index build progress will be minimized, and a new tab called "Mon" will open in your default browser showing startup progress. You'll see a hummingbird and "UP!" in the Mon tab when IntraMine is fully started.
+8. Done, enjoy!
 
 To stop IntraMine double-click on bats/STOP_INTRAMINE.bat
 To start IntraMine again, double-click on bats/START_INTRAMINE.bat

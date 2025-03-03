@@ -1,0 +1,15 @@
+Where did the console window go?
+================================
+
+IntraMine has a console window when you start it, but it's minimized to the Task bar.
+
+Feedback messages are provided on IntraMine's "Mon" page: you'll see a new instance of Mon when you start IntraMine, and Mon is always available on the top navigation bar on any IntraMine page.
+
+If you don't want that new fresh instance of "Mon" every time you restart IntraMine, see "Mon.html" for how to turn it off.
+
+Under routine circumstances you can forget that IntraMine has a console window, and you won't find anything interesting in it unless a service crashes. There has never been a user report of an IntraMine service crashing.
+(Knock wood, ouch.)
+
+---
+contents.txt
+---

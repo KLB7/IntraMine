@@ -1,13 +1,15 @@
 # elasticsearch_find_def.pm: retrieve links for files that contain
 # definitions of functions, and sometimes structs/classes.
 # An outline of the whole process:
-# Viewer only, user clicks on word in a source file.
+# Viewer or Editor, user selects a word or short phrase in a source file.
 # go2def.js asks the Linker for a list of links to show in a showhint popup.
 # The Linker's Definitions() sub calls GetDefinitionHits() here.
 # which first calls Elasticsearch to find files containing the word.
-# If found, exuberant ctags is called to generate definition summaries
+# If found, universal ctags is called to generate definition summaries
 # for each file.
 # Those with definitions are packaged up as links and returned.
+# As a last resort, any hits found for the word or phrase are returned.
+# See also intramine_linker.pl#Definitions().
 
 package elasticsearch_find_def;
 
@@ -33,7 +35,7 @@ use ext;
 # Some languages introduce a funtions with a keyword.
 # The keyword is prepended to the Elasticsearch query
 # to narrow down found files to those containing definitions.
-# (For other languages, the wanted word by itself is searched for.)
+# (For other languages, no keyword is added.)
 my %DefinitionKeyForExtension;
 # Perl: pl,pm,cgi,t,not pod
 $DefinitionKeyForExtension{'pl'} = 'sub';
@@ -80,7 +82,7 @@ $LanguageForHeaderExt{'cxx'} = 'C/C++';
 my @PreferredExtensions;
 
 # Make a new elasticsearch_find_def instance,
-# init exuberant ctags.
+# init universal ctags.
 sub new {
 	my ($proto, $indexName, $numHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $preferredExtensionsA) = @_;
 	my $class = ref($proto) || $proto;
@@ -111,8 +113,8 @@ sub new {
 
 # GetDefinitionLinks(): call Elasticsearch to retrieve documents matching $rawquery.
 # Match words supplied as a phrase.
-# Only content is searched.
-# No restriction on folder, always restriction on extension.
+# Only content is searched, a file name mention becomes a FLASH link in IntraMine.
+# No restriction on folder, sometimes restrictions on extensions.
 # FormatDefinitionResults() formats hits as HTML, with best Elasticsearch score first.
 sub GetDefinitionLinks {
 	my ($self, $rawquery, $extA, $numHitsR, $numFilesR) = @_;
@@ -127,8 +129,6 @@ sub GetDefinitionLinks {
 	$numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
 	if ($numHits)
 		{
-		# TEST ONLY
-		#print("NUMHITS POSITIVE!\n");
 		$numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
 		}
 	else
@@ -138,8 +138,7 @@ sub GetDefinitionLinks {
 	
 	$$numHitsR = $numHits;
 	$$numFilesR = $numFiles;
-	# TEST ONLY
-	#print("Bottom of GetDefinitionLinks, \$result |$result|.\n");
+	
 	return $result;
 	}
 
@@ -155,27 +154,17 @@ sub GetDefinitionLinksInOtherLanguages {
 	#my $numFiles = 0;
 	my $numFound = 0;
 
-	# TEST ONLY
-	#print("GetDefinitionLinksInOtherLanguages top looking for |$rawquery|\n");
-
 	if ($extA->[0] ne "js")
 		{
 		my @jsExtension;
 		push @jsExtension, 'js';
 		$result = GetCtagsResultsForExtensions($self, $rawquery, \@jsExtension, $e, \$numFound);
-		#$numHits = GetDefinitionHits($self, 'function ' . $rawquery, \@jsExtension, $e, \$rawResults);
-
-		# TEST ONLY
-		#print("Other JS search, |$numFound| found.\n");
 		}
 	if ($numFound == 0 && $extA->[0] ne "css")
 		{
 		my @cssExtension;
 		push @cssExtension, 'css';
 		$result = GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound);
-		#$numHits = GetDefinitionHits($self, $rawquery, \@cssExtension, $e, \$rawResults);
-		# TEST ONLY
-		#print("Other CSS search, |$numFound| found.\n");
 		}
 
 	if ($numFound == 0)
@@ -183,34 +172,21 @@ sub GetDefinitionLinksInOtherLanguages {
 		$result = '<p>nope</p>';
 		}
 	
-	# if ($numHits)
-	# 	{
-	# 	$numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
-	# 	}
-	# else
-	# 	{
-	# 	$result = '<p>nope</p>';
-	# 	}
-
 	return($result);
 	}
 
+# Called by intramine_linker.pl#Definitions() as a last resort,
+# look for any file containing the $rawquery, return links if found.
 sub GetAnyLinks {
 	my ($self, $rawquery, $fullPath) = @_;
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
-
-	# TEST ONLY
-	#print("GetAnyLinks \$fullPath: |$fullPath|\n");
-	#print("GetAnyLinks looking for |$rawquery|\n");
 
 	my $e = $self->{SEARCHER};
 	my $rawResults = '';
 	my $result = '';
 
 	# First try preferred extensions. If no hits, try ALL extensions.
-	# TEST ONLY
-	my @testExtensions;
 	my $numHits = GetDefinitionHits($self, $rawquery, \@PreferredExtensions, $e, \$rawResults);
 	if ($numHits)
 		{
@@ -237,11 +213,6 @@ sub GetAnyLinks {
 			$result = '<p>nope</p>';
 			}
 		}
-	# TEST ONLY
-	else
-		{
-		;#print("getDefinitionHits for |$rawquery| failed! Extensions |@PreferredExtensions|\n");
-		}
 
 	if ($result eq '' || $result eq '<p>nope</p>')
 		{
@@ -252,13 +223,8 @@ sub GetAnyLinks {
 			GetHitFullPaths($rawResults, \@rawFullPaths);
 			my @otherRawFullPaths;
 
-			# TEST ONLY
-			#print("\$fullPath: |$fullPath|\n");
 			for (my $i = 0; $i < @rawFullPaths; ++$i)
 				{
-				# TEST ONY
-				#print("rawfp: |$rawFullPaths[$i]|\n");
-
 				if (lc($rawFullPaths[$i]) ne $fullPath)
 					{
 					push @otherRawFullPaths, $rawFullPaths[$i];
@@ -274,15 +240,11 @@ sub GetAnyLinks {
 				}
 			else
 				{
-				#$result = '<p>nope</p>';
 				FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
 				}
 			}
 		else
 			{
-			# TEST ONLY
-			#print("GetAnyHits failed for |$rawquery|\n");
-
 			$result = '<p>nope</p>';
 			}
 		}
@@ -290,16 +252,9 @@ sub GetAnyLinks {
 	return($result);
 	}
 
-# Match words supplied as a phrase, in order.
+# Call Elasticsearch to match words in $query as an exact match.
+# Extensions are limited by $extA.
 # Return num hits.
-# As for GetWordHits above, four cases, depending on $allExtensionsSelected T/F, $dir eq 'ALL' T/F.
-# 1. $allExtensionsSelected && $dir eq 'ALL': no filter needed.
-# 2. !$allExtensionsSelected && $dir eq 'ALL': filter on ext
-# 3. $allExtensionsSelected && $dir ne 'ALL': filter on $folderSearchFilterName => $dir (as array)
-# 4. !$allExtensionsSelected && $dir ne 'ALL': filter on $folderSearchFilterName for list of
-#     $dir plus extension, for all extensions in $extA.
-# For matching phrases in more than one field at once, eg ['content', $titleField], see
-# https://stackoverflow.com/questions/30020178/executing-a-multi-match-phrase-query-in-elastic-search
 sub GetDefinitionHits {
 	my ($self, $query, $extA, $e, $rawResultsR) = @_;
 
@@ -356,11 +311,11 @@ sub GetDefinitionHits {
 			);
 
 	return($$rawResultsR->{'hits'}{'total'}{'value'});
-	#return(${$rawResultsR->{'hits'}{'total'}});
-	#return(${$rawResultsR}->{'hits'}{'total'});
-	#return($$rawResultsR->{'hits'}{'total'});
 	}
 
+# Call Elasticsearch to match words in $query as an exact match.
+# Like above but no restriction on extensions.
+# This is the "last resort" search.
 sub GetAnyHits {
 	my ($self, $query, $e, $rawResultsR) = @_;
 
@@ -389,7 +344,7 @@ sub GetAnyHits {
 		        		bool => {
 		        			must => {
 		        				multi_match => {
-		        					operator => 'and',
+		        					type => 'phrase',
 		        					fields => ['content'],
 		        					query => $query
 		        				}
@@ -421,14 +376,8 @@ sub FormatDefinitionResults {
 
 	my $numHits = $rawResults->{'hits'}{'total'}{'value'};
 
-	# TEST ONLY
-	#print("numHits: |$numHits|\n");
-	
 	if (defined($numHits) && $numHits > 0)
 		{
-		# TEST ONLY
-		#print("FormatDefinitionResults we have $numHits hits.\n");
-
 		$$resultR = "";
 
 		$query =~ s!^\S+\s+!!; # Strip "sub " or whatnot
@@ -437,8 +386,6 @@ sub FormatDefinitionResults {
 		
 		for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
 			{
-			#my $score = sprintf( "%0.3f", $hit->{'_score'} );
-			#my $mtime = $hit->{'_source'}->{'moddate'};
 			my $path = $hit->{'_source'}->{'displaypath'};
 			
 			my $displayedPath = $path;
@@ -463,37 +410,14 @@ sub FormatDefinitionResults {
 						$path =~ s!%!%25!g;
 						$path =~ s!\+!\%2B!g;
 						
-						# TEST ONLY
-						my $pathWithDefinition = $path;
-						#my $pathWithDefinition = $path . $definitionName;
-
 						my $searchItems = '&searchItems=' . &HTML::Entities::encode($query);
 
-						# TEST ONLY
 						my $pathWithSearchItems = $path . $searchItems . $definitionName;
-						#my $pathWithSearchItems = $pathWithDefinition . $searchItems;
-
-						###my $anchor = "<a href='$pathWithSearchItems' onclick=\"viewerOpenAnchor(this.href); return false;\"  target=\"_blank\">$displayedPath</a>";
-
 
 						my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
-						#my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithDefinition\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
-
-						# my $anchor = "<a href='$pathWithDefinition' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$displayedPath</a>";
-
-						# TEST ONLY
-						#print("FormatDefinitionResults: |$anchor|\n");
-
-						# Put a place to break in $displayedPath if it's very long, to avoid sideways scroll.
-						my $longestPathSegmentLength = 90;
-						###$displayedPath = _StringWithBreaks($longestPathSegmentLength, $displayedPath);
-
 						my $entry = "<p>$anchor</p>\n";
-						# TEST ONLY
-						#print("FDR \$entry |$entry|\n");
 
-						
 						$$resultR .= $entry;
 						} # if (!defined($fullPathSeen{$path}))
 					}
@@ -512,7 +436,7 @@ sub FormatDefinitionResults {
 	return($hitCounter);
 	}
 
-# Do a search for $rawquery. Call exuberant ctags to generate
+# Do a search for $rawquery. Call universal ctags to generate
 # a list of defined terms for each found file, winnow to
 # exclude those that don't have a definition in the ctags output.
 # return links as per FormatDefinitionResults just above.
@@ -525,12 +449,6 @@ sub GetCtagsDefinitionLinks {
 		return($result);
 		}
 	my $e = $self->{SEARCHER};
-	#my $rawResults;
-
-	#my $numHits = 0;
-	#my $numFiles = 0;
-	# TEST ONLY
-	#print("Calling GetDefinitionHits for |$rawquery|\n");
 
 	my $numFound = 0;
 
@@ -577,30 +495,18 @@ sub GetCtagsResultsForExtensions {
 
 	if ($numHits)
 		{
-		# TEST ONLY
-		# $numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
-
-		# TEST ONLY
-		#print("NUMHITS POSITIVE! |$numHits|\n");
 		my @rawFullPaths;
 		GetHitFullPaths($rawResults, \@rawFullPaths);
-		# TEST ONLY
-		#my $numRawPaths = @rawFullPaths;
-		#print("Num raw paths: |$numRawPaths|\n");
+
 		my @winnowedFullPaths;
 		$numRemaining = WinnowFullPathsUsingCtags($rawquery, \@rawFullPaths, \@winnowedFullPaths);
 
 		if (!$numRemaining)
 			{
-			# TEST ONLY
-			#print ("NO HITS REMAINING.\n");
 			$numHits = 0;
 			}
 		else
 			{
-			# TEST ONLY
-			#print("Num remaining: |$numRemaining|\n");
-
 			FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 			}
 		}
@@ -702,28 +608,16 @@ sub FormatFullPathsResults {
 			$path =~ s!%!%25!g;
 			$path =~ s!\+!\%2B!g;
 			
-			# TEST ONLY
-			#my $pathWithDefinition = $path;
 			my $pathWithDefinition = $path . $definitionName;
 
-			# TEST ONLY
-			#my $searchItems = '/?searchItems=' . &HTML::Entities::encode($rawquery);
 			my $searchItems = '&searchItems=' . &HTML::Entities::encode($rawquery);
 
-			# TEST ONLY
 			my $pathWithSearchItems = $path . $searchItems . $definitionName;
-			#my $pathWithSearchItems = $pathWithDefinition . $searchItems;
-
-			###my $anchor = "<a href='$pathWithSearchItems' onclick=\"viewerOpenAnchor(this.href); return false;\"  target=\"_blank\">$displayedPath</a>";
-
 
 			my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
-			#my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithDefinition\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
-
-			# TEST ONLY
-			#print("FormatFullPathsResults: |$anchor|\n");
 			my $entry = "<p>$anchor</p>\n";
+
 			$$resultR .= $entry;
 			}
 		}
@@ -752,7 +646,7 @@ sub DefKeyForPath {
 
 sub HasCtagsSupport {
 	my ($self, $fullPath) = @_;
-	return(IsSupportedByExuberantCTags($fullPath));
+	return(IsSupportedByExuberantCTags($fullPath)); # now universal ctags
 }
 
 1;

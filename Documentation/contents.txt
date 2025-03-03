@@ -2,6 +2,8 @@ CONTENTS
 
 Read Me First.txt
 
+Where did the console window go.txt
+
 *QUICK INSTALL*
 How to do a quick install.txt
 
@@ -17,16 +19,21 @@ Starting, stopping, and visiting IntraMine.txt
 Upgrading to Windows 11.txt
 
 *INTRAMINE IMPORTANT BITS*
-Using IntraMine.txt
-Service management.txt
+Starting, stopping, and visiting IntraMine.txt
+The navigation bar.txt
+Services summary and management.txt
 Configuring IntraMine.txt
-Editing documents.txt
+Searching.txt
+Editing and Viewing documents.txt
+FLASH links.txt
+Go2.txt
 Gloss.txt
 Glossary popups.txt
 gloss2html.pl for standalone Gloss files.txt
 Markdown enhancements.txt
 Themes.txt
-Go to Anything.txt
+Indexing additional files.txt
+Installing new Perl modules.txt
 
 *SUPPLIED SERVICES*
 IntraMine Main.txt
@@ -48,6 +55,7 @@ WS.txt
 Chat.txt
 SSE.txt
 Reindex.txt
+Mon.txt
 Other services.txt
 
 Other Perl programs.txt

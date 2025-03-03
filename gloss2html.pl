@@ -11,6 +11,21 @@
 # leaving no dependencies on other files. See StartHtmlFile() for inlined CSS files,
 # and EndHtmlFile() for inlined JS files.
 #
+#
+# How to run
+# At a command prompt enter
+# perl path/to/gloss2html.pl path two-optional-args
+# path: full path to the file or folder you want to convert.
+# Optional args:
+# -i or -inline: if supplied, images will be shown fully. If not supplied, images
+#  will pop up when you hover over a link;
+# -h or -hoverGIFs: if supplied, all "gif" images will be "hover" style even if you specify -inline.
+# (only .gif is affected)
+# Example runline, convert all of IntraMine's text documentation:
+# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h 
+#  (note your paths will likely be different)
+#
+#
 # Your Context folder
 #####################
 # The folder holding the single file you want to convert, or the folder you supply if
@@ -106,12 +121,12 @@
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation\Read Me First.txt"
 # With images inlined:
 # CURRENTLY USED TO GENERATE INTRAMINE'S HTML DOCUMENTATION:
-# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i
+# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h
 #
 # perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\Documentation\gloss.txt"
 #
 # For txt docs in the _INSTALLER folder:
-# perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\_INSTALLER\1 IntraMine installation instructions.txt"
+# perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt"
 
 # Syntax check:
 # perl -c C:\perlprogs\mine\gloss2html.pl
@@ -139,31 +154,39 @@ use gloss;
 
 my $firstArg = shift @ARGV;
 my $secondArg = shift @ARGV;
+$secondArg ||= '';
+my $thirdArg = shift @ARGV;
+$thirdArg ||= '';
 die "Please supply a folder or file path!\n" if (not defined $firstArg);
+
+my @args;
+push @args, $firstArg;
+push @args, $secondArg;
+push @args, $thirdArg;
 
 my $fileOrDir = '';
 my $inlineImages = 0;
-if ($firstArg !~ m!^\-!)
+my $hoverGIFS = 0;
+
+for (my $i = 0; $i < @args; ++$i)
 	{
-	$fileOrDir = $firstArg;
-	if (defined($secondArg) && $secondArg =~ m!\-i!)
+	if ($args[$i] =~ m!^\-i!)
 		{
 		$inlineImages = 1;
 		}
-	}
-elsif (defined $secondArg)
-	{
-	$fileOrDir = $secondArg;
-	if ($firstArg =~ m!^\-i!)
+	elsif ($args[$i] =~ m!^\-h!)
 		{
-		$inlineImages = 1;
+		$hoverGIFS = 1;
+		}
+	elsif ($args[$i] ne '')
+		{
+		$fileOrDir = $args[$i];
 		}
 	}
-else
-	{
-	die ("Please supply a folder or file path!\n");
-	}
-	
+
+print("Path to convert: |$fileOrDir|\n");
+print("  Inline images: |$inlineImages|\n");
+print("     Hover gifs: |$hoverGIFS|\n");
 
 $fileOrDir =~ s!\\!/!g;
 my @listOfFilesToConvert;
@@ -907,84 +930,6 @@ sub GetJumperHeaderAndId {
 	$sectionIdExistsH->{$id} = 1;
 
 	return($jumperHeader, $id);
-	}
-
-# Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
-sub xHeading {
-	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
-	
-	# Use text of header for anchor id if possible.
-	$$lineBeforeR =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)(.*?)(</td></tr>)$!;
-	#$$lineBeforeR =~ m!^(<tr><td[^>]+></td><td>)(.*?)(</td></tr>)$!;
-	my $beforeHeader = $1;
-	my $headerProper = $2;
-	my $afterHeader = $3;
-
-	# No heading if the line before has no text.
-	if (!defined($headerProper) || $headerProper eq '')
-		{
-		return;
-		}
-	
-	my $id = $headerProper;
-	# Remove leading white from header, it looks better.
-	$headerProper =~ s!^\s+!!;
-	$headerProper =~ s!^&nbsp;!!g;
-	# A minor nuisance, we have span, strong, em wrapped around some or all of the header, get rid of that in the id.
-	# And thanks to links just being added, also remove <a ...> and </a> and <img ...>.
-	# Rev, remove from both TOC entry and id.
-	$id =~ s!<[^>]+>!!g;
-	$id =~ s!^\s+!!;
-	$id =~ s!\s+$!!;
-	$id =~ s!\t+! !g;
-	my $jumperHeader = $id;				
-	$id =~ s!\s+!_!g;
-	# File links can have &nbsp; Strip any leading ones, and convert the rest to _.
-	$id =~ s!^&nbsp;!!;
-	$id =~ s!&nbsp;!_!g;
-	$id =~ s!_+$!!;
-	# Quotes don't help either.
-	$id =~ s!['"]!!g;
-	# Remove unicode symbols from $id, especially the ones inserted by markdown above, to make
-	# it easier to type the headers in links. Eg 'server swarm.txt#TODO_List' for header '&#127895;TODO List'.
-	$id =~ s!\&#\d+;!!g; # eg &#9755;
-	
-	if ($id eq '' || defined($sectionIdExistsH->{$id}))
-		{
-		my $anchorNumber = @$jumpListA;
-		$id = "hdr_$anchorNumber";
-		}
-	$sectionIdExistsH->{$id} = 1;
-	
-	my $contentsClass = 'h2';
-	if (substr($underline,0,1) eq '-')
-		{
-		$contentsClass = 'h3';
-		}
-	elsif (substr($underline,0,1) eq '~')
-		{
-		$contentsClass = 'h4';
-		}
-	if ($i == 1) # right at the top of the document, assume it's a document title <h1>
-		{
-		$contentsClass = 'h1';
-		}
-	
-	# im-text-ln='$i' rather than $lineNum=$i+1, because we're on the
-	# underline here and want to record the heading line number on the line before.
-	my $jlStart = "<li class='$contentsClass' im-text-ln='$i'><a href='#$id'>";
-	my $jlEnd = "</a></li>";
-
-	# Turn the underline into a tiny blank row, make line before look like a header
-	$$lineR = "<tr class='shrunkrow'><td></td><td></td></tr>";
-	$$lineBeforeR = "$beforeHeader<$contentsClass id=\"$id\">$headerProper</$contentsClass>$afterHeader";
-	# Back out any "outdent" wrapper that might have been added, for better alignment.
-	if ($jumperHeader =~ m!^<p!)
-		{
-		$jumperHeader =~ s!^<p[^>]*>!!;
-		$jumperHeader =~ s!</p>$!!;
-		}
-	push @$jumpListA, $jlStart . $jumperHeader . $jlEnd;
 	}
 
 # Sort @jumpList (above) based on anchor text. Typical @jumpList entry:
@@ -1914,7 +1859,7 @@ sub GetImageFileRep {
 	
 	$bestVerifiedPath = "./$bestVerifiedPath";
 	
-	if ($INLINE_IMAGES || $isGlossaryFile)
+	if (($INLINE_IMAGES || $isGlossaryFile) && !($bestVerifiedPath =~ m!\.gif!i && $hoverGIFS))
 		{
 		my $bin64Img = '';
 		ImageLink($originalPath, $contextDir, \$bin64Img);

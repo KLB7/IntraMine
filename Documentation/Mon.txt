@@ -1,0 +1,34 @@
+Mon
+=====
+
+Click on "Mon" at the right end of any IntraMine navigation bar to see a list of messages that IntraMine has generated since it last started.
+
+Mon.png
+
+By default, a fresh instance of the Mon page will be shown using your default browser whenever you start IntraMine. You can turn that off, see below.
+
+Mon is available on the navigation bar from any computer on your intranet. Of course, to access IntraMine remotely you do need to know the IP address of the PC running IntraMine. You can, as you know I'm sure, determine that by using "ipconfig /all" on the IntraMine PC, and the Mon page that appears on the IntraMine PC when it starts lists the IP address during startup as
+---
+Main Server IP: 192.168.40.8
+---
+for example (yours will no doubt be different).
+
+A new Mon page at startup
+========================
+By default, IntraMine will show a new Mon page in a fresh browser tab, using your default browser. If you grow tired of that and don't want it any more:
+---
+Visit your IntraMine folder, open **data/intramine_config_8.txt**
+and change 1 in the line
+SHOWMONPAGEATSTARTUP	1
+to a 0 and save.
+---
+Then when you restart you'll no longer see a fresh Mon page.
+However, Mon will still be listed in the top navigation bar on any IntraMine page, and when you click on it you'll see a full list of messages from IntraMine since the last start.
+
+Why Mon?
+============
+Mon is mainly a workaround. Since inception, IntraMine has used a console window to provide feedback, but this approach has always been plagued to some extent by newline corruption.
+
+---
+contents.txt
+---

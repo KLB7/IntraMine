@@ -239,7 +239,6 @@ if (XT === "COB" || XT === "CPY" || XT === "CBL")
 	{
 	isCOBOL = true;
 	}
-
 let cfg = new Object();
 cfg.lineNumbers = true;
 cfg.viewportMargin = Infinity;

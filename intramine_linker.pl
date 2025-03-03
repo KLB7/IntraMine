@@ -91,7 +91,7 @@ my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
 my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
 if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
 	{
-	#print("No common images dir, setting \$COMMON_IMAGES_DIR to ''\n");
+	#Monitor("No common images dir, setting \$COMMON_IMAGES_DIR to ''\n");
 	$COMMON_IMAGES_DIR = '';
 	}
 # Edit control.
@@ -139,7 +139,7 @@ $RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
 
 # List of English words, for spell checking.
 my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
-#print("Loading list of English words for spell checking in .txt files from $wordListPath.\n");
+#Monitor("Loading list of English words for spell checking in .txt files from $wordListPath.\n");
 InitDictionary($wordListPath);
 
 # Start up db for tracking deleted files.
@@ -184,19 +184,19 @@ sub HandleBroadcastRequest {
 			# be taken out of service for maintenance one at a time.
 			# See also intramine_main.pl#BroadcastSignal()
 			# and  intramine_main.pl#HandleMaintenanceSignal().
-			print("Linker on port <$port_listen> is pausing to reload changed paths due to file or folder rename.\n");
-			print("  On this server instance only, new read-only views will not be available,\n");
-			print("  and autolinks will not be shown in CodeMirror views after scrolling.\n");
-			print("  Other Linker instances running will not be affected, and Main will redirect\n");
-			print("  requests for links to avoid this Linker while it's busy.\n");
-			print("Reloading...\n");
+			Monitor("Linker on port <$port_listen> is pausing to reload changed paths due to file or folder rename.\n");
+			Monitor("  On this server instance only, new read-only views will not be available,\n");
+			Monitor("  and autolinks will not be shown in CodeMirror views after scrolling.\n");
+			Monitor("  Other Linker instances running will not be affected, and Main will redirect\n");
+			Monitor("  requests for links to avoid this Linker while it's busy.\n");
+			Monitor("Reloading...\n");
 			
 			my $startTime = time;
 			ReinitDirFinder();
 			RequestBroadcast('signal=backinservice&sender=Linker&respondingto=folderrenamed');
 			my $endTime = time;
 			my $elapsedSecs = int($endTime - $startTime + 0.5);
-			print("Linker on port $port_listen is back. Update took $elapsedSecs s.\n");
+			Monitor("Linker on port $port_listen is back. Update took $elapsedSecs s.\n");
 			}
 		elsif ($formH->{'signal'} eq 'glossaryChanged')
 			{
@@ -223,9 +223,9 @@ sub HandleBroadcastRequest {
 			$filePath =~ s!\\!/!g;
 			if ($dict eq $filePath)
 				{
-				print("Dictionary has changed, reloading.\n");
+				Monitor("Dictionary has changed, reloading.\n");
 				ReadDictionary();
-				print("Dictionary reloaded.\n");
+				Monitor("Dictionary reloaded.\n");
 				}
 			}
 		}
@@ -254,10 +254,10 @@ sub callbackInitPathsAndGlossary {
 	my $maxShownHits = $GoToLinksMax; # Links actually, not hits.
 
 	# TEST ONLY
-	#print("Just before ServerAddress\n");
+	#Monitor("Just before ServerAddress\n");
 	my $host = ServerAddress();
 	# TEST ONLY
-	#print("Just AFTER ServerAddress\n");
+	#Monitor("Just AFTER ServerAddress\n");
 	my $LogDir = FullDirectoryPath('LogDir');
 	my $ctags_dir = CVal('CTAGS_DIR');
 	my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
@@ -268,25 +268,25 @@ sub callbackInitPathsAndGlossary {
 	sleep(1);
 
 	# TEST ONLY
-	#print("Just AFTER \$ElasticSearcher init\n");
+	#Monitor("Just AFTER \$ElasticSearcher init\n");
 	}
 
 sub LoadAllGlossaryFiles {
 	my $glossaryFileName = lc(CVal('GLOSSARYFILENAME'));
 	if ($glossaryFileName eq '')
 		{
-		print("WARNING, GLOSSARYFILENAME not found in data/intramine_config_4.txt. No glossaries loaded.\n");
+		Monitor("WARNING, GLOSSARYFILENAME not found in data/intramine_config_4.txt. No glossaries loaded.\n");
 		}
 	my $paths = GetAllPathsForFileName($glossaryFileName);
 	if ($paths ne '')
 		{
-		#print("Loading glossaries...\n");
+		#MonitorMonitor("Loading glossaries...\n");
 		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR,
 			\&FullPathInContextNS, \&BestMatchingFullDirectoryPath);
 		}
 	else
 		{
-		#print("No files called $glossaryFileName were found, no glossaries loaded.\n");
+		#Monitor("No files called $glossaryFileName were found, no glossaries loaded.\n");
 		}
 	}
 	
@@ -298,7 +298,7 @@ sub ReinitDirFinder {
 	}
 
 # Call into elasticsearch_find_def.pm to retrieve links to files
-# that contain definitions for the $rawquery word. The $fullPath is
+# that contain definitions for the $rawquery word or phrase. The $fullPath is
 # needed only for its extension, to determine the language wanted.
 # $DoGo2Def is set from 'GOTODEFINITION' in data/intramine_config_8.txt.
 sub Definitions {
@@ -312,32 +312,21 @@ sub Definitions {
 	
 	my $result = '';
 
-	# TEST ONLY
-	#print("Top of Definitions looking for |$rawquery| in |$fullPath|\n");
-
 	my @wantedExt;
 	GetExtensionsForDefinition($fullPath, \@wantedExt);
 	my $numExtensions = @wantedExt;
 	if ($numExtensions == 0)
 		{
-		# TEST ONLY
-		#print("NO EXTENSIONS.\n");
 		return('<p>nope</p>');
 		}
 
 	my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
 	if ($definitionKeyword eq '')
 		{
-		# TEST ONLY
-		#print("NO DEF KEYWORD.\n");
-
-		# If extension is supported by exuberant ctags we can continue
+		# If extension is supported by universal ctags we can continue
 		# the hard way (use ctags to find files with definitions).
 		if ($ElasticSearcher->HasCtagsSupport($fullPath))
 			{
-			# TEST ONLY
-			#print("|$fullPath| is supported by ctags.\n");
-			#return(CtagsDefinitions($rawquery, \@wantedExt));
 			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt);
 			}
 		}
@@ -367,17 +356,12 @@ sub Definitions {
 		my $query = $keywords[$i] . ' ' . $rawquery;
 		$numHits = 0;
 		$numFiles = 0;
-		# TEST ONLY
-		#print("Searching for |$query|, wanted ext |@wantedExt|\n");
 		$result = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles);
 		if ($result ne '' && $result ne '<p>nope</p>')
 			{
 			last;
 			}
 		}
-
-	# TEST ONLY
-	#print("Definitions \$result |$result|\n");
 
 	# Faint hope: perhaps the selected term is defined in some other
 	# language? We'll try .js and .css. Maybe .pl, .pm.
@@ -386,15 +370,12 @@ sub Definitions {
 		# TEST ONLY
 		$numHits = 0;
 		$numFiles = 0;
-		#print("EXTENDED SEARCH for |$rawquery|\n"); 
 		$result = $ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits, \$numFiles);
 		}
 	
+	# Last hope: accept any hits anywhere.
 	if ($result eq '' || $result eq '<p>nope</p>')
 		{
-		# TEST ONLY
-		#print("GetAnyLinks called for |$rawquery|\n");
-
 		$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath);
 		}
 
@@ -426,11 +407,6 @@ sub GetExtensionsForDefinition {
 			}
 		}
 	}
-
-# sub CtagsDefinitions {
-# 	my ($rawquery, $wantedExtA) = @_;
-# 	return($ElasticSearcher->GetCtagsDefinitionLinks($rawquery, $wantedExtA));
-# 	}
 
 # For all files where the view is generated by CodeMirror ("CodeMirror files").
 # Get links for all local file, image, and web links in $formH->{'text'}.
@@ -1197,7 +1173,7 @@ sub GetLongestGoodPath {
 	
 	if (!$revStrLength)
 		{
-		#print("EARLY RETURN, \$revStrToSearch is empty.\n");
+		#Monitor("EARLY RETURN, \$revStrToSearch is empty.\n");
 		return;
 		}
 	

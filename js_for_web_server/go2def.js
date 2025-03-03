@@ -1,22 +1,76 @@
-// go2def.js: on selection of a word W, ask Elasticsearch for
-// files containing definitions such as "sub W" or "function W"
-// - if found, put in a showhint() for display.
+// go2def.js: on selection of a word or short phrase W, ask IntraMine's Linker
+// for a list of links to files containining important
+// instances of W.
+// This is part of "Go2", see Documentation/Go2.html.
 
+// Track mouse, we show the definition links if the mouse doesn't move much.
+let defStartingX = 0;
+let defStartingY = 0;
+let maximumDeltaX = 20;
+let maximumDeltaY = 20;
+let mouseHasMovedALot = false;
+let definitionMouseMoveTimeout = 250; // milliseconds
+
+// If mouse doesn't move much call back to the Linker with req=defs
+// and then call showhint() to pop up a list of links that have
+// definitions or mentions of the term (can be a word or short phrase).
+// Called by cmAutoLinks.js#handleFileLinkMouseUp() and viewerStart.js#updateMarkers()
+// to cover off CodeMirror and nonCM displays.
 async function showDefinitionHint(term, event) {
-
-	// TEST ONLY
-	//console.log("showDefinitionHint");
-	if (term === '')
+	if (term === '' || !/\w/.test(term))
 		{
 		return;
 		}
 
-	const re = /\w+/;
-	if (!re.test(term))
+	// Note initial mouse position. We haven't moved much yet.
+	defStartingX = event.pageX;
+	defStartingY = event.pageY;
+	mouseHasMovedALot = false;
+	
+	// Install a temporary mousemove tracker.
+	window.addEventListener('mousemove', monitorMouseMoves);
+
+	// After a brief delay, if mouse has not moved much
+	// show the definition links.
+	setTimeout(function() {
+        ShowDefIfHovering(term, event);
+		}, definitionMouseMoveTimeout);
+
+}
+
+function monitorMouseMoves(event) {
+	if (mouseHasMovedALot)
 		{
 		return;
 		}
 	
+	let currentX = event.pageX;
+	let currentY = event.pageY;
+	let currentDeltaX = currentX - defStartingX;
+	if (currentDeltaX < 0)
+		{
+		currentDeltaX = -currentDeltaX;
+		}
+	let currentDeltaY = currentY - defStartingY;
+	if (currentDeltaY < 0)
+		{
+		currentDeltaY = -currentDeltaY;
+		}
+	if (currentDeltaX > maximumDeltaX || currentDeltaY > maximumDeltaY)
+		{
+		mouseHasMovedALot = true;
+		}
+}
+
+async function ShowDefIfHovering(term, event) {
+	// Remove temporary mousemove tracker.
+	window.removeEventListener('mousemove', monitorMouseMoves);
+
+	if (mouseHasMovedALot)
+		{
+		return;
+		}
+
 	try {
 		const port = await fetchPort(mainIP, theMainPort, linkerShortName, '');
 		if (port !== "")
@@ -29,9 +83,11 @@ async function showDefinitionHint(term, event) {
 	}
 }
 
+// Call back to intramine_linker.pl#Definitions(), which will ask Elasticsearch
+// for mentions of the term (word or short phrase),
+// winnowed by universal ctags in some cases to find real definitions.
+// Show any result with tooltip.js#showhint().
 async function showDefinitionHintWithPort(term, event, linkerPort) {
-	// TEST ONLY
-	//.log("showdefwithport linkerPort |" + linkerPort + "|");
 	try {
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=defs&findthis=' + encodeURIComponent(term) + '&path=' + encodeURIComponent(thePath);
 		const response = await fetch(theAction);
@@ -70,7 +126,7 @@ async function showDefinitionHintWithPort(term, event, linkerPort) {
 	}
 }
 
-// A shameless copy while I'm fooling around.
+// A shameless copy from intramine_search.js.
 function viewerOpenAnchor(href) {
 	// Browser keeps tacking on file:///, which wrecks the link.	
 	let properHref = href.replace(/^file\:\/\/\//, '');

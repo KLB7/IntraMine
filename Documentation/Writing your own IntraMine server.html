@@ -3296,6 +3296,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		}
 }
 
+
 function handleMouseLeave() {
 	hideTip();
 }
@@ -3406,6 +3407,7 @@ function hideTip(e) {
 			removeClass(anks[i], anchorClassName);
 			}
 		}
+
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);
@@ -4023,6 +4025,10 @@ function addAutoLinks() {
 let isMarkdown = false;
 function setIsMarkdown() {
 }
+
+async function showDefinitionHint(term, event) {
+}
+
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element

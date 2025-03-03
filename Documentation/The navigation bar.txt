@@ -1,0 +1,14 @@
+The navigation bar
+===================
+
+IntraMine puts a top navigation bar on each page, listing top-level page services. A service is top-level if its Page name and Short name are the same, and it's not a BACKGROUND service (see the table just below).
+
+2019-10-04 12_51_51-Full Text Search.png.
+
+All enabled top-level servers will be listed in the navigation bar, in the order that they appear in data/serverlist.txt.
+
+On the far right end of the navigation bar is a question mark that brings up IntraMine help when clicked. You probably knew that, since this file is part of the help.
+
+---
+contents.txt
+---

@@ -20,8 +20,10 @@ Visit IntraMine
 ===============
 Point your browser to http://127.0.0.1:81/Search  - use your own main port number if you changed it from 81, and if you're not on your IntraMine box, substitute its LAN IP address for 127.0.0.1 in the URI above. (As I'm sure you know, type "ipconfig /all" at a command prompt on your IntraMine box to see the LAN IP).
 
+By default when IntraMine starts it will open a new tab called 'Mon' using your default browser. From there you can visit other IntraMine services such as Search or File using the navigation bar at the top of the page. There are also links to other pages in the text of the Mon page.
 
-Next: Upgrading to Windows 11.txt, or skip to Using IntraMine.txt.
+
+Next: If you're installing, Upgrading to Windows 11.txt.
  
 ---
 contents.txt

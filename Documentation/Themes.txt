@@ -5,3 +5,7 @@ IntraMine comes with 59 themes that you can apply to the Viewer and Editor. To c
 
 For a demo of the themes see https://codemirror.net/5/demo/theme.html. The text there is editable, so you can paste in your own chunk of text and see previews under the different themes.
 
+---
+contents.txt
+---
+

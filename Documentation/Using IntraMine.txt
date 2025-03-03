@@ -1,6 +1,8 @@
 Using IntraMine
 ===============
 
+**NOTE** as of Feb 2025 this document is no longer maintained. It's been split into smaller documents. Please see "contents.txt" for a full list of docs available.
+
 Start and stop IntraMine
 ========================
 You can **start IntraMine** by double-clicking bats\START_INTRAMINE.bat as found in your IntraMine folder. (Note you don't need to use "Run as administrator" to start or stop IntraMine.) You might want to put a shortcut on your desktop.
@@ -91,13 +93,23 @@ Adding files to indexed folders
 ===============================
 If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by Elasticsearch and is being monitored for changes, this can swamp IntraMine's Watcher with changes to the point where it will stop responding for a while, meaning you won't see FLASH link or glossary popup updates until the Watcher churns through the backlog. Be patient, it might take ten minutes, but service will return to normal:)
 
+Installing new Perl modules
+===========================
+This case is a bit harder for IntraMine to deal with, since there's a strong chance that many many files will be renamed all at once, and that can lead to problems, even a lockup. If you do add a Perl module (with "cpan Some::Module" or equivalent) and IntraMine stops responding for more than a few minutes, then **force IntraMine to quit** with CTRL+C in IntraMine's console window and then follow steps 2 and 3 just below.
+
+Recommended if you're installing new Perl modules:
+1. Stop IntraMine, preferably by running bats/STOP_INTRAMINE.bat (double-click it)
+2. Install the new Perl modules you want
+3. Run bats/IM_INIT_INDEX.bat and wait a few minutes.
+At the end, IntraMine will be up and running again.
+
 More to explore
 ===============
 
 ### FLASH links
 (Fast Local Automatic Source and text Hyperlinks)
 Type just the file name and get the right link: how can that work? IntraMine knows the full paths to all files of interest to you, and when there's more than one matching file it picks the one closest to where you're writing. "Closest" means the the minimum number of directory moves up and down to get from where you're typing to your intended target file. In rare cases where that's not enough you can supply all or part of the path to the target file: the path need not be complete, the directory names need not be in order. In text files and source file comments you don't even need quotes, unless you've included '#' followed by a function or class or header name. Here's one: contents.html.
-For the details, see "Gloss.html#Links".
+For the details, see "FLASH Links.txt".
 
 ### Glossary popups
 Why aren't you using a glossary? Possibly because it's a bit tedious: you see a term you're not sure about, open the glossary, and find it in alphabetical order (maybe), then go back to reading. How about this instead: you see a term, you know it's in the glossary because it has a subtle dotted underline, you pause your mouse over it, and the definition instantly pops up with a mix of styled text, clickable links, images, tables, lists, and a scroll bar if needed. Better, right? All glossary entries are automatically available in all source and text files on your PC or LAN when the file is viewed with IntraMine. Typing up a glossary definition is as easy as putting *term colon definition* in a file called "glossary_master.txt".

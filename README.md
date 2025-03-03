@@ -1,25 +1,27 @@
 # IntraMine
 
-*Fast search, easy linking, and glossary popups for your Windows source and text files.*
+*Fast search, easy linking, Go2, and glossary popups for your Windows source and text files.*
 
 
 ## Overview
 
 IntraMine provides browser-accessed Editor, Viewer, and Search services on your intranet that are designed to ease the creation and reading of in-house documentation, and speed up code comprehension. It's for Windows only.
 
-Here are the five top novelties.
+Here are the top six enhancements.
 
 Rich [**glossary popups**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Glossary%20popups.html) mean you don't have to worry about using a term before it's defined, or interrupt the flow to provide an intrusive paragraph or long comment: hovering over a defined term shows the definition, complete with rich text, tables, images, and clickable links. They're available in all text and source files when using the Viewer or Editor.
 
-[**FLASH links**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Gloss.html#Links)[^1] are typically as simple as typing main.go and it becomes the link you want: from a list of all full paths of interest to you, it's the main.go that's nearest to the file where you're typing. You can even link directly to a function, class, or heading, such as main.go#worker() or "IntraMine May 4 2024.txt#Installer stage tracking". Available for all indexed files when using the Viewer or Editor.
+[**FLASH links**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/FLASH%20Links.html)[^1] are typically as simple as typing main.go and it becomes the link you want: from a list of all full paths of interest to you, it's the main.go that's nearest to the file where you're typing. You can even link directly to a function, class, or heading, such as main.go#worker() or "IntraMine May 4 2024.txt#Installer stage tracking". Available for all indexed files when using the Viewer or Editor.
 
 IntraMine introduces [**Gloss**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Gloss.html), a minimal memorable Markdown variant for your intranet which is tuned for creating in-house documentation, including development logs and the source for fully standalone HTML. Gloss includes FLASH links and glossary popups. And image hovers, which are starting to catch on. And styled text, headings, a synchronized auto-generated table of contents[^2], selection and search result highlighting in the text and down the scroll bar, line numbers, switch from hover images to inlined with one click, a massive English spell checker, and more. Such as unforgettably simple [tables](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Gloss.html#Tables).
 
+[**Go2**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Go2.html) is simple enough that I'll explain it all here. In a file displayed with IntraMine's Viewer or Editor select a word or short phrase, and keep your cursor fairly still: a popup will appear in a second or so listing links to files that contain the word or phrase. The less common the word or phrase, the more useful the links will probably be. Only indexed files will be searched - files contained in folders that are listed in data/search_directories.txt, which you will be asked to set when you install IntraMine. Use Go2 to visit a CSS selector mentioned in a JavaScript file, go to a function definition from a source or text file, basically go to just about anything from anywhere.
+
 For wider distribution of your documents IntraMine includes [**gloss2html.pl**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/gloss2html.pl%20for%20standalone%20Gloss%20files.html), a script that converts Gloss-styled text to fully standalone HTML with almost all Gloss features (including glossary popoups). These are self-contained HTML documents, not MTH, and no support folder is needed.
 
-And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Search.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
+And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Searching.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
 
-If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
+Strictly speaking IntraMine is a tech demo, but some considerable effort over eight years has gone into making IntraMine an outstanding choice for editing and reading text documents, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
 
 ## Installation
 

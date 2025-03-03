@@ -114,7 +114,7 @@ Context aware, context-aware: IntraMine will automatically put links in your sou
 
 If you're writing in project51/docs/Scrum notes Dec 1 2019.txt, for example, and you mention main.cpp, then IntraMine will pick project51/src/main.cpp if that is indeed the "closest" instance of main.cpp, at only two steps away (up from docs to project51, then down into src).
 
-For more, see "Gloss.html#Links".
+For more, see "FLASH Links.txt".
 
 gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.
 

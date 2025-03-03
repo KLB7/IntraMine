@@ -71,6 +71,11 @@ else
 		return false;
 	});
 	
+	myCodeMirror.getWrapperElement().addEventListener("dblclick", function(e) {
+		handleDoubleClick(e);
+	
+	});
+	
 	markerMainElement.addEventListener("mouseup", function(evt) {
 	synchTableOfContents(evt);
 	});

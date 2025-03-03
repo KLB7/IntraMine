@@ -417,19 +417,6 @@ sub NonCodeMirrorThemeCSS {
 	return("\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n");
 	}
 
-sub xNonCodeMirrorThemeCSS {
-	my ($themeName) = @_;
-	# If css file doesn't exist, return '';
-	# Location is .../IntraMine/css_for_web_server/viewer_themes/$themeName.css
-	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
-	if (FileOrDirExistsWide($cssPath) != 1)
-		{
-		return('');
-		}
-
-	return("\n" . '<link rel="stylesheet" type="text/css"  href="css_for_web_server/viewer_themes/' . $themeName . '_IM.css">' . "\n");
-	}
-
 sub PositionToggle {
 	my $result = '<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
 	return($result);

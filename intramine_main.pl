@@ -91,6 +91,7 @@ use IO::Socket;
 use IO::Select;
 use Win32::Process 'STILL_ACTIVE';
 use Win32;
+use Win32::API;
 use Encode qw/encode decode/;
 use Time::HiRes qw(usleep);
 use Win32::Console;
@@ -101,6 +102,7 @@ use LogFile;	# For logging - log files are closed between writes.
 use intramine_config;
 use win_wide_filepaths;
 use intramine_websockets_client;
+use mon;
 
 # "-t" on the command line means we are testing.
 # $TESTING is used in ReceiveInfo() below to start the tests with RunAllTests()
@@ -125,10 +127,12 @@ Win32::SetConsoleCP(65001);
 
 $|  = 1;
 
+_IconifyCmdPrompt();
+
 SetCommonOutput(\&Output); # common.pm
 
-# TEST ONLY newline
-print("\n\nStarting up.\n");
+# Tell where the feedback can be found.
+print("\n\nStarting up. See Mon browser window for startup details.\n");
 
 # Copy any new config files from /_copy_and_rename_to_data to /data.
 CopyNewConfigFiles();
@@ -167,6 +171,15 @@ if ($kLOGMESSAGES)
 
 CheckNeededFoldersExist();
 
+# Prepare to log messages from Monitor calls, for later
+# display by the Mon services.
+my $monitorFileName = CVal('INTRAMINE_MAIN_LOG');
+if ($monitorFileName eq '')
+	{
+	$monitorFileName = 'IM_LOG.txt';
+	}
+MainInitIntraMineMonitor($LogDir . $monitorFileName, \&WebSocketSend);
+
 Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 
 # Special handling for 'PERSISTENT' pages: at present only the 'Cmd' page is marked as
@@ -196,33 +209,36 @@ my $CommandServersHaveBeenRestarted = 0;
 # when the outage due to maintenance is over.
 # For an example, search all of IntraMine's main Perl files for "folderrenamed".
 
-# TEST ONLY newline
-#print("Calling LoadMaintenanceSignalsForServers.\n");
-
-# my $scriptFullPath = $0; # path of calling program
-# my $scriptDirTS = DirectoryFromPathTS($scriptFullPath);
-# my $tempPath = $scriptDirTS . 'logs/startuplog.txt';
-# MakeDirectoriesForFile($tempPath);
-
-#InitStartupMessageQueue();
-
 LoadMaintenanceSignalsForServers();
 
 # Start up all the swarm servers, based on the list in data/serverlist.txt.
-
-# TEST ONLY newline
-#print("Calling StartServerSwarmStartServerSwarm.\n");
-
 StartServerSwarm($kSwarmServerStartingPort);
 
 my $WebSockIsUp = 0;
 
-SetMaintenanceIntervalSeconds(2);
+SetMaintenanceIntervalSeconds(60);
 
 # Listen for requests.
 MainLoop($port_listen);
 
 ################### subs
+# Minimize the console window.
+sub _IconifyCmdPrompt {
+       my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '', 'N');
+       my $api2 = new Win32::API('user32', 'ShowWindow' , 'NN', 'N');
+       my $i = $api1->Call();
+       #$api2->Call($i, 0); # SW_HIDE 0x00 Hides the window, which causes another window to become the topmost window 
+       $api2->Call($i, 6); # SW_MINIMIZE 0x06 Minimizes the specified window and lets the next topmost window become the topmost window 
+       }
+
+# Not used.
+sub _BringCmdPromptToFront {
+	my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '', 'N');
+	my $api2 = new Win32::API('user32', 'ShowWindow' , 'NN', 'N');
+	my $i = $api1->Call();
+	$api2->Call($i, 1);
+	}
+
 # Print, to cmd line and log file.
 sub Output {
 	my ($text) = @_;
@@ -295,16 +311,14 @@ sub ShortServerNameForMaintenanceSignal {
 
 sub StartShortServerNameMaintenance {
 	my ($shortName) = @_;
-	# TEST ONLY
-	print("Start of maintenance for $shortName.\n");
+	Monitor("Start of maintenance for $shortName.\n");
 	$ServerShortNameIsUnderMaintenance{$shortName} = 1;
 	$MaintenanceIndexForShortServerName{$shortName} = -1; # pre-incremented by NextPort... below.
 	}
 
 sub EndShortServerNameMaintenance {
 	my ($shortName) = @_;
-	# TEST ONLY
-	print("END of maintenance for $shortName.\n");
+	Monitor("END of maintenance for $shortName.\n");
 	$ServerShortNameIsUnderMaintenance{$shortName} = 0;
 	}
 
@@ -498,9 +512,6 @@ sub StartServerSwarm {
 	
 	CreateCommandLinesForServers(\$currentPort, $scriptFullDir, \$webSocketPort);
 
-	# TEST ONLY newline
-	#print("Calling StartAllServers.\n");
-
 	StartAllServers($currentPort);
 	}
 
@@ -607,8 +618,7 @@ sub StartAllServers {
 	my $numServers = @BackgroundCommandLines;
 	for (my $i = 0; $i < $numServers; ++$i)
 		{
-		# TEST ONLY newline
-		QueueMessage("Starting '$BackgroundCommandLines[$i]' \n");
+		Monitor("Starting '$BackgroundCommandLines[$i]' \n");
 		
 		Output("   Starting '$BackgroundCommandLines[$i]' \n");
 		my $proc;
@@ -616,9 +626,6 @@ sub StartAllServers {
 			|| die ServerErrorReport();
 		$BackgroundProcIDs{$BackgroundCommandLines[$i]} = $proc;
 		++$numServersStarted;
-
-		# TEST ONLY slow down
-		#sleep(1);
 		}
 	Output("$numServers background server starts attempted\n------------\n");
 
@@ -637,8 +644,7 @@ sub StartAllServers {
 			my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
 			if (!$isZombie)
 				{
-				# TEST ONLY newline
-				QueueMessage("Starting '$ServerCommandLines[$i]' \n");
+				Monitor("Starting '$ServerCommandLines[$i]' \n");
 
 				Output("   Starting '$ServerCommandLines[$i]' \n");
 				my $proc;
@@ -655,66 +661,6 @@ sub StartAllServers {
 		}
 	Output("$numServers page server starts attempted\n------------\n");
 		
-	$TotalServersWanted += $numServers;
-	$HighestInitialServerPort = $currentPort - 1;
-	}
-
-sub xStartAllServers {
-	my ($currentPort) = @_;
-
-	# Postpone 'persistent' (command) server starts if any are running.
-	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
-	
-	# Start the Page servers, from $PageIndexForCommandLineIndex[].
-	my $numServers = @ServerCommandLines;
-	my $numServersStarted = 0;
-	for (my $i = 0; $i < $numServers; ++$i)
-		{
-		my $pgIdx = $PageIndexForCommandLineIndex[$i];
-		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
-		
-		if (!$isPersistent || !$SomeCommandServerIsRunning)
-			{
-			my $shortName = $ShortNameForCmdIndex[$i];
-			my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
-			if (!$isZombie)
-				{
-				# TEST ONLY
-				#print("STARTING '$ServerCommandLines[$i]' \n");
-
-				Output("   STARTING '$ServerCommandLines[$i]' \n");
-				my $proc;
-				Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]", 0, 0, ".")
-					|| die ServerErrorReport();
-				$PageProcIDs{$ServerCommandLines[$i]} = $proc;
-				++$numServersStarted;
-				}
-			}
-		else
-			{
-			Output("(Command server, skipping for now since it's already running.)\n");
-			}
-		}
-	Output("$numServersStarted out of $numServers page servers started\n------------\n");
-		
-	$TotalServersWanted = $numServers;
-	
-	# Start one of each BACKGROUND (or WEBSOCKET) server.
-	$numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
-		{
-		# TEST ONLY
-		#print("STARTING '$BackgroundCommandLines[$i]' \n");
-		
-		Output("   STARTING '$BackgroundCommandLines[$i]' \n");
-		my $proc;
-		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $BackgroundCommandLines[$i]", 0, 0, ".")
-			|| die ServerErrorReport();
-		$BackgroundProcIDs{$BackgroundCommandLines[$i]} = $proc;
-		++$numServersStarted;
-		}
-	Output("$numServers background servers started\n------------\n");
-	
 	$TotalServersWanted += $numServers;
 	$HighestInitialServerPort = $currentPort - 1;
 	}
@@ -769,6 +715,13 @@ sub LoadServerList {
 			$PortForShortBackgroundServerName{'WS'} = '43140';
 			}
 		
+		# Feb 2025, also force load of the IntraMine Monitor (page) server.
+		# It has taken over startup text feedback due to problems with newlines
+		# displayed by the console window.
+		# (See also swarmserver.pm#LoadServerList().)
+		my $monLine = '1	Mon			Mon			intramine_mon.pl';
+		LoadOneServer($monLine, \$count, \$pageIndex, \%pageNameSeen, 0);
+
 		# Aug 2021 the SSE server has been dropped. Don't start it.
 		while ($line = <$fileH>)
 	    	{
@@ -777,7 +730,9 @@ sub LoadServerList {
 	        	{
 				my $isZombie = ($line =~ m!^0\s!); # Zero count means don't start yet.
 	        	# Avoid loading the WS service twice. And avoid loading the SSE server always.
-	        	if ($line !~ m!intramine_websockets\.pl! && $line !~ m!intramine_SSE\.pl!)
+				# And avoid a second "MON" service.
+	        	if ($line !~ m!intramine_websockets\.pl! && $line !~ m!intramine_SSE\.pl!
+					&& $line !~ m!intramine_mon\.pl!)
 	        		{
 	        		LoadOneServer($line, \$count, \$pageIndex, \%pageNameSeen, $isZombie);
 					if ($isZombie)
@@ -897,7 +852,6 @@ sub ServerErrorReport{
 # the server swarm and this server are stopped and restarted from a particular
 # Cmd page somewhere. As mentioned at the top of this file, you can safely ignore this "feature."
 sub StopAllSwarmServers {
-	# TEST ONLY
 	print("Asking all servers to stop.\n");
 
 	my $srvrAddr = ServerAddress();
@@ -1023,7 +977,7 @@ sub ForceStopAllSwarmServers {
 
 sub ForceStopServer {
 	my ($portNumber, $serverAddress) = @_;
-	# TEST ONLY
+	
 	print("Attempting to FORCE stop $serverAddress:$portNumber\n");
 	
 	if (ServerOnPortIsRunning($portNumber))
@@ -1382,11 +1336,12 @@ sub ReceiveServerUp {
 				my $spacer = ' ' x $crudePadLength;
 				my $ipAddr = ServerAddress();
 
-				QueueMessage("$srvr server has started on port $senderPort.$spacer(http://$ipAddr:$port_listen/$srvr)\n");
+				my $href = "http://$ipAddr:$port_listen/$srvr";
+				Monitor("$srvr server has started on port $senderPort.$spacer(<a href='$href' target='_blank'>$srvr</a>)\n");
 				}
 			else # User cannot visit this one, so no example URL.
 				{
-				QueueMessage("$srvr server has started on port $senderPort.\n");
+				Monitor("$srvr server has started on port $senderPort.\n");
 				}
 			}
 			
@@ -1418,23 +1373,23 @@ sub BroadcastAllServersUp {
 	
 	# This is a good opportunity to notify the user too:)
 	ShowHummingbird();
-	QueueMessage("IntraMine has started.\n");
+	Monitor("IntraMine has started.\n");
 	my $ip = ServerAddress();
 	my $mainPort = $port_listen;
-	QueueMessage("Access IntraMine in your browser at http://$ip:$mainPort/Search\n");
-	QueueMessage("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
-	QueueMessage("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
+	Monitor("Access IntraMine in your browser at http://$ip:$mainPort/Search\n");
+	Monitor("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
+	Monitor("To start IntraMine again, double-click bats/START_INTRAMINE.bat\n");
 	if (defined($PageNameForShortServerName{'Status'}))
 		{
-		QueueMessage("To start/stop/add services, visit http://$ip:$mainPort/Status\n");
+		Monitor("To start/stop/add services, visit http://$ip:$mainPort/Status\n");
 		}
 	else
 		{
-		QueueMessage("(The Status service is not running, service management is not available.)\n");
+		Monitor("(The Status service is not running, service management is not available.)\n");
 		}
 	
 	# Trigger a maintenance interval slowdown from 2 seconds to 60 seconds.
-	QueueMessage('FULLY STARTED');
+	#Monitor('FULLY STARTED');
 
 	# No longer needed, web pages now detect a restart and re-establish
 	# their WebSockets connections (restart.js).
@@ -1530,7 +1485,7 @@ sub RestartCommandServers {
 				}
 
 			Output("   STARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
-			print("NOTE MAIN reSTARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
+			Monitor("NOTE MAIN reSTARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
 			my $proc;
 			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]", 0, 0, ".")
 				|| die ServerErrorReport();
@@ -2457,18 +2412,11 @@ my $ServerAddress;
 # After, it can be retrieved with $addr = ServerAddress();
 sub InitServerAddress {
 	my ($S) = @_;
-
-	# TEST ONLY slow down
-	#sleep(2);
 	
 	my $ipaddr = GetReadableAddress($S);
 	$ServerAddress = $ipaddr;
 
-	QueueMessage("Main Server IP: $ipaddr\n");
-	#print("\n");
-
-	# TEST ONLY slow down
-	#sleep(1);
+	Monitor("Main Server IP: $ipaddr\n");
 
 	# Save server address for use by other programs, as CVal('SERVER_ADDRESS');
 	my %addrH;
@@ -2491,7 +2439,7 @@ sub GetReadableAddress {
 	my $bestI = -1;
 	for (my $i = 0; $i < @res; ++$i)
 		{
-		#print("$i family: |$res[$i]->{family}|\n");
+		#Monitor("$i family: |$res[$i]->{family}|\n");
 		my $fam = '';
 
 		if ($res[$i]->{family} eq AF_INET)
@@ -2502,16 +2450,16 @@ sub GetReadableAddress {
 				$bestI = $i;
 				}
 			#last;
-			#print("$i IPv4 addr: |$res[$i]->{addr}|\n");
+			#Monitor("$i IPv4 addr: |$res[$i]->{addr}|\n");
 			}
 		else # IPv6
 			{
 			$fam = '6';
-			#print("$i IPv6 addr: |$res[$i]->{addr}|\n");
+			#Monitor("$i IPv6 addr: |$res[$i]->{addr}|\n");
 			}
 
 		# my ($err2, $ipaddr) = Socket::getnameinfo($res[$i]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
-		#print("$fam |$ipaddr|\n");
+		#Monitor("$fam |$ipaddr|\n");
 		}
 		
 	my ($err2, $ipaddr) = Socket::getnameinfo($res[$bestI]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
@@ -2565,25 +2513,31 @@ sub MainLoop {
 	
 	$readable = IO::Select->new;     # Create a new IO::Select object
 
-	# TEST ONLY newline
-	#print("Calling AddAllListeners\n");
-	
 	AddAllListeners($readable);
 	
 	SetLastPeriodicCallTime();
 	
 	# Start WEBSOCKET client. Only for the first WEBSOCKET server seen (lowest port number,
 	# and that's the first one in the data/serverlist.txt list).
-	#print("Main starting WEBSOCKET client.\n");
+	#Monitor("Main starting WEBSOCKET client.\n");
 	InitWebSocketClient();
 	
 	$WebSockIsUp = WebSocketSend("Main first call to WS");
+
+	# Now ok to call WebSocketSend().
+	MonNowOkToSend();
+	# Open a web page for the Mon (Monitor) service.
+	my $showMonPageAtStartup = CVal('SHOWMONPAGEATSTARTUP');
+	if ($showMonPageAtStartup)
+		{
+		OpenMonPage();
+		}
 	
 	# Warn if WS not up, might be someone upgrading.
 	if (!$WebSockIsUp)
 		{
-		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
-		print("No likely cause for that, sorry.\n");
+		Monitor("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
+		Monitor("No likely cause for that, sorry.\n");
 		}
 	
 	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
@@ -2873,12 +2827,6 @@ sub AddAllListeners {
 	Output("$SERVERNAME: listening for connections on port $port_listen\n");
 
 	AddListenersForZombies();
-
-	# TEST ONLY
-	#DumpListeners();
-
-	#TEST ONLY newline
-	#print("Calling InitServerAddress\n");
 	
 	InitServerAddress($listener);	
 	}
@@ -2901,17 +2849,18 @@ sub SockIsInListenerList {
 	return($result);
 	}
 
+# Not currently used.
 sub DumpListeners {
 	my $numListeners = @listenerArray;
 
-	print("LISTENERS\n");
-	print("------------\n");
+	Monitor("LISTENERS\n");
+	Monitor("------------\n");
 	for (my $i = 1; $i < $numListeners; ++$i)
 		{
 		my $listening = ($listenerArray[$i] ne '') ? 'listening' : 'NOT';
-		print("$listening $listenerPortArray[$i] $listenerShortnameArray[$i]\n");
+		Monitor("$listening $listenerPortArray[$i] $listenerShortnameArray[$i]\n");
 		}
-	print("------------\n");
+	Monitor("------------\n");
 	}
 
 # $shortName can be ''.
@@ -3093,7 +3042,7 @@ sub Respond {
 					Output("ERROR, no content found, returning 404\n");
 					print $s "HTTP/1.1 404 Not Found\r\n";
 					print $s "Access-Control-Allow-Origin: *\r\n";
-					print("404 MAIN |@$arr|\n");
+					Monitor("404 MAIN |@$arr|\n");
 					}
 				}
 			}
@@ -3262,18 +3211,18 @@ sub GetResultFromFile {
 		Output("for image: |$obj|\n");
 		my $filePath = $obj;
 		$filePath =~ s!^/!!; # vs substr($obj, 1);
-		#print("Image file path: |$filePath|\n");
+		#Monitor("Image file path: |$filePath|\n");
 		my $gotIt = 0;
 		if (-f $filePath)
 			{
-			#print("Got it!\n");
+			#Monitor("Got it!\n");
 			$gotIt = 1;
 			$$result_R = GetBinFile($filePath);
 			}
 		
 		if (!$gotIt)
 			{
-			#print("Image open of |$filePath| FAILED, falling back to images folder\n");
+			#Monitor("Image open of |$filePath| FAILED, falling back to images folder\n");
 			$obj =~ m!/([^/]+)$!;
 			my $filePath = $IMAGES_DIR . $1;
 			$$result_R = GetBinFile($filePath);
@@ -3337,11 +3286,11 @@ sub RUThere {
 sub DoMaintenance {
 	HandleDateChange();
 
-	my $numDumpedMessages = ShowMessages();
+	#my $numDumpedMessages = ShowMessages();
 	
 	# Call WebSocketReceiveAllMessages() periodically (currently one a minute)
 	# to "drain" all pending WebSockets messages.
-	#print("About to call WebSocketReceiveAllMessages\n");
+	#Monitor("About to call WebSocketReceiveAllMessages\n");
 	my $numMessagesSeen = WebSocketReceiveAllMessages();
 	}
 
@@ -3444,6 +3393,7 @@ sub RedirectBasedOnShortName {
 # https://ascii.co.uk/art/hummingbird
 sub ShowHummingbird {
 	my $bird = <<'FINIS';
+<pre>
     ,_                             ___  ___  ________  ___
      :`.            .--._         |\  \|\  \|\   __  \|\  \
       `.`-.        /  ',-""""'    \ \  \\\  \ \  \|\  \ \  \
@@ -3454,67 +3404,13 @@ sub ShowHummingbird {
          ,_.-';_,.'`                                        |\__\
           `"-;`/                                            \|__|
             ,'`                   
-
+</pre>
 FINIS
 
-	QueueMessage("$bird");
+	Monitor("$bird");
 	}
 
-{ ##### Messages queued for delayed print by DoMaintenance()
-my @Messages;
-#my $STDOUT;
-
-# sub InitStartupMessageQueue {
-# 	$STDOUT = Win32::Console->new(STD_OUTPUT_HANDLE);
-# }
-
-sub QueueMessage {
-	my ($msg) = @_;
-	push @Messages, $msg;
-	#AppendToTextFileWide($tempFilePath, $msg);
-	}
-
-sub NumQueuedMessages {
-	my $numMessages = @Messages;
-	return($numMessages);
-	}
-
-sub ShowMessages {
-	my $numMessages = @Messages;
-
-	if ($numMessages)
-		{
-		# 1 millisecond == 1000 microseconds
-		usleep(200000); # 0.2 seconds
-		}
-	
-	my $setSlowerMaintenance = 0;
-	for (my $i = 0; $i < @Messages; ++$i)
-		{
-		if ($Messages[$i] ne 'FULLY STARTED')
-			{
-			#$STDOUT->Write("$Messages[$i]");
-			print("$Messages[$i]");
-			}
-		else
-			{
-			$setSlowerMaintenance = 1;
-			}
-		}
-		
-	@Messages = ();
-
-	if ($setSlowerMaintenance)
-		{
-		SetMaintenanceIntervalSeconds(60);
-		}
-	
-	return($numMessages);
-	}
-
-} ##### Messages queued for delayed print by DoMaintenance()
-
-{ ##### Maintenance timeout
+{ ##### Maintenance timeout, not really needed, it's set to 60 seconds.
 my $MaintenanceTimeout;
 
 sub SetMaintenanceIntervalSeconds {
@@ -3526,6 +3422,25 @@ sub MaintenanceSeconds {
 	return($MaintenanceTimeout);
 	}
 } ##### Maintenance timeout
+
+# Ask the default browser to open a page on the Mon service.
+sub OpenMonPage {
+	my $serverIP = ServerAddress();
+	my $monPort = NextPortForShortName('Mon');
+	if ($monPort != 0)
+		{
+		my $url = "http://$serverIP:$monPort/Mon/?req=main";
+		my $cmd = "start \"\" \"$url\"";
+		if (system($cmd) != 0)
+			{
+			print("Cannot locate or failed to open default browser!\n");
+			}
+		}
+	else
+		{
+		print("Mon service was not started, no feedback will be shown.\n");
+		}
+}
 
 {##### TESTING
 my $NumServersUnderTest;

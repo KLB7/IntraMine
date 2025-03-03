@@ -1,0 +1,13 @@
+Installing new Perl modules
+===========================
+This case is a bit harder for IntraMine to deal with, since there's a strong chance that many many files will be renamed all at once, and that can lead to problems, even a lockup. If you do add a Perl module (with "cpan Some::Module" or equivalent) and IntraMine stops responding for more than a few minutes, then **force IntraMine to quit** with CTRL+C in IntraMine's console window and then follow steps 2 and 3 just below.
+
+Recommended if you're installing new Perl modules:
+1. Stop IntraMine, preferably by running bats/STOP_INTRAMINE.bat (double-click it)
+2. Install the new Perl modules you want
+3. Run bats/IM_INIT_INDEX.bat and wait a few minutes.
+At the end, IntraMine will be up and running again.
+
+---
+contents.txt
+---

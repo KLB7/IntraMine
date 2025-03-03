@@ -1802,7 +1802,12 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R25'><td n='25'></td><td><a href="./contents.html" target="_blank">contents.html</a></td></tr></table><p id='bottomShim'></p></div></div>
+<tr id='R25'><td n='25'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R26'><td n='26'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
+aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
+AABJRU5ErkJggg==
+" width='98%' height='3' /></td></tr></table><p id='bottomShim'></p></div></div>
 <script>
 let thePath = 'C:/perlprogs/IntraMine/Documentation/Markdown enhancements.txt';
 let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/Markdown enhancements.txt';
@@ -2508,6 +2513,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		}
 }
 
+
 function handleMouseLeave() {
 	hideTip();
 }
@@ -2618,6 +2624,7 @@ function hideTip(e) {
 			removeClass(anks[i], anchorClassName);
 			}
 		}
+
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);
@@ -3235,6 +3242,10 @@ function addAutoLinks() {
 let isMarkdown = false;
 function setIsMarkdown() {
 }
+
+async function showDefinitionHint(term, event) {
+}
+
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element

@@ -3,12 +3,13 @@ Configuring IntraMine
 
 Basic configuration
 ===================
-Most of IntraMine's configuration options are discussed where they naturally come up. And all of the values in data/intramine_config.txt, IntraMine's main configuration file, are described in that file where they are defined. If you sadly suffer from "compelled to read the entire manual" syndrome, as I do, then you might want to skim through data/intramine_config.txt to see what's available. With the passage of time IntraMine has accumulated some additional configuration files called intramine_config_N.txt where N is an integer. Each has just one or two values. You'll find links to all of the configuration files on the Status page. And finally, each service can have its own config file. The locations is the data/ folder, and the naming convention is "Shortname_config.txt", for example DBX_config.txt.
+Most of IntraMine's configuration options are discussed where they naturally come up. And all of the values in data/intramine_config.txt, IntraMine's main configuration file, are described in that file where they are defined. If you sadly suffer from "compelled to read the entire manual" syndrome, as I do, then you might want to skim through data/intramine_config.txt to see what's available. With the passage of time IntraMine has accumulated some additional configuration files called intramine_config_N.txt where N is an integer. Each has just a few values, typically one or two. You'll find links to all of the configuration files on the Status page. And finally, each service can have its own config file. The locations is the data/ folder, and the naming convention is "Shortname_config.txt", for example DBX_config.txt.
 
 Here we'll mostly go the other way, with a guide to finding config values to make specific things happen. And a brief chat about adding your own configuration values if you're writing your own IntraMine service.
 
 TABLE IntraMine configuration
 To configure					See
+Mon showing at startup			Mon.txt
 Port numbers					A note on port numbers.txt
 Start/stop services				"Using IntraMine.txt#Supplied services"
 Search options					"Search.txt#Search configuration"
@@ -19,6 +20,7 @@ Viewer							"Viewer.txt#Viewer configuration"
 Opening PDF and docx files		"Viewer.txt#PDF and docx viewers"
 Gloss standalone HTML			"gloss2html.pl for standalone Gloss files.txt#Full image display versus image hovers", see also intramine_config.txt#243
 Testing							"Testing with IntraMine.txt", "Testing with IntraMine.txt#Configuring IntraMine to run your test file"
+Enable/disable Go2				Go2.txt
 
 Configuration value files
 =========================

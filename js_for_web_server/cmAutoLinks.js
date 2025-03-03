@@ -10,6 +10,7 @@
 // Track lines that have been looked at, by line number.
 let lineSeen = {};
 let linkOrLineNumForText = new Map();
+let doubleClickDetected = false;
 
 // Group CodeMirror redraw operations when scrolling (not editing).
 let useStartEndOperation = true;
@@ -710,7 +711,7 @@ function handleFileLinkMouseUp(evt) {
 	let linkType = typeClass.theType;
 	//let className = typeClass.theClass;
 	
-	if (!weAreEditing && linkType === "" && !goingToAnchor)
+	if (!weAreEditing && linkType === "" && !goingToAnchor && !doubleClickDetected)
 		{
 		// If nothing selected, expand selection to any word under the cursor.
 		// Removed, CM does this already - see cmViewerStart.js#245 or so.
@@ -733,13 +734,8 @@ function handleFileLinkMouseUp(evt) {
 
 		if (!(cmCursorStartPos.line === cmCursorEndPos.line && cmCursorStartPos.ch === cmCursorEndPos.ch))
 			{
-			let text = myCodeMirror.doc.getSelection(); 
-			const re = /^[~$@%\w]+$/;
-			if (re.test(text))
-				{
-				// Show hint with links to definitions.
-				showDefinitionHintForSelection(evt);
-				}
+			// Show hint with links for selection.
+			showDefinitionHintForSelection(evt);
 			}
 		}
 	
@@ -747,10 +743,18 @@ function handleFileLinkMouseUp(evt) {
 	// because goToAnchor() will restore the selection after jumping to the anchor.
 	goingToAnchor = false;
 
+	// doubleClickDetected is used only to suppress a second call above to
+	// showDefinitionHintForSelection().
+	doubleClickDetected = false;
+
 	// Clear any remembered line number for table of contents use.
 	setTimeout(function() {
         clearLineNumberForToc();
         }, 500);
+}
+
+function handleDoubleClick(e) {
+	doubleClickDetected = true;
 }
 
 function showDefinitionHintForSelection(evt) {

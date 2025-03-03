@@ -1,0 +1,17 @@
+Searching
+=============
+Search1.png
+
+Searching with IntraMine's Search page is I hope easy enough without long-winded descriptions. Here's a brief summary of the search fields.
+**Search for** accepts plain text, and also $ @ and % characters (mainly for Perl).
+**Match Exact Phrase** means the words typed must match exactly and in sequence, as stated, but the match is not case sensitive.
+**Directory**, the three dots, **Subdirectories too** allows you to limit searching to a single directory and optionally all subdirectories contained therein. Hit the three dots ... to pick a directory, or you can type it in.
+**Language / Extension** is a dropdown allowing you to limit searches to one or more languages or extensions (though you can't mix the two).
+And finally, the **Sort by:** dropdown will affect all searches done on your particular Search page until you refresh it. You can change the sort after a search or before.
+
+For more on Search see "Search.txt".
+
+---
+contents.txt
+---
+

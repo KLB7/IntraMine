@@ -404,7 +404,7 @@ Output("\nIndexing complete. Full path list is in |$fullFilePathListPath|.\n");
 # Full paths list has been recreated, so start up stopped services.
 StartLinkerAndWatcherServices();
 
-Output("Linker and Watcher services have been restarted.\n").
+Output("Linker and Watcher services have been restarted.\n");
 Output("All done!\n");
 
 # All finished. Write an "all done" message to the output progress file.

@@ -1,0 +1,71 @@
+Services summary and management
+================================
+
+Supplied services
+=================
+Here are the servers supplied with IntraMine. You'll find the master list used by IntraMine in data/serverlist.txt in your IntraMine folder. The individual services are described in their own files, as listed in the "SUPPLIED SERVICES" section of contents.txt.
+
+TABLE Almost all services, with default Count value
+Count	Page name			Short name	Program						Option	Docs
+2		Search				Linker		intramine_linker.pl	 		Linker.txt
+1		Search				Search		intramine_search.pl			 Search.txt
+2		Search				Viewer		intramine_viewer.pl	 		Viewer.txt
+1		Search				Opener		intramine_open_with.pl	 	Opener.txt
+1		Search				Editor		intramine_editor.pl			 Editor.txt
+1		Files				Files		intramine_filetree.pl	 	Files.txt
+0		Upload				Upload		intramine_uploader.pl	 	Upload.txt
+0		Days				Days		intramine_daysserver.pl	 	Other services.txt
+0		Events				Events		intramine_eventsserver.pl	 	Other services.txt
+0		Cash				Cash		intramine_cashserver.pl	 	Other services.txt
+1		ToDo				ToDo		intramine_todolist.pl	 	ToDo.txt
+0		Cmd					Cmd			intramine_commandserver.pl	PERSISTENT	Cmd.txt
+1		Status				Status		intramine_status.pl	 	Status.txt
+1		DBX					DBX			intramine_db_example.pl	 	DBX.txt
+1		Bp					Bp			intramine_boilerplate.pl	 	Bp.txt
+1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
+0		Chat				Chat		intramine_chat.pl			 	Chat.txt
+1		EM					EM			intramine_EM.pl 			EM.txt
+0		Reindex				Reindex		intramine_reindex.pl		 	Reindex.txt
+
+The "Count" field controls how many of each server to start.
+
+And there are two services that are forced to start, not present in data/serverlist.txt:
+TABLE Additional services always started
+Count	Page name			Short name	Program						Option	Docs
+1	WEBSOCKETS			WS			intramine_websockets.pl			WEBSOCKET	WS.txt
+1	Mon					Mon			intramine_mon.pl			 			Mon.txt
+The unique 'WEBSOCKET' option for WS means that not only is it a BACKGROUND service but also that it will be started first.
+
+Enable / disable services
+============================
+Completely disable
+--------------------
+To completely disable a server, put a '#' at the beginning of the line in data/serverlist.txt.
+
+Not started but available
+---------------------------
+If you set a server's "Count" field to 0 in data/serverlist.txt then it won't be started when IntraMine starts, but it will be available for starting under the "Add one page server:" dropdown menu on the Status page. Elswhere this might be called a "zombie" service, for no good reason.
+
+Only one instance of a BACKGROUND service can be run, so the Count values for a service such as FILEWATCHER are basically zero or commented out to not run and non-zero to run.
+
+Starting and stopping services while IntraMine is running
+=================================
+To start, stop, restart or add a service on the fly, use the Status page. Additions and deletions of services done on the fly will not survive a restart of IntraMine, though. To make a permanent change to which services are running, edit the "Count" column in data/serverlist.txt and restart IntraMine. Note PERSISTENT and BACKGROUND service counts can only be adjusted by editing data/serverlist.txt. For a bit more see Status.txt.
+
+A minimal set for search/view/edit
+==================================
+By default, the Count for both Linker and Viewer services is set to 2. The Viewer is small, so it doesn't matter much, but the Linker does take a bit of memory, needing about 400 MB for every 300,000 files. So if you find you're low on memory, you can free up a bit by setting the Linker Count to 1. The one main drawback of doing so is that the Linker will go out of service for a few seconds if you rename a folder. With two running, the Linkers take turns for maintenance and there is no service interruption.
+
+If you just want to search, view, and edit source and text files, you can disable the ToDo, DBX, and Bp servers. You can also disable the Editor server if you want, or use your own preferred editing app in place of IntraMine's built-in editor, as described in "Editing documents.txt".
+
+Ramping up for many users
+=========================
+The only services supplied with IntraMine that might experience heavy load are the Linker and Viewer. If you have many users and people notice that it's taking a long time to open or scroll through file views, the cure is to increase the Count field for both the Linker and Viewer in data/serverlist, and of course restart IntraMine.
+
+The Viewer has minor memory needs (under 40 MB), but each Linker needs about 400 MB for every 300,000 files. If people report slow file loading times, that means you could use another Viewer. If links don't fill in immediately when scrolling through a document, that means you could use another Linker. As usual, you can increase the number of Viewer or Linker services running by bumping up the Count field in data/serverlist.txt.
+
+While you're here, it's worth mentioning that if links fill in slowly or typing stutters when using the Editor, it could be a browser extension that's the culprit. If you remove the extensions in your browser that your browser suggests should really be removed, you might find typing is fast again. I know I did.
+
+---
+contents.txt
+---

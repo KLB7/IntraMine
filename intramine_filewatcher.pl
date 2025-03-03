@@ -504,29 +504,29 @@ sub ReportIfCongested {
 			$Congested = 1;
 			if ($numTotal > $CongestionMinimum*10)
 				{
-				print("VERY heavy load on Watcher, $numTotal file system changes.\n");
+				Monitor("VERY heavy load on Watcher, $numTotal file system changes.\n");
 				}
 			else
 				{
-				print("Heavy load on Watcher, $numTotal file system changes.\n");
+				Monitor("Heavy load on Watcher, $numTotal file system changes.\n");
 				}
 
 			# TEST ONLY
-			print("First few files:\n");
-			for (my $i = 0; $i < @PathsOfChangedFiles && $i < 5; ++$i)
-				{
-				print("    $PathsOfChangedFiles[$i]\n");
-				}
+			#Monitor("First few files:\n");
+			#for (my $i = 0; $i < @PathsOfChangedFiles && $i < 5; ++$i)
+			#	{
+			#	Monitor("    $PathsOfChangedFiles[$i]\n");
+			#	}
 			}
 		elsif ($Congested)
 			{
-			print("Watcher load has dropped off.\n");
+			Monitor("Watcher load has dropped off.\n");
 			$Congested = 0;
 			}
 		}
 	elsif ($Congested)
 		{
-		print("Watcher load has dropped off.\n");
+		Monitor("Watcher load has dropped off.\n");
 		$Congested = 0;
 		}
 	}
@@ -616,13 +616,13 @@ sub SendOneFileContentsChanged {
 	}
 
 sub ReportMissingFileWatcherLog {
-	print("ERROR, File Watcher log not found at |$FileWatcherLogPath|!\n");
-	print(" if you don't want to use File Watcher for real-time reindexing of your search folders, remove the line\n");
-	print("1	FILEWATCHER	Watcher		intramine_filewatcher.pl	BACKGROUND\n");
-	print("from your data/serverlist.txt file.\n");
-	print("Or perhaps the entry for FILEWATCHERDIRECTORY in data/intramine_config.txt needs updating?\n");
-	print("  (current log path is |$FileWatcherLogPath|)\n");
-	print("intramine_filewatcher.pl is stopping now. Bye.\n");
+	Monitor("ERROR, File Watcher log not found at |$FileWatcherLogPath|!\n");
+	Monitor(" if you don't want to use File Watcher for real-time reindexing of your search folders, remove the line\n");
+	Monitor("1	FILEWATCHER	Watcher		intramine_filewatcher.pl	BACKGROUND\n");
+	Monitor("from your data/serverlist.txt file.\n");
+	Monitor("Or perhaps the entry for FILEWATCHERDIRECTORY in data/intramine_config.txt needs updating?\n");
+	Monitor("  (current log path is |$FileWatcherLogPath|)\n");
+	Monitor("intramine_filewatcher.pl is stopping now. Bye.\n");
 	}
 
 # Can't simply read file backwards to the last position, since the File Watcher log is 
@@ -657,7 +657,7 @@ sub GetChangesFromWatcherLogs {
 	my $gotEmAll = GetLogChanges($FileWatcherLogPath, 0);
 	if ($gotEmAll < 0)
 		{
-		print("***E-R-R-O-R***Could not open '$FileWatcherLogPath'!\n");
+		Monitor("***E-R-R-O-R***Could not open '$FileWatcherLogPath'!\n");
 		return($result);
 		}
 	else
@@ -674,7 +674,7 @@ sub GetChangesFromWatcherLogs {
 					}
 				else
 					{
-					print("***E-R-R-O-R***Could not open '$archivedNewestLogPath'!\n");
+					Monitor("***E-R-R-O-R***Could not open '$archivedNewestLogPath'!\n");
 					}
 				}
 			# else probably there is no archived watcher log yet
@@ -703,7 +703,7 @@ sub GetLogChanges {
 	my $bw = File::ReadBackwards->new($logFilePath);
 	if (!defined($bw))
 		{
-		print("***E-R-R-O-R***Could not open '$logFilePath'!\n");
+		Monitor("***E-R-R-O-R***Could not open '$logFilePath'!\n");
 		return(-1);
 		}
 
@@ -959,18 +959,18 @@ sub UpdateFullPathsForFileRenames {
 	my $remainingRenameCount = %newPathForOldPath;
 	if ($remainingRenameCount)
 		{
-		print("Starting full paths update for file rename(s).\n");
+		Monitor("Starting full paths update for file rename(s).\n");
 		my $startTime = time;
 		# Update reverse_filepaths.pm %FileNameForFullPath.
 		UpdatePathsForFileRenames(\%newPathForOldPath);
 		my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
 		if ($howItWent ne "ok" && $howItWent ne "1")
 			{
-			print("$howItWent\n");
+			Monitor("$howItWent\n");
 			}
 		my $endTime = time;
 		my $elapsedSecs = int($endTime - $startTime + 0.5);
-		print("Full paths update for file rename(s) complete, took $elapsedSecs s.\n");
+		Monitor("Full paths update for file rename(s) complete, took $elapsedSecs s.\n");
 		# Now update Elasticsearch entries corresponding to the new paths.
 		AskElasticsearchToUpdateFilePaths(\%newPathForOldPath);
 		}
@@ -997,18 +997,18 @@ sub UpdateFullPathsForFolderRenames {
 	my $remainingRenameCount = @renamedFolderPaths;
 	if ($remainingRenameCount)
 		{
-		print("Starting full paths update for folder rename.\n");
+		Monitor("Starting full paths update for folder rename.\n");
 		my $startTime = time;
 		my %newPathForOldPath;
 		UpdatePathsForFolderRenames($remainingRenameCount, \@renamedFolderPaths, \@oldFolderPaths, \%newPathForOldPath);
 		my $howItWent = ConsolidateFullPathLists(1); # 1 == force consolidation no matter what
 		if ($howItWent ne "ok" && $howItWent ne "1")
 			{
-			print("$howItWent\n");
+			Monitor("$howItWent\n");
 			}
 		my $endTime = time;
 		my $elapsedSecs = int($endTime - $startTime + 0.5);
-		print("Full paths update for folder rename complete, took $elapsedSecs s.\n");
+		Monitor("Full paths update for folder rename complete, took $elapsedSecs s.\n");
 		
 		# Now update Elasticsearch entries corresponding to the new paths.
 		AskElasticsearchToUpdateFilePaths(\%newPathForOldPath);
@@ -1124,7 +1124,7 @@ sub AskElasticsearchToIndexChanges {
 sub AskElasticsearchToUpdateFilePaths {
 	my ($newPathForOldPathH) = @_;
 	
-	print("Updating Elasticsearch path entries for file or folder rename.\n");
+	Monitor("Updating Elasticsearch path entries for file or folder rename.\n");
 	my $startTime = time;
 	my $numIndexedPaths = 0;
 	
@@ -1148,7 +1148,7 @@ sub AskElasticsearchToUpdateFilePaths {
 	
 	my $endTime = time;
 	my $elapsedSecs = int($endTime - $startTime + 0.5);
-	print("Elasticsearch path update complete, $numIndexedPaths paths updated, took $elapsedSecs s.\n");
+	Monitor("Elasticsearch path update complete, $numIndexedPaths paths updated, took $elapsedSecs s.\n");
 	}
 
 # "New" here means new to IntraMine. This includes truly new files "right now"
@@ -1326,13 +1326,13 @@ sub PeriodicallyConsolidate {
 		my $howItWent = ConsolidateFullPathLists(0); # reverse_filepaths.pm#ConsolidateFullPathLists(), 0==no forcing
 		if ($howItWent ne "" && $howItWent ne "ok" && $howItWent ne "1")
 			{
-			print("$howItWent\n");
+			Monitor("$howItWent\n");
 			}
 		my $endTime = time;
 		my $elapsedSecs = int($endTime - $startTime + 0.5);
 		my $timeNow = NiceToday();
 		my $addOn = ($elapsedSecs == 1) ? ' Erm, second.' : '';
-		print("File paths consolidated at $timeNow, took $elapsedSecs seconds.$addOn\n");
+		Monitor("File paths consolidated at $timeNow, took $elapsedSecs seconds.$addOn\n");
 		
 		# Clean out stale FileWatcher logs, as a nicety. It takes a while for them to pile up,
 		# but at 10 MB each might as well get rid of them now and then.
@@ -1376,7 +1376,7 @@ sub DeleteOldTempFiles {
 			if (!DeleteFileWide($tempFileList[$i]))
 				{
 				Output("Error, could not delete |$tempFileList[$i]|!\n");
-				print("Error, could not delete |$tempFileList[$i]|!\n");
+				Monitor("Error, could not delete |$tempFileList[$i]|!\n");
 				last;
 				}
 			--$numFilesLeft;
@@ -1443,7 +1443,7 @@ sub CleanOutOldFileWatcherLogs {
 			if (!DeleteFileWide($logFileList[$i]))
 				{
 				Output("Error, could not delete |$logFileList[$i]|!\n");
-				print("Error, could not delete |$logFileList[$i]|!\n");
+				Monitor("Error, could not delete |$logFileList[$i]|!\n");
 				last;
 				}
 			--$numLogsLeft;
@@ -1599,7 +1599,7 @@ sub StartPowerShellFolderMonitor {
 	my $result = Win32::Process::Create($PowerShellProc, $powerShellPath, $powerShellArgs, 0, 0, ".");
 	if ($result == 0)
 		{
-		print("WARNING, could not start |$foldermonitorPSPath|.\n");
+		Monitor("WARNING, could not start |$foldermonitorPSPath|.\n");
 		}
 	return($result);
 	}
@@ -1615,18 +1615,18 @@ sub StopPowerShellFolderMonitor {
 	}
 
 sub RestartFolderMonitor {
-	print("bats/foldermonitor.ps1 is slow or not running.\n");
-	print("If you see this message repeatedly, and you have not\n");
-	print("just dumped a huge number of files into an indexed folder,\n");
-	print("please read /Documentation/Unblocking foldermonitor.html.\n");
-	print("Restarting foldermonitor.ps1...\n");
+	Monitor("bats/foldermonitor.ps1 is slow or not running.\n");
+	Monitor("If you see this message repeatedly, and you have not\n");
+	Monitor("just dumped a huge number of files into an indexed folder,\n");
+	Monitor("please read /Documentation/Unblocking foldermonitor.html.\n");
+	Monitor("Restarting foldermonitor.ps1...\n");
 	StopPowerShellFolderMonitor();
 	# 1 millisecond == 1000 microseconds
 	usleep(300000); # 0.3 seconds
 	my $result = StartPowerShellFolderMonitor();
 	if ($result)
 		{
-		print("foldermonitor.ps1 restart attempt complete.\n");
+		Monitor("foldermonitor.ps1 restart attempt complete.\n");
 		}
 	}
 } ##### PowerShell folder monitor start/stop

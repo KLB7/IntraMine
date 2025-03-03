@@ -1,0 +1,21 @@
+Indexing additional files
+=================================
+
+Indexing additional folders
+=================================
+You can add one or more folders for indexing and monitoring without having to completely rebuild your Elasticsearch index. To do that:
+1. Open data/search_directories.txt.
+2. Change all of the "Index" entries to 0.
+3. Add the new directory paths, and set "Index" for them to 1.
+4. Leave the existing "Monitor" entries as-is, and for the new entries: set "Monitor" to 1 if the path is on locally attached storage and you want to pick up on file changes; and set to 0 if the path is on NAS or you're not interested in re-indexing files there that change.
+5. Save search_directories.txt, and run **bats/IM_ADD_INDEX.bat**. This will stop IntraMine, add files in the new folders to your Elasticsearch index, and restart IntraMine. Along the way it will also stop the File Watcher service, rebuild its XML config file that tells it which folders to monitor, and restart the File Watcher service.
+6. Against the day when you might want to completely rebuild your Elasticsearch index, this would be a good time to revisit data/search_directories.txt and change all the altered "Index" entries back to 1.
+
+However, doing a complete reindex instead doesn't take that long. To do that, add and delete your entries in data/search_directories.txt and then see "Reindex.html".
+
+Adding files to indexed folders
+===============================
+If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by Elasticsearch and is being monitored for changes, this can swamp IntraMine's Watcher with changes to the point where it will stop responding for a while, meaning you won't see FLASH link or glossary popup updates until the Watcher churns through the backlog. Be patient, it might take ten minutes, but service will return to normal:)
+---
+contents.txt
+---

@@ -3,3 +3,7 @@
 GOTODEFINITION	1
 GO2LINKSMAX		8
 PREFERRED_EXTENSIONS	pl,pm,js,css,cpp,cc,c,cxx,hpp,h,hh,hxx,cs,go,java,php,php3,php4,php5,php7,ps1,py,pyw,rb,rs,swift,ts,vb,vbs
+# Startup log name
+INTRAMINE_MAIN_LOG		IM_LOG.txt
+# Show a new Mon page when starting up, 0/1.
+SHOWMONPAGEATSTARTUP	1
