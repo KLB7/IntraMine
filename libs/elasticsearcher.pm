@@ -558,6 +558,12 @@ sub FormatHitResults {
 		# With the non-RESTful "href=path&searchItems=..." approach:
 		my $searchItems = '&searchItems=' . &HTML::Entities::encode($quoteChar . $query . $quoteChar);
 		$$resultR = "<table id='elasticSearchResultsTable'>\n";
+
+		my $definitionName = '';
+		if ($query =~ m!(^[\w:]+)$!)
+			{
+			$definitionName = '#' . $1;
+			}
 		
 		for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
 			{
@@ -604,15 +610,18 @@ sub FormatHitResults {
 						$path =~ s!%!%25!g;
 						$path =~ s!\+!\%2B!g;
 						
-						my $pathWithSearchItems = $path . $searchItems;
+						my $pathWithSearchItems = $path . $searchItems . $definitionName;
+
 						my $anchor = "<a href='$pathWithSearchItems' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$title</a>";
+
+
 						my $editAnchor = '';
 						$path =~ /\.([^.]+)$/;
 				   		my $ext = $1;
 				   		
 						if ($alllowEditing && (!$remote || $ext !~ m!^(docx|pdf)!i))
 							{
-							$editAnchor = "<a href='$path' onclick = \"editOpen(this.href); return false;\">&nbsp;&nbsp;<img src='edit1.png' width='17' height='12' /></a>";
+							$editAnchor = "<a href='$pathWithSearchItems' onclick = \"editOpen(this.href); return false;\">&nbsp;&nbsp;<img src='edit1.png' width='17' height='12' /></a>";
 							}
 						
 						# Wrap up $editAnchor in a span, for optional removal later.

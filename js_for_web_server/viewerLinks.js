@@ -78,15 +78,30 @@ async function appEditWithPort(href, openerPort) {
 async function editWithIntraMine(href) {
 	showSpinner();
 
+	// Pull any #Header from the href, put it back on the end later.
+	let header = '';
+	let headerMatch = /(#.+?$)/.exec(href);
+	if (headerMatch !== null)
+		{
+		header = headerMatch[1];
+		href = href.replace(/#.+?$/, '');
+		}
+	
 	try {
 		const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
 		if (port !== "")
 			{
 			hideSpinner();
 			let properHref = href.replace(/^file\:\/\/\//, '');
-			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + '&rddm=' + String(getRandomInt(1, 65000));
-
+			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + header;
+			
 			window.open(url, "_blank");
+			}
+		else
+			{
+			// Trouble getting Editor port number.
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = 'Error, could not retrieve port number for the Editor!';
 			}
 	}
 	catch(error) {
@@ -114,7 +129,7 @@ async function openView(href, serviceShortName) {
 		const port = await fetchPort(mainIP, theMainPort, actualShortName, errorID);
 		if (port !== "")
 			{
-			openViewWithPort(href, theMainPort, port, serviceShortName);
+			openViewWithPort(href, port, serviceShortName);
 			}
 	}
 	catch(error) {
@@ -125,7 +140,7 @@ async function openView(href, serviceShortName) {
 }
 
 // Open a view of a file, using the Viewer (intramine_file_viewer_cm.pl).
-function openViewWithPort(href, port, servicePort, serviceShortName) {
+function openViewWithPort(href, servicePort, serviceShortName) {
 	const rePort = /\:\d+/;
 	href = href.replace(rePort, ":" + servicePort);
 

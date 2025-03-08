@@ -21,6 +21,7 @@ use File::ReadBackwards;
 use Encode qw(from_to);
 use Encode::Guess;
 use Win32::Process;
+use Win32::Service;
 use Time::HiRes qw(usleep);
 # For stopping PowerShell script:
 use Win32::Process 'STILL_ACTIVE';
@@ -80,6 +81,7 @@ my $STANDALONEGLOSSARYFILENAME = lc(CVal('GLOSSARY_FILE_NAME')); # default gloss
 my %RequestAction;
 $RequestAction{'signal|FILESYSTEMCHANGE'} = \&OnChangeDelayedIndexChangedFiles;
 $RequestAction{'signal|HEARTBEAT'} = \&OnHeartbeatFromFolderMonitor;
+$RequestAction{'signal|IGNOREFWWS'} = \&IgnoreFWWS;
 
 my $HaveCheckedLogExists = 0; 	# we only check the first time, exit if File Watcher log is not found.
 my $LastTimeStampChecked = ''; 	# When reading 'tail' of File Watcher log, just step back to the last time stamp seen before.
@@ -106,6 +108,9 @@ my $NumTimeoutsBeforeHeartbeatCheck = 70;
 
 StartPowerShellFolderMonitor();
 
+# We check File Watcher regularly, restart it if it crashes.
+InitFWWSMonitor();
+
 # Start up db for tracking deleted files.
 InitDeletesDB();
 
@@ -116,7 +121,7 @@ my $CongestionMinimum = 200; # Somewhat arbitrary, count of files receive all at
 GetDirectoriesToIgnore();
 
 # Note we call IndexChangedFiles() once a minute (30 two-second timeouts).
-MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFiles);
+MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFilesEtc);
 
 StopPowerShellFolderMonitor();
 
@@ -128,7 +133,7 @@ my $numTimeoutsSinceLastHeartbeatCheck;
 my $previousHeartbeatCount;
 my $heartbeatReceived;
 
-sub OnTimeoutIndexChangedFiles {
+sub OnTimeoutIndexChangedFilesEtc {
 	if (!defined($numTimeoutsSinceLastCall))
 		{
 		$numTimeoutsSinceLastCall = 0;
@@ -178,6 +183,16 @@ sub OnTimeoutIndexChangedFiles {
 		ResetHeartbeatCount();
 		RestartFolderMonitor();
 		}
+
+	# Also check that "File Watcher Windows Service" is running, restart if needed.
+	if (!FWWSIsRunning())
+		{
+		my $status = RestartFWWS();
+		if ($status ne 'OK')
+			{
+			Monitor("$status\n");
+			}
+		}
 	}
 
 sub FoldermonitorIsOk {
@@ -190,6 +205,78 @@ sub ResetHeartbeatReceived {
 	$heartbeatReceived = 1;
 	}
 } ##### Timeout IndexChangedFiles
+
+{ ##### FWWS monitor and restart
+my $ServiceName;
+my $RestartAlreadyRequested;
+my $IgnoreFWWS;
+my $RestartBatPath;
+my %status;
+my %status_code;
+
+sub InitFWWSMonitor {
+	my $foldermonitorPSPath = FullDirectoryPath('FOLDERMONITOR_PS1_FILE'); # ...bats/foldermonitor.ps1
+	my $batDir = DirectoryFromPathTS($foldermonitorPSPath);
+	my $batPathToRestart = $batDir . 'IM_RESTART_FWWS.bat';
+
+	$RestartBatPath = $batPathToRestart;
+	$RestartAlreadyRequested = 0;
+	$IgnoreFWWS = 0;
+	$ServiceName = "File Watcher Windows Service";
+
+	%status_code = (
+	Stopped => 1,
+	StartPending => 2,
+	StopPending => 3,
+	Running => 4,
+	ResumePending => 5,
+	PausePending => 6,
+	Paused => 7
+);
+}
+
+sub FWWSIsRunning {
+	my $result = 1;
+	if ($IgnoreFWWS)
+		{
+		return($result);
+		}
+	Win32::Service::GetStatus('', $ServiceName, \%status);
+	if ($status{"CurrentState"} ne $status_code{Running})
+		{
+		$result = 0;
+		}
+	else
+		{
+		$RestartAlreadyRequested = 0;
+		}
+	
+	return($result);
+	}
+
+sub RestartFWWS {
+	if ($RestartAlreadyRequested || $IgnoreFWWS)
+		{
+		return;
+		}
+	
+	my $fwwsproc;
+	my $status = 'OK';
+	my $flag = Win32::Process::CREATE_NEW_CONSOLE();
+
+	Win32::Process::Create($fwwsproc, $ENV{COMSPEC}, "/c $RestartBatPath", 0, $flag, ".")
+				|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+
+	$RestartAlreadyRequested = 1;
+
+	return($status);
+	}
+
+sub IgnoreFWWS {
+	Monitor("Watcher has stopped monitoring 'File Watcher Windows Service', this will resume in a few minutes.\n");
+	$IgnoreFWWS = 1;
+	}
+} ##### FWWS monitor and restart
 
 { ##### foldermonitor.ps1 HEARTBEAT signal handling
 my $heartbeatCount;

@@ -503,7 +503,8 @@ sub GetPrettyText {
 				{
 				if ($isGlossaryFile)
 					{
-					if ($lines[$i] =~ m!^([^:]+)\:!)
+					if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+					#if ($lines[$i] =~ m!^([^:]+)\:!)
 						{
 						my $term = $1;
 						my $anchorText = lc(AnchorForGlossaryTerm($term));
@@ -512,6 +513,8 @@ sub GetPrettyText {
 						my $jlEnd = "</a></li>";
 						push @jumpList, $jlStart . $term . $jlEnd;
 						}
+					# For display, remove '\' from '\:'.
+					$lines[$i] =~ s!\\:!:!g;
 					}
 				AddWebAndFileLinksToLine(\${lines[$i]}, $i, $context, $isGlossaryFile);
 				if ($lines[$i] =~ m!(^|\s)(use|import)\s!)
@@ -2540,7 +2543,14 @@ sub LoadGlossary {
 	my @currentTerms;
 	for (my $i = 0; $i < @lines; ++$i)
 		{
-		if ($lines[$i] =~ m!^\s*([^:]+)\:!)
+		# Skip comment lines, they start with '##' (but not one or more than two #'s).
+		if ($lines[$i] =~ m!^##($|[^#])!)
+			{
+			; # skip
+			}
+		# match up to ':' but not '\:'.
+		elsif ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+		#elsif ($lines[$i] =~ m!^\s*([^:]+)\:!)
 			{
 			my $term = $1;
 			$term =~ s!\*!!g;
@@ -2549,6 +2559,8 @@ sub LoadGlossary {
 			@currentTerms = split(/,\s*/, lc($term));
 			my $entry = $lines[$i];
 			chomp($entry);
+			# For display, remove '\' from '\:'.
+			$entry =~ s!\\:!:!g;
 
 			# OUT - this was bad, left in as a reminder.
 			###$entry = &HTML::Entities::encode($entry);
@@ -2564,6 +2576,9 @@ sub LoadGlossary {
 			{
 			my $entry = $lines[$i];
 			chomp($entry);
+			# For display, remove '\' from '\:'.
+			$entry =~ s!\\:!:!g;
+
 			if ($entry ne '')
 				{
 				###$entry = &HTML::Entities::encode($entry);
@@ -2732,7 +2747,7 @@ sub GetReplacementHint {
 	my $port = undef;
 	my $VIEWERNAME = undef;
 	my $class = $definitionAlreadySeen ? 'glossary term-seen': 'glossary';
-	my $gloss = $Definition{$term}; # 'This is a gloss. This is only gloss. In the event of a real gloss this would be interesting.'
+	my $gloss = $Definition{$term};
 	my $result = '';
 
 	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
@@ -2757,7 +2772,8 @@ sub GetReplacementHint {
 		my $glossed = '';
 		# If a glossary entry has synonyms, show just the relevant one at start of the
 		# $gloss entry, and show other synonyms in a new para at bottom of the entry.
-		if ($gloss =~ m!^<p>([^:]+)\:!)
+		if ($gloss =~ m!^<p>(.+?[^\\]):!)
+		#if ($gloss =~ m!^<p>([^:]+)\:!)
 			{
 			my $terms = $1;
 			$terms =~ s!\*!!g;

@@ -89,6 +89,7 @@ if (!$dirCount)
 
 my %myFileNameForPath;	# for Elasticsearch indexing
 my %rawPathList; 		# for full path List (used for auto linking)
+my %rawImagePathList;	# ditto, just images
 my $numDirs = @DirectoriesToIndex;
 
 my @files;
@@ -127,7 +128,11 @@ for (my $i = 0; $i < @files; ++$i)
 		{
 		$myFileNameForPath{$pathForwardSlashes} = $sourceFileName;
 		$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
-		}	
+		}
+	elsif (FileIsImageInGoodLocation($pathForwardSlashes, \@DirectoriesToIgnore))
+		{
+		$rawImagePathList{$lcpathForwardSlashes} = lc($sourceFileName);
+		}
 	}
 
 # Connect to Elasticsearch.
@@ -196,6 +201,7 @@ else
 Output("Saving full path list...\n");
 # Add all found paths to reverse_filepath.pm's master hash of paths.
 AddIncrementalNewPaths(\%rawPathList);
+AddIncrementalNewPaths(\%rawImagePathList);
 # reverse_filepaths.pm#ConsolidateFullPathLists() assumes the path list is in memory
 # (which it is at this point), saves it over the main full paths file, and deletes any
 # secondary file that was holding additional paths.
@@ -261,6 +267,28 @@ sub FileShouldBeIndexed {
         	}
 		}
 	
+	my $numIgnoreDirs = @$directoriesToIgnoreA;
+	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+		{
+		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
+			{
+			$result = 0;
+			last;
+			}
+		}
+
+	return($result);
+	}
+
+sub FileIsImageInGoodLocation {
+	my ($fullPath, $directoriesToIgnoreA) = @_;
+	my $result = 0;
+
+	if (EndsWithImageExtension($fullPath))
+		{
+		$result = 1;
+		}
+
 	my $numIgnoreDirs = @$directoriesToIgnoreA;
 	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
 		{

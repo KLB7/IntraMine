@@ -117,6 +117,9 @@ if ($MainPort eq '')
 	}
 
 # Stop and start the File Watcher service, to pick up the config changes made here.
+# Tell intramine_filewatcher.pl to stop monitoring the File Watcher service
+# - monitoring will pick up again when intramine_filewatcher.pl is restarted below.
+TellWatcherIgnoreFWWS();
 my $startFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_START_SERVICE');
 my $stopFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_STOP_SERVICE');
 if (!(-f $startFileWatcherServicePath))
@@ -197,6 +200,7 @@ my $numReplicas = CVal('ELASTICSEARCH_NUMREPLICAS') + 0;
 # Delete file(s) holding list of full paths to all files in indexed directories.
 my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
 my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
+
 DeleteFullPathListFiles($fullFilePathListPath); # reverse_filepaths.pm
 
 my $e = Search::Elasticsearch->new(nodes => "localhost:9200");
@@ -271,6 +275,7 @@ if (!$dirCount)
 
 my %myFileNameForPath;	# for Elasticsearch indexing
 my %rawPathList; 		# for full path List (used for auto linking)
+my %rawImagePathList;	# ditto, just images
 my $numDirs = @DirectoriesToIndex;
 
 my @files;
@@ -309,6 +314,10 @@ for (my $i = 0; $i < @files; ++$i)
 		{
 		$myFileNameForPath{$pathForwardSlashes} = $sourceFileName;
 		$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
+		}
+	elsif (FileIsImageInGoodLocation($pathForwardSlashes, \@DirectoriesToIgnore))
+		{
+		$rawImagePathList{$lcpathForwardSlashes} = lc($sourceFileName);
 		}
 	}
 
@@ -386,6 +395,7 @@ StopLinkerAndWatcherServices();
 Output("Saving full path list...\n");
 # Add all found paths to reverse_filepath.pm's master hash of paths.
 AddIncrementalNewPaths(\%rawPathList);
+AddIncrementalNewPaths(\%rawImagePathList);
 # reverse_filepaths.pm#ConsolidateFullPathLists() assumes the path list is in memory
 # (which it is at this point), saves it over the main full paths file, and deletes any
 # secondary file that was holding additional paths.
@@ -696,6 +706,28 @@ sub FileShouldBeIndexed {
 	return($result);
 	}
 
+sub FileIsImageInGoodLocation {
+	my ($fullPath, $directoriesToIgnoreA) = @_;
+	my $result = 0;
+
+	if (EndsWithImageExtension($fullPath))
+		{
+		$result = 1;
+		}
+
+	my $numIgnoreDirs = @$directoriesToIgnoreA;
+	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+		{
+		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
+			{
+			$result = 0;
+			last;
+			}
+		}
+
+	return($result);
+	}
+
 # Add a text file and a .cpp file for index and link testing.
 sub AddTestDocuments {
 	my ($es, $rawPathListH) = @_;
@@ -732,12 +764,12 @@ sub StopLinkerAndWatcherServices {
 	my $portNumber = $MainPort;
 	my $msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Linker';
 	Output("Stopping Linker service\n");
-	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	SendRequest($serverAddress, $portNumber, $msg);
 	sleep(1);
 
 	$msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Watcher';
 	Output("Stopping Watcher service\n");
-	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	SendRequest($serverAddress, $portNumber, $msg);
 	}
 
 sub StartLinkerAndWatcherServices {
@@ -745,15 +777,15 @@ sub StartLinkerAndWatcherServices {
 	my $portNumber = $MainPort;
 	my $msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Linker';
 	Output("Starting Linker service\n");
-	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	SendRequest($serverAddress, $portNumber, $msg);
 	sleep(1);
 
 	$msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Watcher';
 	Output("Starting Watcher service\n");
-	SendStartStopRequest($serverAddress, $portNumber, $msg);
+	SendRequest($serverAddress, $portNumber, $msg);
 	}
 
-sub SendStartStopRequest {
+sub SendRequest {
 	my ($serverAddress, $portNumber, $msg) = @_;
 	my $main = IO::Socket::INET->new(
 				Proto   => 'tcp',       		# protocol
@@ -763,6 +795,18 @@ sub SendStartStopRequest {
 	
 	print $main "GET /?$msg HTTP/1.1\n\n";
 	close $main;	# No reply needed.
+	}
+
+# Called by ri.pl when Reindex command is running,
+# tell intramine_filewatcher.pl to not restart
+# File Watcher Windows Service.
+# (we stop and restart here)
+# too soon.
+sub TellWatcherIgnoreFWWS {
+	my $serverAddress = $ServerAddress;
+	my $portNumber = $MainPort;
+	my $msg = 'signal=IGNOREFWWS&name=Watcher';
+	SendRequest($serverAddress, $portNumber, $msg);
 	}
 
 sub ServerErrorReport{

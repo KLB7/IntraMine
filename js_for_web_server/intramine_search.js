@@ -291,21 +291,36 @@ function swapLangExt() {
 }
 
 // elasticsearcher.pm#FormatHitResults() inserts calls to this, to open a file
-// in the Viewer (intramine_file_viewer_cm.pl).
-function viewerOpenAnchor(href) {
-	// Browser keeps tacking on file:, which wrecks the link.
+// in the Viewer (intramine_file_viewer.pl).
+// Viewer port is retrieved to persuade the browser that it's a legit call.
+async function viewerOpenAnchor(href) {
+	// Remove file:///, which wrecks the link.
 	let properHref = href.replace(/^file\:\/\/\//, '');
 	properHref = properHref.replace(/^file:/, '');
 
-// Argument-based 'href=path' approach:
-	let url = 'http://' + theHost + ':' + theMainPort + '/' + viewerShortName + '/?href=' +
-				properHref + '&rddm=' + String(getRandomInt(1, 65000));
-	
-	// A more RESTful 'Viewer/file/path/' approach
-//	let url = 'http://' + theHost + ':' + theMainPort + '/' + viewerShortName + '/file/' +
-//				properHref + '&rddm=' + String(getRandomInt(1, 65000));
+	// Pull any #Header from the href, put it back on the end later.
+	let header = '';
+	let headerMatch = /(#.+?$)/.exec(properHref);
+	if (headerMatch !== null)
+		{
+		header = headerMatch[1];
+		properHref = properHref.replace(/#.+?$/, '');
+		}	
 
-	window.open(url, "_blank");
+		try {
+			const port = await fetchPort(theHost, theMainPort, viewerShortName, errorID);
+			if (port !== "")
+				{
+				let url = 'http://' + theHost + ':' + port + '/' + viewerShortName + '/?href=' +
+					properHref + header;
+				window.open(url, "_blank");
+				}
+		}
+		catch(error) {
+			// There was a connection error of some sort
+		//		let e1 = document.getElementById(errorID);
+		//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+		}
 	}
 
 // For the Search form, handlers for the "All" and "None" language thingies.

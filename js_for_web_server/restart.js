@@ -74,14 +74,12 @@ async function checkAndHandleRestart()
 // Re-establish WebSockets communication.
 async function handleRestartIfNeeded(latestSessionStart)
 	{
-	// TEST ONLY
-	//console.log("Top of handleRestartIfNeeded");
 	if (sessionStart !== '' && sessionStart !== latestSessionStart)
 		{
-		// For the Viewer, do a full reload
+		// For the Viewer and Mon, do a full reload
 		if (typeof shortServerName !== 'undefined')
 			{
-			if (shortServerName === 'Viewer')
+			if (shortServerName === 'Viewer' || shortServerName === 'Mon')
 				{
 				window.location.reload();
 				// Probably not reached.
@@ -90,8 +88,7 @@ async function handleRestartIfNeeded(latestSessionStart)
 			}
 		
 		await sleepMs(1000); // 1 second
-		// TEST ONLY
-		//console.log("About to call wsInit");
+		
 		wsInit();
 		// Try navbar a few times, sometimes things are slow.
 		let numRetries = 5;
@@ -107,8 +104,6 @@ async function handleRestartIfNeeded(latestSessionStart)
 		
 		}
 	sessionStart = latestSessionStart;
-	// TEST ONLY
-	//console.log("Bottom of handleRestartIfNeeded");
 	}
 
 function showIntraMineIsDown()

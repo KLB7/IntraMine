@@ -14,6 +14,7 @@
 # my @allEntries = readdir $dh;
 #  becomes
 # my @allEntries = FindFileWide($dir); # empty if something bad happened
+# For a different approach, see Win32::Unicode.
 
 package win_wide_filepaths;
 require Exporter;

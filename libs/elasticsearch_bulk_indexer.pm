@@ -21,6 +21,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 #use lib ".";
 use common;
 use win_wide_filepaths;
+use ext;
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -97,6 +98,11 @@ sub AddDocumentToIndex {
 	my $isParsed = 0; # For XML and HTML
 	my $contents = '';
 	my $result = 0; # assume failure
+
+	if (!(EndsWithTextExtension($progPath) || $progPath =~ m!\.\w+$!))
+		{
+		return($result);
+		}
 	
 	my $size = GetFileSizeWide($progPath);
 	
@@ -307,6 +313,11 @@ sub Flush {
 # If the id doesn't change, there won't even be a stub.
 sub UpdatePath {
 	my ($self, $fileName, $oldpath, $newpath) = @_;
+
+	if (!(EndsWithTextExtension($oldpath) || $oldpath =~ m!\.\w+$!))
+		{
+		return;
+		}
 	
 	DeletePathFromIndex($self, $oldpath);
 	AddDocumentToIndex($self, $fileName, $newpath);

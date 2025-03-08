@@ -158,13 +158,17 @@ sub LoadGlossary {
 			{
 			; # skip
 			}
-		elsif ($lines[$i] =~ m!^\s*([^:]+)\:!)
+		# match up to ':' but not '\:'.
+		elsif ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+		#elsif ($lines[$i] =~ m!^\s*([^:]+)\:!)
 			{
 			my $term = $1;
 			$term =~ s!\*!!g;
 			@currentTerms = split(/,\s*/, lc($term));
 			my $entry = $lines[$i];
 			chomp($entry);
+			# For display, remove '\' from '\:'.
+			$entry =~ s!\\:!:!g;
 
 			$entry =~ s!\&#39;!\&#8216;!g;
 			
@@ -177,6 +181,9 @@ sub LoadGlossary {
 			{
 			my $entry = $lines[$i];
 			chomp($entry);
+			# For display, remove '\' from '\:'.
+			$entry =~ s!\\:!:!g;
+			
 			if ($entry ne '')
 				{
 				$entry =~ s!\&#39;!\&#8216;!g;
@@ -560,7 +567,8 @@ sub GetReplacementHint {
 		my $glossed = '';
 		# If a glossary entry has synonyms, show just the relevant one at start of the
 		# $gloss entry, and show other synonyms in a new para at bottom of the entry.
-		if ($gloss =~ m!^<p>([^:]+)\:!)
+		if ($gloss =~ m!^<p>(.+?[^\\]):!)
+		#if ($gloss =~ m!^<p>([^:]+)\:!)
 			{
 			my $terms = $1;
 			$terms =~ s!\*!!g;

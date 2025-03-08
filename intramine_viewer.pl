@@ -1700,7 +1700,8 @@ sub GetPrettyGlossaryFile {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ($lines[$i] =~ m!^([^:]+)\:!)
+		if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+		#if ($lines[$i] =~ m!^([^:]+)\:!)
 			{
 			my $term = $1;
 			my $anchorText = lc(AnchorForGlossaryTerm($term));
@@ -1710,6 +1711,9 @@ sub GetPrettyGlossaryFile {
 			push @jumpList, $jlStart . $term . $jlEnd;
 			}
 
+		# For display, remove '\' from '\:'.
+		$lines[$i] =~ s!\\:!:!g;
+		
 		my $rowID = 'R' . $lineNum;
 			my $classAttr = ClassAttribute('', $indentClass);
 			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
@@ -1758,7 +1762,8 @@ sub AddGlossaryAnchor {
 	
 	# Typical line start for defined term:
 	# <tr><td n='21'></td><td>Strawberry Perl: 
-	if ($line =~ m!^(.+?<td>\s*)([^:]+)\:(.*)$!)
+	if ($line =~ m!^(.+?<td>\s*)(.+?[^\\]):(.*)$!)
+	#if ($line =~ m!^(.+?<td>\s*)([^:]+)\:(.*)$!)
 		{
 		my $pre = $1;
 		my $post = $3;
