@@ -115,9 +115,11 @@ sub new {
 # Match words supplied as a phrase.
 # Only content is searched, a file name mention becomes a FLASH link in IntraMine.
 # No restriction on folder, sometimes restrictions on extensions.
-# FormatDefinitionResults() formats hits as HTML, with best Elasticsearch score first.
+# FormatFullPathsResults() formats hits as HTML, with best Elasticsearch score first.
 sub GetDefinitionLinks {
-	my ($self, $rawquery, $extA, $numHitsR, $numFilesR) = @_;
+	my ($self, $rawquery, $extA, $numHitsR, $numFilesR, $fullPath) = @_;
+	$fullPath = lc($fullPath);
+	$fullPath =~ s!\\!/!g;
 	my $result = '';
 	my $e = $self->{SEARCHER};
 	my $rawResults;
@@ -129,7 +131,27 @@ sub GetDefinitionLinks {
 	$numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
 	if ($numHits)
 		{
-		$numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
+		my @rawFullPaths;
+		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
+		my @otherRawFullPaths;
+		for (my $i = 0; $i < @rawFullPaths; ++$i)
+			{
+			if (lc($rawFullPaths[$i]) ne $fullPath)
+				{
+				push @otherRawFullPaths, $rawFullPaths[$i];
+				}
+			}
+
+		my $numRemaining = @otherRawFullPaths;
+		if ($numRemaining)
+			{
+			FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
+			}
+		else
+			{
+			$result = '<p>nope</p>';
+			}
+		#$numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
 		}
 	else
 		{
@@ -158,13 +180,13 @@ sub GetDefinitionLinksInOtherLanguages {
 		{
 		my @jsExtension;
 		push @jsExtension, 'js';
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@jsExtension, $e, \$numFound);
+		$result = GetCtagsResultsForExtensions($self, $rawquery, \@jsExtension, $e, \$numFound, '');
 		}
 	if ($numFound == 0 && $extA->[0] ne "css")
 		{
 		my @cssExtension;
 		push @cssExtension, 'css';
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound);
+		$result = GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound, '');
 		}
 
 	if ($numFound == 0)
@@ -191,7 +213,7 @@ sub GetAnyLinks {
 	if ($numHits)
 		{
 		my @rawFullPaths;
-		GetHitFullPaths($rawResults, \@rawFullPaths);
+		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 		my @otherRawFullPaths;
 		for (my $i = 0; $i < @rawFullPaths; ++$i)
 			{
@@ -220,7 +242,7 @@ sub GetAnyLinks {
 		if ($numHits)
 			{
 			my @rawFullPaths;
-			GetHitFullPaths($rawResults, \@rawFullPaths);
+			GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 			my @otherRawFullPaths;
 
 			for (my $i = 0; $i < @rawFullPaths; ++$i)
@@ -367,6 +389,8 @@ sub GetAnyHits {
 
 	return($$rawResultsR->{'hits'}{'total'}{'value'});
 	}
+
+# NOT CURRENTLY USED.
 # FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $extA, \$result);
 # Return HTML formatted search hit results.
 sub FormatDefinitionResults {
@@ -441,7 +465,7 @@ sub FormatDefinitionResults {
 # exclude those that don't have a definition in the ctags output.
 # return links as per FormatDefinitionResults just above.
 sub GetCtagsDefinitionLinks {
-	my ($self, $rawquery, $extA) = @_;
+	my ($self, $rawquery, $extA, $fullPath) = @_;
 	my $result = '<p>nope</p>';
 	my $numExtensions = @$extA;
 	if (!$numExtensions)
@@ -464,14 +488,14 @@ sub GetCtagsDefinitionLinks {
 		@headerExt = split(/,/, $HeaderExtForLanguage{$language});
 		@impExt = split(/,/, $ImpExtForLanguage{$language});
 		#print("Imp: |@impExt|\n");
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound);
+		$result = GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound, $fullPath);
 		if ($result eq '' || $result eq '<p>nope</p>' || $numFound < $self->{SHOWNHITS})
 			{
 			if ($result eq '' || $result eq '<p>nope</p>')
 				{
 				$result = '';
 				}
-			my $headerResult = GetCtagsResultsForExtensions($self, $rawquery, \@headerExt, $e, \$numFound);
+			my $headerResult = GetCtagsResultsForExtensions($self, $rawquery, \@headerExt, $e, \$numFound, $fullPath);
 			if ($headerResult ne '' && $headerResult ne '<p>nope</p>')
 				{
 				$result .= $headerResult;
@@ -480,14 +504,16 @@ sub GetCtagsDefinitionLinks {
 		}
 	else
 		{
-		$result = GetCtagsResultsForExtensions($self, $rawquery, $extA, $e, \$numFound);
+		$result = GetCtagsResultsForExtensions($self, $rawquery, $extA, $e, \$numFound, $fullPath);
 		}
 
 	return($result);
 	}
 
 sub GetCtagsResultsForExtensions {
-	my ($self, $rawquery, $extA, $e, $numFoundR) = @_;
+	my ($self, $rawquery, $extA, $e, $numFoundR, $fullPath) = @_;
+	$fullPath = lc($fullPath);
+	$fullPath =~ s!\\!/!g;
 	my $rawResults = '';
 	my $result = '';
 	my $numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
@@ -496,10 +522,19 @@ sub GetCtagsResultsForExtensions {
 	if ($numHits)
 		{
 		my @rawFullPaths;
-		GetHitFullPaths($rawResults, \@rawFullPaths);
+		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
+
+		my @otherRawFullPaths;
+		for (my $i = 0; $i < @rawFullPaths; ++$i)
+			{
+			if (lc($rawFullPaths[$i]) ne $fullPath)
+				{
+				push @otherRawFullPaths, $rawFullPaths[$i];
+				}
+			}
 
 		my @winnowedFullPaths;
-		$numRemaining = WinnowFullPathsUsingCtags($rawquery, \@rawFullPaths, \@winnowedFullPaths);
+		$numRemaining = WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
 
 		if (!$numRemaining)
 			{
@@ -522,14 +557,115 @@ sub GetCtagsResultsForExtensions {
 	}
 
 sub GetHitFullPaths {
-	my ($rawResults, $rawFullPathsA) = @_;
+	my ($rawResults, $rawFullPathsA, $fullPath, $shownHits) = @_;
 
 	for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
 		{
 		my $path = $hit->{'_source'}->{'displaypath'};
 		push @$rawFullPathsA, $path;
 		}
+
+	# Sort full paths by proximity to $fullPath (the file
+	# where the query was selected). I'm leaving the code
+	# in, but the sort is turned off at the moment,
+	# I can't find a good use for it.
+	my $sortByProxmity = 0;
+	if ($sortByProxmity)
+		{
+		SortThePaths($rawFullPathsA, $fullPath, $shownHits);
+		}
 	}
+
+sub SortThePaths {
+	my ($rawFullPathsA, $fullPath, $shownHits) = @_;
+	my $lastSlashPos = rindex($fullPath, "/");
+	if ($lastSlashPos <= 0)
+		{
+		return;
+		}
+	my $contextDir = substr($fullPath, 0, $lastSlashPos);
+	my $numEntries = @$rawFullPathsA;
+	if ($numEntries <= 1)
+		{
+		return;
+		}
+	
+	# Make a lowercase properly backslashed version of the raw full paths.
+	my @lcPaths;
+	my $numToSort = $numEntries;
+	my $sortShownOnly = 1;
+	if ($sortShownOnly && $numToSort > $shownHits)
+		{
+		$numToSort = $shownHits;
+		}
+	for (my $i = 0; $i < $numToSort; ++$i)
+		{
+		my $path = lc($rawFullPathsA->[$i]);
+		$path =~ s!\\!/!g;
+		push @lcPaths, $path;
+		}
+	
+	my @idx = sort { FolderComp($lcPaths[$b], $lcPaths[$a], $contextDir) } 0 .. $#lcPaths;
+	for (my $i = 0; $i < $numToSort; ++$i)
+		{
+		$rawFullPathsA->[$i] = $lcPaths[$idx[$i]];
+		}
+
+	#@{$rawFullPathsA} = @{$rawFullPathsA}[@idx]; # if doing all paths
+	}
+
+sub FolderComp {
+	my ($first, $second, $contextDir) = @_;
+	my $aDistance = LeftOverlapLength($contextDir, $first);
+	my $bDistance = LeftOverlapLength($contextDir, $second);
+	my $compDist = $aDistance - $bDistance;
+	my $result = 0;
+	if ($compDist < 0)
+		{
+		$result = -1;
+		}
+	elsif ($compDist > 0)
+		{
+		$result = 1;
+		}
+	else # Tie
+		{
+		$result = length($second) - length($first);
+		if ($result < 0)
+			{
+			$result = -1;
+			}
+		elsif ($result > 0)
+			{
+			$result = 1;
+			}
+		else
+			{
+			$result = $second cmp $first;
+			}
+		}
+
+	# TEST ONLY
+	#print("|$first $aDistance| vs |$second $bDistance| result $result.\n");
+
+	return($result);
+	}
+
+# sub LeftOverlapLength {
+#     my ($str1, $str2) = @_;
+    
+#     # Equalize Lengths
+#     if (length $str1 < length $str2) {
+#         $str2 = substr $str2, 0, length($str1);
+#     } elsif (length $str1 > length $str2) {
+#         $str1 = substr $str1, 0, length($str2);
+#     }
+#     # Reduce on right until match found
+#     while ($str1 ne $str2) {
+#         chop $str1;
+#         chop $str2;
+#     	}
+# 	}
 
 sub WinnowFullPathsUsingCtags {
 	my ($rawquery, $rawFullPathsA, $winnowedFullPathsA) = @_;

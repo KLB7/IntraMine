@@ -216,7 +216,7 @@ sub ConfigHashRef {
 }
 
 # Dir paths are typically in two pieces: the dir for this module, and the path down from there to the wanted directory
-# Eg 'C:/perlprogs/mine/' . 'images_for_seb_server/'   where $name == 'IMAGES_DIR'
+# Eg 'C:/perlprogs/mine/' . 'images_for_web_server/'   where $name == 'IMAGES_DIR'
 sub FullDirectoryPath {
 	my ($name) = @_;
 	my $result = '';

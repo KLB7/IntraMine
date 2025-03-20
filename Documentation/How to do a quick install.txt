@@ -1,4 +1,9 @@
 How to do a quick install
 ===========================
 
-Open the __START_HERE_INTRAMINE_INSTALLER folder at the top of your IntraMine folder, and double-click on "1 READ ME FIRST how to install IntraMine.html".
+See
+"../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html".
+
+---
+contents.txt
+---

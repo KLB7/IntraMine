@@ -145,3 +145,7 @@ Reserved service, reserved services, reserved server, reserved servers: A reserv
 (note there are tabs between the fields)
 
 Zombie: reserved servers are sometimes called "zombie" servers in the documentation. A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started.
+
+Go2: select a word or short phrase, keep you cursor fairly still, and a popup will appear listing links to other files that mention the text. The less common the text is, the more useful the links will be. For details see "Go2.txt".
+"go2_cropped.gif"
+

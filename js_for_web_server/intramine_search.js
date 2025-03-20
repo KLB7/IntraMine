@@ -62,7 +62,7 @@ async function loadPageContent() {
 			addFormClickListener();
 			initDirectoryDialog();
 
-			directoryCache = new LRUCache(8);
+			directoryCache = new LRUCache(10);
 			loadDirCache();
 			rebuildDirList();
 		

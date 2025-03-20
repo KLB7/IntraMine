@@ -97,4 +97,8 @@ To start IntraMine again, double-click on bats/START_INTRAMINE.bat
 To visit IntraMine, enter the address http://localhost:81/Search in your browser.
 Others on your intranet can visit your instance of IntraMine, just substitute your intranet IP address for "localhost". To see your (IPv4) address, type **ipconfig /all** at a command prompt. You probably knew that, but you've probably also concluded that I'm trying to spell out the details even if it makes me look pedantic.
 
-[If you are interested in making documents like this one, take a look at Documentation/Gloss.html and Documentation/gloss2html.pl for standalone Gloss files.html.]
+[If you are interested in making documents like this one, take a look at "../Documentation/Gloss.html" and "../Documentation/gloss2html.pl for standalone Gloss files.html".]
+
+---
+"../Documentation/contents.txt"
+---

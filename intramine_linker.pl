@@ -327,7 +327,7 @@ sub Definitions {
 		# the hard way (use ctags to find files with definitions).
 		if ($ElasticSearcher->HasCtagsSupport($fullPath))
 			{
-			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt);
+			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt, $fullPath);
 			}
 		}
 	
@@ -356,7 +356,7 @@ sub Definitions {
 		my $query = $keywords[$i] . ' ' . $rawquery;
 		$numHits = 0;
 		$numFiles = 0;
-		$result = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles);
+		$result = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
 		if ($result ne '' && $result ne '<p>nope</p>')
 			{
 			last;

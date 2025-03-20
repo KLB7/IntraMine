@@ -48,13 +48,34 @@ If you're not sure whether or not to "inline" the images - try both, gloss2html.
 
 Adding links to other files
 ===========================
-Since we're dealing with standalone files that could end up anywhere, only links to text and HTML files in the same folder as the one being converted are supported. Images can be in the same folder at either the top level or in an images/ subfolder, but they aren't linked: instead, the images are incorporated into the resulting HTML document.
+In the same folder
+--------------------
+Since we're dealing with standalone files that could end up anywhere, only links to text and HTML files in the same folder as the one being converted are recommended, though some other links can be done (see "Relative links" just below). Images can be in the same folder at either the top level or in an images/ subfolder, but they aren't linked: instead, the images are incorporated into the resulting HTML document.
 
 As an example, many of IntraMine's help docs in the Documentation folder contain links to other files, such as contents.txt.
 
-When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. I did that just above when mentioning the contents file, for example. The text still reads contents.txt in the HTML version of this file, but the link is to contents.html.
 
-If you use IntraMine's Viewer or Editor to display your text file that's intended for conversion to HTML then FLASH links will NOT be shown for files outside of your folder holding the files for conversion. provided there's a glossary.txt file in the folder. Otherwise links to files outside the folder WILL be shown. The moral: provide a glossary.txt file, even it it's empty. There's only so clever I can get.
+Relative links
+------------------
+If you're delivering two folders of documentation at once, you might want to allow links between the two folders. You can do this by using relative links starting with '../' at the start of the link, then the name of the other folder, and then a slash and the name of the document being linked to.
+
+Say for example you have two folders "First" and "Second", and documents "First/one.txt" and "Second/other.txt". To put a link in one.txt that links to other.txt, use "../Second/other.txt".
+
+Here's an example using IntraMine's documentation: "../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html".
+
+Having two folders means remembering to convert both folders to HTML. For that, it helps to cook up a little .bat file to convert both at once. Here's the "glossconvert.bat" file I use to convert IntraMines' two folders:
+CODE
+REM Convert Documentation and __START_HERE_INTRAMINE_INSTALLER instructions.
+perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h && perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt" -i -h
+ENDCODE
+
+txt vs html
+--------------
+When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. For example, contents.txt links to the HTML version even though the extension is txt.
+
+Glossary file determines link scope
+----------------------------------
+If you use IntraMine's Viewer or Editor to display your text file that's intended for conversion to HTML then FLASH links will NOT be shown for files outside of your folder holding the files for conversion. provided there's a glossary.txt file in the folder. Otherwise links to files outside the folder WILL be shown. The moral: provide a glossary.txt file, even it it's empty, if you want accurate link previews.
 
 Video links
 --------------------

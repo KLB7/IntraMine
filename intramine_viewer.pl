@@ -121,6 +121,9 @@ InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $Has
 
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
+#my %ThemeIsDark; # $ThemeIsDark{'theme'} = 1 if bkg is dark, 0 if light.
+InitThemeIsDark();
+
 # This service has no default action. For file display either 'href=path'
 # or the more RESTful '.../file/path' can be used. See eg intramine_search.js#viewerOpenAnchor()
 # (a call to that is inserted by elasticsearcher.pm#FormatHitResults() among others).
@@ -549,6 +552,10 @@ sub GetContentBasedOnExtension {
 
 	# Determine non-CM CSS theme file. Add it in for non-CodeMirror displays.
 	my $nonCmThemeCssFile =  NonCodeMirrorThemeCSS($theme, $filePath);
+
+	# For some displays eg txt, @@@ signals a section break "flourish" image.
+	# Set it here for all, just in case it's needed.
+	SetFlourishLinkBasedOnTheme($theme);
 
 	# Markdown CSS:
 	my $cssForMD = '<link rel="stylesheet" type="text/css" href="cm_md.css" />';
@@ -1713,7 +1720,7 @@ sub GetPrettyGlossaryFile {
 
 		# For display, remove '\' from '\:'.
 		$lines[$i] =~ s!\\:!:!g;
-		
+
 		my $rowID = 'R' . $lineNum;
 			my $classAttr = ClassAttribute('', $indentClass);
 			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
@@ -1879,6 +1886,12 @@ sub AddEmphasis {
 		$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 		$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
 		$$lineR =~ s!\:\)!<span class='textSymbol' style='color: lightgreen; background-color: #808080;'>\&#128578;</span>!g; # or \&#9786;
+		# Three or more @'s on a line by themselves produce a "flourish" section break.
+		if ($$lineR =~ m!^@@@@*$!)
+			{
+			my $sectionImage = FlourishLink();
+			$$lineR =~ s!@@@@*!$sectionImage!;
+			}
 		# No good, messes up glossary popups: $$lineR =~ s!FLASH!<span class='smallCaps'>FLASH</span>!g;
 		}
 	}
@@ -2753,7 +2766,7 @@ sub MakeSpecialIndexFileLookSpecial {
 	if ($numLines)
 		{
 		my $flourishImageLink = GetFlourishImageLink();
-		$lines_A->[0] =~ s!(<td>)(.*?$ContentTriggerWord.*?)(</td>)!<th align='center'><span id='toc-line'>$2</span>$flourishImageLink</th>!i;
+		$lines_A->[0] =~ s!(<td>)(.*?$ContentTriggerWord.*?)(</td>)!<th align='center'><span id='toc-line'>$2</span><br/>$flourishImageLink</th>!i;
 		}
 	}
 
@@ -2762,7 +2775,7 @@ sub GetFlourishImageLink {
 	if (FileOrDirExistsWide($IMAGES_DIR . $SpecialIndexFlourishImage) == 1)
 		{
 		my $imagePath = $IMAGES_DIR . $SpecialIndexFlourishImage;
-		$result = "<img id='flourish-image' src='$SpecialIndexFlourishImage' width='100%' height='$FlourishImageHeight'>";
+		$result = "<img id='flourish-image' src='$SpecialIndexFlourishImage' width='100%'>";
 		}
 	
 	return($result);
@@ -2816,6 +2829,121 @@ sub GetCodeMirrorSearchHitPositions {
 	
 	$$hitArrayContentsR = join(',', @hitArray);
 	}
+
+{ ##### Theme dark vs light
+my %ThemeIsDark; # $ThemeIsDark{'theme'} = 1 if bkg is dark, 0 if light.
+my $flourishLink;
+
+sub SetFlourishLinkBasedOnTheme {
+	my ($theme) = @_;
+	#my $imageDir = $IMAGES_DIR;
+	my $specialIndexFlourishImage = CVal('SPECIAL_INDEX_FLOURISH');
+
+	my $flourishImageName;
+	if (ThemeHasDarkBackground($theme))
+		{
+		#$flourishImageName = 'flourish2_white.png';
+		# Take the base name and tack on '_white'.
+		$flourishImageName = $specialIndexFlourishImage;
+		if ($flourishImageName =~ m!^(.+?)\.(\w+)$!)
+			{
+			my $baseName = $1;
+			my $extension = $2;
+			$flourishImageName = $baseName . '_white.' . $extension;
+			}
+		}
+	else
+		{ 
+		$flourishImageName = $specialIndexFlourishImage;
+		if ($flourishImageName =~ m!^(.+?)\.(\w+)$!)
+			{
+			my $baseName = $1;
+			my $extension = $2;
+			$flourishImageName = $baseName . '_black.' . $extension;
+			}
+		}
+
+	$flourishLink = "<img src='$flourishImageName' width='100%'";
+	}
+
+# Call SetFlourishLinkBasedOnTheme() before calling this.
+sub FlourishLink {
+	return($flourishLink);
+}
+
+
+sub ThemeHasDarkBackground {
+	my ($theme) = @_;
+	my $result = defined($ThemeIsDark{$theme}) ? $ThemeIsDark{$theme}: 0;
+	return($result);
+	}
+
+sub InitThemeIsDark {
+	$ThemeIsDark{'3024-day'} = 0;
+	$ThemeIsDark{'3024-night'} = 1;
+	$ThemeIsDark{'abbott'} = 1;
+	$ThemeIsDark{'abcdef'} = 1;
+	$ThemeIsDark{'ambiance'} = 0;
+	$ThemeIsDark{'ayu-dark'} = 1;
+	$ThemeIsDark{'ayu-mirage'} = 1;
+	$ThemeIsDark{'base16-dark'} = 1;
+	$ThemeIsDark{'base16-light'} = 0;
+	$ThemeIsDark{'bespin'} = 1;
+	$ThemeIsDark{'blackboard'} = 1;
+	$ThemeIsDark{'cobalt'} = 1;
+	$ThemeIsDark{'colorforth'} = 1;
+	$ThemeIsDark{'darcula'} = 1;
+	$ThemeIsDark{'dracula'} = 1;
+	$ThemeIsDark{'duotone-dark'} = 1;
+	$ThemeIsDark{'duotone-light'} = 0;
+	$ThemeIsDark{'eclipse'} = 0;
+	$ThemeIsDark{'elegant'} = 0;
+	$ThemeIsDark{'erlang-dark'} = 1;
+	$ThemeIsDark{'gruvbox-dark'} = 1;
+	$ThemeIsDark{'hopscotch'} = 1;
+	$ThemeIsDark{'icecoder'} = 1;
+	$ThemeIsDark{'idea'} = 0;
+	$ThemeIsDark{'isotope'} = 1;
+	$ThemeIsDark{'juejin'} = 0;
+	$ThemeIsDark{'lesser-dark'} = 1;
+	$ThemeIsDark{'liquibyte'} = 1;
+	$ThemeIsDark{'lucario'} = 1;
+	$ThemeIsDark{'material'} = 1;
+	$ThemeIsDark{'material-darker'} = 1;
+	$ThemeIsDark{'material-ocean'} = 1;
+	$ThemeIsDark{'material-palenight'} = 1;
+	$ThemeIsDark{'mbo'} = 1;
+	$ThemeIsDark{'mdn-like'} = 0;
+	$ThemeIsDark{'midnight'} = 1;
+	$ThemeIsDark{'monokai'} = 1;
+	$ThemeIsDark{'moxer'} = 1;
+	$ThemeIsDark{'neat'} = 0;
+	$ThemeIsDark{'neo'} = 0;
+	$ThemeIsDark{'night'} = 1;
+	$ThemeIsDark{'nord'} = 1;
+	$ThemeIsDark{'oceanic-next'} = 1;
+	$ThemeIsDark{'panda-syntax'} = 1;
+	$ThemeIsDark{'paraiso-dark'} = 1;
+	$ThemeIsDark{'paraiso-light'} = 0;
+	$ThemeIsDark{'pastel-on-dark'} = 1;
+	$ThemeIsDark{'railscasts'} = 1;
+	$ThemeIsDark{'rubyblue'} = 1;
+	$ThemeIsDark{'seti'} = 1;
+	$ThemeIsDark{'shadowfox'} = 1;
+	$ThemeIsDark{'solarized'} = 1;
+	$ThemeIsDark{'ssms'} = 0;
+	$ThemeIsDark{'the-matrix'} = 1;
+	$ThemeIsDark{'tomorrow-night-bright'} = 1;
+	$ThemeIsDark{'tomorrow-night-eighties'} = 1;
+	$ThemeIsDark{'twilight'} = 1;
+	$ThemeIsDark{'vibrant-ink'} = 1;
+	$ThemeIsDark{'xq-dark'} = 1;
+	$ThemeIsDark{'xq-light'} = 0;
+	$ThemeIsDark{'yeti'} = 0;
+	$ThemeIsDark{'yonce'} = 1;
+	$ThemeIsDark{'zenburn'} = 1;
+	}
+} ##### Theme dark vs light
 
 { ##### Perl Syntax Highlight
 my $formatter;

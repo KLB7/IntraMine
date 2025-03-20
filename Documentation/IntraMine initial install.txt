@@ -3,7 +3,7 @@ IntraMine initial install
 
 YOU PROBABLY DON'T WANT TO BE HERE
 ==================================
-This document starts off the slow and very hands-on but flexible approach to installing IntraMine. If you haven't already, please open the __START_HERE_INTRAMINE_INSTALLER folder and double-click on "1 READ ME FIRST how to install IntraMine.html". There you'll find a quicker more automated way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using Elasticsearch, you should be able to use the "Quick Install" approach instead of this one.
+This document starts off the slow and very hands-on but flexible approach to installing IntraMine. The mostly automated alternative is described in "../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html". There you'll find a quicker way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using Elasticsearch, you should be able to use that "Quick Install" approach instead of this one.
 
 Still here? Ok let's go.
 

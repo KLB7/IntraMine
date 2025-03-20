@@ -126,7 +126,7 @@
 # perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\Documentation\gloss.txt"
 #
 # For txt docs in the _INSTALLER folder:
-# perl C:\perlprogs\IntraMine\gloss2html.pl -inline "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt"
+# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt" -i -h
 
 # Syntax check:
 # perl -c C:\perlprogs\mine\gloss2html.pl
@@ -644,6 +644,14 @@ sub AddEmphasis {
 	$$lineR =~ s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 	$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
 	$$lineR =~ s!\:\)!<span class='textSymbol' style='color: DarkGreen;'>\&#128578;</span>!; # or \&#9786;
+	# Three or more @'s on a line by themselves produce a "flourish" section break.
+	if ($$lineR =~ m!^@@@@*$!)
+		{
+		my $sectionImage = '';
+		GetFlourishImage('', \$sectionImage, '_black', '100%');
+		$$lineR =~ s!@@@@*!$sectionImage!;
+		}
+
 	# No good, messes up glossary popup: $$lineR =~ s!FLASH!F<span class='smallCaps'>LASH</span>!g;
 	}
 
@@ -1303,14 +1311,21 @@ sub MakeSpecialIndexFileLookSpecial {
 	if ($numLines)
 		{
 		my $flourishImage = '';
-		GetFlourishImage($contextDir, \$flourishImage);
-		$lines_A->[0] =~ s!(<td>)(.*?$ContentTriggerWord.*?)(</td>)!<th align='center'><span id='toc-line'>$2</span>$flourishImage</th>!i;
+		GetFlourishImage($contextDir, \$flourishImage, '', '100%');
+		$lines_A->[0] =~ s!(<td>)(.*?$ContentTriggerWord.*?)(</td>)!<th align='center'><span id='toc-line'>$2</span><br/>$flourishImage</th>!i;
 		}
 	}
 
 sub GetFlourishImage {
-	my ($contextDir, $imageR) = @_;
-	ImageLink($SpecialIndexFlourishImage, $contextDir, $imageR);
+	my ($contextDir, $imageR, $suffix, $forcedWidth) = @_;
+	my $flourishImageName = $SpecialIndexFlourishImage;
+	if ($suffix ne '' && $flourishImageName =~ m!^(.+?)\.(\w+)$!)
+		{
+		my $baseName = $1;
+		my $extension = $2;
+		$flourishImageName = $baseName . $suffix . '.' . $extension;
+		}
+	ImageLink($flourishImageName, $contextDir, $imageR, $forcedWidth);
 	}
 
 sub GetOldBackgroundImage {
@@ -1759,8 +1774,22 @@ sub GetTextFileRep {
 	$viewerPath =~ s!\\!/!g;
 	$viewerPath =~ s!%!%25!g;
 	$viewerPath =~ s!\+!\%2B!g;
-	# Extract just the file name from $viewerPath. Convert txt to html too.
-	$viewerPath = FileNameFromPath($viewerPath);
+
+	# If it's a relative link containing '../' or './', keep from there to the end.
+	# Else just the file name from $viewerPath, with a './' in front.
+	# Convert txt to html too.
+	#$viewerPath = FileNameFromPath($viewerPath);
+	if ($viewerPath =~ m!(\.\.?/)(.+)$!)
+		{
+		my $relPath = $1 . $2;
+		$viewerPath = $relPath;
+		}
+	else
+		{
+		$viewerPath = FileNameFromPath($viewerPath);
+		$viewerPath = './' . $viewerPath;
+		}
+
 	$viewerPath =~ s!\.txt!.html!i;
 	
 	$editorPath =~ s!\\!/!g;
@@ -1773,7 +1802,7 @@ sub GetTextFileRep {
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
 	
-	$$repStringR = "<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
+	$$repStringR = "<a href=\"$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
 	}
 
 sub GetVideoFileRep {
