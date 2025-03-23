@@ -84,7 +84,7 @@ my @PreferredExtensions;
 # Make a new elasticsearch_find_def instance,
 # init universal ctags.
 sub new {
-	my ($proto, $indexName, $numHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $preferredExtensionsA) = @_;
+	my ($proto, $indexName, $numHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $preferredExtensionsA, $monitorCallback) = @_;
 	my $class = ref($proto) || $proto;
 	my $self  = {};
 	
@@ -94,6 +94,8 @@ sub new {
 	$self->{HOST} = $host;
 	$self->{PORT} = $port_listen;
 	$self->{VIEWERNAME} = $VIEWERNAME;
+	$self->{MONITOR} = $monitorCallback;
+	InitMonitor($monitorCallback);
 
 	@PreferredExtensions = @$preferredExtensionsA;
 	
@@ -110,6 +112,23 @@ sub new {
 	bless ($self, $class);
 	return $self;
     }
+
+{ ##### Monitor, for feedback to the "Mon" service
+my $monitorCallback;
+
+sub InitMonitor {
+	my ($callback) = @_;
+	$monitorCallback = $callback;
+	}
+
+sub Monitor {
+	my ($msg) = @_;
+	if (defined($monitorCallback))
+		{
+		$monitorCallback->($msg);
+		}
+	}
+} ##### Monitor, for feedback to the "Mon" service
 
 # GetDefinitionLinks(): call Elasticsearch to retrieve documents matching $rawquery.
 # Match words supplied as a phrase.
@@ -203,6 +222,9 @@ sub GetAnyLinks {
 	my ($self, $rawquery, $fullPath) = @_;
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
+
+	# TEST ONLY, show message on the "Mon" page.
+	#Monitor("GetAnyLinks called for |$rawquery|\n");
 
 	my $e = $self->{SEARCHER};
 	my $rawResults = '';

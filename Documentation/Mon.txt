@@ -15,7 +15,7 @@ for example (yours will no doubt be different).
 
 A new Mon page at startup
 ========================
-By default, IntraMine will show a new Mon page in a fresh browser tab, using your default browser. If you grow tired of that and don't want it any more:
+By default, when IntraMine starts it will show a new Mon page in a fresh browser tab, using your default browser. If you grow tired of that and don't want it any more:
 ---
 Visit your IntraMine folder, open **data/intramine_config_8.txt**
 and change 1 in the line
@@ -25,9 +25,19 @@ to a 0 and save.
 Then when you restart you'll no longer see a fresh Mon page.
 However, Mon will still be listed in the top navigation bar on any IntraMine page, and when you click on it you'll see a full list of messages from IntraMine since the last start.
 
+Adding Mon feedback to your service
+==========================
+If you have based your service on swarmserver by putting
+use swarmserver;
+at the top of your Perl program then you can call Monitor, eg
+Monitor("message\n");
+to provide feedback on the Mon page.
+For an example of using Monitor (and using swarmserver) see intramine_linker.pl.
+
+
 Why Mon?
 ============
-Mon is mainly a workaround. Since inception, IntraMine has used a console window to provide feedback, but this approach has always been plagued to some extent by newline corruption.
+Mon is mainly a workaround. Since inception, IntraMine has used a console window to provide feedback, but this approach has always been plagued by intermittent newline corruption. Mon doesn't suffer from that, and as a bonus it allows a moderate amount of embedded HTML (links, <pre>, <strong> etc).
 
 ---
 contents.txt

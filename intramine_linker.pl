@@ -262,7 +262,7 @@ sub callbackInitPathsAndGlossary {
 	my $ctags_dir = CVal('CTAGS_DIR');
 	my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
-	$ElasticSearcher = elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, \@preferredExtensions);
+	$ElasticSearcher = elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, \@preferredExtensions, \&Monitor);
 
 	# Test, sometimes we stall going back to the main loop, searching for a fix:
 	sleep(1);
