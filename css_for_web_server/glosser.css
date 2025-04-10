@@ -1,0 +1,102 @@
+/* glosser.css, for the Glosser page. */
+
+#theTextWithoutJumpList {
+	background-color: #fafafa;
+
+}
+
+#searchdirectory {
+	display: inline-block;
+}
+
+#form_2_2 {
+	display: inline-block;
+}
+
+#convert_anchor {
+	display: block;
+}
+
+/* The "dot dot dot" for the Directory picker. */
+#annoyingdotcontainer {
+	position: relative;
+	display: inline-block;
+	width: 48px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	padding-left: 18px;
+}
+
+#dotdotdot {
+	border: 1px solid #447314;
+	background: #8dc059;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+	position: absolute;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	/*left: 4px;*/
+	top:4px;
+}
+
+#dotdotdot:hover {
+	content:url("dotdotdot24x48i.png");
+	cursor: pointer;
+}
+
+#dirpickerMainContainer {
+	display: none;
+	position:absolute;
+	top: 100px;
+	left: 100px;
+	background: #eeeeee;
+	width: 600px;
+	border: 1px solid #447314;
+	text-shadow: #addc7e 0 1px 0;
+	z-index: 100;
+}
+
+#dirpicker {
+	position: relative;
+	border: 1px solid #bababa;
+}
+
+#pickerDisplayedDirectory {
+	display: inline-block;
+	border: 1px solid #bababa;
+	width: 450px;
+	/*height: 20px;*/
+}
+
+#directoryPickerTitle {
+	font-size: 1.2em;
+	text-align: center;
+	background: #285B42;
+	color: #ffffff;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 4px;
+}
+
+#pickerDisplayDiv {
+	height: 20px;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+
+#fileTreeLeft {
+	/*float: left;
+	width: 48%;*/
+	height: 100%;	
+}
+
+#scrollDriveListLeft {
+	overflow: auto;
+	height: 80%;
+	margin-left:15px;
+	padding-left:10px;
+}
