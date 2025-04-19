@@ -1,0 +1,43 @@
+Glosser
+==============
+
+"glosser.png"
+
+Glosser is a web page that allows you to generate standalone HTML from .txt files that have been marked up (or is it down?) with Gloss, IntraMines' markdown variant that's tuned for intranet use. Gloss is minimal and memorable, well suited for in-house documentation and dev logs.
+
+For all the details on Gloss see "Gloss.txt". For more details on what parts of Gloss you can use in your .txt files, see "gloss2html.pl for standalone Gloss files.txt". Basically, Glosser is the same as the Perl program gloss2html.pl, but with a nicer interface.
+
+You'll be asked to provide:
+ - the full path to the file or directory you want to process: for a directory, all .txt files will be processed
+ - "Inline images": whether to show images inline or just put a link that pops up the image on a hover
+ - "Always hover GIFs": whether to always show just a link for GIFs or follow images. You might want to check this if you have elected to show images inline but want to have animated GIFs show only when the cursor pauses over them.
+
+When you click "Generate" you'll see a list of files as they are processed.
+
+The "Directory or File" field will remember your last 10 selected paths, available under the dropdown menu at the right end of the field. The "Inline images" and "Always hover GIFs" check boxes will remember your last chosen settings.
+
+You can run Glosser from anywhere on your intranet. To access IntraMine from a different PC you'll need to know the IP address of your IntraMine PC, then use "81" as the port number and any valid service name. On my intranet for example my IntraMine IP address is 192.168.40.8, so to access IntraMine from any PC on my intranet and bring up Glosser I can enter
+192.168.40.8:81/Glosser
+in my browser's address field.
+
+
+How to get Glosser going
+====================
+If you have installed IntraMine recently (roughly after April 18 2025), you will find that Glosser is available for starting on the Status page, under the "Add one page server" dropdown menu.
+
+If you did your installation before April 18 2025 you'll want to add a line for the service to your data/serverlist.txt file as follows.
+
+To have Glosser available under the "Add one page server" dropdown on the Status page, so you can start Glosser whenever you need it, copy the following line
+0	Glosser				Glosser		intramine_glosser.pl
+and paste it into your "data/serverlist.txt" file, Save, and restart IntraMine.
+
+If you would rather have Glosser run all the time and appear in IntraMine's top navigation bar right from when you start IntraMine, copy the following line
+1	Glosser				Glosser		intramine_glosser.pl
+and paste it into your "data/serverlist.txt" file, Save, and restart IntraMine.
+
+You'll notice the only difference is the "0" or "1" at the beginning of the line. "0" means make Glosser available under the Status dropdown but don't start it, "1" means also start Glosser when IntraMine starts.
+
+---
+contents.txt
+---
+

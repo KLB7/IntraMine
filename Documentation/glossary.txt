@@ -149,3 +149,4 @@ Zombie: reserved servers are sometimes called "zombie" servers in the documentat
 Go2: select a word or short phrase, keep you cursor fairly still, and a popup will appear listing links to other files that mention the text. The less common the text is, the more useful the links will be. For details see "Go2.txt".
 "go2_cropped.gif"
 
+Glosser: see "Glosser.txt", a service that generates standalone HTML from Gloss-styled .txt files.

@@ -1,5 +1,14 @@
 /* glosser.css, for the Glosser page. */
 
+p {
+	margin-top: 0;
+	margin-bottom: 6px;
+}
+
+.form-container {
+	width: 50em;
+}
+
 #theTextWithoutJumpList {
 	background-color: #fafafa;
 
@@ -7,6 +16,7 @@
 
 #searchdirectory {
 	display: inline-block;
+	width:500px;
 }
 
 #form_2_2 {
@@ -24,8 +34,9 @@
 	width: 48px;
 	height: 24px;
 	margin: 0;
+	margin-top: 10px;
 	padding: 0;
-	padding-left: 18px;
+	padding-left: 58px;
 }
 
 #dotdotdot {
@@ -99,4 +110,48 @@
 	height: 80%;
 	margin-left:15px;
 	padding-left:10px;
+}
+
+/* Smaller buttons for OK/Cancel.*/
+#okCancelHolder {
+	display: flex;
+	justify-content: flex-end;
+}
+
+#dirOkButton, #dirCancelButton {
+	border: 1px solid #447314;
+	background: #8dc059;
+	text-shadow: #addc7e 0 1px 0;
+	color: #000000;
+	font-family: helvetica, serif;
+	font-size: 12px;
+	text-decoration: none;
+	/*font-weight: bold;*/
+	vertical-align: middle;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+   margin-top: 6px;
+   margin-left: 12px;
+   margin-right: 12px;
+}
+
+#dirOkButton:hover, #dirCancelButton:hover {
+	color: #fff;
+	cursor: pointer;
+}
+
+#dirOkButton:active, #dirCancelButton:active {
+	 color: #fff;
+}
+
+#dirOkButton:disabled, #dirCancelButton:disabled {
+	color: #000000;
+	opacity: 0.4;
+	cursor: default;
+}
+
+/* Directory picker, limit width so scroll bar will show. */
+#fileTreeLeft {
+	width: 100%;
 }

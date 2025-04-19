@@ -1,7 +1,8 @@
-# gloss_to_html.pm: take .txt files marked up with Gloss, convert to standalone HTML.
+# gloss_to_html.pm: take .txt files styled with Gloss, convert to standalone HTML.
 # This is the "guts" of the process. It's in a module to allow different feedback:
 # print, when called through the Perl program gloss2html.pl;
-# and write to disk with a WebSockets message, when called by a service (to be named).
+# and a WebSockets message, when called by intramine_glosser.pl.
+# Most of Gloss is supported, see "Documentation/gloss2html.pl for standalone Gloss files.txt".
 
 package gloss_to_html;
 require Exporter;
@@ -69,7 +70,8 @@ sub ConvertGlossToHTML {
 			}
 		else
 			{
-			die "Text files (.txt) only please!";
+			Output("Text files (.txt) only please!\n");
+			return;
 			}
 		}
 	elsif ($thingType == 2) # directory
@@ -95,11 +97,16 @@ sub ConvertGlossToHTML {
 		}
 	else
 		{
-		die "Could not find '$fileOrDir' on disk!";
+		Output("Could not find '$fileOrDir' on disk!\n");
+		return;
 		}
 
 	$numFilesToConvert = @listOfFilesToConvert;
-	die "No .txt files found!\n" if ($numFilesToConvert == 0);
+	if ($numFilesToConvert == 0)
+		{
+		Output("No .txt files found!\n");
+		return;
+		}
 
 	LoadConfigValues(); # intramine_config.pm#LoadConfigValues()
 
@@ -255,7 +262,7 @@ ENDIT
 	$$contents_R .= $htmlBodyTop;
 	}
 
-# This is a variant version of intramine_viewer.pl#GetPrettyTextContents().
+# This is a variant of intramine_viewer.pl#GetPrettyTextContents().
 sub GetPrettyText {
 	my ($context, $filePath, $contents_R) = @_;
 	my $isGlossaryFile = IsGlossaryPath($filePath);
@@ -2277,7 +2284,7 @@ sub InlineCssForFile {
 		}
 	else
 		{
-		die("Error, could not load CSS file |$fileName|\n");
+		Output("Error, could not load CSS file |$fileName|\n");
 		}
 		
 	return($result);
@@ -2293,7 +2300,7 @@ sub InlineJavaScriptForFile {
 		}
 	else
 		{
-		die("Error, could not load JavaScript file |$fileName|\n");
+		Output("Error, could not load JavaScript file |$fileName|\n");
 		}
 		
 	return($result);

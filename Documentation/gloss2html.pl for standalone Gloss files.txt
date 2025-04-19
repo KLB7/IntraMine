@@ -1,36 +1,41 @@
 gloss2html.pl for standalone Gloss files
 ======================
 
-gloss2html.pl will convert text files written using Gloss syntax into HTML files that have no dependencies. So you can email them or slap them up as static pages on a web site. For all about Gloss, see Gloss.txt.
+===
+**Note** the Glosser service does the same as the gloss2html.pl Perl program described below, but also provides a simple web interface that can be accessed from anywhere on your intranet. For the details see "Glosser.txt".
+===
 
-You can convert a whole folder at once or a single file.
+gloss2html.pl will encode text files written using Gloss syntax into HTML files that have no dependencies. So you can email them or slap them up as static pages on a web site. For all about Gloss, see Gloss.txt.
+
+You can generate HTML for a whole folder at once or a single file.
 
 Automatic linking to .txt or HTML files in the same folder is supported, but other links are not, simply because the resulting document could end up anywhere. If you use IntraMine's Viewer to display the original .txt file then you will see all links to files in folders that you have indexed.
 
 Running gloss2html.pl
 =======================
-There are two command line arguments you can supply to gloss2html.pl
+There are three command line arguments you can supply to gloss2html.pl
 
- - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to have the images pop up when the cursor stops over an image link
  - the path to a file or folder (required). The path can be to a single text file, or to a folder holding several text files and optionally images. More below.
+ - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to have the images pop up when the cursor stops over an image link.
+ - "-hoverGIFs" or "-h" (optional) will force all GIFs to pop up when the cursor stops over them: if not provided, GIFs will follow the image rule just above
  
 Examples (as always, adjust the path to gloss2html.pl, and substitute your own document paths):
 CODE
 perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
 ENDCODE
-will convert all text files in "Documentation" to standalone HTML files. Images can be at the top level of "Documentation" or in a "Documentation/images" subfolder.
+will encode all text files in "Documentation" to standalone HTML files. Images can be at the top level of "Documentation" or in a "Documentation/images" subfolder.
 
 CODE
 perl C:\perlprogs\mine\gloss2html.pl "C:\projects\project51\docs\Read Me First.txt"
 ENDCODE
-will convert "Read Me First.txt" to standalone HTML. If there are images mentioned in the text file they will be looked for in the "docs" folder or in "docs/images". Glossary entries from any docs\glossary.txt file will also be put in as popups on the corresponding text.
+will encode "Read Me First.txt" to standalone HTML. If there are images mentioned in the text file they will be looked for in the "docs" folder or in "docs/images". Glossary entries from any docs\glossary.txt file will also be put in as popups on the corresponding text.
 
 CODE
-perl -i C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
+perl -i -h C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation"
 or
-perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -inline
+perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -inline -hoverGIFs
 ENDCODE
-Including "-i" or "-inline" on the command line will result in all images being fully shown in the text, rather than having a link to the image with a popup view of it when the cursor stops over the link.
+Including "-i" or "-inline" on the command line will result in all images being fully shown in the text, rather than having a link to the image with a popup view of it when the cursor stops over the link. GIFs will not be shown until the cursor stops over the link.
 
 Full image display versus image hovers
 ======================================
@@ -50,7 +55,7 @@ Adding links to other files
 ===========================
 In the same folder
 --------------------
-Since we're dealing with standalone files that could end up anywhere, only links to text and HTML files in the same folder as the one being converted are recommended, though some other links can be done (see "Relative links" just below). Images can be in the same folder at either the top level or in an images/ subfolder, but they aren't linked: instead, the images are incorporated into the resulting HTML document.
+Since we're dealing with standalone files that could end up anywhere, only links to text and HTML files in the same folder as the one being encode are recommended, though some other links can be done (see "Relative links" just below). Images can be in the same folder at either the top level or in an images/ subfolder, but they aren't linked: instead, the images are incorporated into the resulting HTML document.
 
 As an example, many of IntraMine's help docs in the Documentation folder contain links to other files, such as contents.txt.
 
@@ -63,15 +68,15 @@ Say for example you have two folders "First" and "Second", and documents "First/
 
 Here's an example using IntraMine's documentation: "../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html".
 
-Having two folders means remembering to convert both folders to HTML. For that, it helps to cook up a little .bat file to convert both at once. Here's the "glossconvert.bat" file I use to convert IntraMines' two folders:
+Having two folders means remembering to encode both folders to HTML. For that, it helps to cook up a little .bat file to encode both at once. Here's the "glossconvert.bat" file I use to encode IntraMines' two folders:
 CODE
-REM Convert Documentation and __START_HERE_INTRAMINE_INSTALLER instructions.
+REM Encode Documentation and __START_HERE_INTRAMINE_INSTALLER instructions.
 perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h && perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt" -i -h
 ENDCODE
 
 txt vs html
 --------------
-When you write your own text files for converting with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. For example, contents.txt links to the HTML version even though the extension is txt.
+When you write your own text files for encoding with Gloss you might worry that you'll accidentally put in the text name of a file instead of using the HTML version. To head that off, gloss2html.pl replaces .txt with .html in all links, ensuring that you won't ever accidentally link to the source text version. For example, contents.txt links to the HTML version even though the extension is txt.
 
 Glossary file determines link scope
 ----------------------------------
@@ -79,7 +84,7 @@ If you use IntraMine's Viewer or Editor to display your text file that's intende
 
 Video links
 --------------------
-Video links are now supported, in a limited way. In the folder containing the .txt files that you want to convert to .html, place any videos that you want links to in an /images/ subfolder - no other locations are supported. Then put the link in double quotes in your .txt document, eg "myvideo.mp4", where the link text is just the video name. If you copy the resulting HTML documents to another location and want the videos to play, you will need to also copy along the /images/ subfolder together with any contained video files and HTML stub files for the videos. The stub files are created when running gloss2html.pl and have the same names as the videos but with a .html extension, eg for myvideo.mp4 you will also find a file named myvideo.html in the /images/ folder. The stub file opens a new tab in your browser that contains a <video> element for the corresponding video.
+Video links are now supported, in a limited way. In the folder containing the .txt files that you want to encode to .html, place any videos that you want links to in an /images/ subfolder - no other locations are supported. Then put the link in double quotes in your .txt document, eg "myvideo.mp4", where the link text is just the video name. If you copy the resulting HTML documents to another location and want the videos to play, you will need to also copy along the /images/ subfolder together with any contained video files and HTML stub files for the videos. The stub files are created when running gloss2html.pl and have the same names as the videos but with a .html extension, eg for myvideo.mp4 you will also find a file named myvideo.html in the /images/ folder. The stub file opens a new tab in your browser that contains a <video> element for the corresponding video.
 
 Links to web pages
 =======================
@@ -87,7 +92,7 @@ Links to web pages are supported, eg https://github.com/. Anything starting with
  
 Adding a table of contents file
 ==========================
-If you have a folder of several documents to convert, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with an old-fashioned look:
+If you have a folder of several documents to encode, you can add a table of contents file. IntraMine has one for example, at /Documentation/contents.txt. For the full effect, with an old-fashioned look:
  - name your table of contents file "contents.txt"
  - put the word CONTENTS at the top of the file on a line by itself. This is case-sensitive.
 
@@ -99,7 +104,7 @@ Adding a glossary
 =================
 The glossary file
 -------------------
-To provide glossary popup entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being converted from text to HTML.
+To provide glossary popup entries for your standalone HTML files, put the glossary terms with their definitions in a file called "glossary.txt" in the same folder as your other documents that are being encoded from text to HTML.
 
 Which glossary now?
 ----------------------
@@ -107,7 +112,7 @@ IntraMine's Viewer and Editor both display glossary entries. The default display
 
 Glossary term appearance
 --------------------------
-All converted files will have glossary popups wherever glossary terms are used, with a dotted underline under each term. The first mention in a document will have a slightly stronger underline, and if the term is used more than once in a paragraph only the first instance will be underlined. Where a term has synonyms, only the relevant instance will be shown at the top of the popup, with a list of synonyms added at the bottom.
+All generated HTML files will have glossary popups wherever glossary terms are used, with a dotted underline under each term. The first mention in a document will have a slightly stronger underline, and if the term is used more than once in a paragraph only the first instance will be underlined. Where a term has synonyms, only the relevant instance will be shown at the top of the popup, with a list of synonyms added at the bottom.
 
 Glossary file format
 ---------------------
@@ -131,7 +136,7 @@ The definitions don't have to be in any order. However if you use IntraMine's Vi
 
 Sometimes a picture works better. If you'd rather show an image than plod through a thousand-word equivalent, put the name of the image in place of the "definition", enclosed in double quotes.
 
-The image should be in the folder being converted, or in an /Images/ subfolder there. It can also be in your IMAGES_DIR, which is IntraMine's images_for_web_server/ folder by default, or in your COMMON_IMAGES_DIR, which is C:/common/images/ by default. Those paths are in data/intramine_config.txt around line 38 if you want to change them.
+The image should be in the same folder as .txt files being encoded, or in an /Images/ subfolder there. It can also be in your IMAGES_DIR, which is IntraMine's images_for_web_server/ folder by default, or in your COMMON_IMAGES_DIR, which is C:/common/images/ by default. Those paths are in data/intramine_config.txt around line 38 if you want to change them.
 
 IntraMine's glossary.txt has an example,
 ---
