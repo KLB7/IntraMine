@@ -256,7 +256,6 @@ FINIS
 	my $serverAddr = ServerAddress();
 	my $host = $serverAddr;
 	my $port = $port_listen;
-	
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
@@ -284,17 +283,12 @@ FINIS
 		$title = $filePath;
 		}
 
-	my $ctrlSPath = $filePath;
-	$ctrlSPath = encode_utf8($ctrlSPath);
-	$ctrlSPath =~ s!%!%25!g;
-	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	$ctrlSPath =~ s!'!\\'!g;
-	
 	# Buttons:
-	my $saveAction = "<input onclick=\"saveFile('$ctrlSPath');\" id=\"save-button\" class=\"submit-button\" type=\"submit\" value=\"Save\" />";
-	$theBody =~ s!_SAVEACTION_!$saveAction!;
-	my $revert = "<input onclick=\"revertFile('$ctrlSPath');\" id=\"revert-button\" class=\"submit-button\" type=\"submit\" value=\"Revert\" title=\"Revert to last saved version\" />";
-	$theBody =~ s!_REVERT_!$revert!;
+	my $saveButton = SaveButton($filePath);
+	$theBody =~ s!_SAVEACTION_!$saveButton!;
+	my $revertButton = RevertButton($filePath);
+	$theBody =~ s!_REVERT_!$revertButton!;
+
 	my $arrows = "<img src='left3.png' id='left2' class='img-arrow-left'> " .
 				 "<img src='up3.png' id='up2' class='img-arrow-up'> " .
 				 "<img src='down3.png' id='down2' class='img-arrow-down'> " .
@@ -333,11 +327,16 @@ FINIS
 	my $fileName = FileNameFromPath($title);
 	$fileName = &HTML::Entities::encode($fileName);
 	my $displayedTitle = '&#128393' . $fileName; # "lower left pencil"
+
+	### TEST OUT
+	#$theBody =~ s!_TITLE_! !;
 	$theBody =~ s!_TITLE_!$displayedTitle!;
-	# $theBody =~ s!_TITLE_!$fileName!;
+
 	# Flip the slashes for file path in _TITLEHEADER_ at top of the page, for the "traditional" look.
 	$title =~ s!/!\\!g;
 	$title = &HTML::Entities::encode($title);
+	### TEST OUT
+	#$theBody =~ s!_TITLEHEADER_! !;
 	$theBody =~ s!_TITLEHEADER_!$title!;
 
 	my $canHaveTOC = CanHaveTOC($filePath);
@@ -345,8 +344,10 @@ FINIS
 	# Watch out for apostrophe in path, it's a killer in the JS above.
 	$filePath =~ s!'!\\'!g;
 
-	$theBody =~ s!_PATH_!$ctrlSPath!g;
-	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
+	my $encPath = $filePath;
+	$encPath = &HTML::Entities::encode($encPath);
+	$theBody =~ s!_PATH_!$encPath!g;
+	$theBody =~ s!_ENCODEDPATH_!$encPath!g;
 	
 	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents': 'scrollText';
 	my $tocHolderName = $canHaveTOC ? 'scrollContentsList': '';
@@ -392,7 +393,7 @@ FINIS
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
 
-	# Hilight class for table of contents selected element - see also non_cm_test.css
+	# Highlight class for table of contents selected element - see also non_cm_test.css
 	# and cm_editor_links.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
 	
@@ -409,8 +410,6 @@ sub NonCodeMirrorThemeCSS {
 	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
 	if (FileOrDirExistsWide($cssPath) != 1)
 		{
-		# TEST ONLY
-		#print("ERROR could not find |$cssPath|\n");
 		return('');
 		}
 
@@ -422,7 +421,7 @@ sub PositionToggle {
 	return($result);
 	}
 
-# See editor.js#loadFileIntoCodeMirror(), which calls back here with "req=open",
+# See editor.js#loadFileIntoCodeMirror(), which calls back here with "req=loadfile",
 # which calls this sub, see %RequestAction above.
 # The contents from here are fed into CodeMirror for display.
 sub LoadTheFile {
@@ -432,15 +431,17 @@ sub LoadTheFile {
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	if ($filepath ne '')
 		{
+		# This decode pairs with the
+		# &HTML::Entities::encode()
+		# above.
+		$filepath = &HTML::Entities::decode($filepath);
+
 		$result =  uri_escape_utf8(ReadTextFileDecodedWide($filepath));
 
 		if ($result eq '')
 			{
 			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
 			}
-		
-		#$result = encode_utf8(ReadTextFileDecodedWide($filepath));
-		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
 		}
 	
 	return($result);		
@@ -453,6 +454,8 @@ sub GetTOC {
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	if ($filepath ne '')
 		{
+		$filepath = &HTML::Entities::decode($filepath);
+		
 		GetCMToc($filepath, \$result);
 		if ($result ne '')
 			{
@@ -473,6 +476,7 @@ sub Save {
 	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
 	if ($filepath ne '')
 		{
+		$filepath = &HTML::Entities::decode($filepath);
 		$filepath =~ s!\\!/!g;
 		Output("Saving |$filepath|\n");
 		
@@ -494,19 +498,40 @@ sub Save {
 	}
 
 sub ViewButton {
-	my ($filePath, $viewerShortName) = @_;
+	my ($filePath) = @_;
+
 	my $result = <<'FINIS';
 <a href='_FILEPATH_' onclick='viewerOpenAnchor(this.href); return false;'><input class="submit-button" type="submit" value="View" /></a>
 FINIS
-		# TEST ONLY encode_utf8 out
-		my $encFilePath = $filePath;
-		#my $encFilePath = encode_utf8($filePath);
-		$encFilePath =~ s!\\!/!g;
-		$encFilePath =~ s!^file\:///!!;
-		$encFilePath =~ s!%!%25!g;
-		$encFilePath =~ s!\+!\%2B!g;
-		# prob not needed $encFilePath = &HTML::Entities::encode($encFilePath);
-		$result =~ s!_FILEPATH_!$encFilePath!;
 
-		return($result);
+	my $encFilePath = &HTML::Entities::encode($filePath);
+	$result =~ s!_FILEPATH_!$encFilePath!;
+
+	return($result);
+	}
+
+sub SaveButton {
+	my ($filePath) = @_;
+
+	my $result = <<'FINIS';
+<input onclick="saveFile('_FILEPATH_');" id="save-button" class="submit-button" type="submit" value="Save" />
+FINIS
+
+	my $encFilePath = &HTML::Entities::encode($filePath);
+	$result =~ s!_FILEPATH_!$encFilePath!;
+
+	return($result);
+	}
+
+sub RevertButton {
+	my ($filePath) = @_;
+
+	my $result = <<'FINIS';
+<input onclick="revertFile('_FILEPATH_');" id="revert-button" class="submit-button" type="submit" value="Revert" title="Revert to last saved version" />
+FINIS
+
+	my $encFilePath = &HTML::Entities::encode($filePath);
+	$result =~ s!_FILEPATH_!$encFilePath!;
+
+	return($result);
 	}

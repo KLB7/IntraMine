@@ -702,7 +702,7 @@ sub NewFile {
 		return('exists');
 		}
 	
-	if (!WriteTextFileWide($path, ''))
+	if (!WriteUTF8FileWide($path, ''))
 		{
 		return('error');
 		}

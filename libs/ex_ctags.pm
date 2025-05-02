@@ -192,7 +192,12 @@ sub MakeCtagsForFile {
 	
 	# Trouble with "wide" file names. Towards a workaround, copy the file being processed to
 	# something temp with a "narrow" name.
-	my $haveWideName = ($fileName =~ m![\x80-\xFF]!) || ($dir =~ m![\x80-\xFF]!);
+	my $haveWideName = 0;
+	if ($fileName =~ m![^\x00-\x7f]! || $dir =~ m![^\x00-\x7f]!)
+	# WRONG if ($fileName =~ m![\x80-\xFF]! || $dir =~ m![\x80-\xFF]!)
+		{
+		$haveWideName = 1;
+		}
 	
 	if ($haveWideName)
 		{

@@ -125,7 +125,6 @@ function reJump(delayMsec) {
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
-		
 		h = decodeURIComponent(h);
 		
 		if (isNaN(h))
@@ -522,7 +521,7 @@ function updateMarkers(evt) {
 	justUpdateScrollbar = false;
 }
 
-//See intramine_file_viewer_cm.pl#InitialHighlightItems().
+//See intramine_viewer.pl#InitialHighlightItems().
 function highlightInitialItems() {
 	if (markerMainElement !== null && highlightItems.length > 0)
 		{

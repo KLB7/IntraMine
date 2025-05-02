@@ -272,6 +272,7 @@ function decodeHTMLEntities(text) {
 async function loadFileIntoCodeMirror(cm, path) {
 	let originalPath = path;
 	path = encodeURIComponent(path);
+
 	try {
 		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&rddm=' + String(getRandomInt(1, 65000));
 		const response = await fetch(theAction);

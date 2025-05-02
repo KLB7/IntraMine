@@ -367,7 +367,6 @@ sub Definitions {
 	# language? We'll try .js and .css. Maybe .pl, .pm.
 	if ($result eq '' || $result eq '<p>nope</p>')
 		{
-		# TEST ONLY
 		$numHits = 0;
 		$numFiles = 0;
 		$result = $ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits, \$numFiles);
@@ -378,6 +377,7 @@ sub Definitions {
 		{
 		$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath);
 		}
+
 
 	return($result);
 	}

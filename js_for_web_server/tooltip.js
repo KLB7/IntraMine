@@ -200,7 +200,6 @@ function positionAndShowHint() {
 
 	hintElement.innerHTML = hintContents;
 
-	//hintElement.style.visibility = "visible";
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
 		}, 100);
@@ -588,6 +587,10 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		tipwidth = "300px";
 		}
 	hintElement.widthobj = hintElement.style;
+
+	// Horrible hack
+	hintContents = hintContents.replace(/__IMSPC__/g, "%20");
+
 	hintParams.hintContents = hintContents;
 	hintParams.x = e.clientX;
 	

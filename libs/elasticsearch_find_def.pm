@@ -738,6 +738,11 @@ sub FormatFullPathsResults {
 	my ($rawquery, $maxNumHits, $host, $port, $viewerName, $winnowedFullPathsA, $resultR) = @_;
 	my %fullPathSeen; # Avoid showing the same file twice.
 	my $numPaths  = @$winnowedFullPathsA;
+
+	# Strip leading white from the query, it's never wanted.
+	$rawquery =~ s!^\s+!!;
+	my $originalRawquery = $rawquery;
+
 	my $definitionName = $rawquery;
 	$definitionName = '#' . $definitionName;
 	my $hitCounter = 0;
@@ -751,26 +756,32 @@ sub FormatFullPathsResults {
 			}
 		my $path = $winnowedFullPathsA->[$i];
 		my $displayedPath = $path;
-		$path = encode_utf8($path);
 		$path =~ s!\\!/!g;
-		my $lcpath = lc($path);
+		my $lcpath = lc(encode_utf8($path));
 		if (!defined($fullPathSeen{$lcpath}))
 			{
 			++$hitCounter;
 			$fullPathSeen{$lcpath} = 1;
-			$displayedPath = encode_utf8($displayedPath . $definitionName);
+			$displayedPath = $displayedPath . '#' . $originalRawquery;
 			# Replace / with \ in path, some apps still want that.
 			$displayedPath =~ s!/!\\!g;
 			$displayedPath =~ m!([^\\]+)$!;
-			
-			$path =~ s!%!%25!g;
-			$path =~ s!\+!\%2B!g;
-			
-			my $pathWithDefinition = $path . $definitionName;
-
-			my $searchItems = '&searchItems=' . &HTML::Entities::encode($rawquery);
+						
+			# search Items, encode if NOT CodeMirror
+			my $isCM = HasCMExtension($path);
+			my $searchItems;
+			if ($isCM)
+				{
+				$searchItems = '&searchItems=' . $rawquery;
+				}
+			else
+				{
+				$searchItems = '&searchItems=' . encode_utf8($rawquery);
+				}
 
 			my $pathWithSearchItems = $path . $searchItems . $definitionName;
+			# Horrible hack, having space trouble:
+			$pathWithSearchItems =~ s! !__IMSPC__!g;
 
 			my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
@@ -788,6 +799,22 @@ sub FormatFullPathsResults {
 		{
 		$$resultR .= "</div>\n";
 		}
+
+	$$resultR = encode_utf8($$resultR);
+	}
+
+# Requires $filePath lowercase
+sub HasCMExtension {
+	my ($filePath) = @_;
+	my $isCM = 1;
+	if (   $filePath =~ m!\.(p[lm]|cgi|t)$!i
+		|| $filePath =~ m!\.pod$!i
+		|| $filePath =~ m!\.(txt|log|bat)$!i
+		|| $filePath =~ m!\.md$!i )
+		{
+		$isCM = 0;
+		}
+	return($isCM);
 	}
 
 sub DefKeyForPath {

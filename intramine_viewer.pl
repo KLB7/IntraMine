@@ -749,7 +749,7 @@ sub InitialHighlightItems {
 			{
 			if ($forExactPhrase)
 				{
-				if (length($searchItems) > 2)
+				if (length($searchItems) > 3) # was 2
 					{
 					$highlightItems = "\"$searchItems\"";
 					}
@@ -760,7 +760,7 @@ sub InitialHighlightItems {
 				my $numSoFar = 0;
 				for (my $i = 0; $i < $numItems; ++$i)
 					{
-					if (length($items[$i]) > 2)
+					if (length($items[$i]) > 3) # was 2
 						{
 						if ($numSoFar == 0)
 							{

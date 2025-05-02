@@ -17,7 +17,8 @@ let definitionMouseMoveTimeout = 250; // milliseconds
 // Called by cmAutoLinks.js#handleFileLinkMouseUp() and viewerStart.js#updateMarkers()
 // to cover off CodeMirror and nonCM displays.
 async function showDefinitionHint(term, event) {
-	if (term === '' || !/\w/.test(term))
+	if (term === '' || term.length < 3)
+	// was if (term === '' || !/\w/.test(term))
 		{
 		return;
 		}
@@ -96,8 +97,11 @@ async function showDefinitionHintWithPort(term, event, linkerPort) {
 			let text = await response.text();
 			if (text !== '')
 				{
+
 				if (text !== '<p>nope</p>')
 					{
+					text = text.replace(/%2B/g, "+");
+					//text = text.replace(/__IMSPC__/g, " ");
 					let hintContent = text;
 
 					// Show the definition links via tooltip.js#showhint().
