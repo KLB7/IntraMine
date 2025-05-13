@@ -76,7 +76,7 @@ $AllCompleted = 8
 # (From there on the goal is no stoppers, so we will just skip a stage
 # if something seems to have been installed already. However, there
 # will be a retry if there's a problem.)
-# Check Strawberry Perl, Elasticsearch 8.8.1, File Watcher,
+# Check Strawberry Perl, Elasticsearch 9.0.1, File Watcher,
 # and universal ctags.
 $PerlHasBeenInstalled = $false
 $EsHasBeenInstalled = $false
@@ -91,18 +91,18 @@ $DownloadPerlURL = "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/relea
 $DownloadPerlPath = "$env:TEMP\perl540.msi"
 $BatsFolder = -join($IntraMineDir, "\bats")
 $PerlModulesBatsPath = -join($BatsFolder, "\install_perl_modules.bat")
-$EsInstalledFolder = "C:\elasticsearch-8.8.1"
+$EsInstalledFolder = "C:\elasticsearch-9.0.1"
 $EsDownloadPath = "$env:TEMP\Es.zip"
-$EsZipPath = 'https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.8.1-windows-x86_64.zip';
-$EsExpandedFolder = "$env:TEMP\elasticsearch-8.8.1"
+$EsZipPath = 'https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-9.0.1-windows-x86_64.zip';
+$EsExpandedFolder = "$env:TEMP\elasticsearch-9.0.1"
 $EsExpanderFolderSlashStar = -join($EsExpandedFolder, "\*")
-$EsConfigPath = "C:\elasticsearch-8.8.1\config\elasticsearch.yml"
+$EsConfigPath = "C:\elasticsearch-9.0.1\config\elasticsearch.yml"
 $FwwsInstalledFolder = "C:\fwws"
 $SourceFwwsFolder = -join($IntraMineDir, "\fwws")
-$CTagsFolderName = "ctags-p6.0.20230827.0-x64"
+$CTagsFolderName = "ctags-p6.1.20250504.0-x64"
 $CtagsInstalledFolder = "C:/" + $CTagsFolderName
 $CtagsDownloadPath = "$env:TEMP\Ctags.zip"
-$CtagsZipPath = 'https://github.com/universal-ctags/ctags-win32/releases/download/p6.1.20240623.0/ctags-p6.1.20240623.0-x64.zip'
+$CtagsZipPath = 'https://github.com/universal-ctags/ctags-win32/releases/download/p6.1.20250504.0/ctags-p6.1.20250504.0-x64.zip'
 $CtagsDestinationPath = -join("$env:TEMP\", $CTagsFolderName)
 $CtagsExpandedFolder = $CtagsDestinationPath
 $CtagsExpanderFolderSlashStar = -join($CtagsExpandedFolder, "\*")
@@ -140,8 +140,8 @@ if ($StageCompleted -gt 0)
 			# Stop and uninstall service, delete folder, delete unzipped folder, delete zip.
 			try
 				{
-				C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat stop
-				C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat remove
+				C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat stop
+				C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat remove
 				}
 			catch
 				{
@@ -211,7 +211,7 @@ if (Test-Path $PerlBinFile)
 	}
 If(Test-Path -Path $EsInstalledFolder)
 	{
-	Write-Host "Elasticsearch 8.8.1 has already been installed, will continue." -f Green
+	Write-Host "Elasticsearch 9.0.1 has already been installed, will continue." -f Green
 	$EsHasBeenInstalled = $true
 	}
 If(Test-Path -Path $FwwsInstalledFolder)
@@ -378,13 +378,13 @@ if ($StageCompleted -eq $PerlModulesCompleted)
 		
 		# Install tokenizer
 		Write-Host "Adding analysis-icu tokenizer to Elasticsearch ..." -f Yellow
-		C:\elasticsearch-8.8.1\bin\elasticsearch-plugin.bat install analysis-icu
+		C:\elasticsearch-9.0.1\bin\elasticsearch-plugin.bat install analysis-icu
 		Write-Host "Elasticsearch tokenizer has been added." -f Green
 		
 		# Install and start Elasticsearch
 		Write-Host "Installing and starting Elasticsearch service ..." -f Yellow
-		C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat install
-		C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat start
+		C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat install
+		C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat start
 		Write-Host "Elasticsearch has been started." -f Green
 		Write-Host ""
 		Write-Host ""
@@ -397,7 +397,7 @@ if ($StageCompleted -eq $PerlModulesCompleted)
 		Write-Host "Under the General tab, please set the Startup type to Automatic," -f Yellow
 		Write-Host "then Apply and OK to return here." -f Yellow
 		Read-Host -Prompt "Press Enter to see the dialog"
-		C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat manager
+		C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat manager
 		Write-Host "Continuing ..." -f Green
 		}
 	
@@ -429,6 +429,20 @@ if ($StageCompleted -eq $FileWatcherCompleted)
 	{
 	if (!$CtagsHasBeenInstalled)
 		{
+		# Delete: C:\ctags..., expanded temp version, and temp .zip.
+		If (Test-Path -Path $CtagsInstalledFolder)
+			{
+			Remove-Item -Path $CtagsInstalledFolder -Force -Recurse
+			}
+		If (Test-Path -Path $CtagsDestinationPath)
+			{
+			Remove-Item -Path $CtagsDestinationPath -Force -Recurse
+			}
+		If (Test-Path -Path $CtagsDownloadPath)
+			{
+			Remove-Item $CtagsDownloadPath
+			}
+				
 		# Download
 		Write-Host "Downloading ctags to $CtagsDownloadPath ..." -f Yellow
 		$ProgressPreference = 'SilentlyContinue'

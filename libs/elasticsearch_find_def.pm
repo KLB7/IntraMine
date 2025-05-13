@@ -32,7 +32,7 @@ use common;
 use toc_local;
 use ext;
 
-# Some languages introduce a funtions with a keyword.
+# Some languages introduce a function with a keyword.
 # The keyword is prepended to the Elasticsearch query
 # to narrow down found files to those containing definitions.
 # (For other languages, no keyword is added.)
@@ -145,17 +145,18 @@ sub GetDefinitionLinks {
 	
 	my $numHits = 0;
 	my $numFiles = 0;
-	# TEST ONLY
-	#print("Calling GetDefinitionHits for |$rawquery|\n");
 	$numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
+
 	if ($numHits)
 		{
 		my @rawFullPaths;
 		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 		my @otherRawFullPaths;
+
 		for (my $i = 0; $i < @rawFullPaths; ++$i)
 			{
-			if (lc($rawFullPaths[$i]) ne $fullPath)
+			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+			if ($fixedFullPath ne $fullPath)
 				{
 				push @otherRawFullPaths, $rawFullPaths[$i];
 				}
@@ -170,7 +171,6 @@ sub GetDefinitionLinks {
 			{
 			$result = '<p>nope</p>';
 			}
-		#$numFiles = FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, $extA, \$result);
 		}
 	else
 		{
@@ -237,9 +237,11 @@ sub GetAnyLinks {
 		my @rawFullPaths;
 		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 		my @otherRawFullPaths;
+
 		for (my $i = 0; $i < @rawFullPaths; ++$i)
 			{
-			if (lc($rawFullPaths[$i]) ne $fullPath)
+			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+			if ($fixedFullPath ne $fullPath)
 				{
 				push @otherRawFullPaths, $rawFullPaths[$i];
 				}
@@ -267,13 +269,15 @@ sub GetAnyLinks {
 			GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 			my @otherRawFullPaths;
 
-			for (my $i = 0; $i < @rawFullPaths; ++$i)
+		for (my $i = 0; $i < @rawFullPaths; ++$i)
+			{
+			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+			if ($fixedFullPath ne $fullPath)
 				{
-				if (lc($rawFullPaths[$i]) ne $fullPath)
-					{
-					push @otherRawFullPaths, $rawFullPaths[$i];
-					}
+				push @otherRawFullPaths, $rawFullPaths[$i];
 				}
+			}
+
 
 			my @winnowedFullPaths;
 			my $numRemaining = WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
@@ -549,7 +553,8 @@ sub GetCtagsResultsForExtensions {
 		my @otherRawFullPaths;
 		for (my $i = 0; $i < @rawFullPaths; ++$i)
 			{
-			if (lc($rawFullPaths[$i]) ne $fullPath)
+			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+			if ($fixedFullPath ne $fullPath)
 				{
 				push @otherRawFullPaths, $rawFullPaths[$i];
 				}
@@ -667,9 +672,6 @@ sub FolderComp {
 			}
 		}
 
-	# TEST ONLY
-	#print("|$first $aDistance| vs |$second $bDistance| result $result.\n");
-
 	return($result);
 	}
 
@@ -767,12 +769,14 @@ sub FormatFullPathsResults {
 			$displayedPath =~ s!/!\\!g;
 			$displayedPath =~ m!([^\\]+)$!;
 						
-			# search Items, encode if NOT CodeMirror
+			# search Items, encode_utf8 if NOT CodeMirror,
+			# use &HTML::Entities::encode for CodeMirror.
+			# I have no idea why this works:(
 			my $isCM = HasCMExtension($path);
 			my $searchItems;
 			if ($isCM)
 				{
-				$searchItems = '&searchItems=' . $rawquery;
+				$searchItems = '&searchItems=' . &HTML::Entities::encode($rawquery);
 				}
 			else
 				{

@@ -18,15 +18,21 @@ $ScriptDirectory = $PSScriptRoot
 
 # Various locations:
 $StageFile = -join($ScriptDirectory, "\tempstage.txt")
-$DownloadPerlPath = "$env:TEMP\perl53822.msi"
-$EsInstalledFolder = "C:\elasticsearch-8.8.1"
+$DownloadPerlPath = "$env:TEMP\perl540.msi"
+$OlderDownloadPerlPath = "$env:TEMP\perl53822.msi"
 $EsDownloadPath = "$env:TEMP\Es.zip"
-$EsExpandedFolder = "$env:TEMP\elasticsearch-8.8.1"
+$EsInstalledFolder = "C:\elasticsearch-9.0.1"
+$OlderEsInstalledFolder = "C:\elasticsearch-8.8.1"
+$EsExpandedFolder = "$env:TEMP\elasticsearch-9.0.1"
+$OlderEsExpandedFolder = "$env:TEMP\elasticsearch-8.8.1"
 $FwwsInstalledFolder = "C:\fwws"
-$CTagsFolderName = "ctags-p6.0.20230827.0-x64"
+$CTagsFolderName = "ctags-p6.1.20250504.0-x64"
+$OlderCTagsFolderName = "ctags-p6.0.20230827.0-x64"
 $CtagsInstalledFolder = "C:/" + $CTagsFolderName
+$OlderCtagsInstalledFolder = "C:/" + $OlderCTagsFolderName
 $CtagsDownloadPath = "$env:TEMP\Ctags.zip"
 $CtagsDestinationPath = -join("$env:TEMP\", $CTagsFolderName)
+$OlderCtagsDestinationPath = -join("$env:TEMP\", $OlderCTagsFolderName)
 
 try {
 
@@ -41,17 +47,37 @@ If (Test-Path -Path $DownloadPerlPath)
 	{
 	Remove-Item $DownloadPerlPath
 	}
+If (Test-Path -Path $OlderDownloadPerlPath)
+	{
+	Remove-Item $OlderDownloadPerlPath
+	}
 
 # Elasticsearch:
 # Stop and uninstall service, delete folder, delete unzipped folder, delete zip.
-try
+If (Test-Path -Path $EsInstalledFolder)
 	{
-	C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat stop
-	C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat remove
+	try
+		{
+		C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat stop
+		C:\elasticsearch-9.0.1\bin\elasticsearch-service.bat remove
+		}
+	catch
+		{
+		# Probably Es isn't installed.
+		}
 	}
-catch
+
+If (Test-Path -Path $OlderEsInstalledFolder)
 	{
-	# Probably Es isn't installed.
+	try
+		{
+		C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat stop
+		C:\elasticsearch-8.8.1\bin\elasticsearch-service.bat remove
+		}
+	catch
+		{
+		# Probably Es isn't installed.
+		}
 	}
 
 If (Test-Path -Path $EsInstalledFolder)
@@ -62,6 +88,16 @@ If (Test-Path -Path $EsExpandedFolder)
 	{
 	Remove-Item -Path $EsExpandedFolder -Force -Recurse
 	}
+	
+If (Test-Path -Path $OlderEsInstalledFolder)
+	{
+	Remove-Item -Path $OlderEsInstalledFolder -Force -Recurse
+	}
+If (Test-Path -Path $OlderEsExpandedFolder)
+	{
+	Remove-Item -Path $OlderEsExpandedFolder -Force -Recurse
+	}
+
 If (Test-Path -Path $EsDownloadPath)
 	{
 	Remove-Item $EsDownloadPath
@@ -80,6 +116,7 @@ If (Test-Path -Path $FwwsInstalledFolder)
 		# Probably File Watcher isn't running.
 		}
 	
+	Start-Sleep -Seconds 3
 	Remove-Item -Path $FwwsInstalledFolder -Force -Recurse
 	}
 
@@ -89,10 +126,20 @@ If (Test-Path -Path $CtagsInstalledFolder)
 	{
 	Remove-Item -Path $CtagsInstalledFolder -Force -Recurse
 	}
+If (Test-Path -Path $OlderCtagsInstalledFolder)
+	{
+	Remove-Item -Path $OlderCtagsInstalledFolder -Force -Recurse
+	}
+
 If (Test-Path -Path $CtagsDestinationPath)
 	{
 	Remove-Item -Path $CtagsDestinationPath -Force -Recurse
 	}
+If (Test-Path -Path $OlderCtagsDestinationPath)
+	{
+	Remove-Item -Path $OlderCtagsDestinationPath -Force -Recurse
+	}
+
 If (Test-Path -Path $CtagsDownloadPath)
 	{
 	Remove-Item $CtagsDownloadPath

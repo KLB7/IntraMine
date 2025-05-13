@@ -161,6 +161,7 @@ _NON_CM_THEME_CSS_
 <script type="text/javascript">
 let thePath = '_PATH_';
 let theEncodedPath = '_ENCODEDPATH_';
+let pathForNotification = '_NOTIFYPATH_';
 let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let tocHolderName = '_TOCHOLDERNAME_';
@@ -348,6 +349,11 @@ FINIS
 	$encPath = &HTML::Entities::encode($encPath);
 	$theBody =~ s!_PATH_!$encPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$encPath!g;
+
+	my $ctrlSPath = encode_utf8($filePath);
+	$ctrlSPath =~ s!%!%25!g;
+	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+	$theBody =~ s!_NOTIFYPATH_!$ctrlSPath!g;
 	
 	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents': 'scrollText';
 	my $tocHolderName = $canHaveTOC ? 'scrollContentsList': '';

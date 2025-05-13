@@ -560,7 +560,7 @@ async function saveFile(path) {
 
 				// TEST ONLY
 				//console.log("saveFile about to call notifyFileChanged");
-				notifyFileChangedAndRememberCursorLine(path);
+				notifyFileChangedAndRememberCursorLine(pathForNotification);
 
 				// TEST ONLY
 				//console.log("saveFile AFTER notifyFileChanged");
@@ -607,7 +607,7 @@ function revertFile(path) {
 // For next load, remember the cursor position.
 function notifyFileChangedAndRememberCursorLine(path) {
 	// In the Viewer go to the line where the cursor is.
-	// Seems more useful that going to the top line displayed in the Editor.
+	// Seems more useful than going to the top line displayed in the Editor.
 	let lineNumber = myCodeMirror.getCursor().line.toString();
 
 	location.hash = lineNumber;

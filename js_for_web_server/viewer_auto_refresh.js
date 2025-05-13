@@ -32,7 +32,6 @@ function handleFileChanged(message) {
 		let lineNumberStr = currentResult[2];
 		let pathFromMessage = currentResult[3];
 		let timeStamp = currentResult[4];
-		pathFromMessage = decodeURIComponent(pathFromMessage);
 		pathFromMessage = pathFromMessage.replace(/%25/g, "%");
 
 		let lcTheEncodedPath = theEncodedPath.toLowerCase();

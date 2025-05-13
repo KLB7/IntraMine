@@ -137,7 +137,7 @@ FILEWATCHER_CONSOLIDATION_START_HOUR	3
 FILEWATCHER_CONSOLIDATION_END_HOUR		5
 #
 # ctags needs to make temp files
-CTAGS_DIR	C:/ctags-2020-01-28_3f4203d2-x64
+CTAGS_DIR	C:/ctags-p6.1.20250504.0-x64
 # Auto generated table of contents for a directory, DISABLED.
 TOCFILENAME	---toc---.txt
 #
