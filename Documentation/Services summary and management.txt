@@ -8,10 +8,10 @@ Here are the servers supplied with IntraMine. You'll find the master list used b
 TABLE Almost all services, with default Count value
 Count	Page name			Short name	Program						Option	Docs
 2		Search				Linker		intramine_linker.pl	 		Linker.txt
-1		Search				Search		intramine_search.pl			 Search.txt
+1		Search				Search		intramine_search.pl	 		Search.txt
 2		Search				Viewer		intramine_viewer.pl	 		Viewer.txt
 1		Search				Opener		intramine_open_with.pl	 	Opener.txt
-1		Search				Editor		intramine_editor.pl			 Editor.txt
+1		Search				Editor		intramine_editor.pl	 		Editor.txt
 1		Files				Files		intramine_filetree.pl	 	Files.txt
 0		Upload				Upload		intramine_uploader.pl	 	Upload.txt
 0		Days				Days		intramine_daysserver.pl	 	Other services.txt
@@ -23,9 +23,10 @@ Count	Page name			Short name	Program						Option	Docs
 1		DBX					DBX			intramine_db_example.pl	 	DBX.txt
 1		Bp					Bp			intramine_boilerplate.pl	 	Bp.txt
 1		FILEWATCHER			Watcher		intramine_filewatcher.pl	BACKGROUND	FILEWATCHER.txt
-0		Chat				Chat		intramine_chat.pl			 	Chat.txt
-1		EM					EM			intramine_EM.pl 			EM.txt
-0		Reindex				Reindex		intramine_reindex.pl		 	Reindex.txt
+0		Chat				Chat		intramine_chat.pl	 		Chat.txt
+1		EM					EM			intramine_EM.pl 	 		EM.txt
+0		Reindex				Reindex		intramine_reindex.pl	 	Reindex.txt
+0		Glosser				Glosser		intramine_glosser.pl	 	Glosser.txt
 
 The "Count" field controls how many of each server to start.
 
@@ -34,7 +35,9 @@ TABLE Additional services always started
 Count	Page name			Short name	Program						Option	Docs
 1	WEBSOCKETS			WS			intramine_websockets.pl			WEBSOCKET	WS.txt
 1	Mon					Mon			intramine_mon.pl			 			Mon.txt
-The unique 'WEBSOCKET' option for WS means that not only is it a BACKGROUND service but also that it will be started first.
+The unique 'WEBSOCKET' option for WS means that not only is it a BACKGROUND service but also that it will be started first. It provides back-end WebSockets communication.
+
+The forced start of Mon can be turned off: see "Mon.txt#A new Mon page at startup".
 
 Enable / disable services
 ============================
@@ -44,7 +47,7 @@ To completely disable a server, put a '#' at the beginning of the line in data/s
 
 Not started but available
 ---------------------------
-If you set a server's "Count" field to 0 in data/serverlist.txt then it won't be started when IntraMine starts, but it will be available for starting under the "Add one page server:" dropdown menu on the Status page. Elswhere this might be called a "zombie" service, for no good reason.
+If you set a server's "Count" field to 0 in data/serverlist.txt then it won't be started when IntraMine starts, but it will be available for starting under the "Add one page server:" dropdown menu on the Status page. Elsewhere this might be called a "zombie" service, for no good reason.
 
 Only one instance of a BACKGROUND service can be run, so the Count values for a service such as FILEWATCHER are basically zero or commented out to not run and non-zero to run.
 

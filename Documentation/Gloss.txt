@@ -11,11 +11,15 @@ Overview
 ========
 Gloss is a markdown variant that concentrates on: minimal, memorable markdown that looks good in the source text; automatic linking to files on your local and intranet storage (these are called FLASH links below); and glossary popups.
 
+**IntraMine applies Gloss automatically to .txt files. At present, there is no special extension for Gloss files.**
+
 Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With **FLASH links**, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to type to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other. Paths are selected from among those that you've indicated are "of interest" to you, based on your list of directory paths in data/search_directories.txt. In the rare case where the file name alone is ambiguous, you can add one or more directory names in any order in any sequence to pin down the file you want. You can leave out directory names that don't constrain the instance wanted. And if you need a drive letter to do the job, put it first.
 
-A **glossary** is a necessity for a project of any size. You've probably seen already how they work in IntraMine: any defined term, such as FLASH links, has a dotted underline in the text, and if you pause your cursor over the term a definition pops up. Definitions in your glossary can themselves use Gloss, with styling, links, images and more. These are called **glossary popups** in IntraMine, and in a slightly recursive manner they can also be marked up with Gloss, including FLASH links and styling. For details see "Glossary popups.txt".
+A **glossary** is a necessity for a project of any size. You've probably seen already how they work in IntraMine: any defined term, such as FLASH links, has a dotted underline in the text, and if you pause your cursor over the term a definition pops up. These are called **glossary popups** in IntraMine, and in a slightly recursive manner your definitions can also be marked up with Gloss, including FLASH links and styling. For details see "Glossary popups.txt".
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt").
+
+IntraMine's Editor shows FLASH links and glossary popups for .txt files.
 
 And most of Gloss is available in ToDo items - see "ToDo.txt#Gloss markdown can be used in ToDo items". The main difference is that links to files must use a full path and be contained in double quotes (eg "C:\folder1\folder2\afile.txt").
 
@@ -38,7 +42,7 @@ How to
 
 Glossary popups
 ----------------
-If you pause your cursor over a defined term such as Gloss, a rich definition will pop up. IntraMine supports two glossaries, one for general use when displaying source and text files, and one for use when converting text files to HTML with gloss2html.pl. That program was used to generate the HTML version of this document.
+If you pause your cursor over a defined term such as Gloss, a rich definition will pop up. IntraMine supports two glossaries, one for general use when displaying source and text files, and one for use when converting text files to HTML with the Glosser service or the gloss2html.pl Perl program. Glosser was used to generate the HTML version of this document.
 
 For general use: create a glossary_master.txt file anywhere within a folder that's listed for indexing in your data/search_directories.txt file. There's a sample glossary_master.txt file included at the top of your IntraMine folder: open that and follow the instructions at the top to get going. The basic format of a glossary entry is term colon definition, and the definition continues until the next paragraph with a colon.
 
@@ -52,7 +56,7 @@ Gloss generates a Table of Contents (TOC) automatically for:
  - headings in text files (see just below)
  - function, method, class, and struct definitions in source files.
 
-Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL.
+Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. Alas, non-ASCII definition names are not currently supported in C or C++ or Java and I don't know how to correct that.
  
 The Table of Contents is done alphabetically in source files, and in order of occurrence in text files.
 

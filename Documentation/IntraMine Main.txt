@@ -5,7 +5,6 @@ IntraMine's Main service ("Main") is at heart a round-robin redirector. It launc
 
 Main is not quite a "dumb pipe" though. In addition it:
  - serves as a hub for communications between IntraMine services: services can send messages to another specific service, to all services with a specific Page name, to all with a specific Short name, to Page or Background services, or to all services. For more details see intramine_main.pl#BroadcastSignal().
- - helps deliver Server-Sent Events, used when web pages need to talk to each other. For example, a running instance of the ToDo page will send an SSE whenever its contents change, and all other open views of the ToDo page will immediately update to match. See SSE.txt for more.
  - helps coordinate planned maintenance outages, as happens for example when a Linker service decides it needs to go away for a couple of minutes to rebuild its in-memory hash of file names and full paths in response to a folder rename: when such a signal is received, Main will instruct all running Linker servers to carry out the maintenance one at a time, so at least one Linker will be available at all times. For more, see intramine_main.pl#HandleMaintenanceSignal(), intramine_linker.pl#IndexChangedFiles() and intramine_linker.pl#HandleBroadcastRequest().
 
 There's more about interacting with Main in "Writing your own IntraMine server.txt".
@@ -14,7 +13,7 @@ API
 =====
 Main redirects requests to the desired service when the port number for a service is unknown or incorrect. By default Main monitors ports 81 and ports 43125 through 43172. If a request is received on port 81, or on a port that's being monitored but not in use, the request will be redirected to a service if the short name of a service is found at the beginning of the request; eg http://localhost:81/Search will be redirecting to a running Search server. If the port is in use, then the service on that port will punt to Main for a redirect if the short name doesn't match the service.
 
-Main also handles requests to broadcast a message to one or more services, and is a minor intermediary in the handling of Server-Sent Events.
+Main also handles requests to broadcast a message to one or more services.
 
 And Main handles all requests to add, stop, start, or restart a service, as well as providing a current status summary.
 

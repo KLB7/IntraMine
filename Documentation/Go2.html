@@ -2142,7 +2142,7 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R20'><td n='20'></td><td></td></tr>
 <tr id='R21'><td n='21'></td><td>Support for C++ in particular is variable, since the source isn't being parsed. For example if you have twenty different implementations of a method called readAll(), you'll see a list of the first few that were found, without regard for any relevance to your specific circumstances.</td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
-<tr id='R23'><td n='23'></td><td>In general the less common a word is the more useful the popped-up links will be.</td></tr>
+<tr id='R23'><td n='23'></td><td>In general the less common a word or phrase is the more useful the popped-up links will be.</td></tr>
 <tr id='R24'><td n='24'></td><td></td></tr>
 <tr id='R25'><td n='25'></td><td><h2 id="You_might_sometimes_be_delighted">You might sometimes be delighted</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -2454,7 +2454,6 @@ function positionAndShowHint() {
 
 	hintElement.innerHTML = hintContents;
 
-	//hintElement.style.visibility = "visible";
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
 		}, 100);
@@ -2842,6 +2841,10 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		tipwidth = "300px";
 		}
 	hintElement.widthobj = hintElement.style;
+
+	// Horrible hack
+	hintContents = hintContents.replace(/__IMSPC__/g, "%20");
+
 	hintParams.hintContents = hintContents;
 	hintParams.x = e.clientX;
 	
@@ -4416,7 +4419,6 @@ function reJump(delayMsec) {
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
-		
 		h = decodeURIComponent(h);
 		
 		if (isNaN(h))
@@ -4813,7 +4815,7 @@ function updateMarkers(evt) {
 	justUpdateScrollbar = false;
 }
 
-//See intramine_file_viewer_cm.pl#InitialHighlightItems().
+//See intramine_viewer.pl#InitialHighlightItems().
 function highlightInitialItems() {
 	if (markerMainElement !== null && highlightItems.length > 0)
 		{

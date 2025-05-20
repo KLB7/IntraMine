@@ -20,7 +20,7 @@ IntraMine will only find words in files that are indexed, that is the file must 
 
 Support for C++ in particular is variable, since the source isn't being parsed. For example if you have twenty different implementations of a method called readAll(), you'll see a list of the first few that were found, without regard for any relevance to your specific circumstances.
 
-In general the less common a word is the more useful the popped-up links will be.
+In general the less common a word or phrase is the more useful the popped-up links will be.
 
 You might sometimes be delighted
 ========================

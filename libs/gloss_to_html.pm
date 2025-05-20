@@ -190,8 +190,8 @@ sub ConvertTextToHTML {
 	my $outPath = $filePath;
 	$outPath =~ s!txt$!html!i;
 	
-	#WriteTextFileWide($outPath, $contents);
-	WriteUTF8FileWide($outPath, $contents);
+	WriteTextFileWide($outPath, $contents);
+	#WriteUTF8FileWide($outPath, $contents); # Doesn't handle non-ASCII well. Sigh.
 	}
 
 # Get text file as a big string. Returns 1 if successful, 0 on failure.

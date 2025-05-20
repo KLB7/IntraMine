@@ -58,6 +58,34 @@ If you see a use for IntraMine's FLASH link algorithms etc in your own work, go 
  - roughly 4 GB of RAM for IntraMine (including Elasticsearch).
  - your own source and text files that can change should be attached directly to your IntraMine PC using SATA or USB (locally attached storage). NAS files can be indexed for search and FLASH linking, but changes to them won't be detected, so that's fine for library files but not your own work.
  - IntraMine is for use only on an intranet, and provides no security on its own. If your intranet isn't locked down reasonably well, you might want to pass.
+ 
+## IntraMine's services
+
+| Service&nbsp;&nbsp;&nbsp; | A brief description |
+| :------ | :----- |
+| [Main&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/IntraMine%20Main.html) | A round-robin redirect service, can handle high load |
+| [Search&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Search.html) | Sub-second search across your whole intranet |
+| [Editor&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Editor.html) | IntraMine's editor, supports FLASH links, glossary popups etc |
+| [Viewer&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Viewer.html) | File viewer, supports FLASH links, glossary popups etc |
+| [Files&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Files.html) | A simple two-pane file explorer, has image hover previews |
+| [Linker&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Linker.html) | Generates FLASH links, Go2 etc |
+| [Opener&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Opener.html) | Open file using selected editor |
+| [Status&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Status.html) | Monitor/Start/Stop services |
+| [Mon&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Mon.html) | IntraMine's feedback page |
+| [Upload&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Upload.html) | Upload a file |
+| [Watcher&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/FILEWATCHER.html) | Reports file system changes (no polling) |
+| [WS&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/WS.html) | WebSockets communication |
+| [Reindex&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Reindex.html) | Rebuild your Elasticsearch index without restarting |
+| [Glosser&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Glosser.html) | Convert Gloss-styled text to HTML |
+| [EM&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/EM.html) | Extract Method for Perl |
+| [Days&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Other%20services.html) | Days between dates |
+| [Events&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Other%20services.html) | A simple events calendar |
+| [Cash&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Other%20services.html) | Do your budget |
+| [ToDo&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/ToDo.html) | Kanban with links, images, styling |
+| [Cmd&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Cmd.html) | Run anything, at your own risk |
+| [DBX&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/DBX.html) | Example service with database |
+| [Bp&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Bp.html) | Example service, static |
+| [Chat&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Chat.html) | The usual chat |
 
 ## I'd like more details before diving in please
 
