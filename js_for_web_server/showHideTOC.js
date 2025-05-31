@@ -657,6 +657,50 @@ function restoreColumnWidths() {
 	// console.log("right: " + right);
 }
 
+function markdownCurrentHeaderID() {
+	let currentHeaderID = '';
+	let currentHeaderElement = null;
+	let el = document.getElementById("scrollTextRightOfContents");
+	if (el === null)
+		{
+		return(currentHeaderID);
+		}
+	let enclosingRect = el.getBoundingClientRect();
+	let enclosingRectTop = enclosingRect.top;
+	let enclosingRectBottom = enclosingRect.bottom;
+	// Get h1 h2 etc elements.
+	let headerNodes = new Array();
+	for (let i=1; i<=6; ++i)
+		{
+		let headers = document.getElementsByTagName('h'+i);
+		for (let j = 0; j < headers.length; ++j)
+			{
+			headerNodes.push(headers[j]);
+			}
+		}
+	
+	let highestBottomCeiling = 9999;
+	for (let i = 0; i < headerNodes.length; ++i)
+		{
+		let bounding = headerNodes[i].getBoundingClientRect();
+		let bottomCeiling = Math.ceil(bounding.bottom);
+		if (bottomCeiling >= enclosingRectTop && bottomCeiling <= enclosingRectBottom)
+			{
+			if (highestBottomCeiling > bottomCeiling)
+				{
+				highestBottomCeiling = bottomCeiling;
+				currentHeaderElement = headerNodes[i];
+				}
+			}
+		}
+	
+	if (currentHeaderElement !== null)
+		{
+		currentHeaderID = currentHeaderElement.id;
+		}
+
+	return(currentHeaderID);
+}
 
 window.addEventListener("load", function() {
 	addTocToggle('tocShrinkExpand');

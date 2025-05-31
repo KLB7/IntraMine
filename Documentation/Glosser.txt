@@ -3,7 +3,7 @@ Glosser
 
 "glosser.png"
 
-Glosser is a web page that allows you to generate standalone HTML from .txt files that have been marked up (or is it down?) with Gloss, IntraMines' markdown variant that's tuned for intranet use. Gloss is minimal and memorable, well suited for in-house documentation and dev logs.
+Glosser is a web page that allows you to generate standalone HTML from .txt files that have been marked up (or is it down?) with Gloss, IntraMine's markdown variant that's tuned for intranet use. Gloss is minimal and memorable, well suited for in-house documentation and dev logs.
 
 For all the details on Gloss see "Gloss.txt". For more details on what parts of Gloss you can use in your .txt files, see "gloss2html.pl for standalone Gloss files.txt". Basically, Glosser is the same as the Perl program gloss2html.pl, but with a nicer interface.
 

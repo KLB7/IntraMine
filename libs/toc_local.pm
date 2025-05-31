@@ -214,6 +214,10 @@ sub LineNumComp {
 sub UniqueTocID {
 	my ($id, $idExists_H) = @_;
 
+	# Watch out for apostrophe or quote.
+	$id =~ s!'!_APOS_!g;
+	$id =~ s!"!_QUOT_!g;
+
 	my $idBump = 2;
 	my $idBase = $id;
 	while ($id eq '' || defined($idExists_H->{$id}))
@@ -726,6 +730,8 @@ sub GetCTagsTOCForFile {
 		$$tocR = "<strong>$errorMsg</strong>\n";
 		return;
 		}
+	
+
 	my %classEntryForLine;
 	my %structEntryForLine;
 	my %methodEntryForLine;
@@ -740,6 +746,36 @@ sub GetCTagsTOCForFile {
 		return;
 		}
 	
+	# Use alpha sorting of TOC entries for most files.
+	# Sort by line number for Markdown files.
+	# Skip alpha sorting for Markdown (markdown,md,mkd) files.
+	my $sortAlpha = ($filePath =~ m!\.(md|mkd|markdown)$!i) ? 0 : 1;
+
+	if ($sortAlpha)
+		{
+		AlphaSortTags($filePath, $ctagsFilePath, $tocR);
+		}
+	else
+		{
+		NumericallySortTags($filePath, $ctagsFilePath, $tocR);
+		}
+
+	# Get rid of the one or two temp files made while getting ctags.
+	unlink($ctagsFilePath);
+	if ($tempFilePath ne '')
+		{
+		unlink($tempFilePath);
+		}
+
+	return;
+	}
+
+sub AlphaSortTags {
+	my ($filePath, $ctagsFilePath, $tocR) = @_;
+	my %classEntryForLine;
+	my %structEntryForLine;
+	my %methodEntryForLine;
+	my %functionEntryForLine;	
 	my @classList;
 	my @classNames;
 	my @structList;
@@ -750,7 +786,22 @@ sub GetCTagsTOCForFile {
 	my @functionNames;
 	my %idExists; # used to avoid duplicated anchor id's.
 	my $jlEnd = "</a></li>";
-	
+
+	my $errorMsg = '';
+	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
+						\%classEntryForLine,
+						\%structEntryForLine, \%methodEntryForLine,
+						\%functionEntryForLine, \$errorMsg);
+	if ($errorMsg ne '')
+		{
+		$$tocR = "<strong>$errorMsg</strong>\n";
+		return;
+		}
+
+
+	# Note $id is not currently used, left in because I might
+	# think of a use for it some day :)
+
 	foreach my $lineNum (sort {$a <=> $b} keys %structEntryForLine)
 		{
 		my $className = $structEntryForLine{$lineNum};
@@ -826,6 +877,9 @@ sub GetCTagsTOCForFile {
 	my $numFunctions = @functionList;
 	my @idx;
 	
+	# Default is to sort TOC entries alphabetically (source files mostly).
+	# Markdown entries are left in the default order, by position in file.
+	my @classStructList; # For use with Markdown, !$sortAlpha.
 	if ($numStructs)
 		{
 		@idx = sort { $structNames[$a] cmp $structNames[$b] } 0 .. $#structNames;
@@ -903,12 +957,109 @@ sub GetCTagsTOCForFile {
 		$$tocR .= $functionString;
 		}
 	
-	# Get rid of the one or two temp files made while getting ctags.
-	unlink($ctagsFilePath);
-	if ($tempFilePath ne '')
+	$$tocR .= "</ul>\n";
+	}
+
+# Sort TOC entries by order of appearance (line number);
+sub NumericallySortTags {
+	my ($filePath, $ctagsFilePath, $tocR) = @_;
+	my %idExists; # used to avoid duplicated anchor id's.
+	my $jlEnd = "</a></li>";
+	# Collect Chapter and Section entries in a single array.
+	my @allList;
+	my @allLineNumbers;
+
+	my %classEntryForLine;
+	my %structEntryForLine;
+	my %methodEntryForLine;
+	my %functionEntryForLine;
+
+	my $errorMsg = '';
+	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
+						\%classEntryForLine,
+						\%structEntryForLine, \%methodEntryForLine,
+						\%functionEntryForLine, \$errorMsg);
+	if ($errorMsg ne '')
 		{
-		unlink($tempFilePath);
+		$$tocR = "<strong>$errorMsg</strong>\n";
+		return;
 		}
+	
+	my @classList;
+	my @classNames;
+	my @structList;
+	my @structNames;
+	
+	# Note $id is not currently used, left in because I might
+	# think of a use for it some day :)
+
+	foreach my $lineNum (sort {$a <=> $b} keys %structEntryForLine)
+		{
+		my $className = $structEntryForLine{$lineNum};
+		my $contentsClass = 'h2';
+		my $id = $className;
+		$id =~ s!\s+!_!g;
+		$id = UniqueTocID($id, \%idExists);
+		my $jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+		push @allList, $jlStart . $S_icon . $className . $jlEnd;
+		push @allLineNumbers, $lineNum;
+		}
+
+	# LineNumComp() strips any initial 'a' from line numbers
+	# before sorting numerically.
+	foreach my $lineNum (sort { LineNumComp($a, $b) } keys %classEntryForLine)
+	# foreach my $lineNum (sort {$a <=> $b} keys %classEntryForLine)
+		{
+		my $className = $classEntryForLine{$lineNum};
+		my $contentsClass = (index($className, ':') > 0) ? 'h3' : 'h2';
+		# And also h3 if entry contains '#' indicating a method (eg Java).
+		if (index($className, '#') > 0)
+			{
+			$contentsClass = 'h3';
+			}
+		my $id = $className;
+		$id =~ s!\s+!_!g;
+		$id = UniqueTocID($id, \%idExists);
+		
+		# As a special case, if $lineNum starts with a letter then the
+		# entry is shown "disabled" (gray) and there is no functioning link.
+		# (Needed eg for Julia, see LoadJuliaTags()).
+		my $jlStart;
+		if ($lineNum =~ m!^[a-zA-Z]!)
+			{
+			$jlStart = "<li class='h2Disabled'><a>";
+			#$jlStart = "<li class='h2Disabled'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+			}
+		else
+			{
+			$jlStart = "<li class='$contentsClass'><a onmousedown='goToAnchor(\"$id\", $lineNum);'>";
+			}
+		push @allList, $jlStart . $C_icon . $className . $jlEnd;
+		push @allLineNumbers, $lineNum;
+		}
+		
+	my @idx;
+	
+	# Markdown entries are sorted by position in file.
+	# Entries are in
+	#  my @allList;
+	#  my @allLineNumbers;
+	# Put the entries in order of appearance. At the moment this
+	# is only for Markdown files, which have Chapter and Section entries
+	# (class and struct).
+	# Sort by line number.
+	my $numAllEntries = @allList;
+	if ($numAllEntries)
+		{
+		@idx = sort { $a <=> $b } 0 .. $#allLineNumbers;
+		@allList = @allList[@idx];
+		}
+
+	my $typeBreak = '';
+	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n";
+	my $allString = join("\n", @allList);
+	$$tocR .= $allString;
+	$$tocR .= "</ul>\n";
 	}
 
 # Table of contents for a Fortan file. Types, and procedures (subroutines and functions).

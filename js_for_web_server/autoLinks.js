@@ -282,7 +282,7 @@ function setIsMarkdown() {
 	if (extPos > 1)
 		{
 		let ext = fileName.slice(extPos + 1);
-		if (ext === "md" || ext === "MD")
+		if (ext === "md" || ext === "MD" || ext === "mkd" || ext === "MKD" || ext === "markdown" || ext === "MARKDOWN")
 			{
 			// .md files don't have line numbers and need special handling
 			// when inserting links and glossary popups - see addAutoLinks().

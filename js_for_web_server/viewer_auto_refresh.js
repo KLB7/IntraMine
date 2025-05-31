@@ -14,8 +14,8 @@
 
 // If a file watcher change notice is received within these many seconds
 // of a notice from IntraMine's Editor, we ignore it.
-let doubleNoticeSeconds = 3;
-let doubleNoticeMilliseconds = 3000;
+let doubleNoticeSeconds = 5;
+let doubleNoticeMilliseconds = 5000;
 let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
 
 // Register callback for the auto refresh, "changeDetected".
@@ -24,7 +24,7 @@ function registerAutorefreshCallback() {
 }
 
 function handleFileChanged(message) {
-	// changeDetected space lineNumber space filePath five spaces timestamp
+	// message: changeDetected space lineNumber space filePath five spaces timestamp
 	let regex = new RegExp("^(\\w+) (\\d+) (.+?)     (.+)$");
 	let currentResult = {};
 	if ((currentResult = regex.exec(message)) !== null)
@@ -44,7 +44,19 @@ function handleFileChanged(message) {
 			if (lineNumberStr > 0) // "0" means line number unknown
 				{
 				// Message is from IntraMine's Editor, always reload.
-				location.hash = lineNumberStr;
+				if (isMarkdown)
+					{
+					// Put line number in local storage so it
+					// survives as reload. See 
+					// viewerStart.js#jumpToMarkdownLineFromStorage().
+					let markdownLineNumberKey = thePath + '?' + "markdownline";
+					localStorage.setItem(markdownLineNumberKey, lineNumberStr);
+					location.hash = ''; // otherwise hash takes precedence
+					}
+				else
+					{
+					location.hash = lineNumberStr;
+					}
 				window.location.reload();
 				}
 			else
@@ -104,5 +116,37 @@ function handleFileChanged(message) {
 		}
 }
 
+function headerJustAboveLineNumber(lineNumberStr) {	
+	let lineNumberWanted = Number(lineNumberStr);
+	let headerID = '';
+	let tocDiv = document.getElementById('scrollContentsList');
+	if (tocDiv === null)
+		{
+		return(headerID);
+		}
+
+	const idRegExp = /mdJump\(\'([^\']+)\',\s+\'([^\']+)/;
+	let ulElement = tocDiv.firstElementChild;
+	if (ulElement !== null)
+		{
+		let listElements = ulElement.children;			
+		for (let i = 0; i < listElements.length; i++)
+			{
+			let listItemContents = listElements[i].innerHTML;
+			let idMatchArr = listItemContents.match(idRegExp);
+			if (idMatchArr !== null)
+				{
+				let potentialID = idMatchArr[1];
+				let lineNum = Number(idMatchArr[2]);
+				if (lineNum <= lineNumberWanted)
+					{
+					headerID = potentialID;
+					}
+				}
+			}
+		}
+
+	return(headerID);
+}
 
 window.addEventListener('wsinit', function (e) { registerAutorefreshCallback(); }, false);

@@ -32,6 +32,7 @@ use Win32::Process 'STILL_ACTIVE';  # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown; # for .md files
 use Win32;
+use Time::HiRes qw(usleep);
 use Path::Tiny qw(path);
 use Pod::Simple::HTML;
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -639,13 +640,14 @@ sub GetContentBasedOnExtension {
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;		
 		}
 	# 2.1 custom, no TOC: md (Markdown)
-	elsif ($filePath =~ m!\.md$!i)
+	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
 		{
 		GetPrettyMD($formH, $peeraddress, $fileContents_R);
 		$$usingCM_R = 'false';
-		$$textHolderName_R = 'scrollText';
+		# IAdd a TOC
+		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-		$$customCSS_R = $cssForMD;
+		$$customCSS_R = $cssForMD . "\n" . $cssForNonCm;
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
 	else
@@ -1272,7 +1274,31 @@ sub GetPrettyMD {
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	my $serverAddr = ServerAddress();
 	$$contentsR = ""; #"<hr />";
-	
+
+	# TEST ONLY
+	#my $t1 = time;
+
+	# Try using cmark: fail. cmark doesn't do tables, and doesn't
+	# put id's in headers. Pandoc is huge at 200 MB, that's too big.
+	# my $htmlPath = MakeCmarksForFile($filePath, $dir);
+	# my $html = ReadTextFileWide($htmlPath);
+	# if (!defined($html))
+	# 	{
+	# 	$$contentsR = "<p>Error could not generate Markdown for $filePath";
+	# 	return;
+	# 	}
+	# my $toc = '';
+	# GetTOCFromMarkdownHTML(\$html, \$toc);
+	# $$contentsR .= "<div id='scrollContentsList'>" . $toc . "</div>";
+
+	# my $bottomShim = "<p id='bottomShim'></p>";
+	# $$contentsR .= "<div id='scrollTextRightOfContents'>" . $html . "$bottomShim</div>";
+
+	# $$contentsR = encode_utf8($$contentsR);
+
+	### TEMP OUT unlink($htmlPath);
+
+	# The good old way, using Text::MultiMarkdown.
 	my $octets;
 	if (!LoadTextFileContents($filePath, $contentsR, \$octets))
 		{
@@ -1282,7 +1308,7 @@ sub GetPrettyMD {
 	# Turn GitHub-sourced images of the form
 	# ![..](...)
 	# into
-	# ![..](...?raw=true).
+	# ![..](...?raw=true)
 	my @lines = split(/\n/, $octets);
 	for (my $i = 0; $i < @lines; ++$i)
 		{
@@ -1299,10 +1325,273 @@ sub GetPrettyMD {
 	    use_wikilinks => 0,
 		);
 	my $html = $m->markdown( $octets );
-	
-	$$contentsR = "<div id='scrollText'>" . $html . "</div>";
-	
+
+	my $toc = '';
+	GetTOCFromMarkdownHTML(\$html, \$toc);
+
+	$$contentsR .= "<div id='scrollContentsList'>" . $toc . "</div>";
+
+	my $bottomShim = "<p id='bottomShim'></p>";
+	$$contentsR .= "<div id='scrollTextRightOfContents'>" . $html . "$bottomShim</div>";
+
 	$$contentsR = encode_utf8($$contentsR);
+
+	# TEST ONLY
+	# my $elapsed = time - $t1;
+	# my $ruffElapsed = substr($elapsed, 0, 6);
+	# Monitor("Load time for $filePath: $ruffElapsed seconds");
+	# Result: worst case 0.6 seconds per 1,000 lines, acceptable.
+	# Call it 2,000 lines per second.
+	}
+
+sub MakeCmarksForFile {
+	my ($filePath, $dir) = @_;
+	my $cmark_dir = FullDirectoryPath('CMARK_DIR');
+	my $cmarkEXE = $cmark_dir . 'cmark.exe';
+	my $tempFilePath = '';
+	my $tempDir = '';
+	#my $proc;
+	my $outputFileBase = $LogDir . 'temp/cmark';
+	my $randomInteger = random_int_between(1001, 60000);
+	my $outputFilePath = $outputFileBase . $port_listen . time . $randomInteger . '.html';
+	my $file = "output.txt";
+	my $didit;
+
+	# Run a .bat filel to call Pandoc.
+	$didit = RunPandocViaBat($filePath, $outputFilePath);
+
+	# Run a .bat file to call cmark. OUT, doesn't do tables or headers
+	### $didit = RunCmarkViaBat($filePath, $outputFilePath);
+
+	if (!$didit)
+		{
+		my $status = Win32::FormatMessage( Win32::GetLastError() );
+		Monitor("MakeCtagsForFile Error |$status|, could not run $cmarkEXE!");
+		return('');
+		}
+
+	return($outputFilePath);
+
+	# Can't get STDIN redirected, giving up on this approach.
+	# {
+	# open my $oldin, '<&', \*STDIN or (return(ErrorOnRedirect('OLDIN', $filePath, $1)));
+	# open my $oldout, '>&', \*STDOUT or (return(ErrorOnRedirect('OLDOUT', $filePath, $1)));
+	# close STDIN;
+	# open(STDIN, '<', '$filePath') or (return(ErrorOnRedirect('IN', $filePath, $1)));
+	# close STDOUT;
+	# open(STDOUT, '>', '$outputFilePath') or (return(ErrorOnRedirect('OUT', $filePath, $1)));
+
+	# $didit =  Win32::Process::Create($proc, $cmarkEXE, " -t html", 0, 0, $dir);
+
+	# # Is '&' right? Try leaving out: no difference.
+	# close STDIN;
+	# open STDIN, '<&', $oldin or (return(ErrorOnRedirect('RESTOREIN', $filePath, $1)));
+	# close $oldin;
+	# close STDOUT;
+	# open STDOUT, '<&', $oldout or (return(ErrorOnRedirect('RESTOREOUT', $filePath, $1)));
+	# close $oldout;
+	# }
+
+	# if (!$didit)
+	# 	{
+	# 	my $status = Win32::FormatMessage( Win32::GetLastError() );
+	# 	Monitor("MakeCtagsForFile Error |$status|, could not run $cmarkEXE!");
+	# 	return('');
+	# 	}
+
+	# while (defined($proc))
+	# 	{
+	# 	usleep(100000); # 0.1 seconds
+	# 	}
+	
+	# return($outputFilePath);
+	}
+
+sub ErrorOnRedirect {
+	my ($action, $path, $err) = @_;
+	Monitor("Error $action $path: |$err|");
+	return('');
+	}
+
+sub RunPandocViaBat {
+	my ($filePath, $outputFilePath) = @_;
+	my $outputFileBase = $LogDir . 'temp/cmark';
+	my $randomInteger = random_int_between(1001, 60000);
+	my $batPath = $outputFileBase . 'tempbat' . $port_listen . '_' . time . $randomInteger . '.bat';
+	my $cmark_dir = FullDirectoryPath('CMARK_DIR');
+	my $pandocEXE = "P:/temp/pandoc-3.7.0.1-windows-x86_64/pandoc-3.7.0.1/pandoc.exe";
+
+	MakeDirectoriesForFile($batPath);
+
+	my $outFileH = FileHandle->new("> $batPath")
+		or return(BatError("FILE ERROR could not make |$batPath|!"));
+	### TEMP PUT binmode($outFileH, ":utf8");
+	### TEMP OUT print $outFileH "chcp 65001\n";
+	print $outFileH '@echo off' . "\n";
+	print $outFileH "\"$pandocEXE\" -f markdown_mmd -t html5 <\"$filePath\" >\"$outputFilePath\"\n";
+	print $outFileH 'exit /b' . "\n";
+	
+	# Self-destruct.
+	# TEMP OUT print $outFileH "del \"%~f0\"\n";
+	close($outFileH);
+
+	# Run the bat.
+	my $proc;
+	my $status = 'OK';
+
+	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $batPath", 0, 0, ".")
+				|| ($status = 'bad');
+	if ($status ne 'OK')
+		{
+		return(0);
+		}
+	
+	# TEST ONLY
+	print("Create status OK.\n");
+
+	my $breaker = 0;
+	while (defined($proc) && ++$breaker <= 50)
+		{
+		usleep(100000); # 0.1 seconds
+		# TEST ONLY
+		Monitor("breaker $breaker");
+		}
+
+	### TEMP OUT unlink($batPath); DO NOT CALL if there's a del above
+
+	return(1);
+	}
+
+sub RunCmarkViaBat {
+	my ($filePath, $outputFilePath) = @_;
+	my $outputFileBase = $LogDir . 'temp/cmark';
+	my $randomInteger = random_int_between(1001, 60000);
+	my $batPath = $outputFileBase . 'tempbat' . $port_listen . '_' . time . $randomInteger . '.bat';
+	my $cmark_dir = FullDirectoryPath('CMARK_DIR');
+	my $cmarkEXE = $cmark_dir . 'cmark.exe';
+
+	MakeDirectoriesForFile($batPath);
+
+	my $outFileH = FileHandle->new("> $batPath")
+		or return(BatError("FILE ERROR could not make |$batPath|!"));
+	### TEMP PUT binmode($outFileH, ":utf8");
+	### TEMP OUT print $outFileH "chcp 65001\n";
+	print $outFileH '@echo off' . "\n";
+	print $outFileH "\"$cmarkEXE\" <\"$filePath\" >\"$outputFilePath\"\n";
+	print $outFileH 'exit /b' . "\n";
+	
+	# Self-destruct.
+	# TEMP OUT print $outFileH "del \"%~f0\"\n";
+	close($outFileH);
+
+	# Run the bat.
+	my $proc;
+	my $status = 'OK';
+
+	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $batPath", 0, 0, ".")
+				|| ($status = 'bad');
+	if ($status ne 'OK')
+		{
+		return(0);
+		}
+	
+	# TEST ONLY
+	print("Create status OK.\n");
+
+	my $breaker = 0;
+	while (defined($proc) && ++$breaker <= 10)
+		{
+		usleep(100000); # 0.1 seconds
+		}
+
+	### TEMP OUT unlink($batPath); DO NOT CALL if there's a del above
+
+	return(1);
+	}
+
+sub BatError {
+	my ($msg) = @_;
+	Monitor($msg);
+	return(0);
+}
+
+sub GetTOCFromMarkdownHTML {
+	my ($htmlR, $tocR) = @_;
+	$$tocR = "<ul>\n";
+	my $text = $$htmlR;
+	my @lines = split(/\n/, $text);
+	my $numLines = @lines;
+	my @tocEntries;
+
+	# Looking for lines like
+	# <h2 id="intraminesservices">IntraMine's services</h2>
+	my $lineNum = 1;
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		 if ($lines[$i] =~ m!^<h(\d)\s+id="([^"]+)">([^<]+)<!)
+			{
+			my $headerLevel = $1;
+			my $id = $2;
+			my $headerText = $3;
+			my $contentsClass = 'h' . $headerLevel;
+			my $jumper = "<li class='$contentsClass'><a onclick=\"mdJump('$id', '$lineNum');\">$headerText</a></li>";
+			push @tocEntries, $jumper;
+			}
+		++$lineNum;
+		}
+
+	$$tocR .= join("\n", @tocEntries);
+	$$tocR .= "</ul>\n";
+	}
+
+# NOT FINISHED, doesn't handle lists (among other things probably).
+sub AddLineNumbersToMarkdown {
+	my ($htmlR) = @_;
+	my $text = $$htmlR;
+
+	# Split into lines.
+	my @lines = split(/\n/, $text);
+	# Add table rows, except within an existing table.
+	my $lineNum = 1;
+	my $numLines = @lines;
+	my $inATable = 0; # Avoid putting tables in tables.
+	my $inMainTable = 0;
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if (index($lines[$i], '<table>') == 0)
+			{
+			$inATable = 1;
+			if ($inMainTable)
+				{
+				$lines[$i] = '</table>' . $lines[$i];
+				$inMainTable = 0;
+				}
+			}
+		elsif (index($lines[$i], '</table>') == 0)
+			{
+			$lines[$i] = $lines[$i] . '<table>';
+			$inATable = 0;
+			$inMainTable = 1;
+			}
+		elsif ($inATable)
+			{
+			; # Experiment, try doing nothing
+			}
+		else
+			{
+			if (!$inMainTable)
+				{
+				$lines[$i] = '<table>' . $lines[$i];
+				$inMainTable = 1;
+				}
+			my $rowID = 'R' . $lineNum;
+			$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+			}
+
+		++$lineNum;
+		}
+
+	$$htmlR = join("\n", @lines);
 	}
 
 # Call LoadPodFileContents() to get an HTML version using Pod::Simple::HTML,

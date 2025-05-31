@@ -19,6 +19,8 @@ IntraMine introduces [**Gloss**](https://htmlpreview.github.io/?https://github.c
 
 For wider distribution of your documents IntraMine includes [**gloss2html.pl**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/gloss2html.pl%20for%20standalone%20Gloss%20files.html), a script that generates fully standalone HTML from Gloss-styled text, with almost all Gloss features (including glossary popoups). These are self-contained HTML documents, not MTH, and no support folder is needed. If you want a more convenient approach to generating the HTML, the [**Glosser**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Glosser.html) service provides a quick way to pick the file or folder and image settings.
 
+If you prefer to stick to regular MultiMarkdown for some documents instead of switching to Gloss, IntraMine adds an automatically generated and synchronized table of contents, FLASH links, and glossary popups in both the source editor and HTML view, without touching your source.
+
 And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Searching.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
 
 Strictly speaking IntraMine is a tech demo, but some considerable effort over eight years has gone into making IntraMine an outstanding choice for editing and reading text documents, generating in-house documentation, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.

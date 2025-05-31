@@ -45,6 +45,56 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		}
 }
 
+// This is called only for Markdown files, see addTocScrollListener() below.
+function scrollMarkdownTocEntryIntoView(evt) {
+	let tocDiv = document.getElementById('scrollContentsList');
+	if (tocDiv === null)
+		{
+		return;
+		}
+	
+	const idRegExp = /mdJump\(\'([^\']+)/;
+	let tocElemIdentifier = markdownCurrentHeaderID();
+	let tocElem = null;
+	if (tocElemIdentifier !== '')
+		{
+		// Find corresponding entry in the TOC, scroll it into view and highlight.
+		// The tocDiv contains a <ul> which contains <li>'s which each contain an <a>.
+		let ulElement = tocDiv.firstElementChild;
+		if (ulElement !== null)
+			{
+			let listElements = ulElement.children;			
+			for (let i = 0; i < listElements.length; i++)
+				{
+				let anchorElement = listElements[i].firstElementChild;
+				if (anchorElement !== null)
+					{
+					// Get the <li> element's contents, eg
+					// <a onclick="mdJump('intraminesservices');">IntraMine's services</a>
+					let listItemContents = listElements[i].innerHTML;
+
+					let idMatchArr = listItemContents.match(idRegExp);
+					if (idMatchArr !== null)
+						{
+						let potentialID = idMatchArr[1];
+						if (potentialID === tocElemIdentifier)
+							{
+							tocElem = listElements[i];
+							break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+	if (tocElem !== null)
+		{
+		tocElem.scrollIntoView({block: 'center'});
+		updateTocHighlight(tocElem);
+		}
+}
+
 // Restore scrolled position of Table of Contents.
 // Called by  viewerStart.js#reJumpToLineNumber().
 function restoreTocSelection(lineNum) {
@@ -86,7 +136,7 @@ function lineNumberforAnchor() {
 			}
 		if (tdElem !== null)
 			{
-			let previousElem = tdElem.previousSibling;
+			let previousElem = tdElem.previousElementSibling;
 			if (previousElem !== null)
 				{
 				let tdLineNum = previousElem.getAttribute("n");
@@ -211,6 +261,7 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 }
 
 let scrollingForToc = null;
+let isMarkdownFile = pathIsForMarkdown(thePath);
 function addTocScrollListener(evt) {
 	let el = document.getElementById(cmTextHolderName);
 	if (el !== null)
@@ -222,7 +273,14 @@ function addTocScrollListener(evt) {
 			// Set a timeout to run after scrolling ends
 			scrollingForToc = setTimeout(function() {
 				// Run the callback.
-				scrollTocEntryIntoView(evt, true);
+				if (isMarkdownFile)
+					{
+					scrollMarkdownTocEntryIntoView(evt);
+					}
+				else
+					{
+					scrollTocEntryIntoView(evt, true);
+					}
 				// Trying to stabilize nav bar, sometimes it randomly
 				// jumps off the top of the window.
 				resetTopNavPosition();
@@ -230,6 +288,13 @@ function addTocScrollListener(evt) {
 			});
 		}
 }
+
+function pathIsForMarkdown(path)
+	{
+	const markdownRegex = new RegExp("\.(md|mkd|markdown)$");
+	let result = markdownRegex.test(path);
+	return(result);
+	}
 
 function updateTocHighlight(elem) {
 	if (elem === null)

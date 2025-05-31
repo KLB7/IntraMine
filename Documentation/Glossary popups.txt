@@ -1,7 +1,7 @@
 Glossary popups
 ================
 
-IntraMine has two different glossaries: one called "glossary.txt" for use when generating standalone HTML documents with gloss2html.pl, and another called "glossary_master.txt" for use with all source and text files displayed by IntraMine's Viewer or Editor.
+IntraMine has two different glossaries: one called "glossary.txt" for use when generating standalone HTML documents with the Glosser service or the gloss2html.pl Perl program, and another called "glossary_master.txt" for use with all source and text files displayed by IntraMine's Viewer or Editor.
 
 You can have several glossary_master.txt files. They will all be combined when displaying definition popups.
 
@@ -47,11 +47,14 @@ Glossary entry details
 
 Format
 -----------
-Summary: up to four words per term, separate any number of multiple synonymous terms with commas, follow with a colon and then the definition.
+Summary: up to four words per term, separate any number of multiple synonymous terms with commas, follow with a colon (not escaped) and then the definition.
+
+Note you can escape a colon by preceding it with a backslash, as in \:
+Escaped colons will be ignored when looking for definitions, and the backslash will be omitted when displayed in an actual glossary popup.
 
 Here's an example:
 ---
-Regular expression, regex, regexp: a write-only way to match strings, or not.
+Regular expression, regex, regexp: a write-only way to match strings, or not. For example \: ([\w'-]+) will crudely match a whole word, sometimes. 
 ---
 
 Content

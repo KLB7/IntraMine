@@ -7900,6 +7900,50 @@ function restoreColumnWidths() {
 	// console.log("right: " + right);
 }
 
+function markdownCurrentHeaderID() {
+	let currentHeaderID = '';
+	let currentHeaderElement = null;
+	let el = document.getElementById("scrollTextRightOfContents");
+	if (el === null)
+		{
+		return(currentHeaderID);
+		}
+	let enclosingRect = el.getBoundingClientRect();
+	let enclosingRectTop = enclosingRect.top;
+	let enclosingRectBottom = enclosingRect.bottom;
+	// Get h1 h2 etc elements.
+	let headerNodes = new Array();
+	for (let i=1; i<=6; ++i)
+		{
+		let headers = document.getElementsByTagName('h'+i);
+		for (let j = 0; j < headers.length; ++j)
+			{
+			headerNodes.push(headers[j]);
+			}
+		}
+	
+	let highestBottomCeiling = 9999;
+	for (let i = 0; i < headerNodes.length; ++i)
+		{
+		let bounding = headerNodes[i].getBoundingClientRect();
+		let bottomCeiling = Math.ceil(bounding.bottom);
+		if (bottomCeiling >= enclosingRectTop && bottomCeiling <= enclosingRectBottom)
+			{
+			if (highestBottomCeiling > bottomCeiling)
+				{
+				highestBottomCeiling = bottomCeiling;
+				currentHeaderElement = headerNodes[i];
+				}
+			}
+		}
+	
+	if (currentHeaderElement !== null)
+		{
+		currentHeaderID = currentHeaderElement.id;
+		}
+
+	return(currentHeaderID);
+}
 
 window.addEventListener("load", function() {
 	addTocToggle('tocShrinkExpand');
@@ -8024,6 +8068,15 @@ function resetTopNavPosition() {
 
 // Scroll element into view, based on ID named in location.hash.
 function reJump(delayMsec) {
+	// Markdown is special since it has no line numbers.
+	// We look at localStorage for a line number, if found
+	// attempt to count through the elements in the contents
+	// and jump. False if no jump.
+	if (jumpToMarkdownLineFromStorage())
+		{
+		return;
+		}
+	
 	if (delayMsec === undefined)
 		{
 		delayMsec = 0;
@@ -8039,6 +8092,12 @@ function reJump(delayMsec) {
 		if (isNaN(h))
 			{
 			let el = getElementForHash(h);
+			if (el === null)
+				{
+				let simplerHCopy = h.toLowerCase();
+				simplerHCopy = simplerHCopy.replace(/\W/g, '');
+				el = document.getElementById(simplerHCopy);
+				}		
 			
 			if (el !== null)
 				{
@@ -8061,6 +8120,245 @@ function reJump(delayMsec) {
 		}
 }
 
+// Retrieve line number to scroll to from localStorage.
+// Count up through the elements in the HTML until line number is reached,
+// scroll to that element.
+// Each P, H1..H6, HR counts as two lines.
+//
+function jumpToMarkdownLineFromStorage() {
+	let markdownLineNumberKey = thePath + '?' + "markdownline";
+	let markdownLineNumberStr = localStorage.getItem(markdownLineNumberKey);
+	if (markdownLineNumberStr === null)
+		{
+		return(false);
+		}
+	let markdownLineNumber = Number(markdownLineNumberStr);
+	++markdownLineNumber;
+
+	// TEST ONLY
+	//console.log("jumpToMarkdownLineFromStorage looking for " + markdownLineNumberStr);
+
+
+	localStorage.removeItem(markdownLineNumberKey);
+	const textDiv = document.getElementById("scrollTextRightOfContents");
+	if (textDiv === null)
+		{
+		return(false);
+		}
+	if (typeof(textDiv.children) === 'undefined')
+		{
+		return(false);
+		}
+	
+	const kids = textDiv.children;
+	if (kids.length === 0)
+		{
+		return(false);
+		}
+
+	let preHeight = preLineHeight();
+	let el = null; // the goal element
+	let lineNumber = 1;
+	let done = false;
+	let isSubElement = false;
+	let textDivOffset = textDiv.offsetTop;
+	let parentElementOffset = 0;
+	let elementOffset = 0;
+	for (let i = 0; i < kids.length; ++i)
+		{
+		let kidsName = kids[i].nodeName;
+
+		// TEST ONLY
+		//console.log("NODENAME: " + kidsName + " at i " + i);
+
+		if ( kidsName === 'P' || kidsName === 'DIV' || kidsName === 'H1'
+				|| kidsName === 'H2' || kidsName === 'H3' || kidsName === 'H4'
+				|| kidsName === 'H5' || kidsName === 'H6' || kidsName === 'HR'
+				|| kidsName === 'CODE' )
+			{
+			++lineNumber;
+			++lineNumber; // sic, HTML puts in a blank line with margin on bottom
+			if (lineNumber >= markdownLineNumber)
+				{
+				el = kids[i];
+				break;
+				}
+
+			const paraKids = kids[i].children;
+			for (j = 0; j < paraKids.length; ++j)
+				{
+				let paraKidsName = paraKids[j].nodeName;
+				if (paraKidsName === 'IMG')
+					{
+					++lineNumber;
+					if (lineNumber >= markdownLineNumber)
+						{
+						el = kids[i];
+						done = true;
+						break;
+						}		
+					}
+				}
+			}
+		else if (kidsName === 'TABLE')
+			{
+			const rows = kids[i].rows;
+			if (rows.length === 0)
+				{
+				continue;
+				}
+			for (let j = 0; j < rows.length; ++j)
+				{
+				++lineNumber;
+				if (j === 0)
+					{
+					++lineNumber; // for the | :---- row at top of table
+					}
+				if (lineNumber >= markdownLineNumber)
+					{
+					if (j > 1)
+						{
+						el = rows[j-1];
+						}
+					else
+						{
+						el = rows[j];
+						}
+					isSubElement = true;
+					parentElementOffset = kids[i].offsetTop - textDivOffset;
+					elementOffset = rows[j].offsetTop;
+					//el = kids[i];
+					done = true;
+					break;
+					}
+				}
+			}
+		else if (kidsName === 'UL' || kidsName === 'OL')
+			{
+			const listItems = kids[i].children;
+			if (listItems.length === 0)
+				{
+				continue;
+				}
+
+			//++lineNumber;
+			
+			for (let j = 0; j < listItems.length; ++j)
+				{
+				++lineNumber;
+				if (lineNumber >= markdownLineNumber)
+					{
+					el = listItems[j];
+					isSubElement = true;
+					parentElementOffset = kids[i].offsetTop - textDivOffset;
+					// TEST ONLY
+					//console.log("j " + j);
+
+					elementOffset = j * el.offsetHeight; // odd hack, but it works
+					//el = kids[i];
+					done = true;
+					break;
+					}
+				}
+			}
+		else if (kidsName === 'PRE')
+			{
+			let preLength = kids[i].textContent.split('\n').length;
+			lineNumber += preLength;
+			if (lineNumber >= markdownLineNumber)
+				{
+				el = kids[i];
+				// Another hack
+				isSubElement = true;
+				parentElementOffset = kids[i].offsetTop - textDivOffset;
+				let lineDiff = lineNumber - markdownLineNumber;
+				elementOffset = -lineDiff * preHeight; // scroll back from bottom
+				done = true;
+				break;
+				}
+			}
+		else
+			{
+			//console.log("UNHANDLED: " + kidsName + "ca line " + lineNumber);
+			++lineNumber;
+			}
+		
+		if (done)
+			{
+			break;
+			}
+		} // for (let i = 0; i < kids.length; ++i)
+
+	let result = false;
+	if (el !== null)
+		{
+		// TEST ONLY
+		//const elemName = el.nodeName;
+		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
+		//console.log("|" + el.innerHTML + "|");
+
+		if (isSubElement)
+			{
+			// TEST ONLY
+			//console.log("Scrolling to subelement.");
+			//el.style.backgroundColor = "yellow";
+
+			// TEST ONLY
+			//const elemName = el.nodeName;
+			//console.log(elemName + " " + parentElementOffset + " " + elementOffset);
+
+			textDiv.scrollTo({
+				top: parentElementOffset + elementOffset
+				});
+			}
+		else
+			{
+			//el.style.backgroundColor = "lightblue";
+			el.scrollIntoView();
+			}
+		
+		resetTopNavPosition();
+		if (!onMobile)
+			{
+			scrollIndicator();
+			}
+		else
+			{
+			scrollMobileIndicator(); // if mobile
+			}
+		result = true;
+		}
+
+	return(result);
+}
+
+function preLineHeight() {
+	const preElement = document.querySelector('pre');
+	const computedStyle = window.getComputedStyle(preElement);
+	const lineHeight = computedStyle.lineHeight;
+
+	let lineHeightInPixels;
+	if (lineHeight.endsWith('px')) {
+		lineHeightInPixels = parseFloat(lineHeight);
+	} else if (lineHeight === 'normal') {
+		// If line-height is "normal", you'll need to estimate based on the font-size
+		const fontSize = parseFloat(computedStyle.fontSize);
+		lineHeightInPixels = fontSize * 1.2; // common default for "normal" line-height
+	} else {
+		// For other units like 'em', you'll need to convert to pixels
+		const fontSize = parseFloat(computedStyle.fontSize);
+		if (lineHeight.endsWith('em')) {
+			lineHeightInPixels = parseFloat(lineHeight) * fontSize;
+		} else {
+			// handle other units as needed
+			lineHeightInPixels = 17; // Set to null or handle appropriately
+		}
+	}
+
+	//console.log("PRE height: " + lineHeightInPixels); // Typ. around 17
+	return (lineHeightInPixels);
+}
+
 // Progressively shorten 'h' word by word as necessary until an anchor id is found. If the
 // remaining part of 'h' is a number, though, jump to that line. If an anchor id is found,
 // return the corresponding element in the html text.
@@ -8075,6 +8373,12 @@ function getElementForHash(h) {
 	hCopy = hCopy.replace(/\%20/g, '_');
 	hCopy = hCopy.replace(/\(\)$/, '');
 	let el = document.getElementById(hCopy);
+	if (el === null)
+		{
+		let simplerHCopy = h.toLowerCase();
+		simplerHCopy = simplerHCopy.replace(/\W/g, '');
+		el = document.getElementById(simplerHCopy);
+		}
 	
 	while(el === null && h.length > 0)
 		{
@@ -8120,6 +8424,12 @@ async function reJumpToLineNumber(h, delayMsec) {
 		lineNum = 0;
 		}
 	
+	// For Markdown, interpret h as scrollTop.
+	// if (isMarkdown)
+	// 	{
+	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
+	// 	myDiv.scrollTop = h + 1;
+	// 	}
 	// Look for row number lineNum.
 	let rows = markerMainElement.getElementsByTagName('tr');
 	if (lineNum >= rows.length)
@@ -8173,6 +8483,11 @@ async function reJumpToLineNumber(h, delayMsec) {
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+// Just for Markdown files, go straight to an id.
+function mdJump(tocid, lineNum) {
+	location.hash = '#' + tocid;
 }
 
 // Adust the top of "id" (the main text holder) so scrolling will work properly etc.
@@ -9649,6 +9964,56 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		}
 }
 
+// This is called only for Markdown files, see addTocScrollListener() below.
+function scrollMarkdownTocEntryIntoView(evt) {
+	let tocDiv = document.getElementById('scrollContentsList');
+	if (tocDiv === null)
+		{
+		return;
+		}
+	
+	const idRegExp = /mdJump\(\'([^\']+)/;
+	let tocElemIdentifier = markdownCurrentHeaderID();
+	let tocElem = null;
+	if (tocElemIdentifier !== '')
+		{
+		// Find corresponding entry in the TOC, scroll it into view and highlight.
+		// The tocDiv contains a <ul> which contains <li>'s which each contain an <a>.
+		let ulElement = tocDiv.firstElementChild;
+		if (ulElement !== null)
+			{
+			let listElements = ulElement.children;			
+			for (let i = 0; i < listElements.length; i++)
+				{
+				let anchorElement = listElements[i].firstElementChild;
+				if (anchorElement !== null)
+					{
+					// Get the <li> element's contents, eg
+					// <a onclick="mdJump('intraminesservices');">IntraMine's services</a>
+					let listItemContents = listElements[i].innerHTML;
+
+					let idMatchArr = listItemContents.match(idRegExp);
+					if (idMatchArr !== null)
+						{
+						let potentialID = idMatchArr[1];
+						if (potentialID === tocElemIdentifier)
+							{
+							tocElem = listElements[i];
+							break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+	if (tocElem !== null)
+		{
+		tocElem.scrollIntoView({block: 'center'});
+		updateTocHighlight(tocElem);
+		}
+}
+
 // Restore scrolled position of Table of Contents.
 // Called by  viewerStart.js#reJumpToLineNumber().
 function restoreTocSelection(lineNum) {
@@ -9690,7 +10055,7 @@ function lineNumberforAnchor() {
 			}
 		if (tdElem !== null)
 			{
-			let previousElem = tdElem.previousSibling;
+			let previousElem = tdElem.previousElementSibling;
 			if (previousElem !== null)
 				{
 				let tdLineNum = previousElem.getAttribute("n");
@@ -9815,6 +10180,7 @@ function getTocElemAfterLineNumber(lineNum, limitLineNum) {
 }
 
 let scrollingForToc = null;
+let isMarkdownFile = pathIsForMarkdown(thePath);
 function addTocScrollListener(evt) {
 	let el = document.getElementById(cmTextHolderName);
 	if (el !== null)
@@ -9826,7 +10192,14 @@ function addTocScrollListener(evt) {
 			// Set a timeout to run after scrolling ends
 			scrollingForToc = setTimeout(function() {
 				// Run the callback.
-				scrollTocEntryIntoView(evt, true);
+				if (isMarkdownFile)
+					{
+					scrollMarkdownTocEntryIntoView(evt);
+					}
+				else
+					{
+					scrollTocEntryIntoView(evt, true);
+					}
 				// Trying to stabilize nav bar, sometimes it randomly
 				// jumps off the top of the window.
 				resetTopNavPosition();
@@ -9834,6 +10207,13 @@ function addTocScrollListener(evt) {
 			});
 		}
 }
+
+function pathIsForMarkdown(path)
+	{
+	const markdownRegex = new RegExp("\.(md|mkd|markdown)$");
+	let result = markdownRegex.test(path);
+	return(result);
+	}
 
 function updateTocHighlight(elem) {
 	if (elem === null)

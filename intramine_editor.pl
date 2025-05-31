@@ -493,6 +493,11 @@ sub Save {
 		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
 			{
 			$status = "FILE ERROR! Could not save file to |$filepath|.\n";
+			sleep(1);
+			if (WriteBinFileWide($filepath, $contents))
+				{
+				$status = 'OK';
+				}
 			}
 		}
 	else

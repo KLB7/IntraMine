@@ -8,6 +8,8 @@ let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
 let lazyOnScroll;
 
+let isMarkdown = false;
+
 let debouncedAddLinks; 			// See makeDebouncedClearAddLinks() at bottom.
 let debouncedOnWindowResize; 	// See makeDebouncedOnWindowResize() at bottom.
 let firstMaintainButtonsCall = true;
@@ -324,6 +326,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 				}, 600);
 			lazyOnScroll = JD.debounce(onScroll, 100);
 			cm.on("scroll", lazyOnScroll);
+
+			setIsMarkdown();
+
 			hideSpinner();
 			}
 		else
@@ -610,15 +615,83 @@ function notifyFileChangedAndRememberCursorLine(path) {
 	// Seems more useful than going to the top line displayed in the Editor.
 	let lineNumber = myCodeMirror.getCursor().line.toString();
 
-	location.hash = lineNumber;
+	if (isMarkdown)
+		{
+		lineNumber -= ExtraBlankLines(lineNumber);
+		}
 
+	location.hash = lineNumber;
+	
 	// Avoid self-triggering a reload, set the save time for use
 	// by editor_auto_refresh.js.
 	RememberLastEditorUpdateTime();
 
+	// Experiment, for Markdown send scrollTop, not line number.
+	// if (isMarkdown)
+	// 	{
+	// 	const myDiv = document.getElementsByClassName("CodeMirror-scroll")[0];
+	// 	if (myDiv !== null)
+	// 		{
+	// 		const divScrollTop = myDiv.scrollTop;
+	// 		lineNumber = myDiv.scrollTop;
+	// 		// TEST ONLY
+	// 		//console.log("scrollTop " + lineNumber);
+	// 	}
+	// 	else
+	// 		{
+	// 		console.log("NO MYDIV!");
+	// 		}
+	// 	}
+
 	// trigger | lineNumber | filePath | timestamp
 	let msg = 'changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
 	wsSendMessage(msg);
+}
+
+// In the Viewer display of Markdown extra blank lines are not shown
+// which throws off the line count when trying to bring the last edit
+// position into view. The Viewer counts one extra line for each
+// paragraph or header element, but can't see extra blanks.
+// Return number of extra blank lines in text, up to lineNumberStr.
+// (Eg count 1 for two consecutive blanks, 2 for 3 etc).
+function ExtraBlankLines(lineNumberStr) {
+	let lineNumber = Number(lineNumberStr);
+	let	extraBlankCount = 0;
+	let justSawBlank = false;
+	for (let i = 1; i < lineNumber; ++i)
+		{
+		let lineText = myCodeMirror.getLine(i); // or getRange and split on '\n'
+		if (lineText === '')
+			{
+			if (justSawBlank)
+				{
+				++extraBlankCount;
+				}
+			justSawBlank = true;
+			}
+		else
+			{
+			justSawBlank = false;
+			}
+		}
+	
+	return(extraBlankCount.toString());
+}
+
+function setIsMarkdown() {
+	isMarkdown = false;
+	let fileName = theEncodedPath.split(/[\\/]/).pop();
+	let extPos = fileName.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = fileName.slice(extPos + 1);
+		if (ext === "md" || ext === "MD" || ext === "mkd" || ext === "MKD" || ext === "markdown" || ext === "MARKDOWN")
+			{
+			// .md files don't have line numbers and need special handling
+			// when inserting links and glossary popups - see addAutoLinks().
+			isMarkdown = true;
+			}
+		}
 }
 
 function makeDebouncedClearAddLinks() {

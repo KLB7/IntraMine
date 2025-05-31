@@ -15,7 +15,7 @@ To add a server, pick it from "Add one page server:" and click the **Add** butto
 
 Reserved servers
 -----------------
-A server with a Count field of 0 ("reserved server") will not be started initially, but you can add one or more instances later. It won't appear in the top navigation bar or under the "Page servers" list until you start it - thereafter you can stop and restart it with the buttons for it in the "Page servers" list. Elsewhere in the docs you'll see these zero-count servers referred to as "delayed start" or even "zombie" servers.
+A server with a Count field of 0 ("reserved server") in IntraMine's data/serverlist.txt file will not be started initially, but you can add one or more instances later. It won't appear in the top navigation bar or under the "Page servers" list until you start it - thereafter you can stop and restart it with the buttons for it in the "Page servers" list. Elsewhere in the docs you'll see these zero-count servers referred to as "delayed start" or even "zombie" servers.
 
 A reserved server has a port number reserved for it, so it's guaranteed to start when you need it.
 

@@ -110,7 +110,7 @@ Text files (.txt) are run through a Gloss preprocessor to give you all of the ab
 
 Editor links
 -------------
-The how-to is described in "Editing documents.txt", but in brief any local or NAS file can have a link to the editor of your choice, as configured in data/intramine_config.txt. So you can jump over to Eclipse or notepad++ or Visual Studio Code with one click. Or use IntraMine's built-in Editor if you want to make documents that are marked up with Gloss.
+The how-to is described in "Editing documents.txt", but in brief any local or NAS file can have a link to the editor of your choice, as configured in data/intramine_config.txt. So you can jump over to Eclipse or notepad++ or Visual Studio Code with one click. Or use IntraMine's built-in Editor (the default) if you want to make documents that are marked up with Gloss.
 
 Editor links appear as small pencils (edit1.png) to the right of regular links on files.
 
