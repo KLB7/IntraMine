@@ -467,18 +467,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -515,6 +519,7 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -530,6 +535,31 @@ async function reJumpToLineNumber(h, delayMsec) {
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.

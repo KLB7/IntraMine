@@ -91,6 +91,8 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
+my $CSS_DIR = FullDirectoryPath('CSS_DIR');
+my $JS_DIR = FullDirectoryPath('JS_DIR');
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
 #my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
 my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
@@ -326,6 +328,17 @@ sub FullFile {
 		{
 		$customJS .= "\n" . '<script src="lolight-1.4.0.min.js"></script>';
 		}
+
+	# User custom JS, for .txt and Markdown files.
+	if ($filePath =~ m!\.txt$!)
+		{
+		$customJS .= OptionalCustomJSforGloss();
+		}
+	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
+		{
+		$customJS .=  OptionalCustomJSforMarkdown();
+		}
+	
 	$theBody =~ s!_JAVASCRIPT_!$customJS!;
 	
 	# Full path is unhelpful in the <title>, trim down to just file name.
@@ -408,7 +421,7 @@ sub FullFile {
 	$theBody =~ s!_INITIALHITSACTION_!$toggleHitsButton!;
 	my $togglePositionButton = '';
 	# Markdown Toggle won't work because there are no line numbers.
-	if ($filePath !~ m!\.md$!i)
+	if ($filePath !~ m!\.(md|mkd|markdown)$!i)
 		{
 		$togglePositionButton = PositionToggle();
 		}
@@ -631,10 +644,12 @@ sub GetContentBasedOnExtension {
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-		# Code block syntax highlighting with lolight, only for .txt files:
+		# Code block syntax highlighting with lolight, 
+		# and optional custom CSS, only for .txt files:
 		if ($filePath =~ m!\.txt|$!)
 			{
 			$cssForNonCm .= "\n" . '<link rel="stylesheet" href="lolight_custom.css" />';
+			$cssForNonCm .= OptionalCustomCSSforGloss();
 			}
 		$$customCSS_R = $cssForNonCm;
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;		
@@ -647,6 +662,7 @@ sub GetContentBasedOnExtension {
 		# IAdd a TOC
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
+		$cssForNonCm .= OptionalCustomCSSforMarkdown();
 		$$customCSS_R = $cssForMD . "\n" . $cssForNonCm;
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
@@ -668,6 +684,50 @@ sub GetContentBasedOnExtension {
 			$$fileContents_R = "<div id='scrollText'></div>";
 			}
 		}
+	}
+
+sub OptionalCustomCSSforGloss {
+	my $result = '';
+	my $customFilePath = $CSS_DIR . 'im_gloss.css';
+	if (FileOrDirExistsWide($customFilePath))
+		{
+		$result = "\n" . '<link rel="stylesheet" type="text/css" href="im_gloss.css" />' . "\n";
+		}
+
+	return($result);
+	}
+
+sub OptionalCustomJSforGloss {
+	my $result = '';
+	my $customFilePath = $JS_DIR . 'im_gloss.js';
+	if (FileOrDirExistsWide($customFilePath))
+		{
+		$result = "\n" . '<script src="im_gloss.js"></script>' . "\n";
+		}
+
+	return($result);
+	}
+
+sub OptionalCustomCSSforMarkdown {
+	my $result = '';
+	my $customFilePath = $CSS_DIR . 'im_markdown.css';
+	if (FileOrDirExistsWide($customFilePath))
+		{
+		$result = "\n" . '<link rel="stylesheet" type="text/css" href="im_markdown.css" />' . "\n";
+		}
+
+	return($result);
+	}
+
+sub OptionalCustomJSforMarkdown {
+	my $result = '';
+	my $customFilePath = $JS_DIR . 'im_markdown.js';
+	if (FileOrDirExistsWide($customFilePath))
+		{
+		$result = "\n" . '<script src="im_markdown.js"></script>' . "\n";
+		}
+
+	return($result);
 	}
 
 # Content for Edit button at top of View. Images don't have an Edit button.
@@ -1663,6 +1723,9 @@ sub GetPrettyTextContents {
 			}
 		}
 	
+	# Pull raw HTML.
+	$octets = ReplaceHTMLwithKeys($octets);
+
 	# Preserve consecutive blank lines at bottom.
 	$octets .= "\nx";
 	my @lines = split(/\n/, $octets);
@@ -1731,6 +1794,13 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
+		# Skip raw HTML markers
+		if (index($lines[$i], '__HH__') == 0)
+			{
+			++$lineNum;
+			next;
+			}
+		
 		$lineBeforeIsBlank = $lineIsBlank;
 		if ($lines[$i] eq '')
 			{
@@ -1952,15 +2022,20 @@ sub GetPrettyTextContents {
 		}
 	else
 		{
-		if (defined($lines[0]))
-			{
-			$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
-			}
 		unshift @jumpList, "<ul>";
 		unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
 		$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
 		my $bottomShim = "<p id='bottomShim'></p>";
-		$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
+
+		# Replace raw HTML placeholders with original HTML.
+		ReplaceKeysWithHTML(\@lines, $numLines);
+
+		if (defined($lines[0]))
+			{
+			$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+			}
+
+		$$contentsR .= "<div id='scrollTextRightOfContents'><table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
 		}
 	
 	if (!defined($sourceR))
@@ -1968,6 +2043,127 @@ sub GetPrettyTextContents {
 		$$contentsR = encode_utf8($$contentsR);
 		}
 	}
+
+{##### HTML hash
+# Text (Gloss) only, id inline HTML blocks and replace with fairly unique keys.
+# Based on Text::MultiMarkdown's _HashHTMLBlocks();
+my %g_html_blocks;
+
+sub ReplaceHTMLwithKeys {
+	my ($text) = @_;
+
+	%g_html_blocks = ();
+	my $block_tags_a = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del/;
+	#my $block_tags_b = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math/;
+	my $specialStart = qr/!/; # Inline HTML must start with a !
+	my $index = 1;
+
+	# Look for nested blocks, e.g.:
+	# 	!<div>
+	# 		<div>
+	# 		tags for inner block must be indented.
+	# 		</div>
+	# 	</div>
+	#
+	# See "Gloss.html#Inline HTML" for details.
+	$text =~ s{
+				^						# start of line  (with /m)
+				$specialStart			# inline HTML marker start char
+				(						# save in $1
+					<($block_tags_a)	# start tag = $2
+					\b					# word break
+					(.*\n)*?			# any number of lines, minimally matching
+					</\2>				# the matching end tag
+					[ \t]*				# trailing spaces/tabs
+					(?=\n+|\Z)	# followed by a newline or end of document
+				)
+			}{
+				my $key = '__HH__' . $index++;
+				$g_html_blocks{$key} = $1;
+				$key;
+			}egmx;
+
+
+	#
+	# Now match more liberally, simply from `\n!<tag>` to `</tag>\n`
+	#
+	# Well this experiment failed. If an indented final tag is allowed the
+	# the above "tight" match will grab the chunk and blow past the correct
+	# (indented) end tag down to the next non-indented end tag. I don't
+	# know how to fix that. So I gave up.
+
+	# $text =~ s{
+	# 			^						# start of line  (with /m)
+	# 			$specialStart			# inline HTML marker start char
+	# 			(						# save in $1
+	# 				<($block_tags_b)	# start tag = $2
+	# 				\b					# word break
+	# 				(.*\n)*?			# any number of lines, minimally matching
+	# 				.*</\2>				# the matching end tag
+	# 				[ \t]*				# trailing spaces/tabs
+	# 				(?=\n+|\Z)	# followed by a newline or end of document
+	# 			)
+	# 		}{
+	# 			my $key = '__HH__' . $index++;
+	# 			$g_html_blocks{$key} = $1;
+	# 			$key;
+	# 		}egmx;
+
+	
+	return($text);
+	}
+
+# Text (Gloss) only, replace HTML keys with orginal inline HTML.
+# Everything in Gloss is in a <table> EXCEPT the inline HTML,
+# so that's why we end a table and start a new table. Mostly.
+sub ReplaceKeysWithHTML {
+	my ($linesA, $numLines) = @_;
+	my $previousLineForChunk = -1;
+	my $idPrefix = "rawH_";
+
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		my $lineNumber = $i + 1;
+		my $putEndTable = 1;
+		my $putStartTable = 1;
+		if (defined($g_html_blocks{$linesA->[$i]}))
+			{
+			# Check for a preceding chunk.
+			if ($i == $previousLineForChunk + 1)
+				{
+				$putEndTable = 0;
+				}
+
+			# Check for a following chunk.
+			if ($i < $numLines - 1 && defined($g_html_blocks{$linesA->[$i+1]}))
+				{
+				$putStartTable = 0;
+				}
+			
+			if ($putEndTable && $putStartTable)
+				{
+				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				}
+			elsif (!$putEndTable && !$putStartTable)
+				{
+				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				}
+			elsif (!$putEndTable)
+				{
+				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				}
+			elsif (!$putStartTable) # sigh, I know that's redundant
+				{
+				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				}
+
+			$previousLineForChunk = $i;
+			}
+		}
+
+	%g_html_blocks = ();
+	}
+} ##### HTML hash
 
 # A basic view of an IntraMine glossary file, with an alphabetical table of contents.
 sub GetPrettyGlossaryFile {
@@ -2031,7 +2227,7 @@ sub GetPrettyGlossaryFile {
 	unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
 	$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
 	my $bottomShim = "<p id='bottomShim'></p>";
-	$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
+	$$contentsR .= "<div id='scrollTextRightOfContents'><table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
 
 	$$contentsR = encode_utf8($$contentsR);
 	}
@@ -2637,7 +2833,7 @@ sub PutTablesInText {
 				}
 			else
 				{
-				$lines_A->[$idx-1] = $lines_A->[$idx-1] . '</tbody></table><table><tbody>';
+				$lines_A->[$idx-1] = $lines_A->[$idx-1] . '</tbody></table><table class=\'imt\'><tbody>';
 				}
 			} # if TABLE
 		} # for (my $i = 0; $i <$numLines; ++$i)
@@ -2701,22 +2897,22 @@ sub StartNewTable {
 			$longestLineChars += $numColumns - 1;
 			if ($captionChars < $longestLineChars)
 				{
-				$lines_A->[$tableStartIdx] = "$pre$post</tbody></table><table class='bordered'><caption>$caption</caption><thead>";
+				$lines_A->[$tableStartIdx] = "$pre$post</tbody></table><table class='bordered imt'><caption>$caption</caption><thead>";
 				}
 			else
 				{
-				$lines_A->[$tableStartIdx] = "$pre&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>$caption</span>$post</tbody></table><table class='bordered'><thead>";
+				$lines_A->[$tableStartIdx] = "$pre&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>$caption</span>$post</tbody></table><table class='bordered imt'><thead>";
 				}
 			}
 		else
 			{
 			# Probably a maintenance failure. Struggle on.
-			$lines_A->[$tableStartIdx] = "<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>";
+			$lines_A->[$tableStartIdx] = "<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered imt'><thead>";
 			}
 		}
 	else # no caption
 		{
-		$lines_A->[$tableStartIdx] = "<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>";
+		$lines_A->[$tableStartIdx] = "<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered imt'><thead>";
 		}			
 	}
 

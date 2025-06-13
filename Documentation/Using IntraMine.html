@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1768,7 +1797,7 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='136'><a href='#A_truly_nice_file_Viewer'>A truly nice file Viewer</a></li>
 <li class='h3' im-text-ln='139'><a href='#A_simple_but_useful_Editor'>A simple but useful Editor</a></li>
 <li class='h3' im-text-ln='142'><a href='#Write_your_own_IntraMine_server'>Write your own IntraMine server</a></li>
-<li class='h3' im-text-ln='145'><a href='#Themes'>Themes</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Using_IntraMine">Using IntraMine</h1></td></tr>
+<li class='h3' im-text-ln='145'><a href='#Themes'>Themes</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Using_IntraMine">Using IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><strong><span class='notabene'>NOTE</span></strong> as of Feb 2025 this document is no longer maintained. It's been split into smaller documents. Please see <a href="./contents.html" target="_blank">"contents.txt"</a> for a full list of docs available.</td></tr>
@@ -2114,7 +2143,7 @@ AQEBAQEBgW5BOBMCAgICAgICAgICAt0A8P8BUmUoNp4XLQsAAAAASUVORK5CYII=
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R34'><td n='34'></td><td>Here are the servers supplied with IntraMine. You'll find the master list used by IntraMine in data/serverlist.txt in your IntraMine folder. The individual services are described in their own files, as listed in the "SUPPLIED SERVICES" section of <a href="./contents.html" target="_blank">contents.txt</a>.</td></tr>
 <tr id='R35'><td n='35'></td><td></td></tr>
-<tr id='R36'><td n='36'></td><td></td></tr></tbody></table><table class='bordered'><caption>All services, with default Count value</caption><thead>
+<tr id='R36'><td n='36'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>All services, with default Count value</caption><thead>
 <tr id='R37'><th n='37'></th><th>Count</th><th><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPage%20name%3C%2Fstrong%3E%3A%20This%20is%20set%20in%20the%20%22Page%20name%22%20column%20of%20data%2Fserverlist.txt%2C%20and%20serves%20two%20purposes%3A%20it%20provides%20the%20name%20to%20display%20for%20the%20service%20in%20IntraMine%27s%20top%20navigation%20bar%20for%20top-level%20services%2C%20and%20it%20can%20be%20shared%20by%20several%20services%20to%20indicate%20that%20they%20are%20somehow%20associated%20-%20signals%20can%20be%20sent%20to%20all%20services%20that%20share%20the%20same%20Page%20name%2C%20for%20example.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Page name</a></th><th><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a></th><th>Program</th><th>Option</th><th>Docs</th></tr></thead><tbody>
 <tr id='R38'><td n='38'></td><td>1</td><td>Search</td><td>Search</td><td>intramine_search.pl</td><td colspan='2' class='centered_cell'>&nbsp;<a href="./Search.html" target="_blank">Search.txt</a></td></tr>
 <tr id='R39'><td n='39'></td><td>2</td><td>Search</td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></td><td>intramine_viewer.pl</td><td class='centered_cell'> </td><td><a href="./Viewer.html" target="_blank">Viewer.txt</a></td></tr>
@@ -2134,7 +2163,7 @@ AQEBAQEBgW5BOBMCAgICAgICAgICAt0A8P8BUmUoNp4XLQsAAAAASUVORK5CYII=
 <tr id='R53'><td n='53'></td><td>1</td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFILEWATCHER%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Watcher%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FILEWATCHER</a></td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a></td><td>intramine_filewatcher.pl</td><td>BACKGROUND</td><td><a href="./FILEWATCHER.html" target="_blank">FILEWATCHER.txt</a></td></tr>
 <tr id='R54'><td n='54'></td><td>0</td><td>Chat</td><td>Chat</td><td>intramine_chat.pl</td><td class='centered_cell'> </td><td><a href="./Chat.html" target="_blank">Chat.txt</a></td></tr>
 <tr id='R55'><td n='55'></td><td>1</td><td>EM</td><td>EM</td><td>intramine_EM.pl </td><td colspan='2' class='centered_cell'><a href="./EM.html" target="_blank">EM.txt</a></td></tr>
-<tr id='R56'><td n='56'></td><td>0</td><td>Reindex</td><td>Reindex</td><td>intramine_reindex.pl</td><td class='centered_cell'> </td><td><a href="./Reindex.html" target="_blank">Reindex.txt</a></td></tr></tbody></table><table><tbody>
+<tr id='R56'><td n='56'></td><td>0</td><td>Reindex</td><td>Reindex</td><td>intramine_reindex.pl</td><td class='centered_cell'> </td><td><a href="./Reindex.html" target="_blank">Reindex.txt</a></td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R57'><td n='57'></td><td></td></tr>
 <tr id='R58'><td n='58'></td><td></td></tr>
 <tr id='R59'><td n='59'></td><td></td></tr>
@@ -3809,7 +3838,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -6414,18 +6443,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -6462,6 +6495,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -6472,11 +6507,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -7948,6 +8012,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -7956,6 +8022,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -8567,6 +8668,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

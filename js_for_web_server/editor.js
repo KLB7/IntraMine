@@ -22,6 +22,9 @@ let firstMaintainButtonsCall = true;
 // beforeUnloadListener is disabled, and we rely on restore_edits.js.
 let enableBeforeUnload = false;
 
+// Used by DeductFromLineCountForInlineHTML() below.
+let topTags = "p|div|h1|h2|h3|h4|h5|h6|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del";
+
 let cmCursorStartPos = {
 	line : -1,
 	ch : -1
@@ -483,8 +486,6 @@ function onCodeMirrorChange() {
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
 async function saveFile(path) {
-	// TEST ONLY
-	//console.log("saveFile top");
 	let originalPath = path;
 	let e1 = document.getElementById(errorID);
 	let sve = document.getElementById("save-button");
@@ -509,13 +510,8 @@ async function saveFile(path) {
 	contents = encodeURIComponent(contents);
 	contents = encodeURIComponent(contents); // sic
 
-	// TEST ONLY
-	//console.log("saveFile about to try");
-
 	try {
 		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/';
-		// TEST ONLY
-		//console.log("theAction: |" + theAction + "|");
 
 		const response = await fetch(theAction, {
 			method: 'POST',
@@ -530,17 +526,11 @@ async function saveFile(path) {
 			let resp = await response.text();
 			if (resp !== 'OK')
 				{
-				// TEST ONLY
-				//console.log("saveFile response NOT OK");
-
 				let e1 = document.getElementById("editor_error");
 				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
 				}
 			else
 				{
-				// TEST ONLY
-				//console.log("saveFile response OK");
-
 				myCodeMirror.doc.markClean();
 				let sve = document.getElementById("save-button");
 				addClass(sve, 'disabled-submit-button');
@@ -553,22 +543,11 @@ async function saveFile(path) {
 						}
 					}
 				
-				// TEST ONLY
-				//console.log("saveFile about to call onCodeMirrorChange");
-
 				onCodeMirrorChange();
 
-				// TEST ONLY
-				//console.log("saveFile AFTER onCodeMirrorChange");
-				//clearSavedDiffs();
 				setSavedText(originalContents);
 
-				// TEST ONLY
-				//console.log("saveFile about to call notifyFileChanged");
 				notifyFileChangedAndRememberCursorLine(pathForNotification);
-
-				// TEST ONLY
-				//console.log("saveFile AFTER notifyFileChanged");
 
 				let lineNum = currentTOCLineNum();
 				loadTOC(originalPath);
@@ -615,33 +594,28 @@ function notifyFileChangedAndRememberCursorLine(path) {
 	// Seems more useful than going to the top line displayed in the Editor.
 	let lineNumber = myCodeMirror.getCursor().line.toString();
 
+	location.hash = lineNumber;
+
 	if (isMarkdown)
 		{
 		lineNumber -= ExtraBlankLines(lineNumber);
 		}
+	else if (hasTextExtension())
+		{
+		let deduction = DeductFromLineCountForInlineHTML(lineNumber);
+		lineNumber -= deduction;
+		}
 
-	location.hash = lineNumber;
+	// Move displayed Viewer line down 10.
+	if (lineNumber > 10)
+		{
+		lineNumber -= 10;
+		}
+	
 	
 	// Avoid self-triggering a reload, set the save time for use
 	// by editor_auto_refresh.js.
 	RememberLastEditorUpdateTime();
-
-	// Experiment, for Markdown send scrollTop, not line number.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementsByClassName("CodeMirror-scroll")[0];
-	// 	if (myDiv !== null)
-	// 		{
-	// 		const divScrollTop = myDiv.scrollTop;
-	// 		lineNumber = myDiv.scrollTop;
-	// 		// TEST ONLY
-	// 		//console.log("scrollTop " + lineNumber);
-	// 	}
-	// 	else
-	// 		{
-	// 		console.log("NO MYDIV!");
-	// 		}
-	// 	}
 
 	// trigger | lineNumber | filePath | timestamp
 	let msg = 'changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
@@ -658,6 +632,7 @@ function ExtraBlankLines(lineNumberStr) {
 	let lineNumber = Number(lineNumberStr);
 	let	extraBlankCount = 0;
 	let justSawBlank = false;
+
 	for (let i = 1; i < lineNumber; ++i)
 		{
 		let lineText = myCodeMirror.getLine(i); // or getRange and split on '\n'
@@ -678,6 +653,50 @@ function ExtraBlankLines(lineNumberStr) {
 	return(extraBlankCount.toString());
 }
 
+// Return positive count of excess lines, for each inline HTML chunk
+// the contribution is number of lines in this editor minus one.
+function DeductFromLineCountForInlineHTML(lineNumberStr) {
+	let lineNumber = Number(lineNumberStr);
+	let extraLineCount = 0;
+	let currentChunkLineCount = 0;
+	let inChunk = false;
+	let blockTag = '';
+	let regex = new RegExp('^!<([^>]+)');
+	let currentResult = {};
+
+	for (let i = 1; i < lineNumber; ++i)
+		{
+		let lineText = myCodeMirror.getLine(i); // or getRange and split on '\n'
+		if (!inChunk)
+			{
+			if ((currentResult = regex.exec(lineText)) !== null)
+				{
+				blockTag = currentResult[1];
+				if (topTags.indexOf(blockTag) >= 0)
+					{
+					inChunk = true;
+					currentChunkLineCount = 1; 
+					}
+				}
+			}
+		else
+			{
+			if (lineText.indexOf("</" + blockTag + ">") === 0)
+				{
+				++currentChunkLineCount;
+				extraLineCount += currentChunkLineCount;
+				inChunk = false;
+				}
+			else
+				{
+				++currentChunkLineCount;
+				}
+			}
+		}
+
+	return(extraLineCount);
+}
+
 function setIsMarkdown() {
 	isMarkdown = false;
 	let fileName = theEncodedPath.split(/[\\/]/).pop();
@@ -692,6 +711,21 @@ function setIsMarkdown() {
 			isMarkdown = true;
 			}
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		}
+	
+	return(result);
 }
 
 function makeDebouncedClearAddLinks() {

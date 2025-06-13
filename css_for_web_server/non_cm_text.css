@@ -233,6 +233,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}

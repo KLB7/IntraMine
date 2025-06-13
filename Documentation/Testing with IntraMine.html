@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1760,7 +1789,7 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='99'><a href='#Configuring_IntraMine_to_run_your_test_file'>Configuring IntraMine to run your test file</a></li>
 <li class='h3' im-text-ln='116'><a href='#Testing_checklist'>Testing checklist</a></li>
 <li class='h3' im-text-ln='125'><a href='#hdr_10'>Running your test file</a></li>
-<li class='h2' im-text-ln='131'><a href='#Testing_IntraMines_included_servers'>Testing IntraMine's included servers</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Testing_with_IntraMine">Testing with IntraMine</h1></td></tr>
+<li class='h2' im-text-ln='131'><a href='#Testing_IntraMines_included_servers'>Testing IntraMine's included servers</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Testing_with_IntraMine">Testing with IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>IntraMine provides a bit of basic help that you can take advantage of for testing your own IntraMine services, and also demonstrates testing supporting modules in a bog-standard way. Or you can use your own preferred approach, of course. If you're not interested in writing your own IntraMine services, feel free to skip this.</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1878,7 +1907,7 @@ AABJRU5ErkJggg==
 <tr id='R76'><td n='76'></td><td>You'll probably want to read through the Selenium::Remote::Driver documentation at some point, but IntraMine provides libs/intramine_test.pm to help you get going: it contains some subs to initialize testing, start the Chrome driver, load a page, and report back how testing went. It's simplest to call Selenium directly to retrieve specific aspects of a loaded page: for example, $driver->get_body() retrieves all of the text from the body of a page.</td></tr>
 <tr id='R77'><td n='77'></td><td></td></tr>
 <tr id='R78'><td n='78'></td><td>Let's take a look now at test_programs/test_DBX.pl for a simple example. Here's a walkthrough:</td></tr>
-<tr id='R79'><td n='79'></td><td></td></tr></tbody></table><table class='bordered'><caption>test_DBX.pl</caption><thead>
+<tr id='R79'><td n='79'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>test_DBX.pl</caption><thead>
 <tr id='R80'><th n='80'></th><th>Location</th><th>What's that</th></tr></thead><tbody>
 <tr id='R81'><td n='81'></td><td>31</td><td>Brings in intramine_test.pm for talking to Selenium and ChromeDriver</td></tr>
 <tr id='R82'><td n='82'></td><td>38</td><td>intramine_test.pm#InitTesting() grabs some standard arguments from the command line that called us, and loads IntraMine configuration values, from data/intramine_config.txt and also any values that are specific to the server being tested, based on its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a>. For DBX, data/DBX_config.txt is also loaded.</td></tr>
@@ -1888,7 +1917,7 @@ AABJRU5ErkJggg==
 <tr id='R86'><td n='86'></td><td>52</td><td>WaitForPageToLoad() waits until the page has loaded into Chrome.</td></tr>
 <tr id='R87'><td n='87'></td><td>58..192</td><td>Calls to Selenium subs through the $driver retrieve various parts of the loaded page from Chrome. If you want to retrieve the entire page, you have a choice between $driver->get_page_source() which retrieves the "raw" HTML source for the page, and $driver->get_body() which retrieves the text of the body. There are also subs for retrieving elements, sending keystrokes to an element, clicking on an element, finding child elements etc as provided by Selenium: see <a href='https://metacpan.org/pod/Selenium::Remote::Driver' target='_blank'>https://metacpan.org/pod/Selenium::Remote::Driver</a> for details.</td></tr>
 <tr id='R88'><td n='88'></td><td>196</td><td>"$driver->shutdown_binary;" should be called at the end to shut down the ChromeDriver, which also closes the web page that was opened.</td></tr>
-<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EConsole%20window%3C%2Fstrong%3E%3A%20The%20window%20you%20can%20type%20commands%20in%20when%20you%20run%20%22C%3A%2FWindows%2FSystem32%2Fcmd.exe%22.%20To%20make%20life%20easier%2C%20once%20you%27ve%20found%20it%20put%20a%20shortcut%20to%20it%20on%20your%20desktop.%20You%20can%20have%20two%20shortcuts%2C%20and%20set%20one%20of%20them%20to%20always%20%22Run%20as%20administrator%22%20%28to%20do%20that%2C%20right-click%20and%20then%20Properties-%3EShortcut-%3EAdvanced...%20and%20check%20%22Run%20as%20administrator%22%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table><tbody>
+<tr id='R89'><td n='89'></td><td>200</td><td>"ReportDoneTesting(\@errors)" sends back error details or "ok" to the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a>, which reports them in its <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EConsole%20window%3C%2Fstrong%3E%3A%20The%20window%20you%20can%20type%20commands%20in%20when%20you%20run%20%22C%3A%2FWindows%2FSystem32%2Fcmd.exe%22.%20To%20make%20life%20easier%2C%20once%20you%27ve%20found%20it%20put%20a%20shortcut%20to%20it%20on%20your%20desktop.%20You%20can%20have%20two%20shortcuts%2C%20and%20set%20one%20of%20them%20to%20always%20%22Run%20as%20administrator%22%20%28to%20do%20that%2C%20right-click%20and%20then%20Properties-%3EShortcut-%3EAdvanced...%20and%20check%20%22Run%20as%20administrator%22%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">console window</a>. If @errors is empty, that means all was "ok".</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R90'><td n='90'></td><td></td></tr>
 <tr id='R91'><td n='91'></td><td><h3 id="Adding_a_test_action">Adding a test action</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1999,7 +2028,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -4604,18 +4633,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -4652,6 +4685,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -4662,11 +4697,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -6138,6 +6202,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -6146,6 +6212,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -6757,6 +6858,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

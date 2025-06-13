@@ -1,7 +1,10 @@
 Markdown enhancements
 =====================
 
-This is just a brief note to mention that when displayed with IntraMine's Viewer or Editor, a Markdown document (.md) will show FLASH links and glossary popups.
+FLASH links and glossary popups
+--------------------------------
+
+When displayed with IntraMine's Viewer or Editor, a Markdown document (.md) will show FLASH links and glossary popups.
 
 Now, FLASH links won't be that useful to you immediately, simply because you haven't had a way to link to local files in Markdown before. Still, if you start putting in link specifiers for FLASH links you might find they speed up navigation.
 
@@ -11,15 +14,33 @@ Glossary popups now are a bigger deal: they are going to change the way you writ
 
 For more about glossary popups, see "Glossary popups.txt".
 
-To bring up a Markdown (.md) file in IntraMine's Viewer:
+Working with Markdown files
+--------------------------
+
+To bring up a Markdown (.md, .mmkd, .markdown) file in IntraMine's Viewer:
  - you can search for it on the Search page
  - or find it on the Files page
  - or click any regular link to it in some other document being displayed by IntraMine's Viewer or Editor.
  
-To bring up a Markdown (.md) file in the Editor:
+To bring up a Markdown file in the Editor:
  - in Search results or on the Files page or in another document displayed by the Viewer, click on the "pencil" icon () next to the regular link
  - in IntraMine's Editor, click on the purple rectangle at the right end of a link (eg editorlink.png)
  - or click on the Edit button up top in the Viewer display of a .md file.
+
+Custom CSS and JavaScript
+--------------------------
+
+You can add custom CSS and JavaScript as well that will apply to Markdown (.md etc) files displayed with IntraMine's Viewer.
+
+To add custom CSS, create **css_for_web_server/im_markdown.css** (in your IntraMine folder) and put your CSS in there. For example,
+hr {
+	border-color: blue;
+}
+would color up your horizontal rules.
+
+To add custom JavaScript that applies to Markdown documents when displayed with the Viewer, create **js_for_web_server/im_markdown.js** (in your IntraMine folder) and put your custom JavaScript in there. You can put any JavaScript you want, and only IntraMine's Viewer display of Markdown will make use of it.
+
+Both im_markdown.css and im_markdown.js are in IntraMine's .gitignore file and won't be touched by Git if you pull down a new version of IntraMine. One nuisance is that if you re-clone IntraMine to a new location you'll need to copy the im_markdown.css and im_markdown.js files yourself.
 
 ---
 contents.txt

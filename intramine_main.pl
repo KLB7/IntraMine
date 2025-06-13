@@ -978,7 +978,7 @@ sub ForceStopAllSwarmServers {
 sub ForceStopServer {
 	my ($portNumber, $serverAddress) = @_;
 	
-	print("Attempting to FORCE stop $serverAddress:$portNumber\n");
+	Monitor("Attempting to FORCE stop $serverAddress:$portNumber\n");
 	
 	if (ServerOnPortIsRunning($portNumber))
 		{
@@ -2766,6 +2766,7 @@ sub SetUpRequestActionHandlers {
 	$RequestAction{'req|running'} = \&ServiceIsRunning; 					# req=running
 	$RequestAction{'req|servercount'} = \&NumInstancesOfShortNameRunning; 	# req=servercount
 	$RequestAction{'req|id'} = \&Identify; 									# req=id
+	$RequestAction{'req|showhelp'} = \&ShowHelp; 							# req=showhelp
 	$RequestAction{'signal'} = \&BroadcastSignal; 							# signal=anything
 	$RequestAction{'ssinfo'} = \&ReceiveInfo; 								# ssinfo=anything, eg 'ssinfo=serverUp'
 	}
@@ -3392,22 +3393,25 @@ sub RedirectBasedOnShortName {
 
 # https://ascii.co.uk/art/hummingbird
 sub ShowHummingbird {
-	my $bird = <<'FINIS';
-<pre>
-    ,_                             ___  ___  ________  ___
-     :`.            .--._         |\  \|\  \|\   __  \|\  \
-      `.`-.        /  ',-""""'    \ \  \\\  \ \  \|\  \ \  \
-        `. ``~-._.'_."/            \ \  \\\  \ \   ____\ \  \
-          `~-._ .` `~;              \ \  \\\  \ \  \___|\ \__\
-               ;.    /               \ \_______\ \__\    \|__|
-              /     /                 \|_______|\|__|
-         ,_.-';_,.'`                                        |\__\
-          `"-;`/                                            \|__|
-            ,'`                   
-</pre>
-FINIS
 
-	Monitor("$bird");
+	my $birdGif = "<img src='hbird.gif'><br>";
+	Monitor("$birdGif");
+	}
+
+# Respond to req=showhelp by showing Documentation/contents.html
+# using the default browser. This is the hard way I suppose, but
+# with this approach relative links in the help files work.
+sub ShowHelp {
+	my $scriptFullPath = $0; # path of calling program, normally for intramine_main.pl
+	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $documentationDirectory = $scriptFullDir . 'Documentation/';
+	my $filepath = $documentationDirectory . 'contents.html';
+	my $proc;
+	my $status;
+	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath", 0, 0, ".")
+		|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+
+	return('OK');
 	}
 
 { ##### Maintenance timeout, not really needed, it's set to 60 seconds.

@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1761,7 +1790,7 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='122'><a href='#Text_from_Perl_to_JavaScript_and_back'>Text from Perl to JavaScript and back</a></li>
 <li class='h3' im-text-ln='126'><a href='#Edit_load_summary'>Edit load summary</a></li>
 <li class='h3' im-text-ln='141'><a href='#Edit_save_summary'>Edit save summary</a></li>
-<li class='h2' im-text-ln='161'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
+<li class='h2' im-text-ln='161'><a href='#UTF16_in_Windows_file_paths'>UTF16 in Windows file paths</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Stealing_from_IntraMine">Stealing from IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>(If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1848,10 +1877,10 @@ span.ll-com { /* comments */
 <tr id='R85'><td n='85'></td><td>For each full path in the entry:</td></tr>
 <tr id='R86'><td n='86'></td><td><p class="outdent-unordered">&nbsp;&bull; does the full path overlap completely on the right with the passed-in <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ELink%20specifier%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20FLASH%20links%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%EA%9E%89%2FCpp%2FOtherProjects%2FProject51%2Fsrc%2Fmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Partial%20path%2C%20file%20specifier%2C%20link%20specifiers%2C%20file%20specifiers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">link specifier</a>? The entries ending in "src\main.cpp" do match perfectly, but the other two entries, ending in "test\main.cpp" and "source\main.cpp", do not.</p></td></tr>
 <tr id='R87'><td n='87'></td><td><p class="outdent-unordered">&nbsp;&bull; for the full paths that overlapped completely on the right: how well do those full paths overlap with the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EContext%20directory%3C%2Fstrong%3E%3A%20the%20path%20to%20the%20directory%20holding%20a%20referencing%20file.%20Eg%20%22p%3A%2Fprojects%2Fproject51%2Fdocs%22%20or%20%22p%3A%2Fprojects%2Fproject99%2Fsrc%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">context directory</a>, starting from the left? For the two candidates, we have:</p></td></tr>
-<tr id='R88'><td n='88'></td><td></td></tr></tbody></table><table class='bordered'><caption>Leftmost overlap of full paths with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EContext%20directory%3C%2Fstrong%3E%3A%20the%20path%20to%20the%20directory%20holding%20a%20referencing%20file.%20Eg%20%22p%3A%2Fprojects%2Fproject51%2Fdocs%22%20or%20%22p%3A%2Fprojects%2Fproject99%2Fsrc%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">context directory</a></caption><thead>
+<tr id='R88'><td n='88'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>Leftmost overlap of full paths with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EContext%20directory%3C%2Fstrong%3E%3A%20the%20path%20to%20the%20directory%20holding%20a%20referencing%20file.%20Eg%20%22p%3A%2Fprojects%2Fproject51%2Fdocs%22%20or%20%22p%3A%2Fprojects%2Fproject99%2Fsrc%22.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">context directory</a></caption><thead>
 <tr id='R89'><th n='89'></th><th>Full path</th><th>Context dir</th><th>left overlap</th></tr></thead><tbody>
 <tr id='R90'><td n='90'></td><td>C:\Projects\Project51\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>22</td></tr>
-<tr id='R91'><td n='91'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table><tbody>
+<tr id='R91'><td n='91'></td><td>C:\Projects\Project999\src\main.cpp</td><td>C:\Projects\Project51\docs\</td><td>19</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R92'><td n='92'></td><td>And the first one there is the clear winner.</td></tr>
 <tr id='R93'><td n='93'></td><td></td></tr>
 <tr id='R94'><td n='94'></td><td>Summing up, a file in the "C:\Projects\Project51\docs\" folder wants a link to "src\main.cpp", and the closest known file is "C:\Projects\Project51\src\main.cpp". If the file wanting the link were instead in the "C:\Projects\Project999\docs" folder, then the closest would be "C:\Projects\Project999\src\main.cpp".</td></tr>
@@ -1987,7 +2016,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -4592,18 +4621,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -4640,6 +4673,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -4650,11 +4685,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -6126,6 +6190,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -6134,6 +6200,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -6745,6 +6846,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

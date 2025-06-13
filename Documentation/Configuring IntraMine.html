@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1752,7 +1781,7 @@ span.ll-com { /* comments */
 <li class='h1' im-text-ln='1'><a href='#Configuring_IntraMine'>Configuring IntraMine</a></li>
 <li class='h2' im-text-ln='4'><a href='#Basic_configuration'>Basic configuration</a></li>
 <li class='h2' im-text-ln='25'><a href='#Configuration_value_files'>Configuration value files</a></li>
-<li class='h2' im-text-ln='35'><a href='#Per-service_configuration'>Per-service configuration</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Configuring_IntraMine">Configuring IntraMine</h1></td></tr>
+<li class='h2' im-text-ln='35'><a href='#Per-service_configuration'>Per-service configuration</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Configuring_IntraMine">Configuring IntraMine</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><h2 id="Basic_configuration">Basic configuration</h2></td></tr>
@@ -1761,7 +1790,7 @@ span.ll-com { /* comments */
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>Here we'll mostly go the other way, with a guide to finding config values to make specific things happen. And a brief chat about adding your own configuration values if you're writing your own IntraMine service.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
-<tr id='R10'><td n='10'></td><td></td></tr></tbody></table><table class='bordered'><caption>IntraMine configuration</caption><thead>
+<tr id='R10'><td n='10'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>IntraMine configuration</caption><thead>
 <tr id='R11'><th n='11'></th><th>To configure</th><th>See</th></tr></thead><tbody>
 <tr id='R12'><td n='12'></td><td>Mon showing at startup</td><td><a href="./Mon.html" target="_blank">Mon.txt</a></td></tr>
 <tr id='R13'><td n='13'></td><td>Port numbers</td><td><a href="./A note on port numbers.html" target="_blank">A note on port numbers.txt</a></td></tr>
@@ -1774,17 +1803,17 @@ span.ll-com { /* comments */
 <tr id='R20'><td n='20'></td><td>Opening PDF and docx files</td><td><a href="./Viewer.html#PDF and docx viewers" target="_blank">"Viewer.txt#PDF and docx viewers"</a></td></tr>
 <tr id='R21'><td n='21'></td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2FGlossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2FGloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a> standalone HTML</td><td><a href="./gloss2html.pl for standalone Gloss files.html#Full image display versus image hovers" target="_blank">"gloss2html.pl for standalone Gloss files.txt#Full image display versus image hovers"</a>, see also intramine_config.txt#243</td></tr>
 <tr id='R22'><td n='22'></td><td>Testing</td><td><a href="./Testing with IntraMine.html" target="_blank">"Testing with IntraMine.txt"</a>, <a href="./Testing with IntraMine.html#Configuring IntraMine to run your test file" target="_blank">"Testing with IntraMine.txt#Configuring IntraMine to run your test file"</a></td></tr>
-<tr id='R23'><td n='23'></td><td>Enable/disable <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGo2%3C%2Fstrong%3E%3A%20select%20a%20word%20or%20short%20phrase%2C%20keep%20you%20cursor%20fairly%20still%2C%20and%20a%20popup%20will%20appear%20listing%20links%20to%20other%20files%20that%20mention%20the%20text.%20The%20less%20common%20the%20text%20is%2C%20the%20more%20useful%20the%20links%20will%20be.%20For%20details%20see%20%3Ca%20href%3D%22.%2FGo2.html%22%20target%3D%22_blank%22%3E%22Go2.txt%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Go2</a></td><td><a href="./Go2.html" target="_blank">Go2.txt</a></td></tr></tbody></table><table><tbody>
+<tr id='R23'><td n='23'></td><td>Enable/disable <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGo2%3C%2Fstrong%3E%3A%20select%20a%20word%20or%20short%20phrase%2C%20keep%20you%20cursor%20fairly%20still%2C%20and%20a%20popup%20will%20appear%20listing%20links%20to%20other%20files%20that%20mention%20the%20text.%20The%20less%20common%20the%20text%20is%2C%20the%20more%20useful%20the%20links%20will%20be.%20For%20details%20see%20%3Ca%20href%3D%22.%2FGo2.html%22%20target%3D%22_blank%22%3E%22Go2.txt%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Go2</a></td><td><a href="./Go2.html" target="_blank">Go2.txt</a></td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R24'><td n='24'></td><td></td></tr>
 <tr id='R25'><td n='25'></td><td><h2 id="Configuration_value_files">Configuration value files</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R27'><td n='27'></td><td>IntraMine's configuration values can be found (within your IntraMine folder) in</td></tr>
-<tr id='R28'><td n='28'></td><td></td></tr></tbody></table><table class='bordered'><caption>IntraMine configuration value files</caption><thead>
+<tr id='R28'><td n='28'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>IntraMine configuration value files</caption><thead>
 <tr id='R29'><th n='29'></th><th>File</th><th>In brief</th></tr></thead><tbody>
 <tr id='R30'><td n='30'></td><td>data/intramine_config.txt</td><td>port numbers, file and folder names etc</td></tr>
 <tr id='R31'><td n='31'></td><td>data/intramine_config_N.txt</td><td>miscellaneous constants added after initial release</td></tr>
 <tr id='R32'><td n='32'></td><td>data/serverlist.txt</td><td>services to run: Perl program name, how many of each, etc</td></tr>
-<tr id='R33'><td n='33'></td><td>data/search_directories.txt</td><td>directories to index/monitor with <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr></tbody></table><table><tbody>
+<tr id='R33'><td n='33'></td><td>data/search_directories.txt</td><td>directories to index/monitor with <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R34'><td n='34'></td><td></td></tr>
 <tr id='R35'><td n='35'></td><td><h2 id="Per-service_configuration">Per-service configuration</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -1798,10 +1827,10 @@ span.ll-com { /* comments */
 <tr id='R44'><td n='44'></td><td><p class="outdent-unordered">&nbsp;&bull; the config values will be loaded for your service when you call SSInitialize() near the top of your program.</p></td></tr>
 <tr id='R45'><td n='45'></td><td><p class="outdent-unordered">&nbsp;&bull; you can retrieve values using the subs in intramine_config.pm (these will be available if you put "use swarmserver;" near the top of your program).</p></td></tr>
 <tr id='R46'><td n='46'></td><td><p class="outdent-unordered-continued"></p></td></tr>
-<tr id='R47'><td n='47'></td><td></td></tr></tbody></table><table class='bordered'><caption>How to retrieve configuration values using subs in intramine_config.pm</caption><thead>
+<tr id='R47'><td n='47'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>How to retrieve configuration values using subs in intramine_config.pm</caption><thead>
 <tr id='R48'><th n='48'></th><th>To retrieve</th><th>Call</th><th>Eg</th></tr></thead><tbody>
 <tr id='R49'><td n='49'></td><td>A string</td><td>CVal()</td><td>my $mainPort = CVal('INTRAMINE_MAIN_PORT');</td></tr>
-<tr id='R50'><td n='50'></td><td>A full path from partial</td><td>FullDirectoryPath()</td><td>my $dbPath = FullDirectoryPath('DBEGPATH');</td></tr></tbody></table><table><tbody>
+<tr id='R50'><td n='50'></td><td>A full path from partial</td><td>FullDirectoryPath()</td><td>my $dbPath = FullDirectoryPath('DBEGPATH');</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R51'><td n='51'></td><td></td></tr>
 <tr id='R52'><td n='52'></td><td>intramine_config.pm#FullDirectoryPath() expects the named <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EPartial%20path%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20FLASH%20links%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%EA%9E%89%2FCpp%2FOtherProjects%2FProject51%2Fsrc%2Fmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20file%20specifier%2C%20link%20specifier%2C%20link%20specifiers%2C%20file%20specifiers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">partial path</a> to go from the top of your IntraMine folder, wherever it is, down to the file you want. For example, consider the </td></tr>
 <tr id='R53'><td n='53'></td><td>DBEGPATH	data/dbeg.db</td></tr>
@@ -1843,7 +1872,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -4448,18 +4477,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -4496,6 +4529,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -4506,11 +4541,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -5982,6 +6046,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -5990,6 +6056,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -6601,6 +6702,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

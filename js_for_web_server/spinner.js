@@ -12,6 +12,7 @@
 // instances of a server were running. Especially with two servers, the port
 // number would get stuck due to calling req=portNumber twice.
 // contentsName is taken from data/intramine_config.txt "SPECIAL_INDEX_NAME_HTML"
+// Aaaand much later, contentsName is no longer used. Never mind.
 let contentsName = 'contents.html';
 let spinnerTimeoutTimer = 0;
 
@@ -36,9 +37,16 @@ function hideSpinner() {
 	let spinnerParent = document.getElementById('spinnerParent');
 	if (spinnerParent !== null)
 		{
-		spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
+		// The old way. IntraMine handled the link. That mostly worked, but
+		// relative links were broken.
+		// spinnerParent.innerHTML = "<a href='./" + contentsName + "' target='_blank'>"
+		// + "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a>\n";
+		// The better way, topnav.js#showHelpContents calls back to Main, which
+		// asks the default browser to show the contents.html file directly,
+		// and magically the relative links work.
+		spinnerParent.innerHTML = "<a href='' onclick='showHelpContents(); return(false);'>"
 		+ "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a>\n";
-		
+
 		setTimeout(styleQuestionMark, 50);
 		}
 	else

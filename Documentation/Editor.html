@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1761,7 +1790,7 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='81'><a href='#File_load_sequence'>File load sequence</a></li>
 <li class='h2' im-text-ln='92'><a href='#API'>API</a></li>
 <li class='h3' im-text-ln='94'><a href='#Open_a_file_for_editing'>Open a file for editing</a></li>
-<li class='h3' im-text-ln='104'><a href='#Load_contents_of_file'>Load contents of file</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Editor"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a></h1></td></tr>
+<li class='h3' im-text-ln='104'><a href='#Load_contents_of_file'>Load contents of file</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Editor"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a></h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td>This is about IntraMine's built-in <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a>, with intramine_editor.pl on the back end, and editor.js on the front.</td></tr>
 <tr id='R4'><td n='4'></td><td></td></tr>
@@ -1828,7 +1857,7 @@ e+udw+3I/z3tBWvM4XD4eyVDOFxZ3Nz8AT6PJvXw0aIYAAAAAElFTkSuQmCC
 <tr id='R24'><td n='24'></td><td>If you close an <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00026%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00027%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> tab and later re-open it, you will be offered the opportunity to restore and save any unsaved changes.</td></tr>
 <tr id='R25'><td n='25'></td><td></td></tr>
 <tr id='R26'><td n='26'></td><td>There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:</td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>
+<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered imt'><thead>
 <tr id='R28'><th n='28'></th><th>Action</th><th>Keys</th></tr></thead><tbody>
 <tr id='R29'><td n='29'></td><td>Save</td><td>Ctrl+S</td></tr>
 <tr id='R30'><td n='30'></td><td>Undo</td><td>Ctrl+Z</td></tr>
@@ -1841,7 +1870,7 @@ e+udw+3I/z3tBWvM4XD4eyVDOFxZ3Nz8AT6PJvXw0aIYAAAAAElFTkSuQmCC
 <tr id='R37'><td n='37'></td><td>Indent</td><td>Ctrl+] (add a tab to selected lines)</td></tr>
 <tr id='R38'><td n='38'></td><td>Indent</td><td>Tab (same as above)</td></tr>
 <tr id='R39'><td n='39'></td><td>Outdent</td><td>Ctrl+[ (remove a tab from selected lines)</td></tr>
-<tr id='R40'><td n='40'></td><td>Outdent</td><td>Shift+Tab (same as above)</td></tr></tbody></table><table><tbody>
+<tr id='R40'><td n='40'></td><td>Outdent</td><td>Shift+Tab (same as above)</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R41'><td n='41'></td><td></td></tr>
 <tr id='R42'><td n='42'></td><td>In addition, a date-time stamp can be inserted by pressing either F4 or Ctrl-Space.</td></tr>
 <tr id='R43'><td n='43'></td><td>F4: 			11:34 AM Monday, September 11, 2023</td></tr>
@@ -5463,7 +5492,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -8068,18 +8097,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -8116,6 +8149,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -8126,11 +8161,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -9602,6 +9666,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -9610,6 +9676,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -10221,6 +10322,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

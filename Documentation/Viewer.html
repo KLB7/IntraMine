@@ -1030,6 +1030,17 @@ code {
 	background-color:#ECF6CE;
 }
 
+/* For raw HTML in .txt files, as displayed with Gloss. */
+.rawHTML {
+	padding-left: 60px;
+}
+
+/* Also for raw HTML, reduce <p> margin. */
+p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
@@ -1092,6 +1103,17 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
     background-color: rgb(200, 255, 200);
 }
 
+/* Raw HTML tables in Markdown, no line numbers. */
+.rawHTML table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+    content: auto;
+}
 
 
 h1, h2, h3, h4 {
@@ -1741,6 +1763,13 @@ span.ll-com { /* comments */
 }
 
 </style>
+<style>
+/*ol {
+	background-color: lightblue;
+}
+*/
+
+</style>
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -1780,7 +1809,7 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='211'><a href='#API'>API</a></li>
 <li class='h3' im-text-ln='213'><a href='#Display_a_file'>Display a file</a></li>
 <li class='h3' im-text-ln='228'><a href='#Load_contents_of_file'>Load contents of file</a></li>
-<li class='h3' im-text-ln='236'><a href='#Test'>Test</a></li></ul></div><div id='scrollTextRightOfContents'><table><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Viewer"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></h1></td></tr>
+<li class='h3' im-text-ln='236'><a href='#Test'>Test</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Viewer"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABD0AAALxCAIAAADQbEraAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
@@ -5387,7 +5416,7 @@ YII=
 <tr id='R46'><td n='46'></td><td><h3 id="Autolinks"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinks%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Autolinks</a></h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R48'><td n='48'></td><td>The <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> inserts the following kinds of links, with source and text file links expanded to full paths by the <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ELinker%3C%2Fstrong%3E%3A%20IntraMine%27s%20hyperlink%20service%2C%20implementing%20FLASH%20links%20in%20particular.%20Also%20glossary%20popups.%20For%20more%20see%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Linker</a> (some file paths are made up):</td></tr>
-<tr id='R49'><td n='49'></td><td></td></tr></tbody></table><table class='bordered'><caption>Links inserted by the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></caption><thead>
+<tr id='R49'><td n='49'></td><td></td></tr></tbody></table><table class='bordered imt'><caption>Links inserted by the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></caption><thead>
 <tr id='R50'><th n='50'></th><th>Type                     </th><th>Example                     </th><th>Constraints/Overhead</th></tr></thead><tbody>
 <tr id='R51'><td n='51'></td><td>Full local/<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> path</td><td>C:/Go/src/entity.go</td><td>None. Can be put in quotes.</td></tr>
 <tr id='R52'><td n='52'></td><td>Partial local/<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> path</td><td>src/entity.go</td><td>Must be indexed. Can be put in quotes.</td></tr>
@@ -5396,7 +5425,7 @@ YII=
 <tr id='R55'><td n='55'></td><td>Line in file</td><td><a href="./Gloss.html#87" target="_blank">"Gloss.txt#87"</a></td><td>As for location.</td></tr>
 <tr id='R56'><td n='56'></td><td>Internal heading in .txt</td><td><a href="#Image_hovers">"Image hovers</a>"</td><td>Double quotes are required.</td></tr>
 <tr id='R57'><td n='57'></td><td>Internal function or class</td><td>searchSubmit(), GoogleSuggest</td><td>None.</td></tr>
-<tr id='R58'><td n='58'></td><td>Web</td><td><a href='http://google.com' target='_blank'>http://google.com</a></td><td>None. Can be quoted.</td></tr></tbody></table><table><tbody>
+<tr id='R58'><td n='58'></td><td>Web</td><td><a href='http://google.com' target='_blank'>http://google.com</a></td><td>None. Can be quoted.</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R59'><td n='59'></td><td>Note all link mentions can be enclosed in double quotes if desired, to improve visibility in the original text.</td></tr>
 <tr id='R60'><td n='60'></td><td></td></tr>
 <tr id='R61'><td n='61'></td><td>In Perl files, "use Module;" receives a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> link and a link to metacpan if it's a standard module, otherwise a Viewer link and an <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00009%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00010%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> link if it appears to be a module that you own. See the image at top of this file.</td></tr>
@@ -7548,13 +7577,13 @@ oKIAAAAAALZClFEPQyrq5cv/D6EOExOSYG0xAAAAAElFTkSuQmCC
 <tr id='R200'><td n='200'></td><td></td></tr>
 <tr id='R201'><td n='201'></td><td><h3 id="Related_servers">Related servers</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered'><thead>
+<tr class='shrunkrow'><td></td><td></td></tr></tbody></table><table class='bordered imt'><thead>
 <tr id='R204'><th n='204'></th><th><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20%22Short%20name%22%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Short name</a></th><th>Main Perl file        </th><th>Description</th></tr></thead><tbody>
 <tr id='R205'><td n='205'></td><td><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ELinker%3C%2Fstrong%3E%3A%20IntraMine%27s%20hyperlink%20service%2C%20implementing%20FLASH%20links%20in%20particular.%20Also%20glossary%20popups.%20For%20more%20see%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Linker</a></td><td>intramine_linker.pl</td><td>provides links of all sorts, in response to a fetch()</td></tr>
 <tr id='R206'><td n='206'></td><td>Search</td><td>intramine_search.pl</td><td>puts links to the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> on all of its search hits</td></tr>
 <tr id='R207'><td n='207'></td><td>Files</td><td>intramine_filetree.pl</td><td>shows directory lists, and all source and text files there have links to the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a></td></tr>
 <tr id='R208'><td n='208'></td><td><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00050%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00051%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a></td><td>intramine_editor.pl</td><td>shows an editable display of a source or text file, brought up when the little pencil icon next to a regular <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EViewer%3C%2Fstrong%3E%3A%20IntraMine%27s%20read-only%20file%20viewer%20service%2C%20intramine_viewer.pl.%20The%20Viewer%20is%20used%20to%20show%20files%20when%20an%20ordinary%20link%20is%20clicked%20in%20Search%20page%20results%2C%20on%20the%20Files%20page%2C%20or%20any%20file%20link%20in%20a%20view.%20The%20Viewer%20puts%20in%20headings%2C%20FLASH%20links%2C%20syntax%20highlighting%20for%20source%20files%2C%20tables%20and%20lists%20etc%20for%20source%20and%20text%20files.%20Currently%20a%20table%20of%20contents%20is%20supported%20for%20.txt%2C%20Perl%2C%20Pod%2C%20C%20%2F%20C%2B%2B%2C%20Go%2C%20JavaScript%2C%20CSS%2C%20Clojure%2C%20Erlang%2C%20OCaml%2C%20PHP%2C%20Python%2C%20Ruby%2C%20TypeScript%2C%20Rust%2C%20Java%2C%20C%23%2C%20VBScript%28.vb%29%2C%20VB.NET%28.vbs%29%2C%20Haskell%2C%20Julia%2C%20Fortran%2C%20COBOL.%20For%20more%20see%20%3Ca%20href%3D%22.%2FViewer.html%22%20target%3D%22_blank%22%3E%22Viewer.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Viewer</a> link is clicked. The display and editing are managed by CodeMirror</td></tr>
-<tr id='R209'><td n='209'></td><td>Opener</td><td>intramine_open_with.pl</td><td>directs edit link clicks to your preferred editing app instead of IntraMine's built-in <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00052%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00053%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a>, if IntraMine has been configured that way (see <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a>)</td></tr></tbody></table><table><tbody>
+<tr id='R209'><td n='209'></td><td>Opener</td><td>intramine_open_with.pl</td><td>directs edit link clicks to your preferred editing app instead of IntraMine's built-in <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00052%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00053%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a>, if IntraMine has been configured that way (see <a href="./Editing documents.html" target="_blank">"Editing documents.txt"</a>)</td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R210'><td n='210'></td><td></td></tr>
 <tr id='R211'><td n='211'></td><td><h2 id="API">API</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -7618,7 +7647,7 @@ let b64ToggleImage = 'iVBORw0KGgoAAAANSUhEUgAAADAAAAAYCAYAAAC8/X7cAAAAAXNSR0IArs
 let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
-//let weAreStandalone = true;
+let weAreStandalone = true;
 </script>
 <script>
 	// Call fn when ready.
@@ -10223,18 +10252,22 @@ async function reJumpToLineNumber(h, delayMsec) {
 	let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
-		//console.log("reJumpToLineNumber negative line number received: |" + h + "|");
 		lineNum = 0;
 		}
 	
-	// For Markdown, interpret h as scrollTop.
-	// if (isMarkdown)
-	// 	{
-	// 	const myDiv = document.getElementById("scrollTextRightOfContents");
-	// 	myDiv.scrollTop = h + 1;
-	// 	}
-	// Look for row number lineNum.
-	let rows = markerMainElement.getElementsByTagName('tr');
+	// Try for class "imt" tables first (found in .txt files),
+	// if not found look for rows in all tables.
+	let rows;
+	if (hasTextExtension())
+		{
+		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
+		rows = Array.from(rowNodes);
+		}
+	else
+		{
+		rows = markerMainElement.getElementsByTagName('tr');
+		}	
+
 	if (lineNum >= rows.length)
 		{
 		lineNum = rows.length - 1;
@@ -10271,6 +10304,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				await delay(delayMsec);
 				}
+
+			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -10281,11 +10316,40 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
+
+			// setTimeout(function() {
+			// 	el.style.backgroundColor = "transparent";
+			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
 		restoreTocSelection(lineNum);
 		}
+}
+
+function hasTextExtension() {
+	let result = false;
+	let extPos = theEncodedPath.lastIndexOf(".");
+	if (extPos > 1)
+		{
+		let ext = theEncodedPath.slice(extPos + 1);
+		if (ext === "txt" || ext === "TXT")
+			{
+			result = true;
+			}
+		else
+			{
+			if (typeof weAreStandalone !== 'undefined')
+				{
+				if (weAreStandalone)
+					{
+					result = true; // hack, pretend we are .txt in the Viewer
+					}
+				}
+			}
+		}
+	
+	return(result);
 }
 
 // Just for Markdown files, go straight to an id.
@@ -11757,6 +11821,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
+		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -11765,6 +11831,41 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		tocElem.scrollIntoView({block: 'center'});
 		updateTocHighlight(tocElem);
 		}
+}
+
+function inlineHTMLDeductionBeforeLine(lineNum) {
+	let correction = 0;
+	if (!hasTextExtension())
+		{
+		return(0);
+		}
+	
+	let rawHTMLElements = document.getElementsByClassName("rawHTML");
+	if (rawHTMLElements === null)
+		{
+		return(0);
+		}
+
+	for (let i = 0; i < rawHTMLElements.length; i++)
+		{
+		const elementId = rawHTMLElements[i].id;
+		if (elementId !== '')
+			{
+			if (elementId.indexOf("rawH_") == 0)
+				{
+				let elementLineNumStr = elementId.substring(5);
+				let elNum = Number(elementLineNumStr);
+				if (elNum !== NaN && elNum < lineNum)
+					{
+					++correction;
+					}
+				}
+			}
+		}
+
+	// TEST ONLY
+	//console.log("Correction: " + correction);
+	return(correction);
 }
 
 // This is called only for Markdown files, see addTocScrollListener() below.
@@ -12376,6 +12477,10 @@ function loadCachedImages(text) {
 		
 	return(text);
 }
+
+</script>
+<script type="text/javascript">
+// Nothing to see here.
 
 </script>
 

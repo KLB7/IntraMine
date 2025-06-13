@@ -45,4 +45,29 @@ function showHideServiceName(message) {
 		}	
 }
 
+// Call back to Main, which in turn calls its ShowHelp()
+// to display Documentation/contents.html.
+async function showHelpContents() {
+	try {
+		let theAction = 'http://' + theHost + ':' + theMainPort + '/?req=showhelp';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			// Should be 'OK', bad news if it isn't but what can you do?
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			//let e1 = document.getElementById(errorID);
+			//e1.innerHTML = '<p>Error, server status request failed!</p>';
+			}
+	}
+	catch {
+		// There was a connection error of some sort
+		//let e1 = document.getElementById(errorID);
+		//e1.innerHTML = '<p>Connection error while contacting main server!</p>';
+	}
+}
+
 window.addEventListener('wsinit', function (e) { registerTopNavCallbacks(); }, false);

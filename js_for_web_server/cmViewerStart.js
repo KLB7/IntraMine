@@ -6,6 +6,8 @@ let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
 let lazyOnScroll;
 
+let isMarkdown = false;
+
 // Load contents, handle resize, maintain buttons.
 
 function getFileExtension(filename) {

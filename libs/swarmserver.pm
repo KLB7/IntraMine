@@ -276,8 +276,11 @@ sub MakeTopNavTemplate {
 		}
 	else
 		{
-		$theTopNav .= "<div id='spinnerParent'>" . "<a href='./" . "contents.html" . "' target='_blank'>"
+		# $theTopNav .= "<div id='spinnerParent'>" . "<a href='./" . "contents.html" . "' target='_blank'>"
+		# . "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a></div>\n";
+		$theTopNav .= "<div id='spinnerParent'>" . "<a href='' onclick='showHelpContents(); return(false);'>"
 		. "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a></div>\n";
+
 		}
 
 	$TopNavTemplate = $theTopNav;

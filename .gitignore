@@ -11,6 +11,10 @@ temp/
 test/
 backup.pl
 opendns_monitor.pl
+im_gloss.css
+im_gloss.js
+im_markdown.css
+im_markdown.js
 *.komodoproject
 *.project
 *.includepath
