@@ -1,4 +1,5 @@
 # toc_local.pm: generate a Table of Contents for a source file.
+# Universal ctags is used for many languages.
 #
 # perl -c C:\perlprogs\IntraMine\libs\toc_local.pm
 
@@ -83,7 +84,7 @@ sub GetCMToc {
 	# Processing depends on the file extension, most are handled by
 	# universal CTags but some are custom.
 	# Note not all extensions are supported, eg .pdf, .docx. Only extensions
-	# that can be edited with CodeMirror are here. Some, such as .md,
+	# that can be edited with CodeMirror are here. Some
 	# can be edited with CM but don't support a Table of Contents.
 	
 	# (Numbers below are from intramine_viewer.pl#GetContentBasedOnExtension)
@@ -231,6 +232,8 @@ sub UniqueTocID {
 	}
 
 use ExportAbove;
+
+# Private subs below this point.
 
 sub GetPodTOC {
 	my ($filePath, $toc_R) = @_;
@@ -640,18 +643,15 @@ sub GetCssCTagsTOCForFile {
 	my $fileName = FileNameFromPath($filePath);
 	my $contentsClass = 'h2';
 
-	# First, get ctags for the file
+	# Get ctags as a string.
 	my $errorMsg = '';
-	my ($ctagsFilePath, $tempFilePath) = MakeCtagsForFile($dir, $fileName, \$errorMsg);
-	if ($ctagsFilePath eq '' || length($errorMsg) > 0)
-		{
-		$$tocR = "<strong>$errorMsg</strong>\n";
-		return;
-		}
+	my $tagString = '';
+	GetCtagsString($filePath, \$tagString);
+
 	my %tagEntryForLine;
 	my %tagDisplayedNameForLine;
 	$fileName = lc($fileName);
-	my $itemCount = LoadCssCtags($ctagsFilePath, $fileName,
+	my $itemCount = LoadCssCtags($fileName, \$tagString,
 								\%tagEntryForLine,
 								\%tagDisplayedNameForLine,
 								\$errorMsg);
@@ -706,13 +706,6 @@ sub GetCssCTagsTOCForFile {
 	@anchorList = @anchorList[@idx];
 	$$tocR = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" .
 				join("\n", @anchorList) . "</ul>\n";
-
-	# Get rid of the one or two temp files made while getting ctags.
-	unlink($ctagsFilePath);
-	if ($tempFilePath ne '')
-		{
-		unlink($tempFilePath);
-		}
 	}
 
 # Use ctags to generate a Table Of Contents (TOC) for a source file. Ctags are written to
@@ -722,30 +715,10 @@ sub GetCTagsTOCForFile {
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	my $fileName = FileNameFromPath($filePath);
 
-	# First, get ctags for the file
-	my $errorMsg = '';
-	my ($ctagsFilePath, $tempFilePath) = MakeCtagsForFile($dir, $fileName, \$errorMsg);
-	if ($ctagsFilePath eq '' || length($errorMsg) > 0)
-		{
-		$$tocR = "<strong>$errorMsg</strong>\n";
-		return;
-		}
-	
+	# Get ctags as a string.
+	my $tagString = '';
+	GetCtagsString($filePath, \$tagString);
 
-	my %classEntryForLine;
-	my %structEntryForLine;
-	my %methodEntryForLine;
-	my %functionEntryForLine;
-	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
-						\%classEntryForLine,
-						\%structEntryForLine, \%methodEntryForLine,
-						\%functionEntryForLine, \$errorMsg);
-	if ($errorMsg ne '')
-		{
-		$$tocR = "<strong>$errorMsg</strong>\n";
-		return;
-		}
-	
 	# Use alpha sorting of TOC entries for most files.
 	# Sort by line number for Markdown files.
 	# Skip alpha sorting for Markdown (markdown,md,mkd) files.
@@ -753,25 +726,18 @@ sub GetCTagsTOCForFile {
 
 	if ($sortAlpha)
 		{
-		AlphaSortTags($filePath, $ctagsFilePath, $tocR);
+		AlphaSortTags($filePath, \$tagString, $tocR);
 		}
 	else
 		{
-		NumericallySortTags($filePath, $ctagsFilePath, $tocR);
-		}
-
-	# Get rid of the one or two temp files made while getting ctags.
-	unlink($ctagsFilePath);
-	if ($tempFilePath ne '')
-		{
-		unlink($tempFilePath);
+		NumericallySortTags($filePath, \$tagString, $tocR);
 		}
 
 	return;
 	}
 
 sub AlphaSortTags {
-	my ($filePath, $ctagsFilePath, $tocR) = @_;
+	my ($filePath, $tagStringR, $tocR) = @_;
 	my %classEntryForLine;
 	my %structEntryForLine;
 	my %methodEntryForLine;
@@ -788,7 +754,7 @@ sub AlphaSortTags {
 	my $jlEnd = "</a></li>";
 
 	my $errorMsg = '';
-	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
+	my $itemCount = LoadCtags($filePath, $tagStringR,
 						\%classEntryForLine,
 						\%structEntryForLine, \%methodEntryForLine,
 						\%functionEntryForLine, \$errorMsg);
@@ -962,7 +928,7 @@ sub AlphaSortTags {
 
 # Sort TOC entries by order of appearance (line number);
 sub NumericallySortTags {
-	my ($filePath, $ctagsFilePath, $tocR) = @_;
+	my ($filePath, $tagStringR, $tocR) = @_;
 	my %idExists; # used to avoid duplicated anchor id's.
 	my $jlEnd = "</a></li>";
 	# Collect Chapter and Section entries in a single array.
@@ -975,7 +941,7 @@ sub NumericallySortTags {
 	my %functionEntryForLine;
 
 	my $errorMsg = '';
-	my $itemCount = LoadCtags($filePath, $ctagsFilePath,
+	my $itemCount = LoadCtags($filePath, $tagStringR,
 						\%classEntryForLine,
 						\%structEntryForLine, \%methodEntryForLine,
 						\%functionEntryForLine, \$errorMsg);

@@ -247,6 +247,14 @@ sub MakeCtagsForFile {
 	return($result, $tempDir . $tempFilePath);
 	}
 
+# Call universal ctags, output piped back to $$resultR with backticks.
+# Oddly the default output is not STDOUT, the "-f -" is needed for that.
+sub GetCtagsString {
+	my ($filePath, $resultR) = @_;
+	my $ctagsArgs = " -f - --quiet=yes -n -u \"$filePath\"";
+	$$resultR = `$CTAGS_EXE $ctagsArgs`;
+	}
+
 #http://ctags.sourceforge.net/FORMAT
 #PropertyGetterSetter	qqmljsast_p.h	682;"	c	namespace:QQmlJS::AST
 #PropertyGetterSetter	qqmljsast_p.h	696;"	f	class:QQmlJS::AST::PropertyGetterSetter
@@ -261,24 +269,11 @@ sub MakeCtagsForFile {
 # (In progress, individual language are being addressed in order to
 # generate more accurate tables of contents.)
 sub LoadCtags {
-	my ($filePath, $ctagsFilePath, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH, $errorMsgR) = @_;
+	my ($filePath, $tagStringR, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH, $errorMsgR) = @_;
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
-	if (!(-f $ctagsFilePath))
-		{
-		$$errorMsgR .= "$ctagsFilePath does not exist.";
-		return($itemCount);
-		}
-	my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
-	if (!defined($octets))
-		{
-		$$errorMsgR .= "Error, could not open $ctagsFilePath.";
-		return($itemCount);
-		}
-	
-	#my $topScopeFunctionName = '';
-	my @lines = split(/\n/, $octets);
+	my @lines = split(/\n/, $$tagStringR);
 	my $numLines = @lines;
 	
 	# Per-language regex's to extract tags:
@@ -870,28 +865,17 @@ sub LoadJuliaTags {
 # 				.todo-task > .task-header			todo_task_task-header
 #				.first, .second						first|second
 sub LoadCssCtags {
-	my ($ctagsFilePath, $lcCssFileName, $tagEntryForLineH, $tagDisplayedNameForLineH, $errorMsgR) = @_;
+	my ($lcCssFileName, $tagStringR, $tagEntryForLineH, $tagDisplayedNameForLineH, $errorMsgR) = @_;
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
-	if (!(-f $ctagsFilePath))
-		{
-		$$errorMsgR .= "$ctagsFilePath does not exist.";
-		return($itemCount);
-		}
-	my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
-	if (!defined($octets))
-		{
-		$$errorMsgR .= "Error, could not open $ctagsFilePath.";
-		return($itemCount);
-		}
-	
-	my @lines = split(/\n/, $octets);
+	my @lines = split(/\n/, $$tagStringR);
 	my $numLines = @lines;
 	
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
+		if ($lines[$i] =~ m!^(.+?)\s+.+?$lcCssFileName\s+(\d+);!i)
+		# if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
 			{
 			my $displayedTagname = $1;
 			my $lineNumber = $2;

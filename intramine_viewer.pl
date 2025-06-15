@@ -1404,7 +1404,8 @@ sub GetPrettyMD {
 	# Call it 2,000 lines per second.
 	}
 
-sub MakeCmarksForFile {
+# An experiment, abandoned.
+sub xMakeCmarksForFile {
 	my ($filePath, $dir) = @_;
 	my $cmark_dir = FullDirectoryPath('CMARK_DIR');
 	my $cmarkEXE = $cmark_dir . 'cmark.exe';

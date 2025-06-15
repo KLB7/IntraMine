@@ -699,21 +699,13 @@ sub WinnowFullPathsUsingCtags {
 	for (my $i = 0; $i < $numRawPaths; ++$i)
 		{
 		my $filePath = $rawFullPathsA->[$i];
-		my $dir = lc(DirectoryFromPathTS($filePath));
-		my $fileName = FileNameFromPath($filePath);
-		my $errorMsg = '';
-		my ($ctagsFilePath, $tempFilePath) = MakeCtagsForFile($dir, $fileName, \$errorMsg);
-		# Check summary file for wanted term.
-		if ($ctagsFilePath eq '' || length($errorMsg) > 0)
-			{
-			next;
-			}
-		my $octets = ReadTextFileDecodedWide($ctagsFilePath, 1);
-		if (!defined($octets))
-			{
-			next;
-			}
-		my @lines = split(/\n/, $octets);
+
+		# Get ctags as a string.
+		my $tagString = '';
+		GetCtagsString($filePath, \$tagString);
+
+		my @lines = split(/\n/, $tagString);
+
 		my $numLines = @lines;
 		for (my $j = 0; $j < $numLines; ++$j)
 			{
@@ -723,13 +715,6 @@ sub WinnowFullPathsUsingCtags {
 				push @$winnowedFullPathsA, $filePath;
 				last;
 				}
-			}
-
-		# Get rid of the one or two temp files made while getting ctags.
-		unlink($ctagsFilePath);
-		if ($tempFilePath ne '')
-			{
-			unlink($tempFilePath);
 			}
 		}
 
