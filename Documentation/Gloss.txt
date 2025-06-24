@@ -66,16 +66,16 @@ A little green double-headed arrow doohickey 707788g4.png up top lets you collap
 
 Headings
 -------
-To mark a line as a heading, underline it with **five or more** of the same character: equals (=) for top level, hyphen (-) for next level, and tilde (~) for the lowest level.
+To mark a line as a heading, underline it with **five or more** of the same character: equals (=) for top level, hyphen (-) for next level, and tilde (~) for the lowest level. Underlining the first line in a document with ===== will produce the largest heading, by the way.
 TABLE Heading underline characters
 Underline with		To get
-=====				h1
------				h2
-~~~~~				h3
+=====				h2
+-----				h3
+~~~~~				h4
 
 Examples:
 
-Top level heading
+Section heading
 ​=================
 produces
 2019-09-18 13_30_26-Gloss.txt.png
