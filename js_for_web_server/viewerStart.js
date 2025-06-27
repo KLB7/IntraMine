@@ -75,6 +75,8 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
+	// TEST ONLY
+	console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -88,6 +90,8 @@ function doResize() {
 function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
+	// TEST ONLY
+	console.log("reJumpAndHighlight delayed 100");
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -162,6 +166,8 @@ function reJump(delayMsec) {
 			}
 		else
 			{
+			// TEST ONLY
+			//console.log("viewerStart.js#166");
 			reJumpToLineNumber(h, delayMsec);
 			}
 		}
@@ -185,8 +191,10 @@ function jumpToMarkdownLineFromStorage() {
 	// TEST ONLY
 	//console.log("jumpToMarkdownLineFromStorage looking for " + markdownLineNumberStr);
 
+	// Note sure why I was deleting the remembered line number,
+	// leaving it in for now.
+	//localStorage.removeItem(markdownLineNumberKey);
 
-	localStorage.removeItem(markdownLineNumberKey);
 	const textDiv = document.getElementById("scrollTextRightOfContents");
 	if (textDiv === null)
 		{
@@ -443,6 +451,8 @@ function getElementForHash(h) {
 				{
 				if (!isNaN(hCopy))
 					{
+					// TEST ONLY
+					//console.log("viewerStart.js#449");
 					reJumpToLineNumber(hCopy);
 					break;
 					}
@@ -464,7 +474,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 		delayMsec = 0;
 		}
 
-	let lineNum = parseInt(h, 10) - 1;
+	let lineNum = parseInt(h, 10);
+	///let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
 		lineNum = 0;
@@ -473,7 +484,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 	// Try for class "imt" tables first (found in .txt files),
 	// if not found look for rows in all tables.
 	let rows;
-	if (hasTextExtension())
+	let isText = hasTextExtension();
+	if (isText)
 		{
 		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
 		rows = Array.from(rowNodes);
@@ -487,6 +499,9 @@ async function reJumpToLineNumber(h, delayMsec) {
 		{
 		lineNum = rows.length - 1;
 		}
+
+	// TEST ONLY
+	//console.log("Looking for line number |" + lineNum + "|");
 	
 	if (lineNum >= 0)
 		{
@@ -515,6 +530,38 @@ async function reJumpToLineNumber(h, delayMsec) {
 		
 		if (el !== null)
 			{
+			// If inline HTML is present, then we have gone too far, need to back
+			// up to the row with id 'RNNN' where NNN is the wanted line number.
+			if (isText && el.hasAttribute('id') && lineNum > 0)
+				{
+				let rowNum = lineNum;
+				let rowID = el.id;
+				let rowLineStr = rowID.substring(1);
+				let rowLineNumber = parseInt(rowLineStr, 10);
+
+				// TEST ONLY
+				//console.log("Line number for that row is |" + rowLineNumber + "|");
+
+				while (rowLineNumber > lineNum && rowNum > 0)
+					{
+					--rowNum;
+					el = rows[rowNum];
+					if (el.hasAttribute('id'))
+						{
+						rowID = el.id;
+						rowLineStr = rowID.substring(1);
+						rowLineNumber = parseInt(rowLineStr, 10);
+						// TEST ONLY
+						//console.log("rowline " + rowLineNumber + " seen on row " + rowNum);
+						}
+					else
+						{
+						// TEST ONLY
+						//console.log("No line id for row |" + rowNum + "|");
+						}
+					}
+				}
+
 			if (delayMsec > 0)
 				{
 				await delay(delayMsec);
@@ -612,6 +659,9 @@ function finishStartup() {
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	setImagesButtonText();
+	
+	// TEST ONLY
+	console.log("finishStartup");
 	reJump();
 }
 

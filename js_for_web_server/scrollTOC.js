@@ -35,8 +35,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
-		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
-		lineNum -= deductionForInlineHTMLChunks;
+		//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		//lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -47,6 +47,7 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		}
 }
 
+// No longer used.
 // For .txt documents displayed by IntraMine's Viewer, deduct
 // 1 from the line number to show for each inline HTML chunk
 // that is before lineNum. This makes the row count for

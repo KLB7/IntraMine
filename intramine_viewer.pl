@@ -1368,7 +1368,8 @@ sub GetPrettyMD {
 	# Turn GitHub-sourced images of the form
 	# ![..](...)
 	# into
-	# ![..](...?raw=true)
+	# ![..](...?raw=true). They don't display,
+	# but at least the link works.
 	my @lines = split(/\n/, $octets);
 	for (my $i = 0; $i < @lines; ++$i)
 		{
@@ -1793,13 +1794,51 @@ sub GetPrettyTextContents {
 		}
 	
 	# Gloss, aka minimal Markdown.
+	my $inlineIndex = 1; # Key numbers start at 1.
+
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		# Skip raw HTML markers
+		# Turn GitHub-sourced images of the form
+		# ![..](...)
+		# into
+		# ![..](...?raw=true)
+		if ($lines[$i] =~ m!\!\[[^\]]+]\([^)]+\)!)
+			{
+			$lines[$i] =~ s!(\!\[[^\]]+]\([^)]+)\)!$1\?raw\=true\)!;
+			}
+
+		# Skip raw HTML markers, adjust line count.
+		# __HH__ . $index . '_L_' . $lineCount
 		if (index($lines[$i], '__HH__') == 0)
 			{
-			++$lineNum;
-			next;
+			my $lpos = -1;
+			if (($lpos = index($lines[$i], '_L_')) > 0)
+				{
+				# Require $index to be in strict sequence. This
+				# reduces errors caused by user entering a line
+				# that mimics an __HH__ line used for inline HTML
+				# removal and subsequent replacement.
+				my $fullKey = substr($lines[$i], 0, $lpos);
+				my $index = substr($fullKey, 6); # 6 == length('__HH__')
+				if ($index =~ m!^\d+$! && $index == $inlineIndex
+					&& InlineHTMLKeyIsDefined($fullKey))
+					{
+					++$inlineIndex;
+					my $lineCount = substr($lines[$i], $lpos + 3);
+					$lineNum += $lineCount;
+					next;
+					}
+				}
+			# my $countPos = index($lines[$i], '_L_');
+			# if ($countPos > 0)
+			# 	{
+			# 	my $lineCount = substr($lines[$i], $countPos + 3);
+			# 	if ($lineCount =~ m!^\d+$!)
+			# 		{
+			# 		$lineNum += $lineCount;
+			# 		next;
+			# 		}
+			# 	}
 			}
 		
 		$lineBeforeIsBlank = $lineIsBlank;
@@ -2081,35 +2120,12 @@ sub ReplaceHTMLwithKeys {
 			}{
 				my $key = '__HH__' . $index++;
 				$g_html_blocks{$key} = $1;
-				$key;
+				my $nr_of_lines = $1 =~ tr/\n//;
+				++$nr_of_lines; # num lines == num newlines + 1
+				# Return key with number of lines in original appended
+				# so we can adjust Viewer line count to match Editor.
+				$key . '_L_' . $nr_of_lines;
 			}egmx;
-
-
-	#
-	# Now match more liberally, simply from `\n!<tag>` to `</tag>\n`
-	#
-	# Well this experiment failed. If an indented final tag is allowed the
-	# the above "tight" match will grab the chunk and blow past the correct
-	# (indented) end tag down to the next non-indented end tag. I don't
-	# know how to fix that. So I gave up.
-
-	# $text =~ s{
-	# 			^						# start of line  (with /m)
-	# 			$specialStart			# inline HTML marker start char
-	# 			(						# save in $1
-	# 				<($block_tags_b)	# start tag = $2
-	# 				\b					# word break
-	# 				(.*\n)*?			# any number of lines, minimally matching
-	# 				.*</\2>				# the matching end tag
-	# 				[ \t]*				# trailing spaces/tabs
-	# 				(?=\n+|\Z)	# followed by a newline or end of document
-	# 			)
-	# 		}{
-	# 			my $key = '__HH__' . $index++;
-	# 			$g_html_blocks{$key} = $1;
-	# 			$key;
-	# 		}egmx;
-
 	
 	return($text);
 	}
@@ -2120,15 +2136,33 @@ sub ReplaceHTMLwithKeys {
 sub ReplaceKeysWithHTML {
 	my ($linesA, $numLines) = @_;
 	my $previousLineForChunk = -1;
-	my $idPrefix = "rawH_";
 
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		my $lineNumber = $i + 1;
-		my $putEndTable = 1;
-		my $putStartTable = 1;
-		if (defined($g_html_blocks{$linesA->[$i]}))
+		my $key = '';
+		if (index($linesA->[$i], '__HH__') == 0)
 			{
+			my $lpos = -1;
+			if (($lpos = index($linesA->[$i], '_L_')) > 0)
+				{
+				$key = substr($linesA->[$i], 0, $lpos);
+				}
+			}
+		
+		if (defined($g_html_blocks{$key}))
+			{
+			my $putEndTable = 1;
+			my $putStartTable = 1;
+
+			if ($i == 0) # no end table before
+				{
+				$putEndTable = 0;
+				}
+			elsif ($i == $numLines - 1) # no start table after
+				{
+				$putStartTable = 0;
+				}
+
 			# Check for a preceding chunk.
 			if ($i == $previousLineForChunk + 1)
 				{
@@ -2136,26 +2170,28 @@ sub ReplaceKeysWithHTML {
 				}
 
 			# Check for a following chunk.
-			if ($i < $numLines - 1 && defined($g_html_blocks{$linesA->[$i+1]}))
+			if ( $i < $numLines - 1
+				&& index($linesA->[$i+1], '__HH__') == 0
+				&& index($linesA->[$i+1], '_L_') > 0 )
 				{
 				$putStartTable = 0;
 				}
 			
 			if ($putEndTable && $putStartTable)
 				{
-				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . "</div><table class='imt'>";
 				}
 			elsif (!$putEndTable && !$putStartTable)
 				{
-				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . "</div>";
 				}
 			elsif (!$putEndTable)
 				{
-				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . "</div><table class='imt'>";
 				}
-			elsif (!$putStartTable) # sigh, I know that's redundant
+			elsif (!$putStartTable) # possibly redundant:)
 				{
-				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . "</div>";
 				}
 
 			$previousLineForChunk = $i;
@@ -2163,6 +2199,13 @@ sub ReplaceKeysWithHTML {
 		}
 
 	%g_html_blocks = ();
+	}
+
+# Used to skip user-entered instances of __HH__... at a line start.
+sub InlineHTMLKeyIsDefined {
+	my ($key) = @_;
+	my $result = defined($g_html_blocks{$key}) ? 1 : 0;
+	return($result);
 	}
 } ##### HTML hash
 

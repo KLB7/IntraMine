@@ -72,6 +72,8 @@ function toggleTOC(toggleElem) {
 			}
 		else
 			{
+			// TEST ONLY
+			//console.log("toggleTOC.js#76");
 			reJumpToLineNumber(topLineNumber);
 			///// was restoreTopPosition(textElement, theTopPos);
 			}

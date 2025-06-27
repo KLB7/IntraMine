@@ -326,15 +326,31 @@ sub GetPrettyText {
 							# continue until ENDCODE on a line by itself.
 	my $lineIsBlank = 1;
 	my $lineBeforeIsBlank = 1; 			# Initally there is no line before, so it's kinda blank:)
+	my $inlineIndex = 1; # Key numbers start at 1.
 
 	# Gloss, aka minimal memorable Markdown for your intranet.
 	for (my $i = 0; $i < @lines; ++$i)
 		{
-		# Skip raw HTML markers
 		if (index($lines[$i], '__HH__') == 0)
 			{
-			++$lineNum;
-			next;
+			my $lpos = -1;
+			if (($lpos = index($lines[$i], '_L_')) > 0)
+				{
+				# Require $index to be in strict sequence. This
+				# reduces errors caused by user entering a line
+				# that mimics an __HH__ line used for inline HTML
+				# removal and subsequent replacement.
+				my $fullKey = substr($lines[$i], 0, $lpos);
+				my $index = substr($fullKey, 6); # 6 == length('__HH__')
+				if ($index =~ m!^\d+$! && $index == $inlineIndex
+					&& InlineHTMLKeyIsDefined($fullKey))
+					{
+					++$inlineIndex;
+					my $lineCount = substr($lines[$i], $lpos + 3);
+					$lineNum += $lineCount;
+					next;
+					}
+				}
 			}
 
 		$lineBeforeIsBlank = $lineIsBlank;
@@ -565,7 +581,11 @@ sub ReplaceHTMLwithKeys {
 			}{
 				my $key = '__HH__' . $index++;
 				$g_html_blocks{$key} = $1;
-				$key;
+				my $nr_of_lines = $1 =~ tr/\n//;
+				++$nr_of_lines; # num lines == num newlines + 1
+				# Return key with number of lines in original appended
+				# so we can adjust Viewer line count to match Editor.
+				$key . '_L_' . $nr_of_lines;
 			}egmx;
 	
 	return($text);
@@ -576,16 +596,25 @@ sub ReplaceHTMLwithKeys {
 # so that's why we end a table and start a new table. Mostly.
 sub ReplaceKeysWithHTML {
 	my ($linesA, $numLines) = @_;
-	my $idPrefix = "rawH_";
 	my $previousLineForChunk = -1;
 
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		my $lineNumber = $i + 1;
-		my $putEndTable = 1;
-		my $putStartTable = 1;
-		if (defined($g_html_blocks{$linesA->[$i]}))
+		my $key = '';
+		if (index($linesA->[$i], '__HH__') == 0)
 			{
+			my $lpos = -1;
+			if (($lpos = index($linesA->[$i], '_L_')) > 0)
+				{
+				$key = substr($linesA->[$i], 0, $lpos);
+				}
+			}
+
+		if (defined($g_html_blocks{$key}))
+			{
+			my $putEndTable = 1;
+			my $putStartTable = 1;
+
 			if ($i == 0) # no end table before
 				{
 				$putEndTable = 0;
@@ -598,30 +627,32 @@ sub ReplaceKeysWithHTML {
 			# Check for a preceding chunk.
 			if ($i == $previousLineForChunk + 1)
 				{
-				$putStartTable = 0;
+				$putEndTable = 0;
 				}
 
 			# Check for a following chunk.
-			if ($i < $numLines - 1 && defined($g_html_blocks{$linesA->[$i+1]}))
+			if ( $i < $numLines - 1
+				&& index($linesA->[$i+1], '__HH__') == 0
+				&& index($linesA->[$i+1], '_L_') > 0 )
 				{
-				$putEndTable = 0;
+				$putStartTable = 0;
 				}
 			
 			if ($putEndTable && $putStartTable)
 				{
-				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . "</div><table class='imt'>";
 				}
 			elsif (!$putEndTable && !$putStartTable)
 				{
-				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . "</div>";
 				}
 			elsif (!$putEndTable)
 				{
-				$linesA->[$i] = "<div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div><table class='imt'>";
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . "</div><table class='imt'>";
 				}
-			else # !$putStartTable
+			elsif (!$putStartTable) # sigh, I know that's redundant
 				{
-				$linesA->[$i] = "</table><div class='rawHTML' id='$idPrefix$lineNumber'>" . $g_html_blocks{$linesA->[$i]} . "</div>";
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . "</div>";
 				}
 
 			$previousLineForChunk = $i;
@@ -629,6 +660,13 @@ sub ReplaceKeysWithHTML {
 		}
 
 	%g_html_blocks = ();
+	}
+
+# Used to skip user-entered instances of __HH__... at a line start.
+sub InlineHTMLKeyIsDefined {
+	my ($key) = @_;
+	my $result = defined($g_html_blocks{$key}) ? 1 : 0;
+	return($result);
 	}
 } ##### HTML hash
 

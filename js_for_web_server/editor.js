@@ -99,6 +99,21 @@ function removeElementsByClass(className) {
 		}
 }
 
+function lineNumberStrAtTop() {
+	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
+	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
+	let lineNumber = parseInt(myStartLine.toString(), 10);
+	if (lineNumber > 0)
+		{
+		lineNumber += 2;
+		}
+	else
+		{
+		lineNumber = 1;
+		}
+	return(lineNumber.toString());
+}
+
 function rememberTopLineForResize() {
 	let rect = myCodeMirror.getWrapperElement().getBoundingClientRect();
 	let myStartLine = myCodeMirror.lineAtHeight(rect.top, "window");
@@ -592,7 +607,9 @@ function revertFile(path) {
 function notifyFileChangedAndRememberCursorLine(path) {
 	// In the Viewer go to the line where the cursor is.
 	// Seems more useful than going to the top line displayed in the Editor.
-	let lineNumber = myCodeMirror.getCursor().line.toString();
+	//let lineNumber = myCodeMirror.getCursor().line.toString();
+	// Switching to top line instead of cursor line, we'll see how it goes.
+	let lineNumber = lineNumberStrAtTop();
 
 	location.hash = lineNumber;
 
@@ -600,17 +617,17 @@ function notifyFileChangedAndRememberCursorLine(path) {
 		{
 		lineNumber -= ExtraBlankLines(lineNumber);
 		}
-	else if (hasTextExtension())
-		{
-		let deduction = DeductFromLineCountForInlineHTML(lineNumber);
-		lineNumber -= deduction;
-		}
+	// else if (hasTextExtension())
+	// 	{
+	// 	let deduction = DeductFromLineCountForInlineHTML(lineNumber);
+	// 	lineNumber -= deduction;
+	// 	}
 
 	// Move displayed Viewer line down 10.
-	if (lineNumber > 10)
-		{
-		lineNumber -= 10;
-		}
+	// if (lineNumber > 10)
+	// 	{
+	// 	lineNumber -= 10;
+	// 	}
 	
 	
 	// Avoid self-triggering a reload, set the save time for use
