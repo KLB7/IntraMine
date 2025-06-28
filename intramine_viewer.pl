@@ -1338,27 +1338,6 @@ sub GetPrettyMD {
 	# TEST ONLY
 	#my $t1 = time;
 
-	# Try using cmark: fail. cmark doesn't do tables, and doesn't
-	# put id's in headers. Pandoc is huge at 200 MB, that's too big.
-	# my $htmlPath = MakeCmarksForFile($filePath, $dir);
-	# my $html = ReadTextFileWide($htmlPath);
-	# if (!defined($html))
-	# 	{
-	# 	$$contentsR = "<p>Error could not generate Markdown for $filePath";
-	# 	return;
-	# 	}
-	# my $toc = '';
-	# GetTOCFromMarkdownHTML(\$html, \$toc);
-	# $$contentsR .= "<div id='scrollContentsList'>" . $toc . "</div>";
-
-	# my $bottomShim = "<p id='bottomShim'></p>";
-	# $$contentsR .= "<div id='scrollTextRightOfContents'>" . $html . "$bottomShim</div>";
-
-	# $$contentsR = encode_utf8($$contentsR);
-
-	### TEMP OUT unlink($htmlPath);
-
-	# The good old way, using Text::MultiMarkdown.
 	my $octets;
 	if (!LoadTextFileContents($filePath, $contentsR, \$octets))
 		{
@@ -1368,8 +1347,7 @@ sub GetPrettyMD {
 	# Turn GitHub-sourced images of the form
 	# ![..](...)
 	# into
-	# ![..](...?raw=true). They don't display,
-	# but at least the link works.
+	# ![..](...?raw=true).
 	my @lines = split(/\n/, $octets);
 	for (my $i = 0; $i < @lines; ++$i)
 		{
@@ -1801,7 +1779,8 @@ sub GetPrettyTextContents {
 		# Turn GitHub-sourced images of the form
 		# ![..](...)
 		# into
-		# ![..](...?raw=true)
+		# ![..](...?raw=true). They don't display,
+		# but at least the link works.
 		if ($lines[$i] =~ m!\!\[[^\]]+]\([^)]+\)!)
 			{
 			$lines[$i] =~ s!(\!\[[^\]]+]\([^)]+)\)!$1\?raw\=true\)!;
