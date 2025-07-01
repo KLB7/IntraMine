@@ -44,6 +44,7 @@ use docx2txt;
 use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
 use html2gloss;
 use toc_local;
+use gloss; # Just for footnotes
 
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
@@ -94,7 +95,7 @@ SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 my $CSS_DIR = FullDirectoryPath('CSS_DIR');
 my $JS_DIR = FullDirectoryPath('JS_DIR');
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
-#my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
+my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
 my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
 my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
@@ -1703,8 +1704,8 @@ sub GetPrettyTextContents {
 			}
 		}
 	
-	# Pull raw HTML.
-	$octets = ReplaceHTMLwithKeys($octets);
+	# Pull raw (inline) HTML.
+	$octets = ReplaceHTMLAndFootnoteswithKeys($octets);
 
 	# Preserve consecutive blank lines at bottom.
 	$octets .= "\nx";
@@ -1808,12 +1809,41 @@ sub GetPrettyTextContents {
 					next;
 					}
 				}
-			# my $countPos = index($lines[$i], '_L_');
-			# if ($countPos > 0)
+			}
+
+		# Blank out footnote markers and adjust line count
+		if (index($lines[$i], '__FN__') == 0)
+			{
+			# TEST ONLY
+			# if (FootNoteIsDefined($lines[$i]))
 			# 	{
-			# 	my $lineCount = substr($lines[$i], $countPos + 3);
-			# 	if ($lineCount =~ m!^\d+$!)
+			# 	print("FN key: |$lines[$i]|\n");
+			# 	}
+
+			my $lpos = -1;
+			my $rpos = -1;
+			if (($lpos = index($lines[$i], '_L_')) > 0
+			  && ($rpos = index($lines[$i], '_IND_')) > $lpos
+			  && FootNoteIsDefined($lines[$i]))
+				{
+				$lpos += 3;
+				my $lineCount = substr($lines[$i], $lpos, $rpos - $lpos);
+
+				# TEST ONLY
+				#print("Line count: |$lineCount|\n");
+
+				$lineNum += $lineCount;
+				$lines[$i] = '';
+				next;
+				}
+
+
+			# if ($lines[$i] =~ m!^(__FN__\w+)$!)
+			# 	{
+			# 	my $key = $1;
+			# 	if (FootNoteIsDefined($key))
 			# 		{
+			# 		my $lineCount = 1; # TODO FIX THAT
 			# 		$lineNum += $lineCount;
 			# 		next;
 			# 		}
@@ -2047,7 +2077,7 @@ sub GetPrettyTextContents {
 		my $bottomShim = "<p id='bottomShim'></p>";
 
 		# Replace raw HTML placeholders with original HTML.
-		ReplaceKeysWithHTML(\@lines, $numLines);
+		ReplaceKeysWithHTMLAndFootnotes(\@lines, $numLines, $filePath);
 
 		if (defined($lines[0]))
 			{
@@ -2063,18 +2093,22 @@ sub GetPrettyTextContents {
 		}
 	}
 
-{##### HTML hash
+{##### HTML hash and footnotes
 # Text (Gloss) only, id inline HTML blocks and replace with fairly unique keys.
 # Based on Text::MultiMarkdown's _HashHTMLBlocks();
 my %g_html_blocks;
+my %footnotes;
+my %popupFootnotes;
 
-sub ReplaceHTMLwithKeys {
+sub ReplaceHTMLAndFootnoteswithKeys {
 	my ($text) = @_;
 
 	%g_html_blocks = ();
+	%footnotes = ();
+	%popupFootnotes = ();
 	my $block_tags_a = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del/;
 	#my $block_tags_b = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math/;
-	my $specialStart = qr/!/; # Inline HTML must start with a !
+	my $htmlStart = qr/!/; # Inline HTML must start with a !
 	my $index = 1;
 
 	# Look for nested blocks, e.g.:
@@ -2087,7 +2121,7 @@ sub ReplaceHTMLwithKeys {
 	# See "Gloss.html#Inline HTML" for details.
 	$text =~ s{
 				^						# start of line  (with /m)
-				$specialStart			# inline HTML marker start char
+				$htmlStart				# inline HTML marker start char
 				(						# save in $1
 					<($block_tags_a)	# start tag = $2
 					\b					# word break
@@ -2105,6 +2139,37 @@ sub ReplaceHTMLwithKeys {
 				# so we can adjust Viewer line count to match Editor.
 				$key . '_L_' . $nr_of_lines;
 			}egmx;
+
+	# Pick up footnote text, put in link to where footnote will be mentioned.
+	$index = 1;
+	$text =~ s{
+				^						# start of line  (with /m)
+				(						# save in $1
+				\[\^					# standard [^ starting a footnote
+				(\w+)					# footnote id, $2
+				]:						# close id plus colon
+				.*?\n					# Remainder of first line
+				(^[ \t]+.*?\n)*			# following lines, must be indented
+				)
+
+	}{
+		my $note = $1;
+		my $idProper = $2;
+		my $nr_of_lines = $note =~ tr/\n//;
+		#++$nr_of_lines; # num lines == num newlines + 1
+		my $key = '__FN__' . $idProper . '_L_' . $nr_of_lines . '_IND_' . $index++;
+		
+		#my $backLink = "<a href=\"#fnref$idProper\"" . " class=\"footnote-backref\"><img src='arrow-return-left.png' width=12' height='12'></a>";
+		my $backLink = "<a href=\"#fnref$idProper\"" . " class=\"footnote-backref\">↩</a>";
+		chomp($note);
+		$footnotes{$key} = "<div id='fn$idProper'>" . $note . ' ' . $backLink . "</div>";
+		$popupFootnotes{'__FNP__' . $idProper} = $note;
+		my $extraNewline = ($nr_of_lines >= 2) ? "\n" : "";
+		# TEST ONLY
+		#print("Key: |$key|\n");
+
+		$key . $extraNewline;
+	}egmx;
 	
 	return($text);
 	}
@@ -2112,12 +2177,15 @@ sub ReplaceHTMLwithKeys {
 # Text (Gloss) only, replace HTML keys with orginal inline HTML.
 # Everything in Gloss is in a <table> EXCEPT the inline HTML,
 # so that's why we end a table and start a new table. Mostly.
-sub ReplaceKeysWithHTML {
-	my ($linesA, $numLines) = @_;
+# Footnote keys are not in the text, for them we notice a
+# footnote reference such as [^27] and look for key fn27;
+sub ReplaceKeysWithHTMLAndFootnotes {
+	my ($linesA, $numLines, $filePath) = @_;
 	my $previousLineForChunk = -1;
 
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
+		# Inline HTML.
 		my $key = '';
 		if (index($linesA->[$i], '__HH__') == 0)
 			{
@@ -2133,14 +2201,14 @@ sub ReplaceKeysWithHTML {
 			my $putEndTable = 1;
 			my $putStartTable = 1;
 
-			if ($i == 0) # no end table before
-				{
-				$putEndTable = 0;
-				}
-			elsif ($i == $numLines - 1) # no start table after
-				{
-				$putStartTable = 0;
-				}
+			# if ($i == 0) # no end table before
+			# 	{
+			# 	$putEndTable = 0;
+			# 	}
+			# elsif ($i == $numLines - 1) # no start table after
+			# 	{
+			# 	$putStartTable = 0;
+			# 	}
 
 			# Check for a preceding chunk.
 			if ($i == $previousLineForChunk + 1)
@@ -2175,9 +2243,103 @@ sub ReplaceKeysWithHTML {
 
 			$previousLineForChunk = $i;
 			}
+
+		# Footnotes
+		my $previousLineForFootnote = -1;
+		if (index($linesA->[$i], '[^') >= 0) # at least one footnote ref probably
+			{
+			$linesA->[$i] =~ s!(\[\^(\w+)]([^:]|$))!"<sup class='footenoteref'><a href='#fn$2'  id='fnref$2'" . GlossedPopupForFootnote($2, $filePath) . ">\[$2]</a></sup>" . $3!eg;
+
+
+			#$linesA->[$i] =~ s!(\[\^(\w+)]([^:]|$))!"<sup class='footenoteref'><a href='#fn$2'  id='fnref$2'" . GlossedPopupForFootnote($2) . ">\[$2]</a></sup>" . $3!eg;
+			# References only here, footnotes proper are put at the bottom of the file,
+			# see below.
+			# while ($linesA->[$i] =~ m!\[\^(\w+)]([^:]|$)!g)
+			# 	{
+			# 	my $idProper = $1;
+			# 	my $gloss = '';
+			# 	my $key = '__FN__' . $idProper;
+			# 	if (defined($popupFootnotes{$key}))
+			# 		{
+			# 		my $foot = "<div class='footDiv'>" . $popupFootnotes{$key} . "</div>";
+			# 		$gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
+			# 		}
+			# 	# [^27] => <sup><a href='#fn27' id='fnref27'>[27]</a></sup>
+			# 	$linesA->[$i] =~ s!(\[\^(\w+)])([^:]|$)!<sup class='footenoteref'><a href='#fn$idProper' id='fnref$idProper'$gloss>\[$idProper]</a></sup>!g;
+			# 	}
+			}
+
+		# Perhaps a footnote proper.
+		# if ($linesA->[$i] =~ m!(__FN__\w+)!)
+		# 	{
+		# 	# TEST ONLY
+		# 	#print("Footnote potential key: |$linesA->[$i]|\n");
+		# 	if (defined($footnotes{$1}))
+		# 		{
+		# 		my $key = $1;
+		# 		my $footnote = $footnotes{$key};
+		# 		my @footnoteLines = split(/\n/, $footnote);
+		# 		$footnote = join("<br>", @footnoteLines);
+
+		# 		my $putEndTable = 1;
+		# 		my $putStartTable = 1;
+		# 		# Check for a preceding chunk.
+		# 		if ($i == $previousLineForFootnote + 1)
+		# 			{
+		# 			$putEndTable = 0;
+		# 			}
+
+		# 		# Check for a following chunk.
+		# 		if ( $i < $numLines - 1
+		# 			&& index($linesA->[$i+1], '__FN__') == 0)
+		# 			{
+		# 			$putStartTable = 0;
+		# 			}
+
+		# 		if ($putEndTable && $putStartTable)
+		# 			{
+		# 			$linesA->[$i] = "</table><div class='footDiv'>" . $footnote . "</div><table class='imt'>";
+		# 			}
+		# 		elsif (!$putEndTable && !$putStartTable)
+		# 			{
+		# 			$linesA->[$i] = "<div class='footDiv'>" . $footnote . "</div>";
+		# 			}
+		# 		elsif (!$putEndTable)
+		# 			{
+		# 			$linesA->[$i] = "<div class='footDiv'>" . $footnote . "</div><table class='imt'>";
+		# 			}
+		# 		elsif (!$putStartTable) # possibly redundant:)
+		# 			{
+		# 			$linesA->[$i] = "</table><div class='footDiv'>" . $footnote . "</div>";
+		# 			}
+
+		# 		$previousLineForFootnote = $i;
+		# 		}
+		# 	}
+		}
+
+	# Restore footnotes at bottom. They have been removed from the text where defined.
+	my $numFootnotes = keys %footnotes;
+	if ($numFootnotes)
+		{
+		push(@{$linesA}, "\n");
+		push(@{$linesA}, "</table>");
+		push(@{$linesA}, "<hr>");
+		foreach my $key (sort { FootnoteIndexComp($a, $b) } keys %footnotes)
+			{
+			my $footnote = $footnotes{$key};
+			$footnote = GlossedFootnote($footnote, $filePath);
+			#my @footnoteLines = split(/\n/, $footnote);
+	 		#$footnote = join("<br>", @footnoteLines);
+			#push(@{$linesA}, "<div class='footDiv'>" . $footnote . "</div>");
+			push(@{$linesA}, $footnote);
+			}
+		push(@{$linesA}, "</div><table class='imt'>");
 		}
 
 	%g_html_blocks = ();
+	%footnotes = ();
+	%popupFootnotes = ();
 	}
 
 # Used to skip user-entered instances of __HH__... at a line start.
@@ -2186,7 +2348,100 @@ sub InlineHTMLKeyIsDefined {
 	my $result = defined($g_html_blocks{$key}) ? 1 : 0;
 	return($result);
 	}
-} ##### HTML hash
+
+sub FootNoteIsDefined {
+	my ($key) = @_;
+	my $result = defined($footnotes{$key}) ? 1 : 0;
+	return($result);
+	}
+
+sub GlossedFootnote {
+	my ($footnote, $filePath) = @_;
+	my @footnoteLines = split(/\n/, $footnote);
+	$footnoteLines[0] =~ s!^(<div\s+id=\'fn\w+\'>)\[\^(\w+)]:!$1\*\*$2\*\*\.!;
+	$footnote = join("___BR___", @footnoteLines);
+	my $glossedFootnote;
+	my $serverAddr = ServerAddress();
+	my $mainServerPort = $server_port;
+	my $contextDir = lc($filePath);
+	$contextDir = DirectoryFromPathTS($contextDir);
+
+	Gloss($footnote, $serverAddr, $mainServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
+
+	my $foot = $glossedFootnote;
+	#my $foot = "<div class='footDiv'>" . $glossedFootnote . "</div>";
+	$foot =~ s!___BR___!<br>!g;
+	# Spurious LF's, stomp them with malice.
+	$foot =~ s!\%0A!!g;
+	# This part I don't understand:
+	$foot =~ s!&quot;!"!g;
+	$foot =~ s!&#60;!<!g;
+
+	return($foot);
+	}
+
+sub GlossedPopupForFootnote {
+	my ($idProper, $filePath) = @_;
+	my $gloss = '';
+
+	my $key = '__FNP__' . $idProper;
+	if (defined($popupFootnotes{$key}))
+		{
+		my $footnote = $popupFootnotes{$key};
+		my @footnoteLines = split(/\n/, $footnote);
+		$footnoteLines[0] =~ s!^\[\^(\w+)]:!\*\*$1\*\*\.!;
+	 	$footnote = join("___BR___", @footnoteLines);
+		my $glossedFootnote;
+		my $serverAddr = ServerAddress();
+		my $mainServerPort = $server_port;
+		my $contextDir = lc($filePath);
+		$contextDir = DirectoryFromPathTS($contextDir);
+
+		Gloss($footnote, $serverAddr, $mainServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
+
+		my $foot = uri_escape_utf8("<div class='footDiv'>" . $glossedFootnote . "</div>");
+		$foot =~ s!___BR___!<br>!g;
+		$gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
+
+		# my $footnote = $popupFootnotes{$key};
+		# my @footnoteLines = split(/\n/, $footnote);
+	 	# $footnote = join("___BR___", @footnoteLines);
+		# my $foot = uri_escape_utf8("<div class='footDiv'>" . $footnote . "</div>");
+		# $foot =~ s!___BR___!<br>!g;
+		# $gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
+		}
+	
+	return($gloss);
+	}
+
+# Key: my $key = '__FN__' . $2 . '_L_' . $nr_of_lines . '_IND_' . $index++;
+# Compare index values to restore as-found-in-document order.
+sub FootnoteIndexComp {
+	my ($keyA, $keyB) = @_;
+	my $indexA = -1;
+	my $indexB = -1;
+	my $pos = -1;
+	if (($pos = index($keyA, '_IND_')) > 0)
+		{
+		$indexA = substr($keyA, $pos + 5); # length '_IND_' == 5
+		# Paranoid check for index error, should be an integer.
+		if ($indexA !~ m!^\d$!)
+			{
+			$indexA = -1;
+			}
+		}
+	if (($pos = index($keyB, '_IND_')) > 0)
+		{
+		$indexB = substr($keyB, $pos + 5); # length '_IND_' == 5
+		if ($indexB !~ m!^\d$!)
+			{
+			$indexB = -1;
+			}
+		}
+	
+	return($indexA <=> $indexB);
+}
+} ##### HTML hash and footnotes
 
 # A basic view of an IntraMine glossary file, with an alphabetical table of contents.
 sub GetPrettyGlossaryFile {

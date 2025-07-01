@@ -239,6 +239,7 @@ sub LocationIsImageSubdirectory {
 	}
 
 use ExportAbove;
+
 ################# Internal subs to the end ###################
 
 # See todo.js#horribleEscape();

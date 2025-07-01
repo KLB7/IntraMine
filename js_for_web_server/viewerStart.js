@@ -76,7 +76,7 @@ function doResize() {
 		}
 	
 	// TEST ONLY
-	console.log("doResize");
+	//console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -91,7 +91,7 @@ function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
 	// TEST ONLY
-	console.log("reJumpAndHighlight delayed 100");
+	//console.log("reJumpAndHighlight delayed 100");
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -661,7 +661,7 @@ function finishStartup() {
 	setImagesButtonText();
 	
 	// TEST ONLY
-	console.log("finishStartup");
+	//console.log("finishStartup");
 	reJump();
 }
 

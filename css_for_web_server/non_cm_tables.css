@@ -37,6 +37,15 @@ td:nth-child(1) {
 	min-width: 3em; /* enough for 99999 one hopes */
 }
 
+/* Override td :nth-child(1) for footnotes at end of Viewer display. */
+.gloss_div table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+
 th {
 	text-align: left;
 }

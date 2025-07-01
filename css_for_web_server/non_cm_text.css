@@ -28,6 +28,11 @@
 	max-width: 100%;
 }
 
+/* Footnotes */
+.footDiv {
+	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;
