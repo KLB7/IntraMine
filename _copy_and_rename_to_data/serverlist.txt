@@ -73,5 +73,5 @@
 0	Chat				Chat		intramine_chat.pl
 1	EM					EM			intramine_EM.pl
 0	Reindex				Reindex		intramine_reindex.pl
-0	Glosser				Glosser		intramine_glosser.pl
+1	Glosser				Glosser		intramine_glosser.pl
 

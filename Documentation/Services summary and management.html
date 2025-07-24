@@ -825,6 +825,63 @@ a.embedded_image {
 	max-width: 100%;
 }
 
+/* Footnotes */
+.footDiv {
+	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}
+
+.gloss_div {
+	margin-bottom: 6px;
+}
+
+/* footnote tables proper: */
+.gloss_div table tbody tr:first-child {
+	margin: 0;
+	text-indent: -26px;
+}
+
+.gloss_div table:not(:first-child) tbody tr:first-child {
+	text-indent: 0 !important;
+	padding-left: 26px !important;
+}
+
+.gloss_div table tbody tr:not(first-child) {
+	display: block;
+	margin: 0;
+	padding-left: 26px;
+	padding-top: 6px;
+}
+
+/* Footnote actual tables, to be shown as proper tables. */
+.gloss_div table.bordered tbody tr:first-child {
+	text-indent: 0 !important;
+}
+
+.gloss_div table.bordered tbody tr:not(first-child) {
+	display: table-row;
+	margin: 0;
+	padding-left: 0 !important;
+	padding-top: 0;
+}
+
+.gloss_div table.bordered td {
+	border-top: 1px solid #ccc;
+}
+
+
+.gloss_div table.bordered tbody tr:hover {
+    background: #fbf8e9 !important;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}
+
+.allfootnotes {
+	/*background-color: lightblue;*/
+}
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;
@@ -910,7 +967,7 @@ div#indicator {
 div#indicatorPC {
     position: absolute;
     z-index: 99;
-    top: 0px;
+    top: 0;
     /*left: 3px;*/
     right: 0.74%;
     /*opacity: .5;*/
@@ -1035,6 +1092,16 @@ code {
 	padding-left: 60px;
 }
 
+/* Footnoe inline HTML, less indent because there are no line numbers. */
+.gloss_div .rawHTML {
+	padding-left: 26px;
+}
+
+/* Even less indent for the popup version of the footnote. */
+.footDiv .rawHTML {
+	padding-left: 4px;
+}
+
 /* Also for raw HTML, reduce <p> margin. */
 p {
 	margin-top: 6px;
@@ -1066,7 +1133,6 @@ table, tr, td {
 td {
 	vertical-align: top;
 	padding-left: 4px;
-	/*overflow-wrap: break-word;*/
 }
 
 thead {
@@ -1099,11 +1165,13 @@ td:first-child:after, th:first-child:after {
     content: attr(n);
 }
 
+
 td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
     background-color: rgb(200, 255, 200);
 }
 
 /* Raw HTML tables in Markdown, no line numbers. */
+
 .rawHTML table :nth-child(1) {
 	background: #fafafa;
 	color: black;
@@ -1112,9 +1180,8 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 }
 
 .rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
-    content: auto;
+    content: none;
 }
-
 
 h1, h2, h3, h4 {
 	font-family: helvetica, arial, sans-serif;
@@ -1278,11 +1345,11 @@ paragraph (ie not the first paragraph in the item).
 .bordered th {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
-    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(to top, #ebf3fc, #dce9f9);
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
@@ -1360,32 +1427,88 @@ paragraph (ie not the first paragraph in the item).
 	padding: 0;
 	}
 
+/* Override td :nth-child(1) for footnotes at end of Viewer display. */
+
+/* TEST ONLY */
+.gloss_div table.bordered {
+	margin-left: 26px;
+}
+
+.gloss_div table.bordered th {
+	background: #dce9f9 !important;
+	background-color: #dce9f9 !important;
+	border: 2px red !important;
+}
+
+.gloss_div table.bordered tr {
+	background: #fafafa !important;
+	background-color: #fafafa !important;
+	border: 2px red !important;
+}
+
+
+.gloss_div table.bordered td {
+	text-align: left !important;
+	text-indent: 0 !important;
+	padding-left: 0 !important;
+}
+/*
+.gloss_div table:not(first-child) tbody tr:first-child {
+	text-indent: 0;
+	padding-left: 26px !important;
+}
+*/
+.gloss_div table.bordered :nth-child(1) {
+	color: black !important;
+}
+
+/*
+.gloss_div table.bordered tbody tr:not(first-child) {
+	padding-left: 0;
+}
+*/
+/* Keep this one. */
+.gloss_div table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.gloss_div .bordered td:first-child, .bordered th:first-child {
+  	color: black;
+}
+
+
 </style>
 <style>
 /* tooltip.css: for popup hints and images, see also tooltip.js. */
 
 #hintbox{ /*CSS for pop up hint box */
-position:absolute;
-top: 0;
-background-color: #FFFFF4;
-/*width: 150px; Default width of hint.*/ 
-padding: 0; /* was 6px */
-/*border:1px solid black;*/
-font:normal 13px Verdana;
-line-height:18px;
-z-index:100;
-/*border-right: 3px solid black;
-border-bottom: 3px solid black;*/
-visibility: hidden;
-	
-overflow: auto;
-overflow-wrap: break-word;
-word-wrap: break-word;
--ms-word-break: break-all;
-word-break: break-word;
+	position:absolute;
+	top: 0;
+	background-color: #FFFFF4;
+	/*width: 150px; Default width of hint.*/ 
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 6px;
+	padding-right: 6px;
+	/*border:1px solid black;*/
+	font:normal 13px Verdana;
+	line-height:18px;
+	z-index:100;
+	/*border-right: 3px solid black;
+	border-bottom: 3px solid black;*/
+	visibility: hidden;
+		
+	overflow: auto;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
 
-border: none;
-box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+	border: none;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1628,11 +1751,11 @@ paragraph (ie not the first paragraph in the item).
 #hintbox .bordered th {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
-    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(to top, #ebf3fc, #dce9f9);
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
@@ -1776,8 +1899,8 @@ span.ll-com { /* comments */
 <div id="indicator"></div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
-<div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
-<ul>
+<div id='scrollContentsList'><ul>
+<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <li class='h1' im-text-ln='1'><a href='#Services_summary_and_management'>Services summary and management</a></li>
 <li class='h2' im-text-ln='4'><a href='#Supplied_services'>Supplied services</a></li>
 <li class='h2' im-text-ln='42'><a href='#Enable_/_disable_services'>Enable / disable services</a></li>
@@ -1785,7 +1908,7 @@ span.ll-com { /* comments */
 <li class='h3' im-text-ln='48'><a href='#Not_started_but_available'>Not started but available</a></li>
 <li class='h2' im-text-ln='54'><a href='#Starting_and_stopping_services_while_IntraMine_is_running'>Starting and stopping services while IntraMine is running</a></li>
 <li class='h2' im-text-ln='58'><a href='#A_minimal_set_for_search/view/edit'>A minimal set for search/view/edit</a></li>
-<li class='h2' im-text-ln='64'><a href='#Ramping_up_for_many_users'>Ramping up for many users</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td><h1 id="Services_summary_and_management">Services summary and management</h1></td></tr>
+<li class='h2' im-text-ln='64'><a href='#Ramping_up_for_many_users'>Ramping up for many users</a></li></ul></div><div id='scrollTextRightOfContents'><span id='top-of-document'></span><table class='imt'><tr id='R1'><td n='1'></td><td><h1 id="Services_summary_and_management">Services summary and management</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><h2 id="Supplied_services">Supplied services</h2></td></tr>
@@ -1813,7 +1936,7 @@ span.ll-com { /* comments */
 <tr id='R26'><td n='26'></td><td>0</td><td>Chat</td><td>Chat</td><td>intramine_chat.pl</td><td class='centered_cell'> </td><td><a href="./Chat.html" target="_blank">Chat.txt</a></td></tr>
 <tr id='R27'><td n='27'></td><td>1</td><td>EM</td><td>EM</td><td>intramine_EM.pl </td><td class='centered_cell'> </td><td><a href="./EM.html" target="_blank">EM.txt</a></td></tr>
 <tr id='R28'><td n='28'></td><td>0</td><td>Reindex</td><td>Reindex</td><td>intramine_reindex.pl</td><td class='centered_cell'> </td><td><a href="./Reindex.html" target="_blank">Reindex.txt</a></td></tr>
-<tr id='R29'><td n='29'></td><td>0</td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGlosser%3C%2Fstrong%3E%3A%20see%20%3Ca%20href%3D%22.%2FGlosser.html%22%20target%3D%22_blank%22%3E%22Glosser.txt%22%3C%2Fa%3E%2C%20a%20service%20that%20generates%20standalone%20HTML%20from%20Gloss-styled%20.txt%20files.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Glosser</a></td><td>Glosser</td><td>intramine_glosser.pl</td><td class='centered_cell'> </td><td><a href="./Glosser.html" target="_blank">Glosser.txt</a></td></tr></tbody></table><table class='imt'><tbody>
+<tr id='R29'><td n='29'></td><td>1</td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGlosser%3C%2Fstrong%3E%3A%20see%20%3Ca%20href%3D%22.%2FGlosser.html%22%20target%3D%22_blank%22%3E%22Glosser.txt%22%3C%2Fa%3E%2C%20a%20service%20that%20generates%20standalone%20HTML%20from%20Gloss-styled%20.txt%20files.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Glosser</a></td><td>Glosser</td><td>intramine_glosser.pl</td><td class='centered_cell'> </td><td><a href="./Glosser.html" target="_blank">Glosser.txt</a></td></tr></tbody></table><table class='imt'><tbody>
 <tr id='R30'><td n='30'></td><td></td></tr>
 <tr id='R31'><td n='31'></td><td>The "Count" field controls how many of each server to start.</td></tr>
 <tr id='R32'><td n='32'></td><td></td></tr>
@@ -1946,6 +2069,8 @@ JD.debounce = function(func, wait, immediate) {
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
+let tipIsShowing = false;
+
 // Cursor position, updated when hintbox is showing.
 let cursor_x = -1;
 let cursor_y = -1;
@@ -2020,6 +2145,11 @@ function isDescendant(parent, child) {
 	}
 	return false;
 }
+
+// "sleep" for ms milliseconds.
+// function sleepABitMilliseconds(ms) {
+// 	return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
 // Helper function to get an element's exact position.
 function getPosition(el) {
@@ -2306,7 +2436,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 }
 
 // The main event.
-function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
 
 	if (shouldDecode === undefined)
@@ -2342,13 +2472,13 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 		{
 		setTimeout(function() {
 			showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	else
 		{
 		setTimeout(function() {
 			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	}
 
@@ -2371,6 +2501,17 @@ function decodeHint(text) {
 async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	let hintShown = false;
 	let image_url = "";
+
+	// "tipIsShowing", combined with a delay of 350 msec when calling this function,
+	// catches most cases where the cursor moves to a hint on an adjacent line
+	// - we don't want the tip being shown to go away in the case where the cursor
+	// is still over a tip being shown but ALSO over another tip. However, this
+	// isn't perfect, and sometimes the tip on the adjacent line doesn't show
+	// when the cursor moves away from the tip being shown.
+	if (tipIsShowing)
+		{
+		return;
+		}
 
 	if (isAnImage)
 		{
@@ -2515,6 +2656,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.style.visibility = "hidden";
 		hintElement.style.left = "-500px";
 		removeClass(obj, anchorClassName);
+		tipIsShowing = false;
 		return;
 		}
 
@@ -2566,6 +2708,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 
 	document.addEventListener('mousemove', recordMousePosition);
 	document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = true;
 
 	if (typeof window.ontouchstart === 'undefined')
 		{
@@ -2690,6 +2833,7 @@ function hideTip(e) {
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = false;
 }
 
 function touchhidetip(e) {
@@ -4100,7 +4244,7 @@ function doResize() {
 		}
 	
 	// TEST ONLY
-	console.log("doResize");
+	//console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -4115,7 +4259,7 @@ function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
 	// TEST ONLY
-	console.log("reJumpAndHighlight delayed 100");
+	//console.log("reJumpAndHighlight delayed 100");
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -4685,7 +4829,7 @@ function finishStartup() {
 	setImagesButtonText();
 	
 	// TEST ONLY
-	console.log("finishStartup");
+	//console.log("finishStartup");
 	reJump();
 }
 
@@ -5700,6 +5844,46 @@ function addHintboxListener() {
 		{
 		tooltipElement.addEventListener("touchstart", noteHintboxClicked);
 		clearInterval(addHintTimer);
+		}
+}
+
+// Jump from footnote/citation reference to the note,
+// remembering the line number we came from.
+function scrollToFootnote(newIndexId, refLineNumber) {
+	let noteElement = document.getElementById(newIndexId);
+	if (noteElement !== null)
+		{
+		localStorage.setItem(thePath + '?' + 'noteRefLine' , refLineNumber);
+		noteElement.scrollIntoView();
+		}
+}
+
+// Scroll (jump) from footnote back to the reference that triggered
+// the jump. If none, pot luck.
+function scrollBackToFootnoteRef(ourAnchor) {
+	let refLine = localStorage.getItem(thePath + '?' + 'noteRefLine');
+	if (refLine !== null)
+		{
+		reJumpToLineNumber(refLine, 0);
+		}
+	// else try for the first reference
+	else
+		{
+		let id = ourAnchor.href;
+		if (id !== null)
+			{
+			let idProperPos = id.indexOf('fnref');
+			if (idProperPos >= 0)
+				{
+				let firstrefId = id.substring(idProperPos + 5);
+				firstrefId = 'fnref' + firstrefId;
+				let firstRef = document.getElementById(firstrefId);
+				if (firstRef !== null)
+					{
+					firstRef.scrollIntoView();
+					}
+				}
+			}
 		}
 }
 

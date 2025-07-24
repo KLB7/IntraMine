@@ -631,17 +631,10 @@ sub GetContentBasedOnExtension {
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
-		# Glossary files get a special table of contents, and not much else.
-		if ($filePath =~ m![\\/]$GLOSSARYFILENAME$!i || $filePath =~ m![\\/]glossary.txt$!i)
-			{
-			GetPrettyGlossaryFile($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
-			}
-		else
-			{
-			# By default this runs the text through a Gloss processor.
-			# So all your .txt files are belong to Gloss.
-			GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
-			}
+		# By default this runs the text through a Gloss processor.
+		# So all your .txt files are belong to Gloss.
+		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R, undef);
+
 		$$usingCM_R = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
@@ -1217,6 +1210,7 @@ sub GetPrettyPerlFileContents {
 		# <span class='line_number'>204</span>&nbsp;<span class='Keyword'>sub</span> <span class='Subroutine'>
 		# And also <span class='String'>sub Subname {</span>, since the parser breaks
 		# if it encounters '//' sometimes.
+		# TODO support "method" and "my method"? (Requires new parser I suspect.)
 		if ($lines[$i] =~ m!^\<span\s+class=['"]Keyword['"]\>\s*sub\s*\<\/span\>\s*\<span\s+class=['"]Subroutine['"]\>(\w+)\<\/span\>!
 		  || $lines[$i] =~ m!^<span\s+class=['"]String['"]>\s*sub\s+(\w+)!)
 			{
@@ -1312,9 +1306,10 @@ sub GetPrettyPerlFileContents {
 		AddInternalLinksToPerlLine(\${lines[$i]}, \%sectionIdExists);
 		}
 
+	my $topSpan = '';
 	if (defined($lines[0]))
 		{
-		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		$topSpan = "<span id='top-of-document'></span>";
 		}
 	my @idx = sort { $subNames[$a] cmp $subNames[$b] } 0 .. $#subNames;
 	@jumpList = @jumpList[@idx];
@@ -1323,7 +1318,7 @@ sub GetPrettyPerlFileContents {
 	my $numSectionEntries = @sectionList;
 	my $sectionBreak = ($numSectionEntries > 0) ? '<br>': '';
 	$$contentsR .= "<div id='scrollContentsList'>" . "<ul>\n<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>\n" . join("\n", @sectionList) . $sectionBreak . join("\n", @jumpList) . '</ul></div>' . "\n";
-	$$contentsR .= "<div id='scrollTextRightOfContents'><table><tbody>" . join("\n", @lines) . '</tbody></table></div>';
+	$$contentsR .= "<div id='scrollTextRightOfContents'>$topSpan<table><tbody>" . join("\n", @lines) . '</tbody></table></div>';
 	
 	$$contentsR = encode_utf8($$contentsR);
 	}
@@ -1681,6 +1676,14 @@ sub GetPrettyTextContents {
 	my $filePath = $formH->{'FULLPATH'};
 	my $dir = lc(DirectoryFromPathTS($filePath));
 	$$contentsR = ""; # "<hr />";
+
+	# glossary files get a table of contents listing glossary terms,
+	# in alphabetical order.
+	my $isGlossaryFile = 0;
+	if ($filePath =~ m![\\/]$GLOSSARYFILENAME$!i || $filePath =~ m![\\/]glossary.txt$!i)
+		{
+		$isGlossaryFile = 1;
+		}
 	
 	my $doingPOD = 0;
 	my $inPre = 0; # POD only, are we in a <pre> element?
@@ -1704,7 +1707,7 @@ sub GetPrettyTextContents {
 			}
 		}
 	
-	# Pull raw (inline) HTML.
+	# Pull raw (inline) HTML and footnotes.
 	$octets = ReplaceHTMLAndFootnoteswithKeys($octets);
 
 	# Preserve consecutive blank lines at bottom.
@@ -1814,12 +1817,6 @@ sub GetPrettyTextContents {
 		# Blank out footnote markers and adjust line count
 		if (index($lines[$i], '__FN__') == 0)
 			{
-			# TEST ONLY
-			# if (FootNoteIsDefined($lines[$i]))
-			# 	{
-			# 	print("FN key: |$lines[$i]|\n");
-			# 	}
-
 			my $lpos = -1;
 			my $rpos = -1;
 			if (($lpos = index($lines[$i], '_L_')) > 0
@@ -1828,26 +1825,10 @@ sub GetPrettyTextContents {
 				{
 				$lpos += 3;
 				my $lineCount = substr($lines[$i], $lpos, $rpos - $lpos);
-
-				# TEST ONLY
-				#print("Line count: |$lineCount|\n");
-
 				$lineNum += $lineCount;
 				$lines[$i] = '';
 				next;
 				}
-
-
-			# if ($lines[$i] =~ m!^(__FN__\w+)$!)
-			# 	{
-			# 	my $key = $1;
-			# 	if (FootNoteIsDefined($key))
-			# 		{
-			# 		my $lineCount = 1; # TODO FIX THAT
-			# 		$lineNum += $lineCount;
-			# 		next;
-			# 		}
-			# 	}
 			}
 		
 		$lineBeforeIsBlank = $lineIsBlank;
@@ -2025,8 +2006,24 @@ sub GetPrettyTextContents {
 					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
 					$justDidHeadingOrHr = 0;
 					}
-				else # treat like any ordinary line
+				else # Pick up glossary TOC entries, treat like any ordinary line
 					{
+					if ($isGlossaryFile)
+						{
+						if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+						#if ($lines[$i] =~ m!^([^:]+)\:!)
+							{
+							my $term = $1;
+							my $anchorText = lc(AnchorForGlossaryTerm($term));
+							my $contentsClass = 'h2';
+							my $jlStart = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$anchorText'>";
+							my $jlEnd = "</a></li>";
+							push @jumpList, $jlStart . $term . $jlEnd;
+							}
+						# For display, remove '\' from '\:'.
+						$lines[$i] =~ s!\\:!:!g;
+						}
+
 					my $rowID = 'R' . $lineNum;
 					my $classAttr = ClassAttribute('', $indentClass);
 					$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>" . $lines[$i] . '</td></tr>';
@@ -2053,10 +2050,20 @@ sub GetPrettyTextContents {
 	# Tables.
 	PutTablesInText(\@lines);
 	
-	# Put in internal links that reference headers within the current document.
-	for (my $i = 0; $i < @lines; ++$i)
+	if (!$isGlossaryFile)
 		{
-		AddInternalLinksToLine(\${lines[$i]}, \%sectionIdExists);
+		# Put in internal links that reference headers within the current document.
+		for (my $i = 0; $i < @lines; ++$i)
+			{
+			AddInternalLinksToLine(\${lines[$i]}, \%sectionIdExists);
+			}
+		}
+	else # a glossary file, add anchors (well id's actually).
+		{
+		for (my $i = 0; $i < @lines; ++$i)
+			{
+			AddGlossaryAnchor(\${lines[$i]});
+			}
 		}
 	
 	# Assemble the table of contents and text.
@@ -2071,20 +2078,28 @@ sub GetPrettyTextContents {
 		}
 	else
 		{
-		unshift @jumpList, "<ul>";
+		# As a special exception, glossary TOC entries are sorted alphabetically
+		# rather than in order of occurrence.
+		if ($isGlossaryFile)
+			{
+			@jumpList = sort TocSort @jumpList;
+			}
+
 		unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
+		unshift @jumpList, "<ul>";
 		$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
 		my $bottomShim = "<p id='bottomShim'></p>";
 
-		# Replace raw HTML placeholders with original HTML.
+		# Replace raw HTML placeholders with original HTML. Add footnotes.
 		ReplaceKeysWithHTMLAndFootnotes(\@lines, $numLines, $filePath);
 
+		my $topSpan = '';
 		if (defined($lines[0]))
 			{
-			$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+			$topSpan = "<span id='top-of-document'></span>";
 			}
 
-		$$contentsR .= "<div id='scrollTextRightOfContents'><table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
+		$$contentsR .= "<div id='scrollTextRightOfContents'>$topSpan<table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
 		}
 	
 	if (!defined($sourceR))
@@ -2099,13 +2114,18 @@ sub GetPrettyTextContents {
 my %g_html_blocks;
 my %footnotes;
 my %popupFootnotes;
+my %newIdForOld;
+my %referenceSeen; # defined if a reference id has already been seen
 
 sub ReplaceHTMLAndFootnoteswithKeys {
 	my ($text) = @_;
+	my $textLen = length($text);
 
 	%g_html_blocks = ();
 	%footnotes = ();
 	%popupFootnotes = ();
+	%newIdForOld = ();
+	%referenceSeen = ();
 	my $block_tags_a = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math|ins|del/;
 	#my $block_tags_b = qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|iframe|math/;
 	my $htmlStart = qr/!/; # Inline HTML must start with a !
@@ -2128,7 +2148,7 @@ sub ReplaceHTMLAndFootnoteswithKeys {
 					(.*\n)*?			# any number of lines, minimally matching
 					</\2>				# the matching end tag
 					[ \t]*				# trailing spaces/tabs
-					(?=\n+|\Z)	# followed by a newline or end of document
+					(?=\n+|\Z)			# followed by a newline or end of document
 				)
 			}{
 				my $key = '__HH__' . $index++;
@@ -2149,26 +2169,20 @@ sub ReplaceHTMLAndFootnoteswithKeys {
 				(\w+)					# footnote id, $2
 				]:						# close id plus colon
 				.*?\n					# Remainder of first line
-				(^[ \t]+.*?\n)*			# following lines, must be indented
+				(^.+?(\n|$))* 			# following lines, must not be empty
 				)
-
 	}{
 		my $note = $1;
 		my $idProper = $2;
 		my $nr_of_lines = $note =~ tr/\n//;
-		#++$nr_of_lines; # num lines == num newlines + 1
+		++$nr_of_lines;
 		my $key = '__FN__' . $idProper . '_L_' . $nr_of_lines . '_IND_' . $index++;
 		
-		#my $backLink = "<a href=\"#fnref$idProper\"" . " class=\"footnote-backref\"><img src='arrow-return-left.png' width=12' height='12'></a>";
-		my $backLink = "<a href=\"#fnref$idProper\"" . " class=\"footnote-backref\">↩</a>";
+		my $backLink = "<a href=\"#fnref_BACKREF_\" onclick=\"scrollBackToFootnoteRef(this); return(false);\"" . " class=\"footnote-backref\">↩</a>";
 		chomp($note);
 		$footnotes{$key} = "<div id='fn$idProper'>" . $note . ' ' . $backLink . "</div>";
 		$popupFootnotes{'__FNP__' . $idProper} = $note;
-		my $extraNewline = ($nr_of_lines >= 2) ? "\n" : "";
-		# TEST ONLY
-		#print("Key: |$key|\n");
-
-		$key . $extraNewline;
+		$key;
 	}egmx;
 	
 	return($text);
@@ -2182,6 +2196,8 @@ sub ReplaceHTMLAndFootnoteswithKeys {
 sub ReplaceKeysWithHTMLAndFootnotes {
 	my ($linesA, $numLines, $filePath) = @_;
 	my $previousLineForChunk = -1;
+	my $footIndex = 1;
+	my $newIndex = 1;
 
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
@@ -2200,15 +2216,6 @@ sub ReplaceKeysWithHTMLAndFootnotes {
 			{
 			my $putEndTable = 1;
 			my $putStartTable = 1;
-
-			# if ($i == 0) # no end table before
-			# 	{
-			# 	$putEndTable = 0;
-			# 	}
-			# elsif ($i == $numLines - 1) # no start table after
-			# 	{
-			# 	$putStartTable = 0;
-			# 	}
 
 			# Check for a preceding chunk.
 			if ($i == $previousLineForChunk + 1)
@@ -2244,102 +2251,151 @@ sub ReplaceKeysWithHTMLAndFootnotes {
 			$previousLineForChunk = $i;
 			}
 
-		# Footnotes
-		my $previousLineForFootnote = -1;
-		if (index($linesA->[$i], '[^') >= 0) # at least one footnote ref probably
+		# Footnote references. Skip refs with no actual corresponding footnote.
+		if (index($linesA->[$i], '[^') >= 0) # footnote ref if it's [^stuff]no colon
 			{
-			$linesA->[$i] =~ s!(\[\^(\w+)]([^:]|$))!"<sup class='footenoteref'><a href='#fn$2'  id='fnref$2'" . GlossedPopupForFootnote($2, $filePath) . ">\[$2]</a></sup>" . $3!eg;
-
-
-			#$linesA->[$i] =~ s!(\[\^(\w+)]([^:]|$))!"<sup class='footenoteref'><a href='#fn$2'  id='fnref$2'" . GlossedPopupForFootnote($2) . ">\[$2]</a></sup>" . $3!eg;
-			# References only here, footnotes proper are put at the bottom of the file,
-			# see below.
-			# while ($linesA->[$i] =~ m!\[\^(\w+)]([^:]|$)!g)
-			# 	{
-			# 	my $idProper = $1;
-			# 	my $gloss = '';
-			# 	my $key = '__FN__' . $idProper;
-			# 	if (defined($popupFootnotes{$key}))
-			# 		{
-			# 		my $foot = "<div class='footDiv'>" . $popupFootnotes{$key} . "</div>";
-			# 		$gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
-			# 		}
-			# 	# [^27] => <sup><a href='#fn27' id='fnref27'>[27]</a></sup>
-			# 	$linesA->[$i] =~ s!(\[\^(\w+)])([^:]|$)!<sup class='footenoteref'><a href='#fn$idProper' id='fnref$idProper'$gloss>\[$idProper]</a></sup>!g;
-			# 	}
+			$linesA->[$i] =~ s{
+				(\[\^(\w+)](?=[^:]|$))
+				}{
+					if (defined($popupFootnotes{'__FNP__' . $2}))
+						{
+						if (!defined($referenceSeen{$2}))
+							{
+							$referenceSeen{$2} = 1;
+							$newIndex = $footIndex++;
+							$newIdForOld{$2} = $newIndex;
+							}
+						else
+							{
+							$referenceSeen{$2} += 1;
+							$newIndex = $newIdForOld{$2};
+							}
+						my $noteId = 'fn' . $newIndex;
+						my $refLineNumber = LineNumberFromRowText($linesA->[$i]);
+						my $matchStartPos = $-[0];
+						my $isFootnote = 1;
+						if ($matchStartPos > 0)
+							{
+							my $beforeChar = substr($linesA->[$i], $matchStartPos - 1, 1);
+							if ($beforeChar eq ' ' || $beforeChar eq "\t")
+								{
+								$isFootnote = 0; # Counts as a citation, no <sup>
+								}
+							}
+						my $supStart = ($isFootnote) ? "<sup class='footenoteref'>": '';
+						my $supEnd = ($isFootnote) ? "</sup>": '';
+						my $refID = 'fnref' . $newIndex . '_' . $referenceSeen{$2};
+						"$supStart<a href='#fn$newIndex' onclick=\"scrollToFootnote('$noteId', '$refLineNumber')\"  id='$refID'" . GlossedPopupForFootnote($2, $newIndex, $filePath) . ">\[$newIndex]</a>$supEnd";
+						}
+					else
+						{
+						$1;
+						}
+				}egx;
 			}
-
-		# Perhaps a footnote proper.
-		# if ($linesA->[$i] =~ m!(__FN__\w+)!)
-		# 	{
-		# 	# TEST ONLY
-		# 	#print("Footnote potential key: |$linesA->[$i]|\n");
-		# 	if (defined($footnotes{$1}))
-		# 		{
-		# 		my $key = $1;
-		# 		my $footnote = $footnotes{$key};
-		# 		my @footnoteLines = split(/\n/, $footnote);
-		# 		$footnote = join("<br>", @footnoteLines);
-
-		# 		my $putEndTable = 1;
-		# 		my $putStartTable = 1;
-		# 		# Check for a preceding chunk.
-		# 		if ($i == $previousLineForFootnote + 1)
-		# 			{
-		# 			$putEndTable = 0;
-		# 			}
-
-		# 		# Check for a following chunk.
-		# 		if ( $i < $numLines - 1
-		# 			&& index($linesA->[$i+1], '__FN__') == 0)
-		# 			{
-		# 			$putStartTable = 0;
-		# 			}
-
-		# 		if ($putEndTable && $putStartTable)
-		# 			{
-		# 			$linesA->[$i] = "</table><div class='footDiv'>" . $footnote . "</div><table class='imt'>";
-		# 			}
-		# 		elsif (!$putEndTable && !$putStartTable)
-		# 			{
-		# 			$linesA->[$i] = "<div class='footDiv'>" . $footnote . "</div>";
-		# 			}
-		# 		elsif (!$putEndTable)
-		# 			{
-		# 			$linesA->[$i] = "<div class='footDiv'>" . $footnote . "</div><table class='imt'>";
-		# 			}
-		# 		elsif (!$putStartTable) # possibly redundant:)
-		# 			{
-		# 			$linesA->[$i] = "</table><div class='footDiv'>" . $footnote . "</div>";
-		# 			}
-
-		# 		$previousLineForFootnote = $i;
-		# 		}
-		# 	}
 		}
 
 	# Restore footnotes at bottom. They have been removed from the text where defined.
+	# Unreferenced footnotes/citations are not included in the output.
 	my $numFootnotes = keys %footnotes;
 	if ($numFootnotes)
 		{
 		push(@{$linesA}, "\n");
 		push(@{$linesA}, "</table>");
 		push(@{$linesA}, "<hr>");
+		push(@{$linesA}, "<div class='allfootnotes'>\n");
 		foreach my $key (sort { FootnoteIndexComp($a, $b) } keys %footnotes)
 			{
-			my $footnote = $footnotes{$key};
-			$footnote = GlossedFootnote($footnote, $filePath);
-			#my @footnoteLines = split(/\n/, $footnote);
-	 		#$footnote = join("<br>", @footnoteLines);
-			#push(@{$linesA}, "<div class='footDiv'>" . $footnote . "</div>");
-			push(@{$linesA}, $footnote);
+			my $isReferenced = 0;
+			if ($key =~ m!__FN__(\w+?)_L_!)
+				{
+				my $idProper = $1;
+				if (defined($newIdForOld{$idProper}))
+					{
+					$isReferenced = 1;
+					}
+				}
+			
+			if ($isReferenced)
+				{
+				my $footnote = $footnotes{$key};
+				$footnote = GlossedFootnote($footnote, $filePath);
+				push(@{$linesA}, $footnote);
+				}
 			}
-		push(@{$linesA}, "</div><table class='imt'>");
+		push(@{$linesA}, "\n</div>\n<table class='imt'>");
 		}
 
 	%g_html_blocks = ();
 	%footnotes = ();
 	%popupFootnotes = ();
+	%newIdForOld = ();
+	%referenceSeen = ();
+	}
+
+sub ReplaceKeysWithHTMLInsideFootnotes {
+	my ($linesA, $numLines) = @_;
+	my $previousLineForChunk = -1;
+
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		# Inline HTML.
+		my $key = '';
+		my $hpos = -1;
+		if (($hpos = index($linesA->[$i], '__HH__')) >= 0)
+			{
+			my $lpos = -1;
+			if (($lpos = index($linesA->[$i], '_L_')) > $hpos)
+				{
+				$key = substr($linesA->[$i], $hpos, $lpos - $hpos);
+				}
+			}
+		
+		if (defined($g_html_blocks{$key}))
+			{
+			my $putEndTable = 1;
+			my $putStartTable = 1;
+
+			# Check for a preceding chunk.
+			if ($i == $previousLineForChunk + 1)
+				{
+				$putEndTable = 0;
+				}
+
+			# Check for a following chunk.
+			if ( $i < $numLines - 1
+				&& index($linesA->[$i+1], '__HH__') >= 0
+				&& index($linesA->[$i+1], '_L_') > 0 )
+				{
+				$putStartTable = 0;
+				}
+			
+			# Pull out any trailing back reference anchor
+			my $backRef = '';
+			if ($linesA->[$i] =~ m!(\s*<a\s+href="#fnref[^"]+"\s+onclick.+?</a>)!)
+				{
+				$backRef = $1;
+				}
+			if ($putEndTable && $putStartTable)
+				{
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . $backRef . "</div><table class='imt'>";
+				}
+			elsif (!$putEndTable && !$putStartTable)
+				{
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . $backRef . "</div>";
+				}
+			elsif (!$putEndTable)
+				{
+				$linesA->[$i] = "<div class='rawHTML'>" . $g_html_blocks{$key} . $backRef . "</div><table class='imt'>";
+				}
+			elsif (!$putStartTable) # possibly redundant:)
+				{
+				$linesA->[$i] = "</table><div class='rawHTML'>" . $g_html_blocks{$key} . $backRef . "</div>";
+				}
+
+			$previousLineForChunk = $i;
+			}
+		}
 	}
 
 # Used to skip user-entered instances of __HH__... at a line start.
@@ -2358,84 +2414,119 @@ sub FootNoteIsDefined {
 sub GlossedFootnote {
 	my ($footnote, $filePath) = @_;
 	my @footnoteLines = split(/\n/, $footnote);
-	$footnoteLines[0] =~ s!^(<div\s+id=\'fn\w+\'>)\[\^(\w+)]:!$1\*\*$2\*\*\.!;
-	$footnote = join("___BR___", @footnoteLines);
+	my $oldIndex = '';
+	my $newIndex = '';
+
+	# Find new index for footnote. Footnotes are renumbered to
+	# be in sequence, according to sequence of footnote references
+	# in the body text.
+	if ($footnoteLines[0] =~ m!id=\'fn(\w+)!)
+		{
+		$oldIndex = $1;
+		if (defined($newIdForOld{$oldIndex}))
+			{
+			$newIndex = $newIdForOld{$oldIndex};
+			}
+		else
+			{
+			$newIndex = $oldIndex;
+			}
+		}
+	$footnoteLines[0] =~ s!^(<div\s+id=\'fn\w+\'>)\[\^(\w+)]:!$1\*\*$newIndex\*\*\.!;
+
+	# Fix the back ref too, on the last line. Look for #fnref_BACKREF_
+	my $lastLine = @footnoteLines;
+	--$lastLine;
+	if ($lastLine >= 0)
+		{
+		my $refID = '#fnref' . $newIndex . '_' . '1';
+		$footnoteLines[$lastLine] =~ s!#fnref_BACKREF_!$refID!;
+		}
+
+	$footnote = join("\n", @footnoteLines);
 	my $glossedFootnote;
 	my $serverAddr = ServerAddress();
-	my $mainServerPort = $server_port;
+	my $theServerPort = $port_listen; # Not $server_port;
 	my $contextDir = lc($filePath);
 	$contextDir = DirectoryFromPathTS($contextDir);
 
-	Gloss($footnote, $serverAddr, $mainServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
+	Gloss($footnote, $serverAddr, $theServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
 
-	my $foot = $glossedFootnote;
-	#my $foot = "<div class='footDiv'>" . $glossedFootnote . "</div>";
-	$foot =~ s!___BR___!<br>!g;
+	#my $foot = $glossedFootnote;
+
+	# TO DO avoid re-splitting the footnote.
+	# Rep inline HTML keys with HTML, preserving the back reference.
+	@footnoteLines = split(/\n/, $glossedFootnote);
+	my $numLines = @footnoteLines;
+	ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+	my $foot = join("\n", @footnoteLines);
+
 	# Spurious LF's, stomp them with malice.
-	$foot =~ s!\%0A!!g;
-	# This part I don't understand:
-	$foot =~ s!&quot;!"!g;
-	$foot =~ s!&#60;!<!g;
+	$foot =~ s!\%0A!!gm;
+	
+	$foot =~ s!&quot;!"!gm;
+	$foot =~ s!&#60;!<!gm;
 
 	return($foot);
 	}
 
 sub GlossedPopupForFootnote {
-	my ($idProper, $filePath) = @_;
+	my ($idProper, $newIndex, $filePath) = @_;
 	my $gloss = '';
 
 	my $key = '__FNP__' . $idProper;
 	if (defined($popupFootnotes{$key}))
 		{
 		my $footnote = $popupFootnotes{$key};
-		my @footnoteLines = split(/\n/, $footnote);
-		$footnoteLines[0] =~ s!^\[\^(\w+)]:!\*\*$1\*\*\.!;
-	 	$footnote = join("___BR___", @footnoteLines);
+		$footnote =~ s!^\[\^(\w+)]:!\*\*$newIndex\*\*\.!;
 		my $glossedFootnote;
 		my $serverAddr = ServerAddress();
-		my $mainServerPort = $server_port;
+		my $theServerPort = $port_listen;
 		my $contextDir = lc($filePath);
 		$contextDir = DirectoryFromPathTS($contextDir);
 
-		Gloss($footnote, $serverAddr, $mainServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
+		Gloss($footnote, $serverAddr, $theServerPort, \$glossedFootnote, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir, undef, undef);
 
-		my $foot = uri_escape_utf8("<div class='footDiv'>" . $glossedFootnote . "</div>");
-		$foot =~ s!___BR___!<br>!g;
+		# TO DO avoid splitting the footnote.
+		# Rep inline HTML keys with HTML, preserving the back reference.
+		my @footnoteLines = split(/\n/, $glossedFootnote);
+		my $numLines = @footnoteLines;
+		ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+		my $foot = join("\n", @footnoteLines);
+
+		$foot = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");
 		$gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
-
-		# my $footnote = $popupFootnotes{$key};
-		# my @footnoteLines = split(/\n/, $footnote);
-	 	# $footnote = join("___BR___", @footnoteLines);
-		# my $foot = uri_escape_utf8("<div class='footDiv'>" . $footnote . "</div>");
-		# $foot =~ s!___BR___!<br>!g;
-		# $gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
 		}
 	
 	return($gloss);
 	}
 
 # Key: my $key = '__FN__' . $2 . '_L_' . $nr_of_lines . '_IND_' . $index++;
-# Compare index values to restore as-found-in-document order.
+# Compare NEW index values to order by new index.
 sub FootnoteIndexComp {
 	my ($keyA, $keyB) = @_;
 	my $indexA = -1;
 	my $indexB = -1;
 	my $pos = -1;
-	if (($pos = index($keyA, '_IND_')) > 0)
+	my $rpos = -1;
+
+	if (   ($pos = index($keyA, '__FN__')) == 0
+		&& ($rpos = index($keyA, '_L_')) > 0 )
 		{
-		$indexA = substr($keyA, $pos + 5); # length '_IND_' == 5
-		# Paranoid check for index error, should be an integer.
-		if ($indexA !~ m!^\d$!)
+		my $oldIndex = substr($keyA, $pos + 6, $rpos - $pos - 6);
+		if (defined($newIdForOld{$oldIndex}))
 			{
-			$indexA = -1;
+			$indexA = $newIdForOld{$oldIndex};
 			}
 		}
-	if (($pos = index($keyB, '_IND_')) > 0)
+
+	if (   ($pos = index($keyB, '__FN__')) == 0
+		&& ($rpos = index($keyB, '_L_')) > 0 )
 		{
-		$indexB = substr($keyB, $pos + 5); # length '_IND_' == 5
-		if ($indexB !~ m!^\d$!)
+		my $oldIndex = substr($keyB, $pos + 6, $rpos - $pos - 6);
+		if (defined($newIdForOld{$oldIndex}))
 			{
-			$indexB = -1;
+			$indexB = $newIdForOld{$oldIndex};
 			}
 		}
 	
@@ -2443,8 +2534,20 @@ sub FootnoteIndexComp {
 }
 } ##### HTML hash and footnotes
 
+sub LineNumberFromRowText {
+	my ($text) = @_;
+	my $lineNumber = 0;
+
+	if ($text =~ m!<td n=['"](\d+)['"]>!)
+		{
+		$lineNumber = $1;
+		}
+	return($lineNumber);
+}
+
+# Dead code, incorporated into GetPrettyTextContents().
 # A basic view of an IntraMine glossary file, with an alphabetical table of contents.
-sub GetPrettyGlossaryFile {
+sub xGetPrettyGlossaryFile {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $sourceR) = @_;
 	my $serverAddr = ServerAddress();
 	
@@ -2496,16 +2599,18 @@ sub GetPrettyGlossaryFile {
 		AddGlossaryAnchor(\${lines[$i]});
 		}
 
+	my $topSpan = '';
 	if (defined($lines[0]))
 		{
-		$lines[0] = "<span id='top-of-document'></span>" . $lines[0];
+		$topSpan = "<span id='top-of-document'></span>";
 		}
-	unshift @jumpList, "<ul>";
+
 	@jumpList = sort TocSort @jumpList;
 	unshift @jumpList, "<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>";
+	unshift @jumpList, "<ul>";
 	$$contentsR .= "<div id='scrollContentsList'>" . join("\n", @jumpList) . '</ul></div>';
 	my $bottomShim = "<p id='bottomShim'></p>";
-	$$contentsR .= "<div id='scrollTextRightOfContents'><table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
+	$$contentsR .= "<div id='scrollTextRightOfContents'>$topSpan<table class='imt'><tbody>" . join("\n", @lines) . "</tbody></table>$bottomShim</div>";
 
 	$$contentsR = encode_utf8($$contentsR);
 	}

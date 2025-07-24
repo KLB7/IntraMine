@@ -18,6 +18,7 @@ use Exporter qw(import);
 
 use strict;
 use warnings;
+#use Carp qw(cluck longmess shortmess); # when the going gets tough...
 use utf8;
 use MIME::Base64 qw(encode_base64);
 use Path::Tiny qw(path);
@@ -53,7 +54,9 @@ BEGIN {
 # For the call from gloss2html.pl, these are undef:
 # $callbackFullPath, $callbackFullDirectoryPath.
 sub Gloss {
-    my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
+    my ($text, $serverAddr, $mainServerPort, $contentsR, $doEscaping, $imagesDir, $commonImagesDir, $contextDir, $callbackFullPath, $callbackFullDirectoryPath, $doNotCacheImages) = @_;
+	$doNotCacheImages = defined($doNotCacheImages) ? $doNotCacheImages : 0;
+	#$doNotCacheImages ||= 0; # This is only for images in standalone HTML footnotes proper.
 	$IMAGESDIR = $imagesDir;
 	$COMMONIMAGESDIR = $commonImagesDir;
 
@@ -178,10 +181,10 @@ sub Gloss {
     # Put in web links and double-quoted full path links.
     for (my $i = 0; $i < @lines; ++$i)
         {
-        AddLinks(\${lines[$i]}, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath);
+        AddLinks(\${lines[$i]}, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath, $doNotCacheImages);
         }
     
-	# TEST ONLY try using &quot;
+	# Try using &quot; - seems to work.
 	$$contentsR .= "<div class=&quot;gloss_div&quot;><table><tbody>" . join("\n", @lines) . "</tbody></table></div>";
 	# $$contentsR .= "<div class='gloss_div'><table><tbody>" . join("\n", @lines) . "</tbody></table></div>";
 
@@ -651,6 +654,12 @@ sub PutTablesInText {
 	
 	for (my $i = 0; $i <$numLines; ++$i)
 		{
+		# TEST ONLY
+		# if (index($lines_A->[$i], 'TABLE') >= 0)
+		# 	{
+		# 	print("T:|$lines_A->[$i]|\n");
+		# 	}
+		
 		if ( $lines_A->[$i] =~ m!^<tr><td>TABLE(</td>|[_ \t:.-])! 
 		  && $i <$numLines-1 && $lines_A->[$i+1] =~ m!\t! )
 			{
@@ -928,7 +937,7 @@ sub DoTableRows {
 # For the call from gloss2html.pl, these are undef:
 #  $serverAddr, $mainServerPort, $callbackFullPath, $callbackFullDirectoryPath.
 sub AddLinks {
-    my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath) = @_;
+    my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath, $callbackFullDirectoryPath, $doNotCacheImages) = @_;
     my $line = $$txtR;
     my @repStr;
 	my @repLen;
@@ -1049,7 +1058,7 @@ sub AddLinks {
 			
             if ($isFullKnownPath && $fileExtension ne '')
                 {
-                RememberTextOrImageFileMentionGloss($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages, $contextDir);
+                RememberTextOrImageFileMentionGloss($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, \@repStr, \@repLen, \@repStartPos, $inlineImages, $contextDir, $doNotCacheImages);
 				$haveGoodMatch = 1;
                 }
 			else # possibly a directory
@@ -1309,7 +1318,7 @@ sub TextWithSpanBreaks {
 # $repStartPosA: where the replacement starts in the original text
 # $repLenA: length of text being replaced.
 sub RememberTextOrImageFileMentionGloss {
-    my ($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages, $contextDir) = @_;
+    my ($extOriginal, $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $startPos, $repStrA, $repLenA, $repStartPosA, $inlineImages, $contextDir, $doNotCacheImages) = @_;
 
     my $ext = $extOriginal; # $ext for href, $extOriginal when caculating $repLength
     $ext = str_replace("\t", '/t', $ext);
@@ -1354,7 +1363,7 @@ sub RememberTextOrImageFileMentionGloss {
     elsif ($haveImageExtension)
         {
         GetImageFileRepGloss($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, 0,
-							$fullFilePath, $pathToCheck, \$repString, $inlineImages);
+							$fullFilePath, $pathToCheck, \$repString, $inlineImages, $doNotCacheImages);
         }
 	elsif ($haveVideoExtension && LocationIsImageSubdirectory($fullFilePath, $contextDir))
 		{
@@ -1466,11 +1475,11 @@ sub GetTextFileRepForStandaloneGloss {
 # For standalone HTML gloss popups, $mainServerPort is undef: in this case,
 # images are loaded fully into the HTML and displayed in place.
 sub GetImageFileRepGloss {
-	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages) = @_;
+	my ($serverAddr, $mainServerPort, $haveQuotation, $quoteChar, $usingCommonImageLocation, $longestSourcePath, $properCasedPath, $repStringR, $inlineImages, $doNotCacheImages) = @_;
 
 	if (!defined($mainServerPort))
 		{
-		GetLoadedImageFileRep($longestSourcePath, $repStringR);
+		GetLoadedImageFileRep($longestSourcePath, $repStringR, $doNotCacheImages);
 		return;
 		}
 
@@ -1550,10 +1559,10 @@ sub GetVideoRepGloss {
 
 # 
 sub GetLoadedImageFileRep {
-	my ($sourcePath, $repStringR) = @_;
+	my ($sourcePath, $repStringR, $doNotCacheImages) = @_;
 
 	my $bin64Img = '';
-	ImageLink($sourcePath, "", \$bin64Img);
+	ImageLink($sourcePath, "", \$bin64Img, undef, undef, $doNotCacheImages);
 	$$repStringR = $bin64Img;
 	}
 
@@ -1637,14 +1646,13 @@ sub ImageLinkQuoted {
 # "<img src=\"data:image/png;base64,$enc64\" (optional width height) />";
 # This simpler variant of ImageLinkQuoted() is used for 'hoverleft.png' and 'hoverright.png' above.
 sub ImageLink {
-	my ($fileName, $contextDir, $linkR, $width, $height) = @_;
+	my ($fileName, $contextDir, $linkR, $width, $height, $doNotCacheImages) = @_;
 	$width ||= '';
 	$height ||= '';
 	$$linkR = '';
 	my $enc64 = '';
 	ImageBase64($fileName, $contextDir, \$enc64);
-	
-	
+		
 	if ($enc64 ne '')
 		{
 		$width = " width='$width'"  unless ($width eq '');
@@ -1661,9 +1669,17 @@ sub ImageLink {
 		#$result = "<img src=\"data:image/$imgType;base64,$enc64\"$width$height  />";
 
 		# Cache images at bottom of HTML file as JavaScript Map entries, just
-		# put the map key for the image here.
-		my $imageKey = KeyForCachedImage($fileName, $enc64);
-		$$linkR = "<img src=\"data:image/$imgType;base64,$imageKey\"$width$height  />";
+		# put the map key for the image here. Unless caching is not wanted,
+		# in which case put the whole image.
+		if ($doNotCacheImages)
+			{
+			$$linkR = "<img src=\"data:image/$imgType;base64,$enc64\"$width$height  />";
+			}
+		else
+			{
+			my $imageKey = KeyForCachedImage($fileName, $enc64);
+			$$linkR = "<img src=\"data:image/$imgType;base64,$imageKey\"$width$height  />";
+			}
 		}
 	else
 		{

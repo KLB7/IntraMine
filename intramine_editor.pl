@@ -57,7 +57,8 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 my $LogDir = FullDirectoryPath('LogDir');
 my $ctags_dir = CVal('CTAGS_DIR');
 my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
-InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore);
+my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
+InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $GLOSSARYFILENAME);
 
 my %RequestAction;
 $RequestAction{'href'} = \&FullFile; 			# href=anything, treated as a file path

@@ -1679,6 +1679,46 @@ function addHintboxListener() {
 		}
 }
 
+// Jump from footnote/citation reference to the note,
+// remembering the line number we came from.
+function scrollToFootnote(newIndexId, refLineNumber) {
+	let noteElement = document.getElementById(newIndexId);
+	if (noteElement !== null)
+		{
+		localStorage.setItem(thePath + '?' + 'noteRefLine' , refLineNumber);
+		noteElement.scrollIntoView();
+		}
+}
+
+// Scroll (jump) from footnote back to the reference that triggered
+// the jump. If none, pot luck.
+function scrollBackToFootnoteRef(ourAnchor) {
+	let refLine = localStorage.getItem(thePath + '?' + 'noteRefLine');
+	if (refLine !== null)
+		{
+		reJumpToLineNumber(refLine, 0);
+		}
+	// else try for the first reference
+	else
+		{
+		let id = ourAnchor.href;
+		if (id !== null)
+			{
+			let idProperPos = id.indexOf('fnref');
+			if (idProperPos >= 0)
+				{
+				let firstrefId = id.substring(idProperPos + 5);
+				firstrefId = 'fnref' + firstrefId;
+				let firstRef = document.getElementById(firstrefId);
+				if (firstRef !== null)
+					{
+					firstRef.scrollIntoView();
+					}
+				}
+			}
+		}
+}
+
 if (onMobile)
 	{
 	addHintTimer = setInterval(addHintboxListener, 200);

@@ -26,7 +26,7 @@ Count	Page name			Short name	Program						Option	Docs
 0		Chat				Chat		intramine_chat.pl	 		Chat.txt
 1		EM					EM			intramine_EM.pl 	 		EM.txt
 0		Reindex				Reindex		intramine_reindex.pl	 	Reindex.txt
-0		Glosser				Glosser		intramine_glosser.pl	 	Glosser.txt
+1		Glosser				Glosser		intramine_glosser.pl	 	Glosser.txt
 
 The "Count" field controls how many of each server to start.
 

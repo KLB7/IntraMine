@@ -33,6 +33,58 @@
 	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 }
 
+.gloss_div {
+	margin-bottom: 6px;
+}
+
+/* footnote tables proper: */
+.gloss_div table tbody tr:first-child {
+	margin: 0;
+	text-indent: -26px;
+}
+
+.gloss_div table:not(:first-child) tbody tr:first-child {
+	text-indent: 0 !important;
+	padding-left: 26px !important;
+}
+
+.gloss_div table tbody tr:not(first-child) {
+	display: block;
+	margin: 0;
+	padding-left: 26px;
+	padding-top: 6px;
+}
+
+/* Footnote actual tables, to be shown as proper tables. */
+.gloss_div table.bordered tbody tr:first-child {
+	text-indent: 0 !important;
+}
+
+.gloss_div table.bordered tbody tr:not(first-child) {
+	display: table-row;
+	margin: 0;
+	padding-left: 0 !important;
+	padding-top: 0;
+}
+
+.gloss_div table.bordered td {
+	border-top: 1px solid #ccc;
+}
+
+
+.gloss_div table.bordered tbody tr:hover {
+    background: #fbf8e9 !important;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}
+
+.allfootnotes {
+	/*background-color: lightblue;*/
+}
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;
@@ -118,7 +170,7 @@ div#indicator {
 div#indicatorPC {
     position: absolute;
     z-index: 99;
-    top: 0px;
+    top: 0;
     /*left: 3px;*/
     right: 0.74%;
     /*opacity: .5;*/
@@ -241,6 +293,16 @@ code {
 /* For raw HTML in .txt files, as displayed with Gloss. */
 .rawHTML {
 	padding-left: 60px;
+}
+
+/* Footnoe inline HTML, less indent because there are no line numbers. */
+.gloss_div .rawHTML {
+	padding-left: 26px;
+}
+
+/* Even less indent for the popup version of the footnote. */
+.footDiv .rawHTML {
+	padding-left: 4px;
 }
 
 /* Also for raw HTML, reduce <p> margin. */

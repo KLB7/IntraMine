@@ -8,6 +8,8 @@
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
+let tipIsShowing = false;
+
 // Cursor position, updated when hintbox is showing.
 let cursor_x = -1;
 let cursor_y = -1;
@@ -368,7 +370,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 }
 
 // The main event.
-function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
 
 	if (shouldDecode === undefined)
@@ -404,13 +406,13 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 		{
 		setTimeout(function() {
 			showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	else
 		{
 		setTimeout(function() {
 			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	}
 
@@ -433,6 +435,17 @@ function decodeHint(text) {
 async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	let hintShown = false;
 	let image_url = "";
+
+	// "tipIsShowing", combined with a delay of 350 msec when calling this function,
+	// catches most cases where the cursor moves to a hint on an adjacent line
+	// - we don't want the tip being shown to go away in the case where the cursor
+	// is still over a tip being shown but ALSO over another tip. However, this
+	// isn't perfect, and sometimes the tip on the adjacent line doesn't show
+	// when the cursor moves away from the tip being shown.
+	if (tipIsShowing)
+		{
+		return;
+		}
 
 	if (isAnImage)
 		{
@@ -577,6 +590,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.style.visibility = "hidden";
 		hintElement.style.left = "-500px";
 		removeClass(obj, anchorClassName);
+		tipIsShowing = false;
 		return;
 		}
 
@@ -628,6 +642,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 
 	document.addEventListener('mousemove', recordMousePosition);
 	document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = true;
 
 	if (typeof window.ontouchstart === 'undefined')
 		{
@@ -752,6 +767,7 @@ function hideTip(e) {
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = false;
 }
 
 function touchhidetip(e) {

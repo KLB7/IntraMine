@@ -150,3 +150,5 @@ Go2: select a word or short phrase, keep you cursor fairly still, and a popup wi
 "go2_cropped.gif"
 
 Glosser: see "Glosser.txt", a service that generates standalone HTML from Gloss-styled .txt files.
+
+Footnote, footnotes, citation, citations: "Gloss.txt#Footnotes and citations" has details. A note starts flush left with "[^id}:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of Gloss can be used in the note body. The note pops up if you hover over a reference.

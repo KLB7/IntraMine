@@ -23,7 +23,9 @@ in my browser's address field.
 
 How to get Glosser going
 ====================
-If you have installed IntraMine recently (roughly after April 18 2025), you will find that Glosser is available for starting on the Status page, under the "Add one page server" dropdown menu.
+If you have installed IntraMine roughly after mid-July 2025 you will find that Glosser is available on the top navigation bar after you start IntraMine.
+
+If you have installed IntraMine before that but roughly after April 18 2025, you will find that Glosser is available for starting on the Status page, under the "Add one page server" dropdown menu. To have Glosser start every time IntraMine starts, open data/serverlist.txt in any editor and change the "0" at the start of the entry for Gloss to a "1".
 
 If you did your installation before April 18 2025 you'll want to add a line for the service to your data/serverlist.txt file as follows.
 

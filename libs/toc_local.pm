@@ -41,10 +41,12 @@ my $f_icon = '<span class="circle_red">f</span>';		# function
 my $s_icon = '<span class="circle_red">s</span>';		# subroutine
 
 my $HashHeadingRequireBlankBefore;
+my $GlossaryFileName;
 
 sub InitTocLocal {
-	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir, $hashHeadingRequireBlankBefore) = @_;
+	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir, $hashHeadingRequireBlankBefore, $mainGlossaryFileName) = @_;
 	$HashHeadingRequireBlankBefore = $hashHeadingRequireBlankBefore;
+	$GlossaryFileName = $mainGlossaryFileName;
 	InitExCtags($firstPartOfPath, $portListen, $logDir, $ctags_dir);
 }
 
@@ -99,7 +101,14 @@ sub GetCMToc {
 		}
 	elsif ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
-		GetTextTOC($filePath, $toc_R);
+		if ($filePath =~ m![\\/]$GlossaryFileName$!i || $filePath =~ m![\\/]glossary.txt$!i)
+			{
+			GetGlossaryTOC($filePath, $toc_R);
+			}
+		else
+			{
+			GetTextTOC($filePath, $toc_R);
+			}
 		}
 	# 3.1 go: CodeMirror for the main view with a custom Table of Contents
 	elsif ($filePath =~ m!\.go$!i)
@@ -273,6 +282,42 @@ sub GetPodTOC {
 		}
 	
 	$$toc_R = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n"  . join("\n", @jumpList) . "</ul>\n";
+	}
+
+sub GetGlossaryTOC {
+	my ($filePath, $toc_R) = @_;
+	my $contents;
+	my $octets;
+	if (!LoadTextFileContents($filePath, \$contents, \$octets))
+		{
+		return;
+		}
+
+	my @lines = split(/\n/, $octets);
+
+	my @jumpList;
+	my @subNames;
+	my $lineNum = 1;
+	#my %sectionIdExists; # used to avoid duplicated anchor id's for sections.
+	my $numLines = @lines;
+	my $jlEnd = "</a></li>";
+	
+	for (my $i = 0; $i < $numLines; ++$i)
+		{
+		if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
+			{
+			my $subName = $1;
+			push @subNames, $subName;
+			my $jlStart = "<li class='h2'><a onmousedown='goToAnchor(\"$subName\", $lineNum);'>";
+			push @jumpList, $jlStart . $subName . $jlEnd;
+			}
+		++$lineNum;
+		}
+
+	my @idx = sort { $subNames[$a] cmp $subNames[$b] } 0 .. $#subNames;
+	@jumpList = @jumpList[@idx];
+
+	$$toc_R = "<ul>\n<li class='h2' id='cmTopTocEntry'><a onmousedown='jumpToLine(1, false);'>TOP</a></li>\n" .  join("\n", @jumpList) . "</ul>\n";
 	}
 
 sub GetTextTOC {
@@ -521,7 +566,8 @@ sub GetPerlTOC {
 
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ($lines[$i] =~ m!^\s*sub\s*(\w+)!)
+		# Match sub or method or my method function definitions.
+		if ($lines[$i] =~ m!^\s*sub\s+(\w+)! || $lines[$i] =~ m!^\s*method\s+(\w+)! || $lines[$i] =~ m!^\s*my\s+method\s+(\w+)!)
 			{
 			my $subName = $1;
 			push @subNames, $subName;

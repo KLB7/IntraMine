@@ -39,7 +39,7 @@ Table of contents
 2020-03-10 23_48_40-elasticsearcher.pm.png
 As mentioned above, some views have an automatically generated table of contents down the left side. A small double-headed arrow at the top of the table allows collapsing/expanding, without altering your document position. Clicking on a table entry will of course jump you to the corresponding place in the main text, and the selected entry in the table of contents will change to keep up with the heading you're currently under as you scroll through the document.
 
-In supported source files the entries in the table of contents are alphabetically ordered, and in text files the order is the same as in the document.
+In supported source files the entries in the table of contents are alphabetically ordered, and in text files the order is the same as in the document. As an exception, the tables of contents for files named "glossary.txt" or "glossary_master.txt" are ordered alphabetically.
 
 A click on a method or class etc name in the table of contents will normally take you to the corresponding item but with any leading comments also scrolled into view.
 

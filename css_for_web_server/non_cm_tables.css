@@ -15,7 +15,6 @@ table, tr, td {
 td {
 	vertical-align: top;
 	padding-left: 4px;
-	/*overflow-wrap: break-word;*/
 }
 
 thead {
@@ -37,15 +36,6 @@ td:nth-child(1) {
 	min-width: 3em; /* enough for 99999 one hopes */
 }
 
-/* Override td :nth-child(1) for footnotes at end of Viewer display. */
-.gloss_div table :nth-child(1) {
-	background: #fafafa;
-	color: black;
-	text-align: left;
-	min-width: auto; 
-}
-
-
 th {
 	text-align: left;
 }
@@ -57,11 +47,13 @@ td:first-child:after, th:first-child:after {
     content: attr(n);
 }
 
+
 td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
     background-color: rgb(200, 255, 200);
 }
 
 /* Raw HTML tables in Markdown, no line numbers. */
+
 .rawHTML table :nth-child(1) {
 	background: #fafafa;
 	color: black;
@@ -70,9 +62,8 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 }
 
 .rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
-    content: auto;
+    content: none;
 }
-
 
 h1, h2, h3, h4 {
 	font-family: helvetica, arial, sans-serif;
@@ -236,11 +227,11 @@ paragraph (ie not the first paragraph in the item).
 .bordered th {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
-    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(to top, #ebf3fc, #dce9f9);
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
@@ -317,3 +308,56 @@ paragraph (ie not the first paragraph in the item).
 	border: none;
 	padding: 0;
 	}
+
+/* Override td :nth-child(1) for footnotes at end of Viewer display. */
+
+/* TEST ONLY */
+.gloss_div table.bordered {
+	margin-left: 26px;
+}
+
+.gloss_div table.bordered th {
+	background: #dce9f9 !important;
+	background-color: #dce9f9 !important;
+	border: 2px red !important;
+}
+
+.gloss_div table.bordered tr {
+	background: #fafafa !important;
+	background-color: #fafafa !important;
+	border: 2px red !important;
+}
+
+
+.gloss_div table.bordered td {
+	text-align: left !important;
+	text-indent: 0 !important;
+	padding-left: 0 !important;
+}
+/*
+.gloss_div table:not(first-child) tbody tr:first-child {
+	text-indent: 0;
+	padding-left: 26px !important;
+}
+*/
+.gloss_div table.bordered :nth-child(1) {
+	color: black !important;
+}
+
+/*
+.gloss_div table.bordered tbody tr:not(first-child) {
+	padding-left: 0;
+}
+*/
+/* Keep this one. */
+.gloss_div table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.gloss_div .bordered td:first-child, .bordered th:first-child {
+  	color: black;
+}
+

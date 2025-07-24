@@ -3,6 +3,11 @@ Gloss
 
 To view this file with Gloss-style markdown applied, you can double-click on the HTML version "Gloss.html" in IntraMine's Documentation folder, or click on the '?' in the navigation bar and then click on "Gloss.txt" listed there. For the plain text source, open Documentation/Gloss.txt in a text editor.
 
+In general, to view the HTML version of a .txt file that's been marked up with Gloss:
+ - open it using IntraMine's Viewer (in a result on the Search page, or a link on the Files page, or a link in a source or text file displayed by IntraMine's Viewer or Editor)
+ - convert the .txt file to .html using the Glosser service
+ - or convert using the supplied gloss2html.pl Perl program.
+
 ---
 NOTE: "tricks" such as zero width spaces, fat asterisks ✱, and images are used to avoid Gloss processing below, so you can see the original text followed by how Gloss renders it.
 ---
@@ -36,6 +41,7 @@ Gloss also does
  - highlighting of any word or short phrase you select, in the text and down the scroll bar. (Due to technical limitations aka my brain size, only single words can be highlighted in CODE/ENDCODE blocks.)
  - "image hovers": any mention of an image becomes a link to the image, and stopping your cursor over the link will pop up an instant view of the image. If you haven't been using images in your source files, it's because you didn't have image hovers. For text files there's an "Inline Images" button at the top of the Viewer that lets you switch between the default image hovers and fully displayed images.
  - "Code blocks": if you put some code between CODE and ENDCODE lines it will be styled up a bit.
+ - footnotes and citations, which behave like glossary popups but are restricted to one document and you can put references to them wherever you want.
 
 How to
 ======
@@ -458,6 +464,87 @@ Both im_gloss.css and im_gloss.js are in IntraMine's .gitignore file and won't b
 
 The custom CSS might come in useful now and then, but I can't think of a use for the custom JavaScript. Turning the background light blue every 30 minutes as a reminder to take a short break? An AI prompt? Still, it's there if you want it.
 
+Footnotes and citations
+--------------------------
+Just so we're on the same page, a footnote is generally either an explanation or a citation. And a citation is either a quotation with source, or just a source of something in the main text. You'll find some examples below.
+
+Gloss shows footnotes as superscripts and citations are shown inline when converted to HTML. That's really the only difference between the two.
+
+To see footnotes and citations as converted to HTML, use IntraMine's Viewer or convert your .txt source file to standalone HTML using IntraMine's Glosser service or the gloss2html.pl Perl program at the top of your IntraMine folder.
+
+As opposed to glossary popups, footnotes and citations apply only within a single document and can be placed freely rather than associated with a particular word or short phrase. Otherwise they're quite similar - in particular, a full footnote or citation will pop up when you pause your cursor over a link to it.
+
+To save words I'll call a footnote or citation a note below.
+
+How to make a footnote or citation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To put a note in your source text:
+ - put [^id]: at the beginning of a line, where "id" is one or more letters, numbers, or underscores. For example, "[^1]:" or "[^bignote27]:"
+ - follow with the note
+ - the note ends when there's a blank line
+ - if you want an apparently blank line, put a space or tab on it
+ - most Gloss styling can be used, as described above. However, you can't reference a note inside the body of a note, and linking is limited in the same way as described for popups in standalone HTML, see "Glossary popups.txt#Standalone is special" - basically, you can link to .txt or .html or image files in the same folder, or any web page
+ - although you can define a note anywhere in your .txt document, it's best to put them all at the bottom. Line numbers in the HTML version will have skips where the notes were extracted from the main text if you don't put them at the bottom.
+ 
+Here's an **example**, with a zero-width space at the beginning of the line to disable processing in the HTML version:
+​[^99]: here be a footnote.
+It's continued on a second line. The following blank line terminates the note.
+
+To make a reference to a footnote or citation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Put [^id] in your text anywhere except in a footnote body or inline HTML, where "id" matches the id of the wanted note.
+
+To make a reference to a citation, precede it with a space or tab, as in this [^1] is a citation reference.
+
+To make a reference to a footnote, don't put a space or tab before it, as in this on the other hand[^2] is a footnote reference.
+
+Hover to view a footnote or citation
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can click on the reference link, which will scroll you down to the bottom of the document, but that's old school. Instead, pause your cursor over the link and the note will pop up right there, sparing you the trip.
+ 
+How do footnotes and citations differ?
+~~~~~~~~~~~~~~~~~~~~~~~
+In the resulting HTML, a footnote is shown superscripted whereas a citation is shown inline.
+
+Multiple consecutive note references
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Put anything but a space or tab (including nothing at all) between consecutive footnote references[^3][^4].
+
+Put a space or tab between citations, eg [^5] [^6] or [^5], [^6].
+
+Multiple references to the same note
+~~~~~~~~~~~~~~~~~~~~~~
+It's the digital age, so this is allowed. As an example here, [^1] and[^2] repeat references made just above.
+
+Footnote and citation numbering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Footnotes and citations will be renumbered automatically in the same sequence as references are encountered in the text. Examples above have been numbered in sequence 1 2 3 to avoid confusion when comparing the .txt and .html versions. Here's another footnote[^biggy29] which will probably become footnote 7 here even though the id in the source text is "biggy29".
+
+This does have the drawback though that you can't be sure of the footnote numbers until you view an HTML version.
+
+Reference with no note
+~~~~~~~~~~~~~~~~~~
+If a note reference in the text has no corresponding note definition it will not be shown as a link.
+
+Note with no reference
+~~~~~~~~~~~~~~~~~
+If a footnote or citation is never referenced in the text then it will not appear in the HTML version. That's mainly to avoid awkward questions.
+
+HTML display
+~~~~~~~~~~~~
+Your note references will be shown as links, with the "^" removed. Footnote references will be superscripted in a slightly smaller font size, citation references will be shown inline in the same size as the text.
+
+Footnotes and citations will all be gathered together at the bottom following a horizontal rule. The note numbers will be bold flush left, and the body of the note will be indented slightly after the first line.
+
+There is no difference in the display of the body of footnotes versus citations.
+
+A suggestion
+~~~~~~~~~~~~~~~
+Put all your footnote or citation bodies at the bottom of your source .txt, they will be easier to find and won't disturb the line numbers in the resulting HTML version.
+
+Let's end with a more elaborate footnote that very briefly summarizes this document[^elGloss].
+
+
 What Gloss doesn't do
 ========================
 Gloss is intended mainly for in-house documentation, and developer logs. So there are some things you might expect (by comparison with Markdown for example) that you won't find in Gloss.
@@ -467,7 +554,6 @@ Item                 				Why
 ~~strikethrough~~	I have never needed that, have you?
 Definition list		Gloss provides glossary popups instead. A definition is available wherever a term is used, by stopping the cursor over the term.
 Heading ID			Gloss links headings automatically: put the heading mentions in double quotes, for example "Overview".
-Footnotes			Something for grander documents. Use glossary popups and links instead.
 Alt text for images	Gloss pops up a view of the image when you put your cursor over the image name. If alt text is needed, you can type it before or after the image name.
 Blockquote			Put it in quotes and italicize the author, good enough for most uses.
 Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
@@ -477,4 +563,41 @@ Gloss does do hashed headings, such as #### This is an h4 heading, but underlini
 And one last important thing omitted is the line as a unit of comprehension. In a formatted text document there are words and sentences and paragraphs as units of comprehension, but arguably not lines. In Gloss when you press Enter you end a paragraph, not a line, and line wrap keeps all the text visible. As a nice side effect of this approach, Gloss requires absolutely no extra blank lines anywhere.
 
 contents.html
----
+
+[^1]: A citation example. Note it's followed by a blank line to end the note.
+
+[^2]: A footnote. Exactly the same as a citation body. Also followed by a blank line to end the note.
+
+[^3]: A second footnote, numbered three in the HTML display.
+
+[^4]: A fourth footnote.
+
+[^5]: A citation for the consecutive citations example.
+
+[^6]: And another citation for the consecutive citations example.
+
+[^biggy29]: A footnote with id "biggy29" in the source .txt, probably renumbered automatically to 7 in the HTML display. There is no need for a blank line after the last note.
+
+[^elGloss]: Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use FLASH links in source files, as described in "Gloss.html". Gloss can also be used in glossary definitions which show in any text or source file, see "Glossary popups.html" for glossary usage.
+ 
+A sample table (see "Gloss.html#Tables" for details)
+TABLE Gloss support in various contexts
+Feature					IntraMine Viewer, text	Viewer, source		Glossary popups		ToDo
+Bold, italic, code		Yes						No					Yes					Yes
+FLASH links			Yes (full support)		Yes					"Quotes needed"		"Quotes" and full path needed
+Image hovers			Yes						Yes					No (inlined)		"Quotes" and full path needed
+Tables					Yes						No					Yes					Yes (use tab or \t to separate cells)
+Lists					Yes						No					Yes					Yes
+CODE blocks				Yes						No					No					No
+(A TABLE ends when there's a line with no tab.)
+Quotes can be single or double, eg "Gloss.html" or 'Gloss.html'.
+IntraMine's Editor fully supports FLASH links, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
+You can also have
+1. Numbered lists
+1.2 with subitems, up to 99.99
+ - bulleted lists
+  -- with subitems too
+**Bold**, *italic*, and *!*/* Code snippets */ int x = 42;*!*.
+Images will be shown inline, eg "button1.png" "globe.gif" "favicon-32x32.png"
+ 
+:)
