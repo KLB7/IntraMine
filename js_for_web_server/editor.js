@@ -47,6 +47,48 @@ let cursorFileEndPos = {
 cmCursorStartPos = cursorFileStartPos;
 cmCursorEndPos = cursorFileEndPos;
 
+let dragInTitle = false;
+let titleStartX, titleStartY;
+const titleElement = document.getElementById("viewEditTitle");
+
+titleElement.addEventListener('mousedown', (e) => {
+    titleStartX = e.pageX;
+    titleStartY = e.pageY;
+    dragInTitle = false; // Reset flag on mousedown
+});
+
+titleElement.addEventListener('mousemove', (e) => {
+    // If mouse has moved beyond a small threshold, consider it a drag
+    if (Math.abs(e.pageX - titleStartX) > 5 || Math.abs(e.pageY - titleStartY) > 5) {
+        dragInTitle = true;
+    }
+});
+
+
+// Toggle display of file path between just file name and full path.
+// Chevron image changes too.
+// pathWithBackslashes and theFileName can change after Save As.
+function toggleFilePath(el, expandImage, contractImage) {
+	if (dragInTitle)
+		{
+		dragInTitle = false;
+		return;
+		}
+	
+	// el is the "viewEditTitle" span.
+	let titleSpanHTML = el.innerHTML;
+	if ( titleSpanHTML.indexOf("<img src='" + expandImage + "'>") >= 0
+	  || titleSpanHTML.indexOf("<img src=\"" + expandImage + "\">") >= 0 )
+		{
+		let pathWithBackslashes = thePath.replace(/\//g, "\\"); 
+		el.innerHTML = "<img src='contract.jpg'>&nbsp;" + pathWithBackslashes;
+		}
+	else
+		{
+		el.innerHTML = "<img src='expand.jpg'>&nbsp;" + theFileName;
+		}
+}
+
 function getFileExtension(filename) {
 	let result = '';
 	let extMatch = /\.(\w+)$/.exec(filename);
@@ -594,6 +636,10 @@ async function saveFile(path) {
 	}
 }
 
+async function saveFileAsWithPicker() {
+	showSaveAsFilePicker();
+}
+
 function revertFile(path) {
 	clearSavedDiffs();
 	firstMaintainButtonsCall = true;
@@ -907,3 +953,5 @@ addClickHandler("undo-button", editorUndo);
 addClickHandler("redo-button", editorRedo);
 addClickHandler("search-button", showSearch);
 addClickHandler("spellcheck-button", toggleSpellCheck);
+
+window.addEventListener("load", initSaveAsDialog);

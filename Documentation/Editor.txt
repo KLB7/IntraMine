@@ -8,11 +8,12 @@ To configure editing with IntraMine, see "Editing documents.txt". Basically you 
 
 What it's for
 ==================
-IntraMine's Editor is aimed at creating better in-house documentation (especially for bringing new people up to speed) and development logs. Use Gloss to mark up your documents in the Editor and in addition to the plain text you'll also see:
+IntraMine's Editor is aimed at creating better in-house documentation (especially for bringing new people up to speed) and development logs. Use Gloss to mark up your documents in the Editor and in addition to the plain text you'll also get:
  - full Gloss support (IntraMine's minimal memorable markdown variant for intranet documents)
  - FLASH links: type the file name, get a link (In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so: editorlink.png)
  - image hovers: this is a FLASH link to an image, pause your cursor over the image and the image pops up. In the Editor an image hover link has a lavender background, like so: editor_image_hover.png
  - glossary popups: pause the cursor over a term and a definition or explanation pops up
+ - Go2: select a word or short phrase, pause the cursor, and links to relevant files will appear in a popup
  - and a synchronized table of contents.
 
 Check out "Gloss.txt" to understand how to use Gloss, and I think you'll appreciate how simple it is to create documents that are easy to read.
@@ -23,13 +24,14 @@ The Editor also has syntax highlighting for source files, a table of contents, a
 
 If you close an Editor tab and later re-open it, you will be offered the opportunity to restore and save any unsaved changes.
 
-There are buttons at the top for Save, Revert, Undo, Redo, Toggle, and Find. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:
+There are buttons at the top for Save, Revert, Undo, Redo, Toggle, Find, View, and Save As. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:
 TABLE
 Action			Keys
-Save			Ctrl+S
-Undo			Ctrl+Z
-Redo			Ctrl+Shift+Z
-Find			Ctrl+F
+savebutton.png			Ctrl+S
+saveasbutton.png		Ctrl+Alt+S or Ctrl+Shift+S
+undobutton.png			Ctrl+Z
+redobutton.png			Ctrl+Shift+Z
+findbutton.png			Ctrl+F
 Cut				Ctrl+X
 Copy			Ctrl+C
 Paste			Ctrl+V
@@ -39,12 +41,15 @@ Indent			Tab (same as above)
 Outdent			Ctrl+[ (remove a tab from selected lines)
 Outdent			Shift+Tab (same as above)
 
-In addition, a date-time stamp can be inserted by pressing either F4 or Ctrl-Space.
+A date-time stamp can be inserted by pressing either F4 or Ctrl-Space.
 F4: 			11:34 AM Monday, September 11, 2023
 Ctrl-Space: 	Mon Sep 11 2023 11:34:58
 
 And you have brace matching: click on or next to a curly brace ('{' or '}') to highlight it and its matching counterpart.
 bracesEditor.png
+
+At top left just to the left of the Save button you'll find a **chevron control** for the file path display. Click the chevron or text to the right of it to switch between showing the file name (default) and the file's full path. You can drag over the full path to select it.
+chevron.gif
 
 Standalone is special
 ======================
@@ -52,17 +57,17 @@ For most .txt files, links will be put in for any file specifier that matches an
 
 How to start editing a file
 ===============================
-Assuming you've configured IntraMine to use its own Editor, you can bring up a source or text file in a new browser tab by clicking on the pencil icon edit1.png that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top. In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so: editorlink.png.
+Assuming you've configured IntraMine to use its own Editor (the default), you can bring up a source or text file in a new browser tab by clicking on the pencil icon edit1.png that accompanies all regular file links. Edit pencil links can be found in Search hits, and on links within file views as presented by the Viewer, as well as next to files listed on the Files page. Viewer displays also have an "Edit" button at the top. In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so: editorlink.png.
 
 *Some pencil links in the Viewer, and a green "Edit" button at the top.*
 2019-12-03 16_38_08-intramine_file_viewer_cm.pl.png
 
-*An Editor view of this file. The "Save" button is enabled because I typed that "x" on line 4. The cursor is paused over "Editor" on line 11, resulting in a glossary popup. There are FLASH links to "Editing documents.txt" etc, but no links to other file mentions such as "editor.js": standalone Gloss HTML files such as the ones in IntraMine's Documentation folder (including this file) can only link to files in the same folder. The purple rectangle on the right end of "Editing documents.txt" on line 7 is an Edit link.*
+*An Editor view of this file. The cursor is paused over "Editor" on line 11, resulting in a glossary popup. There are FLASH links to "Editing documents.txt" etc, but no links to other file mentions such as "editor.js": standalone Gloss HTML files such as the ones in IntraMine's Documentation folder (including this file) can only link to files in the same folder. The purple rectangle on the right end of "Editing documents.txt" on line 7 is an Edit link.*
 Editor.png
 
 Auto-refresh
 ==============
-Files displayed with IntraMine's Viewer will auto-refresh instantly when changed by IntraMine's Editor, scrolling to the line where the Editor's cursor is. If you use some other editor, the refresh in the Viewer will take 1-2 seconds, and the top displayed line won't change. Auto-refresh is especially handy for working on Markdown or Gloss files: open a file in the Viewer and any editor, then see your changes rendered immediately.
+Files displayed with IntraMine's Viewer will auto-refresh instantly when changed by IntraMine's Editor, scrolling to the line where the Editor's cursor is. If you use some other editor, the refresh in the Viewer will take 1-2 seconds, and the top displayed line won't change. Auto-refresh is especially handy for working on Markdown or Gloss files: open a file in the Viewer and any editor, then see your changes rendered immediately after a Save.
 
 Spell checking
 ================

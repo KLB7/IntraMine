@@ -719,6 +719,10 @@ a.embedded_image {
 	font-weight: bold;
 }
 
+#viewEditTitle img {
+	margin-bottom: -2px;
+}
+
 #viewEditDateSize {
 	margin-right: 12px;
 }
