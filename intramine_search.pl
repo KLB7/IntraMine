@@ -311,7 +311,7 @@ ENDIT
 <form class="form-container" id="ftsform" method="get" action=_ACTION_ onsubmit="searchSubmit(this); return false;">
 
 <div id="form_1_1" class="formItemTitle"><h2>Search for&nbsp;</h2>
-<input id="searchtext" class="form-field" type="search" name="findthis" placeholder='type here eh' required /></div>
+<input id="searchtext" class="form-field" type="search" name="findthis" placeholder='type here eh' list="searchlist" required /></div>
 <div id="form_2_1"><label><input type='checkbox' name='matchexact' value='yes'>Match Exact Phrase</label></div>
 <div id="form_3_1">_DOCCOUNT_</div>
 
@@ -319,6 +319,8 @@ ENDIT
 <input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path, hit the dots->, or leave blank for all dirs' list="dirlist" /></div>
 <div id="form_2_2"><div id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></div></div>
 <div id="form_3_2"><label><input type='checkbox' id="subDirCheck" name='subdirs' value='yes'_CHECKEDBYDEFAULT_>Subdirectories too</label></div>
+<datalist id="searchlist">
+</datalist>
 <datalist id="dirlist">
 </datalist>
 

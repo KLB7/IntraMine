@@ -1,9 +1,9 @@
 # win_wide_filepaths.pm: a few subs to deal with Windows paths and file names that contain "unicode"
 # UTF-16 characters: exists, read, write, size, modtime, etc. Pass in a regular string and it's
 # converted to a "wide" character string using "encode("UTF-16LE...".
-# Then Win32API::File does the real work.
+# Then Win32API::File and Win32::API do the real work. 
 # Examples of use in IntraMine are mentioned below. If no example is given, the sub should
-# be regarded as untested.
+# be regarded as untested unless otherwise mentioned.
 #
 # Examples:
 # if (-f $fileOrDir)
@@ -47,6 +47,13 @@ BEGIN {
 		Kernel32 => qq{BOOL CopyFileW(LPWSTR lpExistingFileName, LPWSTR lpNewFileName, BOOL bFailIfExists)}
 		);
 	die "Failed to import CopyFileW" if !$CopyFileW;
+
+	# For RenameFileInPlaceWide:
+	my $MoveFileW = Win32::API::More->Import(
+		Kernel32 => qq{BOOL MoveFileW(LPWSTR lpExistingFileName, LPWSTR lpNewFileName)}
+		);
+	die "Failed to import MoveFileW" if !$MoveFileW;
+
 
 	Win32::API::More->Import(
 		Kernel32 => qq{BOOL DeleteFileW(LPWSTR lpFileName)}
@@ -492,6 +499,37 @@ sub CopyFileWide {
 	return(CopyFileW( $srcFullPathWin, $destFullPathWin, $failIfExists ));
 	}
 
+# RenameFileInPlaceWide: rename a file without changing its path otherwise.
+# $srcFullPath: full path to the file to be renamed
+# $newName: JUST the new file name.
+# Returns 1 if OK, 0 if fail.
+# Eg RenameFileInPlaceWide('C:/temp/originalName.pl', 'renamed.pl');
+# (RenameFileInPlaceWide is not currently used in IntraMine but has been tested.)
+sub RenameFileInPlaceWide {
+	my ($srcFullPath, $newName) = @_;
+	$srcFullPath =~ s!\\!/!g;
+	if (FileOrDirExistsWide($srcFullPath) != 1)
+		{
+		return(0);
+		}
+	my $lastSlashPos = rindex($srcFullPath, '/');
+	if ($lastSlashPos < 0)
+		{
+		return(0);
+		}
+	if ($newName =~ m!\\|/!)
+		{
+		return(0);
+		}
+	my $dir = substr($srcFullPath, 0, $lastSlashPos + 1);
+	my $destFullPath = $dir . $newName;
+
+	my $srcFullPathWin = encode("UTF-16LE", "$srcFullPath\0");
+	my $destFullPathWin = encode("UTF-16LE", "$destFullPath\0");
+
+	return(MoveFileW($srcFullPathWin, $destFullPathWin));
+	}
+
 # DeleteFileWide: returns 1 if $filePath is deleted, 0 if not.
 # (This uses the Win32::API->Import version of DeleteFileW. See BEGIN above.)
 # See eg intramine_filewatcher.pl#CleanOutOldFileWatcherLogs().
@@ -504,6 +542,7 @@ sub DeleteFileWide {
 # Make a dir with or without unicode in path. All dirs leading up to the one being
 # made must already exist. Returns 1 if dir is made, 2 if it already exists,
 # 0 otherwise.
+# See eg cmd_output.pm/InitCmdOutput().
 sub MakeDirWide {
 	my ($dirPath) = @_;
 	my $result = FileOrDirExistsWide($dirPath);
@@ -679,7 +718,7 @@ sub FindFileWide {
 
 # "Go deep", call FindFileWide() recursively on subdirs. Sets separate arrays of
 # full paths to files and subdirectories.
-# See eg elastic_indexer.pl#101.
+# See eg elastic_indexer.pl#114.
 sub DeepFindFileWide {
 	my ($dir, $filesA, $dirsA) = @_;
 	my $lastChar = substr($dir, -1);
@@ -1038,6 +1077,7 @@ sub ActualPathIfTooDeep {
 	return($actualPath);
 	}
 
+# Probably works, not tested.
 sub CreateSymlinkWide {
 	my ($symPath, $existingPath) = @_;
 	my $symPathWin  = encode("UTF-16LE", "$symPath\0");

@@ -6,7 +6,8 @@
 # which is also used in swarmserver.pm to create the top navigation for our site.
 # If the "Count" field for a server is greater than one, Count instances of the server will
 # be created here running on different ports, and requests will be cycled through the running
-# instances.
+# instances. If the count for a "Page" server is 0, the server won't be started, but will
+# be available under the "Add one page server" menu on the Status page.
 #
 # See also Documentation/IntraMine Main.html.
 #
@@ -71,6 +72,14 @@
 # MANAGE RUNNING SERVICES
 # Use the Status page (click on "Status" in the top navigation bar, or
 #   visit http://localhost:81/Status)
+# MANAGE STARTUP SERVICES
+# Edit the first "Count" field for the entries in /data/serverlist.txt.
+# MONITOR INTRAMINE
+# By default when IntraMine starts it will open a new browser page called "Mon"
+# that shows feedback from the running servers. This is fairly minimal after
+# start up completes, and typically thereafter just shows error messages if any.
+# (To stop having a new Mon page appear on every startup, open
+# data/intramine_config_8.txt and set SHOWMONPAGEATSTARTUP to 0.)
 # TEST INTRAMINE
 # Put the servers you want to test in data/serverlist_for_testing.txt, set their Count to 1,
 # and run
@@ -144,11 +153,10 @@ my $port_listen = CVal('INTRAMINE_MAIN_PORT'); 									# default 81
 # Note first port number is reserved for use by Opener's PowerShell server.
 my $kSwarmServerStartingPort = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT') + 1; 	# default 43124 + 1
 
-my $IGNOREEXITREQUEST = 0;	# This should be 0 for main, to allow a clean restart.
+my $IGNOREEXITREQUEST = 0;	# This should be 0 for main, to allow a clean stop.
 my $kLOGMESSAGES = 0;		# Log Output() messages
 my $kDISPLAYMESSAGES = 0;	# Display Output() messages in cmd window
 
-#my $DriveLetter = CVal('DRIVELETTER');
 my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
 my $CSS_DIR = FullDirectoryPath('CSS_DIR');
 my $JS_DIR = FullDirectoryPath('JS_DIR');
@@ -195,7 +203,7 @@ Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 #  started all other swarm servers, and only then stop (with FORCEEXIT) and restart the
 #  Cmd page servers, or any other server you've marked as PERSISTENT in serverlist.txt.
 # Having said all that, there is really no need to ever use this PERSISTENT notion, you're
-# better off just stopping IntraMine completely, so please forgive me this one
+# better off just stopping IntraMine completely, so please forgive me this
 # solution without a problem:)
 my $CommandServerHasBeenNotified = 0;
 my $CommandServersHaveBeenRestarted = 0;
@@ -203,7 +211,7 @@ my $CommandServersHaveBeenRestarted = 0;
 # Some signals will knock out a server while it's doing heavy maintenance. For these, it's
 # best to send the signal to the affected servers one by one, so only one server is out of
 # commission at a time. Servers and signal names for those affected are listed in
-# CVal('MAINTENANCE_SERVER_EVENTS'), see data/intramne_config.txt.
+# CVal('MAINTENANCE_SERVER_EVENTS'), see data/intramine_config.txt.
 # To avoid confusion, signal names should be globally unique.
 # Each affected server should send 'signal=backinservice&sender=SenderShortServerName'
 # when the outage due to maintenance is over.
@@ -436,12 +444,12 @@ my %PageIsPersistent;			# $PageIsPersistent{'Cmd'} = 1 means it survives a shutd
 my @PageIndexIsPersistent;		# $PageIndexIsPersistent[n] = 1 means associated Page is persistent, see line above
 my @PageIndexForCommandLineIndex; # PageIndexForCommandLineIndex[4] = 1 for Files intramine_fileserver.pl   to find out if it's persistent
 
-# Note reserved services are mostly called "zombie" services below. Sorry about that.
+# Note reserved services are sometimes called "zombie" services below. Sorry about that.
 # A 'zombie' service has a count of 0 in serverlist.txt. It won't be started when
 # this Main service starts, but will be available for starting on the Status page.
 # A port number will be reserved for it.
-my %ShortNameIsForZombie; # $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
-my %PortForZombieShortName; # Used at startup to add listeners for zombie services.
+my %ShortNameIsForZombie; 		# $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
+my %PortForZombieShortName; 	# Used at startup to add listeners for zombie services.
 
 # "Background" servers not associated with pages: names are UPPERCASE as listed in data/serverlist.txt.
 # For example intramine_filewatcher.pl checks
@@ -593,7 +601,7 @@ sub CreateCommandLinesForServers {
 			} # for BACKGROUND servers
 		} # two $loops
 	
-	# Reget $$webSocketPort_R, in case we are testing (see up around line 605);
+	# Reget $$webSocketPort_R, in case we are testing.
 	$$webSocketPort_R = WebSocketServerPort();
 	# Revisit the command lines for all servers and put in " $$webSocketPort_R" at end.
 	for (my $i = 0; $i < @ServerCommandLines; ++$i)
@@ -698,7 +706,7 @@ sub LoadServerList {
 		my $pageIndex = -1;
 		my %pageNameSeen;
 		
-		# Load the WS service line first and always.
+		# Load the WS (WebSockets) service line first and always.
 		my $webSocketLine = '1	WEBSOCKETS			WS			intramine_websockets.pl		WEBSOCKET';
 		# FOR TESTING ONLY, start the WS service in a separate cmd window if 1.
 		my $runWSServerSeparately = 0;
@@ -715,7 +723,7 @@ sub LoadServerList {
 			$PortForShortBackgroundServerName{'WS'} = '43140';
 			}
 		
-		# Feb 2025, also force load of the IntraMine Monitor (page) server.
+		# Also force load of the IntraMine Monitor (page) server.
 		# It has taken over startup text feedback due to problems with newlines
 		# displayed by the console window.
 		# (See also swarmserver.pm#LoadServerList().)
@@ -746,7 +754,7 @@ sub LoadServerList {
 	
 		if ($count == 0)
 			{
-			die("ERROR could not load anything useful from config file |$configFilePath|!\n");
+			die("ERROR could not load any servers from config file |$configFilePath|!\n");
 			}
 		else
 			{
@@ -978,11 +986,16 @@ sub ForceStopAllSwarmServers {
 sub ForceStopServer {
 	my ($portNumber, $serverAddress) = @_;
 	
-	Monitor("Attempting to FORCE stop $serverAddress:$portNumber\n");
-	
 	if (ServerOnPortIsRunning($portNumber))
 		{
-		Output("Attempting to FORCE stop $serverAddress:$portNumber\n");
+		my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
+		if ($shortName eq '')
+			{
+			$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+			}
+
+		Output("Attempting to FORCE stop $shortName running on $serverAddress:$portNumber\n");
+		print("Attempting to FORCE stop $shortName running on $serverAddress:$portNumber\n");
 		
 		if (PortIsForWEBSOCKServer($portNumber))
 			{
@@ -1388,14 +1401,6 @@ sub BroadcastAllServersUp {
 		Monitor("(The Status service is not running, service management is not available.)\n");
 		}
 	
-	# Trigger a maintenance interval slowdown from 2 seconds to 60 seconds.
-	#Monitor('FULLY STARTED');
-
-	# No longer needed, web pages now detect a restart and re-establish
-	# their WebSockets connections (restart.js).
-	#print("\nNOTE\n");
-	#print("Refresh any open IntraMine browser tabs to restore full service.\n\n");
-
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
 	}
 
@@ -1485,7 +1490,7 @@ sub RestartCommandServers {
 				}
 
 			Output("   STARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
-			Monitor("NOTE MAIN reSTARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
+			print("NOTE MAIN reSTARTING COMMAND SRVR '$ServerCommandLines[$i]' \n");
 			my $proc;
 			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]", 0, 0, ".")
 				|| die ServerErrorReport();
@@ -1540,7 +1545,7 @@ sub SessionStart {
 	return($StartTimeStamp);
 	}
 
-# Return an HTML table listing servers and status. One should preferably
+# Return an HTML table listing servers and status. One should perhaps
 # use YAML or JSON or something agreed upon. It's on my To Do List:) Meanwhile
 # I'm calling it an "HTML Fragment."
 # This is called by the Status server, see status.js#refreshStatus() ("req=filestatus").
@@ -2283,7 +2288,7 @@ sub HighestInitialPortInUse {
 	return($HighestInitialServerPort);
 	}
 
-# This responds to serverswarm.pm#ServiceIsRunning(), which translates the
+# This responds to swarmserver.pm#ServiceIsRunning(), which translates the
 # "yes"/"no" returned here into 1/0.
 sub ServiceIsRunning {
 	my ($obj, $formH, $peeraddress) = @_;
@@ -2536,8 +2541,8 @@ sub MainLoop {
 	# Warn if WS not up, might be someone upgrading.
 	if (!$WebSockIsUp)
 		{
-		Monitor("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
-		Monitor("No likely cause for that, sorry.\n");
+		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
+		print("No likely cause for that, sorry.\n");
 		}
 	
 	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address

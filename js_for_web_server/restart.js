@@ -1,11 +1,10 @@
-// restart.js: detect that IntraMine has restarted, respond
-// by calling websockets.js#wsInit() and refreshing the top navigation bar.
+// restart.js: detect that our service has restarted after stopping, respond
+// by reloading our page.
 // Show red in the nav bar if IntraMine isn't up (see main.css nav li > a.noIntraMine).
 
-let sessionStart = '';
-let intramineIsUp = true;
-let theSSAction = '';
-let noIntraMineClass = 'noIntraMine'; // main.css
+let serviceIsUp = true;
+let isRunningAction = '';				// Check service is up
+let noIntraMineClass = 'noIntraMine'; 	// main.css
 
 // "sleep" for ms milliseconds.
 function sleepMs(ms)
@@ -13,24 +12,27 @@ function sleepMs(ms)
 	return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
+// Loop, checking if our service is running and handling stop/start.
+// We require having main port, host, service name and service port.
 async function checkForRestartPeriodically()
 	{
-	if ((typeof theMainPort !== 'undefined') && (typeof theHost !== 'undefined'))
+	if ((typeof theMainPort !== 'undefined') && (typeof theHost !== 'undefined') && (typeof shortServerName !== 'undefined') && (typeof ourSSListeningPort !== 'undefined'))
 		{
-		theSSAction = 'http://' + theHost + ':' + theMainPort + '/?req=sessionStart';
+		// Action to ask Main if our service is running: returns "yes", "no", error.
+		isRunningAction = 'http://' + theHost + ':' + theMainPort + '/?req=running&shortname=' + shortServerName;
 		}
-	if (theSSAction === '')
+	else
 		{
 		return;
 		}
 	
+	await sleepMs(5000); // 5 seconds, things are just starting so be patient.
+
 	while (true)
 		{
 		try
 			{
 			await sleepMs(5000); // 5 seconds
-			// TEST ONLY
-			//console.log("About to check");
 			await checkAndHandleRestart();
 			}
 		catch(error)
@@ -40,80 +42,94 @@ async function checkForRestartPeriodically()
 		}
 	}
 
-// Ask Main service for its session start date time stamp.
-// If it changes, we want to re-establish WebSockets comm
-// and redo the nav bar (in case services have changed).
-// If no good response is received, that probably means
-// Main is restarting, so ignore.
+// Ask Main if our service is running. Expect "yes" if it's up,
+// "no" if Main is running but our service is not up yet,
+// or an error if Main isn't running either.
+// Turn the nav bar red if response isn't "yes".
+// On "yes", reload if our service was previously down.
 async function checkAndHandleRestart()
 	{
-	try {
-		const response = await fetch(theSSAction);
-		if (response.ok)
+	try
+		{
+		// Check that our service is running, regardless of port.
+		const runningResponse = await fetch(isRunningAction);
+		if (runningResponse.ok)
 			{
-			let text = await response.text();
-			// TEST ONLY
-			//console.log("About to call handleRestartIfNeeded");
-			handleRestartIfNeeded(text);
+			let isRunning = await runningResponse.text();
+			if (isRunning === "yes")
+				{
+				handleRestartIfNeeded();
+				}
+			else
+				{
+				// Either service is slow to start or
+				// it won't be started - we'll try again in 5 seconds.
+				console.clear();
+				showOurServiceIsDown();
+				}
 			}
 		else
 			{
-			// We reached our target server, but it returned an error
-			// TEST ONLY
-			//console.log("About to call showIntraMineIsDown");
-			showIntraMineIsDown();
+			console.clear();
+			showOurServiceIsDown();
 			}
 		}
 	catch(error)
 		{
 		// There was a connection error of some sort
-		showIntraMineIsDown();
+		console.clear();
+		showOurServiceIsDown();
 		}
+
 	}
 
-// Re-establish WebSockets communication.
-async function handleRestartIfNeeded(latestSessionStart)
+// Reload our window, if our backend service was down and came back.
+// Ask for a port number for our service (port numbers can change
+// if IntraMine is restarted) first.
+// If our port number has changed, update window.location.href
+// (which triggers a reload). Otherwise just call reload().
+async function handleRestartIfNeeded()
 	{
-	if (sessionStart !== '' && sessionStart !== latestSessionStart)
-		{
-		// For the Viewer and Mon, do a full reload
-		if (typeof shortServerName !== 'undefined')
-			{
-			if (shortServerName === 'Viewer' || shortServerName === 'Mon')
-				{
-				window.location.reload();
-				// Probably not reached.
-				return;
-				}
-			}
-		
-		await sleepMs(1000); // 1 second
-		
-		wsInit();
-		// Try navbar a few times, sometimes things are slow.
-		let numRetries = 5;
-		for (let tryCount = 0; tryCount < 5; ++tryCount)
-			{
-			let didIt = refreshNavBar();
-			if (didIt === true)
-				{
-				break;
-				}
-			await sleepMs(1000); // 1 second
-			}
-		
-		}
-	sessionStart = latestSessionStart;
-	}
-
-function showIntraMineIsDown()
-	{
-	if (!intramineIsUp)
+	if (serviceIsUp)
 		{
 		return;
 		}
 	
-	intramineIsUp = false;
+	// Get current service port, in case it changed.
+	const port = await fetchPort(theHost, theMainPort, shortServerName, errorID);
+	if (port !== "")
+		{
+		if (port !== ourSSListeningPort)
+			{
+			// Change port and reload
+			// http://192.168.40.8:43131/Editor/?href=...
+			let oldHref = window.location.href;
+			let newHref = oldHref.replace(/:\d+/, ":" + port);
+			window.location.href = newHref; // triggers reload
+			}
+		else // Just do a reload.
+			{
+			window.location.reload();
+			}
+		} 		// port retrieved
+	else 		//   - no idea what went wrong.
+		{
+		console.clear();
+		showOurServiceIsDown();
+		}
+	}
+
+// Put some red in the nav bar. There's no need to remove it,
+// since the page will be reloaded if and when our service comes back.
+// Note it might never come back if it was removed from data/serverlist.txt.
+function showOurServiceIsDown()
+	{
+	if (!serviceIsUp)
+		{
+		return;
+		}
+	
+	serviceIsUp = false;
 	let navbar = document.getElementById("nav");
 	if (navbar === null)
 		{
@@ -124,53 +140,6 @@ function showIntraMineIsDown()
 	for (let i = 0; i < aTags.length; i++)
 		{
 		addClass(aTags[i], noIntraMineClass);
-		}
-	}
-
-// Request a new navbar from our service.
-// Return false if should retry, true if we're done.
-async function refreshNavBar()
-	{
-	if (intramineIsUp)
-		{
-		return(true);
-		}
-	
-	let navbar = document.getElementById("nav");
-	if (navbar === null)
-		{
-		intramineIsUp = true;
-		return(true);
-		}
-
-	if ((typeof ourSSListeningPort === 'undefined') || (typeof theHost === 'undefined'))
-		{
-		intramineIsUp = true;
-		return(true);
-		}
-	
-	try
-		{
-		let theAction = 'http://' + theHost + ':' + ourSSListeningPort + '/?req=navbar';
-		const response = await fetch(theAction);
-		if (response.ok)
-			{
-			let text = await response.text();
-			navbar.innerHTML = text;
-			intramineIsUp = true;
-			return(true);
-			}
-		else
-			{
-			// We reached our target server, but it returned an error
-			//console.log("We reached our target server, but it returned an error.");
-			return(false);
-			}		
-		}
-	catch(error)
-		{
-		//console.log("Try failed.");
-		return(false);
 		}
 	}
 

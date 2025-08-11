@@ -113,7 +113,8 @@ my %ShortServerNamesType;		# 'PERSISTENT', 'BACKGROUND', or ''
 my %PageIsPersistent;			# $PageIsPersistent{'Cmd'} = 1 means it survives a shutdown so it can continue monitoring status - this is mainly for the "Cmd" page
 my @PageIndexIsPersistent;		# $PageIndexIsPersistent[n] = 1 means associated Page is persistent, see line above
 # A 'zombie' service has a count of 0 in serverlist.txt. It won't be started when
-# this Main service starts, but will be available for starting on the Status page.
+# this Main service starts, but will be available for starting on the Status page
+# under the "Add one page server" menu.
 my %ShortNameIsForZombie; # $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
 
 my $TopNavTemplate;
@@ -121,7 +122,8 @@ my $TopNavTemplate;
 # LoadServerList:
 # Load up servers from the serverlist.txt file. The format there is
 # Count<tabs>Page name<tabs>Short name<tabs>Perl program name [optional <tabs> 'PERSISTENT' or 'BACKGROUND']
-# "Count" is the number of instances to start for the server.
+# "Count" is the number of instances to start for the server. As mentioned just above,
+# a Count 0 creates a zombie service.
 # The "Page name" and "Short name" are used to tell one server for another. Servers can have
 # the same Page name, but must have unique Short names. If the Page name and Short name are
 # the same, then it's a "top level" page server, meaning it will show up in IntraMine's
@@ -159,7 +161,7 @@ sub LoadServerList {
 		# (See also intramine_main.pl#LoadServerList().)
 		my $monLine = '1	Mon			Mon			intramine_mon.pl';
 		push @lines, $monLine;
-		my $monIsLoaded = 0; # Avoid loading Mon twice.
+		my $monIsLoaded = 0; # Avoid listing Mon twice.
 
 		my $pageIndex = 0;
 		my $previousPageName = '';
@@ -406,8 +408,6 @@ my $WebSockIsUp;
 # SSInitialize: call this at the start of every IntraMine server, page or background. Except
 # the Main server intramine_main.pl, of course. See any server program for an example.
 # Passing undef here as an arg means "not interested in the value."
-# Background servers have no associated page names, so pass undef for the $pageNameR
-# in those cases. Normally all other parameters are of interest.
 sub SSInitialize {
 	my ($pageNameR, $shortNameR, $serverPortR, $listeningPortR) = @_;
 	GrabParameter($pageNameR);
@@ -616,6 +616,7 @@ sub MainLoop {
 	$ReqActions{'SIGNAL'} = \&DefaultBroadcastHandler;
 	
 	# Handle for configuration value requests from JavaScript.
+	# (Not currently used.)
 	# req=configvalueforjs&key='the_key'
 	$ReqActions{'req|configvalueforjs'} = \&ConfigValue;
 	
@@ -647,12 +648,6 @@ sub MainLoop {
 		RequestBroadcast('ssinfo=starting&port=' . $OurPort);
 		$callbackInit->();
 		}
-
-	# TEST ONLY Loading glossaries stall
-	# if ($sname eq 'Linker')
-	# 	{
-	# 	print("Linker about to broadcast serverup.\n");
-	# 	}
 	
 	# We are started at this point, let the main server know. See intramine_main.pl#ReceiveInfo().
 	RequestBroadcast('ssinfo=serverUp&port=' . $OurPort);

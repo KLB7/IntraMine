@@ -9,7 +9,8 @@ window.addEventListener("load", doResize);
 window.addEventListener("resize", doResize);
 window.addEventListener("resize", doDirectoryPickerResize);
 
-let directoryCache;
+let searchCache; 		// A cache for the "Search for" field
+let directoryCache;		// A cache for the  "Directory" field
 
 let onMobile = false; // Set below, true if we have touch events.
 if (typeof window.ontouchstart !== 'undefined')
@@ -61,6 +62,10 @@ async function loadPageContent() {
 			setFocusToTextBox();
 			addFormClickListener();
 			initDirectoryDialog();
+
+			searchCache = new LRUCache(10);
+			loadSearchCache();
+			rebuildSearchList();
 
 			directoryCache = new LRUCache(10);
 			loadDirCache();
@@ -143,6 +148,13 @@ async function searchSubmit(oFormElement) {
 		}
 	sSearch += "&directory=" + dirValue;
 
+	// Remember search term.
+	let searchvalElement = document.getElementById("searchtext");
+	let searchValue = encodeURIComponent(searchvalElement.value);
+	searchCache.set(searchValue, searchValue);
+	rebuildSearchList();
+	saveSearchCache();
+
 	// And tack on whether languages or extensions have been selected.
 	let val = document.querySelector('input[name="langExt"]:checked').value;
 	sSearch += "&extFilter=" + val;
@@ -206,10 +218,10 @@ async function searchSubmit(oFormElement) {
 
 function rebuildDirList() {
 	let dirListElem = document.getElementById("dirlist");
-	typeof (dirListElem !== 'undefined')
+	if (typeof dirListElem !== 'undefined')
 		{
 		dirListElem.innerHTML = '';
-		dirInnerHTML = '';
+		let dirInnerHTML = '';
 		
 		// We need to reverse the keys in directoryCache.cache
 		// to show the most recently used first.
@@ -257,6 +269,62 @@ function loadDirCache() {
 	const keysArr = dirString.split("|");
 	for (let key of keysArr) {
 		directoryCache.cache.set(key, key);
+		}
+	}
+
+function rebuildSearchList() {
+	let searchListElem = document.getElementById("searchlist");
+	if (typeof searchListElem !== 'undefined')
+		{
+		searchListElem.innerHTML = '';
+		let searchInnerHTML = '';
+		
+		// We need to reverse the keys in searchCache.cache
+		// to show the most recently used first.
+		let keysArr = Array.from(searchCache.cache.keys() );
+		for (let key of keysArr.reverse()) {
+			//console.log(key);
+			let searchValue = decodeURIComponent(key);
+			let searchChild = "<option value='" + searchValue + "'>";
+			searchInnerHTML += searchChild;
+			}
+		
+		if (searchInnerHTML !== '')
+			{
+			searchListElem.innerHTML = searchInnerHTML;
+			}
+		}
+}
+
+function saveSearchCache() {
+	let keysArr = Array.from(searchCache.cache.keys() );
+	let searchString = '';
+	for (let key of keysArr.reverse()) {
+		if (searchString === '')
+			{
+			searchString = key;
+			}
+		else
+			{
+			searchString += '|' + key;
+			}
+		}
+	
+	if (searchString !== '')
+		{
+		localStorage.setItem("searchCache", searchString);
+		}
+	}
+
+function loadSearchCache() {
+	if (!localStorage.getItem("searchCache")) {
+		return;
+		}
+		
+	let searchString = localStorage.getItem("searchCache");
+	const keysArr = searchString.split("|");
+	for (let key of keysArr) {
+		searchCache.cache.set(key, key);
 		}
 	}
 
