@@ -204,6 +204,8 @@ let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
 let selectedTheme = '_THEME_';
 
+let chevronWidth = '600px';
+
 let weAreEditing = true; // Don't adjust user selection or do internal links if editing.
 
 //let onMobile = false; // mobile is going away. Too difficult to test.
@@ -366,10 +368,11 @@ FINIS
 	# Flip the slashes for file path in _TITLEHEADER_ at top of the page, for the "traditional" look.
 	$title =~ s!/!\\\\!g;
 	$title = &HTML::Entities::encode($title);
-	# Show full path ($title) as expandable/collapsible.
+
+	# Show full path ($title) as expandable/collapsible with links to directories in the path.
 	my $expandImg = "<img src='expand.jpg'>";
-	#$theBody =~ s!_TITLEHEADER_!$expandImg&nbsp;$title!;
-	$theBody =~ s!_TITLEHEADER_!<span id="viewEditTitle" onclick="toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);"><img src='expand.jpg'>&nbsp;$fileName</span>!;
+	my $chevronControlForPath = ChevronFilePathControl($title, $fileName);
+	$theBody =~ s!_TITLEHEADER_!$chevronControlForPath!;
 
 	my $canHaveTOC = CanHaveTOC($filePath);
 
@@ -432,7 +435,7 @@ FINIS
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
 
-	# Highlight class for table of contents selected element - see also non_cm_test.css
+	# The highlight class for table of contents selected element - see also non_cm_test.css
 	# and cm_editor_links.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
 	
@@ -440,6 +443,35 @@ FINIS
 	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 	
 	return $theBody;	
+	}
+
+# Show a chevron (>>) and file name, attach a showhint() with links to all directories
+# in the fullpath for our file. toggleFilePath expands the file name to the full path
+# and back again.
+sub ChevronFilePathControl {
+	my ($filePath, $fileName) = @_;
+	$filePath =~ s!\\!/!g;
+	$filePath =~ s!//!/!g;
+	my $currentPath = $filePath;
+	my $directoryAnchorList = "<em>Click above to expand/contract</em><br><hr>";
+
+	# One could put in an Edit link, but we're in the Editor for the file already.
+	# my $fileAnchor = "<a href='$currentPath' onclick='editOpen(this.href); return false;'>$currentPath</a><br>";
+	# $directoryAnchorList .= $fileAnchor ;
+	
+	my $lastSlashPos = rindex($currentPath, '/');
+	while ($lastSlashPos > 0)
+		{
+		$currentPath = substr($currentPath, 0, $lastSlashPos);
+		my $directoryAnchor = "<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
+		$directoryAnchorList .= $directoryAnchor ;
+		$lastSlashPos = rindex($currentPath, '/');
+		}
+
+	my $result = "<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showChevronHint(&quot;$directoryAnchorList&quot;, this, event, false, false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
+	#my $result = "<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showhint(&quot;$directoryAnchorList&quot;, this, event, '800px', false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
+	
+	return($result);
 	}
 
 sub NonCodeMirrorThemeCSS {

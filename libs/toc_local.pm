@@ -694,6 +694,10 @@ sub GetCssCTagsTOCForFile {
 	my $tagString = '';
 	GetCtagsString($filePath, \$tagString);
 
+	# TEST ONLY
+	#my $tempPath = "C:/perlprogs/IntraMine/temp/" . $fileName . ".txt";
+	#WriteTextFileWide($tempPath, $tagString);
+
 	my %tagEntryForLine;
 	my %tagDisplayedNameForLine;
 	$fileName = lc($fileName);

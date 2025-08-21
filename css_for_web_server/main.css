@@ -727,6 +727,11 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+.slightShadow  {
+	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
+	text-shadow: 2px 2px 1px #C0C0C0;
+}
+
 #title-blockTR {
 	max-height: 60px;
 	overflow: hidden;

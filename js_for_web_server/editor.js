@@ -67,7 +67,6 @@ titleElement.addEventListener('mousemove', (e) => {
 
 // Toggle display of file path between just file name and full path.
 // Chevron image changes too.
-// pathWithBackslashes and theFileName can change after Save As.
 function toggleFilePath(el, expandImage, contractImage) {
 	if (dragInTitle)
 		{
@@ -87,6 +86,85 @@ function toggleFilePath(el, expandImage, contractImage) {
 		{
 		el.innerHTML = "<img src='expand.jpg'>&nbsp;" + theFileName;
 		}
+}
+
+// Work out a nice minimum width for the hintContents, then show the hint.
+function showChevronHint(hintContents, obj, e, isAnImage, shouldDecode) {
+	
+	showChevronHint.callCount = (showChevronHint.callCount || 0) + 1;
+	// TEST ONLY
+	//console.log("showChevronHint call count: |" + showChevronHint.callCount + "|");
+	//console.log("chevronWidth BEFORE: |" + chevronWidth + "|");
+	
+	if (showChevronHint.callCount === 1)
+		{
+		let helptext = "Click above to expand/contract\n";
+		setChevronTipWidth(helptext);
+		// TEST ONLY
+		//console.log("chevronWidth AFTER: |" + chevronWidth + "|");
+		}
+
+	showhint(hintContents, obj, e, chevronWidth, isAnImage, shouldDecode);
+}
+
+// Use a canvas to measure width of the tooltip text for the "chevron"
+// control that displays a list of links to directories in the full
+// path to our file. Set global chevronWidth accordingly.
+function setChevronTipWidth(helptext) {
+	let el = document.getElementById("hintbox");
+	let computedStyle = window.getComputedStyle(el);
+	let fontSize = computedStyle.fontSize;
+	let fontFamily = computedStyle.fontFamily;
+	//console.log("family " + fontFamily + ", size " + fontSize);
+	let idx = fontFamily.indexOf(',');
+	if (idx > 0)
+		{
+		fontFamily = fontFamily.substring(0, idx);
+		}
+	
+	//let contextfont = "13px" + " " + "Arial";
+	let contextfont = fontSize + " " + fontFamily;
+
+	//console.log("context font: |" + contextfont + "|");
+	let canvas = document.createElement('canvas');
+	let context = canvas.getContext('2d');
+	canvas.width = 1000;
+	canvas.height = 100;
+	context.font = contextfont;
+	let metrics = context.measureText(helptext);
+	let textWidth = metrics.width;
+	let textLen = textWidth.length;
+	let pureTextWidth = textWidth;
+
+	//console.log("text width of helptext: |" + pureTextWidth + "|");
+
+	// Also measure thePath, minus the file name.
+	let dirPath = thePath;
+	let slashPos = dirPath.lastIndexOf("/");
+	if (slashPos < 0)
+		{
+		slashPos = dirPath.lastIndexOf("\\");
+		}
+	if (slashPos > 0)
+		{
+		dirPath = dirPath.substring(0, slashPos + 1);
+		}
+
+	//console.log("dirPath: |" + dirPath + "|");
+	metrics = context.measureText(dirPath + "\n");
+	textWidth = metrics.width;
+
+	//console.log("text width of the Path: |" + textWidth + "|");
+
+	textLen = textWidth.length;
+	let purePathWidth = textWidth;
+	let finalPureWidth = (pureTextWidth >= purePathWidth) ? pureTextWidth: purePathWidth;
+	// Set the width argument to showhint and set it to the calculated width
+	// (plus a few px for wiggle room).
+	finalPureWidth += 10.0;
+	chevronWidth = finalPureWidth.toString() + "px";
+	// TEST ONLY
+	//console.log("chevronWidth is now |" + chevronWidth + "|");
 }
 
 function getFileExtension(filename) {
@@ -484,6 +562,7 @@ function onCodeMirrorChange() {
 		addClass(btn, 'disabled-submit-button');
 		btn = document.getElementById("revert-button");
 		addClass(btn, 'disabled-submit-button');
+		btn.disabled = true;
 		
 		// Note CodeMirror emits a "change" event when text is loaded, we ignore
 		// since loadFileIntoCodeMirror() calls addAutoLinks() directly.
@@ -495,6 +574,7 @@ function onCodeMirrorChange() {
 		removeClass(sve, 'disabled-submit-button');
 		let btn = document.getElementById("revert-button");
 		removeClass(btn, 'disabled-submit-button');
+		btn.disabled = false;
 
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '&nbsp;';
@@ -515,6 +595,7 @@ function onCodeMirrorChange() {
 		addClass(sve, 'disabled-submit-button');
 		let btn = document.getElementById("revert-button");
 		addClass(btn, 'disabled-submit-button');
+		btn.disabled = true;
 
 		if (unloadListenerAdded)
 			{

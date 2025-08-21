@@ -188,7 +188,11 @@ function positionAndShowHint() {
 	// For text, shrink the height to fit within window if necessary.
 	else
 		{
-		hintElement.style.width = "650px";
+		// TEST ONLY
+		console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		
+		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
 			let reducedHeight = windowHeight - tl.top;
@@ -552,7 +556,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		else
 			{
-			hintElement.style.width = "650px";
+			hintElement.style.width = tipwidth; // "650px";
+			// TEST ONLY
+			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {

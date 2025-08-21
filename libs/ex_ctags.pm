@@ -864,6 +864,11 @@ sub LoadJuliaTags {
 # 				.form-container h2					form_container_h2
 # 				.todo-task > .task-header			todo_task_task-header
 #				.first, .second						first|second
+# Example entries in the tag file:
+# html[xmlns] #nav	C:/perlprogs/IntraMine/css_for_web_server/main.css	215;"	i
+# #nav ul li:first-child > a	C:/perlprogs/IntraMine/css_for_web_server/main.css	191;"	s
+# .yebal	C:/perlprogs/IntraMine/css_for_web_server/main.css	279;"	c
+# .openingbal	C:/perlprogs/IntraMine/css_for_web_server/main.css	279;"	c
 sub LoadCssCtags {
 	my ($lcCssFileName, $tagStringR, $tagEntryForLineH, $tagDisplayedNameForLineH, $errorMsgR) = @_;
 	my $itemCount = 0;
@@ -874,11 +879,14 @@ sub LoadCssCtags {
 	
 	for (my $i = 0; $i < $numLines; ++$i)
 		{
-		if ($lines[$i] =~ m!^(.+?)\s+.+?$lcCssFileName\s+(\d+);!i)
-		# if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
+		# tag tab filename tab linenumber (no ';')
+		if ($lines[$i] =~ m!^([^\t]+)\t([^\t]+)\t([^\t;]+)!)
+		#if ($lines[$i] =~ m!^(.+?)\s+.+?$lcCssFileName\s+(\d+);!i)
+		#if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
 			{
 			my $displayedTagname = $1;
-			my $lineNumber = $2;
+			my $lineNumber = $3;
+			#my $lineNumber = $2;
 			
 			if (index($displayedTagname, ",") > 0) # multiple tags, separate entries for linenum by '|'
 				{

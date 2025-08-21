@@ -106,7 +106,8 @@ Console window: The window you can type commands in when you run "C:/Windows/Sys
 
 Navigation bar: "topnav.png".
 
-Status page: "2020-02-27 22_40_46-Status.png".
+Status page: "Status.html"
+"2020-02-27 22_40_46-Status.png".
 
 Context aware, context-aware: IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as "main.cpp" is used for many files, we need some way to pin down which "main.cpp" is meant. IntraMine does this in two ways: you can provide enough of a sufficient path leading up to the file, such as "project51/src/main.pp", that only one indexed file matches that sufficient path; or, if you mean the main.cpp that's "closest" to the file where you've mentioned it, then that's the one IntraMine will pick by default, and only the file name is needed.
 

@@ -362,7 +362,9 @@ sub FullFile {
 	
 	# Fill in the placeholders in the HTML template for title etc. And give values to
 	# JS variables. See FullFileTemplate() just below.
-	$theBody =~ s!_TITLEHEADER_!$title!;
+	#$theBody =~ s!_TITLEHEADER_!$title!;
+	my $titleDisplay = TitleDisplay($title, $fileName);
+	$theBody =~ s!_TITLEHEADER_!$titleDisplay!;
 	
 	$theBody =~ s!_DATEANDSIZE_!$sizeDateStr!;
 
@@ -538,6 +540,27 @@ window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + sho
 FINIS
 
 	return($theBody);
+	}
+
+sub TitleDisplay {
+	my ($filePath, $fileName) = @_;
+	my $currentPath = $filePath;
+	$currentPath =~ s!\\!/!g;
+	$currentPath =~ s!//!/!g;
+	my $directoryAnchorList = "";
+
+	my $lastSlashPos = rindex($currentPath, '/');
+	while ($lastSlashPos > 0)
+		{
+		$currentPath = substr($currentPath, 0, $lastSlashPos);
+		my $directoryAnchor = "<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
+		$directoryAnchorList .= $directoryAnchor ;
+		$lastSlashPos = rindex($currentPath, '/');
+		}
+
+	my $result = "<span id=\"viewEditTitle\" class=\"slightShadow\" onmouseover=\"showhint(&quot;$directoryAnchorList&quot;, this, event, '600px', false);\" >$filePath</span>";
+	
+	return($result);
 	}
 
 # Fill in contents, meta line, and css file names based on extension at end of $filepath.
