@@ -189,8 +189,8 @@ function positionAndShowHint() {
 	else
 		{
 		// TEST ONLY
-		console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
-		console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
 		
 		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
