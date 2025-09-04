@@ -736,6 +736,11 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+.slightShadow  {
+	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
+	text-shadow: 2px 2px 1px #C0C0C0;
+}
+
 #title-blockTR {
 	max-height: 60px;
 	overflow: hidden;
@@ -1492,17 +1497,14 @@ paragraph (ie not the first paragraph in the item).
 	position:absolute;
 	top: 0;
 	background-color: #FFFFF4;
-	/*width: 150px; Default width of hint.*/ 
+	width: 300px; /*Default width of hint.*/ 
 	padding-top: 0;
 	padding-bottom: 0;
 	padding-left: 6px;
 	padding-right: 6px;
-	/*border:1px solid black;*/
 	font:normal 13px Verdana;
 	line-height:18px;
 	z-index:100;
-	/*border-right: 3px solid black;
-	border-bottom: 3px solid black;*/
 	visibility: hidden;
 		
 	overflow: auto;
@@ -1513,6 +1515,11 @@ paragraph (ie not the first paragraph in the item).
 
 	border: none;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+}
+
+/* Make font in footnotes the same as in a regular pop up hint box. */
+.footDiv {
+	font:normal 13px Verdana;
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1919,7 +1926,7 @@ span.ll-com { /* comments */
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R9'><td n='9'></td><td>Here's the scoop on installing File <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> as a service, and configuring it to monitor the folders on <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ELocally%20attached%20storage%3C%2Fstrong%3E%3A%20Storage%20attached%20directly%20to%20your%20computer%2C%20typically%20via%20USB%20or%20SATA.%20Drives%20on%20your%20network%20are%20called%20NAS%20%28Network%20Attached%20Storage%29.%20IntraMine%20can%20index%20all%20source%20and%20text%20files%20on%20local%20storage%2C%20and%20also%20monitor%20them%20for%20changes%20and%20re-index.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">locally attached storage</a> that are also being indexed. First,a bit of devsplaining.</td></tr>
 <tr id='R10'><td n='10'></td><td></td></tr>
-<tr id='R11'><td n='11'></td><td>File <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> will receive change notices from Windows whenever a file in a monitored folder (or subfolder) changes, and make a detailed entry in its fwatcher.log file. IntraMine's Watcher service (intramine_filewatcher.pl) checks for changes to that log file, and on spotting a change asks <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> to re-index the file - and also notes the full path of a new or relocated file, so <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinking%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20FLASH%20link%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinking</a> can keep up.</td></tr>
+<tr id='R11'><td n='11'></td><td>File <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> will receive change notices from Windows whenever a file in a monitored folder (or subfolder) changes, and make a detailed entry in its fwatcher.log file. IntraMine's Watcher service (intramine_filewatcher.pl) checks for changes to that log file, and on spotting a change asks <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> to re-index the file - and also notes the full path of a new or relocated file, so <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EAutolinking%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FFLASH%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.html%22%3C%2Fa%3E%20and%20also%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20FLASH%20link%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">autolinking</a> can keep up.</td></tr>
 <tr id='R12'><td n='12'></td><td></td></tr>
 <tr id='R13'><td n='13'></td><td>What can you monitor? Only folders on <strong><a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ELocally%20attached%20storage%3C%2Fstrong%3E%3A%20Storage%20attached%20directly%20to%20your%20computer%2C%20typically%20via%20USB%20or%20SATA.%20Drives%20on%20your%20network%20are%20called%20NAS%20%28Network%20Attached%20Storage%29.%20IntraMine%20can%20index%20all%20source%20and%20text%20files%20on%20local%20storage%2C%20and%20also%20monitor%20them%20for%20changes%20and%20re-index.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">locally attached storage</a></strong>. At this time, Network Attached Storage (<a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a>) can't be monitored for changes. NAS files can be indexed, but changes to NAS files after the initial indexing won't be picked up. This limitation is partly because it's difficult to set up File <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> so it can access NAS with adequate rights and permissions, and also because Windows detection and reporting of changes on NAS drives is not as reliable as one might wish.</td></tr>
 <tr id='R14'><td n='14'></td><td></td></tr>
@@ -2295,7 +2302,11 @@ function positionAndShowHint() {
 	// For text, shrink the height to fit within window if necessary.
 	else
 		{
-		hintElement.style.width = "650px";
+		// TEST ONLY
+		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		
+		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
 			let reducedHeight = windowHeight - tl.top;
@@ -2659,7 +2670,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		else
 			{
-			hintElement.style.width = "650px";
+			hintElement.style.width = tipwidth; // "650px";
+			// TEST ONLY
+			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {
@@ -2860,7 +2873,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "auto";
+	hintElement.style.width = "300px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)

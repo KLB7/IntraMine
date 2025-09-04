@@ -26,12 +26,12 @@ use Win32;
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $page_name = shift @ARGV;
-my $short_name = shift @ARGV;
-my $mainPort = shift @ARGV;		# Default 81
-my $port_listen = shift @ARGV;	# Default up over 42000
+my $page_name   = shift @ARGV;
+my $short_name  = shift @ARGV;
+my $mainPort    = shift @ARGV;    # Default 81
+my $port_listen = shift @ARGV;    # Default up over 42000
 
 if (!defined($port_listen) || $port_listen !~ m!^\d+$!)
 	{
@@ -45,35 +45,34 @@ ListenForWSConnections();
 # Except for an exit message, for which just print good-bye and exit.
 sub ListenForWSConnections {
 	my $MessageGuard = '_MG_';
-	
+
 	# TEST ONLY
 	#print("$short_name is listening on port |$port_listen|\n");
-	
-	Net::WebSocket::Server->new
-		(
-	    listen => $port_listen,
-		silence_max => 0, # or maybe try 30 (seconds)
-	    on_connect => sub {
-	        my ($serv, $conn) = @_;
-	        # TEST ONLY
-	        #print("WS on connect.\n");
-	        
-	        $conn->on(
-	            utf8 => sub {
-	                my ($conn, $msg) = @_;
-	                # TEST ONLY
-	                #print("utf8: |$msg|\n");
+
+	Net::WebSocket::Server->new(
+		listen      => $port_listen,
+		silence_max => 0,              # or maybe try 30 (seconds)
+		on_connect  => sub {
+			my ($serv, $conn) = @_;
+			# TEST ONLY
+			#print("WS on connect.\n");
+
+			$conn->on(
+				utf8 => sub {
+					my ($conn, $msg) = @_;
+					# TEST ONLY
+					#print("utf8: |$msg|\n");
 					if ($msg =~ m!$MessageGuard(FORCEEXIT|EXITEXITEXIT)$MessageGuard!)
-	                	{
-	                	print("WS EXIT bye!\n");
-	                	exit(0);
-	                	}
-	                else
-	                	{
-	                	$_->send_utf8($msg) for $conn->server->connections;
-	                	}
-	            	}
-	        	);
-	    	},
-		)->start;
-	}
+						{
+						print("WS EXIT bye!\n");
+						exit(0);
+						}
+					else
+						{
+						$_->send_utf8($msg) for $conn->server->connections;
+						}
+				}
+			);
+		},
+	)->start;
+}

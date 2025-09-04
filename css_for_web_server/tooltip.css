@@ -4,17 +4,14 @@
 	position:absolute;
 	top: 0;
 	background-color: #FFFFF4;
-	/*width: 150px; Default width of hint.*/ 
+	width: 300px; /*Default width of hint.*/ 
 	padding-top: 0;
 	padding-bottom: 0;
 	padding-left: 6px;
 	padding-right: 6px;
-	/*border:1px solid black;*/
 	font:normal 13px Verdana;
 	line-height:18px;
 	z-index:100;
-	/*border-right: 3px solid black;
-	border-bottom: 3px solid black;*/
 	visibility: hidden;
 		
 	overflow: auto;
@@ -25,6 +22,11 @@
 
 	border: none;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+}
+
+/* Make font in footnotes the same as in a regular pop up hint box. */
+.footDiv {
+	font:normal 13px Verdana;
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/

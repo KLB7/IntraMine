@@ -75,18 +75,18 @@ You can also link to a specific line number in a file, eg autolinking_demo.pl#10
 
 Linking to directories
 =========================
-You might have directories that you want to check in on now and then, or provide a link to the whole directory for others to use. Perhaps a directory called "Changes" or "Notes" or "Docs" or "Latest Updates" or "To Do". With IntraMine, you can have links to local directories too. (By "local" is meant storage attached directly to your computer or available on a mapped drive on your Local Area Network.)
+You might have directories that you want to check in on now and then, or provide a link to the whole directory for others to use. Perhaps a directory called "Changes" or "Notes" or "Docs" or "Latest Updates" or "To Do". With IntraMine, you can have FLASH links to local directories too. (By "local" is meant storage attached directly to your computer or available on a mapped drive on your Local Area Network.)
 
-IntraMine's Viewer and Editor will show automatic directory links. When clicked, an expanded view of the directory appears in a new browser tab, displayed with IntraMine's Files service. If the Files service isn't running, the directory will be shown using Windows File Explorer.
+IntraMine's Viewer and Editor will show directory FLASH links. When clicked, an expanded view of the directory appears in a new browser tab, displayed with IntraMine's Files service. If the Files service isn't running, the directory will be shown using Windows File Explorer.
 
-Automatic directory links work much like the automatic file links described just above. The one big difference is you need to put your directory specifier in 'single' or "double" quotes. Put your wanted directory name in quotes, and precede it with a directory or two (or a drive specifier) if you don't want the closest instance of the directory. Separate names with forward or backward slashes, as you please. Leading or trailing slashes are not required. The directory path, if more than one directory name is included, doesn't have to be complete and the directory names don't have to be in order (although a drive letter if present has to be leftmost). The directory names are not case sensitive.
+Directory FLASH links work much like the FLASH links for files described just above. The one big difference is you need to put your directory specifier in 'single' or "double" quotes. Put your wanted directory name in quotes, and precede it with a directory or two (or a drive specifier) if you don't want the closest instance of the directory. Separate names with forward or backward slashes, as you please. Leading or trailing slashes are not required. The directory path, if more than one directory name is included, doesn't have to be complete and the directory names don't have to be in order (although a drive letter if present has to be leftmost). The directory names are not case sensitive.
 
-Automatic directory links are implemented in IntraMine's Viewer and Editor.
+Directory FLASH links are implemented in IntraMine's Viewer and Editor.
 
 In the rare case where a directory and a heading (in a text file) have the same name, the heading will win out. If you really want the directory, add a second directory name to the path. For example, if "Docs" takes you to the section called "Docs" instead of a listing for C:/Project51/Docs/, put in "Project51/Docs" and you'll get your directory link.
 
 Here are some examples:
-TABLE Automatic directory link examples (with one instance of /Changes/ in each project folder)
+TABLE Directory FLASH link examples (with one instance of /Changes/ in each project folder)
 Directory to link to	Referencing file (where you're typing)		What to type
 C:/Projects/proj1/Changes/	C:/Projects/proj1/notes/Jan_2023.txt	"changes"
 C:/Projects/proj99/Changes/	C:/Projects/proj99/notes/Jan_2023.txt	"changes"
@@ -94,7 +94,7 @@ C:/Projects/proj99/Changes/	C:/Projects/proj1/notes/Jan_2023.txt	"proj99/changes
 
 As an example of possible variations, "proj99/changes" could also be entered as "/Proj99/CHANGES/" or "changes\PROJ99" or "C:/projects/proj99/changes/".
 
-Since this is a somewhat new feature, you're encouraged to think up new uses for it. Any directories you'd like to get at with a single click? Now you can.
+Any directories you'd like to get at with a single click? Now you can.
 
 Linking to headings in the same file
 ===============================
@@ -121,6 +121,10 @@ Perl Module links
 Since IntraMine is Perl-based, we have to sneak in a little extra for Perl file viewing. So in Perl files if you "use" a module, you'll get a link to the corresponding file on your system. If you installed the module using cpan (or cpanm etc) you'll also get a link to metacpan.org for the modules. And if it's a module you wrote and are storing locally, there will also be a "pencil" icon link to open the file for editing.
 2019-11-19 12_14_06-gloss2html.pl.png
 
+(In the Editor, instead of a pencil icon you'll see a "purple patch" at the right end of the link that reads "Edit" if you hover over it, clicking there will open the file for editing.
+purplepatch.png
+)
+
 On-demand linking
 =====================
 Context-aware FLASH linking based on partial paths takes a bit of code, and can be slow when doing several thousand lines in one go. IntraMine's Viewer avoids any slowdown by doing on-demand file linking, so that lines of text are processed only when they become visible, and only once. However, the Editor does clear all links and redo the links for visible lines after an editing "spurt" is finished.
@@ -136,3 +140,7 @@ You can put images in any indexed folder, and their file names will be found whe
 If you have two different images with the same file name, you can add a bit of the path leading up to the image in order to tell Gloss which image you mean by providing some context. For example, if you wanted the /project51/images/ version of an image called interface.png, in general you could put project51/images/interface.png or just project51/interface.png as the mention. That would pin down which image to show, unless of course you have another /project51/ folder somewhere - in that rare case, you'd need more of the path to tell Gloss which is which. If the mention is in a file that's inside the project51 folder, then just interface.png should do the job. This is the same as for source and text file links.
 
 As implemented in IntraMine's Viewer, Gloss will also look for images in a specific default directory if no partial path is given and the image isn't found in an indexed location. This is the directory specified by "COMMON_IMAGES_DIR" in IntraMine's data/intramine_config.txt file. The default path is C:\common\images\, and you can change it if you want. If you don't want to put images in a default directory, you certainly don't have to. It's handy though if you use a screen capture app such as Greenshot, where you can set it up to take a screen shot, give it a default name, save the image in a default location, and put the file path on your clipboard.
+
+---
+contents.txt
+---

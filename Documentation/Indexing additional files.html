@@ -736,6 +736,11 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+.slightShadow  {
+	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
+	text-shadow: 2px 2px 1px #C0C0C0;
+}
+
 #title-blockTR {
 	max-height: 60px;
 	overflow: hidden;
@@ -1492,17 +1497,14 @@ paragraph (ie not the first paragraph in the item).
 	position:absolute;
 	top: 0;
 	background-color: #FFFFF4;
-	/*width: 150px; Default width of hint.*/ 
+	width: 300px; /*Default width of hint.*/ 
 	padding-top: 0;
 	padding-bottom: 0;
 	padding-left: 6px;
 	padding-right: 6px;
-	/*border:1px solid black;*/
 	font:normal 13px Verdana;
 	line-height:18px;
 	z-index:100;
-	/*border-right: 3px solid black;
-	border-bottom: 3px solid black;*/
 	visibility: hidden;
 		
 	overflow: auto;
@@ -1513,6 +1515,11 @@ paragraph (ie not the first paragraph in the item).
 
 	border: none;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+}
+
+/* Make font in footnotes the same as in a regular pop up hint box. */
+.footDiv {
+	font:normal 13px Verdana;
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1924,7 +1931,7 @@ span.ll-com { /* comments */
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td><h2 id="Adding_files_to_indexed_folders">Adding files to indexed folders</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R18'><td n='18'></td><td>If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> and is being monitored for changes, this can swamp IntraMine's <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> with changes to the point where it will stop responding for a while, meaning you won't see <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20link%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH link</a> or <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGlossary%20popup%3C%2Fstrong%3E%3A%20for%20general%20use%20with%20IntraMine%2C%20glossary%20popup%20definitions%20are%20contained%20in%20any%20files%20called%20%22glossary_master.txt%22%20as%20found%20in%20any%20folder%20listed%20in%20your%20data%2Fsearch_directories.txt%20file.%20See%20the%20glossary_master.txt%20file%20at%20the%20top%20of%20your%20IntraMine%20folder%20for%20an%20example.%20Glossary%20terms%20in%20all%20source%20and%20text%20files%20displayed%20with%20IntraMine%27s%20Viewer%20will%20have%20a%20dotted%20underline%2C%20and%20pausing%20your%20mouse%20over%20the%20term%20will%20show%20the%20definition.%20Popups%20support%20rich%20styling%20such%20as%20bold%2C%20italic%2C%20FLASH%20links%2C%20and%20images.%20For%20more%20see%20%3Ca%20href%3D%22.%2FGlossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20separate%20glossary%20is%20available%20for%20use%20with%20gloss2html.pl.%20It%20should%20be%20called%20%3Ca%20href%3D%22.%2Fglossary.html%22%20target%3D%22_blank%22%3E%22glossary.txt%22%3C%2Fa%3E%20and%20placed%20at%20the%20top%20level%20of%20any%20folder%20containing%20text%20files%20that%20you%20want%20to%20convert%20to%20standalone%20HTML%20using%20gloss2html.%20For%20details%20see%20%3Ca%20href%3D%22.%2Fgloss2html.pl%20for%20standalone%20Gloss%20files.html%22%20target%3D%22_blank%22%3E%22gloss2html.pl%20for%20standalone%20Gloss%20files.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20glossary%20popups%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">glossary popup</a> updates until the Watcher churns through the backlog. Be patient, it might take ten minutes, but service will return to normal<span class='textSymbol' style='color: DarkGreen;'>&#128578;</span></td></tr>
+<tr id='R18'><td n='18'></td><td>If it's just say a few hundred files, no worries. But if you want to add thousands and thousands of files to a directory that's already been indexed by <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> and is being monitored for changes, this can swamp IntraMine's <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EWatcher%3C%2Fstrong%3E%3A%20the%20name%20for%20intramine_filewatcher.pl%2C%20a%20BACKGROUND%20service%20that%20monitors%20directories%20for%20changes%20based%20on%20your%20directory%20list%20in%20data%2Fsearch_directories.txt.%20It%20checks%20in%20regularly%20with%20the%20log%20from%20File%20Watcher%20Utilities%2C%20and%20also%20runs%20and%20listens%20to%20bats%2Ffoldermonitore.ps1%2C%20which%20pushes%20change%20notifications%20more%20quickly.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20FILEWATCHER%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Watcher</a> with changes to the point where it will stop responding for a while, meaning you won't see <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20link%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2FGloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2FFLASH%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.html%22%3C%2Fa%3E%20and%20also%20%3Ca%20href%3D%22.%2FGloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2FLinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20level%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20links%2C%20FLASH%20linking%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH link</a> or <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGlossary%20popup%3C%2Fstrong%3E%3A%20for%20general%20use%20with%20IntraMine%2C%20glossary%20popup%20definitions%20are%20contained%20in%20any%20files%20called%20%22glossary_master.txt%22%20as%20found%20in%20any%20folder%20listed%20in%20your%20data%2Fsearch_directories.txt%20file.%20See%20the%20glossary_master.txt%20file%20at%20the%20top%20of%20your%20IntraMine%20folder%20for%20an%20example.%20Glossary%20terms%20in%20all%20source%20and%20text%20files%20displayed%20with%20IntraMine%27s%20Viewer%20will%20have%20a%20dotted%20underline%2C%20and%20pausing%20your%20mouse%20over%20the%20term%20will%20show%20the%20definition.%20Popups%20support%20rich%20styling%20such%20as%20bold%2C%20italic%2C%20FLASH%20links%2C%20and%20images.%20For%20more%20see%20%3Ca%20href%3D%22.%2FGlossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20separate%20glossary%20is%20available%20for%20use%20with%20gloss2html.pl.%20It%20should%20be%20called%20%3Ca%20href%3D%22.%2Fglossary.html%22%20target%3D%22_blank%22%3E%22glossary.txt%22%3C%2Fa%3E%20and%20placed%20at%20the%20top%20level%20of%20any%20folder%20containing%20text%20files%20that%20you%20want%20to%20convert%20to%20standalone%20HTML%20using%20gloss2html.%20For%20details%20see%20%3Ca%20href%3D%22.%2Fgloss2html.pl%20for%20standalone%20Gloss%20files.html%22%20target%3D%22_blank%22%3E%22gloss2html.pl%20for%20standalone%20Gloss%20files.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20glossary%20popups%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">glossary popup</a> updates until the Watcher churns through the backlog. Be patient, it might take ten minutes, but service will return to normal<span class='textSymbol' style='color: DarkGreen;'>&#128578;</span></td></tr>
 <tr id='R19'><td n='19'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2195,7 +2202,11 @@ function positionAndShowHint() {
 	// For text, shrink the height to fit within window if necessary.
 	else
 		{
-		hintElement.style.width = "650px";
+		// TEST ONLY
+		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		
+		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
 			let reducedHeight = windowHeight - tl.top;
@@ -2559,7 +2570,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		else
 			{
-			hintElement.style.width = "650px";
+			hintElement.style.width = tipwidth; // "650px";
+			// TEST ONLY
+			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {
@@ -2760,7 +2773,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "auto";
+	hintElement.style.width = "300px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)

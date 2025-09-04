@@ -35,13 +35,67 @@
     width: 17px;
     height: 12px;
     margin-left: 5px;
-    background: url(edit1.png) no-repeat;
+   background: url(edit1.png) no-repeat;
 }
 
 /* cmAutoLink, without the :after img. */
 .cmAutoLinkNoEdit {
 	text-decoration: underline;
 	cursor: pointer;
+}
+
+/* Five types of Perl module links. */
+.cmPerlModuleCustomEditable {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleCustomEditable:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+	background: url(edit1.png) no-repeat;
+}
+
+.cmPerlModuleCustomNoEdit {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
+.cmPerlModuleHaveCpan {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleHaveCpan:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(metacpan-icon.png) no-repeat;
+}
+
+.cmPerlModuleNoLinkscmPerlModuleNoLinks {
+	/* no links */
+}
+
+
+.cmPerlModuleOnlyCpan {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleOnlyCpan:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(metacpan-icon.png) no-repeat;
 }
 
 /* Same as cmAutoLinkNoEdit, we just need a unique name. */

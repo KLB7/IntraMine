@@ -9,7 +9,7 @@ For details on using a "glossary.txt" file to provide glossary entries for stand
 
 Here we'll focus on using "glossary_master.txt" files to provide universal glossary entries, available in all your source and text files provided the glossary_master.txt files are in indexed locations.
 
-Why bother with a glossary? It's true that not all projects need one. But if it's more than just you involved, in particular if you have other developers working with you (especially ones new to the project) or if you have a manager or two, or if you have customers, or prospective investors, then instantly available definitions and procedure descriptions can help others understand your work.
+Why bother with a glossary? Not all projects have a strong need for one. But if it's more than just you involved, in particular if you have other developers working with you (especially ones new to the project) or if you have a manager or two, or if you have customers, or prospective investors, then instantly available definitions and procedure descriptions can help others understand your work.
 
 For an opinion from an experienced developer on whether or not you need a glossary, see
 https://www.yegor256.com/2015/03/16/technical-glossaries.html
@@ -24,7 +24,7 @@ Making
 ------------
 1. First, get IntraMine up and running, as described in IntraMine's Documentation folder. Double-click on Documentation/contents.html to get started with that, you'll see installation instructions at the top.
 2. Take a look at the included example master glossary, "glossary_master.txt" included at the top of your IntraMine folder. It describes the whole glossary process and includes four example glossary entries.
-3. Make a new file called "glossary_master.txt" in any indexed folder (or contained subfolder). Your indexed folders are listed in IntraMine's data/search_directories.txt file. (Avoid the IntraMine folder though, to prevent conflicts when you next update IntraMine.)
+3. Make a new file called "glossary_master.txt" in any indexed location (or contained subfolder). Your indexed locations are listed in IntraMine's data/search_directories.txt file. (Avoid the IntraMine folder though, to prevent conflicts when you next update IntraMine.)
 4. Start putting glossary entries in your new file, using the format described in the the included master glossary (glossary_master.txt at the top of your IntraMine folder), or as described in "Glossary entry details" below. The simplest form of an entry is the term to define followed by a colon ":" and then the definition of the term. The definition can use Gloss, as described below.
 5. Save your new glossary_master.txt file after you have an entry or two.
 6. Using IntraMine (either the Search or Files page), open a source or text file that mentions one of your new glossary terms. There must be one somewhere, otherwise you wouldn't need a glossary, right? If that's tedious, use IntraMine's Search page to search for a term you just defined.
@@ -59,9 +59,9 @@ Regular expression, regex, regexp: a write-only way to match strings, or not. Fo
 
 Content
 -----------------
-The definition part of an entry can be plain text, text styled with Gloss, or a single image specifier in "quotes". As far as Gloss, basically everything except CODE blocks can be used in a glossary entry, as described in "Gloss.txt". Source and text and image file specifiers must be in "quotes", such as "project51/main.cpp" or "image27.png". FLASH linking for directory specifiers is also supported, and these again need to be in "quotes". If you don't like double quotes, you can use 'single quotes' instead.
+The definition part of an entry can be plain text, text styled with Gloss, or a single image specifier in "quotes". As far as Gloss, basically everything except CODE blocks, inline HTML, and footnotes can be used in a glossary entry, as described in "Gloss.txt". Source and text and image file specifiers must be in "quotes", such as "project51/main.cpp" or "image27.png". FLASH linking for directory specifiers is also supported, and these again need to be in "quotes". If you don't like double quotes, you can use 'single quotes' instead.
 
-Images in glossary entries are **displayed fully in place (inline)** rather than popping up if you hover over a link, so try to avoid huge images in your definition. This is being done mainly because images in definitions are important enough to show immediately, and also because a popup in a popup is probably one popup too far. If the image is too large when displayed, you will get scroll bars.
+Images in glossary popup entries are **displayed fully in place (inline)** rather than popping up if you hover over a link, so try to avoid huge images in your definition. This is being done mainly because images in definitions are important enough to show immediately, and also because a popup in a popup is probably one popup too far. If the image is too large when displayed, you will get scroll bars.
 
 Comment lines
 -------------------
@@ -78,7 +78,7 @@ You can also link to headings within other files, such as "Gloss.txt#Gloss vs Mu
 
 That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl for an example of the FLASH link algorithm.
 ===
-(Notice that ':' was carefully avoided after the one in the first paragraph, so the definition is three paragraphs long.)
+(Note that ':' isn't present after the first paragraph, so the definition is three paragraphs long.)
 
 Images on their own
 --------------------

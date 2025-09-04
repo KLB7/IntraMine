@@ -452,7 +452,27 @@ function addLinkMarkup(cm, lineNum, chStart, len, rep, linkType, markerText) {
 		{
 		nameOfCSSclass = "cmAutoLinkSpelling";
 		}
-	
+	else if (linkType === "perlModuleCustomEditable")
+		{
+		nameOfCSSclass = "cmPerlModuleCustomEditable";
+		}
+	else if (linkType === "perlModuleCustomNoEdit")
+		{
+		nameOfCSSclass = "cmPerlModuleCustomNoEdit";
+		}
+	else if (linkType === "perlModuleHaveCpan")
+		{
+		nameOfCSSclass = "cmPerlModuleHaveCpan";
+		}
+	else if (linkType === "perlModuleNoLinks")
+		{
+		nameOfCSSclass = "cmPerlModuleNoLinks";
+		}
+	else if (linkType === "perlModuleOnlyCpan")
+		{
+		nameOfCSSclass = "cmPerlModuleOnlyCpan";
+		}
+		
 
 	let charEnd = chStart + len;
 
@@ -582,6 +602,31 @@ function typeAndClass(target, checkForIMG) {
 		linkType = "internal";
 		className = "cmInternalLink";
 		}
+	else if (hasClass(target, "cmPerlModuleCustomEditable"))
+		{
+		linkType = "perlModuleCustomEditable";
+		className = "cmPerlModuleCustomEditable";
+		}
+	else if (hasClass(target, "cmPerlModuleCustomNoEdit"))
+		{
+		linkType = "perlModuleCustomNoEdit";
+		className = "cmPerlModuleCustomNoEdit";
+		}
+	else if (hasClass(target, "cmPerlModuleHaveCpan"))
+		{
+		linkType = "perlModuleHaveCpan";
+		className = "cmPerlModuleHaveCpan";
+		}
+	else if (hasClass(target, "cmPerlModuleNoLinks"))
+		{
+		linkType = "perlModuleNoLinks";
+		className = "cmPerlModuleNoLinks";
+		}
+	else if (hasClass(target, "cmPerlModuleOnlyCpan"))
+		{
+		linkType = "perlModuleOnlyCpan";
+		className = "cmPerlModuleOnlyCpan";
+		}
 	else if (checkForIMG && target.nodeName === "IMG") // A click on a "hover" image on mobile device.
 		{
 		linkType = "file";
@@ -679,13 +724,18 @@ function handleFileLinkClicks(evt) {
 	if (linkType !== "")
 		{
 		// If click is within 15px of right edge, it is in the edit "pencil" image.
-		if (linkType === "file")
+		if (linkType === "file" || linkType === 'perlModuleCustomEditable'
+			|| linkType === 'perlModuleHaveCpan')
 			{
 			let pencilLeft = target.offsetLeft + target.offsetWidth - 15;
 			if (evt.offsetX >= pencilLeft)
 				{
 				forEdit = true;
 				}
+			}
+		else if (linkType === 'perlModuleOnlyCpan')
+			{
+			forEdit = true; // Only a metacpan link
 			}
 
 		// Note anchor clicks, in an attempt to suppress highlighting changes for clicks in TOC.
@@ -944,6 +994,11 @@ function fireOneLink(target, linkType, className, forEdit) {
 			{
 			fireOneInternalLink(targetText, linkPath);
 			}
+		else if (linkType === "perlModuleCustomEditable" || linkType === "perlModuleCustomNoEdit" || linkType === "perlModuleHaveCpan" ||linkType === "perlModuleNoLinks" || linkType === "perlModuleOnlyCpan")
+			{
+			fireOnePerlModuleLink(targetText, linkPath, linkType, forEdit);
+			}
+	
 		}
 }
 
@@ -1059,6 +1114,71 @@ function fireOneWebLink(linkPath) {
 // Scroll to a header in the same file.
 function fireOneInternalLink(targetText, lineNum) {
 	goToAnchor(targetText, lineNum); // cmTocAnchors.js#goToAnchor().
+}
+
+// Perl module link handling
+// ---------------------------
+// When there's a pause in editing, or a refresh:
+// cmAutoLinks.js#addAutoLinks() eventually calls requestLinkMarkupWithPort(), which calls back
+// to intramine_linker.pl#CmLinks(), which eventually calls AddModuleLinkToPerlForCodeMirror(),
+// and finally addLinkMarkup() adds the returned links.
+// When a module link is clicked, fireOneLink() calls fireOnePerlModuleLink(), which dispatches
+// based on the "linkType":
+// perlModuleCustomEditable	local module, edit allowed
+// perlModuleCustomNoEdit		local module, edit not allowed
+// perlModuleHaveCpan			installed from cpan, have metacpan link
+// perlModuleNoLinks			not present, no links available
+// perlModuleOnlyCpan			not installed from cpan, have metacpan link
+function fireOnePerlModuleLink(targetText, linkPath, linkType, forEdit) {	
+	if (linkType === 'perlModuleCustomEditable')
+		{
+		let serviceName = '';
+		if (forEdit)
+			{
+			serviceName = editorShortName;
+			}
+		else
+			{
+			serviceName = viewerShortName;
+			}
+			fireOneFileLink(linkPath, forEdit, serviceName);
+		}
+	else if (linkType === 'perlModuleCustomNoEdit')
+		{
+		let serviceName = viewerShortName;
+		fireOneFileLink(linkPath, false, serviceName);
+		}
+	else if (linkType === 'perlModuleHaveCpan')
+		{
+		if (forEdit)
+			{
+			let hrefMatch = /href\=\'([^']+)\'/.exec(linkPath);
+			if (hrefMatch !== null)
+				{
+				let hrefProper = hrefMatch[1];
+				window.open(hrefProper, "_blank");
+				}
+			}
+		else
+			{
+			let serviceName = viewerShortName;
+			fireOneFileLink(linkPath, forEdit, serviceName);
+			}
+		}
+	else if (linkType === 'perlModuleNoLinks')
+		{
+		; // No links, nothing to do
+		}
+	else if (linkType === 'perlModuleOnlyCpan')
+		{
+		// Only a metacpan link
+		let hrefMatch = /href\=\'([^']+)\'/.exec(linkPath);
+		if (hrefMatch !== null)
+			{
+			let hrefProper = hrefMatch[1];
+			window.open(hrefProper, "_blank");
+			}
+		}
 }
 
 // Show popup of image if we're over class "cmAutoLinkImg".

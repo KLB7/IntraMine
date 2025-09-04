@@ -52,7 +52,7 @@ use Encode;
 use Encode::Guess;
 use HTML::Entities;
 use URI::Escape;
-use Time::HiRes qw ( time );
+use Time::HiRes   qw ( time );
 use JSON::MaybeXS qw(encode_json);
 use Win32;
 use Path::Tiny qw(path);
@@ -61,7 +61,7 @@ use common;
 use swarmserver;
 use reverse_filepaths;
 use win_wide_filepaths;
-use ext; # for ext.pm#IsTextExtensionNoPeriod() etc.
+use ext;    # for ext.pm#IsTextExtensionNoPeriod() etc.
 use intramine_glossary;
 use intramine_spellcheck;
 use elasticsearch_find_def;
@@ -71,10 +71,10 @@ Encode::Guess->add_suspects(qw/iso-8859-1/);
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
@@ -83,11 +83,11 @@ SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 my $VIEWERNAME = CVal('VIEWERSHORTNAME');
 my $EDITORNAME = CVal('EDITORSHORTNAME');
 my $OPENERNAME = CVal('OPENERSHORTNAME');
-my $FILESNAME = CVal('FILESSHORTNAME');
-my $VIDEONAME = CVal('VIDEOSHORTNAME');
+my $FILESNAME  = CVal('FILESSHORTNAME');
+my $VIDEONAME  = CVal('VIDEOSHORTNAME');
 
 # Common locations for images.
-my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
+my $IMAGES_DIR        = FullDirectoryPath('IMAGES_DIR');
 my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
 if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
 	{
@@ -95,10 +95,10 @@ if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
 	$COMMON_IMAGES_DIR = '';
 	}
 # Edit control.
-my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
+my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
-my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
-my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
+my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
+my $AllowRemoteEditing     = CVal('ALLOW_REMOTE_EDITING');
 
 # Go to definition (in the Viewer).
 my $DoGo2Def = CVal('GOTODEFINITION');
@@ -117,11 +117,11 @@ if ($GoToLinksMax !~ m!^\d+$!)
 	}
 
 # Preferred extensions, for Go to definition
-my $preferred = CVal('PREFERRED_EXTENSIONS');
+my $preferred           = CVal('PREFERRED_EXTENSIONS');
 my @preferredExtensions = split(/,/, $preferred);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -130,12 +130,13 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 # Actions. Respond to requests for links, from CodeMirror views, text views, and the Files page.
 my %RequestAction;
-$RequestAction{'signal'} = \&HandleBroadcastRequest;	# signal=reindex or folderrenamed
-$RequestAction{'req|cmLinks'} = \&CmLinks; 				# req=cmLinks... - linking for CodeMirror files
-$RequestAction{'req|nonCmLinks'} = \&NonCmLinks; 		# req=nonCmLinks... - linking for non-CodeMirror files
-$RequestAction{'req|autolink'} = \&FullPathForPartial; 	# req=autolink&partialpath=...
-$RequestAction{'req|defs'} = \&Definitions; 			# req=defs, find definitions
-$RequestAction{'/test/'} = \&SelfTest;					# Ask this server to test itself.
+$RequestAction{'signal'}      = \&HandleBroadcastRequest;    # signal=reindex or folderrenamed
+$RequestAction{'req|cmLinks'} = \&CmLinks;    # req=cmLinks... - linking for CodeMirror files
+$RequestAction{'req|nonCmLinks'} =
+	\&NonCmLinks;                             # req=nonCmLinks... - linking for non-CodeMirror files
+$RequestAction{'req|autolink'} = \&FullPathForPartial;    # req=autolink&partialpath=...
+$RequestAction{'req|defs'}     = \&Definitions;           # req=defs, find definitions
+$RequestAction{'/test/'}       = \&SelfTest;              # Ask this server to test itself.
 
 # List of English words, for spell checking.
 my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
@@ -171,7 +172,8 @@ sub HandleBroadcastRequest {
 			Output("Reindexing.\n");
 			# Load list of new file paths.
 			my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-			my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
+			my $fullFilePathListPath =
+				$FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
 			LoadIncrementalDirectoryFinderLists($fullFilePathListPath);
 			LoadAndRemoveDeletesFromHashes();
 			}
@@ -184,24 +186,27 @@ sub HandleBroadcastRequest {
 			# be taken out of service for maintenance one at a time.
 			# See also intramine_main.pl#BroadcastSignal()
 			# and  intramine_main.pl#HandleMaintenanceSignal().
-			Monitor("Linker on port <$port_listen> is pausing to reload changed paths due to file or folder rename.\n");
+			Monitor(
+"Linker on port <$port_listen> is pausing to reload changed paths due to file or folder rename.\n"
+			);
 			Monitor("  On this server instance only, new read-only views will not be available,\n");
 			Monitor("  and autolinks will not be shown in CodeMirror views after scrolling.\n");
-			Monitor("  Other Linker instances running will not be affected, and Main will redirect\n");
+			Monitor(
+				"  Other Linker instances running will not be affected, and Main will redirect\n");
 			Monitor("  requests for links to avoid this Linker while it's busy.\n");
 			Monitor("Reloading...\n");
-			
+
 			my $startTime = time;
 			ReinitDirFinder();
 			RequestBroadcast('signal=backinservice&sender=Linker&respondingto=folderrenamed');
-			my $endTime = time;
+			my $endTime     = time;
 			my $elapsedSecs = int($endTime - $startTime + 0.5);
 			Monitor("Linker on port $port_listen is back. Update took $elapsedSecs s.\n");
 			}
 		elsif ($formH->{'signal'} eq 'glossaryChanged')
 			{
 			my $filePath = defined($formH->{'path'}) ? $formH->{'path'} : 'BOGUS PATH';
-			if ($filePath =~ m!glossary\.txt$!i) # standalone glossary file
+			if ($filePath =~ m!glossary\.txt$!i)    # standalone glossary file
 				{
 				my $context = DirectoryFromPathTS($filePath);
 				LoadGlossary($filePath, $context, 1);
@@ -216,10 +221,10 @@ sub HandleBroadcastRequest {
 		elsif ($formH->{'signal'} eq 'dictionaryChanged')
 			{
 			my $filePath = defined($formH->{'path'}) ? $formH->{'path'} : 'BOGUS PATH';
-			my $dict = DictionaryPath();
-			$dict = lc($dict);
+			my $dict     = DictionaryPath();
+			$dict     = lc($dict);
 			$filePath = lc($filePath);
-			$dict =~ s!\\!/!g;
+			$dict     =~ s!\\!/!g;
 			$filePath =~ s!\\!/!g;
 			if ($dict eq $filePath)
 				{
@@ -232,16 +237,16 @@ sub HandleBroadcastRequest {
 
 	# Returned value is ignored by broadcaster - this is more of a "UDP"
 	# than "TCP" approach to communicating.
-	return('OK');
-	}
+	return ('OK');
+}
 
 # Load list of all files and directories, and create a hash holding lists of all
 # corresponding known full paths for partial paths, for autolinks.
 # Also load all glossary entries.
 sub callbackInitPathsAndGlossary {
-	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
-	
+	my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
+	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
+
 	# reverse_filepaths.pm#InitDirectoryFinder()
 	my $filePathCount = InitDirectoryFinder($fullFilePathListPath);
 
@@ -249,53 +254,59 @@ sub callbackInitPathsAndGlossary {
 
 	# Also init the definition finder, delayed until here because
 	# we need the server address.
-	my $esIndexName = 'intramine';
-	my $maxNumHits = 40;
-	my $maxShownHits = $GoToLinksMax; # Links actually, not hits.
+	my $esIndexName  = 'intramine';
+	my $maxNumHits   = 40;
+	my $maxShownHits = $GoToLinksMax;    # Links actually, not hits.
 
 	# TEST ONLY
 	#Monitor("Just before ServerAddress\n");
 	my $host = ServerAddress();
 	# TEST ONLY
 	#Monitor("Just AFTER ServerAddress\n");
-	my $LogDir = FullDirectoryPath('LogDir');
-	my $ctags_dir = CVal('CTAGS_DIR');
+	my $LogDir                        = FullDirectoryPath('LogDir');
+	my $ctags_dir                     = CVal('CTAGS_DIR');
 	my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
-	$ElasticSearcher = elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, \@preferredExtensions, \&Monitor);
+	$ElasticSearcher =
+		elasticsearch_find_def->new($esIndexName, $maxNumHits, $maxShownHits, $host, $port_listen,
+		$VIEWERNAME,           $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore,
+		\@preferredExtensions, \&Monitor);
 
 	# Test, sometimes we stall going back to the main loop, searching for a fix:
 	sleep(1);
 
 	# TEST ONLY
 	#Monitor("Just AFTER \$ElasticSearcher init\n");
-	}
+}
 
 sub LoadAllGlossaryFiles {
 	my $glossaryFileName = lc(CVal('GLOSSARYFILENAME'));
 	if ($glossaryFileName eq '')
 		{
-		Monitor("WARNING, GLOSSARYFILENAME not found in data/intramine_config_4.txt. No glossaries loaded.\n");
+		Monitor(
+"WARNING, GLOSSARYFILENAME not found in data/intramine_config_4.txt. No glossaries loaded.\n"
+		);
 		}
 	my $paths = GetAllPathsForFileName($glossaryFileName);
 	if ($paths ne '')
 		{
 		#MonitorMonitor("Loading glossaries...\n");
-		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR,
-			\&FullPathInContextNS, \&BestMatchingFullDirectoryPath);
+		LoadAllGlossaries($paths, $IMAGES_DIR, $COMMON_IMAGES_DIR, \&FullPathInContextNS,
+			\&BestMatchingFullDirectoryPath);
 		}
 	else
 		{
 		#Monitor("No files called $glossaryFileName were found, no glossaries loaded.\n");
 		}
-	}
-	
+}
+
 # Completely reload list of all files and directories. Called by HandleBroadcastRequest() above.
 sub ReinitDirFinder {
-	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
-	my $filePathCount = ReinitDirectoryFinder($fullFilePathListPath); # reverse_filepaths.pm#ReinitDirectoryFinder()
-	}
+	my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
+	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
+	my $filePathCount =
+		ReinitDirectoryFinder($fullFilePathListPath); # reverse_filepaths.pm#ReinitDirectoryFinder()
+}
 
 # Call into elasticsearch_find_def.pm to retrieve links to files
 # that contain definitions for the $rawquery word or phrase. The $fullPath is
@@ -303,13 +314,13 @@ sub ReinitDirFinder {
 # $DoGo2Def is set from 'GOTODEFINITION' in data/intramine_config_8.txt.
 sub Definitions {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $rawquery = defined($formH->{'findthis'})? $formH->{'findthis'}: '';
-	my $fullPath =  defined($formH->{'path'})? $formH->{'path'}: '';
+	my $rawquery = defined($formH->{'findthis'}) ? $formH->{'findthis'} : '';
+	my $fullPath = defined($formH->{'path'})     ? $formH->{'path'}     : '';
 	if ($DoGo2Def == 0 || $rawquery eq '' || $fullPath eq '')
 		{
-		return('<p>nope</p>');
+		return ('<p>nope</p>');
 		}
-	
+
 	my $result = '';
 
 	my @wantedExt;
@@ -317,7 +328,7 @@ sub Definitions {
 	my $numExtensions = @wantedExt;
 	if ($numExtensions == 0)
 		{
-		return('<p>nope</p>');
+		return ('<p>nope</p>');
 		}
 
 	my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
@@ -330,12 +341,12 @@ sub Definitions {
 			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt, $fullPath);
 			}
 		}
-	
+
 	if ($result ne '' && $result ne '<p>nope</p>')
 		{
-		return($result);
+		return ($result);
 		}
-	
+
 	my @keywords;
 	if ($definitionKeyword ne '')
 		{
@@ -351,12 +362,13 @@ sub Definitions {
 
 	my $numHits;
 	my $numFiles;
-	for (my $i = 0; $i < @keywords; ++$i)
+	for (my $i = 0 ; $i < @keywords ; ++$i)
 		{
 		my $query = $keywords[$i] . ' ' . $rawquery;
-		$numHits = 0;
+		$numHits  = 0;
 		$numFiles = 0;
-		$result = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
+		$result   = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles,
+			$fullPath);
 		if ($result ne '' && $result ne '<p>nope</p>')
 			{
 			last;
@@ -367,11 +379,13 @@ sub Definitions {
 	# language? We'll try .js and .css. Maybe .pl, .pm.
 	if ($result eq '' || $result eq '<p>nope</p>')
 		{
-		$numHits = 0;
+		$numHits  = 0;
 		$numFiles = 0;
-		$result = $ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits, \$numFiles);
+		$result =
+			$ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits,
+			\$numFiles);
 		}
-	
+
 	# Last hope: accept any hits anywhere.
 	if ($result eq '' || $result eq '<p>nope</p>')
 		{
@@ -379,8 +393,8 @@ sub Definitions {
 		}
 
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Determine language based on $fullPath extension, then
 # push all extensions for the corresponding language.
@@ -388,15 +402,15 @@ sub GetExtensionsForDefinition {
 	my ($fullPath, $wantedExtA) = @_;
 	if ($fullPath =~ m!\.(\w+)$!)
 		{
-		my $ext = lc($1);
+		my $ext   = lc($1);
 		my $langH = LanguageForExtensionHashRef();
 		if (defined($langH->{$ext}))
 			{
-			my $languageName = $langH->{$ext};
-			my $extsForLan = ExtensionsForLanguageHashRef();
-			my $rawExtensions = $extsForLan->{$languageName};
+			my $languageName   = $langH->{$ext};
+			my $extsForLan     = ExtensionsForLanguageHashRef();
+			my $rawExtensions  = $extsForLan->{$languageName};
 			my @extForLanguage = split(/,/, $rawExtensions);
-			for (my $i = 0; $i < @extForLanguage; ++$i)
+			for (my $i = 0 ; $i < @extForLanguage ; ++$i)
 				{
 				# Some such as pod should be skipped.
 				if ($extForLanguage[$i] ne 'pod')
@@ -406,36 +420,38 @@ sub GetExtensionsForDefinition {
 				}
 			}
 		}
-	}
+}
 
 # For all files where the view is generated by CodeMirror ("CodeMirror files").
 # Get links for all local file, image, and web links in $formH->{'text'}.
 # Links are added on demand for visible lines only.
 # Invoked by xmlHttpRequest in cmAutoLinks.js#requestLinkMarkup().
 #	request.open('get', 'http://' + mainIP + ':' + linkerPort + '/?req=cmLinks'
-#			+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
-#			+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
-#			+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
-#			+ lastVisibleLineNum);
+#	+ '&remote=' + remoteValue + '&allowEdit=' + allowEditValue + '&useApp=' + useAppValue
+#	+ '&text=' + encodeURIComponent(visibleText) + '&peeraddress=' + encodeURIComponent(peeraddress)
+#	+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
+#	+ lastVisibleLineNum);
 # See CmGetLinksForText() just below.
 sub CmLinks {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
-	
+
 	ReportActivity($SHORTNAME);
 
-	if (defined($formH->{'text'}) && defined($formH->{'path'})
-	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
+	if (   defined($formH->{'text'})
+		&& defined($formH->{'path'})
+		&& defined($formH->{'first'})
+		&& defined($formH->{'last'}))
 		{
 		my $path = lc($formH->{'path'});
 		#my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
-		my $clientIsRemote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
-		my $allowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
+		my $clientIsRemote = (defined($formH->{'remote'}))    ? $formH->{'remote'}    : '0';
+		my $allowEditing   = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'} : '0';
 		CmGetLinksForText($formH, $path, $clientIsRemote, $allowEditing, \$result);
 		}
-		
-	return($result);
-	}
+
+	return ($result);
+}
 
 # For each link, respond with JSON for:
 #  - line/col of start of match in text
@@ -444,13 +460,13 @@ sub CmLinks {
 #  - appropriate content for <a> element for linked file
 sub CmGetLinksForText {
 	my ($formH, $dir, $clientIsRemote, $allowEditing, $resultR) = @_;
-	my $text = $formH->{'text'};
+	my $text         = $formH->{'text'};
 	my $firstLineNum = $formH->{'first'};
-	my $lastLineNum = $formH->{'last'};
-	my $json = ''; 	# JSON string for this replaces $$resultR if $numLinksFound
-	my @links; 		# This array holds (object) contents of what in JS will be resp.arr[].
-	my $serverAddr = ServerAddress();
-	my $checkSpelling = (defined($formH->{'spellcheck'})) ? $formH->{'spellcheck'}: 0;
+	my $lastLineNum  = $formH->{'last'};
+	my $json         = '';               # JSON string for this replaces $$resultR if $numLinksFound
+	my @links;    # This array holds (object) contents of what in JS will be resp.arr[].
+	my $serverAddr    = ServerAddress();
+	my $checkSpelling = (defined($formH->{'spellcheck'})) ? $formH->{'spellcheck'} : 0;
 	if ($checkSpelling eq 'true')
 		{
 		$checkSpelling = 1;
@@ -459,10 +475,12 @@ sub CmGetLinksForText {
 		{
 		$checkSpelling = 0;
 		}
-	
-	AddWebAndFileLinksToVisibleLinesForCodeMirror($text, $firstLineNum, $dir, \@links, $serverAddr,
-										$server_port, $clientIsRemote, $allowEditing, $checkSpelling);
-	
+
+	AddWebAndFileLinksToVisibleLinesForCodeMirror(
+		$text,        $firstLineNum,   $dir,          \@links, $serverAddr,
+		$server_port, $clientIsRemote, $allowEditing, $checkSpelling
+	);
+
 	my $numLinksFound = @links;
 	if ($numLinksFound)
 		{
@@ -472,7 +490,7 @@ sub CmGetLinksForText {
 		#####$$resultR = uri_escape_utf8(encode_json($json));
 		$$resultR = encode_json($json);
 		}
-	}
+}
 
 # For non-CodeMirror files.
 # Add links for all local file, image, and web links in $formH->{'text'}.
@@ -484,22 +502,25 @@ sub NonCmLinks {
 	my $result = 'nope';
 
 	ReportActivity($SHORTNAME);
-	
-	if (defined($formH->{'text'}) && defined($formH->{'path'})
-	&&  defined($formH->{'first'}) && defined($formH->{'last'}))
+
+	if (   defined($formH->{'text'})
+		&& defined($formH->{'path'})
+		&& defined($formH->{'first'})
+		&& defined($formH->{'last'}))
 		{
 		my $path = lc($formH->{'path'});
 		#my $dir = lc(DirectoryFromPathTS($formH->{'path'}));
 		my ($baseName, $ext) = FileNameProperAndExtensionFromFileName($formH->{'path'});
 		$ext = lc($ext);
-		my $clientIsRemote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
-		my $allowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
-		my $shouldInline = (defined($formH->{'shouldInline'})) ? $formH->{'shouldInline'}: '0';
-		GetLinksForText($formH, $path, $ext, $clientIsRemote, $allowEditing, $shouldInline, \$result);
+		my $clientIsRemote = (defined($formH->{'remote'}))       ? $formH->{'remote'}       : '0';
+		my $allowEditing   = (defined($formH->{'allowEdit'}))    ? $formH->{'allowEdit'}    : '0';
+		my $shouldInline   = (defined($formH->{'shouldInline'})) ? $formH->{'shouldInline'} : '0';
+		GetLinksForText($formH, $path, $ext, $clientIsRemote, $allowEditing, $shouldInline,
+			\$result);
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub GetLinksForText {
 	my ($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
@@ -507,10 +528,12 @@ sub GetLinksForText {
 	#my $firstLineNum = $formH->{'first'};
 	#my $lastLineNum = $formH->{'last'};
 	my $serverAddr = ServerAddress();
-	
-	AddWebAndFileLinksToVisibleLines($text, $dir, $ext, $serverAddr, $server_port,
-								$clientIsRemote, $allowEditing, $shouldInline, $resultR);
-	}
+
+	AddWebAndFileLinksToVisibleLines(
+		$text,           $dir,          $ext,          $serverAddr, $server_port,
+		$clientIsRemote, $allowEditing, $shouldInline, $resultR
+	);
+}
 
 # Called in response to the %RequestAction req=autolink&partialpath=...
 # Get best full file path matching 'partialpath'. See reverse_filepaths.pm#FullPathInContextNS().
@@ -522,15 +545,15 @@ sub GetLinksForText {
 sub FullPathForPartial {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
-	
+
 	if (defined($formH->{'partialpath'}))
 		{
 		my $partialPath = $formH->{'partialpath'};
 		$partialPath =~ s!\\!/!g;
 		my $contextDir = '';
 		$result = FullPathInContextNS($partialPath, $contextDir);
-		
-		if ($result eq '') # Special handling for images
+
+		if ($result eq '')    # Special handling for images
 			{
 			if ($partialPath =~ m!\.(\w\w?\w?\w?\w?\w?\w?)(\#|$)!)
 				{
@@ -539,12 +562,13 @@ sub FullPathForPartial {
 					{
 					my $trimmedCurrentPath = $partialPath;
 					$trimmedCurrentPath =~ s!^/!!;
-					
+
 					if (FileOrDirExistsWide($IMAGES_DIR . $trimmedCurrentPath) == 1)
 						{
 						$result = $IMAGES_DIR . $trimmedCurrentPath;
 						}
-					elsif ($COMMON_IMAGES_DIR ne '' && FileOrDirExistsWide($COMMON_IMAGES_DIR . $trimmedCurrentPath) == 1)
+					elsif ($COMMON_IMAGES_DIR ne ''
+						&& FileOrDirExistsWide($COMMON_IMAGES_DIR . $trimmedCurrentPath) == 1)
 						{
 						$result = $COMMON_IMAGES_DIR . $trimmedCurrentPath;
 						}
@@ -552,14 +576,14 @@ sub FullPathForPartial {
 				}
 			}
 		}
-	
+
 	if ($result eq '')
 		{
 		$result = 'nope';
 		}
 	my $encodedResult = encode_utf8($result);
-	return($encodedResult);
-	}
+	return ($encodedResult);
+}
 
 { ##### AutoLink
 my $host;
@@ -567,18 +591,18 @@ my $port;
 my $clientIsRemote;
 my $allowEditing;
 
-my $haveRefToText; 	# For CodeMirror we get the text not a ref, and this is 0.
-my $line;			# Full text of a single line being autolinked
-my $revLine;		# $line reversed (used to search backwards from a file extension)
-my $contextDir;		# The directory path to the file wanting links
-my $len;			# Length of $line.
+my $haveRefToText;    # For CodeMirror we get the text not a ref, and this is 0.
+my $line;             # Full text of a single line being autolinked
+my $revLine;          # $line reversed (used to search backwards from a file extension)
+my $contextDir;       # The directory path to the file wanting links
+my $len;              # Length of $line.
 
 # In non-CodeMirror files there are <mark> tags around Search highlights.
 # We need a version of the line of text that's been stripped of <mark> tags
 # for spotting links. $revLine can just be stripped of <mark>s since it's
 # only used to spot links. Basically, we need to spot links in the stripped
 # version of the line but do the replacements in the original line.
-my $lineIsStripped; # 1 means <mark> tags have been removed from $strippedLine.
+my $lineIsStripped;    # 1 means <mark> tags have been removed from $strippedLine.
 my $strippedLine;
 my $strippedLen;
 
@@ -586,16 +610,17 @@ my $strippedLen;
 # Replacements for discovered links: For text files where replacement is done directly
 # in the text, these replacements are more easily done in reverse order to avoid throwing off
 # the start/end. For CodeMirror files, reps are done in the JavaScript (using $linksA).
-my @repStr;			# Replacement for original text, or overlay text to put over original
-my @repLen;			# Length of original text to be replaced (not length of repStr)
-my @repStartPos;	# Start position of replacement in original text
-my @repLinkType; 	# For CodeMirror, 'file', 'web', 'image'
-my @linkIsPotentiallyTooLong; # For unquoted links to text headers, we grab 100 chars, which might be too much.
+my @repStr;         # Replacement for original text, or overlay text to put over original
+my @repLen;         # Length of original text to be replaced (not length of repStr)
+my @repStartPos;    # Start position of replacement in original text
+my @repLinkType;    # For CodeMirror, 'file', 'web', 'image'
+my @linkIsPotentiallyTooLong
+	;    # For unquoted links to text headers, we grab 100 chars, which might be too much.
 
-my $longestSourcePath; 	# Longest linkable path identified in original text
-my $bestVerifiedPath;	# Best full path corresponding to $longestSourcePath
+my $longestSourcePath;    # Longest linkable path identified in original text
+my $bestVerifiedPath;     # Best full path corresponding to $longestSourcePath
 
-my $shouldInlineImages; # True = use img element, false = use showhint().
+my $shouldInlineImages;   # True = use img element, false = use showhint().
 
 # AddWebAndFileLinksToLine: look for file and web address mentions, turn them into links.
 # Does the promised "autolinking", so no quotes etc are needed around file names even if
@@ -615,67 +640,70 @@ my $shouldInlineImages; # True = use img element, false = use showhint().
 # header string, leaving it to the receiving end to figure out which header is meant.
 # And that leads to a very long underlined link, which looks a bit ugly.
 sub AddWebAndFileLinksToLine {
-	my ($txtR, $theContextDir, $theHost, $thePort, $theClientIsRemote, $shouldAllowEditing,
-		$shouldInline, $restrictLinks, $currentLineNumber, $linksA) = @_;
-	
-	if (ref($txtR) eq 'SCALAR') # REFERENCE to a scalar, so doing text
+	my (
+		$txtR,              $theContextDir,      $theHost,      $thePort,
+		$theClientIsRemote, $shouldAllowEditing, $shouldInline, $restrictLinks,
+		$currentLineNumber, $linksA
+	) = @_;
+
+	if (ref($txtR) eq 'SCALAR')    # REFERENCE to a scalar, so doing text
 		{
 		$haveRefToText = 1;
-		$line = $$txtR;
+		$line          = $$txtR;
 		}
-	else # not a ref (at least it shouldn't be), so doing CodeMirror
+	else                           # not a ref (at least it shouldn't be), so doing CodeMirror
 		{
 		$haveRefToText = 0;
-		$line = $txtR;
+		$line          = $txtR;
 		}
-	
+
 	# Init some of the remaining variables with AutoLink scope.
 	# (For $revLine and $strippedLine see EvaluateLinkCandidates just below.)
-	$contextDir = $theContextDir;	# Path of directory for file containing the text in $txtR
-	$len = length($line);
-	$host = $theHost;
-	$port = $thePort;
+	$contextDir     = $theContextDir;      # Path of directory for file containing the text in $txtR
+	$len            = length($line);
+	$host           = $theHost;
+	$port           = $thePort;
 	$clientIsRemote = $theClientIsRemote;
-	$allowEditing = $shouldAllowEditing;
-	@repStr = ();
-	@repLen = ();
-	@repStartPos = ();
-	@repLinkType = ();
+	$allowEditing   = $shouldAllowEditing;
+	@repStr         = ();
+	@repLen         = ();
+	@repStartPos    = ();
+	@repLinkType    = ();
 	@linkIsPotentiallyTooLong = ();
 
 	$shouldInlineImages = $shouldInline;
-	
+
 	# Look for all of: single or double quoted text, a potential file extension, or a url.
 	# Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
 	EvaluateLinkCandidates($restrictLinks);
-	
+
 	my $numReps = @repStr;
 	if ($numReps)
 		{
 		if ($haveRefToText)
 			{
 			DoTextReps($numReps, $txtR);
-			} # text
-		else # CodeMirror
+			}    # text
+		else     # CodeMirror
 			{
 			DoCodeMirrorReps($numReps, $currentLineNumber, $linksA);
-			} # CodeMirror
-		} # $numReps
-	}
+			}    # CodeMirror
+		}    # $numReps
+}
 
 # Look for all of: single or double quoted text, a potential file extension, or a url.
 # Or (added later), a [text](href) with _LB_ for '[', _RP_ for ')' etc as found in POD files.
 sub EvaluateLinkCandidates {
 	my ($restrictLinks) = @_;
 
-	my $previousEndPos = 0;
+	my $previousEndPos    = 0;
 	my $previousRevEndPos = $len;
-	my $haveGoodMatch = 0; # check-back distance is not adjusted if there is no good current match.
-	
+	my $haveGoodMatch = 0;  # check-back distance is not adjusted if there is no good current match.
+
 	# Collect positions of quotes and HTML tags (start and end of both start and end tags).
 	# And <mark> tags, which can interfere with links.
 	GetTagAndQuotePositions($line);
-	$lineIsStripped = LineHasMarkTags(); # Stripping <mark> tags happens next.
+	$lineIsStripped = LineHasMarkTags();    # Stripping <mark> tags happens next.
 
 	# If $line has <mark> tags, create a version stripped of those, for spotting links
 	# without having to use a monstrous regex.
@@ -684,15 +712,15 @@ sub EvaluateLinkCandidates {
 		$strippedLine = $line;
 		$strippedLine =~ s!(</?mark[^>]*>)!!g;
 		$strippedLen = length($strippedLine);
-		$revLine = scalar reverse($strippedLine);
+		$revLine     = scalar reverse($strippedLine);
 		}
 	else
 		{
 		$strippedLine = $line;
-		$strippedLen = $len;
-		$revLine = scalar reverse($line);
+		$strippedLen  = $len;
+		$revLine      = scalar reverse($line);
 		}
-	
+
 	# while see quotes or a potential file .extension, or http(s)://
 	# or [text](href) with _LB_ for '[', _RP_ for ')' etc. Those are from POD files only.
 	# So ok, this is a bit of a beast. Breaking it down:
@@ -703,22 +731,26 @@ sub EvaluateLinkCandidates {
 	# (\"[^"]+\")|(\'[^']+\')		 : "directory" | 'directory'
 	# \.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)? : unquoted file specifier, must have ext
 	# ((https?://([^\s)<\"](?\!ttp:))+)) : web link
-	while ($strippedLine =~ m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g)
+	while ($strippedLine =~
+m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g
+		)
 		{
-		my $startPos = $-[0];	# this does include the '.', beginning of entire match
-		my $endPos = $+[0];		# pos of char after end of entire match
-		my $captured = $1;		# double-quoted chunk, or extension (plus any anchor), or url or [text](href)
-		my $haveTextHref = (index($captured, '_LB_') == 0);
-		my $textHref = ($haveTextHref) ? $captured : '';
-		my $haveMarkdownLink = (defined($3)) ? 1 : 0; # [...](http...)
-		my $doMarkdownLink = ($haveMarkdownLink && $haveRefToText); # otherwise do just the http link part
-		my $markdownDisplayText = ($doMarkdownLink) ? $3: '';
-		my $markdownLink = ($doMarkdownLink) ? $4: '';
-		my $charBefore = ($startPos > 0) ? substr($strippedLine, $startPos - 1, 1) : '';
-		my $haveDirSpecifier = 0;
+		my $startPos = $-[0];    # this does include the '.', beginning of entire match
+		my $endPos   = $+[0];    # pos of char after end of entire match
+		my $captured =
+			$1;    # double-quoted chunk, or extension (plus any anchor), or url or [text](href)
+		my $haveTextHref     = (index($captured, '_LB_') == 0);
+		my $textHref         = ($haveTextHref) ? $captured : '';
+		my $haveMarkdownLink = (defined($3))   ? 1         : 0;    # [...](http...)
+		my $doMarkdownLink =
+			($haveMarkdownLink && $haveRefToText);    # otherwise do just the http link part
+		my $markdownDisplayText = ($doMarkdownLink) ? $3                                      : '';
+		my $markdownLink        = ($doMarkdownLink) ? $4                                      : '';
+		my $charBefore          = ($startPos > 0)   ? substr($strippedLine, $startPos - 1, 1) : '';
+		my $haveDirSpecifier    = 0;
 
 		$haveGoodMatch = 0;
-		
+
 		# $12, $13: (\"[^"]+\")|(\'[^']+\')
 		# These are checked for after other quote patterns, and if triggered
 		# we're dealing with a potential directory specifier.
@@ -727,12 +759,12 @@ sub EvaluateLinkCandidates {
 			$haveDirSpecifier = 1;
 			}
 
-		
+
 		my $haveQuotation = ((index($captured, '"') == 0) || (index($captured, "'") == 0));
-		my $badQuotation = 0;
-		my $insideID = 0;
-		my $quoteChar = '';
-		my $hasPeriod = (index($captured, '.') >= 0);
+		my $badQuotation  = 0;
+		my $insideID      = 0;
+		my $quoteChar     = '';
+		my $hasPeriod     = (index($captured, '.') >= 0);
 
 		if ($haveQuotation || $haveDirSpecifier)
 			{
@@ -758,15 +790,15 @@ sub EvaluateLinkCandidates {
 							if (substr($strippedLine, $startPos - 3, 3) eq "id=")
 								{
 								$badQuotation = 1;
-								$insideID = 1;
+								$insideID     = 1;
 								}
 							}
-						elsif ($startPos >= 5) # Perl line numbers, <td n="1">
+						elsif ($startPos >= 5)    # Perl line numbers, <td n="1">
 							{
 							if (substr($strippedLine, $startPos - 2, 2) eq "n=")
 								{
 								$badQuotation = 1;
-								$insideID = 1;
+								$insideID     = 1;
 								}
 							}
 						}
@@ -792,9 +824,9 @@ sub EvaluateLinkCandidates {
 					{
 					$badQuotation = 1;
 					}
-				elsif (IsBadQuotePosition($endPos-1))
+				elsif (IsBadQuotePosition($endPos - 1))
 					{
-					my $nextGoodQuotePos = NextGoodQuotePosition($endPos-1);
+					my $nextGoodQuotePos = NextGoodQuotePosition($endPos - 1);
 					if ($nextGoodQuotePos >= 0)
 						{
 						$endPos = $nextGoodQuotePos + 1;
@@ -805,16 +837,16 @@ sub EvaluateLinkCandidates {
 						}
 					}
 				}
-			
+
 			if (!$badQuotation && !$haveDirSpecifier)
 				{
 				# Trim quotes and pick up $quoteChar.
-				$quoteChar =  substr($captured, 0, 1);
-				$captured = substr($captured, 1);
-				$captured = substr($captured, 0, length($captured) - 1);
+				$quoteChar = substr($captured, 0, 1);
+				$captured  = substr($captured, 1);
+				$captured  = substr($captured, 0, length($captured) - 1);
 				}
 			}
-		
+
 		if ($badQuotation)
 			{
 			if ($insideID)
@@ -829,8 +861,11 @@ sub EvaluateLinkCandidates {
 		else
 			{
 			my $haveURL = (!$haveTextHref && index($captured, 'http') == 0);
-			my $anchorWithNum = (!$haveQuotation && !$haveURL && !$haveTextHref && defined($15)) ? $15 : ''; # includes '#'
-			# Need to sort out actual anchor if we're dealing with a quoted chunk.
+			my $anchorWithNum =
+				(!$haveQuotation && !$haveURL && !$haveTextHref && defined($15))
+				? $15
+				: '';    # includes '#'
+						 # Need to sort out actual anchor if we're dealing with a quoted chunk.
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
 				my $hashPos = index($captured, '#');
@@ -844,12 +879,15 @@ sub EvaluateLinkCandidates {
 					my $quotePos = index($captured, '"', $hashPos);
 					if ($quotePos != $hashPos + 1)
 						{
-						$anchorWithNum = substr($captured, $hashPos); # includes '#'
+						$anchorWithNum = substr($captured, $hashPos);    # includes '#'
 						}
 					}
 				}
 			my $url = $haveURL ? $captured : '';
-			my $extProper = (!$haveQuotation && !$haveURL && !$haveTextHref && !$haveDirSpecifier) ? substr($captured, 1) : '';
+			my $extProper =
+				(!$haveQuotation && !$haveURL && !$haveTextHref && !$haveDirSpecifier)
+				? substr($captured, 1)
+				: '';
 			# Get file extension if it's a quoted chunk (many won't have an extension).
 			if ($haveQuotation && !$haveURL && !$haveTextHref)
 				{
@@ -869,15 +907,22 @@ sub EvaluateLinkCandidates {
 					}
 				$extProper = substr($extProper, 0, $pos);
 				}
-			
+
 			# "$haveTextExtension" includes docx|pdf
-			my $haveTextExtension = (!$haveURL && !$haveTextHref && IsTextDocxPdfExtensionNoPeriod($extProper));
-			my $haveImageExtension = $haveTextExtension ? 0 : (!$haveURL && !$haveTextHref && IsImageExtensionNoPeriod($extProper));
-			my $haveVideoExtension = (!$haveURL && !$haveTextHref && IsVideoExtensionNoPeriod($extProper));
-			my $haveGoodExtension = ($haveTextExtension || $haveImageExtension || $haveVideoExtension); # else URL or [text](href)
-			
+			my $haveTextExtension =
+				(!$haveURL && !$haveTextHref && IsTextDocxPdfExtensionNoPeriod($extProper));
+			my $haveImageExtension =
+				$haveTextExtension
+				? 0
+				: (!$haveURL && !$haveTextHref && IsImageExtensionNoPeriod($extProper));
+			my $haveVideoExtension =
+				(!$haveURL && !$haveTextHref && IsVideoExtensionNoPeriod($extProper));
+			my $haveGoodExtension =
+				($haveTextExtension || $haveImageExtension || $haveVideoExtension)
+				;    # else URL or [text](href)
+
 			my $linkIsMaybeTooLong = 0;
-			
+
 			# Potentially a text file mention or an image.
 			if ($haveGoodExtension)
 				{
@@ -890,12 +935,14 @@ sub EvaluateLinkCandidates {
 						{
 						$anchorWithNum = '';
 						}
-					$haveGoodMatch = RememberTextOrImageOrVideoFileMention($startPos,
-							$previousRevEndPos, $captured, $extProper,
-							$haveQuotation, $haveTextExtension, $haveImageExtension,
-							$haveVideoExtension, $quoteChar, $anchorWithNum, $restrictLinks);
+					$haveGoodMatch = RememberTextOrImageOrVideoFileMention(
+						$startPos,           $previousRevEndPos,  $captured,
+						$extProper,          $haveQuotation,      $haveTextExtension,
+						$haveImageExtension, $haveVideoExtension, $quoteChar,
+						$anchorWithNum,      $restrictLinks
+					);
 					}
-				} # if known extension
+				}    # if known extension
 			elsif ($haveURL)
 				{
 				# Skip first char if quoted.
@@ -922,18 +969,19 @@ sub EvaluateLinkCandidates {
 					RememberMarkdownLink($startPos, $captured, $markdownDisplayText, $markdownLink);
 					$haveGoodMatch = 1;
 					}
-				else # Handle like $haveURL using $4
+				else    # Handle like $haveURL using $4
 					{
-					my $urlStartPos = $startPos + length($3) + 3; # + name + []()
+					my $urlStartPos = $startPos + length($3) + 3;    # + name + []()
 					RememberUrl($urlStartPos, 0, '', $4);
 					$haveGoodMatch = 1;
 					}
 				}
-			
+
 			if ($haveGoodMatch)
 				{
-				$previousEndPos = $endPos;
-				$previousRevEndPos = $strippedLen - $previousEndPos - 1; # Limit backwards extent of 2nd and subsequent searches.
+				$previousEndPos    = $endPos;
+				$previousRevEndPos = $strippedLen -
+					$previousEndPos - 1;    # Limit backwards extent of 2nd and subsequent searches.
 				$haveGoodMatch = 0;
 				}
 			elsif (!$haveGoodMatch && $haveQuotation)
@@ -941,8 +989,8 @@ sub EvaluateLinkCandidates {
 				pos($strippedLine) = $startPos + 1;
 				}
 			}
-		} # while another extension or url matched
-	}
+		}    # while another extension or url matched
+}
 
 # Good extension if period followed by up to 7 word chars
 # and then end of string or a  '#'. I tried to replace this
@@ -952,23 +1000,26 @@ sub EvaluateLinkCandidates {
 sub ExtensionBeforeHashOrEnd {
 	my ($captured) = @_;
 	my $result = '';
-	
+
 	if ($captured =~ m!\.(\w\w?\w?\w?\w?\w?\w?)([#:]|$)!)
 		{
 		$result = $1;
 		}
-	return($result);
-	}
+	return ($result);
+}
 
 # If we can find a valid file mention looking backwards from $startPos, remember its details
 # in @repStr, @repLen etc. We go for the longest valid path.
 # We're searching backwards for the file name and directories when an extension has
 # been spotted.
 sub RememberTextOrImageOrVideoFileMention {
-	my ($startPos, $previousRevEndPos, $captured, $extProper, $haveQuotation,
-		$haveTextExtension, $haveImageExtension, $haveVideoExtension, $quoteChar, $anchorWithNum, $restrictLinks) = @_;
+	my (
+		$startPos,      $previousRevEndPos, $captured,           $extProper,
+		$haveQuotation, $haveTextExtension, $haveImageExtension, $haveVideoExtension,
+		$quoteChar,     $anchorWithNum,     $restrictLinks
+	) = @_;
 	my $linkIsMaybeTooLong = 0;
-	
+
 	# To allow for spaces in #anchors where file#anchor hasn't been quoted, grab the
 	# 100 chars following '#' here, and sort it out on the other end when going to
 	# the anchor. Only for txt files. This looks ugly in the view, alas.
@@ -980,24 +1031,24 @@ sub RememberTextOrImageOrVideoFileMention {
 			{
 			$anchorPosOnLine = index($strippedLine, ':', $startPos);
 			}
-		
+
 		# TODO if the anchor is a line number just grab the number.
 		# (But how to tell a line number from a heading?)
 		$anchorWithNum = substr($strippedLine, $anchorPosOnLine, 100);
 
 		# Remove any HTML junk there.
 		$anchorWithNum =~ s!\</[A-Za-z]+\>!!g;
-		$anchorWithNum =~ s!\<[A-Za-z]+\>!!g;				
+		$anchorWithNum =~ s!\<[A-Za-z]+\>!!g;
 		$linkIsMaybeTooLong = 1;
 		}
-	
-	my $fileTail = '.' . $extProper;
-	my $fileTailLength = length($fileTail);
-	my $anchorLength = length($anchorWithNum);
+
+	my $fileTail              = '.' . $extProper;
+	my $fileTailLength        = length($fileTail);
+	my $anchorLength          = length($anchorWithNum);
 	my $periodPlusAfterLength = $fileTailLength + $anchorLength;
 
 	$longestSourcePath = '';
-	$bestVerifiedPath = '';
+	$bestVerifiedPath  = '';
 
 	# Get quotes out of the way first:
 	# $haveQuotation: set $longestSourcePath, $bestVerifiedPath, $doingQuotedPath
@@ -1006,7 +1057,7 @@ sub RememberTextOrImageOrVideoFileMention {
 	if ($haveQuotation)
 		{
 		my $pathToCheck = $captured;
-		my $pos = index($pathToCheck, '#');
+		my $pos         = index($pathToCheck, '#');
 		if ($pos < 0)
 			{
 			$pos = index($pathToCheck, ':');
@@ -1015,7 +1066,7 @@ sub RememberTextOrImageOrVideoFileMention {
 			{
 			$pathToCheck = substr($pathToCheck, 0, $pos);
 			}
-		
+
 		my $verifiedPath = '';
 		if ($restrictLinks)
 			{
@@ -1023,40 +1074,42 @@ sub RememberTextOrImageOrVideoFileMention {
 			}
 		else
 			{
-			$verifiedPath = FullPathInContextNS($pathToCheck, $contextDir); # reverse_filepaths.pm					}
+			$verifiedPath =
+				FullPathInContextNS($pathToCheck, $contextDir);    # reverse_filepaths.pm					}
 			}
 		if ($verifiedPath ne '')
 			{
 			$longestSourcePath = $pathToCheck;
-			$bestVerifiedPath = $verifiedPath;
-			$doingQuotedPath = 1;
+			$bestVerifiedPath  = $verifiedPath;
+			$doingQuotedPath   = 1;
 			}
 		}
-	
-	my $revPos = $strippedLen - $startPos - 1 + 1; # extra +1 there to skip '.' before the extension proper.
-	
+
+	my $revPos =
+		$strippedLen - $startPos - 1 + 1;  # extra +1 there to skip '.' before the extension proper.
+
 	# Extract the substr to search.
 	my $revStrToSearch = substr($revLine, $revPos, $previousRevEndPos - $revPos + 1);
-	
+
 	# Good break points for hunt are [\\/ ], and [*?"<>|\t] end the hunt.
 	# For image files only, we look in a couple of standard places for just the file name.
 	# This can sometimes be expensive, but we look at the standard locations only until
 	# either a slash is seen or a regular mention is found.
-	my $checkStdImageDirs = ($haveImageExtension || $haveVideoExtension) ? 1 : 0;
-	my $commonDirForImageName = ''; # Set if image found one of the std image dirs
-	my $imageName = ''; 			# for use if image found in one of std image dirs
-	
+	my $checkStdImageDirs     = ($haveImageExtension || $haveVideoExtension) ? 1 : 0;
+	my $commonDirForImageName = '';    # Set if image found one of the std image dirs
+	my $imageName             = '';    # for use if image found in one of std image dirs
+
 	GetLongestGoodPath($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $fileTail,
-					\$imageName, \$commonDirForImageName, $restrictLinks);
-	
+		\$imageName, \$commonDirForImageName, $restrictLinks);
+
 	my $haveGoodMatch = 0;
 	if ($longestSourcePath ne '' || $commonDirForImageName ne '')
 		{
-		my $linkType = 'file'; # For CodeMirror
+		my $linkType                 = 'file';    # For CodeMirror
 		my $usingCommonImageLocation = 0;
 		if ($longestSourcePath eq '')
 			{
-			$longestSourcePath = $imageName;
+			$longestSourcePath        = $imageName;
 			$usingCommonImageLocation = 1;
 			}
 		my $repString = '';
@@ -1064,39 +1117,40 @@ sub RememberTextOrImageOrVideoFileMention {
 		my $repLength = length($longestSourcePath) + $anchorLength;
 		if ($haveQuotation)
 			{
-			$repLength += 2; # for the quotes
+			$repLength += 2;    # for the quotes
 			}
-		
-		my $repStartPosition = ($haveQuotation) ? $startPos : $startPos - $repLength + $periodPlusAfterLength;
+
+		my $repStartPosition =
+			($haveQuotation) ? $startPos : $startPos - $repLength + $periodPlusAfterLength;
 
 		# We are using the "stripped" line here, so recover the start position and length of text
 		# to be replaced by adding back the <mark> tags, for use at the displayed link text.
 		($repStartPosition, $repLength) = CorrectedPositionAndLength($repStartPosition, $repLength);
 		my $displayTextForAnchor = substr($line, $repStartPosition, $repLength);
-		
+
 		if ($haveTextExtension)
 			{
 			GetTextFileRep($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
-							$anchorWithNum, $displayTextForAnchor, \$repString);
+				$anchorWithNum, $displayTextForAnchor, \$repString);
 			}
-		else # image or video extension
+		else    # image or video extension
 			{
 			# For CodeMirror
 			if ($haveVideoExtension)
 				{
-				$linkType = 'video'; 
+				$linkType = 'video';
 				}
 			else
 				{
-				$linkType = 'image'; 
+				$linkType = 'image';
 				}
 			GetImageFileRep($haveQuotation, $quoteChar, $usingCommonImageLocation,
-							$imageName, $displayTextForAnchor, $haveVideoExtension, \$repString);
+				$imageName, $displayTextForAnchor, $haveVideoExtension, \$repString);
 			}
-			
-		push @repStr, $repString;
-		push @repLen, $repLength;
-		push @repStartPos, $repStartPosition;
+
+		push @repStr,                   $repString;
+		push @repLen,                   $repLength;
+		push @repStartPos,              $repStartPosition;
 		push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
 		if (!$haveRefToText)
 			{
@@ -1104,9 +1158,9 @@ sub RememberTextOrImageOrVideoFileMention {
 			}
 		$haveGoodMatch = 1;
 		}
-	
-	return($haveGoodMatch);
-	}
+
+	return ($haveGoodMatch);
+}
 
 # If $captured text in quotes can be associated with a full directory path
 # by reverse_filepaths.pm#BestMatchingFullDirectoryPath(),
@@ -1119,10 +1173,10 @@ sub RememberDirMention {
 	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
 
 	# Re-get $captured directory for display (including any <mark> elements).
-	my $displayedDir = substr($line, $startPos, $repLength); # was = $url;
+	my $displayedDir = substr($line, $startPos, $repLength);    # was = $url;
 	$repLength = length($displayedDir);
 	my $haveGoodMatch = 0;
-	
+
 	my $trimmedDirPath = $captured;
 	# Trim quotes
 	$trimmedDirPath = substr($trimmedDirPath, 1);
@@ -1134,19 +1188,21 @@ sub RememberDirMention {
 	$trimmedDirPath =~ s!/$!!;
 	# Lower case
 	$trimmedDirPath = lc($trimmedDirPath);
-	
+
 	my $directoryPath = BestMatchingFullDirectoryPath($trimmedDirPath, $contextDir);
-	
+
 	if ($directoryPath ne '')
 		{
-		my $linkType = 'directory'; # For CodeMirror
-		# Show a hint with the dir path.
-		my $dirHint = " onmouseover=\"showhint('<br>$directoryPath<br>&nbsp;', this, event, '500px', false);\"";
-		my $repString = "<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
-		
-		push @repStr, $repString;
-		push @repLen, $repLength;
-		push @repStartPos, $startPos;
+		my $linkType = 'directory';    # For CodeMirror
+									   # Show a hint with the dir path.
+		my $dirHint =
+" onmouseover=\"showhint('<br>$directoryPath<br>&nbsp;', this, event, '500px', false);\"";
+		my $repString =
+"<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
+
+		push @repStr,                   $repString;
+		push @repLen,                   $repLength;
+		push @repStartPos,              $startPos;
 		push @linkIsPotentiallyTooLong, 0;
 		if (!$haveRefToText)
 			{
@@ -1154,29 +1210,30 @@ sub RememberDirMention {
 			}
 		$haveGoodMatch = 1;
 		}
-	
-	return($haveGoodMatch);
-	}
+
+	return ($haveGoodMatch);
+}
 
 # Keep looking backwards a word at a time, calling FullPathInContextNS() and noting
 # $bestVerifiedPath and $longestSourcePath until beginning of line or double quote is seen.
 # The longest good path if any is left in $longestSourcePath.
 sub GetLongestGoodPath {
 	my ($doingQuotedPath, $checkStdImageDirs, $revStrToSearch, $currentPath,
-		$imageNameR, $commonDirForImageNameR, $restrictLinks) = @_;
+		$imageNameR, $commonDirForImageNameR, $restrictLinks)
+		= @_;
 	my $trimmedCurrentPath = $currentPath;
-	my $slashSeen = 0; 				# stop checking standard locs for image if a dir slash is seen
-	my $checkToEndOfLine = 0;
-	my $currentRevPos = ($doingQuotedPath) ? -1: 0;
-	my $prevSubRevPos = 0;
-	my $revStrLength = length($revStrToSearch);
-	
+	my $slashSeen          = 0;    # stop checking standard locs for image if a dir slash is seen
+	my $checkToEndOfLine   = 0;
+	my $currentRevPos      = ($doingQuotedPath) ? -1 : 0;
+	my $prevSubRevPos      = 0;
+	my $revStrLength       = length($revStrToSearch);
+
 	if (!$revStrLength)
 		{
 		#Monitor("EARLY RETURN, \$revStrToSearch is empty.\n");
 		return;
 		}
-	
+
 	# Look for next space or slash or end in the reversed str. We don't go into this loop
 	# if balanced quotes around path have been found just above.
 	while ($currentRevPos >= 0 || $checkToEndOfLine)
@@ -1190,7 +1247,7 @@ sub GetLongestGoodPath {
 			if ($revStrToSearch =~ m!^.{$prevSubRevPos}.*?([ \t/\\,\(<>:|?])!s)
 				{
 				$currentRevPos = $-[1];
-					
+
 				if ($currentRevPos >= 0)
 					{
 					my $charSeen = $1;
@@ -1220,11 +1277,11 @@ sub GetLongestGoodPath {
 				$currentRevPos = -1;
 				}
 			}
-		
-		if ($currentRevPos >= 0) 
+
+		if ($currentRevPos >= 0)
 			{
 			my $numChars = $currentRevPos - $prevSubRevPos + 1;
-			
+
 			if ($prevSubRevPos + $numChars > $revStrLength - 1)
 				{
 				$numChars = $revStrLength - $prevSubRevPos;
@@ -1239,30 +1296,32 @@ sub GetLongestGoodPath {
 				}
 			# Pick up next reversed term, including space etc if any.
 			my $nextRevTerm = substr($revStrToSearch, $prevSubRevPos, $numChars);
-			
+
 			# Drop out if we see a double quote.
 			if (index($nextRevTerm, '"') >= 0)
 				{
 				last;
 				}
-			
+
 			# Reversing puts the matched space etc if any at beginning of $nextTerm.
-			my $nextTerm = scalar reverse($nextRevTerm);
+			my $nextTerm   = scalar reverse($nextRevTerm);
 			my $trimOffset = ($checkToEndOfLine) ? 0 : 1;
 			# Trim only "stop" characters, space tab etc.
 			if ($trimOffset && !IsStopCharacter(substr($nextTerm, 0, 1)))
 				{
 				$trimOffset = 0;
 				}
-			my $trimmedNextTerm = substr($nextTerm, $trimOffset); # trim space etc at start, unless checking to end
+			my $trimmedNextTerm =
+				substr($nextTerm, $trimOffset);    # trim space etc at start, unless checking to end
 			$trimmedCurrentPath = $trimmedNextTerm . $currentPath;
-			$currentPath = $nextTerm . $currentPath;
+			$currentPath        = $nextTerm . $currentPath;
 
 			my $verifiedPath = '';
 			# I know this is a bit awkward, but we want to skip illegal file name characters
 			# and it's best to avoid a nested regex.
-			if (index($trimmedCurrentPath, '<') < 0
-				&& index($trimmedCurrentPath, '>') < 0 && index($trimmedCurrentPath, '|') < 0
+			if (   index($trimmedCurrentPath, '<') < 0
+				&& index($trimmedCurrentPath, '>') < 0
+				&& index($trimmedCurrentPath, '|') < 0
 				&& index($trimmedCurrentPath, '?') < 0)
 				{
 				if ($restrictLinks)
@@ -1278,28 +1337,29 @@ sub GetLongestGoodPath {
 
 			if ($verifiedPath ne '')
 				{
-				$longestSourcePath = $trimmedCurrentPath; 	# This is in the original text
-				$bestVerifiedPath = $verifiedPath;			# This is the corresponding full path
+				$longestSourcePath = $trimmedCurrentPath;    # This is in the original text
+				$bestVerifiedPath  = $verifiedPath;          # This is the corresponding full path
 				}
 			elsif ($checkStdImageDirs && $longestSourcePath eq '')
 				{
 				if (FileOrDirExistsWide($IMAGES_DIR . $trimmedCurrentPath) == 1)
 					{
-					$$imageNameR = $trimmedCurrentPath;
+					$$imageNameR             = $trimmedCurrentPath;
 					$$commonDirForImageNameR = $IMAGES_DIR;
-					$bestVerifiedPath = $$commonDirForImageNameR . $$imageNameR;
-					$checkStdImageDirs = 0;
+					$bestVerifiedPath        = $$commonDirForImageNameR . $$imageNameR;
+					$checkStdImageDirs       = 0;
 					}
-				elsif ($COMMON_IMAGES_DIR ne '' && FileOrDirExistsWide($COMMON_IMAGES_DIR . $trimmedCurrentPath) == 1)
+				elsif ($COMMON_IMAGES_DIR ne ''
+					&& FileOrDirExistsWide($COMMON_IMAGES_DIR . $trimmedCurrentPath) == 1)
 					{
-					$$imageNameR = $trimmedCurrentPath;
+					$$imageNameR             = $trimmedCurrentPath;
 					$$commonDirForImageNameR = $COMMON_IMAGES_DIR;
-					$bestVerifiedPath = $$commonDirForImageNameR . $$imageNameR;
-					$checkStdImageDirs = 0;
+					$bestVerifiedPath        = $$commonDirForImageNameR . $$imageNameR;
+					$checkStdImageDirs       = 0;
 					}
 				}
 			}
-		
+
 		if ($checkToEndOfLine)
 			{
 			last;
@@ -1313,13 +1373,13 @@ sub GetLongestGoodPath {
 			{
 			$checkToEndOfLine = 1;
 			}
-		
+
 		if ($slashSeen)
 			{
 			$checkStdImageDirs = 0;
 			}
-		} # while ($currentRevPos >= 0 ...
-	}
+		}    # while ($currentRevPos >= 0 ...
+}
 
 # A restricted link can be a full path, a file at the top of
 # the current context directory, or a file in a known image location.
@@ -1330,7 +1390,7 @@ sub RestrictedFullPath {
 	my ($pathToCheck, $contextDir) = @_;
 	$pathToCheck = lc($pathToCheck);
 	$pathToCheck =~ s!\\!/!g;
-	
+
 	if ($pathToCheck !~ m!^//!)
 		{
 		$pathToCheck =~ s!^/!!;
@@ -1357,22 +1417,32 @@ sub RestrictedFullPath {
 		{
 		$result = $COMMON_IMAGES_DIR . $pathToCheck;
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Stop chars limit search for next word to add to the string being tested as a target specifier.
 sub IsStopCharacter {
 	my ($char) = @_;
-	return($char eq ' ' || $char eq "\t" || $char eq '/' || $char eq "\\" || $char eq ',' || $char eq '(' || $char eq '<' || $char eq '>' || $char eq ':' || $char eq '|');
-	}
+	return (   $char eq ' '
+			|| $char eq "\t"
+			|| $char eq '/'
+			|| $char eq "\\"
+			|| $char eq ','
+			|| $char eq '('
+			|| $char eq '<'
+			|| $char eq '>'
+			|| $char eq ':'
+			|| $char eq '|');
+}
 
 # Make viewer and editor links for $bestVerifiedPath, put them in $$repStringR.
 sub GetTextFileRep {
 	my ($haveQuotation, $quoteChar, $extProper, $longestSourcePath,
-		$anchorWithNum, $displayTextForAnchor, $repStringR) = @_;
-	
-	my $editLink = '';
+		$anchorWithNum, $displayTextForAnchor, $repStringR)
+		= @_;
+
+	my $editLink   = '';
 	my $viewerPath = $bestVerifiedPath;
 	my $editorPath = $bestVerifiedPath;
 	$viewerPath =~ s!\\!/!g;
@@ -1381,57 +1451,63 @@ sub GetTextFileRep {
 		$viewerPath =~ s!%!%25!g;
 		$viewerPath =~ s!\+!\%2B!g;
 		}
-	
+
 	$editorPath =~ s!\\!/!g;
 	$editorPath =~ s!%!%25!g;
 	$editorPath =~ s!\+!\%2B!g;
-	
+
 	my $displayedLinkName = $displayTextForAnchor;
-	
+
 	if ($allowEditing)
 		{
 		if (!$clientIsRemote || $extProper !~ m!docx|pdf!i)
 			{
-			$editLink = "<a href='$editorPath' class='canedit' onclick=\"editOpen(this.href); return false;\">"
-					. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
+			$editLink =
+"<a href='$editorPath' class='canedit' onclick=\"editOpen(this.href); return false;\">"
+				. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
 			}
 		}
-	
+
 	# Change leading ':' to '#' in $anchorWithNum.
 	if (index($anchorWithNum, ':') == 0)
 		{
 		$anchorWithNum = '#' . substr($anchorWithNum, 1);
 		}
 	# For C++, shorten constructor/destructor anchors.
-	if ($extProper eq 'cpp' || $extProper eq 'cxx' ||
-		$extProper eq 'hpp' || $extProper eq 'h' ||
-		$extProper eq 'hh' || $extProper eq 'hxx')
+	if (   $extProper eq 'cpp'
+		|| $extProper eq 'cxx'
+		|| $extProper eq 'hpp'
+		|| $extProper eq 'h'
+		|| $extProper eq 'hh'
+		|| $extProper eq 'hxx')
 		{
 		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
 		}
 
 	# Show a hint with the actual full path for the file specifier.
-	my $fullPathHint = " onmouseover=\"showhint('<br>$viewerPath<br>&nbsp;', this, event, '500px', false);\"";
+	my $fullPathHint =
+		" onmouseover=\"showhint('<br>$viewerPath<br>&nbsp;', this, event, '500px', false);\"";
 
-	
-	my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\"$fullPathHint>$displayedLinkName</a>";
+
+	my $viewerLink =
+"<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\"$fullPathHint>$displayedLinkName</a>";
 	$$repStringR = "$viewerLink$editLink";
-	}
+}
 
 # "C" being a class name, remove "C::" from #C::C or #C::C() or #C::~C or #C::C().
 # Leave other anchors alone.
 sub ShortenedClassAnchor {
 	my ($anchorWithNum) = @_;
 	my $firstColonPos = index($anchorWithNum, ':');
-	
+
 	if ($firstColonPos > 0)
 		{
 		my $secondColonPos = index($anchorWithNum, ':', $firstColonPos + 1);
 		if ($secondColonPos == $firstColonPos + 1)
 			{
-			my $firstWord = substr($anchorWithNum, 1, $firstColonPos - 1);
+			my $firstWord  = substr($anchorWithNum, 1, $firstColonPos - 1);
 			my $secondWord = substr($anchorWithNum, $secondColonPos + 1);
-			my $parensPos = index($secondWord, '(');
+			my $parensPos  = index($secondWord, '(');
 			if ($parensPos > 0)
 				{
 				$secondWord = substr($secondWord, 0, length($secondWord) - 2);
@@ -1441,20 +1517,22 @@ sub ShortenedClassAnchor {
 				{
 				$secondWordToTest = substr($secondWordToTest, 1);
 				}
-			
+
 			if ($firstWord eq $secondWordToTest)
 				{
 				$anchorWithNum = '#' . $secondWord;
 				}
 			}
 		}
-		
-	return($anchorWithNum);
-	}
+
+	return ($anchorWithNum);
+}
 
 # Do up a view/hover link for image in $bestVerifiedPath, put that in $$repStringR.
 sub GetImageFileRep {
-	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $displayTextForAnchor, $haveVideoExtension, $repStringR) = @_;
+	my ($haveQuotation, $quoteChar, $usingCommonImageLocation, $imageName, $displayTextForAnchor,
+		$haveVideoExtension, $repStringR)
+		= @_;
 	my $serviceName = ($haveVideoExtension) ? $VIDEONAME : $VIEWERNAME;
 	if ($haveRefToText)
 		{
@@ -1465,17 +1543,18 @@ sub GetImageFileRep {
 		{
 		$bestVerifiedPath =~ s!\\!/!g;
 		}
-	
-	my $fullPath = $bestVerifiedPath;
-	my $imagePath = "http://$host:$port/$serviceName/$fullPath";
+
+	my $fullPath     = $bestVerifiedPath;
+	my $imagePath    = "http://$host:$port/$serviceName/$fullPath";
 	my $originalPath = $usingCommonImageLocation ? $imageName : $longestSourcePath;
 
 	my $displayedLinkName = $displayTextForAnchor;
-	
-	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"; # actual width='32' height='23'>";
+
+	my $leftHoverImg = "<img src='http://$host:$port/hoverleft.png' width='17' height='12'>"
+		;    # actual width='32' height='23'>";
 	my $rightHoverImg = "<img src='http://$host:$port/hoverright.png' width='17' height='12'>";
 
-	if ($haveRefToText) # "text", not CM
+	if ($haveRefToText)    # "text", not CM
 		{
 		if ($shouldInlineImages && !$haveVideoExtension)
 			{
@@ -1488,16 +1567,18 @@ sub GetImageFileRep {
 				{
 				if (!$clientIsRemote)
 					{
-					$$repStringR = "<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+					$$repStringR =
+"<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
 					}
 				}
 			else
 				{
-				$$repStringR = "<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+				$$repStringR =
+"<a href=\"http://$host:$port/$serviceName/?href=$fullPath\" onclick=\"openView(this.href, '$serviceName'); return false;\"  target=\"_blank\" onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 				}
 			}
 		}
-	else # CodeMirror
+	else    # CodeMirror
 		{
 		$imagePath =~ s!%!%25!g;
 		my $imageOpenHref = "http://$host:$port/$serviceName/?href=$fullPath";
@@ -1510,11 +1591,12 @@ sub GetImageFileRep {
 			}
 		else
 			{
-			$$repStringR = "<a href=\"$imageOpenHref\" target='_blank' onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
+			$$repStringR =
+"<a href=\"$imageOpenHref\" target='_blank' onmouseover=\"showhint('<img src=&quot;$imagePath&quot;>', this, event, '500px', true);\">$leftHoverImg$displayedLinkName$rightHoverImg</a>";
 			}
 		}
 
-	}
+}
 
 # Push url details onto @repStr, @repLen etc.
 # One exception, if $url is too short to be real then skip it.
@@ -1522,18 +1604,19 @@ sub RememberUrl {
 	my ($startPos, $haveQuotation, $quoteChar, $url) = @_;
 
 	my $linkIsMaybeTooLong = 0;
-	my $repLength = length($url);
+	my $repLength          = length($url);
 
 	# Adjust position and length of URL to include any <mark> tags that were stripped.
 	($startPos, $repLength) = CorrectedPositionAndLength($startPos, $repLength);
 
 	# Re-get $url for display (including any <mark> elements).
-	my $displayedURL = substr($line, $startPos, $repLength); # was = $url;
+	my $displayedURL = substr($line, $startPos, $repLength);    # was = $url;
 	$repLength = length($displayedURL);
 
-	# Trim any trailing punctuation character from $url - period, comma etc. Typically those are not part
-	# of a URL, eg "if you go to http://somewhere.com/things, you will find...".
-	# (Only    .^$*+?()[{\|  need escaping in regex outside of a character class, and only  ^-]\  inside one).
+	# Trim any trailing punctuation character from $url - period, comma etc. Typically those are
+	# not part of a URL, eg "if you go to http://somewhere.com/things, you will find...".
+	# (Only    .^$*+?()[{\|  need escaping in regex outside of a character class, and
+	# only  ^-]\  inside one).
 	# If it's a quoted chunk, mind you, trust the user.
 	if (!$haveQuotation)
 		{
@@ -1542,13 +1625,13 @@ sub RememberUrl {
 		$url =~ s!\&amp;quot;.?.?.?.?.?$!!;
 		$url =~ s![.,:;?\!\)\] \t\-]$!!;
 		}
-		
+
 	# Skip this one if it's too short to be a real url. http://a.b is the shortest I think, len 10.
 	if (length($url) < 10)
 		{
 		return;
 		}
-	
+
 	if ($haveQuotation)
 		{
 		$displayedURL = $quoteChar . $displayedURL . $quoteChar;
@@ -1557,27 +1640,27 @@ sub RememberUrl {
 		}
 
 	my $repString = "<a href='$url' target='_blank'>$displayedURL</a>";
-	
-	push @repStr, $repString;
-	push @repLen, $repLength;
-	push @repStartPos, $startPos;
+
+	push @repStr,                   $repString;
+	push @repLen,                   $repLength;
+	push @repStartPos,              $startPos;
 	push @linkIsPotentiallyTooLong, $linkIsMaybeTooLong;
-	if (!$haveRefToText) # CodeMirror
+	if (!$haveRefToText)    # CodeMirror
 		{
 		push @repLinkType, 'web';
 		}
-	}
+}
 
 sub RememberMarkdownLink {
 	my ($startPos, $captured, $markdownDisplayText, $markdownLink) = @_;
 
 	my $repString = "<a href='$markdownLink' target='_blank'>$markdownDisplayText</a>";
 	my $repLength = length($captured);
-	push @repStr, $repString;
-	push @repLen, $repLength;
-	push @repStartPos, $startPos;
+	push @repStr,                   $repString;
+	push @repLen,                   $repLength;
+	push @repStartPos,              $startPos;
 	push @linkIsPotentiallyTooLong, 0;
-	}
+}
 
 # For [text](href) links, present in POD text only.
 # We want the href from the (stripped) $textHref as passed in,
@@ -1592,7 +1675,7 @@ sub RememberTextHref {
 	my $leftIdx = index($textHref, '_LP_');
 	$leftIdx += length('_LP_');
 	my $rightIdx = index($textHref, '_RP_');
-	my $href = substr($textHref, $leftIdx, $rightIdx - $leftIdx);
+	my $href     = substr($textHref, $leftIdx, $rightIdx - $leftIdx);
 
 	# "$href" can in fact be an href or an id, and starts with "href="
 	# or "id=", which needs removing.
@@ -1603,7 +1686,7 @@ sub RememberTextHref {
 		}
 	elsif (index($href, 'id=') == 0)
 		{
-		$href = substr($href, 3);
+		$href     = substr($href, 3);
 		$attrName = 'id';
 		}
 	# else treat as an href, without the leading 'href=';
@@ -1622,45 +1705,47 @@ sub RememberTextHref {
 	# or an id.
 	my $isInternal = (index($href, '#') == 0 || $attrName eq 'id');
 
-	my $repString = ($isInternal) ? "<a $attrName='$href'>$displayedText</a>"
-					: "<a $attrName='$href' target='_blank'>$displayedText</a>";
+	my $repString =
+		($isInternal)
+		? "<a $attrName='$href'>$displayedText</a>"
+		: "<a $attrName='$href' target='_blank'>$displayedText</a>";
 
-	push @repStr, $repString;
-	push @repLen, $repLength;
-	push @repStartPos, $startPos;
+	push @repStr,                   $repString;
+	push @repLen,                   $repLength;
+	push @repStartPos,              $startPos;
 	push @linkIsPotentiallyTooLong, 0;
-	if (!$haveRefToText) # CodeMirror (not needed at present, CM doesn't see this sort of thing)
+	if (!$haveRefToText)    # CodeMirror (not needed at present, CM doesn't see this sort of thing)
 		{
 		push @repLinkType, 'web';
 		}
-	}
+}
 
 # Non-CodeMirror, replacements of file/url mentions with links are done straight in the text.
 # Do all reps in reverse order for text, so as to not throw off positions.
 sub DoTextReps {
 	my ($numReps, $txtR) = @_;
-	
-	for (my $i = $numReps - 1; $i >= 0; --$i)
+
+	for (my $i = $numReps - 1 ; $i >= 0 ; --$i)
 		{
-		if ($i > 0 && $linkIsPotentiallyTooLong[$i-1])
+		if ($i > 0 && $linkIsPotentiallyTooLong[$i - 1])
 			{
 			# Avoid overlap of replacements.
 			# If repstart [$i] is greater that [$i-1] end, shorten [$i-1].
-			if ($repStartPos[$i] <= $repStartPos[$i-1] + $repLen[$i-1])
+			if ($repStartPos[$i] <= $repStartPos[$i - 1] + $repLen[$i - 1])
 				{
-				my $amtToLeave = $repStartPos[$i] - $repStartPos[$i-1] - 1;
-				$repLen[$i-1] = $amtToLeave;
-				if ($repLen[$i-1] <= 0)
+				my $amtToLeave = $repStartPos[$i] - $repStartPos[$i - 1] - 1;
+				$repLen[$i - 1] = $amtToLeave;
+				if ($repLen[$i - 1] <= 0)
 					{
-					$repLen[$i-1] = 0;
+					$repLen[$i - 1] = 0;
 					}
 				else
 					{
 					# Need to shorten text inside repStr <a>.this</a>
-					if ($repStr[$i-1] =~ m!^(\<a([^>]+)\>)(.+)$!)
+					if ($repStr[$i - 1] =~ m!^(\<a([^>]+)\>)(.+)$!)
 						{
-						my $anchorStart = $1;
-						my $remainder = $3;
+						my $anchorStart  = $1;
+						my $remainder    = $3;
 						my $anchorEndPos = rindex($remainder, "</a>");
 						if ($anchorEndPos > 0)
 							{
@@ -1668,7 +1753,7 @@ sub DoTextReps {
 							$remainder =~ s!\<span class\=\"noshow\"\>\<\/span\>!!g;
 							$remainder = substr($remainder, 0, $amtToLeave);
 							# Put $repStr[$i-1] back together.
-							$repStr[$i-1] = $anchorStart . $remainder . "</a>";
+							$repStr[$i - 1] = $anchorStart . $remainder . "</a>";
 							}
 						}
 					}
@@ -1682,9 +1767,9 @@ sub DoTextReps {
 				}
 			}
 		}
-		
+
 	# Second pass, just do the replacements.
-	for (my $i = $numReps - 1; $i >= 0; --$i)
+	for (my $i = $numReps - 1 ; $i >= 0 ; --$i)
 		{
 		if ($repLen[$i] > 0)
 			{
@@ -1692,9 +1777,9 @@ sub DoTextReps {
 			substr($line, $repStartPos[$i], $repLen[$i], $repStr[$i]);
 			}
 		}
-	
+
 	$$txtR = $line;
-	}
+}
 
 # Links for CodeMirror files are done in JavaScript. Here we supply details such as
 # line/column of start of link, the text to mark up, and the actual link. The links are
@@ -1703,22 +1788,22 @@ sub DoTextReps {
 sub DoCodeMirrorReps {
 	my ($numReps, $currentLineNumber, $linksA) = @_;
 
-	for (my $i = 0; $i < $numReps; ++$i)
+	for (my $i = 0 ; $i < $numReps ; ++$i)
 		{
 		# Avoid overlap of replacements.
 		if ($i < $numReps - 1 && $linkIsPotentiallyTooLong[$i])
 			{
-			if ($repStartPos[$i] + $repLen[$i] >= $repStartPos[$i+1])
+			if ($repStartPos[$i] + $repLen[$i] >= $repStartPos[$i + 1])
 				{
-				my $amtToLeave = $repStartPos[$i+1] - $repStartPos[$i] - 1;
+				my $amtToLeave = $repStartPos[$i + 1] - $repStartPos[$i] - 1;
 				$repLen[$i] = $amtToLeave;
 				if ($repLen[$i] > 0)
 					{
 					# Need to shorten text inside $repStr, <a...>this text</a>
 					if ($repStr[$i] =~ m!^(\<a([^>]+)\>)(.+)$!)
 						{
-						my $anchorStart = $1;
-						my $remainder = $3;
+						my $anchorStart  = $1;
+						my $remainder    = $3;
 						my $anchorEndPos = rindex($remainder, "</a>");
 						if ($anchorEndPos > 0)
 							{
@@ -1736,29 +1821,31 @@ sub DoCodeMirrorReps {
 			{
 			my $nextLinkPos = @$linksA;
 			$linksA->[$nextLinkPos]{'lineNumInText'} = $currentLineNumber;
-			$linksA->[$nextLinkPos]{'columnInText'} = $repStartPos[$i];
-			$linksA->[$nextLinkPos]{'textToMarkUp'} = substr($line, $repStartPos[$i], $repLen[$i]);
+			$linksA->[$nextLinkPos]{'columnInText'}  = $repStartPos[$i];
+			$linksA->[$nextLinkPos]{'textToMarkUp'} =
+				substr($line, $repStartPos[$i], $repLen[$i]);
 			$linksA->[$nextLinkPos]{'linkType'} = $repLinkType[$i];
 			$linksA->[$nextLinkPos]{'linkPath'} = $repStr[$i];
 			}
 		}
-	}
-	
+}
+
 # If there is '<a' but not '</a>' before, in that order, then we are in an anchor.
 # If there is '<img' before but not also '>' before, in that order, then we are in an img.
 sub RepIsInsideAnchorOrImage {
 	my ($startPos, $len) = @_;
 	my $endPos = $startPos + $len - 1;
-	my $result = (PositionIsInsideAnchorOrImage($startPos) || PositionIsInsideAnchorOrImage($endPos));
-	return($result);
-	}
-	
+	my $result =
+		(PositionIsInsideAnchorOrImage($startPos) || PositionIsInsideAnchorOrImage($endPos));
+	return ($result);
+}
+
 sub PositionIsInsideAnchorOrImage {
 	my ($startPos) = @_;
 	my $result = 0;
-	
+
 	# Anchor check:
-	my $hitPos = 0;
+	my $hitPos        = 0;
 	my $anchorOpenPos = -1;
 	while (($hitPos = index($line, '<a', $hitPos)) >= 0)
 		{
@@ -1772,7 +1859,7 @@ sub PositionIsInsideAnchorOrImage {
 			last;
 			}
 		}
-	
+
 	if ($anchorOpenPos >= 0)
 		{
 		$hitPos = $anchorOpenPos;
@@ -1784,13 +1871,13 @@ sub PositionIsInsideAnchorOrImage {
 				$anchorClosePos = $hitPos;
 				}
 			}
-			
+
 		if ($anchorClosePos < 0 || $anchorClosePos < $anchorOpenPos)
 			{
 			$result = 1;
 			}
 		}
-	
+
 	if (!$result)
 		{
 		$hitPos = 0;
@@ -1807,7 +1894,7 @@ sub PositionIsInsideAnchorOrImage {
 				last;
 				}
 			}
-			
+
 		if ($imageOpenPos >= 0)
 			{
 			$hitPos = $imageOpenPos;
@@ -1819,18 +1906,106 @@ sub PositionIsInsideAnchorOrImage {
 					$imageClosePos = $hitPos;
 					}
 				}
-				
+
 			if ($imageClosePos < 0 || $imageClosePos < $imageOpenPos)
 				{
 				$result = 1;
 				}
 			}
 		}
-		
-	return($result);
-	}
 
-} ##### AutoLink
+	return ($result);
+}
+
+# Turn 'use Package::Module;' into a link to cpan. One wrinkle, if it's a local-only module
+# then link directly to the module. (This relies on user having indexed the module while
+# setting up full text search, but I can't think of a better way.)
+# Revision: for CodeMirror, link goes on the Module name only. That's because
+# Package, ::, and Module are in separate <spans> and if the entire Package::Module
+# is overlaid then we get three separate links.
+#
+# Perl module link handling
+# ---------------------------
+# When there's a pause in editing, or a refresh:
+# cmAutoLinks.js#addAutoLinks() eventually calls requestLinkMarkupWithPort(), which calls back
+# to intramine_linker.pl#CmLinks(), which eventually calls AddModuleLinkToPerlForCodeMirror(),
+# and finally addLinkMarkup() adds the returned links.
+# When a module link is clicked, fireOneLink() calls fireOnePerlModuleLink(), which dispatches
+# based on the "linkType":
+# perlModuleCustomEditable	local module, edit allowed
+# perlModuleCustomNoEdit		local module, edit not allowed
+# perlModuleHaveCpan			installed from cpan, have metacpan link
+# perlModuleNoLinks			not present, no links available
+# perlModuleOnlyCpan			not installed from cpan, have metacpan link
+sub AddModuleLinkToPerlForCodeMirror {
+	my ($txt, $dir, $host, $port, $clientIsRemote, $allowEditing, $currentLineNumber, $linksA) = @_;
+
+	# Worth looking only if "use" appears in the text.
+	if (index($txt, "use") < 0)
+		{
+		return;
+		}
+
+	my $linkType = 'unknown';
+
+	if ($txt =~
+m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(;|\s+\"|\s+qw|\s+\'))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(;|\s+\"|\s+qw|\s+\'))!
+		)
+		{
+		my $mid;
+		my $midPos;
+		my $midLength;
+		if (defined($4))
+			{
+			$mid       = $4;                # the full module name eg "This", or "This::That"
+			$midPos    = $-[4];
+			$midLength = $+[4] - $midPos;
+			}
+		else
+			{
+			$mid       = $9;                # the full module name eg "This", or "This::That"
+			$midPos    = $-[9];
+			$midLength = $+[9] - $midPos;
+			}
+
+		# Avoid doing a single colon, such as use C:/folder. Also skip if an apostrophe
+		# follows the $mid module name.
+		if (   !(index($mid, ":") > 0 && index($mid, "::") < 0)
+			&& !(substr($txt, $midPos + $midLength, 1) eq "'"))
+			{
+			# Get original text for $mid, with <mark> tags included.
+			#($midPos, $midLength) = CorrectedPositionAndLength($midPos, $midLength);
+			#my $displayMid = substr($$txtR, $midPos, $midLength);
+
+			$mid = ModuleLink($mid, $mid, $dir, $host, $port, $clientIsRemote, $allowEditing,
+				\$linkType);
+			if ($midLength > 0)
+				{
+				# If the text to mark up has a '::', shrink it down to just the Module part
+				# after the last '::'.
+				my $textToMarkUp  = substr($txt, $midPos, $midLength);
+				my $colonPosition = -1;
+				if (($colonPosition = rindex($textToMarkUp, '::')) > 0)
+					{
+					$midPos += $colonPosition + 2;
+					$textToMarkUp = substr($textToMarkUp, $colonPosition + 2);
+					# Look for >name1::name2::name3</a>, trim to >name3</a>
+					$mid =~ m!::([\w]+)</a>!;
+					my $finalName = $1;
+					$mid =~ s!>[\w:]+</a>!/>$finalName</a>!;
+					}
+				my $nextLinkPos = @$linksA;
+				$linksA->[$nextLinkPos]{'lineNumInText'} = $currentLineNumber;
+				$linksA->[$nextLinkPos]{'columnInText'}  = $midPos;
+				$linksA->[$nextLinkPos]{'textToMarkUp'}  = $textToMarkUp;
+				$linksA->[$nextLinkPos]{'linkType'}      = $linkType;
+				$linksA->[$nextLinkPos]{'linkPath'}      = $mid;
+				}
+			}
+
+		}
+}
+}    ##### AutoLink
 
 { ##### HTML tag, quote, and mark positions.
 my @htmlTagStartPos;
@@ -1842,14 +2017,14 @@ my %badQuotePosition;
 
 my @markStartPos;
 my @markLength;
-my @isMarkStart; # <mark...> gets 1, </mark> gets 0.
+my @isMarkStart;    # <mark...> gets 1, </mark> gets 0.
 
 sub GetTagAndQuotePositions {
 	my ($line) = @_;
-	
-	@htmlTagStartPos = ();
-	@htmlTagEndPos = ();
-	@quotePos = ();
+
+	@htmlTagStartPos  = ();
+	@htmlTagEndPos    = ();
+	@quotePos         = ();
 	%badQuotePosition = ();
 
 	GetHtmlStartsAndEnds($line);
@@ -1863,39 +2038,39 @@ sub GetTagAndQuotePositions {
 
 	# Find starts and length of <mark...> and </mark>.
 	GetMarkStartsAndLengths($line);
-	}
-	
+}
+
 # Find start and end positions of HTML start/end tags on line.
 sub GetHtmlStartsAndEnds {
 	my ($line) = @_;
-	
+
 	while ($line =~ m!(<.+?>)!g)
 		{
-		my $startPos = $-[1];		# beginning of match
-		my $endPos = $+[1] - 1;		# one past last matching character without the -1
+		my $startPos = $-[1];        # beginning of match
+		my $endPos   = $+[1] - 1;    # one past last matching character without the -1
 		push @htmlTagStartPos, $startPos;
-		push @htmlTagEndPos, $endPos;
+		push @htmlTagEndPos,   $endPos;
 		}
-	}
+}
 
 sub GetQuotePositions {
 	my ($line) = @_;
-	
+
 	while ($line =~ m!(")!g)
 		{
-		my $startPos = $-[1];	# beginning of match
+		my $startPos = $-[1];        # beginning of match
 		push @quotePos, $startPos;
 		}
-	}
+}
 
 # Identify "bad" quote positions, the ones inside HTML tags.
 sub GetBadQuotePositions {
-	
-	for (my $i = 0; $i < $numQuotes; ++$i)
+
+	for (my $i = 0 ; $i < $numQuotes ; ++$i)
 		{
 		my $isBadPos = 0;
 		my $quotePos = $quotePos[$i];
-		for (my $j = 0; $j < $numHtmlTags; ++$j)
+		for (my $j = 0 ; $j < $numHtmlTags ; ++$j)
 			{
 			if ($quotePos >= $htmlTagStartPos[$j] && $quotePos <= $htmlTagEndPos[$j])
 				{
@@ -1903,19 +2078,19 @@ sub GetBadQuotePositions {
 				last;
 				}
 			}
-		
+
 		if ($isBadPos)
 			{
 			$badQuotePosition{$quotePos} = 1;
 			}
 		}
-	}
+}
 
 sub NextGoodQuotePosition {
 	my ($badPos) = @_;
 	my $nextGoodPos = -1;
-	
-	for (my $i = 0; $i < $numQuotes; ++$i)
+
+	for (my $i = 0 ; $i < $numQuotes ; ++$i)
 		{
 		if ($badPos < $quotePos[$i] && !defined($badQuotePosition{$quotePos[$i]}))
 			{
@@ -1923,20 +2098,20 @@ sub NextGoodQuotePosition {
 			last;
 			}
 		}
-	return($nextGoodPos);
-	}
+	return ($nextGoodPos);
+}
 
 sub IsBadQuotePosition {
 	my ($pos) = @_;
 	my $result = defined($badQuotePosition{$pos}) ? 1 : 0;
-	return($result);
-	}
+	return ($result);
+}
 
 sub InsideHtmlTag {
 	my ($pos) = @_;
 	my $result = 0;
 
-	for (my $j = 0; $j < $numHtmlTags; ++$j)
+	for (my $j = 0 ; $j < $numHtmlTags ; ++$j)
 		{
 		if ($pos >= $htmlTagStartPos[$j] && $pos <= $htmlTagEndPos[$j])
 			{
@@ -1944,9 +2119,9 @@ sub InsideHtmlTag {
 			last;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Find starts and length of <mark...> and </mark>,
 # and whether it's a start or end tag.
@@ -1954,16 +2129,16 @@ sub GetMarkStartsAndLengths {
 	my ($line) = @_;
 
 	@markStartPos = ();
-	@markLength = ();
-	@isMarkStart = ();
-	
+	@markLength   = ();
+	@isMarkStart  = ();
+
 	while ($line =~ m!(</?mark[^>]*>)!g)
 		{
-		my $startPos = $-[1];	# beginning of match
-		my $endPos = $+[1];		# one past last matching character
+		my $startPos = $-[1];    # beginning of match
+		my $endPos   = $+[1];    # one past last matching character
 		push @markStartPos, $startPos;
-		push @markLength, $endPos - $startPos;
-		my $markStr = $1;
+		push @markLength,   $endPos - $startPos;
+		my $markStr       = $1;
 		my $isMarkStarter = 1;
 		if (index($markStr, '</') == 0)
 			{
@@ -1971,14 +2146,14 @@ sub GetMarkStartsAndLengths {
 			}
 		push @isMarkStart, $isMarkStarter;
 		}
-	}
+}
 
 # Correct for missing <mark...> and </mark>
 # as found in @markStartPos /@ markLength.
 sub CorrectedPositionAndLength {
 	my ($startPos, $repLength) = @_;
 	my $correctedStartPos = $startPos;
-	my $originalEndPos = $startPos + $repLength;
+	my $originalEndPos    = $startPos + $repLength;
 
 	# Correct the start position by adding back lengths of
 	# preceding marks.
@@ -1987,13 +2162,13 @@ sub CorrectedPositionAndLength {
 	# We have to correct the position of each mark by removing
 	# length of all preceding marks before comparing with the
 	# (already stripped) $startPos and $originalEndPos.
-	for (my $i = 0; $i < @markStartPos; ++$i)
+	for (my $i = 0 ; $i < @markStartPos ; ++$i)
 		{
 		my $deflatedPosition = $markStartPos[$i];
 		if ($i > 0)
 			{
 			my $pi = $i - 1;
-			while ($pi >= 0 )
+			while ($pi >= 0)
 				{
 				$deflatedPosition -= $markLength[$pi];
 				--$pi;
@@ -2004,7 +2179,7 @@ sub CorrectedPositionAndLength {
 			{
 			$correctedStartPos += $markLength[$i];
 			}
-		
+
 		if ($deflatedPosition >= $startPos && $deflatedPosition <= $originalEndPos)
 			{
 			if ($deflatedPosition < $originalEndPos || !$isMarkStart[$i])
@@ -2014,24 +2189,28 @@ sub CorrectedPositionAndLength {
 			}
 		}
 
-	return($correctedStartPos, $repLength);
-	}
+	return ($correctedStartPos, $repLength);
+}
 
 # Valid after calling GetTagAndQuotePositions() above.
 sub LineHasMarkTags {
 	my $numTags = @markStartPos;
-	my $result = ($numTags > 0);
-	return($result);
-	}
-} ##### HTML tag, quote, and mark positions.
+	my $result  = ($numTags > 0);
+	return ($result);
+}
+}    ##### HTML tag, quote, and mark positions.
 
 # Get links (except internal headers) for a range of lines in a CodeMirror view.
 # Called by CmGetLinksForText().
 sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
-	my ($text, $firstLineNum, $path, $linksA, $host, $port,
-		$clientIsRemote, $allowEditing, $checkSpelling) = @_;
+	my (
+		$text, $firstLineNum,   $path,         $linksA, $host,
+		$port, $clientIsRemote, $allowEditing, $checkSpelling
+	) = @_;
 	$checkSpelling ||= 0;
 	my @lines = split(/\n/, $text);
+
+	my $dir = DirectoryFromPathTS($path);
 
 	my $contextDir = DirectoryFromPathTS($path);
 
@@ -2041,25 +2220,45 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 	$ext = lc($ext);
 	my $isText = IsTextFileExtension($ext);
 
-	for (my $counter = 0; $counter < @lines; ++$counter)
+	if (IsPerlExtension($ext))
+		{
+		for (my $counter = 0 ; $counter < @lines ; ++$counter)
+			{
+			my $currentLineNumber = $firstLineNum + $counter;
+			if ($lines[$counter] =~ m!(use|import)\s+!)
+				{
+				AddModuleLinkToPerlForCodeMirror($lines[$counter],
+					$dir, $host, $port, $clientIsRemote, $AllowLocalEditing, $currentLineNumber,
+					$linksA);
+				}
+			}
+		}
+
+	for (my $counter = 0 ; $counter < @lines ; ++$counter)
 		{
 		my $currentLineNumber = $firstLineNum + $counter;
-		AddWebAndFileLinksToLine($lines[$counter], $contextDir, $host, $port,
-					$clientIsRemote, $allowEditing, '0', $restrictLinks, $currentLineNumber, $linksA);
+		AddWebAndFileLinksToLine(
+			$lines[$counter],   $contextDir,   $host, $port,
+			$clientIsRemote,    $allowEditing, '0',   $restrictLinks,
+			$currentLineNumber, $linksA
+		);
 
-		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber, $linksA);
+		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber,
+			$linksA);
 
 		if ($checkSpelling && $isText)
 			{
 			SpellCheck($lines[$counter], $currentLineNumber, $linksA);
 			}
 		}
-	}
+}
 
 # Get links, for non-CodeMirror (txt pl etc) files.
 sub AddWebAndFileLinksToVisibleLines {
-	my ($text, $path, $ext, $serverAddr, $server_port,
-		$clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
+	my (
+		$text,           $path,         $ext,          $serverAddr, $server_port,
+		$clientIsRemote, $allowEditing, $shouldInline, $resultR
+	) = @_;
 	my @lines = split(/\n/, $text);
 
 	my $dir = DirectoryFromPathTS($path);
@@ -2069,38 +2268,43 @@ sub AddWebAndFileLinksToVisibleLines {
 	# this case, links are restricted to the containing folder, and glossary popups
 	# are taken from the glossary.txt file instead of glossary_master.txt files.
 	my $restrictLinks = IsStandaloneTextFile($path, $dir);
-	
+
 	if (IsTextFileExtension($ext) || IsPodExtension($ext))
 		{
 		if (!$restrictLinks)
 			{
-			for (my $counter = 0; $counter < @lines; ++$counter)
+			for (my $counter = 0 ; $counter < @lines ; ++$counter)
 				{
-				AddModuleLinkToText(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
+				AddModuleLinkToText(\${lines [$counter]},
+					$dir, $serverAddr, $server_port, $clientIsRemote, $allowEditing);
 				}
 			}
 		}
-	elsif(IsPerlExtension($ext))
+	elsif (IsPerlExtension($ext))
 		{
-		for (my $counter = 0; $counter < @lines; ++$counter)
+		# This is dead code for the moment, Perl is now displayed using CodeMirror.
+		# Left in because you never know.
+		for (my $counter = 0 ; $counter < @lines ; ++$counter)
 			{
 			if ($lines[$counter] =~ m!(use|import)\s*</span>!)
 				{
-				AddModuleLinkToPerl(\${lines[$counter]}, $dir, $serverAddr, $server_port, $clientIsRemote, $AllowLocalEditing);
+				AddModuleLinkToPerl(\${lines [$counter]},
+					$dir, $serverAddr, $server_port, $clientIsRemote, $AllowLocalEditing);
 				}
 			}
 		}
 
-	for (my $counter = 0; $counter < @lines; ++$counter)
+	for (my $counter = 0 ; $counter < @lines ; ++$counter)
 		{
-		AddWebAndFileLinksToLine(\${lines[$counter]}, $dir, $serverAddr, $server_port, 
-								$clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
-		AddGlossaryHints(\${lines[$counter]}, $path, $serverAddr, $server_port, $VIEWERNAME);
+		AddWebAndFileLinksToLine(\${lines [$counter]},
+			$dir, $serverAddr, $server_port,
+			$clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
+		AddGlossaryHints(\${lines [$counter]}, $path, $serverAddr, $server_port, $VIEWERNAME);
 		}
 
 	#$$resultR = join("\n", @lines);
 	$$resultR = encode_utf8(join("\n", @lines));
-	}
+}
 
 { ##### Check directory has a glossary.txt file.
 # $DirHasGlossary{$dir} == 1 if $dir has been checked and has a glossary.txt file,
@@ -2120,14 +2324,14 @@ sub IsStandaloneTextFile {
 			}
 		$result = $DirHasGlossary{$dir};
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub CheckDirHasGlossary {
 	my ($dir) = @_;
 
-	my $hasGlossary = 0;
+	my $hasGlossary  = 0;
 	my $glossaryPath = $dir . "glossary.txt";
 	if (FileOrDirExistsWide($glossaryPath) == 1)
 		{
@@ -2135,43 +2339,43 @@ sub CheckDirHasGlossary {
 		}
 
 	$DirHasGlossary{$dir} = $hasGlossary;
-	}
+}
 
 sub ForgetDirChecked {
 	my ($dir) = @_;
 	delete($DirHasGlossary{$dir});
-	}
-} ##### Check directory has a glossary.txt file.
+}
+}    ##### Check directory has a glossary.txt file.
 
 sub WebLink {
-	my ($url, $host, $port, $linkName) = @_; # $linkName is optional, == $url if not supplied.
+	my ($url, $host, $port, $linkName) = @_;    # $linkName is optional, == $url if not supplied.
 	$linkName ||= $url;
 	my $result = "<a href='$url' target='_blank'>$linkName</a>";
-	return($result);
-	}
+	return ($result);
+}
 
 # ext.pm#313 $popularExtensionsForLanguage{'Plain Text'} = 'txt,text,conf,def,list,log';
 # We just do txt, log, bat for linking.
 sub IsTextFileExtension {
 	my ($ext) = @_;
-	return($ext eq ".txt" || $ext eq ".log" || $ext eq ".bat");
+	return ($ext eq ".txt" || $ext eq ".log" || $ext eq ".bat");
 	#return($ext =~ m!\.(txt|log|bat)$!);
-	}
+}
 
 # ext.pm#239 $extensionsForLanguage{'Perl Pod'} = 'pod';
 sub IsPodExtension {
 	my ($ext) = @_;
-	return($ext eq ".pod");
+	return ($ext eq ".pod");
 	#return($ext =~ m!^\.pod$!);
-	}
+}
 
 # ext.pm#312 $popularExtensionsForLanguage{'Perl'} = 'pl,pm,cgi,t,pod';
 # (pod is treated separately.)
 sub IsPerlExtension {
 	my ($ext) = @_;
-	return($ext eq ".pl" || $ext eq ".pm" || $ext eq ".cgi" || $ext eq ".t");
+	return ($ext eq ".pl" || $ext eq ".pm" || $ext eq ".cgi" || $ext eq ".t");
 	#return($ext =~ m!\.(p[lm]|cgi|t)$!);
-	}
+}
 
 # Turn 'use Package::Module;' into a link to cpan. One wrinkle, if it's a local-only module
 # then link directly to the module. (This relies on user having indexed the module while
@@ -2187,7 +2391,7 @@ sub AddModuleLinkToText {
 
 	# Make a version of $$txtR with <mark> tags removed, remember where they are.
 	GetMarkStartsAndLengths($$txtR);
-	my $hasMarks = LineHasMarkTags();
+	my $hasMarks     = LineHasMarkTags();
 	my $strippedline = $$txtR;
 	if ($hasMarks)
 		{
@@ -2203,39 +2407,42 @@ sub AddModuleLinkToText {
 
 	# Look for use X::Y, import X::Y, use local_module etc. Some spurious matches
 	# are happening in text files, but not I hope too many.
-	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(;| \"| qw| \'))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(;| \"| qw| \'))!g)
-#	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+);)|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+);)!g)
+	while ($strippedline =~
+m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+)(;| \"| qw| \'))|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+)(;| \"| qw| \'))!g
+		)
+		#	while ($strippedline =~ m!^((\s*(use|import)\s+)(\w[0-9A-Za-z_:]+);)|((.+?(use|import)\s+)([a-zA-Z][0-9A-Za-z_:]+);)!g)
 		{
 		my $mid;
 		my $midPos;
 		my $midLength;
 		if (defined($4))
 			{
-			$mid = $4; # the full module name eg "This", or "This::That"
-			$midPos = $-[4];
+			$mid       = $4;                # the full module name eg "This", or "This::That"
+			$midPos    = $-[4];
 			$midLength = $+[4] - $midPos;
 			}
 		else
 			{
-			$mid = $9; # the full module name eg "This", or "This::That"
-			$midPos = $-[9];
+			$mid       = $9;                # the full module name eg "This", or "This::That"
+			$midPos    = $-[9];
 			$midLength = $+[9] - $midPos;
 			}
-		
+
 		# Avoid doing a single colon, such as use C:/folder. Also skip if an apostrophe
 		# follows the $mid module name.
-		if (!(index($mid, ":") > 0 && index($mid, "::") < 0)
-		  && !(substr($strippedline, $midPos + $midLength, 1) eq "'"))
+		if (   !(index($mid, ":") > 0 && index($mid, "::") < 0)
+			&& !(substr($strippedline, $midPos + $midLength, 1) eq "'"))
 			{
 			# Get original text for $mid, with <mark> tags included.
 			($midPos, $midLength) = CorrectedPositionAndLength($midPos, $midLength);
 			my $displayMid = substr($$txtR, $midPos, $midLength);
-			
-			$mid = ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
+
+			$mid =
+				ModuleLink($mid, $displayMid, $dir, $host, $port, $clientIsRemote, $allowEditing);
 			#$textCopy = substr($$txtR, 0, $midPos) . $mid . substr($$txtR, $midPos + $midLength);
-			push @reps, $mid;
+			push @reps,          $mid;
 			push @repsPositions, $midPos;
-			push @repLength, $midLength;
+			push @repLength,     $midLength;
 			$foundAModule = 1;
 			}
 		}
@@ -2244,13 +2451,18 @@ sub AddModuleLinkToText {
 	my $numReps = @reps;
 	if ($numReps)
 		{
-		for (my $i = $numReps - 1; $i >= 0; --$i)
+		for (my $i = $numReps - 1 ; $i >= 0 ; --$i)
 			{
-			$$txtR = substr($$txtR, 0, $repsPositions[$i]) . $reps[$i] . substr($$txtR, $repsPositions[$i] + $repLength[$i]);
+			$$txtR =
+				  substr($$txtR, 0, $repsPositions[$i])
+				. $reps[$i]
+				. substr($$txtR, $repsPositions[$i] + $repLength[$i]);
 			}
 		}
-	}
+}
 
+# NOT USED at the moment: Perl is now displayed in the Viewer using CodeMirror.
+# See AddModuleLinkToPerlForCodeMirror() just above.
 # Turn 'use Package::Module;' into a link to cpan. One wrinkle, if it's a local-only module
 # then link directly to the module. (This relies on user having indexed the module while
 # setting up full text search, but I can't think of a better way.)
@@ -2262,7 +2474,7 @@ sub AddModuleLinkToText {
 # TODO this picks up the occasional spurious "use" mention, though not very often.
 sub AddModuleLinkToPerl {
 	my ($txtR, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
-		
+
 	# Worth looking only if "use" appears in the text.
 	if (index($$txtR, "use") < 0)
 		{
@@ -2271,67 +2483,73 @@ sub AddModuleLinkToPerl {
 
 	# Make a version of $$txtR with <mark> tags removed, remember where they are.
 	GetMarkStartsAndLengths($$txtR);
-	my $hasMarks = LineHasMarkTags();
+	my $hasMarks     = LineHasMarkTags();
 	my $strippedline = $$txtR;
 	if ($hasMarks)
 		{
 		$strippedline =~ s!(</?mark[^>]*>)!!g;
 		}
-	
-	my $modulePartialPath = '';
+
+	my $modulePartialPath   = '';
 	my $displayedModuleName = '';
 	my $dispPosition;
 	my $dispLength;
-	my $pre = '';
+	my $pre  = '';
 	my $post = '';
-	
-	if ($strippedline =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)(base\s*)(</span>\s*<span class=['"]Quote['"]>qw\(</span><span class=['"]String['"]>)([^<]+)(</span><span class=['"]Quote['"]>\)</span><span class=['"]Symbol['"]>;</span>.*?)$!)
+
+	if ($strippedline =~
+m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)(base\s*)(</span>\s*<span class=['"]Quote['"]>qw\(</span><span class=['"]String['"]>)([^<]+)(</span><span class=['"]Quote['"]>\)</span><span class=['"]Symbol['"]>;</span>.*?)$!
+		)
 		{
 		$pre = $1;
-		my $base = $2;
+		my $base         = $2;
 		my $intermediate = $3;
-		$modulePartialPath = $4;
-		$post = $5;
+		$modulePartialPath   = $4;
+		$post                = $5;
 		$displayedModuleName = $base;
-		$dispPosition = $-[2];
-		$dispLength = $+[2] - $dispPosition;
-		
+		$dispPosition        = $-[2];
+		$dispLength          = $+[2] - $dispPosition;
+
 		$post = $intermediate . $modulePartialPath . $post;
 		}
 
-	elsif ( $strippedline =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)([^<]+)(</span>.*?)$!
-	  || $$txtR =~ m!(.*?import\s*</span>\s*<span class=['"]Bareword['"]>)([^<]+)(</span>.*?)$! )
+	elsif (
+		$strippedline =~ m!^(.*?use\s*</span>\s*<span class=['"]Package['"]>)([^<]+)(</span>.*?)$!
+		|| $$txtR =~ m!(.*?import\s*</span>\s*<span class=['"]Bareword['"]>)([^<]+)(</span>.*?)$!)
 		{
-		$pre = $1;
-		$modulePartialPath = $2;
-		$post = $3;
+		$pre                 = $1;
+		$modulePartialPath   = $2;
+		$post                = $3;
 		$displayedModuleName = $modulePartialPath;
-		$dispPosition = $-[2];
-		$dispLength = $+[2] - $dispPosition;
+		$dispPosition        = $-[2];
+		$dispLength          = $+[2] - $dispPosition;
 		}
-		
+
 	if ($pre ne '')
 		{
 		($dispPosition, $dispLength) = CorrectedPositionAndLength($dispPosition, $dispLength);
 		$displayedModuleName = substr($$txtR, $dispPosition, $dispLength);
-		my $mid = ModuleLink($modulePartialPath, $displayedModuleName, $dir, $host, $port, $clientIsRemote, $allowEditing);
-		$$txtR = substr($$txtR, 0, $dispPosition) . $mid . substr($$txtR, $dispPosition + $dispLength);
+		my $mid = ModuleLink($modulePartialPath, $displayedModuleName, $dir, $host, $port,
+			$clientIsRemote, $allowEditing);
+		$$txtR =
+			substr($$txtR, 0, $dispPosition) . $mid . substr($$txtR, $dispPosition + $dispLength);
 		}
-	}
+}
 
 # Return links to metacpan and to source for a Perl module mention.
 sub ModuleLink {
-	my ($srcTxt, $displayText, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
+	my ($srcTxt, $displayText, $dir, $host, $port, $clientIsRemote, $allowEditing, $linkTypeR) = @_;
 	my $result = '';
-	
-	my $isCustom = 0;
+
+	my $isCustom          = 0;
 	my $modulePartialPath = $srcTxt . '.pm';
 	if (index($srcTxt, '::') > 0)
 		{
 		$modulePartialPath =~ s!::!/!g;
 		}
 
-	my $fullPath = FullPathInContextTrimmed($modulePartialPath, $dir); # reverse_filepaths.pm#FullPathInContextTrimmed()
+	my $fullPath = FullPathInContextTrimmed($modulePartialPath, $dir)
+		;    # reverse_filepaths.pm#FullPathInContextTrimmed()
 	if ($fullPath ne '')
 		{
 		if ($fullPath !~ m!/perl(64)?/!i)
@@ -2339,53 +2557,65 @@ sub ModuleLink {
 			$isCustom = 1;
 			}
 		}
-	
+
 	if ($isCustom)
 		{
 		# Link to file, follow with edit link.
 		my $editLink = '';
 		if ($allowEditing)
 			{
-			$editLink = " <a href='' class='canedit' onclick=\"editOpen('$fullPath'); return false;\">"
-						. "<img src='edit1.png' width='17' height='12' />" . '</a>';
+			$$linkTypeR = 'perlModuleCustomEditable';
+			$editLink =
+				  " <a href='' class='canedit' onclick=\"editOpen('$fullPath'); return false;\">"
+				. "<img src='edit1.png' width='17' height='12' />" . '</a>';
 			}
-		my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
+		else
+			{
+			$$linkTypeR = 'perlModuleCustomNoEdit';
+			}
+		my $viewerLink =
+"<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
 		$result = "$viewerLink$editLink";
 		}
-	else # path not found, or path found but in main Perl or Perl64 folder
+	else    # path not found, or path found but in main Perl or Perl64 folder
 		{
 		#
-		my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'><img src='metacpan-icon.png' /></a>";
-		
+		my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'></a>";
+		#my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'><img src='metacpan-icon.png' /></a>";
+
 		# Link to file if possible, follow with meta-cpan link.
 		if ($fullPath ne '')
 			{
-			my $viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
+			$$linkTypeR = 'perlModuleHaveCpan';
+			my $viewerLink =
+"<a href=\"http://$host:$port/$VIEWERNAME/?href=$fullPath\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\">$displayText</a>";
 			$result = "$viewerLink$docsLink";
 			}
-		else # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z].
+		else    # just tack on a meta-cpan link - but ONLY if module name starts with [A-Z].
 			{
 			my $firstChar = substr($srcTxt, 0, 1);
-			my $ordVal = ord($firstChar);
+			my $ordVal    = ord($firstChar);
 			if ($ordVal >= 65 && $ordVal <= 90)
 				{
-				$result = $displayText . $docsLink;
+				$$linkTypeR = 'perlModuleOnlyCpan';
+				$result     = $displayText . $docsLink;
 				}
 			else
 				{
-				$result = $displayText;
+				$$linkTypeR = 'perlModuleNoLinks';
+				$result     = $displayText;
 				}
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Return HTML link for a link mention in a Pod file.
 sub PodLink {
 	my ($srcTxt, $dir, $host, $port, $clientIsRemote, $allowEditing) = @_;
 	my $result = '';
-	
+
 	# Separate displayed text from name.
 	my $text;
 	my $name;
@@ -2393,14 +2623,14 @@ sub PodLink {
 	if (($pos = index($srcTxt, '|')) > 0)
 		{
 		$text = substr($srcTxt, 0, $pos);
-		$name = substr($srcTxt, $pos+1);
+		$name = substr($srcTxt, $pos + 1);
 		}
 	else
 		{
 		$text = $srcTxt;
 		$name = $srcTxt;
 		}
-	
+
 	# Is it one of them hyperlink things?
 	if (index($name, 'http') == 0)
 		{
@@ -2412,6 +2642,6 @@ sub PodLink {
 		$name =~ s!\s*\(\d+\)\s*$!!;
 		$result = ModuleLink($name, $text, $dir, $host, $port, $clientIsRemote, $allowEditing);
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}

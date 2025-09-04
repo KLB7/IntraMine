@@ -81,30 +81,6 @@
 	cursor: pointer;
 }
 
-/*
-.cmAutoLinkImg:before {
-    content: "";
-    display: inline-block;
-    margin-right: 5px;
-	width: 17px;
-    height: 12px;
-	background: url(chleft.png) no-repeat;
-    margin-right: -17px;
-	opacity: 1.0;
-}
-
-.cmAutoLinkImg:after {
-    content: "";
-    display: inline-block;
-    margin-left: 5px;
-	width: 17px;
-    height: 12px;
-	background: url(chright.png) no-repeat;
-    margin-left: -17px;
-	opacity: 1.0;
-}
-*/
-
 /* For image links, without before and after images. */
 .cmAutoLinkImgMobile {
 	text-decoration: underline;
@@ -120,7 +96,88 @@
 	text-decoration-line: underline;
 	text-decoration-style: wavy;
 	text-decoration-color: #FF8080;
-  }
+}
+
+/* Five types of Perl module links. */
+.cmPerlModuleCustomEditable {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleCustomEditable:after {
+    content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(edit7.png) no-repeat; /* a purplish patch */
+
+	/*position: absolute;*/
+	margin-left: -17px;
+  	/*left: -15px;*/
+	opacity: 0.35;
+
+}
+
+.cmPerlModuleCustomEditable:hover:after {
+	background: url(edit9.png) no-repeat; /* a purplish patch that says "Edit" */
+	opacity: 1.0;
+}
+
+/*
+.cmPerlModuleCustomEditable {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleCustomEditable:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+	background: url(edit1.png) no-repeat;
+}
+*/
+
+.cmPerlModuleCustomNoEdit {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+
+.cmPerlModuleHaveCpan {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleHaveCpan:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(metacpan-icon.png) no-repeat;
+}
+
+.cmPerlModuleNoLinkscmPerlModuleNoLinks {
+	/* no links */
+}
+
+
+.cmPerlModuleOnlyCpan {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.cmPerlModuleOnlyCpan:after {
+	content: "";
+    display: inline-block;
+    width: 17px;
+    height: 12px;
+    margin-left: 5px;
+    background: url(metacpan-icon.png) no-repeat;
+}
 
 /* TOC shrink/expand element */
 #tocShrinkExpand {

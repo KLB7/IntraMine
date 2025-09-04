@@ -736,6 +736,11 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+.slightShadow  {
+	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
+	text-shadow: 2px 2px 1px #C0C0C0;
+}
+
 #title-blockTR {
 	max-height: 60px;
 	overflow: hidden;
@@ -1492,17 +1497,14 @@ paragraph (ie not the first paragraph in the item).
 	position:absolute;
 	top: 0;
 	background-color: #FFFFF4;
-	/*width: 150px; Default width of hint.*/ 
+	width: 300px; /*Default width of hint.*/ 
 	padding-top: 0;
 	padding-bottom: 0;
 	padding-left: 6px;
 	padding-right: 6px;
-	/*border:1px solid black;*/
 	font:normal 13px Verdana;
 	line-height:18px;
 	z-index:100;
-	/*border-right: 3px solid black;
-	border-bottom: 3px solid black;*/
 	visibility: hidden;
 		
 	overflow: auto;
@@ -1513,6 +1515,11 @@ paragraph (ie not the first paragraph in the item).
 
 	border: none;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+}
+
+/* Make font in footnotes the same as in a regular pop up hint box. */
+.footDiv {
+	font:normal 13px Verdana;
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1920,7 +1927,7 @@ span.ll-com { /* comments */
 <tr id='R11'><td n='11'></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>Selecting text: use a double-tap to select a word, or drag to select any amount of text. Single tapping will highlight, but won't select any text.</td></tr>
 <tr id='R13'><td n='13'></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EImage%20hovers%3C%2Fstrong%3E%3A%20In%20IntraMine%27s%20file%20views%20and%20under%20the%20Files%20page%2C%20if%20you%20pause%20your%20cursor%20over%20a%20linked%20image%20name%20a%20view%20of%20the%20image%20will%20pop%20up.%20It%20goes%20away%20when%20you%20move%20your%20mouse%20away.%20You%20can%20tell%20if%20an%20image%20is%20linked%2C%20it%20has%20little%20yellow%20hummingbirds%20around%20it.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Image%20hover%2C%20hover%20image%2C%20hover%20images%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Image hovers</a>: a brief touch on an image link such as <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAABiCAIAAADcLv/CAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+<tr id='R14'><td n='14'></td><td><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EImage%20hovers%3C%2Fstrong%3E%3A%20In%20IntraMine%27s%20file%20views%20and%20under%20the%20Files%20page%2C%20if%20you%20pause%20your%20cursor%20over%20a%20linked%20image%20name%20a%20view%20of%20the%20image%20will%20pop%20up.%20It%20goes%20away%20when%20you%20move%20your%20mouse%20away.%20You%20can%20tell%20if%20an%20image%20is%20linked%2C%20it%20has%20little%20yellow%20hummingbirds%20around%20it.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EHere%27s%20an%20example%3A%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Image%20hover%2C%20hover%20image%2C%20hover%20images%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Image hovers</a>: a brief touch on an image link such as <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAABiCAIAAADcLv/CAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
 AA7dSURBVHhe7Z0/blw5EsZ9BV9JUGoYewFjo4GgyNAZpMRjGJtuYgEewNiFgwka8MCOFc062kRn
 GDjZG3j5yKpiVbHI/qdmt+SP+AVqNh9ZLH71vdcG3P3sBxoaGtrEBtNBQ0Ob2mA6aGhoUxtMBw0N
@@ -1996,7 +2003,7 @@ AElFTkSuQmCC
 <tr id='R17'><td n='17'></td><td></td></tr>
 <tr id='R18'><td n='18'></td><td><h2 id="Editing_files_via_the_iPad">Editing files via the iPad</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22EDIT%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
+<tr id='R20'><td n='20'></td><td>IntraMine's built-in <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EEditor%3C%2Fstrong%3E%3A%20by%20default%20IntraMine%27s%20built-in%20Editor.%20CodeMirror-based%2C%20it%20has%20standard%20editing%20commands%20and%20implements%20FLASH%20links%20for%20local%20files%20and%20web%20URLs%2C%20as%20well%20as%20image%20hovers%20and%20glossary%20popups.%20When%20a%20file%20is%20saved%20using%20the%20Editor%2C%20any%20Viewer%20display%20of%20the%20file%20will%20refresh%20instantly.%20To%20invoke%20the%20Editor%2C%20click%20on%20a%20%22pencil%22%20icon%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E%20next%20to%20a%20link%20in%20Search%20results%20or%20the%20Files%20page%20or%20within%20a%20Viewer%20display%2C%20or%20click%20the%20%22Edit%22%20button%20at%20the%20top%20of%20any%20Viewer%20display%20of%20a%20file%2C%20or%20click%20on%20the%20right%20side%20of%20a%20FLASH%20link%20%28you%27ll%20see%20%22Edit%22%20in%20small%20print%20when%20you%20place%20your%20cursor%20over%20the%20right%20end%29.%20In%20IntraMine%27s%20Editor%20the%20edit%20link%20is%20a%20purple%20rectangle%20at%20the%20end%20of%20the%20link%2C%20like%20so%20-%20%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E.%20For%20more%20see%20%3Ca%20href%3D%22.%2FEditor.html%22%20target%3D%22_blank%22%3E%22Editor.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Editor</a> will work, but files can't be edited on the iPad using your preferred app. Mainly because I don't know how to do that, or if it's even possible. To configure IntraMine editing see <a href="./Configuring IntraMine.html#Editing" target="_blank">"Configuring IntraMine.txt#Editing"</a>.</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
@@ -2268,7 +2275,11 @@ function positionAndShowHint() {
 	// For text, shrink the height to fit within window if necessary.
 	else
 		{
-		hintElement.style.width = "650px";
+		// TEST ONLY
+		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		
+		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
 			let reducedHeight = windowHeight - tl.top;
@@ -2632,7 +2643,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		else
 			{
-			hintElement.style.width = "650px";
+			hintElement.style.width = tipwidth; // "650px";
+			// TEST ONLY
+			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {
@@ -2833,7 +2846,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "auto";
+	hintElement.style.width = "300px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
@@ -6972,8 +6985,9 @@ function loadCachedImages(text) {
 </script>
 
 <script>const imageCache = new Map();
-imageCache.set('__img__cache__00001', 'iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALDwAACw8BkvkDpQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS41ZEdYUgAAAgFJREFUOE9jIBb8Dw7W+5+QHPovLy/nX2mp17/Jk4X////PBJUmCFgXTavX2bVp/YIrCxff+1lQ8OB/SdmNv729u35PmOAMVYMb7Oxm4H54TM/3zpmIOQf31Z05sHbyq6szZ///PwWIGxv//ysrS4YqxQ7u7bWUv3c8OPXt/ewtH58Vfnh8ze3huSNud3dtr/10bUHX7TclJTs+pxY6QpUjwH8GBsZbixn47h3W1n9+LbL8zb3aO1/etP79+6Ps/9/XBv+fX+L5fGKX8pH1Kx3KO6fNUY+v/88B1QoB9fUMTLe2ccrcO2kQ+vx6xLaPz3Le/vlW+/f/V5//357w/3l2gefnme18F3YskYya0aIhCdWGACADvj5ikH521av61Z3Mqz8+Lfny92fjv//vRf5/ecDy/8ZB7i/HNwt1rZgmb9ENDCegFkaITij4d+eO2Pm17t5nVugve3Qh/u7Xd4W//3/y/P//rer/dze4/1/ex3F2/0rBkpVzhbTS0oxZodpQweVFxb5bWvx7V1fbfjo8z+b/7QOG/z/fFvz/4iLby9PbRBZtXSgePq1bSQyolBmiAwtoT/co7EhwXj8lye7/glz1/8tr+N4fX8197MJe/tbVs5S1VVQ82KFKcQNdLd2QRA+91oZI/bMN4Xqn6kO0Z7UmaTpPrBfigyqhB2BgAACDIvih7pI6RAAAAABJRU5ErkJggg==');
-imageCache.set('__img__cache__00002', 'iVBORw0KGgoAAAANSUhEUgAAAQkAAAAVCAIAAADaaYxnAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUAAATSSURBVHhe7ZixThxNDMd5EB4kz3ESL0Ab5QFoER0tSkO9J1EgylQo3aVDPEEUiQIpSscDENtje2zPzN0OS5LTZX5a5dvMjj323/bu5Tt6HQwGNcZsDA6TX19+9l5sKYzZGBwmoe/nXGwpvHU2vl0clZxv+Gk/z+sVOFitn/nvbwBDunh7BO/B5hySmBUD7Lz4Bv99nk7SzRtAW0NP7k8TyL1I7QohnsRqeuLHTVIvLWgekBNr72UMfT/nYkth6XcDe/pkWqwxyLqa1heLXP2Xs6H9jUfPV++PzIZS6dQtoBRriGdJ7Q54NqBU6AQynPGaabEHszEbHYklKbvZ2Kf0u2YDNkPYS94RwF+YDXqdCCQ0KH4yTfg6hDJsIAF8YIKozkb6gZTwLyeUQFE/uB8/qa7YaTG7ct/cmp/UHPgnYaPSRSD7SX2prkyPljpsAwtjsPsrcVpxMhptRwmsXHSQkYi+YIkcTzjaSZ3lUrekD3zMgZNpk2zpiFia2ACVTm2UgLPDwyBgXU+LahL8W1f8KJ2ohcBSSsc/3H34+Imv20cZg8ezj58vv/+4vEqP4H7rbFBVqimBUkkIeOpyiLIitFPrgeG26ifgeu4b8cbSp/0utoafJJkRi8/Fde17a8tSpm3m6CQ03nWDZ+VeDFoZ4AgKCfMys9RXAspFMQfhBiejOYJBW6mLk908In1gPY0r+JfsXGms1EwhYLMEGCrbWuko5UopAedKoVBlPaX/QwYj9T1cNAk8HjAbOBWn97jt5v7zh6uvN+3ZqBfSykGx4o3Z5mUFnOhA3mCTt9j+wHvO0Hs2blt+/LqmE/PK20rR83pFijmUMVRD1ZRhv1GvswRZE28I8dvuwXSKUXdlakgthloUCdvv13iUeOLWEmioxqqUkc1jdwn+RDLHGbi+td+KNCp31zIbaTDMOpsLOhuNU5uFYYJMMUqg8BDw69ncr+fwWn4aghZ55fErQs3go0StEm18DACGkeCYMZ4SCqO3BGa/DhvfR4o03VkNqUWfObPhKhKELfJSh04us61eSrz1nhW/TuYwEvihyAMA1/evp/wZwdk4e5B1vthc+OffDdwfIf/ec1O4TEPQmFfe1hLaQH22Y4+lFVtKU8OAbTUxO0vgpAZbuYe89GXcwtk2pBZ9ds1GEXYUtlUCXA8kt15GY+7CNtRnY8d3Y/5skMeiD5qFYYJMAK5oYq63MAEvotFdKU4krCg1P0BLUFzXI9DW+on5Roo9lJE9yOFjsLj+gG10H8Qk8/kl8I1ijsazfFEKttqyRJL79tlwJU4UoqH/sgRVbWmbiQew0uHRoWEQ74rMaSTcvzfs76jO2QDQqULBSZRFYRgnk5D0TZSqKfgI/EdzztN7Di+Mwg+wQ1AmOPHhEdz9jNlP8NN8kMPFgDFnTJqqIQQZ/XeUIGhCx0nKtgS1aGu2BCxKVKKPtizeSCSZXZ1KVEog3gwSVbuUgDudVfUnkjl/LvDf2fL/qczvq/7ZGCzEF3WPCbPRh07pYYOz8fLywlM46AQlfJomfmPlNzc/3icgqs1aGhpnGN/3/KwHsNbZ4KWD4Pj4OGmjjO/GO5B/wJhP/z6Sfy6WP4Q6+I++G4PBoGTMxmBQZ8zGYFBnzMZgUGfMxmBQ4/X1N73k6/eWUKWoAAAAAElFTkSuQmCC');
+imageCache.set('__img__cache__00001', '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');
+imageCache.set('__img__cache__00002', 'iVBORw0KGgoAAAANSUhEUgAAABEAAAAMCAYAAACEJVa/AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALDwAACw8BkvkDpQAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMS41ZEdYUgAAAgFJREFUOE9jIBb8Dw7W+5+QHPovLy/nX2mp17/Jk4X////PBJUmCFgXTavX2bVp/YIrCxff+1lQ8OB/SdmNv729u35PmOAMVYMb7Oxm4H54TM/3zpmIOQf31Z05sHbyq6szZ///PwWIGxv//ysrS4YqxQ7u7bWUv3c8OPXt/ewtH58Vfnh8ze3huSNud3dtr/10bUHX7TclJTs+pxY6QpUjwH8GBsZbixn47h3W1n9+LbL8zb3aO1/etP79+6Ps/9/XBv+fX+L5fGKX8pH1Kx3KO6fNUY+v/88B1QoB9fUMTLe2ccrcO2kQ+vx6xLaPz3Le/vlW+/f/V5//357w/3l2gefnme18F3YskYya0aIhCdWGACADvj5ikH521av61Z3Mqz8+Lfny92fjv//vRf5/ecDy/8ZB7i/HNwt1rZgmb9ENDCegFkaITij4d+eO2Pm17t5nVugve3Qh/u7Xd4W//3/y/P//rer/dze4/1/ex3F2/0rBkpVzhbTS0oxZodpQweVFxb5bWvx7V1fbfjo8z+b/7QOG/z/fFvz/4iLby9PbRBZtXSgePq1bSQyolBmiAwtoT/co7EhwXj8lye7/glz1/8tr+N4fX8197MJe/tbVs5S1VVQ82KFKcQNdLd2QRA+91oZI/bMN4Xqn6kO0Z7UmaTpPrBfigyqhB2BgAACDIvih7pI6RAAAAABJRU5ErkJggg==');
+imageCache.set('__img__cache__00003', 'iVBORw0KGgoAAAANSUhEUgAAAQkAAAAVCAIAAADaaYxnAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUAAATSSURBVHhe7ZixThxNDMd5EB4kz3ESL0Ab5QFoER0tSkO9J1EgylQo3aVDPEEUiQIpSscDENtje2zPzN0OS5LTZX5a5dvMjj323/bu5Tt6HQwGNcZsDA6TX19+9l5sKYzZGBwmoe/nXGwpvHU2vl0clZxv+Gk/z+sVOFitn/nvbwBDunh7BO/B5hySmBUD7Lz4Bv99nk7SzRtAW0NP7k8TyL1I7QohnsRqeuLHTVIvLWgekBNr72UMfT/nYkth6XcDe/pkWqwxyLqa1heLXP2Xs6H9jUfPV++PzIZS6dQtoBRriGdJ7Q54NqBU6AQynPGaabEHszEbHYklKbvZ2Kf0u2YDNkPYS94RwF+YDXqdCCQ0KH4yTfg6hDJsIAF8YIKozkb6gZTwLyeUQFE/uB8/qa7YaTG7ct/cmp/UHPgnYaPSRSD7SX2prkyPljpsAwtjsPsrcVpxMhptRwmsXHSQkYi+YIkcTzjaSZ3lUrekD3zMgZNpk2zpiFia2ACVTm2UgLPDwyBgXU+LahL8W1f8KJ2ohcBSSsc/3H34+Imv20cZg8ezj58vv/+4vEqP4H7rbFBVqimBUkkIeOpyiLIitFPrgeG26ifgeu4b8cbSp/0utoafJJkRi8/Fde17a8tSpm3m6CQ03nWDZ+VeDFoZ4AgKCfMys9RXAspFMQfhBiejOYJBW6mLk908In1gPY0r+JfsXGms1EwhYLMEGCrbWuko5UopAedKoVBlPaX/QwYj9T1cNAk8HjAbOBWn97jt5v7zh6uvN+3ZqBfSykGx4o3Z5mUFnOhA3mCTt9j+wHvO0Hs2blt+/LqmE/PK20rR83pFijmUMVRD1ZRhv1GvswRZE28I8dvuwXSKUXdlakgthloUCdvv13iUeOLWEmioxqqUkc1jdwn+RDLHGbi+td+KNCp31zIbaTDMOpsLOhuNU5uFYYJMMUqg8BDw69ncr+fwWn4aghZ55fErQs3go0StEm18DACGkeCYMZ4SCqO3BGa/DhvfR4o03VkNqUWfObPhKhKELfJSh04us61eSrz1nhW/TuYwEvihyAMA1/evp/wZwdk4e5B1vthc+OffDdwfIf/ec1O4TEPQmFfe1hLaQH22Y4+lFVtKU8OAbTUxO0vgpAZbuYe89GXcwtk2pBZ9ds1GEXYUtlUCXA8kt15GY+7CNtRnY8d3Y/5skMeiD5qFYYJMAK5oYq63MAEvotFdKU4krCg1P0BLUFzXI9DW+on5Roo9lJE9yOFjsLj+gG10H8Qk8/kl8I1ijsazfFEKttqyRJL79tlwJU4UoqH/sgRVbWmbiQew0uHRoWEQ74rMaSTcvzfs76jO2QDQqULBSZRFYRgnk5D0TZSqKfgI/EdzztN7Di+Mwg+wQ1AmOPHhEdz9jNlP8NN8kMPFgDFnTJqqIQQZ/XeUIGhCx0nKtgS1aGu2BCxKVKKPtizeSCSZXZ1KVEog3gwSVbuUgDudVfUnkjl/LvDf2fL/qczvq/7ZGCzEF3WPCbPRh07pYYOz8fLywlM46AQlfJomfmPlNzc/3icgqs1aGhpnGN/3/KwHsNbZ4KWD4Pj4OGmjjO/GO5B/wJhP/z6Sfy6WP4Q6+I++G4PBoGTMxmBQZ8zGYFBnzMZgUGfMxmBQ4/X1N73k6/eWUKWoAAAAAElFTkSuQmCC');
 
 </script>
 </body></html>

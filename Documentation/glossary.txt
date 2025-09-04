@@ -64,13 +64,18 @@ Images will be shown inline, eg "button1.png" "globe.gif" "favicon-32x32.png"
 
 Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.
 
+Here's an example\:
+"animage.png"
+
 Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, FLASH links, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Viewer.html".
 
-Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file, or click on the right side of a FLASH link (you'll see "EDIT" in small print when you place your cursor over the right end). In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so -  "editorlink.png". For more see "Editor.html".
+Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file, or click on the right side of a FLASH link (you'll see "Edit" in small print when you place your cursor over the right end). In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so -  "editorlink.png". For more see "Editor.html".
 
 Partial path, file specifier, link specifier, link specifiers, file specifiers: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
 For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+
+See "FLASH links.txt" for details.
 
 Sufficient path: For IntraMine's FLASH links, a sufficient path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
@@ -86,7 +91,7 @@ Map network drive: Open a File Explorer window, click on "This PC" on the left, 
 
 Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended though not required).
 
-See "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
+See "FLASH links.html" and also "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
 
 FLASH is short for Fast Local Automatic Source and text Hyperlinks. And yes, it does encourage "FLASH links" which suffers from RAS syndrome. I'll fix that when we all stop saying "PIN number."
 
@@ -153,3 +158,5 @@ Go2: select a word or short phrase, keep you cursor fairly still, and a popup wi
 Glosser: see "Glosser.txt", a service that generates standalone HTML from Gloss-styled .txt files.
 
 Footnote, footnotes, citation, citations: "Gloss.txt#Footnotes and citations" has details. A note starts flush left with "[^id}:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of Gloss can be used in the note body. The note pops up if you hover over a reference.
+
+indexed location: in IntraMine, this refers to a directory that has been listed in your data/search_directories.txt file, or a subdirectory of one listed there. See "Configuring folders to index and monitor.txt" for details.
