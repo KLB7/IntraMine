@@ -58,9 +58,9 @@ use File::Basename;
 # itself a full path, a matching full path will be chosen from this list
 # if appropriate.
 my %FileNameForFullPath;
-$FileNameForFullPath{'c:/projects/project51/src/main.cpp'} = 'main.cpp';
-$FileNameForFullPath{'c:/projects/project999/src/main.cpp'} = 'main.cpp';
-$FileNameForFullPath{'e:/other_projects/sailnav/src/main.cpp'} = 'main.cpp';
+$FileNameForFullPath{'c:/projects/project51/src/main.cpp'}            = 'main.cpp';
+$FileNameForFullPath{'c:/projects/project999/src/main.cpp'}           = 'main.cpp';
+$FileNameForFullPath{'e:/other_projects/sailnav/src/main.cpp'}        = 'main.cpp';
 $FileNameForFullPath{'//Desktop-hrj/projects/project88/src/main.cpp'} = 'main.cpp';
 
 
@@ -87,7 +87,7 @@ push @TestContextDirectories, 'e:/other_projects/sailnav/misc';
 #push @TestContextDirectories, 'q:/elsewhereville';
 
 # Test all link specifiers in all contexts (and no context).
-for (my $i = 0; $i < @TestLinkSpecifiers; ++$i)
+for (my $i = 0 ; $i < @TestLinkSpecifiers ; ++$i)
 	{
 	FindBestLinkFor($TestLinkSpecifiers[$i]);
 	}
@@ -101,13 +101,13 @@ DumpResults();
 # Check each link specifier against all context directories, and no context.
 sub FindBestLinkFor {
 	my ($linkSpecifier) = @_;
-	
-	for (my $i = 0; $i < @TestContextDirectories; ++$i)
+
+	for (my $i = 0 ; $i < @TestContextDirectories ; ++$i)
 		{
 		FindBestLinkInContextFor($linkSpecifier, $TestContextDirectories[$i]);
 		}
 	FindBestLinkInContextFor($linkSpecifier, "");
-	}
+}
 
 # Find the best full path for a link specifier in context.
 # $contextDir can be "".
@@ -115,30 +115,32 @@ sub FindBestLinkFor {
 sub FindBestLinkInContextFor {
 	my ($linkSpecifier, $contextDir) = @_;
 	my $bestFullPath = BestMatchingFullPath($linkSpecifier, $contextDir);
-	}
+}
 
 # Subs below are based on Intramine/libs/reverse_filepaths.pm, see https://github.com/KLB7/IntraMine.
 { ##### Directory list
 # Not needed for DEMO: my $FullPathListPath;
 # Moved up top for this DEMO: my %FileNameForFullPath;
-my %FullPathsForFileName; # Eg $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp';
+my %FullPathsForFileName
+	;    # Eg $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp';
 
 # DEMO ONLY
-my $MatchType; # "NO_MATCH", "FullMatch", "ExactPathInContext", "ExactPathNoContext", "RelaxedPathInContext", "RelaxedPathNoContext"
+my $MatchType
+	; # "NO_MATCH", "FullMatch", "ExactPathInContext", "ExactPathNoContext", "RelaxedPathInContext", "RelaxedPathNoContext"
 
 # Test replacement for InitDirectoryFinder() in reverse_filepaths.pm.
 # Build a list of full paths to all files that can be linked to when determining the
 # full path for a link specifier.
 sub BuildFullPathTestHashes {
-	# %FileNameForFullPath entries are up above.	
+	# %FileNameForFullPath entries are up above.
 	BuildFullPathsForFileName(\%FileNameForFullPath);
-	}
-	
+}
+
 # From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
 sub BuildFullPathsForFileName {
 	my ($fileNameForFullPathH) = @_;
-	
-	keys %$fileNameForFullPathH; # reset iterator
+
+	keys %$fileNameForFullPathH;    # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
 		if (defined($FullPathsForFileName{$fileName}))
@@ -150,7 +152,7 @@ sub BuildFullPathsForFileName {
 			$FullPathsForFileName{$fileName} = $fullPath;
 			}
 		}
-	}
+}
 
 # BestMatchingFullPath
 # -> $linkSpecifier: in a real program, this would be a string of text
@@ -192,8 +194,8 @@ sub BuildFullPathsForFileName {
 sub BestMatchingFullPath {
 	my ($linkSpecifier, $contextDir) = @_;
 	my $result = '';
-	
-	$MatchType = "NO_MATCH"; # $MatchType is for DEMO ONLY.
+
+	$MatchType = "NO_MATCH";    # $MatchType is for DEMO ONLY.
 
 	# 1.
 	# Allow any full path, provided either we have a record of it or the file is on disk.
@@ -206,7 +208,7 @@ sub BestMatchingFullPath {
 		if (FullPathIsKnown($linkSpecifier))
 			{
 			$MatchType = "FullMatch";
-			$result = $linkSpecifier;
+			$result    = $linkSpecifier;
 			}
 		}
 	# For a //host/share UNC, check for a record of the
@@ -216,19 +218,19 @@ sub BestMatchingFullPath {
 		if (FullPathIsKnown($linkSpecifier))
 			{
 			$MatchType = "FullMatch";
-			$result = $linkSpecifier;
+			$result    = $linkSpecifier;
 			}
 		}
-	
-	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
+
+	if ($result eq '')    # Check for a link specifier, possibly incomplete or scrambled.
 		{
 		my $fileName = basename($linkSpecifier);
-		
+
 		if (defined($FullPathsForFileName{$fileName}))
 			{
 			my $allpaths = $FullPathsForFileName{$fileName};
 			my @paths;
-			if ($allpaths =~ m!\|!) # more than one candidate full path
+			if ($allpaths =~ m!\|!)    # more than one candidate full path
 				{
 				@paths = split(/\|/, $allpaths);
 				}
@@ -236,13 +238,13 @@ sub BestMatchingFullPath {
 				{
 				push @paths, $allpaths;
 				}
-			
+
 			my $bestPath = "";
 			# 2., 3.
 			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
-			  || ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "" )
+			if (   ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
+				|| ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "")
 				{
 				$result = $bestPath;
 				}
@@ -254,11 +256,11 @@ sub BestMatchingFullPath {
 			if ($result eq "")
 				{
 				my @partialPathParts = split(/\//, $linkSpecifier);
-				pop(@partialPathParts); # Remove file name (last entry).
-				# Tack some forward slashes back on for accurate matching of each path part.
-				for (my $i = 0; $i < @partialPathParts; ++$i)
+				pop(@partialPathParts);    # Remove file name (last entry).
+					# Tack some forward slashes back on for accurate matching of each path part.
+				for (my $i = 0 ; $i < @partialPathParts ; ++$i)
 					{
-					if (index($partialPathParts[$i], ':') > 0) # drive letter
+					if (index($partialPathParts[$i], ':') > 0)    # drive letter
 						{
 						$partialPathParts[$i] .= '/';
 						}
@@ -267,21 +269,27 @@ sub BestMatchingFullPath {
 						$partialPathParts[$i] = '/' . $partialPathParts[$i] . '/';
 						}
 					}
-				
-				if ( ($bestPath = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
-				  || ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne "" )
+
+				if (
+					(
+						$bestPath = RelaxedPathInContext(
+							$linkSpecifier, $contextDir, \@paths, \@partialPathParts
+						)
+					) ne ""
+					|| ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne ""
+					)
 					{
 					$result = $bestPath;
 					}
 				}
-			} # file name is associated with at least one known full path
-		} # partial path
-		
+			}    # file name is associated with at least one known full path
+		}    # partial path
+
 	# Put results in an array, for aligned printing at end.
 	StoreOneResult($MatchType, $linkSpecifier, $contextDir, $result);
-	
-	return($result); # Not used in this demo, returned full path would become the href for a link.
-	}
+
+	return ($result);  # Not used in this demo, returned full path would become the href for a link.
+}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -305,46 +313,48 @@ sub BestMatchingFullPath {
 sub ExactPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA) = @_;
 	my $linkSpecifierLength = length($linkSpecifier);
-	my $numPaths = @$pathsA;
-	my $bestScore = 0;
-	my $bestSlashScore = 999;
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $numPaths            = @$pathsA;
+	my $bestScore           = 0;
+	my $bestSlashScore      = 999;
+	my $bestIdx             = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		my $matchPos;
-		
+
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
 			# We want a full match on the $linkSpecifier within $testPath, and to avoid a match
 			# against a partial directory name we need the char preceding the match to be a slash.
 			# (Eg avoid a match of test/file.txt against c:/stuff/bigtest/file.txt)
-			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength
+				&& substr($testPath, $matchPos - 1, 1) eq '/')
 				{
 				my $currentScore = LeftOverlapLength($contextDir, $testPath);
-				
+
 				if ($bestScore < $currentScore)
 					{
-					my $leftoverPath = substr($testPath, $currentScore);
+					my $leftoverPath      = substr($testPath, $currentScore);
 					my $currentSlashScore = $leftoverPath =~ tr!/!!;
 					$bestSlashScore = $currentSlashScore;
-					$bestScore = $currentScore;
-					$bestIdx = $i;
+					$bestScore      = $currentScore;
+					$bestIdx        = $i;
 					}
 				elsif ($bestScore > 0 && $bestScore == $currentScore)
 					{
 					my $leftoverPath = substr($testPath, $currentScore);
-					my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
-					
+					my $currentSlashScore =
+						$leftoverPath =~ tr!/!!;    # Count directory slashes in $leftoverPath
+
 					# Fewer slashes means $testPath is closer to context directory.
 					if ($bestSlashScore > $currentSlashScore)
 						{
 						$bestSlashScore = $currentSlashScore;
-						$bestIdx = $i;
+						$bestIdx        = $i;
 						}
-					elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+					elsif ($bestSlashScore == $currentSlashScore)    # Prefer shorter path
 						{
 						if ($testLength < length($pathsA->[$bestIdx]))
 							{
@@ -355,18 +365,18 @@ sub ExactPathInContext {
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
-		
+
 		# DEMO ONLY
 		$MatchType = "ExactPathInContext";
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -394,37 +404,38 @@ sub ExactPathInContext {
 # and the context directory agrees with the path except for the rightmost directory.
 sub RelaxedPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA, $linkSpecifierPartsA) = @_;
-	my $numPaths = @$pathsA;
-	my $bestScore = 0;
+	my $numPaths       = @$pathsA;
+	my $bestScore      = 0;
 	my $bestSlashScore = 999;
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $bestIdx        = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
-		
+
 		if (AllPartialPartsAreInTestPath($linkSpecifierPartsA, $testPath))
 			{
 			my $currentScore = LeftOverlapLength($contextDir, $testPath);
 			if ($bestScore < $currentScore)
 				{
-				my $leftoverPath = substr($testPath, $currentScore);
+				my $leftoverPath      = substr($testPath, $currentScore);
 				my $currentSlashScore = $leftoverPath =~ tr!/!!;
 				$bestSlashScore = $currentSlashScore;
-				$bestScore = $currentScore;
-				$bestIdx = $i;
+				$bestScore      = $currentScore;
+				$bestIdx        = $i;
 				}
 			elsif ($bestScore > 0 && $bestScore == $currentScore)
 				{
 				my $leftoverPath = substr($testPath, $currentScore);
-				my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
-				# Fewer slashes means $testPath is closer to context directory.
+				my $currentSlashScore =
+					$leftoverPath =~ tr!/!!;    # Count directory slashes in $leftoverPath
+					# Fewer slashes means $testPath is closer to context directory.
 				if ($bestSlashScore > $currentSlashScore)
 					{
 					$bestSlashScore = $currentSlashScore;
-					$bestIdx = $i;
+					$bestIdx        = $i;
 					}
-				elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+				elsif ($bestSlashScore == $currentSlashScore)    # Prefer shorter path
 					{
 					my $testLength = length($testPath);
 					if ($testLength < length($pathsA->[$bestIdx]))
@@ -435,18 +446,18 @@ sub RelaxedPathInContext {
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
-		
+
 		# DEMO ONLY
 		$MatchType = "RelaxedPathInContext";
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
 #    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
@@ -470,40 +481,41 @@ sub RelaxedPathInContext {
 sub ExactPathNoContext {
 	my ($linkSpecifier, $pathsA) = @_;
 	my $linkSpecifierLength = length($linkSpecifier);
-	my $numPaths = @$pathsA;
-	my $bestSlashScore = 999;
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $numPaths            = @$pathsA;
+	my $bestSlashScore      = 999;
+	my $bestIdx             = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
-			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength
+				&& substr($testPath, $matchPos - 1, 1) eq '/')
 				{
 				my $currentSlashScore = $testPath =~ tr!/!!;
 				if ($bestSlashScore > $currentSlashScore)
 					{
 					$bestSlashScore = $currentSlashScore;
-					$bestIdx = $i;
+					$bestIdx        = $i;
 					}
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
-		
+
 		# DEMO ONLY
 		$MatchType = "ExactPathNoContext";
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
@@ -527,11 +539,11 @@ sub ExactPathNoContext {
 # or second main.cpp in the project51 directory, this will be the best match.
 sub RelaxedPathNoContext {
 	my ($pathsA, $linkSpecifierPartsA) = @_;
-	my $numPaths = @$pathsA;
+	my $numPaths       = @$pathsA;
 	my $bestSlashScore = 999;
-	my $bestIdx = -1;
+	my $bestIdx        = -1;
 
-	for (my $i = 0; $i < $numPaths; ++$i)
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		if (AllPartialPartsAreInTestPath($linkSpecifierPartsA, $testPath))
@@ -540,30 +552,30 @@ sub RelaxedPathNoContext {
 			if ($bestSlashScore > $currentSlashScore)
 				{
 				$bestSlashScore = $currentSlashScore;
-				$bestIdx = $i;
+				$bestIdx        = $i;
 				}
 			}
 		}
-		
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
-		
+
 		# DEMO ONLY
 		$MatchType = "RelaxedPathNoContext";
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $linkSpecifierPartsA: a list of /directory names/ in the link specifier
 #    (eg for test/esindex/cmAutoLink.js the list would be "/test/", "/esindex/").
 sub AllPartialPartsAreInTestPath {
 	my ($linkSpecifierPartsA, $testPath) = @_;
 	my $result = 1;
-	
-	for (my $i = 0; $i < @$linkSpecifierPartsA; ++$i)
+
+	for (my $i = 0 ; $i < @$linkSpecifierPartsA ; ++$i)
 		{
 		if (index($testPath, $linkSpecifierPartsA->[$i]) < 0)
 			{
@@ -571,18 +583,18 @@ sub AllPartialPartsAreInTestPath {
 			last;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Requires $fullPath all lower case, with forward slashes.
 sub FullPathIsKnown {
 	my ($fullPath) = @_;
-	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1: 0;
+	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1 : 0;
 
-	return($result);
-	}
-} ##### Directory list
+	return ($result);
+}
+}    ##### Directory list
 
 # (Borrowed from intramine/libs/common.pm.)
 # Length of overlap between two strings, starting at left.
@@ -590,23 +602,27 @@ sub FullPathIsKnown {
 # LeftOverlapLength("C:/AA", "P:/AB") == 0,
 # you get the idea.
 sub LeftOverlapLength {
-    my ($str1, $str2) = @_;
-    
-    # Equalize Lengths
-    if (length $str1 < length $str2) {
-        $str2 = substr $str2, 0, length($str1);
-    } elsif (length $str1 > length $str2) {
-        $str1 = substr $str1, 0, length($str2);
-    }
+	my ($str1, $str2) = @_;
 
-    # Reduce on right until match found
-    while ($str1 ne $str2) {
-        chop $str1;
-        chop $str2;
-    }
+	# Equalize Lengths
+	if (length $str1 < length $str2)
+		{
+		$str2 = substr $str2, 0, length($str1);
+		}
+	elsif (length $str1 > length $str2)
+		{
+		$str1 = substr $str1, 0, length($str2);
+		}
 
-    return(length($str1));
-	}
+	# Reduce on right until match found
+	while ($str1 ne $str2)
+		{
+		chop $str1;
+		chop $str2;
+		}
+
+	return (length($str1));
+}
 
 { ##### Formatted Results
 # For this demo only.
@@ -621,18 +637,18 @@ sub StoreOneResult {
 		{
 		push @rows, ["Match type", "Link specifier", "Context", "Full path"];
 		}
-	
+
 	if ($contextDir eq '')
 		{
 		$contextDir = '(no context)';
 		}
 	push @rows, [$MatchType, $linkSpecifier, $contextDir, $fullPath];
-	}
+}
 
 sub SetColumnWidths {
 	for my $row (@rows)
 		{
-		for (my $col = 0; $col < @$row; $col++)
+		for (my $col = 0 ; $col < @$row ; $col++)
 			{
 			# The '//' operator makes the Syntax::Highlight::Perl::Improved
 			# parser stumble, so we do it the long way.
@@ -647,16 +663,16 @@ sub SetColumnWidths {
 				}
 			}
 		}
-	}
+}
 
 sub DumpResults {
 	SetColumnWidths();
-	
-	my $format = join(' ', map { "%-${_}s" } @widths) . "\n";
-	
+
+	my $format = join(' ', map {"%-${_}s"} @widths) . "\n";
+
 	for my $row (@rows)
 		{
 		printf $format, @$row;
 		}
-	}
-} ##### Formatted Results
+}
+}    ##### Formatted Results

@@ -66,18 +66,18 @@ use FileHandle;
 my $kWINDOWS;
 BEGIN {
 	# 1 == Windows, 0 == Linux or other
-	$kWINDOWS = ($^O =~ m!win!i)? 1: 0;				
+	$kWINDOWS = ($^O =~ m!win!i) ? 1 : 0;
 	if ($kWINDOWS == 1)
 		{
 		use Win32::Clipboard;
 		}
-	}
+}
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 #use em_dialog;
 use ArgYouMeant;
 
-select((select(STDOUT), $|=1)[0]);
+select((select(STDOUT), $| = 1)[0]);
 #print("Test hello hello from em.\n");
 
 # Sometimes the "Extract Sub Particulars" dialog doesn't come to the front under Windows. For these
@@ -88,15 +88,15 @@ $beChatty ||= 0;
 my $kTempCodePath = $kWINDOWS ? 'C:/temp/extractmethodcode.txt' : '/tmp/extractmethodcode.txt';
 
 # What to do with new sub's arguments:
-my $kByValue = 'By value';
+my $kByValue     = 'By value';
 my $kByReference = 'By reference';
-my $kOmit = 'Omit this one';
-my $kReturn = 'Return this one'; # not implemented - hurts my head
+my $kOmit        = 'Omit this one';
+my $kReturn      = 'Return this one';    # not implemented - hurts my head
 
 # Appended to param names (only scalars passed by value aren't altered):
-my $kArraySuffix = '_A';
-my $kHashSuffix = '_H';
-my $kScalarSuffix = '_R';	# R for Reference
+my $kArraySuffix  = '_A';
+my $kHashSuffix   = '_H';
+my $kScalarSuffix = '_R';                # R for Reference
 
 my $CLIP = '';
 my $code = '';
@@ -108,7 +108,7 @@ if ($kWINDOWS)
 	}
 else
 	{
-	$code =join('',<STDIN>);
+	$code = join('', <STDIN>);
 	}
 
 # Promote any initial comment lines to the top of the new sub.
@@ -163,19 +163,18 @@ sub extract_method {
 	mkpath($directoryOnPath);
 
 	write_file($code);
-	my $err	 = 1;
+	my $err  = 1;
 	my @args = ();
-	
-	my $loopLimiter = 0; # anti-lock breaking
+
+	my $loopLimiter = 0;    # anti-lock breaking
 	while ($err && ++$loopLimiter <= 100)
 		{
 		$err = 0;
-		open( my $perl, "-|", 'perl -c ' . $kTempCodePath . ' 2>&1' )
+		open(my $perl, "-|", 'perl -c ' . $kTempCodePath . ' 2>&1')
 			|| die $@;
-		while ( my $item = <$perl> )
+		while (my $item = <$perl>)
 			{
-			if ( $item
-				=~ /Global symbol "(.*)" requires explicit package name/ )
+			if ($item =~ /Global symbol "(.*)" requires explicit package name/)
 				{
 				$err = 1;
 				push @args, $1 unless (grep {$1 eq $_} @args);
@@ -185,13 +184,13 @@ sub extract_method {
 		}
 	if ($err)
 		{
-		return("Error, could not extract!\n");
+		return ("Error, could not extract!\n");
 		}
 	else
 		{
-		return codegen($code,'final',@args);
+		return codegen($code, 'final', @args);
 		}
-	}
+}
 
 # Requires IO::All, which at the moment (March 2019) isn't included in standard modules
 # supplied with ActivePerl.
@@ -200,18 +199,18 @@ sub extract_method {
 #	my @args = (@_);
 #	codegen($code, 'test', @args) > io($kTempCodePath);
 #	}
-	
+
 # This version of write_file uses FileHandle, which is included with ActivePerl out of the box.
 sub write_file {
 	my $code = shift;
 	my @args = (@_);
-	my $ret = codegen($code, 'test', @args);
-	
+	my $ret  = codegen($code, 'test', @args);
+
 	my $fileH = FileHandle->new("> $kTempCodePath")
-			or die("FILE ERROR could not make $kTempCodePath!");
+		or die("FILE ERROR could not make $kTempCodePath!");
 	print $fileH "$ret";
 	close($fileH);
-	}
+}
 
 sub codegen {
 	my $code = shift;
@@ -219,13 +218,13 @@ sub codegen {
 	my @args = (@_);
 
 	my $selforthis_signature = qr/^(\$self|\$this)$/;
-	my ($class_obj) = grep { $_ =~ /$selforthis_signature/ } @args;
-	my @params = grep { $_ !~ /$selforthis_signature/ } @args;
-	my $method_body = generate_signature( $class_obj, \@params, $code );
-	my $subname = 'mysub_' . int( rand(1000) );
-	
+	my ($class_obj)          = grep {$_ =~ /$selforthis_signature/} @args;
+	my @params               = grep {$_ !~ /$selforthis_signature/} @args;
+	my $method_body          = generate_signature($class_obj, \@params, $code);
+	my $subname              = 'mysub_' . int(rand(1000));
+
 	set_default_sub_name($subname);
-	
+
 	my $invocation;
 	if ($class_obj)
 		{
@@ -235,41 +234,37 @@ sub codegen {
 		{
 		$invocation = $subname;
 		}
-	my $ret = "$invocation("
-		. join( ', ', map { $_ =~ /^(\%|\@)/ ? '\\' . $_ : $_ } @params )
-		. ");\n";
-	$ret .= "sub $subname {"
-		. ( $mode eq 'test' ? "use strict;\n" : '' )
-		. $method_body . "\t}";
+	my $ret = "$invocation(" . join(', ', map {$_ =~ /^(\%|\@)/ ? '\\' . $_ : $_} @params) . ");\n";
+	$ret .= "sub $subname {" . ($mode eq 'test' ? "use strict;\n" : '') . $method_body . "\t}";
 	return $ret;
-	}
+}
 
-sub generate_signature { 
-   my $class_obj = shift;
-   my @params = @{(shift)};
-   my $code = shift;
+sub generate_signature {
+	my $class_obj = shift;
+	my @params    = @{(shift)};
+	my $code      = shift;
 
-	my $ret	 = join(
+	my $ret = join(
 		"\n",
-		( $class_obj ? '  my '.$class_obj." = shift;" :""),
+		($class_obj ? '  my ' . $class_obj . " = shift;" : ""),
 		map {
 			my $var = $_;
-			if ( $var =~ /^(\%|\@)(.*)$/)
+			if ($var =~ /^(\%|\@)(.*)$/)
 				{
 				my $sigil = $1;
-				my $name =	$2;
-				"\tmy ".$var." = ".$sigil."{(shift)};";
+				my $name  = $2;
+				"\tmy " . $var . " = " . $sigil . "{(shift)};";
 				}
 			else
 				{
 				"\tmy $var = shift;";
 				}
-			}  @params
+		} @params
 		)
 		. "\n\n"
 		. $code;
 	return $ret;
-	}
+}
 
 sub do_process_lines {
 	my ($match_fn, $action_fn, $lines_R, $numLines, $idx_R, $finalText_R) = @_;
@@ -280,87 +275,87 @@ sub do_process_lines {
 		++$idx;
 		}
 	$$idx_R = $idx;
-	}
+}
 
 sub action_copy {
 	my ($lines_R, $idx, $finalText_R) = @_;
 	$$finalText_R .= "$lines_R->[$idx]\n";
-	}
+}
 
 sub do_copy_lines {
 	my ($match_fn, $lines_R, $numLines, $idx_R, $finalText_R) = @_;
 	do_process_lines($match_fn, \&action_copy, $lines_R, $numLines, $idx_R, $finalText_R);
-	}
+}
 
 sub copy_any {
 	my ($lines_R, $idx) = @_;
 	return 1;
-	}
+}
 
 sub copy_comment {
 	my ($lines_R, $idx) = @_;
 	my $result = ($lines_R->[$idx] =~ m!^\s*\#!);
 	return $result;
-	}
+}
 
 sub copy_not_param_declaration {
 	my ($lines_R, $idx) = @_;
 	my $result = ($lines_R->[$idx] !~ m!^\tmy!);
 	return $result;
-	}
+}
 
 sub copy_not_sub {
 	my ($lines_R, $idx) = @_;
 	my $result = ($lines_R->[$idx] !~ m!^sub!);
 	return $result;
-	}
+}
 
 sub cut_top_comments {
-	my ($rawText) = @_;
-	my $finalText = '';
+	my ($rawText)   = @_;
+	my $finalText   = '';
 	my $topComments = '';
-	my @lines = split(/\n/, $rawText);
-	my $numLines = @lines;
-	my $idx = 0;
+	my @lines       = split(/\n/, $rawText);
+	my $numLines    = @lines;
+	my $idx         = 0;
 
 	do_copy_lines(\&copy_comment, \@lines, $numLines, \$idx, \$topComments);
-	do_copy_lines(\&copy_any, \@lines, $numLines, \$idx, \$finalText);
-	return($finalText, $topComments);
-	}
-	
+	do_copy_lines(\&copy_any,     \@lines, $numLines, \$idx, \$finalText);
+	return ($finalText, $topComments);
+}
+
 sub insert_top_comments {
 	my ($rawText, $topComments) = @_;
 	my $finalText = '';
-	my @lines = split(/\n/, $rawText);
-	my $numLines = @lines;
-	my $idx = 0;
-	
+	my @lines     = split(/\n/, $rawText);
+	my $numLines  = @lines;
+	my $idx       = 0;
+
 	# Invocation, unchanged.
 	$finalText .= "$lines[$idx++]\n\n";
 	# Top Comments.
 	$finalText .= $topComments;
 	# sub definition.
 	do_copy_lines(\&copy_any, \@lines, $numLines, \$idx, \$finalText);
-	
+
 	return $finalText;
-	}
+}
 
 
 sub cleanup_param_decls {
 	my ($rawText) = @_;
 	my $finalText = '';
-	
-	my @lines = split(/\n/, $rawText);
+
+	my @lines    = split(/\n/, $rawText);
 	my $numLines = @lines;
-	my $idx = 0;
-	
+	my $idx      = 0;
+
 	# Invocation, unchanged.
 	$finalText .= "$lines[$idx++]\n";
 	do_copy_lines(\&copy_not_param_declaration, \@lines, $numLines, \$idx, \$finalText);
-	
+
 	# The param decl lines: put in a single "my (params...) = @_;"
 	my $newArgLine = "\tmy (";
-	my $numArgs = 0;
+	my $numArgs    = 0;
 	while ($idx < $numLines && $lines[$idx] =~ m!^\tmy!)
 		{
 		if ($lines[$idx] =~ m!^\tmy\s+(\S+)!)
@@ -378,18 +373,18 @@ sub cleanup_param_decls {
 		++$numArgs;
 		++$idx;
 		}
-	
+
 	if ($numArgs)
 		{
 		$newArgLine .= ') = @_;';
-		$finalText .= "$newArgLine\n";
+		$finalText  .= "$newArgLine\n";
 		}
 
 	# To the end: copy unchanged.
 	do_copy_lines(\&copy_any, \@lines, $numLines, \$idx, \$finalText);
-		
+
 	return $finalText;
-	}
+}
 
 { ##### Scope for %SubArgs etc.
 my %SubArgs;
@@ -399,17 +394,17 @@ my $SubName;
 
 sub set_default_sub_name {
 	my ($name) = @_;
-	
+
 	$SubName = $name;
-	}
+}
 
 sub update_sub_name {
 	my ($rawText) = @_;
 	my $finalText = '';
-	my @lines = split(/\n/, $rawText);
-	my $numLines = @lines;
-	my $idx = 0;
-	
+	my @lines     = split(/\n/, $rawText);
+	my $numLines  = @lines;
+	my $idx       = 0;
+
 	# Change sub name in the call.
 	$lines[$idx] =~ s!\w+\(!$SubName(!;
 	$finalText .= "$lines[$idx++]\n";
@@ -421,28 +416,28 @@ sub update_sub_name {
 		$finalText .= "$lines[$idx++]\n";
 		}
 	do_copy_lines(\&copy_any, \@lines, $numLines, \$idx, \$finalText);
-		
+
 	return $finalText;
-	}
+}
 
 # Record whether the scalar params should be passed by value or reference.
 # By ref is used if the scalar's value is changed in an obvious way.
 sub set_scalar_defaults {
 	my ($rawText) = @_;
 	my $finalText = '';
-	
-	my @lines = split(/\n/, $rawText);
+
+	my @lines    = split(/\n/, $rawText);
 	my $numLines = @lines;
-	my $idx = 0;
-	
+	my $idx      = 0;
+
 	my %scalarArgName;
 	my %refNameForScalar;
-	
+
 	while ($idx < $numLines && $lines[$idx] !~ m!^\tmy!)
 		{
 		++$idx;
 		}
-		
+
 	while ($idx < $numLines && $lines[$idx] =~ m!^\tmy!)
 		{
 		if ($lines[$idx] =~ m!shift;!)
@@ -450,12 +445,12 @@ sub set_scalar_defaults {
 			$lines[$idx] =~ m!^\tmy\s+(\S+)!;
 			my $originalName = $1;
 			$scalarArgName{"\\$originalName"} = $originalName;
-			$IsScalarArg{"\\$originalName"} = 1;
+			$IsScalarArg{"\\$originalName"}   = 1;
 			}
 		++$idx;
 		}
 	# Detect assignment to scalar arguments. Not perfect.
-	for ( ; $idx < $numLines; ++$idx)
+	for (; $idx < $numLines ; ++$idx)
 		{
 		foreach my $scalarArg (keys %scalarArgName)
 			{
@@ -463,9 +458,9 @@ sub set_scalar_defaults {
 				|| $lines[$idx] =~ m!(\+\+|\-\-)$scalarArg\b!
 				|| $lines[$idx] =~ m!$scalarArg(\+\+|\-\-)!
 				|| $lines[$idx] =~ m!$scalarArg\s*\=~\s*s!
-				|| $lines[$idx] =~ m!\\$scalarArg\b! )
+				|| $lines[$idx] =~ m!\\$scalarArg\b!)
 				{
-				$refNameForScalar{$scalarArg}  = $scalarArgName{$scalarArg} . $kScalarSuffix;
+				$refNameForScalar{$scalarArg} = $scalarArgName{$scalarArg} . $kScalarSuffix;
 				}
 			}
 		}
@@ -482,7 +477,7 @@ sub set_scalar_defaults {
 			$SubArgs{$scalarArg} = $kByValue;
 			}
 		}
-	}
+}
 
 # $SubArgs{param name} holds by-value, by-ref, or omit
 # for each param. By value is the default.
@@ -493,11 +488,11 @@ sub set_scalar_defaults {
 sub fix_scalar_references {
 	my ($rawText) = @_;
 	my $finalText = '';
-	
-	my @lines = split(/\n/, $rawText);
+
+	my @lines    = split(/\n/, $rawText);
 	my $numLines = @lines;
-	my $idx = 0;
-	
+	my $idx      = 0;
+
 	my %scalarArgName;
 	my %refNameForScalar;
 
@@ -510,27 +505,26 @@ sub fix_scalar_references {
 			$scalarArgName{$arg} = $originalName;
 			if ($SubArgs{$arg} eq $kByReference)
 				{
-				$refNameForScalar{$arg}	 = $scalarArgName{$arg} . $kScalarSuffix;
+				$refNameForScalar{$arg} = $scalarArgName{$arg} . $kScalarSuffix;
 				}
 			}
 		}
-	
+
 	# Keep copy of invocation, we add '\' at end to scalars that become refs
 	# and drop any args that aren't wanted.
 	my $invocation = $lines[$idx++];
-	
+
 	# Output sub etc down to first top-level 'my'.
 	do_copy_lines(\&copy_not_param_declaration, \@lines, $numLines, \$idx, \$finalText);
-	
+
 	# Declarations: change scalar name if it's becoming a ref to scalar.
 	# Or drop it if 'Omit this one' has been selected.
 	while ($idx < $numLines && $lines[$idx] =~ m!^\tmy!)
 		{
 		$lines[$idx] =~ m!^\tmy\s+(\S+)!;
 		my $originalName = $1;
-		
-		if ( !(defined($SubArgs{"\\$originalName"})
-			 && $SubArgs{"\\$originalName"} eq $kOmit) )
+
+		if (!(defined($SubArgs{"\\$originalName"}) && $SubArgs{"\\$originalName"} eq $kOmit))
 			{
 			foreach my $scalarArg (keys %refNameForScalar)
 				{
@@ -540,10 +534,10 @@ sub fix_scalar_references {
 			}
 		++$idx;
 		}
-	
+
 	# To the end: change scalar name and prepend an extra '$'
 	# for the new scalar reference args.
-	for ( ; $idx < $numLines; ++$idx)
+	for (; $idx < $numLines ; ++$idx)
 		{
 		foreach my $scalarArg (keys %refNameForScalar)
 			{
@@ -560,11 +554,11 @@ sub fix_scalar_references {
 		}
 
 	# Add back invocation line with adjusted params.
-	$invocation = fix_invocation(\%refNameForScalar, \%scalarArgName, $invocation);	
-	$finalText = "$invocation\n" . $finalText;
-	
+	$invocation = fix_invocation(\%refNameForScalar, \%scalarArgName, $invocation);
+	$finalText  = "$invocation\n" . $finalText;
+
 	return $finalText;
-	}
+}
 
 # Fix up invocation by adding '\' before all scalars now passed by reference
 # and by deleting arguments where 'Omit this one' was selected.
@@ -576,7 +570,7 @@ sub fix_invocation {
 		{
 		$invocation =~ s!$scalarArg\b!\\$scalarArgName_H->{$scalarArg}!;
 		}
-	
+
 	foreach my $arg (sort keys %SubArgs)
 		{
 		if ($SubArgs{$arg} eq $kOmit)
@@ -592,9 +586,9 @@ sub fix_invocation {
 				}
 			}
 		}
-		
+
 	return $invocation;
-	}
+}
 
 # Alter my @x = @{(shift)} to my $xA = shift, similarly %y -> $yH.
 # Replace @x/%y with @$xA/@$yH, $x/$y with $xA->/$yH->.
@@ -606,66 +600,65 @@ sub fix_invocation {
 sub fix_array_hash_references {
 	my ($rawText) = @_;
 	my $finalText = '';
-	
-	my @lines = split(/\n/, $rawText);
+
+	my @lines    = split(/\n/, $rawText);
 	my $numLines = @lines;
-	my $idx = 0;
-	
+	my $idx      = 0;
+
 	# Invocation, already fixed up completely by fix_scalar_references.
 	$finalText .= "$lines[$idx++]\n";
-	
+
 	# sub etc down to first top-level 'my'.
 	do_copy_lines(\&copy_not_param_declaration, \@lines, $numLines, \$idx, \$finalText);
-	
+
 	# Note any top-level 'my' parm names and alter @ or % declarations to be $ references.
-	my %repForName;		# $repForName{'@x'} = '@$xA'; $derefRepForName{'$x'} = '$xA->';
-	my %derefRepForName;# $repForName{'%y'} = '%$yH'; $derefRepForName{'$y'} = '$yH->';
-	my %repForRefName;	# $repForRefName{'\@x'} = '$xA'; $repForRefName{'\%y'} = '$yH';
+	my %repForName;         # $repForName{'@x'} = '@$xA'; $derefRepForName{'$x'} = '$xA->';
+	my %derefRepForName;    # $repForName{'%y'} = '%$yH'; $derefRepForName{'$y'} = '$yH->';
+	my %repForRefName;      # $repForRefName{'\@x'} = '$xA'; $repForRefName{'\%y'} = '$yH';
 	my %shouldPassByValue;
 	my %byValueDerefKey;
 	my %byValueRefKey;
-	
+
 	while ($idx < $numLines && $lines[$idx] =~ m!^\tmy!)
 		{
 		if ($lines[$idx] =~ m!(\@|\%)\{!)
 			{
 			$lines[$idx] =~ m!^\tmy\s+(\S+)!;
 			my $originalName = $1;
-			
+
 			# Skip the 'my' declaration line if param is to be omitted.
-			if ( !(defined($SubArgs{"\\$originalName"})
-			  && $SubArgs{"\\$originalName"} eq $kOmit) )
+			if (!(defined($SubArgs{"\\$originalName"}) && $SubArgs{"\\$originalName"} eq $kOmit))
 				{
 				my $newRefName = $originalName;
-				my $isArray = ($originalName =~ m!\@!);
+				my $isArray    = ($originalName =~ m!\@!);
 				$newRefName =~ s!(\@|\%)!\$!;
-				my $leader = ($isArray) ? '@': '%';
-				my $trailer = ($isArray) ? $kArraySuffix: $kHashSuffix;
+				my $leader       = ($isArray) ? '@'           : '%';
+				my $trailer      = ($isArray) ? $kArraySuffix : $kHashSuffix;
 				my $newDerefName = "$newRefName$trailer";
 				$newRefName = "$leader$newDerefName";
 				my $derefName = $originalName;
 				$derefName =~ s!(\@|\%)!\$!;
-				
-				$repForName{"\\$originalName"} = $newRefName;
-				$derefRepForName{"\\$derefName"} = "$newDerefName->";
+
+				$repForName{"\\$originalName"}      = $newRefName;
+				$derefRepForName{"\\$derefName"}    = "$newDerefName->";
 				$repForRefName{"\\\\$originalName"} = "$newDerefName";
 				# Fix the decl line.
 				$lines[$idx] = "\tmy $newDerefName = shift;";
-				
+
 				# Having done all that work to pass by ref, what if we really
 				# wanted pass by value? We'll stuff in a copy of the array or
 				# hash using its original name, and not change the name used
 				# in the code.
 				if (defined($SubArgs{"\\$originalName"})
-				  && $SubArgs{"\\$originalName"} eq $kByValue )
+					&& $SubArgs{"\\$originalName"} eq $kByValue)
 					{
 					$shouldPassByValue{"\\$originalName"} = $newDerefName;
-					$byValueDerefKey{"\\$originalName"} = "\\$derefName";
-					$byValueRefKey{"\\$originalName"} = "\\\\$originalName";
+					$byValueDerefKey{"\\$originalName"}   = "\\$derefName";
+					$byValueRefKey{"\\$originalName"}     = "\\\\$originalName";
 					}
 				$finalText .= "$lines[$idx++]\n";
 				}
-			else # just skip along, param isn't wanted
+			else    # just skip along, param isn't wanted
 				{
 				++$idx;
 				}
@@ -675,27 +668,27 @@ sub fix_array_hash_references {
 			$finalText .= "$lines[$idx++]\n";
 			}
 		}
-	
+
 	# Copy arrays and hashes if pass by value wanted (also remove from
 	# the replacement hashes).
 	my $numKeys = keys %shouldPassByValue;
 	if ($numKeys)
 		{
-		$finalText .= "\n"; # Needed elsewhere when parsing, don't delete.
+		$finalText .= "\n";    # Needed elsewhere when parsing, don't delete.
 		foreach my $arg (sort keys %shouldPassByValue)
 			{
 			my $copyLine = "\tmy $arg = @" . $shouldPassByValue{$arg} . ";\n";
 			$finalText .= $copyLine;
-			
+
 			delete($repForName{$arg});
 			delete($derefRepForName{$byValueDerefKey{$arg}});
 			delete($repForRefName{$byValueRefKey{$arg}});
 			}
 		}
-	
+
 	# Replace @x with @$xA or @$xH, $x with $xA-> or $xH->.
 	# Unless pass by value was wanted.
-	for ( ; $idx < $numLines; ++$idx)
+	for (; $idx < $numLines ; ++$idx)
 		{
 		foreach my $refOriginalName (keys %repForRefName)
 			{
@@ -720,9 +713,9 @@ sub fix_array_hash_references {
 			}
 		$finalText .= "$lines[$idx]\n";
 		}
-		
+
 	return $finalText;
-	}
+}
 
 # Dialog to set pass by value or reference or omit for each parameter.
 # If there's nothing to set, the dialog is not shown.
@@ -730,17 +723,17 @@ sub show_extract_dialog {
 	my ($rawText) = @_;
 
 	my @ArgType = ($kByValue, $kByReference, $kOmit);
-	
-	my @lines = split(/\n/, $rawText);
+
+	my @lines    = split(/\n/, $rawText);
 	my $numLines = @lines;
-	my $idx = 0;
-	
+	my $idx      = 0;
+
 	# Skip down to args.
 	while ($idx < $numLines && $lines[$idx] !~ m!^\tmy!)
 		{
 		++$idx;
 		}
-	
+
 	# Record arg names. Scalars have already been noted
 	# by fix_scalar_references().
 	while ($idx < $numLines && $lines[$idx] =~ m!^\tmy!)
@@ -751,31 +744,33 @@ sub show_extract_dialog {
 			if (!defined($SubArgs{"\\$arg"}))
 				{
 				my $arrayOrHash = ($arg =~ m!(\@|\%)!);
-				$SubArgs{"\\$arg"} = $arrayOrHash ? $kByReference: $kByValue;
+				$SubArgs{"\\$arg"} = $arrayOrHash ? $kByReference : $kByValue;
 				}
 			}
 		++$idx;
 		}
-		
+
 	my $numArgs = keys %SubArgs;
-	
+
 	if ($numArgs)
 		{
 		if ($kWINDOWS && $beChatty)
 			{
-			print("Please visit the \"Extract Sub Particulars\" dialog now (it might not be in front.)\n");
+			print(
+"Please visit the \"Extract Sub Particulars\" dialog now (it might not be in front.)\n"
+			);
 			}
 		# Show a nice dialog.
 		# Tkx: my $SD = em_dialog->new('Extract Sub Particulars');
 		# Tk:
 		my $SD = ArgYouMeant->new('Extract Sub Particulars');
 		$SD->AddNote("Set sub name, and fine-tune parameter passing. Results to clipboard.");
-		
+
 		# OK, we're cheating a bit by storing the sub name in %SubArgs....
 		$SD->AddVar("Sub Name:", \$SubName, $SD->String());
-		
-		my $numParamsSoFar = 0;
-		my $newColumnAtThisIndex = ($numArgs >= 20)? int($numArgs/2): -1;
+
+		my $numParamsSoFar       = 0;
+		my $newColumnAtThisIndex = ($numArgs >= 20) ? int($numArgs / 2) : -1;
 		foreach my $arg (sort keys %SubArgs)
 			{
 			if ($numParamsSoFar++ == $newColumnAtThisIndex)
@@ -784,8 +779,8 @@ sub show_extract_dialog {
 				}
 			$SD->AddListVariable(substr($arg, 1), \$SubArgs{$arg}, \@ArgType);
 			}
-		
+
 		$SD->DoDialog();
 		}
-	}
-} ##### Scope for %SubArgs etc.
+}
+}    ##### Scope for %SubArgs etc.

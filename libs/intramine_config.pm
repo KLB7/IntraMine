@@ -17,7 +17,7 @@ use win_wide_filepaths;
 
 { ##### Config values
 my %ConfigValues;
-my $ScriptFullDirTS; # TS == Trailing Slash
+my $ScriptFullDirTS;    # TS == Trailing Slash
 my @AdditionalConfigFileNames;
 
 # An IntraMine swarm server can load config values by calling swarmserver.pm#SSInitialize()
@@ -31,17 +31,17 @@ my @AdditionalConfigFileNames;
 # "DBX" for the intramine_db_example.pl server.
 sub LoadConfigValues {
 	my ($extraConfigName, $extraConfigName2) = @_;
-	$extraConfigName ||= '';
+	$extraConfigName  ||= '';
 	$extraConfigName2 ||= '';
-	
-	my $scriptFullPath = $0; # path of calling program
-	my $scriptName = FileNameFromPath($scriptFullPath);
+
+	my $scriptFullPath = $0;                                     # path of calling program
+	my $scriptName     = FileNameFromPath($scriptFullPath);
 	my $configFileName = "intramine_config.txt";
-	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $scriptFullDir  = DirectoryFromPathTS($scriptFullPath);
 	$ScriptFullDirTS = $scriptFullDir;
 	my $configFilePath = $ScriptFullDirTS . "data/$configFileName";
-	
-	# Typically the calling program is in something like '.../mine/', 
+
+	# Typically the calling program is in something like '.../mine/',
 	# (where 'mine' is the name of the IntraMine folder)
 	# but if the caller is in say
 	# '.../mine/test/' then we need to pop one dir off the end of
@@ -57,10 +57,10 @@ sub LoadConfigValues {
 		$ScriptFullDirTS =~ s![^/]+/$!!;
 		$configFilePath = $ScriptFullDirTS . "data/$configFileName";
 		}
-	
+
 	if (-f $configFilePath)
 		{
-		my $numConfigEntries = 
+		my $numConfigEntries =
 			LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $configFilePath, "", 1);
 		if ($numConfigEntries == 0)
 			{
@@ -73,29 +73,31 @@ sub LoadConfigValues {
 		}
 	else
 		{
-		die("No config file found at |$configFilePath|! Please see 'IMPORTANT Make your own data folder' in /Documentation/IntraMine initial install.txt (or .html).\n");
+		die(
+"No config file found at |$configFilePath|! Please see 'IMPORTANT Make your own data folder' in /Documentation/IntraMine initial install.txt (or .html).\n"
+		);
 		}
-		
+
 	# Load any extra config file if it exists, eg data/DBX_config.txt for the DBX server.
 	if ($extraConfigName ne '')
 		{
 		my $serverConfigPath = $ScriptFullDirTS . "data/$extraConfigName" . '_config.txt';
 		if (-f $serverConfigPath)
 			{
-			my $numConfigEntries = 
-			LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $serverConfigPath, "", 1);
+			my $numConfigEntries =
+				LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $serverConfigPath, "", 1);
 			LoadNumberedConfigFiles($extraConfigName . '_config.txt');
 			}
 		# else no error, the server config file is optional.
 		}
-	
+
 	if ($extraConfigName2 ne '')
 		{
 		my $serverConfigPath = $ScriptFullDirTS . "data/$extraConfigName2" . '_config.txt';
 		if (-f $serverConfigPath)
 			{
-			my $numConfigEntries = 
-			LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $serverConfigPath, "", 1);
+			my $numConfigEntries =
+				LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $serverConfigPath, "", 1);
 			LoadNumberedConfigFiles($extraConfigName2 . '_config.txt');
 			}
 		# else no error, the server config file is optional.
@@ -103,8 +105,8 @@ sub LoadConfigValues {
 
 	# Load the selected theme from a list - pick the first line that doesn't
 	# start with '#'.
-	LoadSelectedTheme(\%ConfigValues,  $ScriptFullDirTS . "data/select_theme_here.txt");
-	}
+	LoadSelectedTheme(\%ConfigValues, $ScriptFullDirTS . "data/select_theme_here.txt");
+}
 
 # Requires: the "base" config file has loaded. The "base" can be either the standard
 # config file "intramine_config.txt" or a server-specific file such as DBX_config.txt.
@@ -114,73 +116,75 @@ sub LoadConfigValues {
 # The numbers NNN don't have to be in sequence.
 # Config files are loaded in ascending numerical order.
 sub LoadNumberedConfigFiles {
-	my ($configFileName) = @_; # eg intramine_config.txt or DBX_config.txt
+	my ($configFileName) = @_;    # eg intramine_config.txt or DBX_config.txt
 	my ($baseName, $ext) = FileNameProperAndExtensionFromFileName($configFileName);
 	if ($ext eq '')
 		{
 		return;
 		}
-	
-	my $dir = "$ScriptFullDirTS" . 'data/';
+
+	my $dir              = "$ScriptFullDirTS" . 'data/';
 	my @allTopLevelItems = FindFileWide($dir);
 	my @configFileNames;
 	my @configFileNumbers;
-	for (my $i = 0; $i < @allTopLevelItems; ++$i)
+	for (my $i = 0 ; $i < @allTopLevelItems ; ++$i)
 		{
 		if ($allTopLevelItems[$i] =~ m!$baseName\_(\d+)$ext$!i)
 			{
 			my $configNumber = $1;
-			push @configFileNames, $allTopLevelItems[$i];
-			push @AdditionalConfigFileNames,  $allTopLevelItems[$i];
-			push @configFileNumbers, $configNumber;
+			push @configFileNames,           $allTopLevelItems[$i];
+			push @AdditionalConfigFileNames, $allTopLevelItems[$i];
+			push @configFileNumbers,         $configNumber;
 			}
 		}
-		
-	my @idx = sort {$configFileNumbers[$a] <=> $configFileNumbers[$b]} 0..$#configFileNumbers;
+
+	my @idx = sort {$configFileNumbers[$a] <=> $configFileNumbers[$b]} 0 .. $#configFileNumbers;
 	@configFileNames = @configFileNames[@idx];
-	for (my $i = 0; $i < @configFileNames; ++$i)
+	for (my $i = 0 ; $i < @configFileNames ; ++$i)
 		{
 		my $configFilePath = $dir . $configFileNames[$i];
 		LoadKeyMultiTabValueHashFromFile(\%ConfigValues, $configFilePath, "", 1);
 		}
-	}
+}
 
 sub GetAdditionalConfigFileNames {
 	my ($configNamesA) = @_;
 	@$configNamesA = @AdditionalConfigFileNames;
-	}
+}
 
 # Look in the /_copy_and_rename_to_data folder, copy any files there that
 # aren't yet in the /data folder to the /data folder.
 # Called at intramine_main.pl#118, before any services load config values.
 sub CopyNewConfigFiles {
-	my $scriptFullPath = $0; # path of calling program, normally for intramine_main.pl
-	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
-	my $copyFromDirectory = $scriptFullDir . '_copy_and_rename_to_data/';
+	my $scriptFullPath       = $0;    # path of calling program, normally for intramine_main.pl
+	my $scriptFullDir        = DirectoryFromPathTS($scriptFullPath);
+	my $copyFromDirectory    = $scriptFullDir . '_copy_and_rename_to_data/';
 	my $destinationDirectory = $scriptFullDir . 'data/';
-	
-	my @allCopyFromItems = FindFileWide($copyFromDirectory);
+
+	my @allCopyFromItems         = FindFileWide($copyFromDirectory);
 	my @existingDestinationItems = FindFileWide($destinationDirectory);
-	
+
 	my %DestFileNameExists;
-	for (my $i = 0; $i < @existingDestinationItems; ++$i)
+	for (my $i = 0 ; $i < @existingDestinationItems ; ++$i)
 		{
 		$DestFileNameExists{$existingDestinationItems[$i]} = 1;
 		}
-	
-	for (my $i = 0; $i < @allCopyFromItems; ++$i)
+
+	for (my $i = 0 ; $i < @allCopyFromItems ; ++$i)
 		{
 		my $srcPath = $copyFromDirectory . $allCopyFromItems[$i];
-		if (   !defined($DestFileNameExists{$allCopyFromItems[$i]})
-			&& FileOrDirExistsWide($srcPath) == 1 )
+		if (!defined($DestFileNameExists{$allCopyFromItems[$i]})
+			&& FileOrDirExistsWide($srcPath) == 1)
 			{
-			my $destPath = $destinationDirectory . $allCopyFromItems[$i];
-			my $noFailIfExists = 0; # Suppress fail if file exists
+			my $destPath       = $destinationDirectory . $allCopyFromItems[$i];
+			my $noFailIfExists = 0;    # Suppress fail if file exists
 			CopyFileWide($srcPath, $destPath, $noFailIfExists);
-			print("NEW CONFIG FILE |$allCopyFromItems[$i]| copied from _copy_and_rename_to_data/ to data/.\n");
+			print(
+"NEW CONFIG FILE |$allCopyFromItems[$i]| copied from _copy_and_rename_to_data/ to data/.\n"
+			);
 			}
 		}
-	}
+}
 
 # Value for a config name, eg CVal('IMAGES_DIR') == 'images_for_web_server/'.
 # These can be values loaded from the config file via LoadConfigValues() above, or values
@@ -196,39 +200,41 @@ sub CVal {
 		{
 		$val = $ConfigValues{$name};
 		}
-	
-	return($val);
-	}
+
+	return ($val);
+}
 
 # Set value for a key, available to all servers using serverswarm.pm, or this module directly.
 # Eg SetCVal('OverdueCount', $count);
-# Use LoadConfigValues() above to load fixed persistent config values, and SetCVal() to set dynamic ones.
-# Note config values are not currently saved back to disk, so the persistent values are 'fixed' in the sense
-# that you have to change them in the config file itself (data/intramine_config.txt).
+# Use LoadConfigValues() above to load fixed persistent config values, and SetCVal() to
+# set dynamic ones.
+# Note config values are not currently saved back to disk, so the persistent values are 'fixed'
+# in the sense that you have to change them in the config file itself (data/intramine_config.txt).
 sub SetCVal {
 	my ($name, $val) = @_;
 	$ConfigValues{$name} = $val;
-	return($val);
-	}
-	
-sub ConfigHashRef {
-	return(\%ConfigValues);
+	return ($val);
 }
 
-# Dir paths are typically in two pieces: the dir for this module, and the path down from there to the wanted directory
+sub ConfigHashRef {
+	return (\%ConfigValues);
+}
+
+# Dir paths are typically in two pieces: the dir for this module, and the path down from there to
+# the wanted directory
 # Eg 'C:/perlprogs/mine/' . 'images_for_web_server/'   where $name == 'IMAGES_DIR'
 sub FullDirectoryPath {
 	my ($name) = @_;
 	my $result = '';
-	
+
 	my $val = CVal($name);
 	if ($val ne '')
 		{
 		# If retrieved path starts with colon then just prepend CVal('DRIVELETTER').
 		# Otherwise, prepend $ScriptFullDirTS.
 		# Eg ':/common/images/' becomes CVal('DRIVELETTER') . ':/common/images/', typically CVal('DRIVELETTER') is 'C'.
-		# And if retrieved path is 'images_for_web_server/' and $ScriptFullDirTS is 'C:/perlprogs/mine/'
-		# then returned path is 'C:/perlprogs/mine/images_for_web_server/'.
+		# And if retrieved path is 'images_for_web_server/' and $ScriptFullDirTS is
+		# 'C:/perlprogs/mine/' then returned path is 'C:/perlprogs/mine/images_for_web_server/'.
 		if (substr($val, 0, 1) eq ':')
 			{
 			$result = CVal('DRIVELETTER') . $val;
@@ -238,14 +244,14 @@ sub FullDirectoryPath {
 			$result = $ScriptFullDirTS . $val;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Valid after call to LoadConfigValues() above.
 sub BaseDirectory {
-	return($ScriptFullDirTS);
-	}
+	return ($ScriptFullDirTS);
+}
 
 # Save extra value(s) to a specially named config file.
 # Eg SaveExtraConfigValues('SRVR', $h) with $h->{'SERVER_ADDRESS'} = 1.2.3.4
@@ -253,10 +259,10 @@ sub BaseDirectory {
 # And LoadConfigValues('SRVR') will read the 'SERVER_ADDRESS' key/value into %ConfigValues.
 sub SaveExtraConfigValues {
 	my ($extraConfigName, $h) = @_;
-	my $scriptFullPath = $0; # path of calling program
-	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $scriptFullPath = $0;                                     # path of calling program
+	my $scriptFullDir  = DirectoryFromPathTS($scriptFullPath);
 	my $configFilePath = $ScriptFullDirTS . "data/$extraConfigName" . '_config.txt';
-	my %extraValues = %$h;
+	my %extraValues    = %$h;
 
 	# First load any existing values from the file.
 	my %allValues;
@@ -273,7 +279,7 @@ sub SaveExtraConfigValues {
 		{
 		$ConfigValues{$key} = $allValues{$key};
 		}
-	}
+}
 
 # Set config hash 'THEME' to first entry that doesn't contain '#'.
 # Typical entries:
@@ -289,10 +295,10 @@ sub LoadSelectedTheme {
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;
-	
+
 	while ($line = <$fileH>)
-    	{
-        chomp($line);
+		{
+		chomp($line);
 		if (index($line, '#') < 0)
 			{
 			$line =~ s!^\s+!!;
@@ -305,8 +311,8 @@ sub LoadSelectedTheme {
 
 	# Test only:
 	#print("Selected theme: $hashRef->{'THEME'}\n");
-	}
-} ##### Config values
+}
+}    ##### Config values
 
 # Search directory list, load to hashes or arrays. There are two hashes or arrays, one for
 # directories to monitor (with File Watcher) and one for dirs to initially index with Elasticsearch.
@@ -325,20 +331,20 @@ sub LoadSelectedTheme {
 sub LoadSearchDirectoriesToHashes {
 	my ($filePath, $indexThesePathsH, $monitorThesePathsH, $ignoreTheseDirectoriesH) = @_;
 	my $contents = ReadTextFileDecodedWide($filePath, 1);
-	my @lines = split(/\n/, $contents);
+	my @lines    = split(/\n/, $contents);
 	my %ignoreDirs;
-	my %allIMPaths; # All paths to Index or Monitor, lc, forward slashes.
+	my %allIMPaths;    # All paths to Index or Monitor, lc, forward slashes.
 
-	for (my $i = 0; $i < @lines; ++$i)
+	for (my $i = 0 ; $i < @lines ; ++$i)
 		{
 		my $line = $lines[$i];
-        if (length($line) && $line !~ m!^\s*#!)
-         	{
-        	my @kv = split(/\t+/, $line, 3);
-        	my $numEntriesOnLine = @kv;
-        	if ($numEntriesOnLine == 3) # path tabs index tabs monitor
-        		{
- 				my $dir = $kv[0];
+		if (length($line) && $line !~ m!^\s*#!)
+			{
+			my @kv               = split(/\t+/, $line, 3);
+			my $numEntriesOnLine = @kv;
+			if ($numEntriesOnLine == 3)    # path tabs index tabs monitor
+				{
+				my $dir = $kv[0];
 				# _INTRAMINE_ stands in for the actual path to the IntraMine folder.
 				if ($dir eq '_INTRAMINE_')
 					{
@@ -357,18 +363,18 @@ sub LoadSearchDirectoriesToHashes {
 				$dir = lc($dir);
 				$dir =~ s!\\!/!g;
 
-	       		if ($kv[1] eq '1') # Index
-        			{
+				if ($kv[1] eq '1')    # Index
+					{
 					$allIMPaths{$dir} = 1;
-        			$indexThesePathsH->{$dir} = 1;
-        			}
-        		if ($kv[2] eq '1') # Monitor
-        			{
+					$indexThesePathsH->{$dir} = 1;
+					}
+				if ($kv[2] eq '1')    # Monitor
+					{
 					$allIMPaths{$dir} = 1;
-        			$monitorThesePathsH->{$dir} = 1;
-        			}
-         		}
-			elsif ($numEntriesOnLine == 2) # IGNORE tabs path
+					$monitorThesePathsH->{$dir} = 1;
+					}
+				}
+			elsif ($numEntriesOnLine == 2)    # IGNORE tabs path
 				{
 				if ($kv[0] =~ m!^ignore$!i)
 					{
@@ -381,7 +387,7 @@ sub LoadSearchDirectoriesToHashes {
 					$ignoreDirs{$dir} = 1;
 					}
 				}
-        	}
+			}
 		}
 
 	# Remove overlap, eg C:\spot vs C:\spot\run.
@@ -408,12 +414,12 @@ sub LoadSearchDirectoriesToHashes {
 			$ignoreTheseDirectoriesH->{$dir} = 1;
 			}
 		}
-		
-  	my $count = keys %$indexThesePathsH;
-    $count += keys %$monitorThesePathsH;
-    my $result = ($count) ? 1 : 0;
-	return($result);
-	}
+
+	my $count = keys %$indexThesePathsH;
+	$count += keys %$monitorThesePathsH;
+	my $result = ($count) ? 1 : 0;
+	return ($result);
+}
 
 sub RemoveOverlappingDirs {
 	my ($loadedDirs_H) = @_;
@@ -421,9 +427,9 @@ sub RemoveOverlappingDirs {
 	my %rawDirs;
 	foreach my $dir (sort keys %$loadedDirs_H)
 		{
-		$dir =~ s!/!\\!g;			# Use backslashes
-		$dir =~ s![\\/]$!!;			# Trim any trailing slash
-		# Arg, put  a slash back at the end if it was the only one (for a drive letter)
+		$dir =~ s!/!\\!g;      # Use backslashes
+		$dir =~ s![\\/]$!!;    # Trim any trailing slash
+			# Arg, put  a slash back at the end if it was the only one (for a drive letter)
 		if ($dir !~ m!\\!)
 			{
 			$dir .= "\\";
@@ -469,7 +475,7 @@ sub RemoveOverlappingDirs {
 			$loadedDirs_H->{$dir} = 1;
 			}
 		}
-	}
+}
 
 # Like above, but arrays instead of hashes.
 sub LoadSearchDirectoriesToArrays {
@@ -478,7 +484,8 @@ sub LoadSearchDirectoriesToArrays {
 	my %indexThesePaths;
 	my %monitorThesePaths;
 	my %ignoreTheseDirectories;
-	my $count = LoadSearchDirectoriesToHashes($filePath, \%indexThesePaths, \%monitorThesePaths, \%ignoreTheseDirectories);
+	my $count = LoadSearchDirectoriesToHashes($filePath, \%indexThesePaths, \%monitorThesePaths,
+		\%ignoreTheseDirectories);
 
 	foreach my $dir (sort keys %indexThesePaths)
 		{
@@ -494,10 +501,10 @@ sub LoadSearchDirectoriesToArrays {
 		}
 
 	$count = @$indexThesePathsA;
-    $count += @$monitorThesePathsA;
-    my $result = ($count) ? 1 : 0;
-	return($result);
-	}
+	$count += @$monitorThesePathsA;
+	my $result = ($count) ? 1 : 0;
+	return ($result);
+}
 
 use ExportAbove;
 1;

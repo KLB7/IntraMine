@@ -17,16 +17,16 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -34,7 +34,7 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 # 'req=main' is called by any request for this page.
 my %RequestAction;
-$RequestAction{'req|main'} = \&DaysPage; 			# req=main
+$RequestAction{'req|main'} = \&DaysPage;    # req=main
 #$RequestAction{'req|id'} = \&Identify; 			# req=id
 
 # Over to swarmserver.pm.
@@ -101,7 +101,7 @@ FINIS
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
 	return $theBody;
-	}
+}

@@ -3,7 +3,7 @@
 # ToDo tracks three categories, To Do, Doing, and Done. There are fillable fields in items for
 # Title, Description and Due Date. Overdue items are emphasized with a bit of color.
 # This Perl prog mainly gets things going with an HTML skeleton, and saves and loads data.
-# The interface handling, and WebSockets handling, are done in JavaScript - 
+# The interface handling, and WebSockets handling, are done in JavaScript -
 # see todo.js, todoFlash.js, and todoGetPutData.js.
 # jQuery is NOT used in this version.
 #
@@ -31,30 +31,30 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
-my $CSS_DIR = FullDirectoryPath('CSS_DIR');
-my $JS_DIR = FullDirectoryPath('JS_DIR');
+my $CSS_DIR  = FullDirectoryPath('CSS_DIR');
+my $JS_DIR   = FullDirectoryPath('JS_DIR');
 my $ToDoPath = FullDirectoryPath('TODODATAPATH');
 # $ToDoArchivePath is same as $ToDoPath, with "Archive" added before extension.
 my $ToDoArchivePath = $ToDoPath;
 $ToDoArchivePath =~ s!(\.[^\.]+)!Archive$1!;
 
 # Common locations for images.
-my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
+my $IMAGES_DIR        = FullDirectoryPath('IMAGES_DIR');
 my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
 if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
 	{
@@ -62,26 +62,27 @@ if (FileOrDirExistsWide($COMMON_IMAGES_DIR) != 2)
 	$COMMON_IMAGES_DIR = '';
 	}
 
-MakeArchiveFile(); # We want the archive file to always exist, so the link works.
+MakeArchiveFile();    # We want the archive file to always exist, so the link works.
 
-my $OverdueCount = GetOverdueCount(); # $OverdueCount is also set in PutData().
+my $OverdueCount = GetOverdueCount();    # $OverdueCount is also set in PutData().
 
 # Master date stamp: time stamp for last save of TODO data.
 my $MasterDateStamp = '';
 
 my %RequestAction;
-$RequestAction{'req|main'} = \&ToDoPage; 			# req=main
-$RequestAction{'req|css'} = \&GetRequestedFile; 	# req=css
-$RequestAction{'req|js'} = \&GetRequestedFile; 		# req=js
+$RequestAction{'req|main'} = \&ToDoPage;            # req=main
+$RequestAction{'req|css'}  = \&GetRequestedFile;    # req=css
+$RequestAction{'req|js'}   = \&GetRequestedFile;    # req=js
 #$RequestAction{'req|getputdatajs'} = \&GetPutDataJS; # req=getputdatajs - NOT USED
-$RequestAction{'req|getData'} = \&GetData; 			# req=getData
-$RequestAction{'req|getModDate'} = \&DataModDate; 	# req=getModDate
-$RequestAction{'req|overduecount'} = \&OverdueCount; 	# req=overduecount
+$RequestAction{'req|getData'}      = \&GetData;         # req=getData
+$RequestAction{'req|getModDate'}   = \&DataModDate;     # req=getModDate
+$RequestAction{'req|overduecount'} = \&OverdueCount;    # req=overduecount
 
-$RequestAction{'data'} = \&PutData; 				# data=the todo list
-$RequestAction{'saveToArchive'} = \&ArchiveOneItem; 		# saveToArchive=one ToDo item
-$RequestAction{'signal'} = \&HandleToDoSignal; 		# signal = anything, but for here specifically signal=allServersUp
-#$RequestAction{'req|id'} = \&Identify; 			# req=id - now done by swarmserver.pm#ServerIdentify()
+$RequestAction{'data'}          = \&PutData;            # data=the todo list
+$RequestAction{'saveToArchive'} = \&ArchiveOneItem;     # saveToArchive=one ToDo item
+$RequestAction{'signal'} =
+	\&HandleToDoSignal;    # signal = anything, but for here specifically signal=allServersUp
+#$RequestAction{'req|id'} = \&Identify; # req=id - now done by swarmserver.pm#ServerIdentify()
 
 # Over to swarmserver.pm.
 MainLoop(\%RequestAction);
@@ -204,48 +205,51 @@ FINIS
 
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
-	
+
 	$theBody =~ s!_CSS_DIR_!$CSS_DIR!g;
 	$theBody =~ s!_JS_DIR_!$JS_DIR!g;
-	
+
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
 	# The IPv4 Address for this server is  (eg 192.168.0.14);
 	my $serverAddr = ServerAddress();
-	
+
 	my $host = $serverAddr;
 	my $port = $port_listen;
 	$theBody =~ s!_THEPORT_!$port!g;
-	
+
 	my $contentID = 'scrollAdjustedHeight';
 	$theBody =~ s!_CONTENTID_!$contentID!g;
 
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
 
-	my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
+	my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 	my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
-	my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
-	my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
-	my $viewerShortName = CVal('VIEWERSHORTNAME');
-	my $openerShortName = CVal('OPENERSHORTNAME');
-	my $editorShortName = CVal('EDITORSHORTNAME');
-	my $filesShortName = CVal('FILESSHORTNAME');
-	my $videoShortName = CVal('VIDEOSHORTNAME');
+	my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
+	my $AllowRemoteEditing     = CVal('ALLOW_REMOTE_EDITING');
+	my $viewerShortName        = CVal('VIEWERSHORTNAME');
+	my $openerShortName        = CVal('OPENERSHORTNAME');
+	my $editorShortName        = CVal('EDITORSHORTNAME');
+	my $filesShortName         = CVal('FILESSHORTNAME');
+	my $videoShortName         = CVal('VIDEOSHORTNAME');
 
-	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
+	my $allowEditing =
+		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
 	my $useAppForEditing = 0;
 	if ($allowEditing)
 		{
-		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing) || (!$clientIsRemote && $UseAppForLocalEditing));
+		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing)
+				|| (!$clientIsRemote && $UseAppForLocalEditing));
 		}
-	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $tfAllowEditing = ($allowEditing) ? 'true' : 'false';
+	my $amRemoteValue      = $clientIsRemote     ? 'true' : 'false';
+	my $tfAllowEditing     = ($allowEditing)     ? 'true' : 'false';
 	my $tfUseAppForEditing = ($useAppForEditing) ? 'true' : 'false';
 
 	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
@@ -257,29 +261,29 @@ FINIS
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
-	
+
 	# Link to archive file holding ToDo items more permanently.
 	my $archiveLink = ArchiveLink();
 	$theBody =~ s!_ARCHIVELINK_!$archiveLink!;
-	
-	
+
+
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
 	return $theBody;
-	}
+}
 
 # 'req|dataModDate': returns $MasterDateStamp.
 sub DataModDate {
 	my ($obj, $formH, $peeraddress) = @_;
-	return($MasterDateStamp);
-	}
+	return ($MasterDateStamp);
+}
 
 # Called by AJAX "req=overduecount".
 sub OverdueCount {
 	my ($obj, $formH, $peeraddress) = @_;
-	return($OverdueCount);
-	}
+	return ($OverdueCount);
+}
 
 # 'req|getData': return raw contents of the ToDo data file
 # as "stringified" JSON. The Gloss version of the description
@@ -287,7 +291,7 @@ sub OverdueCount {
 sub GetData {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $filePath = $ToDoPath;
-	my $result = ReadBinFileWide($filePath);
+	my $result   = ReadBinFileWide($filePath);
 	if ($result eq '')
 		{
 		$result = '{"items":[]}';
@@ -299,28 +303,32 @@ sub GetData {
 			$MasterDateStamp = GetFileModTimeWide($filePath) . '';
 			}
 
-		my $serverAddr = ServerAddress();
+		my $serverAddr     = ServerAddress();
 		my $mainServerPort = $server_port;
-		my $p  = decode_json $result;
-		my $arr = $p->{'items'};
-		my $len = scalar(@{$arr});
-		for (my $i = 0; $i < $len; ++$i)
+		my $p              = decode_json $result;
+		my $arr            = $p->{'items'};
+		my $len            = scalar(@{$arr});
+		for (my $i = 0 ; $i < $len ; ++$i)
 			{
-			my $ih = $arr->[$i];
+			my $ih   = $arr->[$i];
 			my $desc = $ih->{"description"};
 
 			# Generate html version of text, with Gloss markdown.
 			my $gloss;
 			# Context directory, does not apply and so is''.
 			# Also, we have no callback for reverse_filepaths.pm#FullPathInContextNS().
-			Gloss($desc, $serverAddr, $mainServerPort, \$gloss, 1, $IMAGES_DIR, $COMMON_IMAGES_DIR, '', undef, undef);
+			Gloss(
+				$desc, $serverAddr, $mainServerPort,    \$gloss,
+				1,     $IMAGES_DIR, $COMMON_IMAGES_DIR, '',
+				undef, undef
+			);
 			$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.
 			$gloss =~ s!\%0A!!g;
 
 			$ih->{"html"} = $gloss;
-			
+
 			# Creation date, add if missing.
 			if (!defined($ih->{"created"}))
 				{
@@ -334,8 +342,8 @@ sub GetData {
 		# TEST ONLY dump json string
 		#print("GetaData JSON string: |$result|\n");
 		}
-	return($result);
-	}
+	return ($result);
+}
 
 # data=...
 # Called by todoGetPutData.js#putData().
@@ -345,20 +353,20 @@ sub GetData {
 # a reload is needed.
 sub PutData {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = '';
+	my $result   = '';
 	my $filePath = $ToDoPath;
-	my $data = $formH->{'data'};
+	my $data     = $formH->{'data'};
 
 	$data = uri_unescape($data);
 
-	my $didit = WriteBinFileWide($filePath, $data);
+	my $didit    = WriteBinFileWide($filePath, $data);
 	my $tryCount = 0;
 	while (!$didit && ++$tryCount <= 3)
 		{
 		sleep(1);
 		$didit = WriteBinFileWide($filePath, $data);
 		}
-	
+
 	if (!$didit)
 		{
 		$result = "FILE ERROR! Could not access todo file |$filePath|.\n";
@@ -367,102 +375,104 @@ sub PutData {
 		{
 		# Set $MasterDateStamp.
 		$MasterDateStamp = GetFileModTimeWide($filePath) . '';
-		$result = $MasterDateStamp;
-		
+		$result          = $MasterDateStamp;
+
 		$OverdueCount = GetOverdueCount($data);
-		
+
 		# Let other servers know if overdue count has changed.
 		BroadcastOverdueCount();
-		
+
 		# Make the Status light flash for this server.
 		ReportActivity($SHORTNAME);
 		}
-	return($result);
-	}
+	return ($result);
+}
 
 # Bring up a Gloss version in the Viewer if it's running,
 # otherwise just a plain text view.
 sub ArchiveLink {
-	my $path = $ToDoArchivePath;
+	my $path            = $ToDoArchivePath;
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $viewerIsRunning = ServiceIsRunning($viewerShortName);
-	
+
 	my $result = '';
 	if ($viewerIsRunning)
 		{
-		my $host  = ServerAddress();
+		my $host = ServerAddress();
 		my $port = $server_port;
-		$result = "<a href=\"http://$host:$port/$viewerShortName/?href=$path\" target=\"_blank\">(Archived Items)</a>";
+		$result =
+"<a href=\"http://$host:$port/$viewerShortName/?href=$path\" target=\"_blank\">(Archived Items)</a>";
 		}
 	else
 		{
 		#$result = "<a href=\"$path\" target=\"_blank\">Archived Items</a>";
 		$result = "(For archived items see $path)";
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # The archive file (nominally data/ToDoArchive.txt) holds a history of
 # ToDo items, with items added here individually as they are created
 # or edited - see todo.js#todoAddNewItem();
 sub ArchiveOneItem {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = 'ok';
+	my $result   = 'ok';
 	my $filePath = $ToDoArchivePath;
-	my $data = $formH->{'saveToArchive'};
+	my $data     = $formH->{'saveToArchive'};
 
 	$data = uri_unescape($data);
-	
-	my $item  = decode_json $data;
-	my $title = $item->{"title"};
+
+	my $item        = decode_json $data;
+	my $title       = $item->{"title"};
 	my $description = $item->{"description"};
-	my $dueDate = $item->{"date"};
-	my $created = $item->{"created"};
-	my $code = $item->{"code"};
-	
+	my $dueDate     = $item->{"date"};
+	my $created     = $item->{"created"};
+	my $code        = $item->{"code"};
+
 	my $itemString = "**$title**\nDue: $dueDate    Created: $created\n$description\n---\n";
 
-	my $didit = AppendToBinFileWide($filePath, $itemString);
+	my $didit    = AppendToBinFileWide($filePath, $itemString);
 	my $tryCount = 0;
 	while (!$didit && ++$tryCount <= 3)
 		{
 		sleep(1);
 		$didit = AppendToBinFileWide($filePath, $itemString);
 		}
-	
+
 	if (!$didit)
 		{
 		$result = "FILE ERROR! Could not access todo archive file |$filePath|.\n";
 		}
-	
-	
-	return($result);
-	}
+
+
+	return ($result);
+}
 
 # Make the ToDo archive file if it doesn't exist. This way, the link on the ToDo
 # page to the archive will always work. (FLW)
 sub MakeArchiveFile {
 	my $filePath = $ToDoArchivePath;
-	
+
 	if (FileOrDirExistsWide($filePath) == 0)
 		{
-		my $helloString = "ToDo items will be archived here when you save them, newest at the bottom.\n\n";
-		my $didit = AppendToBinFileWide($filePath, $helloString);
+		my $helloString =
+			"ToDo items will be archived here when you save them, newest at the bottom.\n\n";
+		my $didit    = AppendToBinFileWide($filePath, $helloString);
 		my $tryCount = 0;
 		while (!$didit && ++$tryCount <= 3)
 			{
 			sleep(1);
 			$didit = AppendToBinFileWide($filePath, $helloString);
 			}
-		
+
 		if (!$didit)
 			{
 			print("FILE ERROR! Could not create todo archive file |$filePath|.\n");
 			}
-		
+
 		}
-	}
+}
 
 # 'signal' handler, here we are interested in 'signal=allServersUp', and 'dayHasChanged'.
 # This is called eg in response to 'signal=allServersUp' as broadcasted by intramine_main.pl#BroadcastAllServersUp(),
@@ -473,15 +483,18 @@ sub MakeArchiveFile {
 #  - IntraMine starts
 #  - all swarm servers notify main when they have fully started
 #  - main sends 'signal=allServersUp' to all running servers, most of which ignore it
-#  - the overdue count is sent back to main, which then (re)broadcasts the count to all running page servers. In this case,
-#    all (main) page servers are interested, since the overdue count is shown in the top nav for each page
+#  - the overdue count is sent back to main, which then (re)broadcasts the count to all
+# running page servers. In this case,
+#    all (main) page servers are interested, since the overdue count is shown in the top nav
+#    for each page
 #  - after that, any new or refreshed page will show the current overdue count in the nav bar.
-# And the overdue count is recalculated and rebroadcasted if we go past midnight into a new day. In this case, the overdue count might have changed as we ticked over past
+# And the overdue count is recalculated and rebroadcasted if we go past midnight into a new day.
+# In this case, the overdue count might have changed as we ticked over past
 # midnight so we get a fresh overdue count and notify using WebSockets
 # because all open clients need to know immediately.
 sub HandleToDoSignal {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	if (defined($formH->{'signal'}))
 		{
 		if ($formH->{'signal'} eq 'allServersUp')
@@ -495,13 +508,14 @@ sub HandleToDoSignal {
 			}
 		}
 
-	return('OK');	# Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.
-	}
+	return ('OK')
+		; # Returned value is ignored by broadcaster - this is more of a "UDP" than "TCP" approach to communicating.
+}
 
 # Ask Main to broadcast an overdue signal to all Page servers.
-sub BroadcastOverdueCount {	
+sub BroadcastOverdueCount {
 	RequestBroadcast("signal=todoCount&count=$OverdueCount&name=PageServers");
-	}
+}
 
 # NOTE this depends on format of /data/ToDo.txt.
 # Return number of pending ("code":"1") items that are due today or earlier.
@@ -515,26 +529,26 @@ sub GetOverdueCount {
 		$data = ReadBinFileWide($ToDoPath);
 		if ($data eq '')
 			{
-			return(0);
+			return (0);
 			}
 		}
-	
+
 	my $today = DateYYYYMMDD();
-	my $p  = decode_json $data;
-	my $arr = $p->{'items'};
-	my $len = scalar(@{$arr});
-	for (my $i = 0; $i < $len; ++$i)
+	my $p     = decode_json $data;
+	my $arr   = $p->{'items'};
+	my $len   = scalar(@{$arr});
+	for (my $i = 0 ; $i < $len ; ++$i)
 		{
-		my $ih = $arr->[$i];
+		my $ih   = $arr->[$i];
 		my $code = $ih->{"code"};
 		my $date = $ih->{"date"};
 		$date =~ s!/!!g;
 		if ($code == 1 && $date ne "" && $date <= $today)
 			{
 			++$overdueCount;
-			}		
+			}
 		}
 
-	return($overdueCount);
-	}
+	return ($overdueCount);
+}
 

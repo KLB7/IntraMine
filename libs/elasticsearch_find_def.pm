@@ -38,29 +38,29 @@ use ext;
 # (For other languages, no keyword is added.)
 my %DefinitionKeyForExtension;
 # Perl: pl,pm,cgi,t,not pod
-$DefinitionKeyForExtension{'pl'} = 'sub';
-$DefinitionKeyForExtension{'pm'} = 'sub';
+$DefinitionKeyForExtension{'pl'}  = 'sub';
+$DefinitionKeyForExtension{'pm'}  = 'sub';
 $DefinitionKeyForExtension{'cgi'} = 'sub';
-$DefinitionKeyForExtension{'t'} = 'sub';
+$DefinitionKeyForExtension{'t'}   = 'sub';
 # JavaScript: just js
 $DefinitionKeyForExtension{'js'} = 'function';
 # Go: just go
 $DefinitionKeyForExtension{'go'} = 'func';
 # Fortran: $extensionsForLanguage{'Fortran'} = 'f,for,f77,f90,f95, f03';
-$DefinitionKeyForExtension{'f'} = 'function|subroutine';
+$DefinitionKeyForExtension{'f'}   = 'function|subroutine';
 $DefinitionKeyForExtension{'for'} = 'function|subroutine';
 $DefinitionKeyForExtension{'f77'} = 'function|subroutine';
 $DefinitionKeyForExtension{'f90'} = 'function|subroutine';
 $DefinitionKeyForExtension{'f95'} = 'function|subroutine';
 $DefinitionKeyForExtension{'f03'} = 'function|subroutine';
 # Basic: vb, vbs
-$DefinitionKeyForExtension{'vb'} = 'sub|function';
+$DefinitionKeyForExtension{'vb'}  = 'sub|function';
 $DefinitionKeyForExtension{'vbs'} = 'sub|function';
 # Python: BUILD,bzl,py,pyw
 $DefinitionKeyForExtension{'BUILD'} = 'def';
-$DefinitionKeyForExtension{'bzl'} = 'def';
-$DefinitionKeyForExtension{'py'} = 'def';
-$DefinitionKeyForExtension{'pyw'} = 'def';
+$DefinitionKeyForExtension{'bzl'}   = 'def';
+$DefinitionKeyForExtension{'py'}    = 'def';
+$DefinitionKeyForExtension{'pyw'}   = 'def';
 
 # Some languages such as C / C++ have header and implementation extensions.
 # Search implementation first, then headers if nothing found.
@@ -68,15 +68,15 @@ $DefinitionKeyForExtension{'pyw'} = 'def';
 my %HeaderExtForLanguage;
 my %ImpExtForLanguage;
 $HeaderExtForLanguage{'C/C++'} = 'hpp,h,hh,hxx';
-$ImpExtForLanguage{'C/C++'} = 'cpp,cc,c,cxx';
+$ImpExtForLanguage{'C/C++'}    = 'cpp,cc,c,cxx';
 my %LanguageForHeaderExt;
 $LanguageForHeaderExt{'hpp'} = 'C/C++';
-$LanguageForHeaderExt{'h'} = 'C/C++';
-$LanguageForHeaderExt{'hh'} = 'C/C++';
+$LanguageForHeaderExt{'h'}   = 'C/C++';
+$LanguageForHeaderExt{'hh'}  = 'C/C++';
 $LanguageForHeaderExt{'hxx'} = 'C/C++';
 $LanguageForHeaderExt{'cpp'} = 'C/C++';
-$LanguageForHeaderExt{'cc'} = 'C/C++';
-$LanguageForHeaderExt{'c'} = 'C/C++';
+$LanguageForHeaderExt{'cc'}  = 'C/C++';
+$LanguageForHeaderExt{'c'}   = 'C/C++';
 $LanguageForHeaderExt{'cxx'} = 'C/C++';
 
 my @PreferredExtensions;
@@ -84,34 +84,38 @@ my @PreferredExtensions;
 # Make a new elasticsearch_find_def instance,
 # init universal ctags.
 sub new {
-	my ($proto, $indexName, $numHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $preferredExtensionsA, $monitorCallback) = @_;
+	my ($proto, $indexName, $numHits, $maxShownHits, $host, $port_listen, $VIEWERNAME, $LogDir,
+		$ctags_dir,            $HashHeadingRequireBlankBefore,
+		$preferredExtensionsA, $monitorCallback)
+		= @_;
 	my $class = ref($proto) || $proto;
 	my $self  = {};
-	
+
 	$self->{INDEX_NAME} = $indexName;
-	$self->{RAWHITS} = $numHits; 			# Over 100 can slow the search down.
-	$self->{SHOWNHITS} = $maxShownHits;
-	$self->{HOST} = $host;
-	$self->{PORT} = $port_listen;
+	$self->{RAWHITS}    = $numHits;           # Over 100 can slow the search down.
+	$self->{SHOWNHITS}  = $maxShownHits;
+	$self->{HOST}       = $host;
+	$self->{PORT}       = $port_listen;
 	$self->{VIEWERNAME} = $VIEWERNAME;
-	$self->{MONITOR} = $monitorCallback;
+	$self->{MONITOR}    = $monitorCallback;
 	InitMonitor($monitorCallback);
 
 	@PreferredExtensions = @$preferredExtensionsA;
-	
-# Sniffing is not currently supported (Dec 2018)
-	my $e = Search::Elasticsearch->new(
-			nodes    => 'localhost:9200'
-#			nodes    => '192.168.1.132:9200'
-#			,cxn_pool => 'Sniff'
-		); 
-    $self->{SEARCHER} = $e;
 
-	InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore);
-	
-	bless ($self, $class);
+	# Sniffing is not currently supported (Dec 2018)
+	my $e = Search::Elasticsearch->new(
+		nodes => 'localhost:9200'
+			#			nodes    => '192.168.1.132:9200'
+			#			,cxn_pool => 'Sniff'
+	);
+	$self->{SEARCHER} = $e;
+
+	InitTocLocal($LogDir . 'temp/tempctags',
+		$port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore);
+
+	bless($self, $class);
 	return $self;
-    }
+}
 
 { ##### Monitor, for feedback to the "Mon" service
 my $monitorCallback;
@@ -119,7 +123,7 @@ my $monitorCallback;
 sub InitMonitor {
 	my ($callback) = @_;
 	$monitorCallback = $callback;
-	}
+}
 
 sub Monitor {
 	my ($msg) = @_;
@@ -127,8 +131,8 @@ sub Monitor {
 		{
 		$monitorCallback->($msg);
 		}
-	}
-} ##### Monitor, for feedback to the "Mon" service
+}
+}    ##### Monitor, for feedback to the "Mon" service
 
 # GetDefinitionLinks(): call Elasticsearch to retrieve documents matching $rawquery.
 # Match words supplied as a phrase.
@@ -140,10 +144,10 @@ sub GetDefinitionLinks {
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
 	my $result = '';
-	my $e = $self->{SEARCHER};
+	my $e      = $self->{SEARCHER};
 	my $rawResults;
-	
-	my $numHits = 0;
+
+	my $numHits  = 0;
 	my $numFiles = 0;
 	$numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
 
@@ -153,7 +157,7 @@ sub GetDefinitionLinks {
 		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 		my @otherRawFullPaths;
 
-		for (my $i = 0; $i < @rawFullPaths; ++$i)
+		for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
 			{
 			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
 			if ($fixedFullPath ne $fullPath)
@@ -165,7 +169,8 @@ sub GetDefinitionLinks {
 		my $numRemaining = @otherRawFullPaths;
 		if ($numRemaining)
 			{
-			FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
+			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
 			}
 		else
 			{
@@ -176,12 +181,12 @@ sub GetDefinitionLinks {
 		{
 		$result = '<p>nope</p>';
 		}
-	
-	$$numHitsR = $numHits;
+
+	$$numHitsR  = $numHits;
 	$$numFilesR = $numFiles;
-	
+
 	return $result;
-	}
+}
 
 # If a definition search turns up nothing, maybe the term selected
 # was in a different language. So try looking for JavaScript
@@ -189,7 +194,7 @@ sub GetDefinitionLinks {
 sub GetDefinitionLinksInOtherLanguages {
 	my ($self, $rawquery, $extA, $numHitsR, $numFilesR) = @_;
 	my $result = '';
-	my $e = $self->{SEARCHER};
+	my $e      = $self->{SEARCHER};
 	my $rawResults;
 	#my $numHits = 0;
 	#my $numFiles = 0;
@@ -205,16 +210,17 @@ sub GetDefinitionLinksInOtherLanguages {
 		{
 		my @cssExtension;
 		push @cssExtension, 'css';
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound, '');
+		$result =
+			GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound, '');
 		}
 
 	if ($numFound == 0)
 		{
 		$result = '<p>nope</p>';
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Called by intramine_linker.pl#Definitions() as a last resort,
 # look for any file containing the $rawquery, return links if found.
@@ -226,9 +232,9 @@ sub GetAnyLinks {
 	# TEST ONLY, show message on the "Mon" page.
 	#Monitor("GetAnyLinks called for |$rawquery|\n");
 
-	my $e = $self->{SEARCHER};
+	my $e          = $self->{SEARCHER};
 	my $rawResults = '';
-	my $result = '';
+	my $result     = '';
 
 	# First try preferred extensions. If no hits, try ALL extensions.
 	my $numHits = GetDefinitionHits($self, $rawquery, \@PreferredExtensions, $e, \$rawResults);
@@ -238,7 +244,7 @@ sub GetAnyLinks {
 		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 		my @otherRawFullPaths;
 
-		for (my $i = 0; $i < @rawFullPaths; ++$i)
+		for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
 			{
 			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
 			if ($fixedFullPath ne $fullPath)
@@ -248,11 +254,13 @@ sub GetAnyLinks {
 			}
 
 		my @winnowedFullPaths;
-		my $numRemaining = WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
-		
+		my $numRemaining =
+			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+
 		if ($numRemaining)
 			{
-			FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 			}
 		else
 			{
@@ -269,26 +277,29 @@ sub GetAnyLinks {
 			GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 			my @otherRawFullPaths;
 
-		for (my $i = 0; $i < @rawFullPaths; ++$i)
-			{
-			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
-			if ($fixedFullPath ne $fullPath)
+			for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
 				{
-				push @otherRawFullPaths, $rawFullPaths[$i];
+				my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+				if ($fixedFullPath ne $fullPath)
+					{
+					push @otherRawFullPaths, $rawFullPaths[$i];
+					}
 				}
-			}
 
 
 			my @winnowedFullPaths;
-			my $numRemaining = WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
-			
+			my $numRemaining =
+				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+
 			if ($numRemaining)
 				{
-				FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+					$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 				}
 			else
 				{
-				FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
+				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+					$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
 				}
 			}
 		else
@@ -297,8 +308,8 @@ sub GetAnyLinks {
 			}
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Call Elasticsearch to match words in $query as an exact match.
 # Extensions are limited by $extA.
@@ -317,49 +328,54 @@ sub GetDefinitionHits {
 	$query =~ s!\%([A-Za-z])!__PC_$1!g;
 	$query =~ s!\@([A-Za-z])!__AT_$1!g;
 
-	
+
 	$$rawResultsR = $e->search(
-	#			index => $self->{INDEX_NAME},
-				index => "_all",
-				filter_path => [ 'hits.total', 'hits.hits._score', 'hits.hits._source.path',
-								  'hits.hits._source.displaypath', 'hits.hits._source.content',
-								  'hits.hits._source.moddate', 'hits.hits._source.size',
-								  'hits.hits.highlight.content', 'hits.hits._source.title', 'hits.hits.highlight.title',
-								  'hits.hits._source.full_title', 'hits.hits.highlight.full_title' ],
-		        body  => {
-		        	
-		        	query => {
-		        		bool => {
-		        			must => {
-		        				multi_match => {
-		        					type => 'phrase',
-		        					fields => ['content'],
-		        					query => $query
-		        				}
-		        			},
-			        		filter => {
-			        			terms => {
-			        				ext => $extA
-			        			}
-			        		}
-		        		}
-		        	},
-		        	
-		            size => $self->{RAWHITS} * 5,
-					highlight => {
-						pre_tags => ['<strong>'],
-						post_tags => ['</strong>'],
-						fields => {
-							content => {
-								fragment_size => 100, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
-							}
+		#			index => $self->{INDEX_NAME},
+		index       => "_all",
+		filter_path => [
+			'hits.total',                   'hits.hits._score',
+			'hits.hits._source.path',       'hits.hits._source.displaypath',
+			'hits.hits._source.content',    'hits.hits._source.moddate',
+			'hits.hits._source.size',       'hits.hits.highlight.content',
+			'hits.hits._source.title',      'hits.hits.highlight.title',
+			'hits.hits._source.full_title', 'hits.hits.highlight.full_title'
+		],
+		body => {
+
+			query => {
+				bool => {
+					must => {
+						multi_match => {
+							type   => 'phrase',
+							fields => ['content'],
+							query  => $query
+						}
+					},
+					filter => {
+						terms => {
+							ext => $extA
 						}
 					}
-		        }
-			);
+				}
+			},
 
-	return($$rawResultsR->{'hits'}{'total'}{'value'});
-	}
+			size      => $self->{RAWHITS} * 5,
+			highlight => {
+				pre_tags  => ['<strong>'],
+				post_tags => ['</strong>'],
+				fields    => {
+					content => {
+						fragment_size       => 100,
+						number_of_fragments => 1,
+						no_match_size       => 150    #, force_source => 'true'
+					}
+				}
+			}
+		}
+	);
+
+	return ($$rawResultsR->{'hits'}{'total'}{'value'});
+}
 
 # Call Elasticsearch to match words in $query as an exact match.
 # Like above but no restriction on extensions.
@@ -379,49 +395,54 @@ sub GetAnyHits {
 	$query =~ s!\@([A-Za-z])!__AT_$1!g;
 
 	$$rawResultsR = $e->search(
-	#			index => $self->{INDEX_NAME},
-				index => "_all",
-				filter_path => [ 'hits.total', 'hits.hits._score', 'hits.hits._source.path', 
-								  'hits.hits._source.displaypath', 'hits.hits._source.content',
-								  'hits.hits._source.moddate', 'hits.hits._source.size',
-								  'hits.hits.highlight.content', 'hits.hits._source.title', 'hits.hits.highlight.title',
-								  'hits.hits._source.full_title', 'hits.hits.highlight.full_title' ],
-		        body  => {
-		        	
-		        	query => {
-		        		bool => {
-		        			must => {
-		        				multi_match => {
-		        					type => 'phrase',
-		        					fields => ['content'],
-		        					query => $query
-		        				}
-		        			}
-		        		}
-		        	},
-		        	
-		            size => $self->{RAWHITS} * 5,
-					highlight => {
-						pre_tags => ['<strong>'],
-						post_tags => ['</strong>'],
-						fields => {
-							content => {
-								fragment_size => 400, number_of_fragments => 1, no_match_size => 150#, force_source => 'true'
-							}
+		#			index => $self->{INDEX_NAME},
+		index       => "_all",
+		filter_path => [
+			'hits.total',                   'hits.hits._score',
+			'hits.hits._source.path',       'hits.hits._source.displaypath',
+			'hits.hits._source.content',    'hits.hits._source.moddate',
+			'hits.hits._source.size',       'hits.hits.highlight.content',
+			'hits.hits._source.title',      'hits.hits.highlight.title',
+			'hits.hits._source.full_title', 'hits.hits.highlight.full_title'
+		],
+		body => {
+
+			query => {
+				bool => {
+					must => {
+						multi_match => {
+							type   => 'phrase',
+							fields => ['content'],
+							query  => $query
 						}
 					}
-		        }
-			);
+				}
+			},
 
-	return($$rawResultsR->{'hits'}{'total'}{'value'});
-	}
+			size      => $self->{RAWHITS} * 5,
+			highlight => {
+				pre_tags  => ['<strong>'],
+				post_tags => ['</strong>'],
+				fields    => {
+					content => {
+						fragment_size       => 400,
+						number_of_fragments => 1,
+						no_match_size       => 150    #, force_source => 'true'
+					}
+				}
+			}
+		}
+	);
+
+	return ($$rawResultsR->{'hits'}{'total'}{'value'});
+}
 
 # NOT CURRENTLY USED.
 # FormatDefinitionResults($rawResults, $rawquery, $self->{SHOWNHITS}, $extA, \$result);
 # Return HTML formatted search hit results.
 sub FormatDefinitionResults {
 	my ($rawResults, $query, $maxNumHits, $host, $port, $viewerName, $extA, $resultR) = @_;
-	my %fullPathSeen; # Avoid showing the same file twice.
+	my %fullPathSeen;    # Avoid showing the same file twice.
 	my $hitCounter = 0;
 
 	my $numHits = $rawResults->{'hits'}{'total'}{'value'};
@@ -430,24 +451,24 @@ sub FormatDefinitionResults {
 		{
 		$$resultR = "";
 
-		$query =~ s!^\S+\s+!!; # Strip "sub " or whatnot
+		$query =~ s!^\S+\s+!!;    # Strip "sub " or whatnot
 		my $definitionName = $query;
 		$definitionName = '#' . $definitionName;
-		
-		for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
+
+		for my $hit (@{$rawResults->{'hits'}->{'hits'}})
 			{
 			my $path = $hit->{'_source'}->{'displaypath'};
-			
+
 			my $displayedPath = $path;
-			
+
 			if ($path ne '')
-				{				
+				{
 				if ($hitCounter < $maxNumHits)
 					{
 					$path = encode_utf8($path);
 					$path =~ s!\\!/!g;
 					my $lcpath = lc($path);
-					
+
 					if (!defined($fullPathSeen{$lcpath}))
 						{
 						++$hitCounter;
@@ -456,23 +477,24 @@ sub FormatDefinitionResults {
 						# Replace / with \ in path, some apps still want that.
 						$displayedPath =~ s!/!\\!g;
 						$displayedPath =~ m!([^\\]+)$!;
-						
+
 						$path =~ s!%!%25!g;
 						$path =~ s!\+!\%2B!g;
-						
+
 						my $searchItems = '&searchItems=' . &HTML::Entities::encode($query);
 
 						my $pathWithSearchItems = $path . $searchItems . $definitionName;
 
-						my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+						my $anchor =
+"<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
 						my $entry = "<p>$anchor</p>\n";
 
 						$$resultR .= $entry;
-						} # if (!defined($fullPathSeen{$path}))
+						}    # if (!defined($fullPathSeen{$path}))
 					}
-				} # if ($path ne '')
-			} # for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
+				}    # if ($path ne '')
+			}    # for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
 		if ($$resultR eq '')
 			{
 			$$resultR = "<p>nope</p>";
@@ -481,10 +503,10 @@ sub FormatDefinitionResults {
 			{
 			$$resultR = '<div>' . $$resultR . "</div>\n";
 			}
-		} # if (defined($numHits)...
-		
-	return($hitCounter);
-	}
+		}    # if (defined($numHits)...
+
+	return ($hitCounter);
+}
 
 # Do a search for $rawquery. Call universal ctags to generate
 # a list of defined terms for each found file, winnow to
@@ -492,11 +514,11 @@ sub FormatDefinitionResults {
 # return links as per FormatDefinitionResults just above.
 sub GetCtagsDefinitionLinks {
 	my ($self, $rawquery, $extA, $fullPath) = @_;
-	my $result = '<p>nope</p>';
+	my $result        = '<p>nope</p>';
 	my $numExtensions = @$extA;
 	if (!$numExtensions)
 		{
-		return($result);
+		return ($result);
 		}
 	my $e = $self->{SEARCHER};
 
@@ -512,16 +534,19 @@ sub GetCtagsDefinitionLinks {
 		{
 		my $language = $LanguageForHeaderExt{$firstExtension};
 		@headerExt = split(/,/, $HeaderExtForLanguage{$language});
-		@impExt = split(/,/, $ImpExtForLanguage{$language});
+		@impExt    = split(/,/, $ImpExtForLanguage{$language});
 		#print("Imp: |@impExt|\n");
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound, $fullPath);
+		$result =
+			GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound, $fullPath);
 		if ($result eq '' || $result eq '<p>nope</p>' || $numFound < $self->{SHOWNHITS})
 			{
 			if ($result eq '' || $result eq '<p>nope</p>')
 				{
 				$result = '';
 				}
-			my $headerResult = GetCtagsResultsForExtensions($self, $rawquery, \@headerExt, $e, \$numFound, $fullPath);
+			my $headerResult =
+				GetCtagsResultsForExtensions($self, $rawquery, \@headerExt, $e, \$numFound,
+				$fullPath);
 			if ($headerResult ne '' && $headerResult ne '<p>nope</p>')
 				{
 				$result .= $headerResult;
@@ -533,16 +558,16 @@ sub GetCtagsDefinitionLinks {
 		$result = GetCtagsResultsForExtensions($self, $rawquery, $extA, $e, \$numFound, $fullPath);
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub GetCtagsResultsForExtensions {
 	my ($self, $rawquery, $extA, $e, $numFoundR, $fullPath) = @_;
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
-	my $rawResults = '';
-	my $result = '';
-	my $numHits = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
+	my $rawResults   = '';
+	my $result       = '';
+	my $numHits      = GetDefinitionHits($self, $rawquery, $extA, $e, \$rawResults);
 	my $numRemaining = 0;
 
 	if ($numHits)
@@ -551,7 +576,7 @@ sub GetCtagsResultsForExtensions {
 		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
 
 		my @otherRawFullPaths;
-		for (my $i = 0; $i < @rawFullPaths; ++$i)
+		for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
 			{
 			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
 			if ($fixedFullPath ne $fullPath)
@@ -561,7 +586,8 @@ sub GetCtagsResultsForExtensions {
 			}
 
 		my @winnowedFullPaths;
-		$numRemaining = WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+		$numRemaining =
+			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
 
 		if (!$numRemaining)
 			{
@@ -569,10 +595,11 @@ sub GetCtagsResultsForExtensions {
 			}
 		else
 			{
-			FormatFullPathsResults($rawquery,  $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 			}
 		}
-	
+
 	if (!$numHits)
 		{
 		$result = '<p>nope</p>';
@@ -580,13 +607,13 @@ sub GetCtagsResultsForExtensions {
 
 	$$numFoundR = $numRemaining;
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub GetHitFullPaths {
 	my ($rawResults, $rawFullPathsA, $fullPath, $shownHits) = @_;
 
-	for my $hit (@{ $rawResults->{'hits'}->{'hits'} } )
+	for my $hit (@{$rawResults->{'hits'}->{'hits'}})
 		{
 		my $path = $hit->{'_source'}->{'displaypath'};
 		push @$rawFullPathsA, $path;
@@ -601,7 +628,7 @@ sub GetHitFullPaths {
 		{
 		SortThePaths($rawFullPathsA, $fullPath, $shownHits);
 		}
-	}
+}
 
 sub SortThePaths {
 	my ($rawFullPathsA, $fullPath, $shownHits) = @_;
@@ -616,37 +643,37 @@ sub SortThePaths {
 		{
 		return;
 		}
-	
+
 	# Make a lowercase properly backslashed version of the raw full paths.
 	my @lcPaths;
-	my $numToSort = $numEntries;
+	my $numToSort     = $numEntries;
 	my $sortShownOnly = 1;
 	if ($sortShownOnly && $numToSort > $shownHits)
 		{
 		$numToSort = $shownHits;
 		}
-	for (my $i = 0; $i < $numToSort; ++$i)
+	for (my $i = 0 ; $i < $numToSort ; ++$i)
 		{
 		my $path = lc($rawFullPathsA->[$i]);
 		$path =~ s!\\!/!g;
 		push @lcPaths, $path;
 		}
-	
-	my @idx = sort { FolderComp($lcPaths[$b], $lcPaths[$a], $contextDir) } 0 .. $#lcPaths;
-	for (my $i = 0; $i < $numToSort; ++$i)
+
+	my @idx = sort {FolderComp($lcPaths[$b], $lcPaths[$a], $contextDir)} 0 .. $#lcPaths;
+	for (my $i = 0 ; $i < $numToSort ; ++$i)
 		{
 		$rawFullPathsA->[$i] = $lcPaths[$idx[$i]];
 		}
 
 	#@{$rawFullPathsA} = @{$rawFullPathsA}[@idx]; # if doing all paths
-	}
+}
 
 sub FolderComp {
 	my ($first, $second, $contextDir) = @_;
 	my $aDistance = LeftOverlapLength($contextDir, $first);
 	my $bDistance = LeftOverlapLength($contextDir, $second);
-	my $compDist = $aDistance - $bDistance;
-	my $result = 0;
+	my $compDist  = $aDistance - $bDistance;
+	my $result    = 0;
 	if ($compDist < 0)
 		{
 		$result = -1;
@@ -655,7 +682,7 @@ sub FolderComp {
 		{
 		$result = 1;
 		}
-	else # Tie
+	else    # Tie
 		{
 		$result = length($second) - length($first);
 		if ($result < 0)
@@ -672,12 +699,12 @@ sub FolderComp {
 			}
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 # sub LeftOverlapLength {
 #     my ($str1, $str2) = @_;
-    
+
 #     # Equalize Lengths
 #     if (length $str1 < length $str2) {
 #         $str2 = substr $str2, 0, length($str1);
@@ -696,7 +723,7 @@ sub WinnowFullPathsUsingCtags {
 	my $numRemaining = 0;
 	# Generate ctags summary file for each full path.
 	my $numRawPaths = @$rawFullPathsA;
-	for (my $i = 0; $i < $numRawPaths; ++$i)
+	for (my $i = 0 ; $i < $numRawPaths ; ++$i)
 		{
 		my $filePath = $rawFullPathsA->[$i];
 
@@ -707,7 +734,7 @@ sub WinnowFullPathsUsingCtags {
 		my @lines = split(/\n/, $tagString);
 
 		my $numLines = @lines;
-		for (my $j = 0; $j < $numLines; ++$j)
+		for (my $j = 0 ; $j < $numLines ; ++$j)
 			{
 			if (index($lines[$j], $rawquery) >= 0 && $lines[$j] =~ m!(^|\W)$rawquery(\W|$)!)
 				{
@@ -718,13 +745,13 @@ sub WinnowFullPathsUsingCtags {
 			}
 		}
 
-	return($numRemaining);
-	}
+	return ($numRemaining);
+}
 
 sub FormatFullPathsResults {
 	my ($rawquery, $maxNumHits, $host, $port, $viewerName, $winnowedFullPathsA, $resultR) = @_;
-	my %fullPathSeen; # Avoid showing the same file twice.
-	my $numPaths  = @$winnowedFullPathsA;
+	my %fullPathSeen;    # Avoid showing the same file twice.
+	my $numPaths = @$winnowedFullPathsA;
 
 	# Strip leading white from the query, it's never wanted.
 	$rawquery =~ s!^\s+!!;
@@ -735,13 +762,13 @@ sub FormatFullPathsResults {
 	my $hitCounter = 0;
 
 	$$resultR = "<div>\n";
-	for (my $i = 0; $i < $numPaths; ++$i)
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		if ($hitCounter >= $maxNumHits)
 			{
 			last;
 			}
-		my $path = $winnowedFullPathsA->[$i];
+		my $path          = $winnowedFullPathsA->[$i];
 		my $displayedPath = $path;
 		$path =~ s!\\!/!g;
 		my $lcpath = lc(encode_utf8($path));
@@ -753,7 +780,7 @@ sub FormatFullPathsResults {
 			# Replace / with \ in path, some apps still want that.
 			$displayedPath =~ s!/!\\!g;
 			$displayedPath =~ m!([^\\]+)$!;
-						
+
 			# search Items, encode_utf8 if NOT CodeMirror,
 			# use &HTML::Entities::encode for CodeMirror.
 			# I have no idea why this works:(
@@ -772,7 +799,8 @@ sub FormatFullPathsResults {
 			# Horrible hack, having space trouble:
 			$pathWithSearchItems =~ s! !__IMSPC__!g;
 
-			my $anchor = "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+			my $anchor =
+"<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
 			my $entry = "<p>$anchor</p>\n";
 
@@ -790,7 +818,7 @@ sub FormatFullPathsResults {
 		}
 
 	$$resultR = encode_utf8($$resultR);
-	}
+}
 
 # Requires $filePath lowercase
 sub HasCMExtension {
@@ -799,12 +827,12 @@ sub HasCMExtension {
 	if (   $filePath =~ m!\.(p[lm]|cgi|t)$!i
 		|| $filePath =~ m!\.pod$!i
 		|| $filePath =~ m!\.(txt|log|bat)$!i
-		|| $filePath =~ m!\.md$!i )
+		|| $filePath =~ m!\.md$!i)
 		{
 		$isCM = 0;
 		}
-	return($isCM);
-	}
+	return ($isCM);
+}
 
 sub DefKeyForPath {
 	my ($self, $fullPath) = @_;
@@ -812,15 +840,16 @@ sub DefKeyForPath {
 	if ($fullPath =~ m!\.(\w+)$!)
 		{
 		my $ext = lc($1);
-		$result = (defined($DefinitionKeyForExtension{$ext})) ? $DefinitionKeyForExtension{$ext}: '';
+		$result =
+			(defined($DefinitionKeyForExtension{$ext})) ? $DefinitionKeyForExtension{$ext} : '';
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub HasCtagsSupport {
 	my ($self, $fullPath) = @_;
-	return(IsSupportedByExuberantCTags($fullPath)); # now universal ctags
+	return (IsSupportedByExuberantCTags($fullPath));    # now universal ctags
 }
 
 1;

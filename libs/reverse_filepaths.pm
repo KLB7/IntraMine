@@ -9,7 +9,8 @@
 #    Full path: c:\qtStuff\android\third_party\native_app_glue\android_native_app_glue.h
 #    Example partial path:                     native_app_glue\android_native_app_glue.h
 # FullPathInContextNS() receives two arguments:
-#	$linkSpecifier: partial path for which full path is wanted, eg "main.cpp" or "catclicker/src/main.cpp".
+#	$linkSpecifier: partial path for which full path is wanted,
+#   eg "main.cpp" or "catclicker/src/main.cpp".
 #		Typically the source of the partial path is text in a document being viewed.
 #	$contextDir: the directory holding the document being viewed, where the request originated, eg
 #		"C:/projects/catclicker/docs", or "P:/project summaries". In both examples the instance
@@ -54,11 +55,15 @@ use win_wide_filepaths;
 
 
 { ##### Directory list
-my $FullPathListPath;		# For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{c:/dir1/dir2/dir3/file.txt} = 'file.txt';
-my %FullPathsForFileName;	# Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
-my %FullDirectoryPathsForDirName; # Eg $FullDirectoryPathsForDirName{'docs'} = '|c:/proj1/docs|c:/p2/docs|';
-my %LastDirForFullDirPath; # $LastDirForFullDirPath{'c:/proj1/docs'} = 'docs';
+my $FullPathListPath
+	;    # For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+my %FileNameForFullPath
+	;   # as saved in /fullpaths.out: $FileNameForFullPath{c:/dir1/dir2/dir3/file.txt} = 'file.txt';
+my %FullPathsForFileName
+	;    # Eg $FullPathsForFileName{'main.cpp'} = 'c:/proj1/main.cpp|c:/proj2/main.cpp';
+my %FullDirectoryPathsForDirName
+	;    # Eg $FullDirectoryPathsForDirName{'docs'} = '|c:/proj1/docs|c:/p2/docs|';
+my %LastDirForFullDirPath;    # $LastDirForFullDirPath{'c:/proj1/docs'} = 'docs';
 
 # For tracking deleted files.
 my $DeletesDbPath;
@@ -66,47 +71,50 @@ my $DeletesDB;
 
 # Load %IntKeysForPartialPath, and build %IntKeysForPartialPath from it.
 sub InitDirectoryFinder {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-	my $pathCount = InitFullPathList($filePath);
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my $pathCount  = InitFullPathList($filePath);
 	BuildPartialPathList(\%FileNameForFullPath);
 	LoadIncrementalDirectoryFinderLists($filePath);
 	LoadAndRemoveDeletesFromHashes($filePath);
-	
-	return($pathCount);
-	}
+
+	return ($pathCount);
+}
 
 sub ReinitDirectoryFinder {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-	
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+
 	# Empty out %FileNameForFullPath etc.
-	%FileNameForFullPath = ();
-	%FullPathsForFileName = ();
+	%FileNameForFullPath          = ();
+	%FullPathsForFileName         = ();
 	%FullDirectoryPathsForDirName = ();
-	%LastDirForFullDirPath = ();
-	
-	return(InitDirectoryFinder($filePath));
-	}
+	%LastDirForFullDirPath        = ();
+
+	return (InitDirectoryFinder($filePath));
+}
 
 # Load %FileNameForFullPath.
 # Eg $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
 sub InitFullPathList {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$FullPathListPath = $filePath;
-	
-	my $pathCount = LC_LoadKeyTabValueHashFromFile(\%FileNameForFullPath, $FullPathListPath, "file names for full paths");
+
+	my $pathCount = LC_LoadKeyTabValueHashFromFile(\%FileNameForFullPath, $FullPathListPath,
+		"file names for full paths");
 	if (!$pathCount)
 		{
-		print("WARNING (will continue) in reverse_filepaths.pm#InitFullPathList(), |$FullPathListPath| did not load. First run maybe.\n");
+		print(
+"WARNING (will continue) in reverse_filepaths.pm#InitFullPathList(), |$FullPathListPath| did not load. First run maybe.\n"
+		);
 		}
-		return($pathCount);
-	}
+	return ($pathCount);
+}
 
 # From entries in %FileNameForFullPath build a "reverse" hash %FullPathsForFileName
 # and also %FullDirectoryPathsForDirName for directory matching.
 sub BuildFullPathsForFileName {
 	my ($fileNameForFullPathH) = @_;
-	
-	keys %$fileNameForFullPathH; # reset iterator
+
+	keys %$fileNameForFullPathH;    # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
 		if (defined($FullPathsForFileName{$fileName}))
@@ -119,7 +127,7 @@ sub BuildFullPathsForFileName {
 			}
 		AddToDirectoryPaths($fullPath);
 		}
-	}
+}
 
 # From the full file path in $fullPath, build up dir paths
 # progressively from left to right and add entries to both
@@ -132,13 +140,13 @@ sub AddToDirectoryPaths {
 		my $lastSlashPos = rindex($fullPath, "/");
 		$fullPath = substr($fullPath, 0, $lastSlashPos);
 		}
-	
+
 	my @dirNames = split(/\//, $fullPath);
 	# Add back the last slash.
 	$fullPath = $fullPath . '/';
-	
+
 	my $partialDirPath = '';
-	for (my $i = 0; $i < @dirNames; ++$i)
+	for (my $i = 0 ; $i < @dirNames ; ++$i)
 		{
 		$partialDirPath .= $dirNames[$i] . '/';
 		if (!defined($LastDirForFullDirPath{$partialDirPath}))
@@ -154,27 +162,28 @@ sub AddToDirectoryPaths {
 				}
 			}
 		}
-	}
+}
 
 # A bit obsolete, just call BuildFullPathsForFileName() above.
 sub BuildPartialPathList {
 	my ($fileNameForFullPathH) = @_;
-	
+
 	BuildFullPathsForFileName($fileNameForFullPathH);
-	}
+}
 
 # Load additional fullpaths2.out etc to %FileNameForFullPath.
 sub LoadIncrementalFullPathLists {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	while (-f $fragPath)
 		{
 		my %rawFileNameForFullPath;
-		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath, "more file names for full paths");
+		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath,
+			"more file names for full paths");
 		if ($pathCount)
 			{
 			my %newFileNameForFullPath;
@@ -195,20 +204,21 @@ sub LoadIncrementalFullPathLists {
 		++$num;
 		$fragPath = $base . $num . $ext;
 		}
-	}
+}
 
 # Load additional fullpaths2.out etc to %FileNameForFullPath, create new partial path entries too.
 sub LoadIncrementalDirectoryFinderLists {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	while (-f $fragPath)
 		{
 		my %rawFileNameForFullPath;
-		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath, "more file names for full paths");
+		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath,
+			"more file names for full paths");
 		if ($pathCount)
 			{
 			my %newFileNameForFullPath;
@@ -222,7 +232,7 @@ sub LoadIncrementalDirectoryFinderLists {
 					$newFileNameForFullPath{$path} = $rawFileNameForFullPath{$path};
 					}
 				}
-				
+
 			# Track the genuinely new files.
 			my $numNewEntries = keys %newFileNameForFullPath;
 			if ($numNewEntries)
@@ -238,13 +248,13 @@ sub LoadIncrementalDirectoryFinderLists {
 		++$num;
 		$fragPath = $base . $num . $ext;
 		}
-	}
+}
 
 # Add to %FileNameForFullPath.
 sub AddIncrementalNewPaths {
 	my ($fileNameForFullPathH) = @_;
 	my %newFileNameForFullPath;
-	
+
 	keys %$fileNameForFullPathH;
 	while (my ($path, $fileName) = each %$fileNameForFullPathH)
 		{
@@ -253,7 +263,7 @@ sub AddIncrementalNewPaths {
 			$newFileNameForFullPath{$path} = $fileNameForFullPathH->{$path};
 			}
 		}
-	
+
 	my $numNewPaths = keys %newFileNameForFullPath;
 	if ($numNewPaths)
 		{
@@ -264,20 +274,20 @@ sub AddIncrementalNewPaths {
 			AddToDirectoryPaths($path);
 			}
 		}
-	}
+}
 
 # Path to the deletes.db little database used to recorded full paths of deleted files.
 sub TheDeletesDbPath {
-	my $scriptFullPath = $0; # path of calling program
-	my $scriptDirTS = DirectoryFromPathTS($scriptFullPath);
-	my $path = $scriptDirTS . 'data/deletes.db';
-	return($path);
-	}
+	my $scriptFullPath = $0;                                     # path of calling program
+	my $scriptDirTS    = DirectoryFromPathTS($scriptFullPath);
+	my $path           = $scriptDirTS . 'data/deletes.db';
+	return ($path);
+}
 
 sub InitDeletesDB {
 	$DeletesDbPath = TheDeletesDbPath();
 	eval {$DeletesDB = DBM::Deep->new($DeletesDbPath);}
-	}
+}
 
 # Remove entries from reverse_filepaths.pm %FileNameForFullPath and %FullPathsForFileName.
 # Add paths to $DeletesDB so they'll be remembered for restart.
@@ -287,16 +297,16 @@ sub RemoveDeletes {
 	RemoveDeletesFromHashes($pathsOfDeletedFilesH);
 
 	RememberDeletedPaths($pathsOfDeletedFilesH);
-	}
+}
 
 sub RemoveDeletesFromHashes {
 	my ($pathsOfDeletedFilesH) = @_;
 
 	foreach my $fullPath (keys %$pathsOfDeletedFilesH)
 		{
-		DeleteFullPath($fullPath); #  reverse_filepaths.pm#DeleteFullPath()
+		DeleteFullPath($fullPath);    #  reverse_filepaths.pm#DeleteFullPath()
 		}
-	}
+}
 
 # Delete $path from %FileNameForFullPath and %FullPathsForFileName.
 sub DeleteFullPath {
@@ -308,7 +318,7 @@ sub DeleteFullPath {
 	my $fileName = FileNameFromPath($path);
 	my $allpaths = GetAllPathsForFileName($fileName);
 	my @paths;
-	if ($allpaths =~ m!\|!) # more than one candidate full path
+	if ($allpaths =~ m!\|!)    # more than one candidate full path
 		{
 		@paths = split(/\|/, $allpaths);
 		}
@@ -318,7 +328,7 @@ sub DeleteFullPath {
 		}
 
 	my @remainingPaths;
-	for (my $i = 0; $i < @paths; ++$i)
+	for (my $i = 0 ; $i < @paths ; ++$i)
 		{
 		if ($paths[$i] ne $path)
 			{
@@ -342,7 +352,7 @@ sub DeleteFullPath {
 		{
 		delete $FullPathsForFileName{$path};
 		}
-	}
+}
 
 sub RememberDeletedPaths {
 	my ($pathsOfDeletedFilesH) = @_;
@@ -354,20 +364,19 @@ sub RememberDeletedPaths {
 		#print("Remembering deleted path |$key|\n");
 		eval {$DeletesDB->{$key} = 1;}
 		}
-	}
+}
 
 sub LoadDeletedPaths {
 	my ($pathsOfDeletedFilesH) = @_;
 	%{$pathsOfDeletedFilesH} = ();
 
-	eval
-		{
+	eval {
 		while (my ($key, $value) = each %$DeletesDB)
 			{
 			$pathsOfDeletedFilesH->{$key} = $value;
 			}
-		}
 	}
+}
 
 sub LoadAndRemoveDeletesFromHashes {
 	my %pathsOfDeletedFiles;
@@ -382,19 +391,19 @@ sub LoadAndRemoveDeletesFromHashes {
 
 # Remove $path from deletes db if file was re-created.
 sub RemoveNewFilesFromDeletes {
-	 my ($pathsOfCreatedFilesH) = @_;
+	my ($pathsOfCreatedFilesH) = @_;
 
-	  foreach my $key (sort(keys %{$pathsOfCreatedFilesH}))
-	  	{
-	  	$key = lc($key);
-	  	if ($key ne '')
-	  		{
-	 		# TEST ONLY
-	 		#print("Removing |$key| from deletes db.\n");
-	  		eval { $DeletesDB->delete($key); }
-	  		}
-	  	}
-	}
+	foreach my $key (sort(keys %{$pathsOfCreatedFilesH}))
+		{
+		$key = lc($key);
+		if ($key ne '')
+			{
+			# TEST ONLY
+			#print("Removing |$key| from deletes db.\n");
+			eval {$DeletesDB->delete($key);}
+			}
+		}
+}
 
 # Remove old entries from %FileNameForFullPath, add new entries.
 # %FileNameForFullPath keys and values are in lowercase, eg
@@ -417,36 +426,36 @@ sub UpdatePathsForFileRenames {
 		my $fileName = FileNameFromPath($lcNewForOldH{$key});
 		$FileNameForFullPath{$lcNewForOldH{$key}} = $fileName;
 		}
-	}
+}
 
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
 # All paths are lowercase and use forward slashes.
 sub UpdatePathsForFolderRenames {
 	my ($numRenames, $renamedFolderPathsA, $oldFolderPathA, $newPathForOldPathH) = @_;
-	my @oldFolderPathCopy = @$oldFolderPathA;
-	my @renamedFolderPathsCopy = @$renamedFolderPathsA;
+	my @oldFolderPathCopy       = @$oldFolderPathA;
+	my @renamedFolderPathsCopy  = @$renamedFolderPathsA;
 	my %tempFileNameForFullPath = %FileNameForFullPath;
-		
-	for (my $i = 0; $i < @oldFolderPathCopy; ++$i)
+
+	for (my $i = 0 ; $i < @oldFolderPathCopy ; ++$i)
 		{
 		$oldFolderPathCopy[$i] = lc($oldFolderPathCopy[$i]);
 		}
-	for (my $i = 0; $i < @renamedFolderPathsCopy; ++$i)
+	for (my $i = 0 ; $i < @renamedFolderPathsCopy ; ++$i)
 		{
 		$renamedFolderPathsCopy[$i] = lc($renamedFolderPathsCopy[$i]);
 		}
-	
+
 	if ($numRenames == 1)
 		{
 		my $oldFolderPath = $oldFolderPathCopy[0];
-		my $newFolderPath = $renamedFolderPathsCopy[0];		
+		my $newFolderPath = $renamedFolderPathsCopy[0];
 		keys %FileNameForFullPath;
 		while (my ($path, $fileName) = each %FileNameForFullPath)
 			{
 			if (index($path, $oldFolderPath) == 0)
 				{
-				my $newPath = $newFolderPath . substr($path, length($oldFolderPath));
+				my $newPath  = $newFolderPath . substr($path, length($oldFolderPath));
 				my $oldEntry = $FileNameForFullPath{$path};
 				delete($tempFileNameForFullPath{$path});
 				$tempFileNameForFullPath{$newPath} = $oldEntry;
@@ -461,11 +470,12 @@ sub UpdatePathsForFolderRenames {
 			{
 			# If old path agrees with left part of %FileNameForFullPath, kill the old entry and
 			# replace it with new one. We spin off a new hash to avoid confusing the loop.
-			for (my $i = 0; $i < $numRenames; ++$i)
+			for (my $i = 0 ; $i < $numRenames ; ++$i)
 				{
 				if (index($path, $oldFolderPathCopy[$i]) == 0)
 					{
-					my $newPath = $renamedFolderPathsCopy[$i] . substr($path, length($oldFolderPathCopy[$i]));
+					my $newPath =
+						$renamedFolderPathsCopy[$i] . substr($path, length($oldFolderPathCopy[$i]));
 					my $oldEntry = $FileNameForFullPath{$path};
 					$newPathForOldPathH->{$path} = $newPath;
 					delete($tempFileNameForFullPath{$path});
@@ -476,23 +486,24 @@ sub UpdatePathsForFolderRenames {
 			}
 		}
 	%FileNameForFullPath = %tempFileNameForFullPath;
-	}
+}
 
 sub SaveIncrementalFullPaths {
 	my ($fileNameForFullPathH) = @_;
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
-	my $fileH = FileHandle->new(">> $fragPath") or return("File Error, could not open |$fragPath|!");
+	my $fileH    = FileHandle->new(">> $fragPath")
+		or return ("File Error, could not open |$fragPath|!");
 	binmode($fileH, ":utf8");
-    foreach my $key (sort(keys %$fileNameForFullPathH))
-        {
-        print $fileH "$key\t$fileNameForFullPathH->{$key}\n";
-        }
-    close $fileH;
-	}
+	foreach my $key (sort(keys %$fileNameForFullPathH))
+		{
+		print $fileH "$key\t$fileNameForFullPathH->{$key}\n";
+		}
+	close $fileH;
+}
 
 # Every now and then, consolidate fullpaths.out and fullpaths2.out, mainly to shrink
 # the size of fullpaths2, which is completely loaded by intramine_fileserver.pl
@@ -503,42 +514,43 @@ sub SaveIncrementalFullPaths {
 # If fullpaths2.out does not exist, there is nothing to consolidate.
 sub ConsolidateFullPathLists {
 	my ($forceConsolidation) = @_;
-	
+
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
-	my $fragPath = $base . $num . $ext;
+	my $base           = $1;
+	my $ext            = $2;
+	my $num            = 2;
+	my $fragPath       = $base . $num . $ext;
 	my $fileWatcherDir = DirectoryFromPathTS($FullPathListPath);
 
-	if ( $forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)) )
+	if ($forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)))
 		{
 		unlink($FullPathListPath);
 		unlink($fragPath);
 
-		  if (!defined($DeletesDbPath))
-		  	{
-		  	$DeletesDbPath = TheDeletesDbPath();
-		  	}
-		  unlink($DeletesDbPath);
-		  eval {$DeletesDB = DBM::Deep->new($DeletesDbPath);};
+		if (!defined($DeletesDbPath))
+			{
+			$DeletesDbPath = TheDeletesDbPath();
+			}
+		unlink($DeletesDbPath);
+		eval {$DeletesDB = DBM::Deep->new($DeletesDbPath);};
 
-		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
+		my $fileH = FileHandle->new("> $FullPathListPath")
+			or return ("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");
-	    foreach my $key (sort(keys %FileNameForFullPath))
-	        {
-	        print $fileH "$key\t$FileNameForFullPath{$key}\n";
-	        }
-	    close $fileH;
+		foreach my $key (sort(keys %FileNameForFullPath))
+			{
+			print $fileH "$key\t$FileNameForFullPath{$key}\n";
+			}
+		close $fileH;
 		}
-	}
+}
 
 # Return pipe-separated string holding all full paths for $fileName.
 sub GetAllPathsForFileName {
 	my ($fileName) = @_;
 	my $result = defined($FullPathsForFileName{$fileName}) ? $FullPathsForFileName{$fileName} : '';
-	return($result);
-	}
+	return ($result);
+}
 
 # The main call for autolinking.
 # Return full path given partial path and context directory.
@@ -550,17 +562,17 @@ sub GetAllPathsForFileName {
 # See notes below for BestMatchingFullPath().
 sub FullPathInContextNS {
 	my ($linkSpecifier, $contextDir) = @_;
-	
+
 	$linkSpecifier = lc($linkSpecifier);
 	$linkSpecifier =~ s!\\!/!g;
-	
+
 	if ($linkSpecifier !~ m!^//!)
 		{
 		$linkSpecifier =~ s!^/!!;
 		}
-	
-	return(BestMatchingFullPath($linkSpecifier, $contextDir));
-	}
+
+	return (BestMatchingFullPath($linkSpecifier, $contextDir));
+}
 
 # Full path, given a partial path and context directory.
 # For linking with perhaps nuisance HTML prepended. Used in intramine_linker.pl#ModuleLink().
@@ -575,27 +587,27 @@ sub FullPathInContextNS {
 sub FullPathInContextTrimmed {
 	my ($linkSpecifier, $contextDir) = @_;
 	$linkSpecifier = lc($linkSpecifier);
-	
+
 	my $result = BestMatchingFullPath($linkSpecifier, $contextDir);
 	if ($result ne '')
 		{
-		return($result);
+		return ($result);
 		}
-	
+
 	# Try again, trim any leading HTML tags or spaces etc.
 	# Eg &nbsp;&nbsp;&bull;&nbsp;<strong>bootstrap.min.css
 	# NOTE this changes $linkSpecifier for all below.
-	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
-	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
+	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!;    # leading spaces or bullets etc
+	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!;     # leading <strong> or <em>
 	$result = BestMatchingFullPath($linkSpecifier, $contextDir);
 	if ($result ne '')
 		{
-		return($result);
+		return ($result);
 		}
-	
+
 	# No luck
-	return('');	
-	}
+	return ('');
+}
 
 # BestMatchingFullPath
 # -> $linkSpecifier: in a real program, this would be a string of text
@@ -656,8 +668,8 @@ sub BestMatchingFullPath {
 			$result = $linkSpecifier;
 			}
 		}
-	
-	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
+
+	if ($result eq '')    # Check for a link specifier, possibly incomplete or scrambled.
 		{
 		my $fileName = basename($linkSpecifier);
 
@@ -665,7 +677,7 @@ sub BestMatchingFullPath {
 			{
 			my $allpaths = $FullPathsForFileName{$fileName};
 			my @paths;
-			if ($allpaths =~ m!\|!) # more than one candidate full path
+			if ($allpaths =~ m!\|!)    # more than one candidate full path
 				{
 				@paths = split(/\|/, $allpaths);
 				}
@@ -673,13 +685,13 @@ sub BestMatchingFullPath {
 				{
 				push @paths, $allpaths;
 				}
-			
+
 			my $bestPath = "";
 			# 2., 3.
 			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
-			  || ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "" )
+			if (   ($bestPath = ExactPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
+				|| ($bestPath = ExactPathNoContext($linkSpecifier, \@paths)) ne "")
 				{
 				$result = $bestPath;
 				}
@@ -691,11 +703,11 @@ sub BestMatchingFullPath {
 			if ($result eq "")
 				{
 				my @partialPathParts = split(/\//, $linkSpecifier);
-				pop(@partialPathParts); # Remove file name (last entry).
-				# Tack some forward slashes back on for accurate matching with index().
-				for (my $i = 0; $i < @partialPathParts; ++$i)
+				pop(@partialPathParts);    # Remove file name (last entry).
+					# Tack some forward slashes back on for accurate matching with index().
+				for (my $i = 0 ; $i < @partialPathParts ; ++$i)
 					{
-					if (index($partialPathParts[$i], ':') > 0) # drive letter
+					if (index($partialPathParts[$i], ':') > 0)    # drive letter
 						{
 						$partialPathParts[$i] .= '/';
 						}
@@ -704,18 +716,24 @@ sub BestMatchingFullPath {
 						$partialPathParts[$i] = '/' . $partialPathParts[$i] . '/';
 						}
 					}
-				
-				if ( ($bestPath = RelaxedPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
-				  || ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne "" )
+
+				if (
+					(
+						$bestPath = RelaxedPathInContext(
+							$linkSpecifier, $contextDir, \@paths, \@partialPathParts
+						)
+					) ne ""
+					|| ($bestPath = RelaxedPathNoContext(\@paths, \@partialPathParts)) ne ""
+					)
 					{
 					$result = $bestPath;
 					}
 				}
-			} # file name is associated with at least one known full path
-		} # partial path
-		
-	return($result);
-	}
+			}    # file name is associated with at least one known full path
+		}    # partial path
+
+	return ($result);
+}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -739,45 +757,47 @@ sub BestMatchingFullPath {
 sub ExactPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA) = @_;
 	my $linkSpecifierLength = length($linkSpecifier);
-	my $numPaths = @$pathsA;
-	my $bestScore = 0;			# context/full path overlap, higher is better
-	my $bestSlashScore = 999; 	# Slash count in leftoverPath, lower is better
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $numPaths            = @$pathsA;
+	my $bestScore           = 0;                      # context/full path overlap, higher is better
+	my $bestSlashScore      = 999;                    # Slash count in leftoverPath, lower is better
+	my $bestIdx             = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		my $matchPos;
-		
+
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
 			# We want a full match on the $linkSpecifier within $testPath, and to avoid a match
 			# against a partial directory name we need the char preceding the match to be a slash.
 			# (Eg avoid a match of test/file.txt against c:/stuff/bigtest/file.txt)
-			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength
+				&& substr($testPath, $matchPos - 1, 1) eq '/')
 				{
 				my $currentScore = LeftOverlapLength($contextDir, $testPath);
-				
+
 				if ($bestScore < $currentScore)
 					{
-					my $leftoverPath = substr($testPath, $currentScore);
+					my $leftoverPath      = substr($testPath, $currentScore);
 					my $currentSlashScore = $leftoverPath =~ tr!/!!;
 					$bestSlashScore = $currentSlashScore;
-					$bestScore = $currentScore;
-					$bestIdx = $i;
+					$bestScore      = $currentScore;
+					$bestIdx        = $i;
 					}
 				elsif ($bestScore > 0 && $bestScore == $currentScore)
 					{
 					my $leftoverPath = substr($testPath, $currentScore);
-					my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
-					# Fewer slashes means $testPath is closer to context directory.
+					my $currentSlashScore =
+						$leftoverPath =~ tr!/!!;    # Count directory slashes in $leftoverPath
+						# Fewer slashes means $testPath is closer to context directory.
 					if ($bestSlashScore > $currentSlashScore)
 						{
 						$bestSlashScore = $currentSlashScore;
-						$bestIdx = $i;
+						$bestIdx        = $i;
 						}
-					elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+					elsif ($bestSlashScore == $currentSlashScore)    # Prefer shorter path
 						{
 						if ($testLength < length($pathsA->[$bestIdx]))
 							{
@@ -788,15 +808,15 @@ sub ExactPathInContext {
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $linkSpecifier, $contextDir: see comment above for BestMatchingFullPath().
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
@@ -824,37 +844,38 @@ sub ExactPathInContext {
 # and the context directory agrees with the path except for the rightmost directory.
 sub RelaxedPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA, $partialPathPartsA) = @_;
-	my $numPaths = @$pathsA;
-	my $bestScore = 0;
+	my $numPaths       = @$pathsA;
+	my $bestScore      = 0;
 	my $bestSlashScore = 999;
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $bestIdx        = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
-		
+
 		if (AllPartialPartsAreInTestPath($partialPathPartsA, $testPath))
 			{
 			my $currentScore = LeftOverlapLength($contextDir, $testPath);
 			if ($bestScore < $currentScore)
 				{
-				my $leftoverPath = substr($testPath, $currentScore);
+				my $leftoverPath      = substr($testPath, $currentScore);
 				my $currentSlashScore = $leftoverPath =~ tr!/!!;
 				$bestSlashScore = $currentSlashScore;
-				$bestScore = $currentScore;
-				$bestIdx = $i;
+				$bestScore      = $currentScore;
+				$bestIdx        = $i;
 				}
 			elsif ($bestScore > 0 && $bestScore == $currentScore)
 				{
 				my $leftoverPath = substr($testPath, $currentScore);
-				my $currentSlashScore = $leftoverPath =~ tr!/!!; # Count directory slashes in $leftoverPath
-				# Fewer slashes means $testPath is closer to context directory.
+				my $currentSlashScore =
+					$leftoverPath =~ tr!/!!;    # Count directory slashes in $leftoverPath
+					# Fewer slashes means $testPath is closer to context directory.
 				if ($bestSlashScore > $currentSlashScore)
 					{
 					$bestSlashScore = $currentSlashScore;
-					$bestIdx = $i;
+					$bestIdx        = $i;
 					}
-				elsif ($bestSlashScore == $currentSlashScore) # Prefer shorter path
+				elsif ($bestSlashScore == $currentSlashScore)    # Prefer shorter path
 					{
 					my $testLength = length($testPath);
 					if ($testLength < length($pathsA->[$bestIdx]))
@@ -865,15 +886,15 @@ sub RelaxedPathInContext {
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $linkSpecifier: file name optionally preceded by one or more directory names, without skips
 #    eg any of main.cpp, src/main.cpp, project51/src/main.cpp, P:/project51/src/main.cpp.
@@ -897,37 +918,38 @@ sub RelaxedPathInContext {
 sub ExactPathNoContext {
 	my ($linkSpecifier, $pathsA) = @_;
 	my $linkSpecifierLength = length($linkSpecifier);
-	my $numPaths = @$pathsA;
-	my $bestSlashScore = 999;
-	my $bestIdx = -1;
-	
-	for (my $i = 0; $i < $numPaths; ++$i)
+	my $numPaths            = @$pathsA;
+	my $bestSlashScore      = 999;
+	my $bestIdx             = -1;
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		my $matchPos;
 		if (($matchPos = index($testPath, $linkSpecifier)) > 0)
 			{
 			my $testLength = length($testPath);
-			if ($testLength == $matchPos + $linkSpecifierLength && substr($testPath, $matchPos-1, 1) eq '/')
+			if ($testLength == $matchPos + $linkSpecifierLength
+				&& substr($testPath, $matchPos - 1, 1) eq '/')
 				{
 				my $currentSlashScore = $testPath =~ tr!/!!;
 				if ($bestSlashScore > $currentSlashScore)
 					{
 					$bestSlashScore = $currentSlashScore;
-					$bestIdx = $i;
+					$bestIdx        = $i;
 					}
 				}
 			}
 		}
-	
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $pathsA: array of full paths where file name in full path matches file name in $linkSpecifier.
 # -> $linkSpecifierPartsA: array holding folder names in $linkSpecifier and drive if any
@@ -951,11 +973,11 @@ sub ExactPathNoContext {
 # or second main.cpp in the project51 directory, this will be the best match.
 sub RelaxedPathNoContext {
 	my ($pathsA, $partialPathPartsA) = @_;
-	my $numPaths = @$pathsA;
+	my $numPaths       = @$pathsA;
 	my $bestSlashScore = 999;
-	my $bestIdx = -1;
+	my $bestIdx        = -1;
 
-	for (my $i = 0; $i < $numPaths; ++$i)
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		my $testPath = $pathsA->[$i];
 		if (AllPartialPartsAreInTestPath($partialPathPartsA, $testPath))
@@ -964,27 +986,27 @@ sub RelaxedPathNoContext {
 			if ($bestSlashScore > $currentSlashScore)
 				{
 				$bestSlashScore = $currentSlashScore;
-				$bestIdx = $i;
+				$bestIdx        = $i;
 				}
 			}
 		}
-		
+
 	my $result = "";
 	if ($bestIdx >= 0)
 		{
 		$result = $pathsA->[$bestIdx];
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # -> $partialPathPartsA: a list of /directory names/ in the target specifier
 #    (eg for test/esindex/cmAutoLink.js the list would be "/test/", "/esindex/").
 sub AllPartialPartsAreInTestPath {
 	my ($partialPathPartsA, $testPath) = @_;
 	my $result = 1;
-	
-	for (my $i = 0; $i < @$partialPathPartsA; ++$i)
+
+	for (my $i = 0 ; $i < @$partialPathPartsA ; ++$i)
 		{
 		if (index($testPath, $partialPathPartsA->[$i]) < 0)
 			{
@@ -992,17 +1014,17 @@ sub AllPartialPartsAreInTestPath {
 			last;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Requires $fullPath all lower case, with forward slashes.
 sub FullPathIsKnown {
 	my ($fullPath) = @_;
-	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1: 0;
+	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1 : 0;
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Return 1 if directory path in $fullDir is recognized.
 # $fullDir should start with a drive letter and be complete
@@ -1016,10 +1038,10 @@ sub FullDirPathIsKnown {
 		{
 		$fullDir .= '/';
 		}
-	my $result = (defined($LastDirForFullDirPath{$fullDir})) ? 1: 0;
+	my $result = (defined($LastDirForFullDirPath{$fullDir})) ? 1 : 0;
 
-	return($result);	
-	}
+	return ($result);
+}
 
 # Much like BestMatchingFullPath above, but for directory paths.
 # Requires $linkSpecifier "normalized": no leading or trailing slash,
@@ -1027,7 +1049,7 @@ sub FullDirPathIsKnown {
 sub BestMatchingFullDirectoryPath {
 	my ($linkSpecifier, $contextDir) = @_;
 	my $result = '';
-	
+
 	# 1.
 	# Allow any full dir path, provided either we have a record of it or the file is on disk.
 	if ($linkSpecifier =~ m!^\w:/!)
@@ -1046,11 +1068,11 @@ sub BestMatchingFullDirectoryPath {
 			$result = $linkSpecifier;
 			}
 		}
-	
-	if ($result eq '') # Check for a link specifier, possibly incomplete or scrambled.
+
+	if ($result eq '')    # Check for a link specifier, possibly incomplete or scrambled.
 		{
 		# Pull last dir from a $linkSpecifier:
-		my $bottomDir = '';
+		my $bottomDir    = '';
 		my $lastSlashPos = rindex($linkSpecifier, "/");
 		if ($lastSlashPos > 0)
 			{
@@ -1060,7 +1082,7 @@ sub BestMatchingFullDirectoryPath {
 			{
 			$bottomDir = $linkSpecifier;
 			}
-		
+
 		if (defined($FullDirectoryPathsForDirName{$bottomDir}))
 			{
 			my $allpaths = $FullDirectoryPathsForDirName{$bottomDir};
@@ -1068,7 +1090,7 @@ sub BestMatchingFullDirectoryPath {
 			# Remove leading and trailing pipes.
 			$allpaths = substr($allpaths, 1);
 			$allpaths = substr($allpaths, 0, -1);
-			if ($allpaths =~ m!\|!) # more than one candidate full path
+			if ($allpaths =~ m!\|!)    # more than one candidate full path
 				{
 				@paths = split(/\|/, $allpaths);
 				}
@@ -1076,13 +1098,14 @@ sub BestMatchingFullDirectoryPath {
 				{
 				push @paths, $allpaths;
 				}
-			
+
 			my $bestPath = "";
 			# 2., 3.
 			# First check for a full path that matches $linkSpecifier fully, preferring
 			# some match on the left between full path and context directory.
-			if ( ($bestPath = ExactDirectoryPathInContext($linkSpecifier, $contextDir, \@paths)) ne ""
-			  || ($bestPath = ExactDirectoryPathNoContext($linkSpecifier, \@paths)) ne "" )
+			if (($bestPath = ExactDirectoryPathInContext($linkSpecifier, $contextDir, \@paths)) ne
+				""
+				|| ($bestPath = ExactDirectoryPathNoContext($linkSpecifier, \@paths)) ne "")
 				{
 				$result = $bestPath;
 				}
@@ -1095,9 +1118,9 @@ sub BestMatchingFullDirectoryPath {
 				{
 				my @partialPathParts = split(/\//, $linkSpecifier);
 				# Tack some forward slashes back on for accurate matching with index().
-				for (my $i = 0; $i < @partialPathParts; ++$i)
+				for (my $i = 0 ; $i < @partialPathParts ; ++$i)
 					{
-					if (index($partialPathParts[$i], ':') > 0) # drive letter
+					if (index($partialPathParts[$i], ':') > 0)    # drive letter
 						{
 						$partialPathParts[$i] .= '/';
 						}
@@ -1106,29 +1129,36 @@ sub BestMatchingFullDirectoryPath {
 						$partialPathParts[$i] = '/' . $partialPathParts[$i] . '/';
 						}
 					}
-				if ( ($bestPath = RelaxedDirectoryPathInContext($linkSpecifier, $contextDir, \@paths, \@partialPathParts)) ne ""
-				  || ($bestPath = RelaxedDirectoryPathNoContext(\@paths, \@partialPathParts)) ne "" )
+				if (
+					(
+						$bestPath = RelaxedDirectoryPathInContext(
+							$linkSpecifier, $contextDir, \@paths, \@partialPathParts
+						)
+					) ne ""
+					|| ($bestPath = RelaxedDirectoryPathNoContext(\@paths, \@partialPathParts)) ne
+					""
+					)
 					{
 					$result = $bestPath;
-					}				
+					}
 				}
-			} # directory name is associated with at least one known full path
-		} # partial directory path
-	
-	return($result);
-	}
+			}    # directory name is associated with at least one known full path
+		}    # partial directory path
+
+	return ($result);
+}
 
 # Just a punt, ExactPathInContext() above works for directories too.
 sub ExactDirectoryPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA) = @_;
-	return(ExactPathInContext($linkSpecifier . '/', $contextDir, $pathsA));
-	}
+	return (ExactPathInContext($linkSpecifier . '/', $contextDir, $pathsA));
+}
 
 # ExactPathNoContext() above works for directories too.
 sub ExactDirectoryPathNoContext {
 	my ($linkSpecifier, $pathsA) = @_;
-	return(ExactPathNoContext($linkSpecifier . '/', $pathsA));
-	}
+	return (ExactPathNoContext($linkSpecifier . '/', $pathsA));
+}
 
 # If the directories in a FILE path are out of order, the key for the
 # list of associated full file paths doesn't change, because the key
@@ -1140,12 +1170,13 @@ sub ExactDirectoryPathNoContext {
 # a corresponding directory is found.
 sub RelaxedDirectoryPathInContext {
 	my ($linkSpecifier, $contextDir, $pathsA, $partialPathPartsA) = @_;
-	my $bestPath = RelaxedPathInContext($linkSpecifier . '/', $contextDir, $pathsA, $partialPathPartsA);
-	
+	my $bestPath =
+		RelaxedPathInContext($linkSpecifier . '/', $contextDir, $pathsA, $partialPathPartsA);
+
 	if ($bestPath eq '')
 		{
 		my $numPartialParts = @$partialPathPartsA;
-		for (my $i = 0; $i < $numPartialParts - 1; ++$i)
+		for (my $i = 0 ; $i < $numPartialParts - 1 ; ++$i)
 			{
 			my $bottomDir = $partialPathPartsA->[$i];
 			# Strip leading and trailing slashes.
@@ -1159,7 +1190,7 @@ sub RelaxedDirectoryPathInContext {
 				# Remove leading and trailing slashes.
 				$allpaths = substr($allpaths, 1);
 				$allpaths = substr($allpaths, 0, -1);
-				if ($allpaths =~ m!\|!) # more than one candidate full path
+				if ($allpaths =~ m!\|!)    # more than one candidate full path
 					{
 					@paths = split(/\|/, $allpaths);
 					}
@@ -1167,7 +1198,8 @@ sub RelaxedDirectoryPathInContext {
 					{
 					push @paths, $allpaths;
 					}
-				$bestPath = RelaxedPathInContext($linkSpecifier . '/', $contextDir, \@paths, $partialPathPartsA);
+				$bestPath = RelaxedPathInContext($linkSpecifier . '/',
+					$contextDir, \@paths, $partialPathPartsA);
 				if ($bestPath ne '')
 					{
 					last;
@@ -1175,19 +1207,19 @@ sub RelaxedDirectoryPathInContext {
 				}
 			}
 		}
-	
-	return($bestPath);
-	}
+
+	return ($bestPath);
+}
 
 # See comment just above for RelaxedDirectoryPathInContext.
 sub RelaxedDirectoryPathNoContext {
 	my ($pathsA, $partialPathPartsA) = @_;
 	my $bestPath = RelaxedPathNoContext($pathsA, $partialPathPartsA);
-	
+
 	if ($bestPath eq '')
 		{
 		my $numPartialParts = @$partialPathPartsA;
-		for (my $i = 0; $i < $numPartialParts - 1; ++$i)
+		for (my $i = 0 ; $i < $numPartialParts - 1 ; ++$i)
 			{
 			my $bottomDir = $partialPathPartsA->[$i];
 			# Strip leading and trailing slashes.
@@ -1200,7 +1232,7 @@ sub RelaxedDirectoryPathNoContext {
 				# Remove leading and trailing slashes.
 				$allpaths = substr($allpaths, 1);
 				$allpaths = substr($allpaths, 0, -1);
-				if ($allpaths =~ m!\|!) # more than one candidate full path
+				if ($allpaths =~ m!\|!)    # more than one candidate full path
 					{
 					@paths = split(/\|/, $allpaths);
 					}
@@ -1216,28 +1248,28 @@ sub RelaxedDirectoryPathNoContext {
 				}
 			}
 		}
-	
-	return($bestPath);
-	}
+
+	return ($bestPath);
+}
 
 sub DeleteFullPathListFiles {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
-	
+
 	unlink($filePath);
-	
+
 	while (-f $fragPath)
 		{
 		unlink($fragPath);
 		++$num;
 		$fragPath = $base . $num . $ext;
 		}
-	}
-} ##### Directory list
+}
+}    ##### Directory list
 
 use ExportAbove;
 1;

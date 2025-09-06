@@ -20,36 +20,37 @@ use FileHandle;
 # leave open: 1 to leave open [default is close after every write]
 # Record the log file's full path. Ensure log opens or die. Clear the log file if asked.
 # Start the log off with a time stamp.
-sub new
-	{
+sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self  = {};
-	$self->{PATH} = shift || 'c:/defaultlogfile999.txt';
-	$self->{CLEAR} = shift || 'yes';
-	$self->{ECHO} = shift || 0;
+	$self->{PATH}      = shift || 'c:/defaultlogfile999.txt';
+	$self->{CLEAR}     = shift || 'yes';
+	$self->{ECHO}      = shift || 0;
 	$self->{LEAVEOPEN} = shift || 0;
-	$self->{ISOPEN} = 0;
-	$self->{LOGH} = '';
+	$self->{ISOPEN}    = 0;
+	$self->{LOGH}      = '';
 	##my $logH;
-	
+
 	$self->{LEAVEOPEN} = 0 unless ($self->{LEAVEOPEN} =~ m!yes|leave open|1!i);
-	$self->{ECHO} = 0 unless ($self->{ECHO} =~ m!yes|1!i);
-		
+	$self->{ECHO}      = 0 unless ($self->{ECHO}      =~ m!yes|1!i);
+
 	my $now = NiceToday();
 	if ($self->{CLEAR} =~ /no|0/i)
 		{
-		$self->{LOGH} = FileHandle->new(">> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new(">> $self->{PATH}")
+			or confess("LogFile: $self->{PATH} would not open!");
 		my $logH = $self->{LOGH};
 		print $logH "Time stamp: $now\n";
 		}
 	else
 		{
-		$self->{LOGH} = FileHandle->new("> $self->{PATH}") or confess("LogFile: $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new("> $self->{PATH}")
+			or confess("LogFile: $self->{PATH} would not open!");
 		my $logH = $self->{LOGH};
 		print $logH "Last cleared: $now\n";
 		}
-	
+
 	if (!$self->{LEAVEOPEN})
 		{
 		close($self->{LOGH});
@@ -58,10 +59,10 @@ sub new
 		{
 		$self->{ISOPEN} = 1;
 		}
-	
-	bless ($self, $class);
+
+	bless($self, $class);
 	return $self;
-    }
+}
 
 sub DESTROY {
 	my $self = shift;
@@ -70,20 +71,20 @@ sub DESTROY {
 		close($self->{LOGH});
 		$self->{ISOPEN} = 0;
 		}
-	}
+}
 
 # Open, add to log file, close. Note newlines are not added.
-sub Log
-	{
+sub Log {
 	my $self = shift;
 	my $text = shift;
 	if (!$self->{ISOPEN})
 		{
-		$self->{LOGH} = FileHandle->new(">> $self->{PATH}") or confess("LogFile Log: DED, $self->{PATH} would not open!");
+		$self->{LOGH} = FileHandle->new(">> $self->{PATH}")
+			or confess("LogFile Log: DED, $self->{PATH} would not open!");
 		}
 	my $logH = $self->{LOGH};
 	print $logH "$text";
-	
+
 	if (!$self->{LEAVEOPEN})
 		{
 		close($self->{LOGH});
@@ -93,45 +94,43 @@ sub Log
 		{
 		$self->{ISOPEN} = 1;
 		}
-	
+
 	if ($self->{ECHO})
 		{
 		print "$text";
 		}
-	}
+}
 
 # Default for LEAVEOPEN is 0 - set to 1 to not close file between writes.
 sub LeaveOpen {
 	my $self = shift;
-	if (@_) 
+	if (@_)
 		{
 		$self->{LEAVEOPEN} = shift;
 		}
-	return $self->{LEAVEOPEN};		
-	}
+	return $self->{LEAVEOPEN};
+}
 
 # Set ECHO to STDOUT on/off with ->Echo(1)/Echo(0).
-sub Echo
-	{
+sub Echo {
 	my $self = shift;
-	if (@_) 
+	if (@_)
 		{
 		$self->{ECHO} = shift;
 		}
-	return $self->{ECHO};	
-	}
+	return $self->{ECHO};
+}
 
 sub Path {
 	my $self = shift;
-	return($self->{PATH});
-	}
+	return ($self->{PATH});
+}
 
 # Nicely formatted date/time.
-sub NiceToday
-	{
+sub NiceToday {
 	my ($sec, $min, $hr, $mday, $mon, $year, $wday, $yday, $isdst) = localtime();
-	sprintf("%04d/%02d/%02d %02d:%02d:%02d", $year+1900,$mon+1,$mday,$hr,$min, $sec);
-	}
+	sprintf("%04d/%02d/%02d %02d:%02d:%02d", $year + 1900, $mon + 1, $mday, $hr, $min, $sec);
+}
 
 1;
 

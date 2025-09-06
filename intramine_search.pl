@@ -36,43 +36,47 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
+my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
-my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
-my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
+my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
+my $AllowRemoteEditing     = CVal('ALLOW_REMOTE_EDITING');
 
 my $SHOWFILESIZESANDMODDATES = 1;
-my $FILESIZEUNITS = [qw(B KB MB GB TB PB)];
+my $FILESIZEUNITS            = [qw(B KB MB GB TB PB)];
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
-my $FULL_ACCESS_STR = CVal('FULL_ACCESS_STR'); 						# See data\intramine_config.txt
+my $FULL_ACCESS_STR = CVal('FULL_ACCESS_STR');    # See data\intramine_config.txt
 # Obsolete my $ALWAYS_REMOTE_FOR_EDITING = CVal('ALWAYS_REMOTE_FOR_EDITING');
 
 # Fire up the full text search engine.
-my $esIndexName = CVal('ES_INDEXNAME'); # default 'intramine'
+my $esIndexName = CVal('ES_INDEXNAME');    # default 'intramine'
 if ($esIndexName eq '')
 	{
-	print("Warning, ES_INDEXNAME is not set in intramine_config.txt config file. Using default of 'intramine'.\n");
+	print(
+"Warning, ES_INDEXNAME is not set in intramine_config.txt config file. Using default of 'intramine'.\n"
+	);
 	$esIndexName = 'intramine';
 	}
 my $numHits = CVal('ES_NUMHITS');
 if ($numHits eq '' || $numHits == 0)
 	{
-	print("Warning, ES_NUMHITS is not set in intramine_config.txt config file. Using default of 25.\n");
+	print(
+		"Warning, ES_NUMHITS is not set in intramine_config.txt config file. Using default of 25.\n"
+	);
 	$numHits = 25;
 	}
 my $ElasticSearcher = elasticsearcher->new($esIndexName, $FULL_ACCESS_STR, $numHits);
@@ -80,12 +84,12 @@ my $ElasticSearcher = elasticsearcher->new($esIndexName, $FULL_ACCESS_STR, $numH
 my $kAllowNoExtension = CVal('ES_INDEX_NO_EXTENSION');
 
 my %RequestAction;
-$RequestAction{'req|main'} = \&SearchPage; 			# req=main  DEFAULT PAGE ACTION
-$RequestAction{'req|frm'} = \&SearchForm; 			# req=frm
-$RequestAction{'req|results'} = \&SearchResults; 	# req=results
-$RequestAction{'dir'} = \&GetDirsAndFiles; 			# $formH->{'dir'} is directory path
-$RequestAction{'/test/'} = \&SelfTest;				# Ask this server to test itself.
-$RequestAction{'req|docCount'} = \&CountOfIndexedDocuments;	# see eg test_programs/test_Search.pl
+$RequestAction{'req|main'}     = \&SearchPage;                 # req=main  DEFAULT PAGE ACTION
+$RequestAction{'req|frm'}      = \&SearchForm;                 # req=frm
+$RequestAction{'req|results'}  = \&SearchResults;              # req=results
+$RequestAction{'dir'}          = \&GetDirsAndFiles;            # $formH->{'dir'} is directory path
+$RequestAction{'/test/'}       = \&SelfTest;                   # Ask this server to test itself.
+$RequestAction{'req|docCount'} = \&CountOfIndexedDocuments;    # see eg test_programs/test_Search.pl
 
 #$RequestAction{'req|id'} = \&Identify; 			# req=id
 
@@ -151,33 +155,34 @@ FINIS
 
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
-	
+
 	# The IPv4 Address for this server (eg 192.168.0.14);
 	# peeraddress might be eg 192.168.0.17
 	my $serverAddr = ServerAddress();
-	
+
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
-		
-	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) 
-					|| (!$clientIsRemote && $AllowLocalEditing));
+
+	my $allowEditing =
+		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
 	my $useAppForEditing = 0;
 	if ($allowEditing)
 		{
 		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing)
-					|| (!$clientIsRemote && $UseAppForLocalEditing));
+				|| (!$clientIsRemote && $UseAppForLocalEditing));
 		}
-	
-	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $tfAllowEditing = ($allowEditing) ? 'true' : 'false';
+
+	my $amRemoteValue      = $clientIsRemote     ? 'true' : 'false';
+	my $tfAllowEditing     = ($allowEditing)     ? 'true' : 'false';
 	my $tfUseAppForEditing = ($useAppForEditing) ? 'true' : 'false';
-	
+
 	# Set some JavaScript variables.
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING!$tfAllowEditing!;
@@ -201,10 +206,10 @@ FINIS
 	$theBody =~ s!_THEME_!!;
 
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
 	return $theBody;
-	}
+}
 
 sub NonCodeMirrorThemeCSS {
 	my ($themeName) = @_;
@@ -215,33 +220,41 @@ sub NonCodeMirrorThemeCSS {
 		{
 		# TEST ONLY
 		print("ERROR could not find |$cssPath|\n");
-		return('');
+		return ('');
 		}
 
-	return("\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n");
-	}
+	return (  "\n"
+			. '<link rel="stylesheet" type="text/css"  href="/viewer_themes/'
+			. $themeName
+			. '_IM.css">'
+			. "\n");
+}
 
 # Return the Search form, with the usual standard search fields.
 # Allow "no extension" only if $kAllowNoExtension=1.
 # 2019-10-23 14_30_47-Full Text Search.png
 sub SearchForm {
 	my ($obj, $formH, $peeraddress) = @_;
-	
-	my $boxNoExtension = ($kAllowNoExtension == 1) ?
-		"<label><input type=checkbox name='EXT_NONE' value='yes'>no extension</label>" : '';
-	
-	# A dropdown of many languages and their extensions, with check boxes.
-	my $extsForLan = ExtensionsForLanguageHashRef();
-	my $popularExtsForLan = PopularExtensionsForLanguageHashRef();
-	my $languageItems = '';
 
-	$languageItems .= "<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
+	my $boxNoExtension =
+		($kAllowNoExtension == 1)
+		? "<label><input type=checkbox name='EXT_NONE' value='yes'>no extension</label>"
+		: '';
+
+	# A dropdown of many languages and their extensions, with check boxes.
+	my $extsForLan        = ExtensionsForLanguageHashRef();
+	my $popularExtsForLan = PopularExtensionsForLanguageHashRef();
+	my $languageItems     = '';
+
+	$languageItems .=
+		"<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
 	$languageItems .= "<a href='javascript:selectAllOrNone(false);' class='allOrNone'>None</a>";
 	foreach my $key (sort keys %$popularExtsForLan)
 		{
 		my $nicerExtensionList = $popularExtsForLan->{$key};
 		$nicerExtensionList =~ s!,!, !g;
-		$languageItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
+		$languageItems .=
+"<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
 		}
 	$languageItems .= "<div>- - - - - - - - - - - - - - (and more below)</div>";
 	foreach my $key (sort keys %$extsForLan)
@@ -250,22 +263,24 @@ sub SearchForm {
 			{
 			my $nicerExtensionList = $extsForLan->{$key};
 			$nicerExtensionList =~ s!,!, !g;
-			$languageItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
+			$languageItems .=
+"<label><input type=checkbox name='EXT_$key' value='yes'>$key ($nicerExtensionList)</label>";
 			}
 		}
 	$languageItems .= $boxNoExtension;
 
 	# THe dropdown for extensions, alphabetically.
 	my $extensionItems = '';
-	$extensionItems .= "<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
+	$extensionItems .=
+		"<a href='javascript:selectAllOrNone(true);' class='allOrNone'>All</a>&nbsp;&nbsp;";
 	$extensionItems .= "<a href='javascript:selectAllOrNone(false);' class='allOrNone'>None</a>";
 
 	my %extensionsH;
 	foreach my $key (sort keys %$extsForLan)
 		{
-		my $nicerExtensionList = $extsForLan->{$key};
+		my $nicerExtensionList    = $extsForLan->{$key};
 		my @extensionsForLanguage = split(/,/, $nicerExtensionList);
-		for (my $i = 0; $i < @extensionsForLanguage; ++$i)
+		for (my $i = 0 ; $i < @extensionsForLanguage ; ++$i)
 			{
 			$extensionsH{$extensionsForLanguage[$i]} = 1;
 			}
@@ -275,7 +290,7 @@ sub SearchForm {
 		{
 		$extensionItems .= "<label><input type=checkbox name='EXT_$key' value='yes'>$key</label>";
 		}
-	
+
 	my $languageDropdown = <<"TOHERE";
 <div class="multiselect">
 	<div class="selectBox" onclick="showCheckboxes()">
@@ -353,33 +368,34 @@ FINIS
 	# Rev May 26 2021, localhost is no longer used here.
 	# Required by Chrome for "CORS-RFC1918 Support".
 	my $serverAddr = ServerAddress();
-	my $action = "http://$serverAddr:$port_listen/?rddm=1";
+	my $action     = "http://$serverAddr:$port_listen/?rddm=1";
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
-	
+
 	# <div id='docCount'>_DOCCOUNT_</div>
 	my $documentCount = Commify(CountOfIndexedDocuments());
 	$documentCount = $documentCount . ' docs indexed';
 	# Cluster health: set background colour of span id='docCount' to red/yellow/green.
-	my $clusterStatus = lc(ClusterHealth()); # red yellow green
-	my $healthClass = 'light' . $clusterStatus . 'Back'; # css .lightredBack etc - see forms.css#lightredBack
+	my $clusterStatus = lc(ClusterHealth());    # red yellow green
+	my $healthClass =
+		'light' . $clusterStatus . 'Back';      # css .lightredBack etc - see forms.css#lightredBack
 	my $docCountElement = "<div id='docCount' class='$healthClass'>$documentCount</div>";
 	$theSource =~ s!_DOCCOUNT_!$docCountElement!;
 	# Check "Subdirectories too" if config says to.
 	my $checkSubdirsByDefault = CVal('SEARCH_SUBDIRS_BY_DEFAULT');
-	my $checkSubsValue = ($checkSubdirsByDefault) ? ' checked': ''; # note the space
+	my $checkSubsValue        = ($checkSubdirsByDefault) ? ' checked' : '';    # note the space
 	$theSource =~ s!_CHECKEDBYDEFAULT_!$checkSubsValue!;
-	
+
 	# A separate dropdown selector for the directory picker.
 	$theSource .= DirectoryPicker();
-	
+
 	return $theSource;
-	}
+}
 
 # See intramine_search.js#showDirectoryPicker() for use. This is a simplified version of the picker
 # used on the Files page, the main difference is that file links are omitted here.
 sub DirectoryPicker {
-my $theSource = <<'FINIS';
+	my $theSource = <<'FINIS';
 <!--<form id="dirform">-->
 <div id='dirpickerMainContainer'>
 	<p id="directoryPickerTitle">Directory Picker</p>
@@ -403,12 +419,12 @@ my $theSource = <<'FINIS';
 
 <!--</form>-->
 FINIS
-	
+
 	# Put a list of drives in the drive selector.
 	my $driveSelectorOptions = DriveSelectorOptions();
 	$theSource =~ s!_DRIVESELECTOROPTIONS_!$driveSelectorOptions!g;
 	return $theSource;
-	}
+}
 
 # Call Elasticsearch to do a search,
 # return <div> containing Elasticsearch hit summary for passed-in $formH->{'findthis'}.
@@ -419,17 +435,17 @@ FINIS
 # Called by intramine_search.js#searchSubmit().
 sub SearchResults {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $rawquery = defined($formH->{'findthis'})? $formH->{'findthis'}: '';
+	my $rawquery = defined($formH->{'findthis'}) ? $formH->{'findthis'} : '';
 	$rawquery =~ s!^\s+!!;
 	$rawquery =~ s!\s+$!!;
-	my $shouldQuote = defined($formH->{'matchexact'})? 1: 0;
-	my $dir = defined($formH->{'directory'})? $formH->{'directory'}: 'ALL';
+	my $shouldQuote = defined($formH->{'matchexact'}) ? 1                     : 0;
+	my $dir         = defined($formH->{'directory'})  ? $formH->{'directory'} : 'ALL';
 	if ($dir eq '')
 		{
 		$dir = 'ALL';
 		}
-	my $doSubDirs = defined($formH->{'subdirs'})?1: 0;
-		
+	my $doSubDirs = defined($formH->{'subdirs'}) ? 1 : 0;
+
 	if ($shouldQuote && $rawquery ne '')
 		{
 		if (index($rawquery, '"') != 0)
@@ -439,9 +455,9 @@ sub SearchResults {
 		}
 	else
 		{
-		; # Leave any user-typed quotes, sometimes typing is quicker.
+		;    # Leave any user-typed quotes, sometimes typing is quicker.
 		}
-		
+
 	# Extension filter, provided as wanted language names, eg $formH{'EXT_Plain%20Text'}='yes'.
 	# See ext.pm for the corresponding lists of extensions for languages.
 	my @wantedExt;
@@ -449,11 +465,11 @@ sub SearchResults {
 	GetWantedExtensions($formH, \@wantedExt, \$allExtensionsSelected);
 
 	# Directory filter.
-	my $folderSearchFilterName = ''; # for 'ALL', don't bother filtering
+	my $folderSearchFilterName = '';    # for 'ALL', don't bother filtering
 	GetDirectoryFilter(\$dir, \$folderSearchFilterName, $doSubDirs, $allExtensionsSelected);
-		
+
 	my $result = "";
-	
+
 	if (length($rawquery) == 0)
 		{
 		$result = '<p>Please provide something to Search for</p>';
@@ -461,22 +477,26 @@ sub SearchResults {
 	else
 		{
 		Output("Searching for |$rawquery|\n");
-		my $t1 = time;
-		my $remote = (defined($formH->{'remote'})) ? $formH->{'remote'}: '0';
-		my $alllowEditing = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'}: '0';
-		my $useAppForEditing = (defined($formH->{'useApp'})) ? $formH->{'useApp'}: '0';
-		
+		my $t1               = time;
+		my $remote           = (defined($formH->{'remote'}))    ? $formH->{'remote'}    : '0';
+		my $alllowEditing    = (defined($formH->{'allowEdit'})) ? $formH->{'allowEdit'} : '0';
+		my $useAppForEditing = (defined($formH->{'useApp'}))    ? $formH->{'useApp'}    : '0';
+
 		my $numHitsDisplayed = 0;
-		my $numFiles = 0;
+		my $numFiles         = 0;
 		# See elasticsearch_bulk_indexer.pm#AddDocumentToIndex() for details on the indexed
 		# fields (especially "folder1" "folder2". Those are used to speed up searching
 		# specific directories by looking only at files at a particular "depth", where depth is
 		# measured by the number of '/' slashes in the path to a folder).
 		# elasticsearcher.pm#GetPhraseHits() and getWordHits() build and exec the search.
-		$result .= "<div id='theTextWithoutJumpList'>" . $ElasticSearcher->GetSearchResults($rawquery, 
-			$remote, $alllowEditing, $useAppForEditing, \@wantedExt, $allExtensionsSelected,
-			$folderSearchFilterName, $dir, \$numHitsDisplayed, \$numFiles) . '</div>';
-		my $elapsed = time - $t1;
+		$result .= "<div id='theTextWithoutJumpList'>"
+			. $ElasticSearcher->GetSearchResults(
+			$rawquery,               $remote,     $alllowEditing,
+			$useAppForEditing,       \@wantedExt, $allExtensionsSelected,
+			$folderSearchFilterName, $dir,        \$numHitsDisplayed,
+			\$numFiles
+			) . '</div>';
+		my $elapsed     = time - $t1;
 		my $ruffElapsed = substr($elapsed, 0, 4);
 		if ($numFiles >= $numHits)
 			{
@@ -487,9 +507,9 @@ sub SearchResults {
 			$result = "<span> ($ruffElapsed seconds, $numFiles files)</span>" . $result;
 			}
 		}
-	
+
 	return $result;
-	}
+}
 
 
 # Push wanted extensions into an array ref $wantedExtA, in accordance with user-selected
@@ -499,7 +519,8 @@ sub SearchResults {
 # See ext.pm for the corresponding lists of extensions for languages.
 sub GetWantedExtensions {
 	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
-	my $extFilter = defined($formH->{'extFilter'}) ? $formH->{'extFilter'} : 'languageDropdownItems';
+	my $extFilter =
+		defined($formH->{'extFilter'}) ? $formH->{'extFilter'} : 'languageDropdownItems';
 
 	if ($extFilter =~ m!language!i)
 		{
@@ -509,7 +530,7 @@ sub GetWantedExtensions {
 		{
 		GetwantedExplicitExtensions($formH, $wantedExtA, $allExtensionsSelectedR);
 		}
-	}
+}
 
 sub GetWantedLanguageExtensions {
 	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
@@ -518,21 +539,21 @@ sub GetWantedLanguageExtensions {
 	my $extsForLan = ExtensionsForLanguageHashRef();
 	my %extensionHasBeenSeen;
 	my $extensionNoneIsWanted = 0;
-	
+
 	foreach my $key (keys %$formH)
 		{
 		$key =~ s!\%20! !g;
 		$key =~ s!\%2F!/!g;
-		$key =~ s!\%2B!\+!g; # C/C++ comes through as C%2FC%2B%2B
-		$key =~ s!\%23!#!g; # C# comes through as C%23, similarly F#
+		$key =~ s!\%2B!\+!g;    # C/C++ comes through as C%2FC%2B%2B
+		$key =~ s!\%23!#!g;     # C# comes through as C%23, similarly F#
 		if ($key =~ m!^EXT_(.+?)$!)
 			{
 			my $languageName = $1;
 			if (defined($extsForLan->{$languageName}))
 				{
-				my $rawExtensions = $extsForLan->{$languageName};
+				my $rawExtensions  = $extsForLan->{$languageName};
 				my @extForLanguage = split(/,/, $rawExtensions);
-				for (my $i = 0; $i < @extForLanguage; ++$i)
+				for (my $i = 0 ; $i < @extForLanguage ; ++$i)
 					{
 					if (!defined($extensionHasBeenSeen{$extForLanguage[$i]}))
 						{
@@ -549,7 +570,7 @@ sub GetWantedLanguageExtensions {
 				}
 			}
 		}
-	
+
 	# Determine if all extensions are wanted (so no need to filter for extension).
 	my $numExtensionsTotal = NumExtensions();
 	if ($extensionNoneIsWanted)
@@ -558,7 +579,7 @@ sub GetWantedLanguageExtensions {
 		}
 	my $numExtensionsSeen = keys %extensionHasBeenSeen;
 	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
-	}
+}
 
 sub GetwantedExplicitExtensions {
 	my ($formH, $wantedExtA, $allExtensionsSelectedR) = @_;
@@ -579,9 +600,9 @@ sub GetwantedExplicitExtensions {
 		}
 
 	my $numExtensionsTotal = NumExtensions();
-	my $numExtensionsSeen = keys %extensionHasBeenSeen;
+	my $numExtensionsSeen  = keys %extensionHasBeenSeen;
 	$$allExtensionsSelectedR = ($numExtensionsTotal == $numExtensionsSeen) ? 1 : 0;
-	}
+}
 
 # Directory filter.
 # See elasticsearch_bulk_indexer.pm#AddDocumentToIndex() for "folderN" index fields.
@@ -598,9 +619,9 @@ sub GetwantedExplicitExtensions {
 # folderExt3: C:/projects/51/cpp
 sub GetDirectoryFilter {
 	my ($dirR, $folderSearchFilterNameR, $doSubDirs, $allExtensionsSelected) = @_;
-	my $dir = $$dirR;
+	my $dir      = $$dirR;
 	my $dirDepth = 0;
-	
+
 	if ($dir ne 'ALL')
 		{
 		$dir =~ s!\\!/!g;
@@ -609,17 +630,17 @@ sub GetDirectoryFilter {
 			$dir .= '/';
 			}
 		$dir = lc($dir);
-		
+
 		if ($doSubDirs)
 			{
 			$dirDepth = $dir =~ tr!/!!;
 			if ($allExtensionsSelected)
 				{
-				$$folderSearchFilterNameR = 'folder' . $dirDepth; # folder1, folder2 etc
+				$$folderSearchFilterNameR = 'folder' . $dirDepth;    # folder1, folder2 etc
 				}
 			else
 				{
-				$$folderSearchFilterNameR = 'folderExt' . $dirDepth; # folderExt1, folderExt2 etc
+				$$folderSearchFilterNameR = 'folderExt' . $dirDepth;    # folderExt1, folderExt2 etc
 				}
 			}
 		else
@@ -633,27 +654,27 @@ sub GetDirectoryFilter {
 				$$folderSearchFilterNameR = 'allfoldersExt';
 				}
 			}
-		$dir = DirEncodedForSearching($dir);
+		$dir   = DirEncodedForSearching($dir);
 		$$dirR = $dir;
 		}
-	}
+}
 
 # $rawDir should be lc, use forward slashes only, and end with a forward slash.
 sub DirEncodedForSearching {
 	my ($rawDir) = @_;
 	my $encodedPath = $rawDir;
 	$encodedPath =~ s![^A-Za-z0-9_]!_!g;
-	return($encodedPath);
-	}
+	return ($encodedPath);
+}
 
 sub CountOfIndexedDocuments {
 	my ($obj, $formH, $peeraddress) = @_;
-	return($ElasticSearcher->Count());
-	}
+	return ($ElasticSearcher->Count());
+}
 
 sub ClusterHealth {
-	return($ElasticSearcher->ClusterHealth());
-	}
+	return ($ElasticSearcher->ClusterHealth());
+}
 
 # Generate the directory and file lists for the Search form. This is called by the
 # JavaScript directory file tree display "widget" with a 'dir=path' request,
@@ -661,25 +682,25 @@ sub ClusterHealth {
 # See also intramine_search.js#initDirectoryDialog() and jqueryFileTree.js (look for "action").
 sub GetDirsAndFiles {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $dir = $formH->{'dir'};
+	my $dir            = $formH->{'dir'};
 	my $clientIsRemote = ($formH->{'rmt'} eq 'false') ? 0 : 1;
-	my $result = '';
-	
+	my $result         = '';
+
 	Output("GetDirsAndFiles request for dir: |$dir|\n");
-	
+
 	if (FileOrDirExistsWide($dir) == 2)
 		{
 		# See win_wide_filepaths.pm#FindFileWide().
 		my $fullDirForFind = $dir . '*';
-		my @allEntries = FindFileWide($fullDirForFind);
-		my $numEntries = @allEntries;
-		
+		my @allEntries     = FindFileWide($fullDirForFind);
+		my $numEntries     = @allEntries;
+
 		if ($numEntries)
 			{
 			my (@folders, @files);
 			my $total = 0;
-			
-			for (my $i = 0; $i < @allEntries; ++$i)
+
+			for (my $i = 0 ; $i < @allEntries ; ++$i)
 				{
 				my $fileName = $allEntries[$i];
 				# Not needed: $fileName = decode("utf8", $fileName);
@@ -693,61 +714,70 @@ sub GetDirsAndFiles {
 					}
 				else
 					{
-					if ($fileName =~ m!\.\w+$! && $fileName !~ m!\.sys$! && substr($fileName, 0, 1) ne '$')
+					if (   $fileName =~ m!\.\w+$!
+						&& $fileName !~ m!\.sys$!
+						&& substr($fileName, 0, 1) ne '$')
 						{
 						push @files, $fileName;
 						}
 					}
 				}
-			
-			my $numDirs = @folders;
+
+			my $numDirs  = @folders;
 			my $numFiles = @files;
 			$total = $numDirs + $numFiles;
-			
-	        if ($total)
-	        	{
-	        	my $serverAddr = ServerAddress();
-	        	$result = "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
-	        	
+
+			if ($total)
+				{
+				my $serverAddr = ServerAddress();
+				$result = "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
+
 				# print Folders
 				foreach my $file (sort {lc $a cmp lc $b} @folders)
 					{
 					next if (FileOrDirExistsWide($dir . $file) == 0);
-				    $result .= '<li class="directory collapsed"><a href="#" rel="' . 
-				          &HTML::Entities::encode($dir . $file) . '/">' . 
-				          &HTML::Entities::encode($file) . '</a></li>';
+					$result .=
+						  '<li class="directory collapsed"><a href="#" rel="'
+						. &HTML::Entities::encode($dir . $file) . '/">'
+						. &HTML::Entities::encode($file)
+						. '</a></li>';
 					}
 
 				# print Files
 				foreach my $file (sort {lc $a cmp lc $b} @files)
 					{
 					next if (FileOrDirExistsWide($dir . $file) == 0);
-				    
-				    my $sizeDateStr =  FileDateAndSizeString($dir, $file);
-				    
-				    $file =~ /\.([^.]+)$/;
-				    my $ext = $1;
-				    # Gray out unsuported file types. Show thumbnail on hover for images.
-				    if (defined($ext) && IsTextDocxPdfOrImageExtensionNoPeriod($ext))
-				    	{
-				    	if (IsImageExtensionNoPeriod($ext))
-				    		{
-				    		$result .= ImageLine($serverAddr, $dir, $file, $ext, $sizeDateStr);
-				    		}
-				    	else # Text, for the most part - could also be pdf or docx
-				    		{
-				    		$result .= TextDocxPdfLine($dir, $file, $ext, $sizeDateStr);
-				    		}
-				    	}
-				    else # Unsupported type, can't produce a read-only HTML view.
-				    	{
-				    	my $fileName = &HTML::Entities::encode($file);
-					    $result .= '<li class="file ext_' . $ext . '">' . "<span class='unsupported'>" . $fileName . '</span>' . '</li>';
-				    	}
+
+					my $sizeDateStr = FileDateAndSizeString($dir, $file);
+
+					$file =~ /\.([^.]+)$/;
+					my $ext = $1;
+					# Gray out unsuported file types. Show thumbnail on hover for images.
+					if (defined($ext) && IsTextDocxPdfOrImageExtensionNoPeriod($ext))
+						{
+						if (IsImageExtensionNoPeriod($ext))
+							{
+							$result .= ImageLine($serverAddr, $dir, $file, $ext, $sizeDateStr);
+							}
+						else    # Text, for the most part - could also be pdf or docx
+							{
+							$result .= TextDocxPdfLine($dir, $file, $ext, $sizeDateStr);
+							}
+						}
+					else        # Unsupported type, can't produce a read-only HTML view.
+						{
+						my $fileName = &HTML::Entities::encode($file);
+						$result .=
+							  '<li class="file ext_'
+							. $ext . '">'
+							. "<span class='unsupported'>"
+							. $fileName
+							. '</span>' . '</li>';
+						}
 					}
-	        	
-	        	$result .= "</ul>\n";
-	        	}
+
+				$result .= "</ul>\n";
+				}
 			}
 		# else no files or subfolders
 		}
@@ -755,27 +785,27 @@ sub GetDirsAndFiles {
 		{
 		print("ERROR, |$dir| not found!\n");
 		}
-	
-	$result = ' ' if ($result eq ''); # return something (but not too much), to avoid 404
-	
-	return($result);
-	}
+
+	$result = ' ' if ($result eq '');    # return something (but not too much), to avoid 404
+
+	return ($result);
+}
 
 sub FileDateAndSizeString {
 	my ($dir, $file) = @_;
 	my $sizeDateStr = '';
-	
+
 	if (!$SHOWFILESIZESANDMODDATES)
 		{
-		return($sizeDateStr);
+		return ($sizeDateStr);
 		}
-	
+
 	my $modDate = GetFileModTimeWide($dir . $file);
 	my $dateStr = localtime($modDate)->datetime;
 
 	my $sizeBytes = GetFileSizeWide($dir . $file);
-	my $exp = 0;
-	my $sizeStr = '';
+	my $exp       = 0;
+	my $sizeStr   = '';
 	for (@$FILESIZEUNITS)
 		{
 		last if $sizeBytes < 1024;
@@ -790,50 +820,58 @@ sub FileDateAndSizeString {
 		{
 		$sizeStr = sprintf("%.1f %s", $sizeBytes, $FILESIZEUNITS->[$exp]);
 		}
-    
-     if ($dateStr ne '' || $sizeStr ne '')
-    	{
-    	$sizeDateStr = "<span>";
-    	if ($dateStr ne '')
-    		{
-    		$sizeDateStr .= $dateStr;
-    		}
-    	if ($sizeStr ne '')
-    		{
-    		if ($dateStr ne '')
-    			{
-    			$sizeDateStr .= ' ';
-    			}
-    		$sizeDateStr .= $sizeStr;
-    		}
-    	$sizeDateStr .= "</span>";
-    	}
 
-	return($sizeDateStr);
-	}
+	if ($dateStr ne '' || $sizeStr ne '')
+		{
+		$sizeDateStr = "<span>";
+		if ($dateStr ne '')
+			{
+			$sizeDateStr .= $dateStr;
+			}
+		if ($sizeStr ne '')
+			{
+			if ($dateStr ne '')
+				{
+				$sizeDateStr .= ' ';
+				}
+			$sizeDateStr .= $sizeStr;
+			}
+		$sizeDateStr .= "</span>";
+		}
+
+	return ($sizeDateStr);
+}
 
 # Image lines in the directory picker get a "show image on mouse hover" onmouseover action.
 # Which isn't really needed, just showing off a bit:) Images can't be searched for.
 # See GetDirsAndFiles() above.
 sub ImageLine {
 	my ($serverAddr, $dir, $file, $ext, $sizeDateStr) = @_;
-	my $imagePath = $dir . $file;
+	my $imagePath      = $dir . $file;
 	my $imageHoverPath = $imagePath;
 	$imageHoverPath =~ s!%!%25!g;
 	my $imageName = $file;
-	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine!		    		
-	$imagePath = &HTML::Entities::encode($imagePath);
+	$imageName      = &HTML::Entities::encode($imageName);        # YES this works fine!
+	$imagePath      = &HTML::Entities::encode($imagePath);
 	$imageHoverPath = &HTML::Entities::encode($imageHoverPath);
-	
+
 	my $serverImageHoverPath = "http://$serverAddr:$port_listen/$imageHoverPath";
-	my $leftHoverImg = "<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
-	my $rightHoverImg = "<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
-	my $result = '<li class="file ext_' . $ext . '"><a href="#" rel="' . 
-		$imagePath . '"' . "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\""
-		. '>' . "$leftHoverImg$imageName$rightHoverImg" . '</a>' . $sizeDateStr . '</li>';
-		
-	return($result);
-	}
+	my $leftHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
+	my $rightHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
+	my $result =
+		  '<li class="file ext_'
+		. $ext
+		. '"><a href="#" rel="'
+		. $imagePath . '"'
+		. "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\""
+		. '>'
+		. "$leftHoverImg$imageName$rightHoverImg" . '</a>'
+		. $sizeDateStr . '</li>';
+
+	return ($result);
+}
 
 # Keeping it simple, this is just for a directory picker for limiting searches.
 # See GetDirsAndFiles() above.
@@ -841,11 +879,16 @@ sub TextDocxPdfLine {
 	my ($dir, $file, $ext, $sizeDateStr) = @_;
 	my $filePath = &HTML::Entities::encode($dir . $file);
 	my $fileName = &HTML::Entities::encode($file);
-	
-	my $result = '<li class="file ext_' . $ext . '"><a href="#" rel="' . 
-		$filePath . '">' .
-		$fileName . '</a>' .
-		'&nbsp;&nbsp;' . $sizeDateStr . '</li>'; # No edit link.
-		
-	return($result);
-	}
+
+	my $result =
+		  '<li class="file ext_'
+		. $ext
+		. '"><a href="#" rel="'
+		. $filePath . '">'
+		. $fileName . '</a>'
+		. '&nbsp;&nbsp;'
+		. $sizeDateStr
+		. '</li>';    # No edit link.
+
+	return ($result);
+}

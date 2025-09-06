@@ -1,8 +1,8 @@
 # echo1.pl: just echoes command line arguments.
-# perl C:\perlprogs\echo1.pl arg(s) 
+# perl C:\perlprogs\echo1.pl arg(s)
 
 use strict;
-select((select(STDOUT), $|=1)[0]);
+select((select(STDOUT), $| = 1)[0]);
 
 my @args;
 while (defined(my $arg = shift @ARGV))

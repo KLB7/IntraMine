@@ -91,7 +91,7 @@ Map network drive: Open a File Explorer window, click on "This PC" on the left, 
 
 Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended though not required).
 
-See "FLASH links.html" and also "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top level of your IntraMine folder for a running example of the FLASH link algorithm.
+See "FLASH links.html" and also "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top of your IntraMine folder for a running example of the FLASH link algorithm.
 
 FLASH is short for Fast Local Automatic Source and text Hyperlinks. And yes, it does encourage "FLASH links" which suffers from RAS syndrome. I'll fix that when we all stop saying "PIN number."
 
@@ -103,7 +103,7 @@ Command prompt: The command prompt window
 
 "prompt.png"
 
-The flashing insertion point in the window that comes up when you run C:/Windows/System32/cmd.exe or PowerShell.
+The flashing insertion point in the window that comes up when you run C\:/Windows/System32/cmd.exe or PowerShell.
 
 Console window: The window you can type commands in when you run "C:/Windows/System32/cmd.exe". To make life easier, once you've found it put a shortcut to it on your desktop. You can have two shortcuts, and set one of them to always "Run as administrator" (to do that, right-click and then Properties->Shortcut->Advanced... and check "Run as administrator").
 

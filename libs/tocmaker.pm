@@ -32,11 +32,11 @@ sub ReMakeTocForDir {
 	$dirPath =~ s!/$!!g;
 	my $tocPath = $dirPath . '/' . $tocFileName;
 	if (FileOrDirExistsWide($tocPath) == 1)
-	#if (-f $tocPath)
+		#if (-f $tocPath)
 		{
 		MakeTocForDir($dirPath, $tocFileName);
 		}
-	}
+}
 
 # Make a '---toc---.txt' file for a directory.
 sub MakeTocForDir {
@@ -44,7 +44,7 @@ sub MakeTocForDir {
 	$dirPath =~ s!\\!/!g;
 	$dirPath =~ s!/$!!g;
 	if (FileOrDirExistsWide($dirPath) == 0)
-	#if (!(-d $dirPath))
+		#if (!(-d $dirPath))
 		{
 		return;
 		}
@@ -54,12 +54,12 @@ sub MakeTocForDir {
 	my $tocPath = $dirPath . '/' . $tocFileName;
 	$NameForFullFilePath{$tocPath} = $tocFileName;
 	DumpToc($tocPath, \%NameForFullFilePath);
-	}
+}
 
 sub DumpToc {
 	my ($tocPath, $nameForFullPathH) = @_;
-	my $fileH = FileHandle->new("> $tocPath") or
-		return;
+	my $fileH = FileHandle->new("> $tocPath")
+		or return;
 	binmode($fileH, ":utf8");
 	my $dirProper = DirectoryFromPathTS($tocPath);
 	print $fileH "$dirProper\n===================\n";
@@ -72,27 +72,27 @@ sub DumpToc {
 		# Quotes are no longer needed with Zero Overhead Linking: print $fileH "\"$nameForFullPathH->{$fullPath}\"\t\"$fullPath\"\n";
 		}
 	close($fileH);
-	}
+}
 
 use ExportAbove;
 
 sub _DoOne {
-	my $sourceFileName = $_;
-    my $sourceFileFullPath = $File::Find::name;
-    if ($_ eq "." || FileOrDirExistsWide($sourceFileFullPath) != 1)
-    #if ($_ eq "." || ! -f $sourceFileFullPath)
+	my $sourceFileName     = $_;
+	my $sourceFileFullPath = $File::Find::name;
+	if ($_ eq "." || FileOrDirExistsWide($sourceFileFullPath) != 1)
+		#if ($_ eq "." || ! -f $sourceFileFullPath)
 		{
-		;# not a file
+		;    # not a file
 		return;
 		}
-    # else it's a file.
-    else
-        {
+	# else it's a file.
+	else
+		{
 		my $pathForwardSlashes = $sourceFileFullPath;
 		$pathForwardSlashes =~ s![\\]!/!g;
-        $NameForFullFilePath{$pathForwardSlashes} = $sourceFileName;
-        }
-	}
+		$NameForFullFilePath{$pathForwardSlashes} = $sourceFileName;
+		}
+}
 
 
 1;

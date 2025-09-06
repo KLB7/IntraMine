@@ -12,16 +12,14 @@ use Win32::API;
 
 BEGIN {
 	# Double click time
-	Win32::API::More->Import(
-		User32 => qq{UINT GetDoubleClickTime()}
-    );
+	Win32::API::More->Import(User32 => qq{UINT GetDoubleClickTime()});
 }
 
 # Get system double click time in msec.
 sub DoubleClickTime {
 	my $dtime = GetDoubleClickTime();
-	return($dtime);
-	}
+	return ($dtime);
+}
 
 use ExportAbove;
 1;

@@ -15,17 +15,18 @@
 # Cash events file fields: any line starting with ^\s*# is a comment line, ignored.
 # Fields are tab-separated.
 # Events:
-# OPENING amount YYYYMM (Description, ignored)				# Opening balance and month to start
-# UNTIL YYYYMM (Description, ignored)						# Ending month, inclusive
-# INCOME_ANNUAL amount YYYYMM YYYYMM Description			# Amount, start year and month, end year and month, applied once per year inclusive
-# INCOME_MONTHLY amount YYYYMM YYYYMM Description			# Amount, start and end year/month, applied monthly inclusive
-# EXPENSE_ANNUAL amount YYYYMM YYYYMM Description			# Like INCOME_ANNUAL, except amount is deducted
-# EXPENSE_MONTHLY amount YYYYMM YYYYMM Description			# Like INCOME_MONTHLY, except amount is deducted
-# ASSET amount YYYYMM Description							# One-shot expense, in the year/month specified
+# OPENING amount YYYYMM (Description, ignored)		# Opening balance and month to start
+# UNTIL YYYYMM (Description, ignored)				# Ending month, inclusive
+# INCOME_ANNUAL amount YYYYMM YYYYMM Description	# Amount, start year and month, end year and month, applied once per year inclusive
+# INCOME_MONTHLY amount YYYYMM YYYYMM Description	# Amount, start and end year/month, applied monthly inclusive
+# EXPENSE_ANNUAL amount YYYYMM YYYYMM Description	# Like INCOME_ANNUAL, except amount is deducted
+# EXPENSE_MONTHLY amount YYYYMM YYYYMM Description	# Like INCOME_MONTHLY, except amount is deducted
+# ASSET amount YYYYMM Description					# One-shot expense, in the year/month specified
 
-# There are no explicit twice-a-year or quarterly events, but you can do those with two or four ANNUAL events.
-# It's ok if the range of dates for an annual or monthly item is wider than the OPENING/UNTIL range - events outside
-# that range will be ignored.
+# There are no explicit twice-a-year or quarterly events, but you can do those with two or
+# four ANNUAL events.
+# It's ok if the range of dates for an annual or monthly item is wider than the OPENING/UNTIL range
+# - events outside that range will be ignored.
 # Example events (hardly complete, and also fictitious):
 # OPENING	10000	201611	Opening balance of $10,000 starting Nov 1 2016
 # UNTIL	202012	Ending month, inclusive, December 2020
@@ -38,8 +39,9 @@
 # EXPENSE_MONTHLY	350	201611	202012	Food (dog)
 # ASSET	201806	1000	New pencil sharpener wth built-in TV
 
-# Tip: create several scenarios in separate txt files, then one-by-one replace the contents of the cash flow events file and refresh
-# the Cash page to see what the consequences are of your mad spending decisions.
+# Tip: create several scenarios in separate txt files, then one-by-one replace the contents of the
+# cash flow events file and refresh the Cash page to see what the consequences are of your mad
+# spending decisions.
 
 # perl C:\perlprogs\mine\intramine_cashserver.pl 81 43129
 
@@ -61,16 +63,16 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -79,13 +81,13 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 my $CashTextPath = FullDirectoryPath('CASHFLOWTEXTPATH');
 
 my %RequestAction;
-$RequestAction{'req|main'} = \&CashflowPage; 						# req=main
-$RequestAction{'req|css'} = \&GetRequestedFile; 					# req=css
-$RequestAction{'req|js'} = \&GetRequestedFile; 						# req=js
-$RequestAction{'req|calcandloadjs'} = \&CalcAndLoadJavaScript; 		# req=calcandloadjs
-$RequestAction{'req|loaddetails'} = \&CashflowDetails; 				# req=loaddetails
-$RequestAction{'req|open'} = \&OpenTheFile; 						# req=open
-#$RequestAction{'req|id'} = \&Identify; 							# req=id
+$RequestAction{'req|main'}          = \&CashflowPage;             # req=main
+$RequestAction{'req|css'}           = \&GetRequestedFile;         # req=css
+$RequestAction{'req|js'}            = \&GetRequestedFile;         # req=js
+$RequestAction{'req|calcandloadjs'} = \&CalcAndLoadJavaScript;    # req=calcandloadjs
+$RequestAction{'req|loaddetails'}   = \&CashflowDetails;          # req=loaddetails
+$RequestAction{'req|open'}          = \&OpenTheFile;              # req=open
+#$RequestAction{'req|id'} = \&Identify; 						  # req=id
 
 # Over to swarmserver.pm.
 MainLoop(\%RequestAction);
@@ -130,26 +132,26 @@ window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + sho
 </script>
 </body></html>
 FINIS
-	
+
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
 	# The IPv4 Address for this server is  (eg 192.168.0.14);
 	my $serverAddr = ServerAddress();
-	
+
 	my $loadItems = "'req=calcandloadjs', function fn(arrr) {LoadDetails(arrr);}";
 	my $contentID = 'scrollAdjustedHeight';
-	my $host = $serverAddr;
-	my $port = $port_listen;
-	my $pgLoader = GetStandardPageLoader($loadItems, $contentID, $host, $port);
+	my $host      = $serverAddr;
+	my $port      = $port_listen;
+	my $pgLoader  = GetStandardPageLoader($loadItems, $contentID, $host, $port);
 	$theBody =~ s!_LOADANDGO_!$pgLoader!;
 
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
-	return $theBody;	
-	}
+	return $theBody;
+}
 
 # Open the cash events input file in a text editor. Only if client is on the server box.
 # Notepadd++ is hard wired as the editor, and from that you might infer that
@@ -158,18 +160,20 @@ FINIS
 sub OpenTheFile {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
-	
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	$filepath =~ s!\\!/!g;
 	Output("|$filepath|\n");
 	my $ProcessObj;
-	my $openresult = Win32::Process::Create($ProcessObj, $ENV{COMSPEC}, "/c start notepad++ \"$filepath\"", 0, 0, ".");
+	my $openresult =
+		Win32::Process::Create($ProcessObj, $ENV{COMSPEC}, "/c start notepad++ \"$filepath\"",
+		0, 0, ".");
 	if (!$openresult)
 		{
 		$status = "Could not open |$filepath|";
 		}
-	return($status);
-	}
+	return ($status);
+}
 
 { ##### Cash flow details
 my $CashFlowHtmlDetails;
@@ -346,68 +350,70 @@ FINIS
 		{
 		$theJS =~ s!_DATA_!!;
 		}
-		
-	my $serverAddr = ServerAddress();
+
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
 	#print("EVENTS srvr addr: $serverAddr\n");
 	#print("EVENTS peer addr: $peeraddress\n");
 	# ARG if client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
-	
+
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $host = $serverAddr;
-	my $port = $port_listen;
+	my $host          = $serverAddr;
+	my $port          = $port_listen;
 	$theJS =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theJS =~ s!_THEHOST_!$host!g;
 	$theJS =~ s!_THEPORT_!$port!g;
 
-	return($theJS);
-	}
+	return ($theJS);
+}
 
 sub CashflowDetails {
 	my ($obj, $formH, $peeraddress) = @_;
-	
-	my $serverAddr = ServerAddress();
+
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
 	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
 		{
 		$clientIsRemote = 1;
 		}
-	my $rdm = random_int_between(1, 65000);
+	my $rdm     = random_int_between(1, 65000);
 	my $editDiv = '';
 	if (!$clientIsRemote)
 		{
-		my $editL = "<a id='cashfloweditlink' href='$CashTextPath?rddm=$rdm'  onclick='OpenCashFlowFile(this.href); return false;'>Edit Cash Flow Events</a>";
+		my $editL =
+"<a id='cashfloweditlink' href='$CashTextPath?rddm=$rdm'  onclick='OpenCashFlowFile(this.href); return false;'>Edit Cash Flow Events</a>";
 		# Throw in an edit link
 		$editDiv = "<div id='editcashflow'>$editL</div>\n";
 		}
-	
+
 	my $result = $editDiv . "<div id='theTextWithoutJumpList'>$CashFlowHtmlDetails</div>";
-	return($result); # See just above
-	}
+	return ($result);    # See just above
+}
 
 sub GetCashFlow {
 	my ($labels, $vals, $CashFlowHtmlDetailsR) = @_;
-	
+
 	my $cashflow = cashflow->new($CashTextPath);
 	$cashflow->GetDatesAndValues($labels, $vals, $CashFlowHtmlDetailsR);
-	}
+}
 
 # Note color does not (yet) work with material charts (Feb 14 2016).
 sub CashFlowDataString {
-	my ($labels, $vals)= @_;
+	my ($labels, $vals) = @_;
 	my $graphData = '';
-	
-	for (my $i = 0; $i <@$vals; ++$i)
+
+	for (my $i = 0 ; $i < @$vals ; ++$i)
 		{
 		my $comma = ($i > 0) ? ',' : '';
-		my $val = $vals->[$i];
-		my $clr = '#00C000';
+		my $val   = $vals->[$i];
+		my $clr   = '#00C000';
 		if ($val < 0)
 			{
 			$clr = '#C00000';
@@ -419,5 +425,5 @@ sub CashFlowDataString {
 		$graphData .= "${comma}\['$labels->[$i]', $val, 'color: $clr'\]";
 		}
 	return $graphData;
-	}
-} ##### Cash flow details
+}
+}    ##### Cash flow details

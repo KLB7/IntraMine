@@ -26,51 +26,51 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
 use win_wide_filepaths;
-use ext;  # for ext.pm#IsTextOrImageExtensionNoPeriod() and ext.pm#IsImageExtensionNoPeriod()
+use ext;    # for ext.pm#IsTextOrImageExtensionNoPeriod() and ext.pm#IsImageExtensionNoPeriod()
 
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
 my $FILESIZEUNITS = [qw(B KB MB GB TB PB)];
 
-my $CSS_DIR = FullDirectoryPath('CSS_DIR');
-my $JS_DIR = FullDirectoryPath('JS_DIR');
-my $UseAppForLocalEditing = CVal('USE_APP_FOR_EDITING');
+my $CSS_DIR                = FullDirectoryPath('CSS_DIR');
+my $JS_DIR                 = FullDirectoryPath('JS_DIR');
+my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
-my $AllowLocalEditing = CVal('ALLOW_LOCAL_EDITING');
-my $AllowRemoteEditing = CVal('ALLOW_REMOTE_EDITING');
+my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
+my $AllowRemoteEditing     = CVal('ALLOW_REMOTE_EDITING');
 
 # For the file name / datetime / file size span width array @widths.
 my $FILENAMEWIDTH = 0;
 my $DATETIMEWIDTH = 1;
-my $SIZEWIDTH = 2;
+my $SIZEWIDTH     = 2;
 
 # For file names when making a new file.
-my $GOODNAME = 1; 		# eg file.txt
-my $BADNAME = 2;		# eg COM7
-my $BADCHAR = 3;		# eg file?.txt
-my $MISSINGNAME = 4; 	# ''
+my $GOODNAME    = 1;    # eg file.txt
+my $BADNAME     = 2;    # eg COM7
+my $BADCHAR     = 3;    # eg file?.txt
+my $MISSINGNAME = 4;    # ''
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 my %RequestAction;
-$RequestAction{'req|main'} = \&FileTreePage; 				# req=main
-$RequestAction{'dir'} = \&GetDirsAndFiles; 					# $formH->{'dir'} is directory path
-$RequestAction{'req|new'} = \&NewFile; 				# req=new, $formH->{'path'} holds new path
+$RequestAction{'req|main'} = \&FileTreePage;       # req=main
+$RequestAction{'dir'}      = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
+$RequestAction{'req|new'}  = \&NewFile;            # req=new, $formH->{'path'} holds new path
 
 # Over to swarmserver.pm.
 MainLoop(\%RequestAction);
@@ -177,59 +177,60 @@ FINIS
 	$theBody =~ s!_TOPNAV_!$topNav!;
 	$theBody =~ s!_CSS_DIR_!$CSS_DIR!g;
 	$theBody =~ s!_JS_DIR_!$JS_DIR!g;
-	
+
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
 	# The IPv4 Address for this server (eg 192.168.0.14);
 	my $serverAddr = ServerAddress();
-	
+
 	# Form action.
 	my $action = "http://$serverAddr:$port_listen/?rddm=1";
 	$theBody =~ s!_ACTION_!\'$action\'!;
-	
+
 	# Put in drive selector options (two of them). See swarmserver.pm#DriveSelectorOptions().
 	my $driveSelectorOptions = DriveSelectorOptions();
 	$theBody =~ s!_DRIVESELECTOROPTIONS_!$driveSelectorOptions!g;
-	
+
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
-	
-	my $allowEditing = (($clientIsRemote && $AllowRemoteEditing) 
-						|| (!$clientIsRemote && $AllowLocalEditing));
+
+	my $allowEditing =
+		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
 	my $useAppForEditing = 0;
 	if ($allowEditing)
 		{
 		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing)
-							|| (!$clientIsRemote && $UseAppForLocalEditing));
+				|| (!$clientIsRemote && $UseAppForLocalEditing));
 		}
-	
-	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $tfAllowEditing = ($allowEditing) ? 'true' : 'false';
+
+	my $amRemoteValue      = $clientIsRemote     ? 'true' : 'false';
+	my $tfAllowEditing     = ($allowEditing)     ? 'true' : 'false';
 	my $tfUseAppForEditing = ($useAppForEditing) ? 'true' : 'false';
-	
+
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING!$tfUseAppForEditing!;
-	
+
 	$theBody =~ s!_THEPORT_!$port_listen!;
 	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
-	my $videoShortName = CVal('VIDEOSHORTNAME');
+	my $videoShortName  = CVal('VIDEOSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
 	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
-	
-	my $initialDirectory = defined($formH->{'directory'}) ? $formH->{'directory'}: '';
+
+	my $initialDirectory = defined($formH->{'directory'}) ? $formH->{'directory'} : '';
 	# Encode: this goes with decodeURIComponent at top of files.js#showDirectory().
 	$initialDirectory = uri_encode($initialDirectory);
 	# The Files page will open to the $initialDirectory if provided. This is used
@@ -238,54 +239,54 @@ FINIS
 
 	my $newFilePicker = NewFilePicker();
 	$theBody =~ s!_NEWFILEPICKER_!$newFilePicker!;
-	
+
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
 	return $theBody;
-	}
+}
 
 # Return a list of directories and files for the current drive or directory.
 # Called by jqueryFileTree.js on line 69: "$.post(o.script, { dir: t, rmt: o.remote,..."
 # which sends a "dir" request to the program (see %RequestAction above).
 sub GetDirsAndFiles {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $dir = $formH->{'dir'};
+	my $dir    = $formH->{'dir'};
 	my $result = '';
-	
+
 	Output("GetDirsAndFiles request for dir: |$dir|\n");
 	if (FileOrDirExistsWide($dir) != 2)
 		{
-		return(' '); # return something (but not too much), to avoid 404
+		return (' ');    # return something (but not too much), to avoid 404
 		}
-	
+
 	my @folders;
 	my @files;
 	my @modDates;
 	my @fileSizes;
-	
+
 	GetFoldersFilesDatesAndSizes($dir, \@folders, \@files, \@modDates, \@fileSizes);
-	
+
 	my $numFolders = @folders;
-	my $numFiles = @files;
-	my $total = $numFolders + $numFiles;
-	
+	my $numFiles   = @files;
+	my $total      = $numFolders + $numFiles;
+
 	if ($total)
 		{
 		$result = "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
 		}
-		
+
 	if ($numFolders)
 		{
 		PutFolders($dir, \@folders, \$result);
 		}
-		
+
 	if ($numFiles)
 		{
-		my $sortOrder = (defined($formH->{'sort'})) ? $formH->{'sort'}: '';
+		my $sortOrder = (defined($formH->{'sort'})) ? $formH->{'sort'} : '';
 		SortFilesDatesAndSizes($sortOrder, \@files, \@modDates, \@fileSizes);
 
-		my $rmt = defined($formH->{'rmt'}) ? $formH->{'rmt'}: 'undef';
+		my $rmt = defined($formH->{'rmt'}) ? $formH->{'rmt'} : 'undef';
 		if ($rmt eq 'false')
 			{
 			$rmt = 0;
@@ -296,33 +297,34 @@ sub GetDirsAndFiles {
 			}
 		# TEST ONLY
 		#print("\$rmt: |$rmt|\n");
-		
+
 		my @modDatesStrings;
 		my @fileSizesStrings;
 		my @widths;
-		GetDateSizeStringsAndColumnWidths(\@files, \@modDates, \@fileSizes,
-			\@modDatesStrings, \@fileSizesStrings, \@widths);
-		
-		PutFiles($dir, $formH, $rmt, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths, \$result);
+		GetDateSizeStringsAndColumnWidths(\@files, \@modDates, \@fileSizes, \@modDatesStrings,
+			\@fileSizesStrings, \@widths);
+
+		PutFiles($dir, $formH, $rmt, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths,
+			\$result);
 		}
-		
+
 	if ($total)
 		{
 		$result .= "</ul>\n";
 		}
-	
+
 	if ($result eq '')
 		{
-		$result = ' ' ; # return something (but not too much), to avoid 404
+		$result = ' ';    # return something (but not too much), to avoid 404
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub GetFoldersFilesDatesAndSizes {
 	my ($dir, $foldersA, $filesA, $modDatesA, $fileSizesA) = @_;
 	my $fullDir = $dir . '*';
-	
+
 	# win_wide_filepaths.pm#FindFileWide().
 	my @allEntries = FindFileWide($fullDir);
 	my $numEntries = @allEntries;
@@ -330,9 +332,9 @@ sub GetFoldersFilesDatesAndSizes {
 		{
 		return;
 		}
-	
+
 	# Break entries into folders and files.
-	for (my $i = 0; $i < @allEntries; ++$i)
+	for (my $i = 0 ; $i < @allEntries ; ++$i)
 		{
 		my $theName = $allEntries[$i];
 		# Not needed: $fileName = decode("utf8", $fileName);
@@ -352,82 +354,84 @@ sub GetFoldersFilesDatesAndSizes {
 				}
 			}
 		}
-	
+
 	my $numFiles = @$filesA;
 	if ($numFiles)
 		{
 		FileDatesAndSizes($dir, $filesA, $modDatesA, $fileSizesA);
 		}
-	}
+}
 
 sub PutFolders {
 	my ($dir, $foldersA, $resultR) = @_;
-	
+
 	foreach my $folderName (sort {lc $a cmp lc $b} @$foldersA)
 		{
 		next if (FileOrDirExistsWide($dir . $folderName) == 0);
-		$$resultR .= '<li class="directory collapsed"><a href="#" rel="' . 
-			  &HTML::Entities::encode($dir . $folderName) . '/">' . 
-			  &HTML::Entities::encode($folderName) . '</a></li>';
+		$$resultR .=
+			  '<li class="directory collapsed"><a href="#" rel="'
+			. &HTML::Entities::encode($dir . $folderName) . '/">'
+			. &HTML::Entities::encode($folderName)
+			. '</a></li>';
 		}
-	}
+}
 
 sub SortFilesDatesAndSizes {
 	my ($sortOrder, $filesA, $modDatesA, $fileSizesA) = @_;
 	my @idx;
-	
+
 	if ($sortOrder eq 'size_smallest')
 		{
-		@idx = sort {$fileSizesA->[$a] <=> $fileSizesA->[$b]} 0..$#$fileSizesA;
+		@idx = sort {$fileSizesA->[$a] <=> $fileSizesA->[$b]} 0 .. $#$fileSizesA;
 		}
 	elsif ($sortOrder eq 'size_largest')
 		{
-		@idx = sort {$fileSizesA->[$b] <=> $fileSizesA->[$a]} 0..$#$fileSizesA;
+		@idx = sort {$fileSizesA->[$b] <=> $fileSizesA->[$a]} 0 .. $#$fileSizesA;
 		}
 	elsif ($sortOrder eq 'date_newest')
 		{
 		# Newest first, so [$b] <=> [$a].
-		@idx = sort {$modDatesA->[$b] <=> $modDatesA->[$a]} 0..$#$modDatesA;
+		@idx = sort {$modDatesA->[$b] <=> $modDatesA->[$a]} 0 .. $#$modDatesA;
 		}
 	elsif ($sortOrder eq 'date_oldest')
 		{
 		# Newest first, so [$b] <=> [$a].
-		@idx = sort {$modDatesA->[$a] <=> $modDatesA->[$b]} 0..$#$modDatesA;
+		@idx = sort {$modDatesA->[$a] <=> $modDatesA->[$b]} 0 .. $#$modDatesA;
 		}
 	elsif ($sortOrder eq 'name_descending')
 		{
-		@idx = sort {lc $filesA->[$b] cmp lc $filesA->[$a]} 0..$#$filesA;
+		@idx = sort {lc $filesA->[$b] cmp lc $filesA->[$a]} 0 .. $#$filesA;
 		}
 	elsif ($sortOrder eq 'extension')
 		{
 		my @extensions;
 		Extensions($filesA, \@extensions);
-		@idx = sort{$extensions[$a] cmp $extensions[$b]} 0..$#extensions;
+		@idx = sort {$extensions[$a] cmp $extensions[$b]} 0 .. $#extensions;
 		}
-	else # 'name_ascending', the default
+	else    # 'name_ascending', the default
 		{
-		@idx = sort {lc $filesA->[$a] cmp lc $filesA->[$b]} 0..$#$filesA;
+		@idx = sort {lc $filesA->[$a] cmp lc $filesA->[$b]} 0 .. $#$filesA;
 		}
-	
-	@$filesA = @$filesA[@idx];
-	@$modDatesA = @$modDatesA[@idx];
+
+	@$filesA     = @$filesA[@idx];
+	@$modDatesA  = @$modDatesA[@idx];
 	@$fileSizesA = @$fileSizesA[@idx];
-	}
+}
 
 sub GetDateSizeStringsAndColumnWidths {
 	my ($filesA, $modDatesA, $fileSizesA, $modDatesStringsA, $fileSizesStringsA, $widthsA) = @_;
-	my $numFiles = @$filesA;
-	my $filesWidth = 0;
-	my $modDatesWidth = 0;
+	my $numFiles       = @$filesA;
+	my $filesWidth     = 0;
+	my $modDatesWidth  = 0;
 	my $fileSizesWidth = 0;
-	for (my $i = 0; $i < $numFiles; ++$i)
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $widthFiles = length($filesA->[$i]);
 		if ($filesWidth < $widthFiles)
 			{
 			$filesWidth = $widthFiles;
 			}
-		
+
 		my $dateTimeString = DateTimeString($modDatesA->[$i]);
 		push @$modDatesStringsA, $dateTimeString;
 		my $widthMDate = length($dateTimeString);
@@ -444,43 +448,45 @@ sub GetDateSizeStringsAndColumnWidths {
 			$fileSizesWidth = $widthSize;
 			}
 		}
-	
+
 	# Put file name, date, size in separate spans with fixed width in characters ('ch').
 	# Add 2 to $filesWidth for hover icons or edit pencil.
 	$filesWidth += 2;
 	my $wF = $filesWidth . 'ch';
 	my $wD = $modDatesWidth . 'ch';
 	my $wS = $fileSizesWidth . 'ch';
-	
+
 	$widthsA->[$FILENAMEWIDTH] = $wF;
 	$widthsA->[$DATETIMEWIDTH] = $wD;
-	$widthsA->[$SIZEWIDTH] = $wS;
-	}
+	$widthsA->[$SIZEWIDTH]     = $wS;
+}
 
 # For each file: file icon based on extension, file name, datetime, size in bytes.
 # Fixed-width inline-block <span>s are used to align entries.
 sub PutFiles {
-	my ($dir, $formH, $rmt, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) = @_;
-	my $numFiles = @$filesA;
-	my $clientIsRemote = ($formH->{'rmt'} eq 'false') ? 0 : 1;
-	my $allowEditing = ($formH->{'edt'} eq 'false') ? 0 : 1;
+	my ($dir, $formH, $rmt, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) =
+		@_;
+	my $numFiles         = @$filesA;
+	my $clientIsRemote   = ($formH->{'rmt'} eq 'false') ? 0 : 1;
+	my $allowEditing     = ($formH->{'edt'} eq 'false') ? 0 : 1;
 	my $useAppForEditing = ($formH->{'app'} eq 'false') ? 0 : 1;
-	my $serverAddr = ServerAddress();
-	
-	for (my $i = 0; $i < $numFiles; ++$i)
+	my $serverAddr       = ServerAddress();
+
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		next if (FileOrDirExistsWide($dir . $file) == 0);
 		my $modDate = $modDatesStringsA->[$i];
-		my $size = $fileSizesStringsA->[$i];
-		
+		my $size    = $fileSizesStringsA->[$i];
+
 		$file =~ /\.([^.]+)$/;
 		my $ext = $1;
 
 		# Gray out unsuported file types. Show thumbnail on hover for images.
 		# Note videos cannot be viewed remotely (at least for now).
-		if (defined($ext) && IsTextDocxPdfOrImageOrVideoExtensionNoPeriod($ext)
-		  && !(IsVideoExtensionNoPeriod($ext) && $rmt))
+		if (   defined($ext)
+			&& IsTextDocxPdfOrImageOrVideoExtensionNoPeriod($ext)
+			&& !(IsVideoExtensionNoPeriod($ext) && $rmt))
 			{
 			if (IsImageExtensionNoPeriod($ext))
 				{
@@ -490,31 +496,42 @@ sub PutFiles {
 				{
 				$$resultR .= VideoLine($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA);
 				}
-			else # Text, for the most part - could also be pdf or docx
+			else    # Text, for the most part - could also be pdf or docx
 				{
 				$$resultR .= TextDocxPdfLine($dir, $file, $ext, $modDate, $size,
-							$allowEditing, $clientIsRemote, $widthsA);
+					$allowEditing, $clientIsRemote, $widthsA);
 				}
 			}
 		else # Unsupported type (and remote videos), can't produce a read-only HTML view. So no link.
 			{
-			my $dateSpanStart = "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>";
-			my $sizesSpanStart = "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>";
+			my $dateSpanStart =
+				"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>";
+			my $sizesSpanStart =
+				"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>";
 			my $endSpan = '</span>';
 
 			my $fileName = &HTML::Entities::encode($file);
-			$$resultR .= '<li class="file ext_' . $ext . '">' .
-			"<span class='unsupported' style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" . $fileName . '</span>' .
-			$dateSpanStart . $modDate . $endSpan . $sizesSpanStart . $size . $endSpan . '</li>';
+			$$resultR .=
+				  '<li class="file ext_'
+				. $ext . '">'
+				. "<span class='unsupported' style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+				. $fileName
+				. '</span>'
+				. $dateSpanStart
+				. $modDate
+				. $endSpan
+				. $sizesSpanStart
+				. $size
+				. $endSpan . '</li>';
 			}
 		}
-	}
+}
 
 sub FileDatesAndSizes {
 	my ($dir, $filesA, $modDatesA, $sizesA) = @_;
 	my $numFiles = @$filesA;
-	
-	for (my $i = 0; $i < $numFiles; ++$i)
+
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		my @a;
@@ -528,15 +545,15 @@ sub FileDatesAndSizes {
 			$a[1] = '';
 			}
 		push @$modDatesA, $a[0];
-		push @$sizesA, $a[1];
+		push @$sizesA,    $a[1];
 		}
-	}
+}
 
 sub Extensions {
 	my ($filesA, $extA) = @_;
 	my $numFiles = @$filesA;
 
-	for (my $i = 0; $i < $numFiles; ++$i)
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		my $ext;
@@ -550,54 +567,70 @@ sub Extensions {
 			}
 		push @$extA, $ext;
 		}
-	}
+}
 
 # Images get showhint() "hover" event listeners, as well as a link to open in a new tab.
 # Put file name, mod date, and size in separate fixed-width spans for alignment.
 sub ImageLine {
 	my ($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA) = @_;
-	my $imagePath = $dir . $file;
+	my $imagePath      = $dir . $file;
 	my $imageHoverPath = $imagePath;
 	$imageHoverPath =~ s!%!%25!g;
 	my $imageName = $file;
-	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine.
-	$imagePath = &HTML::Entities::encode($imagePath);
+	$imageName      = &HTML::Entities::encode($imageName);        # YES this works fine.
+	$imagePath      = &HTML::Entities::encode($imagePath);
 	$imageHoverPath = &HTML::Entities::encode($imageHoverPath);
-	
+
 	my $serverImageHoverPath = "http://$serverAddr:$port_listen/$imageHoverPath";
-	my $leftHoverImg = "<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
-	my $rightHoverImg = "<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
-	
-	my $result = '<li class="file ext_' . $ext . '">' .
-	"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-	'<a href="#" rel="' . $imagePath . '"' . "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\"" . '>' .
-	"$leftHoverImg$imageName$rightHoverImg" . '</a></span>' .
-	"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-	$modDate . '</span>' .
-	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-	$size . '</span></li>';
-			
-	return($result);
-	}
+	my $leftHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
+	my $rightHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
+
+	my $result =
+		  '<li class="file ext_'
+		. $ext . '">'
+		. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+		. '<a href="#" rel="'
+		. $imagePath . '"'
+		. "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\""
+		. '>'
+		. "$leftHoverImg$imageName$rightHoverImg"
+		. '</a></span>'
+		. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+		. $modDate
+		. '</span>'
+		. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+		. $size
+		. '</span></li>';
+
+	return ($result);
+}
 
 sub VideoLine {
 	my ($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA) = @_;
 	my $imagePath = $dir . $file . 'VIDEO';
 	my $imageName = $file;
-	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine.
+	$imageName = &HTML::Entities::encode($imageName);    # YES this works fine.
 	$imagePath = &HTML::Entities::encode($imagePath);
 
-	my $result = '<li class="file ext_' . $ext . '">' .
-	"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-	'<a href="#" rel="' . $imagePath . '"'  . '>' .
-	"$imageName" . '</a></span>' .
-	"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-	$modDate . '</span>' .
-	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-	$size . '</span></li>';
+	my $result =
+		  '<li class="file ext_'
+		. $ext . '">'
+		. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+		. '<a href="#" rel="'
+		. $imagePath . '"' . '>'
+		. "$imageName"
+		. '</a></span>'
+		. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+		. $modDate
+		. '</span>'
+		. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+		. $size
+		. '</span></li>';
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Put link on file name, with optional edit pencil link.
 # PDF and docx can't be edited on a remote PC, hence a bit of special handling.
@@ -606,41 +639,53 @@ sub TextDocxPdfLine {
 	my ($dir, $file, $ext, $modDate, $size, $allowEditing, $clientIsRemote, $widthsA) = @_;
 	my $filePath = &HTML::Entities::encode($dir . $file);
 	my $fileName = &HTML::Entities::encode($file);
-	
+
 	my $result = '';
 	# No editing if config says no, or it's pdf or docx on a remote PC.
 	if (!$allowEditing || ($clientIsRemote && $ext =~ m!^(docx|pdf)!i))
 		{
-		$result .= '<li class="file ext_' . $ext . '">' .
-		"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-		'<a href="#" rel="' . $filePath . '">' .
-		$fileName . '</a>' . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-		$modDate . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-		$size . '</span></li>';
+		$result .=
+			  '<li class="file ext_'
+			. $ext . '">'
+			. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+			. '<a href="#" rel="'
+			. $filePath . '">'
+			. $fileName . '</a>'
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+			. $modDate
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+			. $size
+			. '</span></li>';
 		}
-	else # editing allowed
+	else    # editing allowed
 		{
-		$result .= '<li class="file ext_' . $ext . '">' .
-		"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-		'<a href="#" rel="' . $filePath . '">' .
-		$fileName . '</a>' .
-		'<a href="#"><img src="edit1.png" width="17" height="12" rel="' .
-		$filePath . '" />' . '</a>' . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-		$modDate . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-		$size . '</span></li>';
+		$result .=
+			  '<li class="file ext_'
+			. $ext . '">'
+			. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+			. '<a href="#" rel="'
+			. $filePath . '">'
+			. $fileName . '</a>'
+			. '<a href="#"><img src="edit1.png" width="17" height="12" rel="'
+			. $filePath . '" />' . '</a>'
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+			. $modDate
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+			. $size
+			. '</span></li>';
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # This is a simplified version of the file picker, file links are omitted here
 # and there is a text field for entering the name of the new file.
 sub NewFilePicker {
-my $theSource = <<'FINIS';
+	my $theSource = <<'FINIS';
 <!--<form id="dirform">-->
 <div id='dirpickerMainContainer'>
 	<p id="directoryPickerTitle">New File</p>
@@ -666,12 +711,12 @@ my $theSource = <<'FINIS';
 
 <!--</form>-->
 FINIS
-	
+
 	# Put a list of drives in the drive selector.
 	my $driveSelectorOptions = DriveSelectorOptions();
 	$theSource =~ s!_DRIVESELECTOROPTIONS_!$driveSelectorOptions!g;
 	return $theSource;
-	}
+}
 
 # Returns ok, noname, badname, badchar, exists, error (latter if system trouble).
 # Note this will not overwrite an existing file unless $formH->{'allowOverwrite'} is defined.
@@ -681,33 +726,33 @@ sub NewFile {
 	my $path = (defined($formH->{'path'})) ? $formH->{'path'} : '';
 	if ($path eq '')
 		{
-		return('nopath');
+		return ('nopath');
 		}
-	my $fileName = FileNameFromPath($path);
+	my $fileName   = FileNameFromPath($path);
 	my $nameStatus = IsGoodFileName($fileName);
 	if ($nameStatus == $BADNAME)
 		{
-		return('badname');
+		return ('badname');
 		}
 	elsif ($nameStatus == $BADCHAR)
 		{
-		return('badchar');
+		return ('badchar');
 		}
 	elsif ($nameStatus == $MISSINGNAME)
 		{
-		return('noname');
+		return ('noname');
 		}
 	if (FileOrDirExistsWide($path) == 1 && !defined($formH->{'allowOverwrite'}))
 		{
-		return('exists');
+		return ('exists');
 		}
-	
+
 	if (!WriteUTF8FileWide($path, ''))
 		{
-		return('error');
+		return ('error');
 		}
-	
-	return('ok');
+
+	return ('ok');
 }
 
 # Returns
@@ -722,7 +767,9 @@ sub IsGoodFileName {
 		{
 		$result = $MISSINGNAME;
 		}
-	elsif ($fileName =~ m!^(CON|PRN|AUX|NUL|COM0|COM1|COM2|COM3|COM4|COM5|COM6|COM7|COM8|COM9|LPT0|LPT1|LPT2|LPT3|LPT4|LPT5|LPT6|LPT7|LPT8|LPT9)$!i)
+	elsif ($fileName =~
+m!^(CON|PRN|AUX|NUL|COM0|COM1|COM2|COM3|COM4|COM5|COM6|COM7|COM8|COM9|LPT0|LPT1|LPT2|LPT3|LPT4|LPT5|LPT6|LPT7|LPT8|LPT9)$!i
+		)
 		{
 		$result = $BADNAME;
 		}
@@ -731,5 +778,5 @@ sub IsGoodFileName {
 		$result = $BADCHAR;
 		}
 
-	return($result);
-	}
+	return ($result);
+}

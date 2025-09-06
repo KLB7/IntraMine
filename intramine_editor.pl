@@ -39,47 +39,51 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
-my $LogDir = FullDirectoryPath('LogDir');
-my $ctags_dir = CVal('CTAGS_DIR');
+my $LogDir                        = FullDirectoryPath('LogDir');
+my $ctags_dir                     = CVal('CTAGS_DIR');
 my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
-my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
-InitTocLocal($LogDir . 'temp/tempctags', $port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore, $GLOSSARYFILENAME);
+my $GLOSSARYFILENAME              = lc(CVal('GLOSSARYFILENAME'));
+InitTocLocal(
+	$LogDir . 'temp/tempctags',
+	$port_listen, $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore,
+	$GLOSSARYFILENAME
+);
 
 # For the file name / datetime / file size span width array @widths.
 my $FILENAMEWIDTH = 0;
 my $DATETIMEWIDTH = 1;
-my $SIZEWIDTH = 2;
+my $SIZEWIDTH     = 2;
 
 # For file names when doing Save As.
-my $GOODNAME = 1; 		# eg file.txt
-my $BADNAME = 2;		# eg COM7
-my $BADCHAR = 3;		# eg file?.txt
-my $MISSINGNAME = 4; 	# ''
+my $GOODNAME    = 1;    # eg file.txt
+my $BADNAME     = 2;    # eg COM7
+my $BADCHAR     = 3;    # eg file?.txt
+my $MISSINGNAME = 4;    # ''
 
 
 my %RequestAction;
-$RequestAction{'href'} = \&FullFile; 			# href=anything, treated as a file path
-$RequestAction{'req|loadfile'} = \&LoadTheFile; # req=loadfile
-$RequestAction{'req|loadTOC'} = \&GetTOC; 		# req=loadTOC
-$RequestAction{'req|save'} = \&Save; 			# req=save
-$RequestAction{'dir'} = \&GetDirsAndFiles; 		# $formH->{'dir'} is directory path
-$RequestAction{'req|oktosaveas'} = \&OkToSaveAs; # req=oktosaveas
-$RequestAction{'req|saveas'} = \&SaveAs; 		# req=save
+$RequestAction{'href'}           = \&FullFile;           # href=anything, treated as a file path
+$RequestAction{'req|loadfile'}   = \&LoadTheFile;        # req=loadfile
+$RequestAction{'req|loadTOC'}    = \&GetTOC;             # req=loadTOC
+$RequestAction{'req|save'}       = \&Save;               # req=save
+$RequestAction{'dir'}            = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
+$RequestAction{'req|oktosaveas'} = \&OkToSaveAs;         # req=oktosaveas
+$RequestAction{'req|saveas'}     = \&SaveAs;             # req=save
 # not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
 # Over to swarmserver.pm.
@@ -270,7 +274,7 @@ window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + sho
 </script>
 </body></html>
 FINIS
-	
+
 	# The file path may arrive here as $formH->{'href'}, or in $obj as
 	# Editor/Open/filepath... where file path continues to '/?' or end of $obj.
 	my $filePath = '';
@@ -279,19 +283,19 @@ FINIS
 		$filePath = $formH->{'href'};
 		}
 	my $fileContents = '<p>Read error!</p>';
-	my $title = $filePath . ' NOT RETRIEVED!';
-	
-	my $serverAddr = ServerAddress();
-	my $host = $serverAddr;
-	my $port = $port_listen;
+	my $title        = $filePath . ' NOT RETRIEVED!';
+
+	my $serverAddr     = ServerAddress();
+	my $host           = $serverAddr;
+	my $port           = $port_listen;
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	
+	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
 		{
 		$clientIsRemote = 1;
 		}
-	
+
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
@@ -303,9 +307,9 @@ FINIS
 		}
 
 	# Determine non-CM CSS theme file. Add it in for non-CodeMirror parts of display.
-	my $nonCmThemeCssFile =  NonCodeMirrorThemeCSS($theme);
+	my $nonCmThemeCssFile = NonCodeMirrorThemeCSS($theme);
 	$theBody =~ s!_NON_CM_THEME_CSS_!$nonCmThemeCssFile!;
-	
+
 	if (FileOrDirExistsWide($filePath) == 1)
 		{
 		$title = $filePath;
@@ -323,30 +327,34 @@ FINIS
 	my $revertButton = RevertButton($filePath);
 	$theBody =~ s!_REVERT_!$revertButton!;
 
-	my $arrows = "<img src='left3.png' id='left2' class='img-arrow-left'> " .
-				 "<img src='up3.png' id='up2' class='img-arrow-up'> " .
-				 "<img src='down3.png' id='down2' class='img-arrow-down'> " .
-				 "<img src='right3.png' id='right2' class='img-arrow-right'> ";
+	my $arrows =
+		  "<img src='left3.png' id='left2' class='img-arrow-left'> "
+		. "<img src='up3.png' id='up2' class='img-arrow-up'> "
+		. "<img src='down3.png' id='down2' class='img-arrow-down'> "
+		. "<img src='right3.png' id='right2' class='img-arrow-right'> ";
 	# With CodeMirror, I don't think the on-screen arrow keys or Find will be needed:
 	$theBody =~ s!_ARROWS_!!;
 	#$theBody =~ s!_ARROWS_!$arrows!;
-	my $search = "<input id=\"search-button\" class=\"submit-button\" type=\"submit\" value=\"Find\" />";
+	my $search =
+		"<input id=\"search-button\" class=\"submit-button\" type=\"submit\" value=\"Find\" />";
 	$theBody =~ s!_SEARCH_!$search!;
-	my $undoRedo =  "<input id=\"undo-button\" class=\"submit-button\" type=\"submit\" value=\"Undo\" /> " .
-					"<input id=\"redo-button\" class=\"submit-button\" type=\"submit\" value=\"Redo\" />";
+	my $undoRedo =
+		  "<input id=\"undo-button\" class=\"submit-button\" type=\"submit\" value=\"Undo\" /> "
+		. "<input id=\"redo-button\" class=\"submit-button\" type=\"submit\" value=\"Redo\" />";
 	$theBody =~ s!_UNDOREDO_!$undoRedo!;
 	# Spell check is only for .txt files in the editor.
 	my $checkSpelling = '';
 	if ($filePath =~ m!\.txt$!i)
 		{
-		$checkSpelling = "<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
+		$checkSpelling =
+"<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
 		}
 	$theBody =~ s!_CHECKSPELLING_!$checkSpelling!;
 
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
-	my $viewButton = ViewButton($filePath);
+	my $viewButton      = ViewButton($filePath);
 	$theBody =~ s!_VIEWBUTTON_!$viewButton!;
-	
+
 	my $togglePositionButton = '';
 	# Mardown Toggle won't work because there are no line numbers.
 	if ($filePath !~ m!\.md$!i)
@@ -359,18 +367,18 @@ FINIS
 	# Full path is unhelpful in the <title>, trim down to just file name.
 	my $fileName = FileNameFromPath($title);
 	$fileName = &HTML::Entities::encode($fileName);
-	my $displayedTitle = '&#128393' . $fileName; # "lower left pencil"
+	my $displayedTitle = '&#128393' . $fileName;    # "lower left pencil"
 
 	### TEST OUT
 	#$theBody =~ s!_TITLE_! !;
 	$theBody =~ s!_TITLE_!$displayedTitle!;
 
-	# Flip the slashes for file path in _TITLEHEADER_ at top of the page, for the "traditional" look.
+	# Flip the slashes for file path in _TITLEHEADER_ at top of the page, for the "standard" look.
 	$title =~ s!/!\\\\!g;
 	$title = &HTML::Entities::encode($title);
 
 	# Show full path ($title) as expandable/collapsible with links to directories in the path.
-	my $expandImg = "<img src='expand.jpg'>";
+	my $expandImg             = "<img src='expand.jpg'>";
 	my $chevronControlForPath = ChevronFilePathControl($title, $fileName);
 	$theBody =~ s!_TITLEHEADER_!$chevronControlForPath!;
 
@@ -384,15 +392,15 @@ FINIS
 	$theBody =~ s!_PATH_!$encPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$encPath!g;
 	$theBody =~ s!_FILENAME_!$fileName!g;
-	
+
 
 	my $ctrlSPath = encode_utf8($filePath);
 	$ctrlSPath =~ s!%!%25!g;
 	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	$theBody =~ s!_NOTIFYPATH_!$ctrlSPath!g;
-	
-	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents': 'scrollText';
-	my $tocHolderName = $canHaveTOC ? 'scrollContentsList': '';
+	$theBody   =~ s!_NOTIFYPATH_!$ctrlSPath!g;
+
+	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents' : 'scrollText';
+	my $tocHolderName    = $canHaveTOC ? 'scrollContentsList'        : '';
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$cmTextHolderName!g;
 	$theBody =~ s!_TOCHOLDERNAME_!$tocHolderName!g;
 	my $usingCM = 'true';
@@ -402,29 +410,31 @@ FINIS
 	$theBody =~ s!_THEME_!$theme!;
 
 	# Put in the TOC and contents divs.
-	my $holderHTML = $canHaveTOC ? "<div id='scrollContentsList'></div><div class='panes-separator' id='panes-separator'></div><div id='scrollTextRightOfContents'></div>": 
-		"<div id='scrollText'></div>";
+	my $holderHTML =
+		$canHaveTOC
+		? "<div id='scrollContentsList'></div><div class='panes-separator' id='panes-separator'></div><div id='scrollTextRightOfContents'></div>"
+		: "<div id='scrollText'></div>";
 	$theBody =~ s!_TOCANDCONTENTHOLDER_!$holderHTML!g;
-	
+
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
-	
+
 	my $tfAllowEditing = 'true';
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
-	
+
 	my $tfUseAppForEditing = 'false';
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
-	
+
 	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
 
 	$theBody =~ s!_THEPORT_!$port!g;
 	$theBody =~ s!_PEERADDRESS_!$peeraddress!g;
-	
+
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
 	my $linkerShortName = CVal('LINKERSHORTNAME');
-	my $filesShortName = CVal('FILESSHORTNAME');
-	my $videoShortName = CVal('VIDEOSHORTNAME');
+	my $filesShortName  = CVal('FILESSHORTNAME');
+	my $videoShortName  = CVal('VIDEOSHORTNAME');
 	$theBody =~ s!_VIEWERSHORTNAME_!$viewerShortName!;
 	$theBody =~ s!_OPENERSHORTNAME_!$openerShortName!;
 	$theBody =~ s!_EDITORSHORTNAME_!$editorShortName!;
@@ -437,13 +447,13 @@ FINIS
 
 	# The highlight class for table of contents selected element - see also non_cm_test.css
 	# and cm_editor_links.css.
-	$theBody =~ s!_SELECTEDTOCID_!tocitup!; 
-	
+	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
+
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
-	return $theBody;	
-	}
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
+	return $theBody;
+}
 
 # Show a chevron (>>) and file name, attach a showhint() with links to all directories
 # in the fullpath for our file. toggleFilePath expands the file name to the full path
@@ -452,27 +462,28 @@ sub ChevronFilePathControl {
 	my ($filePath, $fileName) = @_;
 	$filePath =~ s!\\!/!g;
 	$filePath =~ s!//!/!g;
-	my $currentPath = $filePath;
+	my $currentPath         = $filePath;
 	my $directoryAnchorList = "<em>Click above to expand/contract</em><br><hr>";
 
 	# One could put in an Edit link, but we're in the Editor for the file already.
 	# my $fileAnchor = "<a href='$currentPath' onclick='editOpen(this.href); return false;'>$currentPath</a><br>";
 	# $directoryAnchorList .= $fileAnchor ;
-	
+
 	my $lastSlashPos = rindex($currentPath, '/');
 	while ($lastSlashPos > 0)
 		{
 		$currentPath = substr($currentPath, 0, $lastSlashPos);
-		my $directoryAnchor = "<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
-		$directoryAnchorList .= $directoryAnchor ;
+		my $directoryAnchor =
+"<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
+		$directoryAnchorList .= $directoryAnchor;
 		$lastSlashPos = rindex($currentPath, '/');
 		}
 
-	my $result = "<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showChevronHint(&quot;$directoryAnchorList&quot;, this, event, false, false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
-	#my $result = "<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showhint(&quot;$directoryAnchorList&quot;, this, event, '800px', false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
-	
-	return($result);
-	}
+	my $result =
+"<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showChevronHint(&quot;$directoryAnchorList&quot;, this, event, false, false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
+
+	return ($result);
+}
 
 sub NonCodeMirrorThemeCSS {
 	my ($themeName) = @_;
@@ -481,16 +492,21 @@ sub NonCodeMirrorThemeCSS {
 	my $cssPath = BaseDirectory() . 'css_for_web_server/viewer_themes/' . $themeName . '_IM.css';
 	if (FileOrDirExistsWide($cssPath) != 1)
 		{
-		return('');
+		return ('');
 		}
 
-	return("\n" . '<link rel="stylesheet" type="text/css"  href="/viewer_themes/' . $themeName . '_IM.css">' . "\n");
-	}
+	return (  "\n"
+			. '<link rel="stylesheet" type="text/css"  href="/viewer_themes/'
+			. $themeName
+			. '_IM.css">'
+			. "\n");
+}
 
 sub PositionToggle {
-	my $result = '<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
-	return($result);
-	}
+	my $result =
+'<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
+	return ($result);
+}
 
 # See editor.js#loadFileIntoCodeMirror(), which calls back here with "req=loadfile",
 # which calls this sub, see %RequestAction above.
@@ -499,7 +515,7 @@ sub LoadTheFile {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = '';
 
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
 		# This decode pairs with the
@@ -507,35 +523,35 @@ sub LoadTheFile {
 		# above.
 		$filepath = &HTML::Entities::decode($filepath);
 
-		$result =  uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
 
 		if ($result eq '')
 			{
 			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
 			}
 		}
-	
-	return($result);		
-	}
+
+	return ($result);
+}
 
 sub GetTOC {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = '';
 
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
 		$filepath = &HTML::Entities::decode($filepath);
-		
+
 		GetCMToc($filepath, \$result);
 		if ($result ne '')
 			{
 			$result = uri_escape_utf8($result);
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Called by editor.js#saveFile() (via "req=save").
 sub Save {
@@ -543,19 +559,19 @@ sub Save {
 	my $status = 'OK';
 
 	ReportActivity($SHORTNAME);
-	
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
 		$filepath = &HTML::Entities::decode($filepath);
 		$filepath =~ s!\\!/!g;
 		Output("Saving |$filepath|\n");
-		
+
 		my $contents = $formH->{'contents'};
 		# Does not help, in fact it hurts: $contents = encode_utf8($contents);
 		$contents = uri_unescape($contents);
-		
-		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
+
+		if (!WriteBinFileWide($filepath, $contents))    # win_wide_filepaths.pm#WriteBinFileWide()
 			{
 			$status = "FILE ERROR! Could not save file to |$filepath|.\n";
 			sleep(1);
@@ -569,9 +585,9 @@ sub Save {
 		{
 		print("ERROR, file_editor received empty file path!\n");
 		}
-	
-	return($status);
-	}
+
+	return ($status);
+}
 
 # Return "ok", "exists" etc in preparation for calling SaveAs().
 # Called by saveAsButton.js#saveFileAs().
@@ -581,33 +597,33 @@ sub OkToSaveAs {
 	my $path = (defined($formH->{'path'})) ? $formH->{'path'} : '';
 	if ($path eq '')
 		{
-		return('nopath');
+		return ('nopath');
 		}
-	my $fileName = FileNameFromPath($path);
+	my $fileName   = FileNameFromPath($path);
 	my $nameStatus = IsGoodFileName($fileName);
 	if ($nameStatus == $BADNAME)
 		{
-		return('badname');
+		return ('badname');
 		}
 	elsif ($nameStatus == $BADCHAR)
 		{
-		return('badchar');
+		return ('badchar');
 		}
 	elsif ($nameStatus == $MISSINGNAME)
 		{
-		return('noname');
+		return ('noname');
 		}
 	if (FileOrDirExistsWide($path) == 1)
 		{
-		return('exists');
+		return ('exists');
 		}
-	
+
 	# if (!WriteUTF8FileWide($path, ''))
 	# 	{
 	# 	return('error');
 	# 	}
-	
-	return('ok');
+
+	return ('ok');
 }
 
 # Returns
@@ -622,7 +638,9 @@ sub IsGoodFileName {
 		{
 		$result = $MISSINGNAME;
 		}
-	elsif ($fileName =~ m!^(CON|PRN|AUX|NUL|COM0|COM1|COM2|COM3|COM4|COM5|COM6|COM7|COM8|COM9|LPT0|LPT1|LPT2|LPT3|LPT4|LPT5|LPT6|LPT7|LPT8|LPT9)$!i)
+	elsif ($fileName =~
+m!^(CON|PRN|AUX|NUL|COM0|COM1|COM2|COM3|COM4|COM5|COM6|COM7|COM8|COM9|LPT0|LPT1|LPT2|LPT3|LPT4|LPT5|LPT6|LPT7|LPT8|LPT9)$!i
+		)
 		{
 		$result = $BADNAME;
 		}
@@ -631,16 +649,16 @@ sub IsGoodFileName {
 		$result = $BADCHAR;
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub SaveAs {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
 
 	ReportActivity($SHORTNAME);
-	
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
 		$filepath = &HTML::Entities::decode($filepath);
@@ -652,7 +670,7 @@ sub SaveAs {
 
 		my $contents = $formH->{'contents'};
 		$contents = uri_unescape($contents);
-		if (!WriteBinFileWide($filepath, $contents)) # win_wide_filepaths.pm#WriteBinFileWide()
+		if (!WriteBinFileWide($filepath, $contents))    # win_wide_filepaths.pm#WriteBinFileWide()
 			{
 			$status = "FILE ERROR! Could not do Save As for |$filepath|.\n";
 			sleep(1);
@@ -667,9 +685,9 @@ sub SaveAs {
 		{
 		print("ERROR, file_editor received empty file path!\n");
 		}
-	
-	return($status);
-	}
+
+	return ($status);
+}
 
 sub ViewButton {
 	my ($filePath) = @_;
@@ -681,8 +699,8 @@ FINIS
 	my $encFilePath = &HTML::Entities::encode($filePath);
 	$result =~ s!_FILEPATH_!$encFilePath!;
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub SaveButton {
 	my ($filePath) = @_;
@@ -694,8 +712,8 @@ FINIS
 	my $encFilePath = &HTML::Entities::encode($filePath);
 	$result =~ s!_FILEPATH_!$encFilePath!;
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub SaveAsButton {
 	my ($filePath) = @_;
@@ -707,9 +725,9 @@ FINIS
 	my $encFilePath = &HTML::Entities::encode($filePath);
 	$result =~ s!_FILEPATH_!$encFilePath!;
 
-	return($result);
+	return ($result);
 
-	}
+}
 
 sub RevertButton {
 	my ($filePath) = @_;
@@ -721,13 +739,13 @@ FINIS
 	my $encFilePath = &HTML::Entities::encode($filePath);
 	$result =~ s!_FILEPATH_!$encFilePath!;
 
-	return($result);
-	}
+	return ($result);
+}
 
 # This is a simplified version of the file picker, file links are omitted here
 # and there is a text field for entering the name of the new file.
 sub SaveAsFilePicker {
-my $theSource = <<'FINIS';
+	my $theSource = <<'FINIS';
 <!--<form id="dirform">-->
 <div id='dirpickerMainContainer'>
 	<p id="directoryPickerTitle">Save As</p>
@@ -753,12 +771,12 @@ my $theSource = <<'FINIS';
 
 <!--</form>-->
 FINIS
-	
+
 	# Put a list of drives in the drive selector.
 	my $driveSelectorOptions = DriveSelectorOptions();
 	$theSource =~ s!_DRIVESELECTOROPTIONS_!$driveSelectorOptions!g;
 	return $theSource;
-	}
+}
 
 # Support subs for the Save As file picker
 
@@ -767,42 +785,42 @@ FINIS
 # which sends a "dir" request to the program (see %RequestAction above).
 sub GetDirsAndFiles {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $dir = $formH->{'dir'};
+	my $dir    = $formH->{'dir'};
 	my $result = '';
-	
+
 	Output("GetDirsAndFiles request for dir: |$dir|\n");
 	if (FileOrDirExistsWide($dir) != 2)
 		{
-		return(' '); # return something (but not too much), to avoid 404
+		return (' ');    # return something (but not too much), to avoid 404
 		}
-	
+
 	my @folders;
 	my @files;
 	my @modDates;
 	my @fileSizes;
-	
+
 	GetFoldersFilesDatesAndSizes($dir, \@folders, \@files, \@modDates, \@fileSizes);
-	
+
 	my $numFolders = @folders;
-	my $numFiles = @files;
-	my $total = $numFolders + $numFiles;
-	
+	my $numFiles   = @files;
+	my $total      = $numFolders + $numFiles;
+
 	if ($total)
 		{
 		$result = "<ul class=\"jqueryFileTree\" style=\"display: none;\">";
 		}
-		
+
 	if ($numFolders)
 		{
 		PutFolders($dir, \@folders, \$result);
 		}
-		
+
 	if ($numFiles)
 		{
-		my $sortOrder = (defined($formH->{'sort'})) ? $formH->{'sort'}: '';
+		my $sortOrder = (defined($formH->{'sort'})) ? $formH->{'sort'} : '';
 		SortFilesDatesAndSizes($sortOrder, \@files, \@modDates, \@fileSizes);
 
-		my $rmt = defined($formH->{'rmt'}) ? $formH->{'rmt'}: 'undef';
+		my $rmt = defined($formH->{'rmt'}) ? $formH->{'rmt'} : 'undef';
 		if ($rmt eq 'false')
 			{
 			$rmt = 0;
@@ -813,33 +831,34 @@ sub GetDirsAndFiles {
 			}
 		# TEST ONLY
 		#print("\$rmt: |$rmt|\n");
-		
+
 		my @modDatesStrings;
 		my @fileSizesStrings;
 		my @widths;
-		GetDateSizeStringsAndColumnWidths(\@files, \@modDates, \@fileSizes,
-			\@modDatesStrings, \@fileSizesStrings, \@widths);
-		
-		PutFiles($dir, $formH, $rmt, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths, \$result);
+		GetDateSizeStringsAndColumnWidths(\@files, \@modDates, \@fileSizes, \@modDatesStrings,
+			\@fileSizesStrings, \@widths);
+
+		PutFiles($dir, $formH, $rmt, \@files, \@modDatesStrings, \@fileSizesStrings, \@widths,
+			\$result);
 		}
-		
+
 	if ($total)
 		{
 		$result .= "</ul>\n";
 		}
-	
+
 	if ($result eq '')
 		{
-		$result = ' ' ; # return something (but not too much), to avoid 404
+		$result = ' ';    # return something (but not too much), to avoid 404
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub GetFoldersFilesDatesAndSizes {
 	my ($dir, $foldersA, $filesA, $modDatesA, $fileSizesA) = @_;
 	my $fullDir = $dir . '*';
-	
+
 	# win_wide_filepaths.pm#FindFileWide().
 	my @allEntries = FindFileWide($fullDir);
 	my $numEntries = @allEntries;
@@ -847,9 +866,9 @@ sub GetFoldersFilesDatesAndSizes {
 		{
 		return;
 		}
-	
+
 	# Break entries into folders and files.
-	for (my $i = 0; $i < @allEntries; ++$i)
+	for (my $i = 0 ; $i < @allEntries ; ++$i)
 		{
 		my $theName = $allEntries[$i];
 		# Not needed: $fileName = decode("utf8", $fileName);
@@ -869,82 +888,84 @@ sub GetFoldersFilesDatesAndSizes {
 				}
 			}
 		}
-	
+
 	my $numFiles = @$filesA;
 	if ($numFiles)
 		{
 		FileDatesAndSizes($dir, $filesA, $modDatesA, $fileSizesA);
 		}
-	}
+}
 
 sub PutFolders {
 	my ($dir, $foldersA, $resultR) = @_;
-	
+
 	foreach my $folderName (sort {lc $a cmp lc $b} @$foldersA)
 		{
 		next if (FileOrDirExistsWide($dir . $folderName) == 0);
-		$$resultR .= '<li class="directory collapsed"><a href="#" rel="' . 
-			  &HTML::Entities::encode($dir . $folderName) . '/">' . 
-			  &HTML::Entities::encode($folderName) . '</a></li>';
+		$$resultR .=
+			  '<li class="directory collapsed"><a href="#" rel="'
+			. &HTML::Entities::encode($dir . $folderName) . '/">'
+			. &HTML::Entities::encode($folderName)
+			. '</a></li>';
 		}
-	}
+}
 
 sub SortFilesDatesAndSizes {
 	my ($sortOrder, $filesA, $modDatesA, $fileSizesA) = @_;
 	my @idx;
-	
+
 	if ($sortOrder eq 'size_smallest')
 		{
-		@idx = sort {$fileSizesA->[$a] <=> $fileSizesA->[$b]} 0..$#$fileSizesA;
+		@idx = sort {$fileSizesA->[$a] <=> $fileSizesA->[$b]} 0 .. $#$fileSizesA;
 		}
 	elsif ($sortOrder eq 'size_largest')
 		{
-		@idx = sort {$fileSizesA->[$b] <=> $fileSizesA->[$a]} 0..$#$fileSizesA;
+		@idx = sort {$fileSizesA->[$b] <=> $fileSizesA->[$a]} 0 .. $#$fileSizesA;
 		}
 	elsif ($sortOrder eq 'date_newest')
 		{
 		# Newest first, so [$b] <=> [$a].
-		@idx = sort {$modDatesA->[$b] <=> $modDatesA->[$a]} 0..$#$modDatesA;
+		@idx = sort {$modDatesA->[$b] <=> $modDatesA->[$a]} 0 .. $#$modDatesA;
 		}
 	elsif ($sortOrder eq 'date_oldest')
 		{
 		# Newest first, so [$b] <=> [$a].
-		@idx = sort {$modDatesA->[$a] <=> $modDatesA->[$b]} 0..$#$modDatesA;
+		@idx = sort {$modDatesA->[$a] <=> $modDatesA->[$b]} 0 .. $#$modDatesA;
 		}
 	elsif ($sortOrder eq 'name_descending')
 		{
-		@idx = sort {lc $filesA->[$b] cmp lc $filesA->[$a]} 0..$#$filesA;
+		@idx = sort {lc $filesA->[$b] cmp lc $filesA->[$a]} 0 .. $#$filesA;
 		}
 	elsif ($sortOrder eq 'extension')
 		{
 		my @extensions;
 		Extensions($filesA, \@extensions);
-		@idx = sort{$extensions[$a] cmp $extensions[$b]} 0..$#extensions;
+		@idx = sort {$extensions[$a] cmp $extensions[$b]} 0 .. $#extensions;
 		}
-	else # 'name_ascending', the default
+	else    # 'name_ascending', the default
 		{
-		@idx = sort {lc $filesA->[$a] cmp lc $filesA->[$b]} 0..$#$filesA;
+		@idx = sort {lc $filesA->[$a] cmp lc $filesA->[$b]} 0 .. $#$filesA;
 		}
-	
-	@$filesA = @$filesA[@idx];
-	@$modDatesA = @$modDatesA[@idx];
+
+	@$filesA     = @$filesA[@idx];
+	@$modDatesA  = @$modDatesA[@idx];
 	@$fileSizesA = @$fileSizesA[@idx];
-	}
+}
 
 sub GetDateSizeStringsAndColumnWidths {
 	my ($filesA, $modDatesA, $fileSizesA, $modDatesStringsA, $fileSizesStringsA, $widthsA) = @_;
-	my $numFiles = @$filesA;
-	my $filesWidth = 0;
-	my $modDatesWidth = 0;
+	my $numFiles       = @$filesA;
+	my $filesWidth     = 0;
+	my $modDatesWidth  = 0;
 	my $fileSizesWidth = 0;
-	for (my $i = 0; $i < $numFiles; ++$i)
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $widthFiles = length($filesA->[$i]);
 		if ($filesWidth < $widthFiles)
 			{
 			$filesWidth = $widthFiles;
 			}
-		
+
 		my $dateTimeString = DateTimeString($modDatesA->[$i]);
 		push @$modDatesStringsA, $dateTimeString;
 		my $widthMDate = length($dateTimeString);
@@ -961,43 +982,45 @@ sub GetDateSizeStringsAndColumnWidths {
 			$fileSizesWidth = $widthSize;
 			}
 		}
-	
+
 	# Put file name, date, size in separate spans with fixed width in characters ('ch').
 	# Add 2 to $filesWidth for hover icons or edit pencil.
 	$filesWidth += 2;
 	my $wF = $filesWidth . 'ch';
 	my $wD = $modDatesWidth . 'ch';
 	my $wS = $fileSizesWidth . 'ch';
-	
+
 	$widthsA->[$FILENAMEWIDTH] = $wF;
 	$widthsA->[$DATETIMEWIDTH] = $wD;
-	$widthsA->[$SIZEWIDTH] = $wS;
-	}
+	$widthsA->[$SIZEWIDTH]     = $wS;
+}
 
 # For each file: file icon based on extension, file name, datetime, size in bytes.
 # Fixed-width inline-block <span>s are used to align entries.
 sub PutFiles {
-	my ($dir, $formH, $rmt, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) = @_;
-	my $numFiles = @$filesA;
-	my $clientIsRemote = ($formH->{'rmt'} eq 'false') ? 0 : 1;
-	my $allowEditing = ($formH->{'edt'} eq 'false') ? 0 : 1;
+	my ($dir, $formH, $rmt, $filesA, $modDatesStringsA, $fileSizesStringsA, $widthsA, $resultR) =
+		@_;
+	my $numFiles         = @$filesA;
+	my $clientIsRemote   = ($formH->{'rmt'} eq 'false') ? 0 : 1;
+	my $allowEditing     = ($formH->{'edt'} eq 'false') ? 0 : 1;
 	my $useAppForEditing = ($formH->{'app'} eq 'false') ? 0 : 1;
-	my $serverAddr = ServerAddress();
-	
-	for (my $i = 0; $i < $numFiles; ++$i)
+	my $serverAddr       = ServerAddress();
+
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		next if (FileOrDirExistsWide($dir . $file) == 0);
 		my $modDate = $modDatesStringsA->[$i];
-		my $size = $fileSizesStringsA->[$i];
-		
+		my $size    = $fileSizesStringsA->[$i];
+
 		$file =~ /\.([^.]+)$/;
 		my $ext = $1;
 
 		# Gray out unsuported file types. Show thumbnail on hover for images.
 		# Note videos cannot be viewed remotely (at least for now).
-		if (defined($ext) && IsTextDocxPdfOrImageOrVideoExtensionNoPeriod($ext)
-		  && !(IsVideoExtensionNoPeriod($ext) && $rmt))
+		if (   defined($ext)
+			&& IsTextDocxPdfOrImageOrVideoExtensionNoPeriod($ext)
+			&& !(IsVideoExtensionNoPeriod($ext) && $rmt))
 			{
 			if (IsImageExtensionNoPeriod($ext))
 				{
@@ -1007,31 +1030,42 @@ sub PutFiles {
 				{
 				$$resultR .= VideoLine($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA);
 				}
-			else # Text, for the most part - could also be pdf or docx
+			else    # Text, for the most part - could also be pdf or docx
 				{
 				$$resultR .= TextDocxPdfLine($dir, $file, $ext, $modDate, $size,
-							$allowEditing, $clientIsRemote, $widthsA);
+					$allowEditing, $clientIsRemote, $widthsA);
 				}
 			}
 		else # Unsupported type (and remote videos), can't produce a read-only HTML view. So no link.
 			{
-			my $dateSpanStart = "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>";
-			my $sizesSpanStart = "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>";
+			my $dateSpanStart =
+				"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>";
+			my $sizesSpanStart =
+				"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>";
 			my $endSpan = '</span>';
 
 			my $fileName = &HTML::Entities::encode($file);
-			$$resultR .= '<li class="file ext_' . $ext . '">' .
-			"<span class='unsupported' style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" . $fileName . '</span>' .
-			$dateSpanStart . $modDate . $endSpan . $sizesSpanStart . $size . $endSpan . '</li>';
+			$$resultR .=
+				  '<li class="file ext_'
+				. $ext . '">'
+				. "<span class='unsupported' style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+				. $fileName
+				. '</span>'
+				. $dateSpanStart
+				. $modDate
+				. $endSpan
+				. $sizesSpanStart
+				. $size
+				. $endSpan . '</li>';
 			}
 		}
-	}
+}
 
 sub FileDatesAndSizes {
 	my ($dir, $filesA, $modDatesA, $sizesA) = @_;
 	my $numFiles = @$filesA;
-	
-	for (my $i = 0; $i < $numFiles; ++$i)
+
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		my @a;
@@ -1045,15 +1079,15 @@ sub FileDatesAndSizes {
 			$a[1] = '';
 			}
 		push @$modDatesA, $a[0];
-		push @$sizesA, $a[1];
+		push @$sizesA,    $a[1];
 		}
-	}
+}
 
 sub Extensions {
 	my ($filesA, $extA) = @_;
 	my $numFiles = @$filesA;
 
-	for (my $i = 0; $i < $numFiles; ++$i)
+	for (my $i = 0 ; $i < $numFiles ; ++$i)
 		{
 		my $file = $filesA->[$i];
 		my $ext;
@@ -1067,54 +1101,70 @@ sub Extensions {
 			}
 		push @$extA, $ext;
 		}
-	}
+}
 
 # Images get showhint() "hover" event listeners, as well as a link to open in a new tab.
 # Put file name, mod date, and size in separate fixed-width spans for alignment.
 sub ImageLine {
 	my ($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA) = @_;
-	my $imagePath = $dir . $file;
+	my $imagePath      = $dir . $file;
 	my $imageHoverPath = $imagePath;
 	$imageHoverPath =~ s!%!%25!g;
 	my $imageName = $file;
-	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine.
-	$imagePath = &HTML::Entities::encode($imagePath);
+	$imageName      = &HTML::Entities::encode($imageName);        # YES this works fine.
+	$imagePath      = &HTML::Entities::encode($imagePath);
 	$imageHoverPath = &HTML::Entities::encode($imageHoverPath);
-	
+
 	my $serverImageHoverPath = "http://$serverAddr:$port_listen/$imageHoverPath";
-	my $leftHoverImg = "<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
-	my $rightHoverImg = "<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
-	
-	my $result = '<li class="file ext_' . $ext . '">' .
-	"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-	'<a href="#" rel="' . $imagePath . '"' . "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\"" . '>' .
-	"$leftHoverImg$imageName$rightHoverImg" . '</a></span>' .
-	"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-	$modDate . '</span>' .
-	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-	$size . '</span></li>';
-			
-	return($result);
-	}
+	my $leftHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverleft.png' width='17' height='12'>";
+	my $rightHoverImg =
+		"<img src='http://$serverAddr:$port_listen/hoverright.png' width='17' height='12'>";
+
+	my $result =
+		  '<li class="file ext_'
+		. $ext . '">'
+		. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+		. '<a href="#" rel="'
+		. $imagePath . '"'
+		. "onmouseOver=\"showhint('<img src=&quot;$serverImageHoverPath&quot;>', this, event, '250px', true);\""
+		. '>'
+		. "$leftHoverImg$imageName$rightHoverImg"
+		. '</a></span>'
+		. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+		. $modDate
+		. '</span>'
+		. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+		. $size
+		. '</span></li>';
+
+	return ($result);
+}
 
 sub VideoLine {
 	my ($serverAddr, $dir, $file, $ext, $modDate, $size, $widthsA) = @_;
 	my $imagePath = $dir . $file . 'VIDEO';
 	my $imageName = $file;
-	$imageName = &HTML::Entities::encode($imageName);	# YES this works fine.
+	$imageName = &HTML::Entities::encode($imageName);    # YES this works fine.
 	$imagePath = &HTML::Entities::encode($imagePath);
 
-	my $result = '<li class="file ext_' . $ext . '">' .
-	"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-	'<a href="#" rel="' . $imagePath . '"'  . '>' .
-	"$imageName" . '</a></span>' .
-	"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-	$modDate . '</span>' .
-	"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-	$size . '</span></li>';
+	my $result =
+		  '<li class="file ext_'
+		. $ext . '">'
+		. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+		. '<a href="#" rel="'
+		. $imagePath . '"' . '>'
+		. "$imageName"
+		. '</a></span>'
+		. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+		. $modDate
+		. '</span>'
+		. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+		. $size
+		. '</span></li>';
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Put link on file name, with optional edit pencil link.
 # PDF and docx can't be edited on a remote PC, hence a bit of special handling.
@@ -1123,33 +1173,45 @@ sub TextDocxPdfLine {
 	my ($dir, $file, $ext, $modDate, $size, $allowEditing, $clientIsRemote, $widthsA) = @_;
 	my $filePath = &HTML::Entities::encode($dir . $file);
 	my $fileName = &HTML::Entities::encode($file);
-	
+
 	my $result = '';
 	# No editing if config says no, or it's pdf or docx on a remote PC.
 	if (!$allowEditing || ($clientIsRemote && $ext =~ m!^(docx|pdf)!i))
 		{
-		$result .= '<li class="file ext_' . $ext . '">' .
-		"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-		'<a href="#" rel="' . $filePath . '">' .
-		$fileName . '</a>' . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-		$modDate . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-		$size . '</span></li>';
+		$result .=
+			  '<li class="file ext_'
+			. $ext . '">'
+			. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+			. '<a href="#" rel="'
+			. $filePath . '">'
+			. $fileName . '</a>'
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+			. $modDate
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+			. $size
+			. '</span></li>';
 		}
-	else # editing allowed
+	else    # editing allowed
 		{
-		$result .= '<li class="file ext_' . $ext . '">' .
-		"<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>" .
-		'<a href="#" rel="' . $filePath . '">' .
-		$fileName . '</a>' .
-		'<a href="#"><img src="edit1.png" width="17" height="12" rel="' .
-		$filePath . '" />' . '</a>' . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>" .
-		$modDate . '</span>' .
-		"<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>" .
-		$size . '</span></li>';
+		$result .=
+			  '<li class="file ext_'
+			. $ext . '">'
+			. "<span style='display: inline-block; width: $widthsA->[$FILENAMEWIDTH];'>"
+			. '<a href="#" rel="'
+			. $filePath . '">'
+			. $fileName . '</a>'
+			. '<a href="#"><img src="edit1.png" width="17" height="12" rel="'
+			. $filePath . '" />' . '</a>'
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$DATETIMEWIDTH];'>"
+			. $modDate
+			. '</span>'
+			. "<span style='display: inline-block; width: $widthsA->[$SIZEWIDTH];'>"
+			. $size
+			. '</span></li>';
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}

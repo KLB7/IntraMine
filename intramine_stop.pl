@@ -15,7 +15,7 @@ use intramine_config;
 
 # 'SRVR' loads current 'SERVER_ADDRESS' as saved by intramine_main.pl#InitServerAddress().
 LoadConfigValues('SRVR');
-my $port_listen = CVal('INTRAMINE_MAIN_PORT'); 			# default 81
+my $port_listen = CVal('INTRAMINE_MAIN_PORT');    # default 81
 
 my $serverAddress = CVal('SERVER_ADDRESS');
 if ($serverAddress eq '')
@@ -25,27 +25,27 @@ if ($serverAddress eq '')
 	}
 
 AskServerToExit($port_listen, $serverAddress);
-sleep(2); # let the dust settle
+sleep(2);                                         # let the dust settle
 print("DONE SLEEPING in intramine_stop.pl\n");
 
 ########### subs
-sub ErrorReport{
-        print 'intramine_stop.pl says: ' . Win32::FormatMessage( Win32::GetLastError() );
-        return 1;
-    }
+sub ErrorReport {
+	print 'intramine_stop.pl says: ' . Win32::FormatMessage(Win32::GetLastError());
+	return 1;
+}
 
 sub AskServerToExit {
 	my ($portNumber, $serverAddress) = @_;
-	
+
 	#print("Attempting to stop $serverAddress:$portNumber\n");
 	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       # protocol
-	                PeerAddr=> "$serverAddress", # Address of server
-	                PeerPort=> "$portNumber"      # port of server 591 or 8080 are standard HTML variants
-	                ) or (ErrorReport() && return);
-	print "intramine_stop.pl Connected to ", $remote->peerhost, # Info message
-	      " on port: ", $remote->peerport, "\n";
-	
+		Proto    => 'tcp',               # protocol
+		PeerAddr => "$serverAddress",    # Address of server
+		PeerPort => "$portNumber"        # port of server 591 or 8080 are standard HTML variants
+	) or (ErrorReport() && return);
+	print "intramine_stop.pl Connected to ", $remote->peerhost,    # Info message
+		" on port: ", $remote->peerport, "\n";
+
 	print $remote "GET /?EXITEXITEXIT=1 HTTP/1.1\n";
 	close $remote;
-	}
+}

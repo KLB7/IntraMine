@@ -20,7 +20,7 @@ Gloss is a markdown variant that concentrates on: minimal, memorable markdown th
 
 Regular markdown doesn't do links to files on local storage, and editors typically limit automatic linking to the files in your project. With **FLASH links**, if you want a link to qtcpserver.cpp, and that name is unique across all your local storage, then that's all you have to type to get a link to p:\qt\5.12.5\src\qtbase\src\network\socket\qtcpserver.cpp: the plain file name without any directories or drive or quotes or brackets, or any other adornments. If there are two or more files with the same name, IntraMine picks the one that's closest to where you're typing, based on directory hops up and down to go from one to the other. Paths are selected from among those that you've indicated are "of interest" to you, based on your list of directory paths in data/search_directories.txt. In the rare case where the file name alone is ambiguous, you can add one or more directory names in any order in any sequence to pin down the file you want. You can leave out directory names that don't constrain the instance wanted. And if you need a drive letter to do the job, put it first.
 
-A **glossary** is a necessity for a project of any size. You've probably seen already how they work in IntraMine: any defined term, such as FLASH links, has a dotted underline in the text, and if you pause your cursor over the term a definition pops up. These are called **glossary popups** in IntraMine, and in a slightly recursive manner your definitions can also be marked up with Gloss, including FLASH links and styling. For details see "Glossary popups.txt".
+A **glossary** is arguably a necessity for a project of any size. You've probably seen already how they work in IntraMine: any defined term, such as FLASH links, has a dotted underline in the text, and if you pause your cursor over the term a definition pops up. These are called **glossary popups** in IntraMine, and in a slightly recursive manner your definitions can also be marked up with Gloss, including FLASH links and styling. For details see "Glossary popups.txt".
 
 IntraMine's Viewer fully implements Gloss, and almost all of Gloss's features are also available in standalone files produced by gloss2html.pl (for standalone Gloss, see "gloss2html.pl for standalone Gloss files.txt").
 
@@ -122,9 +122,9 @@ produces
 
 Links
 -----
-When a source or text file is viewed with IntraMine, local or NAS file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used. For details on how to index folders, see "Configuring folders to index and monitor.txt".
+When a source or text file is viewed with IntraMine, local or NAS file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. For details on how to index folders, see "Configuring folders to index and monitor.txt".
 
-For the details on linking with IntraMine please see "FLASH links.txt".
+For the details on linking with IntraMine see "FLASH links.txt".
 
 Tables
 ------

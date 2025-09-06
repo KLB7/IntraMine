@@ -22,7 +22,7 @@
 # -h or -hoverGIFs: if supplied, all "gif" images will be "hover" style even if you specify -inline.
 # (only .gif is affected)
 # Example runline, convert all of IntraMine's text documentation:
-# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h 
+# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h
 #  (note your paths will likely be different)
 #
 #
@@ -62,8 +62,8 @@
 # quotes aren't needed with such header links, but it's best to use them - otherwise the
 # underline for the link will run on into following text, which is unsightly (although the
 # link will still work).
-# NOTE you should prefer putting internal header mentions in "double quotes", because that's the only
-# form that IntraMine's Viewer supports. It used to support #hash mentions, but that proved
+# NOTE you should prefer putting internal header mentions in "double quotes", because that's the
+# only form that IntraMine's Viewer supports. It used to support #hash mentions, but that proved
 # too slow. Here, speed doesn't matter as much.
 # All of Gloss's other markup will work: headings, lists, tables etc.
 #
@@ -138,7 +138,7 @@ use lib path($0)->absolute->parent->child('libs')->stringify;
 use gloss_to_html;
 
 
-my $firstArg = shift @ARGV;
+my $firstArg  = shift @ARGV;
 my $secondArg = shift @ARGV;
 $secondArg ||= '';
 my $thirdArg = shift @ARGV;
@@ -150,11 +150,11 @@ push @args, $firstArg;
 push @args, $secondArg;
 push @args, $thirdArg;
 
-my $fileOrDir = '';
+my $fileOrDir    = '';
 my $inlineImages = 0;
-my $hoverGIFS = 0;
+my $hoverGIFS    = 0;
 
-for (my $i = 0; $i < @args; ++$i)
+for (my $i = 0 ; $i < @args ; ++$i)
 	{
 	if ($args[$i] =~ m!^\-i!)
 		{

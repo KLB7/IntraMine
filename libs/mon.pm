@@ -17,39 +17,39 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use Time::HiRes qw(usleep);
-use Path::Tiny qw(path);
+use Path::Tiny  qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 #use lib ".";
 use common;
 use win_wide_filepaths;
 
 
-my $MonitorFilePath = ''; 	# Full path to main log file.
-my $CallbackNotify;			# Send a WebSockets message
-my $WebsocketsMessage = 'NEWRUNMESSAGE'; # The message
-my $OkToSend = 0;			# Becomes 1 when WebSockets are available
-my @MessageCache;			# For messages sent before init
+my $MonitorFilePath = '';                   # Full path to main log file.
+my $CallbackNotify;                         # Send a WebSockets message
+my $WebsocketsMessage = 'NEWRUNMESSAGE';    # The message
+my $OkToSend          = 0;                  # Becomes 1 when WebSockets are available
+my @MessageCache;                           # For messages sent before init
 
 # Call once, only in Main.
 # The main log file is deleted.
 sub MainInitIntraMineMonitor {
 	my ($filePath, $callbackForMessageNotification) = @_;
-	$MonitorFilePath = $filePath;
-	$CallbackNotify = $callbackForMessageNotification;
-	$OkToSend = 0;
+	$MonitorFilePath   = $filePath;
+	$CallbackNotify    = $callbackForMessageNotification;
+	$OkToSend          = 0;
 	$WebsocketsMessage = 'NEWRUNMESSAGE';
 	DeleteFileWide($MonitorFilePath);
-	}
+}
 
 # Call in non-Main services.
 # The main log file is NOT deleted.
 sub ServiceInitIntraMineMonitor {
 	my ($filePath, $callbackForMessageNotification) = @_;
-	$MonitorFilePath = $filePath;
-	$CallbackNotify = $callbackForMessageNotification;
-	$OkToSend = 0;
+	$MonitorFilePath   = $filePath;
+	$CallbackNotify    = $callbackForMessageNotification;
+	$OkToSend          = 0;
 	$WebsocketsMessage = 'NEWRUNMESSAGE';
-	}
+}
 
 # Call when WebSockets is available, see
 # swarmserver.pm#MainLoop() and intramine_main.pl#MainLoop().
@@ -65,7 +65,7 @@ sub MonNowOkToSend {
 # In theory this can be called before Init or MonNowOkToSend,
 # although no notication will happen until after those.
 sub Monitor {
-	my ($msg) = @_;
+	my ($msg)    = @_;
 	my $goodSave = 0;
 	my $tryCount = 0;
 	my $maxTries = 5;
@@ -86,18 +86,18 @@ sub Monitor {
 			$goodSave = AppendToTextFileWide($MonitorFilePath, $oneBigMessage);
 			if (!$goodSave)
 				{
-				usleep(100000); # 0.1 seconds
+				usleep(100000);    # 0.1 seconds
 				}
 			}
-		
+
 		if ($goodSave)
 			{
 			# Reset for the while loop just below and clear messages.
-			$goodSave = 0;
-			$tryCount = 0;
+			$goodSave     = 0;
+			$tryCount     = 0;
 			@MessageCache = ();
 			}
-		else # There is no good reason to end up here, except a bad $MonitorFilePath.
+		else    # There is no good reason to end up here, except a bad $MonitorFilePath.
 			{
 			return;
 			}
@@ -108,15 +108,15 @@ sub Monitor {
 		$goodSave = AppendToTextFileWide($MonitorFilePath, $msg);
 		if (!$goodSave)
 			{
-			usleep(100000); # 0.1 seconds
+			usleep(100000);    # 0.1 seconds
 			}
 		}
-	
+
 	if ($OkToSend && defined($CallbackNotify) && $goodSave)
 		{
 		$CallbackNotify->($WebsocketsMessage);
 		}
-	}
+}
 
 use ExportAbove;
 1;

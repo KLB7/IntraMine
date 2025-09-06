@@ -8,11 +8,11 @@ use FileHandle;
 use DirHandle;
 
 my $cmMetaFile = "C:/perlprogs/mine/CodeMirror-master/mode/meta.js";
-my $outFile = "C:/perlprogs/mine/temp/cm_extensions.txt";
+my $outFile    = "C:/perlprogs/mine/temp/cm_extensions.txt";
 
 my @extensionArray;
-my %extensionHash; # to check for duplicates
-my %extsForLanguage; # $extsForLanguage{'HTML'} = 'html,htm,handlebars,hbs';
+my %extensionHash;      # to check for duplicates
+my %extsForLanguage;    # $extsForLanguage{'HTML'} = 'html,htm,handlebars,hbs';
 
 my $cmFileH = FileHandle->new($cmMetaFile)
 	or die("Could not find |$cmMetaFile|!\n");
@@ -27,12 +27,12 @@ while ($line = <$cmFileH>)
 		# Childproofing
 		$name =~ s!fuck!f__k!g;
 		}
-		
+
 	if ($line =~ m!ext\:\s*\[([^\]]+)\]!)
 		{
 		my $extensions = $1;
-		my @extArr = split(/,\s+/, $extensions);
-		for (my $j = 0; $j < @extArr; ++$j)
+		my @extArr     = split(/,\s+/, $extensions);
+		for (my $j = 0 ; $j < @extArr ; ++$j)
 			{
 			my $extProper = $extArr[$j];
 			$extProper =~ s!"!!g;
@@ -40,7 +40,7 @@ while ($line = <$cmFileH>)
 				{
 				$extProper = substr($extProper, index($extProper, ".") + 1);
 				}
-			
+
 			if (!defined($extensionHash{$extProper}))
 				{
 				my $correctedExt = $extProper;
@@ -48,7 +48,7 @@ while ($line = <$cmFileH>)
 				push @extensionArray, $correctedExt;
 				$extensionHash{$extProper} = 1;
 				}
-				
+
 			if (!defined($extsForLanguage{$name}))
 				{
 				$extsForLanguage{$name} = $extProper;
@@ -70,7 +70,7 @@ my @sortedExtensions = sort @extensionArray;
 
 my $outFileH = FileHandle->new("> $outFile")
 	or die("FILE ERROR could not make |$outFile|!");
-for (my $i = 0; $i < @sortedExtensions; ++$i)
+for (my $i = 0 ; $i < @sortedExtensions ; ++$i)
 	{
 	if ($i == 0)
 		{

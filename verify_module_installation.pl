@@ -23,7 +23,7 @@ use Math::SimpleHisto::XS;
 use File::ReadBackwards;
 use IO::Socket::Timeout;
 use HTML::CalendarMonthSimple;
-use Syntax::Highlight::Perl::Improved;
+#use Syntax::Highlight::Perl::Improved;
 use Text::MultiMarkdown;
 use Win32::RunAsAdmin;
 use Text::Unidecode;

@@ -22,23 +22,23 @@ use swarmserver;
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages, and print to console window
-my $kDISPLAYMESSAGES = 0;		# 1 == just print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages, and print to console window
+my $kDISPLAYMESSAGES = 0;    # 1 == just print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print. See swarmserver.pm#Output().
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 my $CmdOutputPath;
-my $LogDir = FullDirectoryPath('LogDir');
+my $LogDir          = FullDirectoryPath('LogDir');
 my $monitorFileName = CVal('INTRAMINE_MAIN_LOG');
 if ($monitorFileName eq '')
 	{
@@ -50,9 +50,9 @@ my %RequestAction;
 # Respond with the Mon page, where #theTextWithoutJumpList will show messages
 # generated in Main and all swarmserver.pm-based services with Monitor($msg).
 # (Include mon.js for message sending.)
-$RequestAction{'req|main'} = \&OurPage; 			# req=main
+$RequestAction{'req|main'} = \&OurPage;    # req=main
 # Return latest messages from the main log file.
-$RequestAction{'req|monitor'} = \&LatestMessages; 	# req=monitor
+$RequestAction{'req|monitor'} = \&LatestMessages;    # req=monitor
 
 MainLoop(\%RequestAction);
 
@@ -103,10 +103,10 @@ let errorID = "runMessageDiv";
 </body></html>
 FINIS
 
-	my $topNav = TopNav($PAGENAME);		# The top navigation bar, with our page name highlighted
+	my $topNav = TopNav($PAGENAME);    # The top navigation bar, with our page name highlighted
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
-	my $description ="<h2>IntraMine Monitor</h2>";
+	my $description = "<h2>IntraMine Monitor</h2>";
 	$theBody =~ s!_DESCRIPTION_!$description!;
 
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
@@ -116,14 +116,15 @@ FINIS
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
-	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)	#if ($peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
-	
+
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $port = $port_listen;
+	my $port          = $port_listen;
 
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 
@@ -131,19 +132,19 @@ FINIS
 
 	# Put in main IP, main port (def. 81), and our Short name (Reindex) for JavaScript.
 	# These are needed in intramine_config.js for example
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
-	return($theBody);
-	}
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
+	return ($theBody);
+}
 
 sub InitCommandMonitoring {
 	my ($cmdOutputPath) = @_;
 	$CmdOutputPath = $cmdOutputPath;
-	}
+}
 
 sub CommandFilePath {
-	return($CmdOutputPath);
-	}
+	return ($CmdOutputPath);
+}
 
 # Called by mon.js in response to a WebSockets notification that
 # a new message is available.
@@ -151,9 +152,9 @@ sub CommandFilePath {
 # updated file position. See mon.pm#Monitor() for saving the message.
 sub LatestMessages {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = ''; # NOTE there must be some result, else an error 404 is triggered.
+	my $result = '';    # NOTE there must be some result, else an error 404 is triggered.
 
-	my $cmdFilePath = CommandFilePath();
+	my $cmdFilePath      = CommandFilePath();
 	my $lastFilePosition = 0;
 	if (defined($formH->{'filepos'}))
 		{
@@ -162,11 +163,11 @@ sub LatestMessages {
 
 	if (-f $cmdFilePath)
 		{
-		my $bw = File::ReadBackwards->new($cmdFilePath) or
-			return("***E-R-R-O-R***Could not open '$cmdFilePath'!");
-		my $line = '';
+		my $bw = File::ReadBackwards->new($cmdFilePath)
+			or return ("***E-R-R-O-R***Could not open '$cmdFilePath'!");
+		my $line            = '';
 		my $newFilePosition = $bw->tell;
-		
+
 		my @lines;
 		my $currentFilePosition = $newFilePosition;
 		while ($currentFilePosition > $lastFilePosition && defined($line = $bw->readline))
@@ -176,13 +177,13 @@ sub LatestMessages {
 			$currentFilePosition = $bw->tell;
 			}
 		$bw->close();
-		
+
 		my $numLines = @lines;
 		if ($numLines > 0)
 			{
 			$lastFilePosition = $newFilePosition;
 			my $breaker = "<br>";
-			for (my $i = 0; $i < @lines; ++$i)
+			for (my $i = 0 ; $i < @lines ; ++$i)
 				{
 				if ($lines[$i] eq '<pre>')
 					{
@@ -199,5 +200,5 @@ sub LatestMessages {
 	# else no log file, no big deal, perhaps we're still starting up.
 	$result = "|$lastFilePosition|" . $result;
 
-	return($result);
-	}
+	return ($result);
+}

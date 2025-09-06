@@ -1,7 +1,7 @@
 # intramine_main.pl: a round-robin request redirector, creating and using
 # a "server swarm" of Perl services in separate processes to do the heavy lifting.
 # The server swarm is started here, and stopped on exit, and responds well to an EXIT request.
-# Page names and Perl program names for the pages are listed in 
+# Page names and Perl program names for the pages are listed in
 # /data/serverlist.txt,
 # which is also used in swarmserver.pm to create the top navigation for our site.
 # If the "Count" field for a server is greater than one, Count instances of the server will
@@ -19,8 +19,8 @@
 # http://192.168.1.132:81/Search
 # the request will be redirected to a running Search server, such as
 # http://192.168.1.132:43128/Search
-# This main server is *not* a two-way conduit for results, and communicates back to clients only with
-# redirects in response to a page request. If a user issues a request such as "...:81/Search"
+# This main server is *not* a two-way conduit for results, and communicates back to clients only
+# with redirects in response to a page request. If a user issues a request such as "...:81/Search"
 # just above to main running on port 81, then the request will be redirected to a running
 # Search server, on port 43128 say, and "...:43128/Search" will show up in the user's
 # browser address bar. A typical round robin server might send a request to the Search server,
@@ -57,7 +57,7 @@
 # There can be many swarm servers, and they will use consecutive port numbers starting with
 # one above the port number supplied. The default 43124 is probably safe for you. To look for
 # a free range of ports you can try running "netstat -ab" at the command prompt as Admin.
-# (See https://www.howtogeek.com/howto/28609/how-can-i-tell-what-is-listening-on-a-tcpip-port-in-windows/)
+# (https://www.howtogeek.com/howto/28609/how-can-i-tell-what-is-listening-on-a-tcpip-port-in-windows/)
 # You should allow for needing about 50 ports, if you can. To minimize the number of ports needed,
 # work out how many servers you will actually be running, corresponding to the server and their
 # counts in data/serverlist.txt, and adjust the TOTAL_SWARM_PORTS_TO_MONITOR number in
@@ -101,13 +101,13 @@ use IO::Select;
 use Win32::Process 'STILL_ACTIVE';
 use Win32;
 use Win32::API;
-use Encode qw/encode decode/;
+use Encode      qw/encode decode/;
 use Time::HiRes qw(usleep);
 use Win32::Console;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
-use LogFile;	# For logging - log files are closed between writes.
+use LogFile;    # For logging - log files are closed between writes.
 use intramine_config;
 use win_wide_filepaths;
 use intramine_websockets_client;
@@ -134,11 +134,11 @@ my $SERVERNAME = 'IM_MAIN';
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
 _IconifyCmdPrompt();
 
-SetCommonOutput(\&Output); # common.pm
+SetCommonOutput(\&Output);    # common.pm
 
 # Tell where the feedback can be found.
 print("\n\nStarting up. See Mon browser window for startup details.\n");
@@ -149,24 +149,24 @@ CopyNewConfigFiles();
 # Load data/intramine_config.txt. See eg $IMAGES_DIR just below.
 LoadConfigValues();
 
-my $port_listen = CVal('INTRAMINE_MAIN_PORT'); 									# default 81
+my $port_listen = CVal('INTRAMINE_MAIN_PORT');    # default 81
 # Note first port number is reserved for use by Opener's PowerShell server.
-my $kSwarmServerStartingPort = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT') + 1; 	# default 43124 + 1
+my $kSwarmServerStartingPort = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT') + 1;    # default 43124 + 1
 
-my $IGNOREEXITREQUEST = 0;	# This should be 0 for main, to allow a clean stop.
-my $kLOGMESSAGES = 0;		# Log Output() messages
-my $kDISPLAYMESSAGES = 0;	# Display Output() messages in cmd window
+my $IGNOREEXITREQUEST = 0;    # This should be 0 for main, to allow a clean stop.
+my $kLOGMESSAGES      = 0;    # Log Output() messages
+my $kDISPLAYMESSAGES  = 0;    # Display Output() messages in cmd window
 
-my $IMAGES_DIR = FullDirectoryPath('IMAGES_DIR');
-my $CSS_DIR = FullDirectoryPath('CSS_DIR');
-my $JS_DIR = FullDirectoryPath('JS_DIR');
-my $FONT_DIR = FullDirectoryPath('FONT_DIR');
+my $IMAGES_DIR      = FullDirectoryPath('IMAGES_DIR');
+my $CSS_DIR         = FullDirectoryPath('CSS_DIR');
+my $JS_DIR          = FullDirectoryPath('JS_DIR');
+my $FONT_DIR        = FullDirectoryPath('FONT_DIR');
 my $FULL_ACCESS_STR = CVal('FULL_ACCESS_STR');
-my $LogDir = FullDirectoryPath('LogDir');
+my $LogDir          = FullDirectoryPath('LogDir');
 
 my $StartTimeStamp = NiceToday();
 
-my $logDate = DateTimeForFileName();
+my $logDate   = DateTimeForFileName();
 my $OutputLog = '';
 if ($kLOGMESSAGES)
 	{
@@ -198,14 +198,14 @@ Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 #     in turn passed on to all swarm servers - the Cmd servers ignore it
 #  - calls elastic_indexer.pl to rebuild the Elasticsearch search indexes
 #  - and then calls this program, intramine_main.pl, to restart all servers. When this program
-#  is starting up it will notice ( AnyCommandServerIsUp() ) if a Cmd page server is still 
+#  is starting up it will notice ( AnyCommandServerIsUp() ) if a Cmd page server is still
 #  running: if so, our main program here will postpone starting the Cmd servers until it has
 #  started all other swarm servers, and only then stop (with FORCEEXIT) and restart the
 #  Cmd page servers, or any other server you've marked as PERSISTENT in serverlist.txt.
 # Having said all that, there is really no need to ever use this PERSISTENT notion, you're
 # better off just stopping IntraMine completely, so please forgive me this
 # solution without a problem:)
-my $CommandServerHasBeenNotified = 0;
+my $CommandServerHasBeenNotified    = 0;
 my $CommandServersHaveBeenRestarted = 0;
 
 # Some signals will knock out a server while it's doing heavy maintenance. For these, it's
@@ -232,20 +232,23 @@ MainLoop($port_listen);
 ################### subs
 # Minimize the console window.
 sub _IconifyCmdPrompt {
-       my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '', 'N');
-       my $api2 = new Win32::API('user32', 'ShowWindow' , 'NN', 'N');
-       my $i = $api1->Call();
-       #$api2->Call($i, 0); # SW_HIDE 0x00 Hides the window, which causes another window to become the topmost window 
-       $api2->Call($i, 6); # SW_MINIMIZE 0x06 Minimizes the specified window and lets the next topmost window become the topmost window 
-       }
+	my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '',   'N');
+	my $api2 = new Win32::API('user32',   'ShowWindow',       'NN', 'N');
+	my $i    = $api1->Call();
+	# SW_HIDE 0x00 Hides the window, which causes another window to become the topmost window
+	#$api2->Call($i, 0);
+	# SW_MINIMIZE 0x06 Minimizes the specified window and lets the next topmost window become
+	# the topmost window
+	$api2->Call($i, 6);
+}
 
 # Not used.
 sub _BringCmdPromptToFront {
-	my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '', 'N');
-	my $api2 = new Win32::API('user32', 'ShowWindow' , 'NN', 'N');
-	my $i = $api1->Call();
+	my $api1 = new Win32::API('kernel32', 'GetConsoleWindow', '',   'N');
+	my $api2 = new Win32::API('user32',   'ShowWindow',       'NN', 'N');
+	my $i    = $api1->Call();
 	$api2->Call($i, 1);
-	}
+}
 
 # Print, to cmd line and log file.
 sub Output {
@@ -258,17 +261,17 @@ sub Output {
 		{
 		print("MAIN: $text");
 		}
-	}
+}
 
 # Not all needed folders are shipped with IntraMine, the logs/ folder in particular is missing.
 sub CheckNeededFoldersExist {
-	my $logDir = FullDirectoryPath('LogDir');
+	my $logDir  = FullDirectoryPath('LogDir');
 	my $tempDir = $LogDir . 'temp/';
 	if (!MakeAllDirsWide($tempDir))
 		{
 		print("Error (will continue), could not make |$tempDir|\n");
 		}
-	}
+}
 
 { ##### Server short names and associated signal names for heavy maintenance events.
 # For tracking temporary server outages due to heavy maintenance, so they can be asked to do
@@ -276,12 +279,12 @@ sub CheckNeededFoldersExist {
 # Any server doing such maintenance should do a
 # RequestBroadcast('signal=backinservice&sender=SenderShortServerName')
 # when back in service. Of course, this does nothing if only one instance of the service is running.
-my %ServerShortNameForSignal; # $ServerShortNameForSignal{'folderrenamed'} = 'Linker';
+my %ServerShortNameForSignal;    # $ServerShortNameForSignal{'folderrenamed'} = 'Linker';
 # Track server short names under maintenance: cleared when all server instances are done.
-my %ServerShortNameIsUnderMaintenance; # $ServerShortNameIsUnderMaintenance{'Linker'} = 1;
-my %PortUnderMaintenance; # $PortUnderMaintenance{43124} = 1;
+my %ServerShortNameIsUnderMaintenance;    # $ServerShortNameIsUnderMaintenance{'Linker'} = 1;
+my %PortUnderMaintenance;                 # $PortUnderMaintenance{43124} = 1;
 # For stepping through servers under maintenance to send them maintenance signals:
-my %MaintenanceIndexForShortServerName; # 0..count = @{$PortsForShortServerNames{$shortName}}
+my %MaintenanceIndexForShortServerName;   # 0..count = @{$PortsForShortServerNames{$shortName}}
 
 # Note all maintenance signal names, in intramine_config.txt under 'MAINTENANCE_SERVER_EVENTS'.
 # The format of the MAINTENANCE_SERVER_EVENTS value string is
@@ -291,57 +294,59 @@ my %MaintenanceIndexForShortServerName; # 0..count = @{$PortsForShortServerNames
 sub LoadMaintenanceSignalsForServers {
 	# Eg MAINTENANCE_SERVER_EVENTS	Linker|folderrenamed<space>OtherServer|signalValue
 	my $maintenanceStr = CVal('MAINTENANCE_SERVER_EVENTS');
-	
+
 	my @serverSignalsArr = split(/\s+/, $maintenanceStr);
-	for (my $i = 0; $i < @serverSignalsArr; ++$i)
+	for (my $i = 0 ; $i < @serverSignalsArr ; ++$i)
 		{
 		my @serverAndSignal = split(/\|/, $serverSignalsArr[$i]);
-		my $numFields = @serverAndSignal;
+		my $numFields       = @serverAndSignal;
 		if ($numFields == 2)
 			{
 			$ServerShortNameForSignal{$serverAndSignal[1]} = $serverAndSignal[0];
 			}
 		}
-	}
+}
 
 sub SignalIndicatesMaintenanceOutage {
 	my ($signalName) = @_;
 	my $result = defined($ServerShortNameForSignal{$signalName}) ? 1 : 0;
-	return($result);
-	}
+	return ($result);
+}
 
 sub ShortServerNameForMaintenanceSignal {
 	my ($signalName) = @_;
-	my $result = defined($ServerShortNameForSignal{$signalName}) ?
-						 $ServerShortNameForSignal{$signalName} : '';
-	return($result);
-	}
+	my $result =
+		defined($ServerShortNameForSignal{$signalName})
+		? $ServerShortNameForSignal{$signalName}
+		: '';
+	return ($result);
+}
 
 sub StartShortServerNameMaintenance {
 	my ($shortName) = @_;
 	Monitor("Start of maintenance for $shortName.\n");
-	$ServerShortNameIsUnderMaintenance{$shortName} = 1;
-	$MaintenanceIndexForShortServerName{$shortName} = -1; # pre-incremented by NextPort... below.
-	}
+	$ServerShortNameIsUnderMaintenance{$shortName}  = 1;
+	$MaintenanceIndexForShortServerName{$shortName} = -1;    # pre-incremented by NextPort... below.
+}
 
 sub EndShortServerNameMaintenance {
 	my ($shortName) = @_;
 	Monitor("END of maintenance for $shortName.\n");
 	$ServerShortNameIsUnderMaintenance{$shortName} = 0;
-	}
+}
 
 sub ShortServerNameIsUndergoingMaintenance {
 	my ($shortName) = @_;
 	my $result = (defined($ServerShortNameIsUnderMaintenance{$shortName})
-					&& $ServerShortNameIsUnderMaintenance{$shortName} == 1);
-	return($result);
-	}
+			&& $ServerShortNameIsUnderMaintenance{$shortName} == 1);
+	return ($result);
+}
 
 # Return next port for server short name (eg 'Viewer'), or 0.
 # Stopped servers and servers undergoing maintenance are skipped.
 sub NextPortForServerUnderMaintenance {
-	my ($shortName) = @_;
-	my $port = 0;
+	my ($shortName)                  = @_;
+	my $port                         = 0;
 	my $previousPortUnderMaintenance = 0;
 	if (ShortServerNameIsUndergoingMaintenance($shortName))
 		{
@@ -354,7 +359,7 @@ sub NextPortForServerUnderMaintenance {
 				delete($PortUnderMaintenance{$previousPortUnderMaintenance});
 				}
 			}
-		
+
 		my $numPortsTotal = NumServersTotalForShortName($shortName);
 		$MaintenanceIndexForShortServerName{$shortName} += 1;
 		my $index = $MaintenanceIndexForShortServerName{$shortName};
@@ -388,7 +393,7 @@ sub NextPortForServerUnderMaintenance {
 				}
 			}
 		}
-		
+
 	if ($port == 0)
 		{
 		EndShortServerNameMaintenance($shortName);
@@ -397,25 +402,27 @@ sub NextPortForServerUnderMaintenance {
 		{
 		$PortUnderMaintenance{$port} = 1;
 		}
-	return($port);
-	}
+	return ($port);
+}
 
 # Call this to avoid sending requests to a server currently doing maintenance.
 # Returns index >= 0 if some server associated with $shortName is currently doing
 # maintenance, or -1.
 sub IndexOfShortServerNameUnderMaintenance {
 	my ($shortName) = @_;
-	my $result = (ShortServerNameIsUndergoingMaintenance($shortName)) ?
-					$MaintenanceIndexForShortServerName{$shortName}: -1;
-	return($result);
-	}
+	my $result =
+		(ShortServerNameIsUndergoingMaintenance($shortName))
+		? $MaintenanceIndexForShortServerName{$shortName}
+		: -1;
+	return ($result);
+}
 
 sub PortIsUnderMaintenance {
 	my ($port) = @_;
 	my $result = defined($PortUnderMaintenance{$port}) ? 1 : 0;
-	return($result);
-	}
-} ##### Server short names and associated signal names for heavy maintenance events.
+	return ($result);
+}
+}    ##### Server short names and associated signal names for heavy maintenance events.
 
 { ##### Swarm Server management
 # Servers associated with pages: these include directly accessible servers with entries
@@ -426,55 +433,66 @@ sub PortIsUnderMaintenance {
 # Note "WEBSOCKET" also counts basically as a background server (single instance etc)
 # and in addition only communicates by the ws:// (websockets) protocol, as opposed to http://.
 # (And shouldn't it be called an "application" rather than a protocol? Never mind.)
-my @ServerCommandLines;			# One entry per server, eg "C:/Progs/Intramine/intramine_viewer.pl Search Viewer 81 43126"
-my @ShortNameForCmdIndex;		# $ShortNameForCmdIndex[7] = 'Reindex', used with %ShortNameIsForZombie
-my @ServerCommandProgramNames;	# Just the program name, eg "intramine_search.pl" for a $ServerCommandLines[] entry.
-my @ServerCommandPorts;			# Just the port used for a server.
-my $SwarmServerStartingPort; 	# 'INTRAMINE_FIRST_SWARM_SERVER_PORT' plus one
-my $SomeCommandServerIsRunning;	# Postpone starting Cmd or other PERSISTENT page if it is stll running
-my $NumServerPages;				# Count of entries that appear in the top nav on each browser page: Search, File, Days etc
-my @PageNames;					# $PageNames[1] = 'Files' indexed by page
-my @PageServerNames;			# $PageServerNames[1][2] = 'intramine_open_with.pl' indexed by server
-my %PageProcIDs;				# proc ID, used when restarting and to check server process is still running
-my %PageIndexForPageName;		# $PageIndexForPageName{'Files'} = 1 indexed by page
-my @ShortServerNames;			# $ShortServerNames[1][2] = 'Opener' indexed by server
-my %ShortServerNameForPort;		# $ShortServerNameForPort{'43129'} = 'Viewer'
-my %PageNameForShortServerName;	# $PageNameForShortServerName{'Viewer'} = 'Search';
-my %PageIsPersistent;			# $PageIsPersistent{'Cmd'} = 1 means it survives a shutdown so it can continue monitoring status - this is mainly for the "Cmd" page
-my @PageIndexIsPersistent;		# $PageIndexIsPersistent[n] = 1 means associated Page is persistent, see line above
-my @PageIndexForCommandLineIndex; # PageIndexForCommandLineIndex[4] = 1 for Files intramine_fileserver.pl   to find out if it's persistent
+my @ServerCommandLines
+	;    # One entry per server, eg "C:/Progs/Intramine/intramine_viewer.pl Search Viewer 81 43126"
+my @ShortNameForCmdIndex;    # $ShortNameForCmdIndex[7] = 'Reindex', used with %ShortNameIsForZombie
+my @ServerCommandProgramNames
+	;    # Just the program name, eg "intramine_search.pl" for a $ServerCommandLines[] entry.
+my @ServerCommandPorts;         # Just the port used for a server.
+my $SwarmServerStartingPort;    # 'INTRAMINE_FIRST_SWARM_SERVER_PORT' plus one
+my $SomeCommandServerIsRunning
+	;    # Postpone starting Cmd or other PERSISTENT page if it is stll running
+my $NumServerPages
+	;    # Count of entries that appear in the top nav on each browser page: Search, File, Days etc
+my @PageNames;          # $PageNames[1] = 'Files' indexed by page
+my @PageServerNames;    # $PageServerNames[1][2] = 'intramine_open_with.pl' indexed by server
+my %PageProcIDs;        # proc ID, used when restarting and to check server process is still running
+my %PageIndexForPageName;          # $PageIndexForPageName{'Files'} = 1 indexed by page
+my @ShortServerNames;              # $ShortServerNames[1][2] = 'Opener' indexed by server
+my %ShortServerNameForPort;        # $ShortServerNameForPort{'43129'} = 'Viewer'
+my %PageNameForShortServerName;    # $PageNameForShortServerName{'Viewer'} = 'Search';
+# $PageIsPersistent{'Cmd'} = 1 means it survives a shutdown so it can continue monitoring status
+# - this is mainly for the "Cmd" page
+my %PageIsPersistent;
+# $PageIndexIsPersistent[n] = 1 means associated Page is persistent, see line above
+my @PageIndexIsPersistent;
+# PageIndexForCommandLineIndex[4] = 1 for Files intramine_fileserver.pl
+# to find out if it's persistent
+my @PageIndexForCommandLineIndex;
 
 # Note reserved services are sometimes called "zombie" services below. Sorry about that.
 # A 'zombie' service has a count of 0 in serverlist.txt. It won't be started when
 # this Main service starts, but will be available for starting on the Status page.
 # A port number will be reserved for it.
-my %ShortNameIsForZombie; 		# $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
-my %PortForZombieShortName; 	# Used at startup to add listeners for zombie services.
+my %ShortNameIsForZombie;      # $ShortNameIsForZombie{'Reindex'} = 1; undef if not a zombie.
+my %PortForZombieShortName;    # Used at startup to add listeners for zombie services.
 
-# "Background" servers not associated with pages: names are UPPERCASE as listed in data/serverlist.txt.
+# "Background" servers not associated with pages: names are UPPERCASE, see eg data/serverlist.txt.
 # For example intramine_filewatcher.pl checks
 # the File Watcher log file for changes, and calls out to Elasticsearch to index the changed
 # files, after which it sends a "signal=filechange" signal that can be picked up by any
 # server interested in file system changes (it's Status in this case).
 # There is at most one of each Background server, regardless the Count field in serverlist.txt.
-my @BackgroundCommandLines;			# $BackgroundCommandLines[0] = "$scriptFullDir$BackgroundServerNames[$idx] $port_listen " .  $currentPort;
-my @BackgroundCommandProgramNames;	# Like above, but just the program name, eg "intramine_filewatcher.pl"
-my @BackgroundCommandPorts;			# and just the port number for a $BackgroundCommandLines[] entry
-my $NumBackgroundServers;			# 0..up
-my @BackgroundNames;				# $BackgroundNames[0] = 'FILEWATCHER'
-my @BackgroundServerNames;			# $BackgroundServerNames[0] = 'intramine_filewatcher.pl'
-my @ShortBackgroundServerNames;		# $ShortBackgroundServerNames[0] = 'Watcher';
-my %ShortBackgroundServerNameForPort;	# $ShortBackgroundServerNameForPort{'43139'} = 'Watcher';
-my %PortForShortBackgroundServerName;	# $PortForShortBackgroundServerName{'Watcher'} = 43139;
-my %BackgroundProcIDs;				# proc ID, used when restarting and to check server process is still running
+my @BackgroundCommandLines
+	; # $BackgroundCommandLines[0] = "$scriptFullDir$BackgroundServerNames[$idx] $port_listen " .  $currentPort;
+my @BackgroundCommandProgramNames
+	;    # Like above, but just the program name, eg "intramine_filewatcher.pl"
+my @BackgroundCommandPorts;        # and just the port number for a $BackgroundCommandLines[] entry
+my $NumBackgroundServers;          # 0..up
+my @BackgroundNames;               # $BackgroundNames[0] = 'FILEWATCHER'
+my @BackgroundServerNames;         # $BackgroundServerNames[0] = 'intramine_filewatcher.pl'
+my @ShortBackgroundServerNames;    # $ShortBackgroundServerNames[0] = 'Watcher';
+my %ShortBackgroundServerNameForPort;    # $ShortBackgroundServerNameForPort{'43139'} = 'Watcher';
+my %PortForShortBackgroundServerName;    # $PortForShortBackgroundServerName{'Watcher'} = 43139;
+my %BackgroundProcIDs;  # proc ID, used when restarting and to check server process is still running
 # For broadcasting to servers by name, it helps to know the server name for each command line. See BroadcastSignal() below.
 my @ServerCommandLinePageNames;
 my @BackgroundCommandLineNames;
 
 # For WEBSOCKET servers (BACKGROUND servers that communicate using WebSockets only).
-my %PortIsForWEBSOCKETServer;		# $PortIsForWEBSOCKETServer{'43128'} = 1
-my %IsWEBSOCKETServer;				# $IsWEBSOCKETServer{$shortServerName} = 1
-my $PrimaryWEBSOCKETPort;			# See WebSocketServerPort() etc below
+my %PortIsForWEBSOCKETServer;    # $PortIsForWEBSOCKETServer{'43128'} = 1
+my %IsWEBSOCKETServer;           # $IsWEBSOCKETServer{$shortServerName} = 1
+my $PrimaryWEBSOCKETPort;        # See WebSocketServerPort() etc below
 
 # For redirect based on short server name:
 # Eg
@@ -482,19 +500,22 @@ my $PrimaryWEBSOCKETPort;			# See WebSocketServerPort() etc below
 # should be redirected to
 # http://192.168.1.132:43125/Viewer/?href=C:/perlprogs/mine/docs/domain%20name%20for%20intramine.txt&viewport=81&editport=81&rddm=1
 # where 43125 is a port number for a Viewer that is currently up.
-my %PortsForShortServerNames; 				# $PortsForShortServerNames{'Viewer'}[portlist 0-up]
-my %CurrentlyUsedIndexForShortServerNames; 	# $CurrentlyUsedIndexForShortServerNames{'Viewer'} = index into above portlist
+my %PortsForShortServerNames;    # $PortsForShortServerNames{'Viewer'}[portlist 0-up]
+my %CurrentlyUsedIndexForShortServerNames
+	;    # $CurrentlyUsedIndexForShortServerNames{'Viewer'} = index into above portlist
 
-my $HighestInitialServerPort;	# $startingPort plus num servers started - 1
+my $HighestInitialServerPort;    # $startingPort plus num servers started - 1
 
 # For starting and stopping servers:
-my %ServerPortIsRunning; # $ServerPortIsRunning{port number} = 1; if server on port number is running.
+my %ServerPortIsRunning
+	;    # $ServerPortIsRunning{port number} = 1; if server on port number is running.
 
 # Server monitoring: how many to start, how many actually started.
 my $TotalServersWanted;
 my $TotalServersStarted;
-my %ServerPortIsStarting; # $ServerPortIsStarting{port number} = 1 if server on port is starting up. See ReceiveInfo().
-my $DoingInitialStartup; # ==1 only during startup, for calling BroadcastAllServersUp()
+my %ServerPortIsStarting
+	;  # $ServerPortIsStarting{port number} = 1 if server on port is starting up. See ReceiveInfo().
+my $DoingInitialStartup;    # ==1 only during startup, for calling BroadcastAllServersUp()
 
 # Main self-test.
 my $MainSelfTest;
@@ -505,47 +526,49 @@ my $MainSelfTest;
 sub StartServerSwarm {
 	my ($startingPort) = @_;
 	$SwarmServerStartingPort = $startingPort;
-	my $currentPort = $startingPort;
+	my $currentPort   = $startingPort;
 	my $webSocketPort = 0;
 	$TotalServersStarted = 0;
 	$DoingInitialStartup = 1;
 	SetMainSelfTest(0);
-	
-	my $configFilePath = $TESTING ? FullDirectoryPath('TESTSERVERLISTPATH') : FullDirectoryPath('SERVERLISTPATH');
+
+	my $configFilePath =
+		$TESTING ? FullDirectoryPath('TESTSERVERLISTPATH') : FullDirectoryPath('SERVERLISTPATH');
 	my $serverCount = LoadServerList($configFilePath);
 	#print("$serverCount server entries loaded from serverlist for $NumServerPages main pages.\n");
 
 	my $scriptFullPath = $0;
-	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
-	
+	my $scriptFullDir  = DirectoryFromPathTS($scriptFullPath);
+
 	CreateCommandLinesForServers(\$currentPort, $scriptFullDir, \$webSocketPort);
 
 	StartAllServers($currentPort);
-	}
+}
 
 sub CreateCommandLinesForServers {
 	my ($currentPort_R, $scriptFullDir, $webSocketPort_R) = @_;
 
 	# Command for page server [$pgIdx][$srv] (including PERSISTENT).
-	for (my $pgIdx = 0; $pgIdx < $NumServerPages; ++$pgIdx)
+	for (my $pgIdx = 0 ; $pgIdx < $NumServerPages ; ++$pgIdx)
 		{
-		my $pageName = $PageNames[$pgIdx];
+		my $pageName          = $PageNames[$pgIdx];
 		my $numServersForPage = @{$PageServerNames[$pgIdx]};
-		for (my $srv = 0; $srv < $numServersForPage; ++$srv)
+		for (my $srv = 0 ; $srv < $numServersForPage ; ++$srv)
 			{
 			my $shortName = $ShortServerNames[$pgIdx][$srv];
 			$ShortServerNameForPort{$$currentPort_R} = $shortName;
-			$PageNameForShortServerName{$shortName} = $pageName;
-			my $cmdLine = "$scriptFullDir$PageServerNames[$pgIdx][$srv] $pageName $shortName $port_listen $$currentPort_R";
-			push @ServerCommandLines, $cmdLine;
-			push @ShortNameForCmdIndex, $shortName;
+			$PageNameForShortServerName{$shortName}  = $pageName;
+			my $cmdLine =
+"$scriptFullDir$PageServerNames[$pgIdx][$srv] $pageName $shortName $port_listen $$currentPort_R";
+			push @ServerCommandLines,        $cmdLine;
+			push @ShortNameForCmdIndex,      $shortName;
 			push @ServerCommandProgramNames, $PageServerNames[$pgIdx][$srv];
-			push @ServerCommandPorts, $$currentPort_R;
-			
+			push @ServerCommandPorts,        $$currentPort_R;
+
 			push @ServerCommandLinePageNames, $pageName;
 			my $cmdIdx = @ServerCommandLines - 1;
 			$PageIndexForCommandLineIndex[$cmdIdx] = $pgIdx;
-			
+
 			# For redirects, remember port list for each short server name.
 			push @{$PortsForShortServerNames{$shortName}}, $$currentPort_R;
 			$CurrentlyUsedIndexForShortServerNames{$shortName} = 0;
@@ -564,31 +587,32 @@ sub CreateCommandLinesForServers {
 			++$$currentPort_R;
 			}
 		}
-	
+
 	# Command for BACKGROUND server.
 	# $NumBackgroundServers = @BackgroundNames;
 	# Start any WEBSOCKET server first.
-	for (my $loop = 1; $loop <= 2; ++$loop)
+	for (my $loop = 1 ; $loop <= 2 ; ++$loop)
 		{
-		for (my $idx = 0; $idx < $NumBackgroundServers; ++$idx)
+		for (my $idx = 0 ; $idx < $NumBackgroundServers ; ++$idx)
 			{
 			my $shortName = $ShortBackgroundServerNames[$idx];
 			if (   ($loop == 1 && ShortNameIsForWEBSOCKServer($shortName))
-				|| ($loop == 2 && !ShortNameIsForWEBSOCKServer($shortName)) )
+				|| ($loop == 2 && !ShortNameIsForWEBSOCKServer($shortName)))
 				{
 				$ShortBackgroundServerNameForPort{$$currentPort_R} = $shortName;
-				$PortForShortBackgroundServerName{$shortName} = $$currentPort_R;
+				$PortForShortBackgroundServerName{$shortName}      = $$currentPort_R;
 				# A background server doesn't have a "page" name since it isn't associated with
 				# a page, it just lurks in the background. So we send the $shortName in place of
 				# the page name, just to keep the interface simple.
-				my $cmdLine = "$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $$currentPort_R";
-				push @BackgroundCommandLines, $cmdLine;
-				push @BackgroundCommandProgramNames, $BackgroundServerNames[$idx];		
-				push @BackgroundCommandPorts, $$currentPort_R;
-				push @BackgroundCommandLineNames, $BackgroundNames[$idx];
+				my $cmdLine =
+"$scriptFullDir$BackgroundServerNames[$idx] $shortName $shortName $port_listen $$currentPort_R";
+				push @BackgroundCommandLines,        $cmdLine;
+				push @BackgroundCommandProgramNames, $BackgroundServerNames[$idx];
+				push @BackgroundCommandPorts,        $$currentPort_R;
+				push @BackgroundCommandLineNames,    $BackgroundNames[$idx];
 				# Set server on current port as running (perhaps optimistic).
 				SetServerPortIsRunning($$currentPort_R, 1);
-		
+
 				if (ShortNameIsForWEBSOCKServer($shortName))
 					{
 					$PortIsForWEBSOCKETServer{$$currentPort_R} = 1;
@@ -597,37 +621,37 @@ sub CreateCommandLinesForServers {
 					}
 				AddNonListenerEntryForPortAndName($$currentPort_R, $shortName);
 				++$$currentPort_R;
-				} # if first $loop and WEBSOCKET, or second $loop
-			} # for BACKGROUND servers
-		} # two $loops
-	
+				}    # if first $loop and WEBSOCKET, or second $loop
+			}    # for BACKGROUND servers
+		}    # two $loops
+
 	# Reget $$webSocketPort_R, in case we are testing.
 	$$webSocketPort_R = WebSocketServerPort();
 	# Revisit the command lines for all servers and put in " $$webSocketPort_R" at end.
-	for (my $i = 0; $i < @ServerCommandLines; ++$i)
+	for (my $i = 0 ; $i < @ServerCommandLines ; ++$i)
 		{
 		$ServerCommandLines[$i] .= " $$webSocketPort_R";
 		}
-	for (my $i = 0; $i < @BackgroundCommandLines; ++$i)
+	for (my $i = 0 ; $i < @BackgroundCommandLines ; ++$i)
 		{
 		$BackgroundCommandLines[$i] .= " $$webSocketPort_R";
 		}
-	}
+}
 
 sub StartAllServers {
 	my ($currentPort) = @_;
 
 	# Postpone 'persistent' (command) server starts if any are running.
 	$SomeCommandServerIsRunning = AnyCommandServerIsUp();
-	
+
 	my $numServersStarted = 0;
-	
+
 	# Start one of each BACKGROUND (or WEBSOCKET) server.
 	my $numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		Monitor("Starting '$BackgroundCommandLines[$i]' \n");
-		
+
 		Output("   Starting '$BackgroundCommandLines[$i]' \n");
 		my $proc;
 		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $BackgroundCommandLines[$i]", 0, 0, ".")
@@ -641,22 +665,23 @@ sub StartAllServers {
 
 	# Start the Page servers, from $PageIndexForCommandLineIndex[].
 	$numServers = @ServerCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
-		my $pgIdx = $PageIndexForCommandLineIndex[$i];
+		my $pgIdx        = $PageIndexForCommandLineIndex[$i];
 		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
-		
+
 		if (!$isPersistent || !$SomeCommandServerIsRunning)
 			{
 			my $shortName = $ShortNameForCmdIndex[$i];
-			my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
+			my $isZombie  = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
 			if (!$isZombie)
 				{
 				Monitor("Starting '$ServerCommandLines[$i]' \n");
 
 				Output("   Starting '$ServerCommandLines[$i]' \n");
 				my $proc;
-				Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]", 0, 0, ".")
+				Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $ServerCommandLines[$i]",
+					0, 0, ".")
 					|| die ServerErrorReport();
 				$PageProcIDs{$ServerCommandLines[$i]} = $proc;
 				++$numServersStarted;
@@ -668,14 +693,14 @@ sub StartAllServers {
 			}
 		}
 	Output("$numServers page server starts attempted\n------------\n");
-		
+
 	$TotalServersWanted += $numServers;
 	$HighestInitialServerPort = $currentPort - 1;
-	}
+}
 
 sub SwarmServerFirstPort {
-	return($SwarmServerStartingPort);
-	}
+	return ($SwarmServerStartingPort);
+}
 
 # Load data/serverlist.txt. Using '|' to mean 'one or more tabs', file format there is:
 # Count|Page Name|Unique short name|Perl program name(*optional*|PERSISTENT or BACKGROUND or WEBSOCKET)
@@ -696,33 +721,34 @@ sub SwarmServerFirstPort {
 # See serverlist.txt.
 sub LoadServerList {
 	my ($configFilePath) = @_;
-	my $count = 0;
-	my $zombieCount = 0;
-	
+	my $count            = 0;
+	my $zombieCount      = 0;
+
 	if (-f $configFilePath)
 		{
-		my $fileH = FileHandle->new("$configFilePath") or die("No config file found at |$configFilePath|!\n");
+		my $fileH = FileHandle->new("$configFilePath")
+			or die("No config file found at |$configFilePath|!\n");
 		my $line;
 		my $pageIndex = -1;
 		my %pageNameSeen;
-		
+
 		# Load the WS (WebSockets) service line first and always.
 		my $webSocketLine = '1	WEBSOCKETS			WS			intramine_websockets.pl		WEBSOCKET';
 		# FOR TESTING ONLY, start the WS service in a separate cmd window if 1.
 		my $runWSServerSeparately = 0;
-		if (!$runWSServerSeparately) # business as usual
+		if (!$runWSServerSeparately)    # business as usual
 			{
 			LoadOneServer($webSocketLine, \$count, \$pageIndex, \%pageNameSeen, 0);
 			}
-		else # Make sure the names and numbers are right!
+		else                            # Make sure the names and numbers are right!
 			{
 			$IsWEBSOCKETServer{'WS'} = 1;
 			SetWebSocketServerPort('43140');
-			$PortIsForWEBSOCKETServer{'43140'} = 1;
+			$PortIsForWEBSOCKETServer{'43140'}         = 1;
 			$ShortBackgroundServerNameForPort{'43140'} = 'WS';
-			$PortForShortBackgroundServerName{'WS'} = '43140';
+			$PortForShortBackgroundServerName{'WS'}    = '43140';
 			}
-		
+
 		# Also force load of the IntraMine Monitor (page) server.
 		# It has taken over startup text feedback due to problems with newlines
 		# displayed by the console window.
@@ -732,33 +758,34 @@ sub LoadServerList {
 
 		# Aug 2021 the SSE server has been dropped. Don't start it.
 		while ($line = <$fileH>)
-	    	{
-	        chomp($line);
-	        if (length($line) && $line !~ m!^\s*(#|$)!) # skip blank lines and comments.
-	        	{
-				my $isZombie = ($line =~ m!^0\s!); # Zero count means don't start yet.
-	        	# Avoid loading the WS service twice. And avoid loading the SSE server always.
-				# And avoid a second "MON" service.
-	        	if ($line !~ m!intramine_websockets\.pl! && $line !~ m!intramine_SSE\.pl!
+			{
+			chomp($line);
+			if (length($line) && $line !~ m!^\s*(#|$)!)    # skip blank lines and comments.
+				{
+				my $isZombie = ($line =~ m!^0\s!);         # Zero count means don't start yet.
+					# Avoid loading the WS service twice. And avoid loading the SSE server always.
+					# And avoid a second "MON" service.
+				if (   $line !~ m!intramine_websockets\.pl!
+					&& $line !~ m!intramine_SSE\.pl!
 					&& $line !~ m!intramine_mon\.pl!)
-	        		{
-	        		LoadOneServer($line, \$count, \$pageIndex, \%pageNameSeen, $isZombie);
+					{
+					LoadOneServer($line, \$count, \$pageIndex, \%pageNameSeen, $isZombie);
 					if ($isZombie)
 						{
 						++$zombieCount;
 						}
-	        		}
-	        	}
-	        }
-	    close $fileH;
-	
+					}
+				}
+			}
+		close $fileH;
+
 		if ($count == 0)
 			{
 			die("ERROR could not load any servers from config file |$configFilePath|!\n");
 			}
 		else
 			{
-			$NumServerPages = @PageNames;
+			$NumServerPages       = @PageNames;
 			$NumBackgroundServers = @BackgroundNames;
 			}
 		}
@@ -766,37 +793,37 @@ sub LoadServerList {
 		{
 		die("No config file found at |$configFilePath|!\n");
 		}
-	
+
 	my $trueStartCount = $count - $zombieCount;
-	return($trueStartCount);
-	}
+	return ($trueStartCount);
+}
 
 sub LoadOneServer {
 	my ($line, $countR, $pageIndexR, $pageNameSeenH, $isZombie) = @_;
 
-	my @fields = split(/\t+/, $line); 	# Split on one or more tabs
-	my $instanceCount = $fields[0]; 	# Note this is 0 if $isZombie
-	my $pageName = $fields[1];
-	my $shortServerName = $fields[2]; # for %ShortServerNameForPort, eventually
+	my @fields            = split(/\t+/, $line);    # Split on one or more tabs
+	my $instanceCount     = $fields[0];             # Note this is 0 if $isZombie
+	my $pageName          = $fields[1];
+	my $shortServerName   = $fields[2];             # for %ShortServerNameForPort, eventually
 	my $serverProgramName = $fields[3];
-	my $specialType = (defined($fields[4])) ? $fields[4]: '';
-	
+	my $specialType       = (defined($fields[4])) ? $fields[4] : '';
+
 	if ($shortServerName eq 'Main')
 		{
 		# Main entry just triggers a self-test if its Count field is positive.
 		if ($instanceCount > 0)
 			{
 			SetMainSelfTest(1);
-			
+
 			# Fudge up an entry for intramine_test_main.pl.
-			my $mainTestProgram = CVal('INTRAMINE_TEST_SERVICE');
+			my $mainTestProgram   = CVal('INTRAMINE_TEST_SERVICE');
 			my $mainTestShortname = CVal('INTRAMINE_TEST_NAME');
-			$line = "";
-			$instanceCount = 2; # Run two to test round robin.
-			$pageName = $mainTestShortname;
-			$shortServerName = $pageName;
+			$line              = "";
+			$instanceCount     = 2;                    # Run two to test round robin.
+			$pageName          = $mainTestShortname;
+			$shortServerName   = $pageName;
 			$serverProgramName = $mainTestProgram;
-			$specialType = '';
+			$specialType       = '';
 			}
 		}
 
@@ -805,16 +832,16 @@ sub LoadOneServer {
 	# A WEBSOCKET program is a BACKGROUND program that communicates only with WebSockets.
 	if ($specialType eq 'BACKGROUND' || $specialType eq 'WEBSOCKET')
 		{
-		push @BackgroundNames, $pageName;
-		push @BackgroundServerNames, $serverProgramName;
+		push @BackgroundNames,            $pageName;
+		push @BackgroundServerNames,      $serverProgramName;
 		push @ShortBackgroundServerNames, $shortServerName;
-		
+
 		if ($specialType eq 'WEBSOCKET')
 			{
 			$IsWEBSOCKETServer{$shortServerName} = 1;
 			}
 		}
-	else # a regular Page server, main entry will show up in nav bar.
+	else    # a regular Page server, main entry will show up in nav bar.
 		{
 		if (!defined($pageNameSeenH->{$pageName}))
 			{
@@ -823,23 +850,25 @@ sub LoadOneServer {
 			push @PageNames, $pageName;
 			$PageIndexForPageName{$pageName} = $$pageIndexR;
 			}
-			
+
 		my $currPageIndex = $PageIndexForPageName{$pageName};
-		
+
 		if ($specialType eq 'PERSISTENT')
 			{
-			$PageIsPersistent{$pageName} = 1; # eg "Cmd" server, will ignore regular 'EXITEXITEXIT' requests so it can monitor during restart
+			# eg "Cmd" server, will ignore regular 'EXITEXITEXIT' requests so it
+			# can monitor during restart
+			$PageIsPersistent{$pageName} = 1;
 			$PageIndexIsPersistent[$currPageIndex] = 1;
 			}
 		elsif (!defined($PageIndexIsPersistent[$currPageIndex]))
 			{
 			$PageIndexIsPersistent[$currPageIndex] = 0;
 			}
-		
-		my $actualCount = ($instanceCount > 0) ? $instanceCount: 1;
-		for (my $j = 0; $j < $actualCount; ++$j)
+
+		my $actualCount = ($instanceCount > 0) ? $instanceCount : 1;
+		for (my $j = 0 ; $j < $actualCount ; ++$j)
 			{
-			push @{$PageServerNames[$currPageIndex]}, $serverProgramName;
+			push @{$PageServerNames[$currPageIndex]},  $serverProgramName;
 			push @{$ShortServerNames[$currPageIndex]}, $shortServerName;
 			}
 
@@ -848,13 +877,13 @@ sub LoadOneServer {
 			$ShortNameIsForZombie{$shortServerName} = 1;
 			}
 		}
-	++$$countR; # includes backgrounds, just used to report count of servers seen	
-	}
+	++$$countR;    # includes backgrounds, just used to report count of servers seen
+}
 
-sub ServerErrorReport{
-        print Win32::FormatMessage( Win32::GetLastError() );
-        return 1;
-    }
+sub ServerErrorReport {
+	print Win32::FormatMessage(Win32::GetLastError());
+	return 1;
+}
 
 # This "Stop" is ignored by Cmd page servers, so they can keep running when
 # the server swarm and this server are stopped and restarted from a particular
@@ -863,18 +892,18 @@ sub StopAllSwarmServers {
 	print("Asking all servers to stop.\n");
 
 	my $srvrAddr = ServerAddress();
-	
+
 	# Page servers.
 	my $numServers = @ServerCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
 		AskSwarmServerToExit($port, $srvrAddr);
 		}
-	
+
 	# Background servers.
 	$numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		if (!PortIsForWEBSOCKServer($port))
@@ -884,7 +913,7 @@ sub StopAllSwarmServers {
 		}
 
 	# Do the WebSockets server last.
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		if (PortIsForWEBSOCKServer($port))
@@ -893,15 +922,15 @@ sub StopAllSwarmServers {
 			}
 		}
 
-	}
+}
 
 sub AskSwarmServerToExit {
 	my ($portNumber, $serverAddress) = @_;
-	
+
 	if (ServerOnPortIsRunning($portNumber))
 		{
 		Output("Attempting to stop $serverAddress:$portNumber\n");
-		
+
 		if (PortIsForWEBSOCKServer($portNumber))
 			{
 			WebSocketSend('EXITEXITEXIT');
@@ -911,19 +940,19 @@ sub AskSwarmServerToExit {
 		else
 			{
 			my $remote = IO::Socket::INET->new(
-			                Proto   => 'tcp',       		# protocol
-			                PeerAddr=> "$serverAddress", 	# Address of server
-			                PeerPort=> "$portNumber"      	# port of swarm server, default is 43124..up
-			                ) or (ServerErrorReport() && return);
-			
+				Proto    => 'tcp',               # protocol
+				PeerAddr => "$serverAddress",    # Address of server
+				PeerPort => "$portNumber"        # port of swarm server, default is 43124..up
+			) or (ServerErrorReport() && return);
+
 			print $remote "GET /?EXITEXITEXIT=1 HTTP/1.1\n\n";
 			close $remote;
 			Output("Exit request sent to $serverAddress:$portNumber\n");
-			
+
 			# A persistent server such as "Cmd" will not stop for this request.
-			my $numServers = @ServerCommandLines;
-			my $isPersistent = 0; 
-			for (my $i = 0; $i < $numServers; ++$i)
+			my $numServers   = @ServerCommandLines;
+			my $isPersistent = 0;
+			for (my $i = 0 ; $i < $numServers ; ++$i)
 				{
 				my $port = $ServerCommandPorts[$i];
 				if ($port == $portNumber)
@@ -943,17 +972,18 @@ sub AskSwarmServerToExit {
 		{
 		Output("$serverAddress:$portNumber has already been asked to stop.\n");
 		}
-	}
+}
 
-# This "ForceStop" will stop all swarm servers, including Cmd page intramine_commandserver.pl servers.
+# This "ForceStop" will stop all swarm servers,
+# including Cmd page intramine_commandserver.pl servers.
 sub ForceStopAllSwarmServers {
 	print("Forcing all servers to stop.\n");
 
 	my $srvrAddr = ServerAddress();
-	
+
 	# Page servers.
 	my $numServers = @ServerCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
 		print("Forcing stop of Page server on port $port\n");
@@ -961,7 +991,7 @@ sub ForceStopAllSwarmServers {
 		}
 	# Background servers.
 	$numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		if (!PortIsForWEBSOCKServer($port))
@@ -972,7 +1002,7 @@ sub ForceStopAllSwarmServers {
 		}
 
 	# Do the WebSockets server last.
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		if (PortIsForWEBSOCKServer($port))
@@ -981,22 +1011,28 @@ sub ForceStopAllSwarmServers {
 			ForceStopServer($port, $srvrAddr);
 			}
 		}
-	}
+}
 
 sub ForceStopServer {
 	my ($portNumber, $serverAddress) = @_;
-	
+
 	if (ServerOnPortIsRunning($portNumber))
 		{
-		my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
+		my $shortName =
+			(defined($ShortServerNameForPort{$portNumber}))
+			? $ShortServerNameForPort{$portNumber}
+			: '';
 		if ($shortName eq '')
 			{
-			$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+			$shortName =
+				(defined($ShortBackgroundServerNameForPort{$portNumber}))
+				? $ShortBackgroundServerNameForPort{$portNumber}
+				: '';
 			}
 
 		Output("Attempting to FORCE stop $shortName running on $serverAddress:$portNumber\n");
 		print("Attempting to FORCE stop $shortName running on $serverAddress:$portNumber\n");
-		
+
 		if (PortIsForWEBSOCKServer($portNumber))
 			{
 			WebSocketSend('FORCEEXIT');
@@ -1006,22 +1042,22 @@ sub ForceStopServer {
 		else
 			{
 			my $remote = IO::Socket::INET->new(
-			                Proto   => 'tcp',       		# protocol
-			                PeerAddr=> "$serverAddress", 	# Address of server
-			                PeerPort=> "$portNumber"      	# port of server typ. 43124..up
-			                ) or (ServerErrorReport() && return);
-			
+				Proto    => 'tcp',               # protocol
+				PeerAddr => "$serverAddress",    # Address of server
+				PeerPort => "$portNumber"        # port of server typ. 43124..up
+			) or (ServerErrorReport() && return);
+
 			print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n\n";
 			close $remote;
 			Output("FORCEEXIT sent to $serverAddress:$portNumber\n");
 			SetServerPortIsRunning($portNumber, 0);
-			}		
+			}
 		}
 	else
 		{
 		Output("$serverAddress:$portNumber has already been stopped.\n");
 		}
-	}
+}
 
 # BroadcastSignal():
 # Send message to some or all IntraMine servers, in response to a swarmserver.pm#RequestBroadcast().
@@ -1031,10 +1067,11 @@ sub ForceStopServer {
 # Recipients, and whether or not to even send the signal, are determined by $formH entries:
 # $formH->{'signal'} must be defined in order to send the signal.
 # $formH->{'name'} can optionally be defined to limit the recipients:
-#   $formH->{'name'} == 'PageServers' will send to non-background servers
-#   $formH->{'name'} == 'BackgroundServers' will send to background "background" servers
-#   $formH->{'name'} == entry in @ServerCommandLinePageNames will send to just servers associated with that page
-#   $formH->{'name'} == entry in @BackgroundCommandLineNames will send to just that background server
+#  $formH->{'name'} == 'PageServers' will send to non-background servers
+#  $formH->{'name'} == 'BackgroundServers' will send to background "background" servers
+#  $formH->{'name'} == entry in @ServerCommandLinePageNames will send to just servers
+#                       associated with that page
+#  $formH->{'name'} == entry in @BackgroundCommandLineNames will send to just that background server
 #
 # The "short name" for each swarm server is appended here to the $msg payload, eg
 # 'name=Upload' when sending to an instance of intramine_uploader.pl. ("Short" names are
@@ -1070,30 +1107,30 @@ sub BroadcastSignal {
 		{
 		return;
 		}
-	my $name = (defined($formH->{'name'})) ? $formH->{'name'}: '';
-	my $msg = $obj; # '/?signal=todoCount&count=3&name=PageServers' or '/?signal=reindex' etc
+	my $name = (defined($formH->{'name'})) ? $formH->{'name'} : '';
+	my $msg  = $obj;    # '/?signal=todoCount&count=3&name=PageServers' or '/?signal=reindex' etc
 	$msg =~ s!^/\?!!;
 
 	my $srvrAddr = ServerAddress();
-	
+
 	# Maintenance signal handling: a known maintenance signal (see ) starts this off.
 	# Each server that finishes maintenance will send us a 'backinservice' signal, together with
 	# its short name and the signal it was responding to. We signal all ports for the service in
 	# turn until done. Note the sender of the signal is typically not the server that will respond
 	# to it by doing maintenance, eg Watcher sends a 'folderrenamed' signal and Linker is the one
 	# that will respond to it by doing maintenance on all its corresponding active ports, one by one.
-	# When one Linker is done, it will send a 
+	# When one Linker is done, it will send a
 	# 'signal=backinservice&sender=Linker&respondingto=folderrenamed'
 	# signal, so we will know here which server to send to, and what maintenance signal.
 	my $maintenanceShortName = '';
-	my $maintenancePort = 0;
+	my $maintenancePort      = 0;
 	HandleMaintenanceSignal($formH, \$maintenanceShortName, \$maintenancePort);
-		
+
 	# Non-maintenance routine signal handling. Fire the signal off, but avoid sending signal
 	# to any instance of a server that is undergoing maintenance.
 	# %portSignalled: avoid sending signal twice to same port. Might be needed some day....
-	my %portSignalled; # $portSignalled{portnumber} = 1 if signal sent to it.
-	# Page servers.
+	my %portSignalled;    # $portSignalled{portnumber} = 1 if signal sent to it.
+						  # Page servers.
 	SignalPageServers($name, \%portSignalled, $msg, $srvrAddr);
 
 	# Also broadcast to a specific page server short name.
@@ -1105,15 +1142,15 @@ sub BroadcastSignal {
 
 	# Also broadast to a specific background server short name $PortForShortBackgroundServerName{$shortName}
 	SignalShortNameBackgroundServers($name, \%portSignalled, $msg, $srvrAddr);
-	
-	return("OK");
-	}
+
+	return ("OK");
+}
 
 sub SignalPageServers {
 	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
 
 	my $numServers = @ServerCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $pageName = $ServerCommandLinePageNames[$i];
 		if ($name eq '' || $name eq $pageName || $name eq 'PageServers')
@@ -1121,17 +1158,17 @@ sub SignalPageServers {
 			my $port = $ServerCommandPorts[$i];
 			# Append short name of server to all signals going out.
 			my $shortName = $ShortServerNameForPort{$port};
-			if ( !ShortServerNameIsUndergoingMaintenance($shortName)
-			  && ServerOnPortIsRunning($port) )
+			if (  !ShortServerNameIsUndergoingMaintenance($shortName)
+				&& ServerOnPortIsRunning($port))
 				{
 				$portSignalled_H->{$port} = 1;
 				my $message = $msg;
-				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
+				$message .= ($message =~ m!\&$!) ? "shortname=$shortName" : "&shortname=$shortName";
 				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
-	}
+}
 
 sub SignalShortNamePageServers {
 	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
@@ -1139,30 +1176,32 @@ sub SignalShortNamePageServers {
 	my $numEntriesForShortName = NumServersTotalForShortName($name);
 	if ($numEntriesForShortName)
 		{
-		for (my $i = 0; $i < $numEntriesForShortName; ++$i)
+		for (my $i = 0 ; $i < $numEntriesForShortName ; ++$i)
 			{
 			my $proposedPort = $PortsForShortServerNames{$name}->[$i];
 			if (ServerOnPortIsRunning($proposedPort))
 				{
-				my $port = $proposedPort;
+				my $port      = $proposedPort;
 				my $shortName = $name;
-				if (!ShortServerNameIsUndergoingMaintenance($shortName) && !defined($portSignalled_H->{$port}))
+				if (   !ShortServerNameIsUndergoingMaintenance($shortName)
+					&& !defined($portSignalled_H->{$port}))
 					{
 					$portSignalled_H->{$port} = 1;
 					my $message = $msg;
-					$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
+					$message .=
+						($message =~ m!\&$!) ? "shortname=$shortName" : "&shortname=$shortName";
 					SendOneSignal($port, $srvrAddr, $message);
 					}
 				}
 			}
 		}
-	}
+}
 
 sub SignalBackgroundServers {
 	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
 
 	my $numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $backgroundName = $BackgroundCommandLineNames[$i];
 		if ($name eq '' || $name eq $backgroundName || $name eq 'BackgroundServers')
@@ -1172,16 +1211,16 @@ sub SignalBackgroundServers {
 			my $shortName = $ShortBackgroundServerNameForPort{$port};
 			if (   !ShortServerNameIsUndergoingMaintenance($shortName)
 				&& !defined($portSignalled_H->{$port})
-				&& !PortIsForWEBSOCKServer($port) )
+				&& !PortIsForWEBSOCKServer($port))
 				{
 				$portSignalled_H->{$port} = 1;
 				my $message = $msg;
-				$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";			
+				$message .= ($message =~ m!\&$!) ? "shortname=$shortName" : "&shortname=$shortName";
 				SendOneSignal($port, $srvrAddr, $message);
 				}
 			}
 		}
-	}
+}
 
 sub SignalShortNameBackgroundServers {
 	my ($name, $portSignalled_H, $msg, $srvrAddr) = @_;
@@ -1193,15 +1232,15 @@ sub SignalShortNameBackgroundServers {
 		my $shortName = $name;
 		if (   !ShortServerNameIsUndergoingMaintenance($shortName)
 			&& !defined($portSignalled_H->{$port})
-			&& !PortIsForWEBSOCKServer($port) )
+			&& !PortIsForWEBSOCKServer($port))
 			{
 			$portSignalled_H->{$port} = 1;
 			my $message = $msg;
-			$message .= ($message =~ m!\&$!) ? "shortname=$shortName": "&shortname=$shortName";
+			$message .= ($message =~ m!\&$!) ? "shortname=$shortName" : "&shortname=$shortName";
 			SendOneSignal($port, $srvrAddr, $message);
 			}
 		}
-	}
+}
 
 sub HandleMaintenanceSignal {
 	my ($formH, $maintenanceShortNameR, $maintenancePortR) = @_;
@@ -1217,9 +1256,10 @@ sub HandleMaintenanceSignal {
 		if ($port != 0)
 			{
 			my $numServers = NumServersTotalForShortName($$maintenanceShortNameR);
-			my $serverSP = ($numServers == 1) ? 'server' : 'servers';
+			my $serverSP   = ($numServers == 1) ? 'server' : 'servers';
 			$$maintenancePortR = $port;
-			SendOneSignal($port, $srvrAddr, "signal=$formH->{'signal'}&shortname=$$maintenanceShortNameR");
+			SendOneSignal($port, $srvrAddr,
+				"signal=$formH->{'signal'}&shortname=$$maintenanceShortNameR");
 			}
 		}
 	elsif ($formH->{'signal'} eq 'backinservice')
@@ -1233,25 +1273,26 @@ sub HandleMaintenanceSignal {
 				if ($port != 0)
 					{
 					$$maintenancePortR = $port;
-					SendOneSignal($port, $srvrAddr, "signal=$formH->{'respondingto'}&shortname=$$maintenanceShortNameR");
+					SendOneSignal($port, $srvrAddr,
+						"signal=$formH->{'respondingto'}&shortname=$$maintenanceShortNameR");
 					}
 				}
 			}
-		}	
-	}
+		}
+}
 
 sub SendOneSignal {
 	my ($portNumber, $serverAddress, $msg) = @_;
 	Output("Sending $msg to $serverAddress:$portNumber\n");
 	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       		# protocol
-	                PeerAddr=> "$serverAddress", 	# Address of server
-	                PeerPort=> "$portNumber"      	# port of server typ. 43124..up
-	                ) or (ServerErrorReport() && return);
-	
+		Proto    => 'tcp',               # protocol
+		PeerAddr => "$serverAddress",    # Address of server
+		PeerPort => "$portNumber"        # port of server typ. 43124..up
+	) or (ServerErrorReport() && return);
+
 	print $remote "GET /?$msg HTTP/1.1\n\n";
-	close $remote;	# No reply needed.
-	}
+	close $remote;                       # No reply needed.
+}
 
 # Handle an "ssinfo" signal.
 # For example, when a swarm server finishes starting up it calls
@@ -1265,7 +1306,7 @@ sub ReceiveInfo {
 		return;
 		}
 	my $info = $formH->{'ssinfo'};
-	
+
 	if ($info eq 'serverUp')
 		{
 		ReceiveServerUp($formH);
@@ -1282,16 +1323,18 @@ sub ReceiveInfo {
 		{
 		ServerTestIsDone($formH);
 		}
-	
+
 	# All servers are started? Do some housekeeping. Mainly let all other servers know that
 	# all servers have fully started.
 	# If we are $TESTING, start the tests.
 	# Rev, deduct count of "zombie" servers.
-	my $numZombies = keys %ShortNameIsForZombie;
+	my $numZombies               = keys %ShortNameIsForZombie;
 	my $actualTotalServersWanted = $TotalServersWanted - $numZombies;
-	if (   $DoingInitialStartup
+	if (
+		$DoingInitialStartup
 		&& ($TotalServersStarted == $actualTotalServersWanted
-		|| ($WebSockIsUp && $TotalServersStarted == $actualTotalServersWanted - 1)) )
+			|| ($WebSockIsUp && $TotalServersStarted == $actualTotalServersWanted - 1))
+		)
 		{
 		BroadcastAllServersUp();
 		SetAllServersToNotStarting();
@@ -1301,33 +1344,38 @@ sub ReceiveInfo {
 			RunAllTests();
 			}
 		}
-	
-	return("OK");
-	}
+
+	return ("OK");
+}
 
 sub ReceiveServerUp {
 	my ($formH) = @_;
-	
+
 	if ($DoingInitialStartup)
 		{
 		++$TotalServersStarted;
 		}
-	
+
 	if (defined($formH->{'port'}))
 		{
 		my $senderPort = $formH->{'port'};
 
 		# Announce specific server has started, short name and port.
 		my $isPageServer = 1;
-		my $srvr = (defined($ShortServerNameForPort{$senderPort})) ? $ShortServerNameForPort{$senderPort}: '';
+		my $srvr =
+			(defined($ShortServerNameForPort{$senderPort}))
+			? $ShortServerNameForPort{$senderPort}
+			: '';
 		if ($srvr eq '')
 			{
 			$isPageServer = 0;
-			$srvr = (defined($ShortBackgroundServerNameForPort{$senderPort})) ? 
-					$ShortBackgroundServerNameForPort{$senderPort}: '(PORT NOT RECOGNISED)';
+			$srvr =
+				(defined($ShortBackgroundServerNameForPort{$senderPort}))
+				? $ShortBackgroundServerNameForPort{$senderPort}
+				: '(PORT NOT RECOGNISED)';
 			}
 		Output("$srvr server has started on port $senderPort.\n");
-		if (!$kDISPLAYMESSAGES) # Avoid duplicated print.
+		if (!$kDISPLAYMESSAGES)    # Avoid duplicated print.
 			{
 			# Check if it's a top level Page Server or just a helper.
 			# If it's a helper, don't show a URL.
@@ -1350,17 +1398,19 @@ sub ReceiveServerUp {
 				my $ipAddr = ServerAddress();
 
 				my $href = "http://$ipAddr:$port_listen/$srvr";
-				Monitor("$srvr server has started on port $senderPort.$spacer(<a href='$href' target='_blank'>$srvr</a>)\n");
+				Monitor(
+"$srvr server has started on port $senderPort.$spacer(<a href='$href' target='_blank'>$srvr</a>)\n"
+				);
 				}
-			else # User cannot visit this one, so no example URL.
+			else    # User cannot visit this one, so no example URL.
 				{
 				Monitor("$srvr server has started on port $senderPort.\n");
 				}
 			}
-			
+
 		SetServerOnPortIsStarting($senderPort, 0);
 		}
-	}
+}
 
 # Here we "dummy up" a broadcast with an allServersUp signal, which triggers ToDo server to do a
 # refresh behind the scenes, and then calculate and broadcast the current overdue ToDo count.
@@ -1381,13 +1431,13 @@ sub BroadcastAllServersUp {
 	# Revision, send to all swarm servers.
 	#$form{'name'} = 'PageServers';
 	#my $ob = '/?signal=allServersUp&name=PageServers';
-	my $ob = '/?signal=allServersUp';
+	my $ob                 = '/?signal=allServersUp';
 	my $ignoredPeerAddress = '';
-	
+
 	# This is a good opportunity to notify the user too:)
 	ShowHummingbird();
 	Monitor("IntraMine has started.\n");
-	my $ip = ServerAddress();
+	my $ip       = ServerAddress();
 	my $mainPort = $port_listen;
 	Monitor("Access IntraMine in your browser at http://$ip:$mainPort/Search\n");
 	Monitor("To stop IntraMine, double-click bats/STOP_INTRAMINE.bat\n");
@@ -1400,23 +1450,23 @@ sub BroadcastAllServersUp {
 		{
 		Monitor("(The Status service is not running, service management is not available.)\n");
 		}
-	
+
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
-	}
+}
 
 # Command page server(s) might still be running - try to stop them before starting new instances.
 sub AnyCommandServerIsUp {
-	my $result = 0;
+	my $result     = 0;
 	my $numServers = @ServerCommandLines;
 
 	# At this point ServerAddress() has not been initted, so we have to use localhost.
 	my $srvrAddr = 'localhost';
-	
-	for (my $i = 0; $i < $numServers; ++$i)
+
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
-		my $pgIdx = $PageIndexForCommandLineIndex[$i];
+		my $pgIdx        = $PageIndexForCommandLineIndex[$i];
 		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
-		
+
 		if ($isPersistent)
 			{
 			my $port = $ServerCommandPorts[$i];
@@ -1427,16 +1477,16 @@ sub AnyCommandServerIsUp {
 				}
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Returns 1 if server at $serverAddress:$portNumber responds to an 'id' request, 0 if not.
 sub ServerIsUp {
 	my ($serverAddress, $portNumber) = @_;
 	Output("Pinging $serverAddress:$portNumber\n");
 	my $result = 0;
-	
+
 	if (PortIsForWEBSOCKServer($portNumber))
 		{
 		$result = WebSocketSend('Main hello WS are you there');
@@ -1444,13 +1494,13 @@ sub ServerIsUp {
 	else
 		{
 		my $count = 0;
-		while (!$result && ++$count <= 2) # Try twice if not responding.
+		while (!$result && ++$count <= 2)    # Try twice if not responding.
 			{
 			my $remote = IO::Socket::INET->new(
-							Proto   => 'tcp',       		# protocol
-							PeerAddr=> "$serverAddress", 	# Address of server
-							PeerPort=> "$portNumber"      	# port of server 591 or 8008 are standard HTML variants
-							) or (return(0));
+				Proto    => 'tcp',               # protocol
+				PeerAddr => "$serverAddress",    # Address of server
+				PeerPort => "$portNumber"    # port of server 591 or 8008 are standard HTML variants
+			) or (return (0));
 			print $remote "GET /?req=id HTTP/1.1\n\n";
 			my $line = <$remote>;
 			chomp($line) if (defined($line));
@@ -1462,22 +1512,22 @@ sub ServerIsUp {
 				}
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Restart just servers for pages marked PERSISTENT in /data/serverlist.txt, eg "Cmd" server(s).
 sub RestartCommandServers {
 	my $numServers = @ServerCommandLines;
-	
+
 	my $srvrAddr = ServerAddress();
 
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
-		my $pgIdx = $PageIndexForCommandLineIndex[$i];
+		my $pgIdx        = $PageIndexForCommandLineIndex[$i];
 		my $isPersistent = $PageIndexIsPersistent[$pgIdx];
-		my $shortName = $ShortNameForCmdIndex[$i];
-		my $isZombie = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
+		my $shortName    = $ShortNameForCmdIndex[$i];
+		my $isZombie     = (defined($ShortNameIsForZombie{$shortName})) ? 1 : 0;
 		# Command page server(s) might still be running - try to stop them before
 		# starting new instances. Also don't start it it has a  reserved port
 		# number but it's not actually running (zombie).
@@ -1497,24 +1547,26 @@ sub RestartCommandServers {
 			$PageProcIDs{$ServerCommandLines[$i]} = $proc;
 			SetServerPortIsRunning($port, 1);
 			}
-		}	
-	}
+		}
+}
 
 # Respond to a 'req=redirect' request from another server. Such a request is sent when another
 # server receives a request for a different server, due to the port number being out of date.
-# Coming in, $formH->{'resource'} holds a copy of params for a request that had the wrong port number.
+# Coming in, $formH->{'resource'} holds a copy of params for a request that had the wrong
+# port number.
 # If the beginning of the params is a recognised short name, '/ShortName/' then we cook up
 # a redirect to the correct port (known here from $ShortServerNameForPort{$port} = 'ShortName')
 # and send it back to the patiently waiting swarmserver.pm#RedirectFromMain().
-# Returns '' for any problem (no short name in params, short name not found in %ShortServerNameForPort values).
+# Returns '' for any problem (no short name in params, short name not found
+# in %ShortServerNameForPort values).
 # (Note #anchors are not forwarded by browsers in requests, so a redirect will lose the #anchor.
 # I don't have an easy workaround for that.)
 sub RedirectToCorrectedPort {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = '';
-	
+
 	# Typical 'resource':  %20name%20for%20intramine.txt&viewport=43126&editport=43127&rddm=1'
-	my $params = defined($formH->{'resource'}) ? $formH->{'resource'}: '';
+	my $params = defined($formH->{'resource'}) ? $formH->{'resource'} : '';
 	if ($params =~ m!^/(\w+)(/|$)!)
 		{
 		my $potentialShortName = $1;
@@ -1522,28 +1574,29 @@ sub RedirectToCorrectedPort {
 			{
 			$params =~ s!\"!%22!g;
 			$params =~ s!\%!%25!;
-			
+
 			$result = RedirectBasedOnShortName($params, $potentialShortName);
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Access to @PageNames array, needed by ResultPage() to verify page is known to us.
 sub GetPageNames {
-	return(\@PageNames);
-	}
+	return (\@PageNames);
+}
 
 sub ShortServerNameForPort {
 	my ($portNumber) = @_;
-	my $result = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
-	return($result);
-	}
+	my $result =
+		(defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber} : '';
+	return ($result);
+}
 
 sub SessionStart {
-	return($StartTimeStamp);
-	}
+	return ($StartTimeStamp);
+}
 
 # Return an HTML table listing servers and status. One should perhaps
 # use YAML or JSON or something agreed upon. It's on my To Do List:) Meanwhile
@@ -1551,65 +1604,76 @@ sub SessionStart {
 # This is called by the Status server, see status.js#refreshStatus() ("req=filestatus").
 sub ServerStatus {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
+	my $pageServerTableId       = CVal('PAGE_SERVER_STATUS_TABLE');
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
-	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
-	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
+	my $statusButtonClass       = CVal('STATUS_BUTTON_HOLDER_CLASS');
+	my $portHolderClass         = CVal('PORT_STATUS_HOLDER_CLASS');
 
 	my $result = '';
-	
+
 	# Page servers.
 	ReportOnPageServers(\$result);
-	
+
 	# Background servers too. They cannot be stopped with a 'Stop' button.
 	ReportOnBackgroundServers(\$result);
-	
+
 	# Throw in summary lines at the top.
 	AddSummaryLines(\$result);
-		
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub ReportOnPageServers {
-	my ($resultR) = @_;
+	my ($resultR)         = @_;
 	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
-	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
+	my $portHolderClass   = CVal('PORT_STATUS_HOLDER_CLASS');
 	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
-	my $srvrAddr = ServerAddress();
-	
-	$$resultR .= '<table id="' . $pageServerTableId . '"><caption><strong>Page servers</strong></caption><thead><tr>' .
-		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 0); pageSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
-		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 1); pageSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>' .
-		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 2); pageSortColumn = 2;">Port</th>' .
-		'<th onclick="sortTable(\'' . $pageServerTableId. '\', 3); pageSortColumn = 3;">Status</th>' .
-		'<th>Manage</th>' .
-		'</tr></thead><tbody>' . "\n";
-	
-	my $numServers = @ServerCommandLines;
+	my $srvrAddr          = ServerAddress();
+
+	$$resultR .=
+		  '<table id="'
+		. $pageServerTableId
+		. '"><caption><strong>Page servers</strong></caption><thead><tr>'
+		. '<th onclick="sortTable(\''
+		. $pageServerTableId
+		. '\', 0); pageSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>'
+		. '<th onclick="sortTable(\''
+		. $pageServerTableId
+		. '\', 1); pageSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>'
+		. '<th onclick="sortTable(\''
+		. $pageServerTableId
+		. '\', 2); pageSortColumn = 2;">Port</th>'
+		. '<th onclick="sortTable(\''
+		. $pageServerTableId
+		. '\', 3); pageSortColumn = 3;">Status</th>'
+		. '<th>Manage</th>'
+		. '</tr></thead><tbody>' . "\n";
+
+	my $numServers     = @ServerCommandLines;
 	my $numPageServers = $numServers;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		if (defined($PageProcIDs{$ServerCommandLines[$i]}))
 			{
-			my $port = $ServerCommandPorts[$i];
+			my $port                  = $ServerCommandPorts[$i];
 			my $serverShouldBeRunning = ServerOnPortIsRunning($port);
-			my $cmdProper = $ServerCommandProgramNames[$i];
-			my $name = $ShortServerNameForPort{$port};
-			my $procID = $PageProcIDs{$ServerCommandLines[$i]};
-			my $exitcode = 1;
-			my $serverStatus = 'UP';
+			my $cmdProper             = $ServerCommandProgramNames[$i];
+			my $name                  = $ShortServerNameForPort{$port};
+			my $procID                = $PageProcIDs{$ServerCommandLines[$i]};
+			my $exitcode              = 1;
+			my $serverStatus          = 'UP';
 			if ($serverShouldBeRunning)
 				{
 				$procID->GetExitCode($exitcode);
 				}
 			my $statusImg = "<div class='led-green'></div>";
-			if ($serverShouldBeRunning &&  $exitcode eq STILL_ACTIVE )
+			if ($serverShouldBeRunning && $exitcode eq STILL_ACTIVE)
 				{
 				# Don't pester the server if it has already said that it's starting.
 				if (ServerOnPortIsStarting($port))
 					{
 					$serverStatus = 'STARTING UP';
-					$statusImg = "<div class='led-yellow'></div>";
+					$statusImg    = "<div class='led-yellow'></div>";
 					}
 				else
 					{
@@ -1623,7 +1687,7 @@ sub ReportOnPageServers {
 						if (!$stillResponding)
 							{
 							$serverStatus = 'NOT RESPONDING';
-							$statusImg = "<div class='led-red-noblink'></div>";
+							$statusImg    = "<div class='led-red-noblink'></div>";
 							}
 						}
 					}
@@ -1631,50 +1695,62 @@ sub ReportOnPageServers {
 			else
 				{
 				$serverStatus = 'DOWN';
-				$statusImg = "<div class='led-red-noblink'></div>";
+				$statusImg    = "<div class='led-red-noblink'></div>";
 				}
-			$$resultR .= "<tr><td>$cmdProper</td><td>$name</td><td><span class='$portHolderClass'>$port</span></td><td><div class='divAlignCenter'>$statusImg<div class='divAlignCenter'>&nbsp;$serverStatus</div></div></td><td>&nbsp;&nbsp;<span class='$statusButtonClass'>BUTTONS</span></td></tr>\n";
+			$$resultR .=
+"<tr><td>$cmdProper</td><td>$name</td><td><span class='$portHolderClass'>$port</span></td><td><div class='divAlignCenter'>$statusImg<div class='divAlignCenter'>&nbsp;$serverStatus</div></div></td><td>&nbsp;&nbsp;<span class='$statusButtonClass'>BUTTONS</span></td></tr>\n";
 			}
 		}
 	$$resultR .= "</tbody></table><div>&nbsp;</div>";
-	}
+}
 
 # Report if servers are UP DOWN etc.
 # The WEBSOCKET server is just checked to see if it responds, so UP or DOWN.
 sub ReportOnBackgroundServers {
-	my ($resultR) = @_;
+	my ($resultR)               = @_;
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
-	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
-	my $srvrAddr = ServerAddress();
-	
-	$$resultR .= '<table id="' . $backgroundServerTableId . '"><caption><strong>Background servers</strong></caption><thead><tr>' .
-		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 0); backgroundSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>' .
-		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 1); backgroundSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>' .
-		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 2); backgroundSortColumn = 2;">Port</th>' .
-		'<th onclick="sortTable(\'' . $backgroundServerTableId. '\', 3); backgroundSortColumn = 3;">Status</th>' .
-		'</tr></thead><tbody>' . "\n";	
-	
-	my $numServers = @BackgroundCommandLines;
+	my $portHolderClass         = CVal('PORT_STATUS_HOLDER_CLASS');
+	my $srvrAddr                = ServerAddress();
+
+	$$resultR .=
+		  '<table id="'
+		. $backgroundServerTableId
+		. '"><caption><strong>Background servers</strong></caption><thead><tr>'
+		. '<th onclick="sortTable(\''
+		. $backgroundServerTableId
+		. '\', 0); backgroundSortColumn = 0;">Server program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>'
+		. '<th onclick="sortTable(\''
+		. $backgroundServerTableId
+		. '\', 1); backgroundSortColumn = 1;">Name&nbsp;&nbsp;&nbsp;</th>'
+		. '<th onclick="sortTable(\''
+		. $backgroundServerTableId
+		. '\', 2); backgroundSortColumn = 2;">Port</th>'
+		. '<th onclick="sortTable(\''
+		. $backgroundServerTableId
+		. '\', 3); backgroundSortColumn = 3;">Status</th>'
+		. '</tr></thead><tbody>' . "\n";
+
+	my $numServers          = @BackgroundCommandLines;
 	my $numBackgoundServers = $numServers;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		if (defined($BackgroundProcIDs{$BackgroundCommandLines[$i]}))
 			{
-			my $port = $BackgroundCommandPorts[$i];
-			my $cmdProper = $BackgroundCommandProgramNames[$i];
-			my $name = $ShortBackgroundServerNameForPort{$port};
-			my $procID = $BackgroundProcIDs{$BackgroundCommandLines[$i]};
-			my $exitcode = 1;
+			my $port         = $BackgroundCommandPorts[$i];
+			my $cmdProper    = $BackgroundCommandProgramNames[$i];
+			my $name         = $ShortBackgroundServerNameForPort{$port};
+			my $procID       = $BackgroundProcIDs{$BackgroundCommandLines[$i]};
+			my $exitcode     = 1;
 			my $serverStatus = 'UP';
 			$procID->GetExitCode($exitcode);
 			my $statusImg = "<div class='led-green'></div>";
-			if ( $exitcode eq STILL_ACTIVE )
+			if ($exitcode eq STILL_ACTIVE)
 				{
 				# Don't pester the server if it has already said that it's starting.
 				if (ServerOnPortIsStarting($port))
 					{
 					$serverStatus = 'STARTING UP';
-					$statusImg = "<div class='led-yellow'></div>";
+					$statusImg    = "<div class='led-yellow'></div>";
 					}
 				else
 					{
@@ -1685,7 +1761,7 @@ sub ReportOnBackgroundServers {
 						if (!$stillResponding)
 							{
 							$serverStatus = 'NOT RESPONDING';
-							$statusImg = "<div class='led-red'></div>";
+							$statusImg    = "<div class='led-red'></div>";
 							}
 						}
 					}
@@ -1696,30 +1772,31 @@ sub ReportOnBackgroundServers {
 				#$statusImg = "<img style='vertical-align:middle' src='square_red.jpg' width='15' height='15'>"; # red
 				$statusImg = "<div class='led-red'></div>";
 				}
-			$$resultR .= "<tr><td>$cmdProper</td><td>$name</td><td><span class='$portHolderClass'>$port</span></td><td><div class='divAlignCenter'>$statusImg<div class='divAlignCenter'>&nbsp;$serverStatus</div></div></td></tr>\n"
+			$$resultR .=
+"<tr><td>$cmdProper</td><td>$name</td><td><span class='$portHolderClass'>$port</span></td><td><div class='divAlignCenter'>$statusImg<div class='divAlignCenter'>&nbsp;$serverStatus</div></div></td></tr>\n";
 			}
 		}
 	$$resultR .= '</tbody></table>' . "\n";
-	}
+}
 
 # Show ports, num servers etc, and throw in links to configuration files.
 sub AddSummaryLines {
 	my ($resultR) = @_;
-	
-	my $numPageServers = @ServerCommandLines;
-	my $numBackgoundServers = @BackgroundCommandLines;
-	my $numberOfSwarmServers = $numPageServers + $numBackgoundServers;
-	my $numZombies = keys %ShortNameIsForZombie;
-	my $initiallyStarted = $numberOfSwarmServers - $numZombies;
-	my $startTime = $StartTimeStamp;
-	my $remoteEditPort =  CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT');
-	my $firstSwarmPort = $remoteEditPort + 1;
-	my $numSwarmPorts = CVal('TOTAL_SWARM_PORTS_TO_MONITOR');
-	my $lastSwarmPort = $firstSwarmPort + $numSwarmPorts - 1;
-	my $mainPort = $port_listen;
 
-	my $summary = "<table id='statusSummarytable'>";
-	my $cellAlign = ''; #" class='right_cell'";
+	my $numPageServers       = @ServerCommandLines;
+	my $numBackgoundServers  = @BackgroundCommandLines;
+	my $numberOfSwarmServers = $numPageServers + $numBackgoundServers;
+	my $numZombies           = keys %ShortNameIsForZombie;
+	my $initiallyStarted     = $numberOfSwarmServers - $numZombies;
+	my $startTime            = $StartTimeStamp;
+	my $remoteEditPort       = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT');
+	my $firstSwarmPort       = $remoteEditPort + 1;
+	my $numSwarmPorts        = CVal('TOTAL_SWARM_PORTS_TO_MONITOR');
+	my $lastSwarmPort        = $firstSwarmPort + $numSwarmPorts - 1;
+	my $mainPort             = $port_listen;
+
+	my $summary   = "<table id='statusSummarytable'>";
+	my $cellAlign = '';                                  #" class='right_cell'";
 	$summary .= "<tr><td$cellAlign>Main port</td><td>$mainPort</td></tr>";
 	$summary .= "<tr><td$cellAlign>Swarm ports</td><td>$firstSwarmPort .. $lastSwarmPort</td></tr>";
 	$summary .= "<tr><td$cellAlign>Remote edit port</td><td>$remoteEditPort</td></tr>";
@@ -1732,21 +1809,22 @@ sub AddSummaryLines {
 	my @configFileNames;
 	GetConfigurationFileNames(\@configFileNames);
 
-	my $todoPath = FullDirectoryPath('TODODATAPATH');
-	my $lastSlash = rindex($todoPath, "/");
-	my $dataDirectory = substr($todoPath, 0, $lastSlash + 1);
-	my $host = ServerAddress();
+	my $todoPath        = FullDirectoryPath('TODODATAPATH');
+	my $lastSlash       = rindex($todoPath, "/");
+	my $dataDirectory   = substr($todoPath, 0, $lastSlash + 1);
+	my $host            = ServerAddress();
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 
 	my $configList = "<div id='configFiles'>\n";
 	$configList .= "<h3>Config files</h3>\n";
-	for (my $i = 0; $i < @configFileNames; ++$i)
+	for (my $i = 0 ; $i < @configFileNames ; ++$i)
 		{
-		$configList .= "\n<p><a href='http://$host:$mainPort/$viewerShortName/?href=$dataDirectory$configFileNames[$i]' target='_blank'>$configFileNames[$i]</a></p>";
+		$configList .=
+"\n<p><a href='http://$host:$mainPort/$viewerShortName/?href=$dataDirectory$configFileNames[$i]' target='_blank'>$configFileNames[$i]</a></p>";
 		}
 	$configList .= "\n</div>\n";
 	$$resultR = $summary . $configList . $$resultR;
-	}
+}
 
 # Get names of all configuration files in the data folder.
 sub GetConfigurationFileNames {
@@ -1755,7 +1833,7 @@ sub GetConfigurationFileNames {
 	push @configFileNames, 'intramine_config.txt';
 	my @numberedConfigFileNames;
 	GetAdditionalConfigFileNames(\@numberedConfigFileNames);
-	for (my $i = 0; $i < @numberedConfigFileNames; ++$i)
+	for (my $i = 0 ; $i < @numberedConfigFileNames ; ++$i)
 		{
 		push @configFileNames, $numberedConfigFileNames[$i];
 		}
@@ -1764,33 +1842,33 @@ sub GetConfigurationFileNames {
 	push @configFileNames, 'select_theme_here.txt';
 
 	@$configNamesA = @configFileNames;
-	}
+}
 
 sub IsShortName {
 	my ($potentialShortName) = @_;
-	my $result = (defined($CurrentlyUsedIndexForShortServerNames{$potentialShortName})) ? 1: 0;
+	my $result = (defined($CurrentlyUsedIndexForShortServerNames{$potentialShortName})) ? 1 : 0;
 	if (!$result)
 		{
-		$result = (defined($PortForShortBackgroundServerName{$potentialShortName})) ? 1: 0;
+		$result = (defined($PortForShortBackgroundServerName{$potentialShortName})) ? 1 : 0;
 		}
-	return($result);
-	}
+	return ($result);
+}
 
 # The round robin. Return the next port number for a service. Of course, this only returns
 # different port numbers for requests to a service if more than one instance of the
 # service is running. Service on a port must be running, and preferably not undergoing maintenance.
 # Called by RedirectBasedOnShortName().
 sub NextPortForShortName {
-	my ($shortName) = @_;
-	my $currentIndex = $CurrentlyUsedIndexForShortServerNames{$shortName};
+	my ($shortName)            = @_;
+	my $currentIndex           = $CurrentlyUsedIndexForShortServerNames{$shortName};
 	my $numEntriesForShortName = NumServersTotalForShortName($shortName);
-	my $portNumber = 0;
-	
+	my $portNumber             = 0;
+
 	if ($numEntriesForShortName > 1)
 		{
 		my $previousIndex = $currentIndex;
-		my $proposedPort = 0;
-		
+		my $proposedPort  = 0;
+
 		# Look for next server that's running and not under maintenance, drop out if wrapped.
 		# I don't like do-while loops, just saying.
 		my $foundAGoodPort = 0;
@@ -1802,13 +1880,13 @@ sub NextPortForShortName {
 				$currentIndex = 0;
 				}
 			$proposedPort = $PortsForShortServerNames{$shortName}->[$currentIndex];
-			if (ServerOnPortIsRunning($proposedPort)
+			if (   ServerOnPortIsRunning($proposedPort)
 				&& IndexOfShortServerNameUnderMaintenance($shortName) != $currentIndex)
 				{
 				$foundAGoodPort = 1;
 				}
-			} while ( $currentIndex != $previousIndex && !$foundAGoodPort );
-		
+			} while ($currentIndex != $previousIndex && !$foundAGoodPort);
+
 		# Nothing? Try again, but allow server under maintenance.
 		if (!$foundAGoodPort)
 			{
@@ -1825,9 +1903,9 @@ sub NextPortForShortName {
 					{
 					$foundAGoodPort = 1;
 					}
-				} while ( $currentIndex != $previousIndex  && !$foundAGoodPort );
+				} while ($currentIndex != $previousIndex && !$foundAGoodPort);
 			}
-		
+
 		if ($foundAGoodPort)
 			{
 			$portNumber = $proposedPort;
@@ -1844,40 +1922,44 @@ sub NextPortForShortName {
 			$portNumber = $PortsForShortServerNames{$shortName}->[$currentIndex];
 			}
 		}
-	
+
 	if ($portNumber == 0)
 		{
 		Output("ERROR no ports active for short name |$shortName|!\n");
 		}
-	
-	return($portNumber);
-	}
+
+	return ($portNumber);
+}
 
 sub IndexedPortForShortServerName {
 	my ($shortName, $index) = @_;
-	my $portNumber = 0;
+	my $portNumber             = 0;
 	my $numEntriesForShortName = NumServersTotalForShortName($shortName);
 	if ($index >= 0 && $index < $numEntriesForShortName)
 		{
 		$portNumber = $PortsForShortServerNames{$shortName}->[$index];
 		}
-	
-	return($portNumber);
-	}
+
+	return ($portNumber);
+}
 
 sub NumServersTotalForShortName {
 	my ($shortName) = @_;
-	my $result = (defined( $PortsForShortServerNames{$shortName})) ?
-						 @{$PortsForShortServerNames{$shortName}}: 0;
-	return($result);
-	}
+	my $result =
+		(defined($PortsForShortServerNames{$shortName}))
+		? @{$PortsForShortServerNames{$shortName}}
+		: 0;
+	return ($result);
+}
 
 sub PortForBackgroundShortServerName {
 	my ($shortName) = @_;
-	my $result = (defined($PortForShortBackgroundServerName{$shortName})) ?
-					$PortForShortBackgroundServerName{$shortName}: 0;
-	return($result);
-	}
+	my $result =
+		(defined($PortForShortBackgroundServerName{$shortName}))
+		? $PortForShortBackgroundServerName{$shortName}
+		: 0;
+	return ($result);
+}
 
 # Start up one additional server. Non BACKGROUND, non PERSISTENT. This lasts only for the
 # current run of Intramine, for a permanent addition change the Count field for the server
@@ -1894,9 +1976,9 @@ sub AddOneServer {
 			AddOneServerBasedOnShortName($shortName, \$result);
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub AddOneServerBasedOnShortName {
 	my ($shortName, $resultR) = @_;
@@ -1906,7 +1988,7 @@ sub AddOneServerBasedOnShortName {
 	# "zombie" means a count of 0 in data/serverlist, and for those
 	# the service will not quite be started, but will be available
 	# under the Status page "Add one page server:" menu.
-	for (my $i = 0; $i < @ServerCommandLines; ++$i)
+	for (my $i = 0 ; $i < @ServerCommandLines ; ++$i)
 		{
 		# if short name matches and no procID
 		# "$scriptFullDir$progamName $pageName $shortName $port_listen $freePort $wsPort"
@@ -1931,12 +2013,12 @@ sub AddOneServerBasedOnShortName {
 		}
 
 	# Not a pre-allocated service, so cook up a new one.
-	my $pageName = $PageNameForShortServerName{$shortName};
-	my $pageIndex = $PageIndexForPageName{$pageName};
+	my $pageName          = $PageNameForShortServerName{$shortName};
+	my $pageIndex         = $PageIndexForPageName{$pageName};
 	my $numServersForPage = @{$PageServerNames[$pageIndex]};
-	my $wsPort = WebSocketServerPort();
-	
-	for (my $srv = 0; $srv < $numServersForPage; ++$srv)
+	my $wsPort            = WebSocketServerPort();
+
+	for (my $srv = 0 ; $srv < $numServersForPage ; ++$srv)
 		{
 		my $cmdShortName = $ShortServerNames[$pageIndex][$srv];
 		if ($cmdShortName eq $shortName)
@@ -1944,15 +2026,16 @@ sub AddOneServerBasedOnShortName {
 			my $isPersistent = $PageIndexIsPersistent[$pageIndex];
 			if (!$isPersistent)
 				{
-				my $freePort = FirstFreePort($cmdShortName); # removes listener
-				my $progamName = $PageServerNames[$pageIndex][$srv];
+				my $freePort       = FirstFreePort($cmdShortName);           # removes listener
+				my $progamName     = $PageServerNames[$pageIndex][$srv];
 				my $scriptFullPath = $0;
-				my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
-				my $cmdLine = "$scriptFullDir$progamName $pageName $shortName $port_listen $freePort $wsPort";
-				push @ServerCommandLines, $cmdLine;
+				my $scriptFullDir  = DirectoryFromPathTS($scriptFullPath);
+				my $cmdLine =
+					"$scriptFullDir$progamName $pageName $shortName $port_listen $freePort $wsPort";
+				push @ServerCommandLines,        $cmdLine;
 				push @ServerCommandProgramNames, $progamName;
-				push @ServerCommandPorts, $freePort;
-				
+				push @ServerCommandPorts,        $freePort;
+
 				push @ServerCommandLinePageNames, $pageName;
 				my $cmdIdx = @ServerCommandLines - 1;
 				$PageIndexForCommandLineIndex[$cmdIdx] = $pageIndex;
@@ -1963,21 +2046,21 @@ sub AddOneServerBasedOnShortName {
 				$ShortServerNameForPort{$freePort} = $shortName;
 				# Remember it's running on the current port.
 				SetServerPortIsRunning($freePort, 1);
-				
+
 				Output("   STARTING '$cmdLine' \n");
 				my $proc;
 				Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $cmdLine", 0, 0, ".")
 					|| die ServerErrorReport();
 				$PageProcIDs{$cmdLine} = $proc;
-				
+
 				++$TotalServersWanted;
-				
+
 				$$resultR = 'OK';
 				}
 			last;
 			}
 		}
-	}
+}
 
 # Start up a server on specific port that has been stopped.
 # Accepts port number, or Short name. For a Short name,
@@ -2001,8 +2084,8 @@ sub StartOneServer {
 		# a Short name instead of a port number, start all instances
 		# with that name.
 		my $receivedName = $formH->{'shortName'};
-		my $numServers = @ServerCommandLines;
-		for (my $i = 0; $i < $numServers; ++$i)
+		my $numServers   = @ServerCommandLines;
+		for (my $i = 0 ; $i < $numServers ; ++$i)
 			{
 			my $port = $ServerCommandPorts[$i];
 			my $name = $ShortServerNameForPort{$port};
@@ -2012,14 +2095,14 @@ sub StartOneServer {
 				}
 			}
 		}
-	
+
 	my $numPortNumbers = @portNumbers;
 	if ($numPortNumbers)
 		{
 		$result = "";
 		}
-	
-	for (my $i = 0; $i < @portNumbers; ++$i)
+
+	for (my $i = 0 ; $i < @portNumbers ; ++$i)
 		{
 		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsStopped($portNumber))
@@ -2031,18 +2114,19 @@ sub StartOneServer {
 			$result .= "(service on $portNumber is already running)";
 			}
 		}
-			
+
 	if ($result eq '')
 		{
 		$result = 'Error could not start service';
 		}
-	return($result);
-	}
+	return ($result);
+}
 
 sub StartOneServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
 	my $isBackgroundServer = 0;
-	my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
+	my $shortName =
+		(defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber} : '';
 
 	if ($shortName ne '')
 		{
@@ -2050,19 +2134,22 @@ sub StartOneServerBasedOnPort {
 		}
 	else
 		{
-		$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+		$shortName =
+			(defined($ShortBackgroundServerNameForPort{$portNumber}))
+			? $ShortBackgroundServerNameForPort{$portNumber}
+			: '';
 		if ($shortName ne '')
 			{
 			StartOneBackgroundServerBasedOnPort($portNumber, $resultR);
 			}
 		}
-	}
+}
 
 sub StartOnePageServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
-	my $cmdLine = '';
+	my $cmdLine    = '';
 	my $numServers = @ServerCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $ServerCommandPorts[$i];
 		if ($port == $portNumber)
@@ -2085,13 +2172,13 @@ sub StartOnePageServerBasedOnPort {
 		SetServerPortIsRunning($portNumber, 1);
 		$$resultR .= 'OK';
 		}
-	}
+}
 
 sub StartOneBackgroundServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
-	my $cmdLine = '';
+	my $cmdLine    = '';
 	my $numServers = @BackgroundCommandLines;
-	for (my $i = 0; $i < $numServers; ++$i)
+	for (my $i = 0 ; $i < $numServers ; ++$i)
 		{
 		my $port = $BackgroundCommandPorts[$i];
 		if ($port == $portNumber)
@@ -2114,7 +2201,7 @@ sub StartOneBackgroundServerBasedOnPort {
 		SetServerPortIsRunning($portNumber, 1);
 		$$resultR .= 'OK';
 		}
-	}
+}
 
 # Stop a running server on specific port. See also StartOneServer().
 sub StopOneServer {
@@ -2136,8 +2223,8 @@ sub StopOneServer {
 		# a Short name instead of a port number, start all instances
 		# with that name.
 		my $receivedName = $formH->{'shortName'};
-		my $numServers = @ServerCommandLines;
-		for (my $i = 0; $i < $numServers; ++$i)
+		my $numServers   = @ServerCommandLines;
+		for (my $i = 0 ; $i < $numServers ; ++$i)
 			{
 			my $port = $ServerCommandPorts[$i];
 			my $name = $ShortServerNameForPort{$port};
@@ -2154,7 +2241,7 @@ sub StopOneServer {
 		$result = "";
 		}
 
-	for (my $i = 0; $i < @portNumbers; ++$i)
+	for (my $i = 0 ; $i < @portNumbers ; ++$i)
 		{
 		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsRunning($portNumber))
@@ -2166,24 +2253,28 @@ sub StopOneServer {
 			$result .= "(service on $portNumber is already stopped)";
 			}
 		}
-		
+
 	if ($result eq '')
 		{
 		$result = 'Error could not stop service';
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub StopOneServerBasedOnPort {
 	my ($portNumber, $resultR) = @_;
-	my $shortName = (defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber}: '';
+	my $shortName =
+		(defined($ShortServerNameForPort{$portNumber})) ? $ShortServerNameForPort{$portNumber} : '';
 	if ($shortName eq '')
 		{
-		$shortName = (defined($ShortBackgroundServerNameForPort{$portNumber})) ? $ShortBackgroundServerNameForPort{$portNumber}: '';
+		$shortName =
+			(defined($ShortBackgroundServerNameForPort{$portNumber}))
+			? $ShortBackgroundServerNameForPort{$portNumber}
+			: '';
 		}
-	
-	if ($shortName ne '') # just a double check, not really needed
+
+	if ($shortName ne '')    # just a double check, not really needed
 		{
 		my $srvrAddr = ServerAddress();
 		ForceStopServer($portNumber, $srvrAddr);
@@ -2191,7 +2282,7 @@ sub StopOneServerBasedOnPort {
 		AddListenerForPort($portNumber, $shortName);
 		$$resultR = 'OK';
 		}
-	}
+}
 
 # Stop then start a server on a specific port.
 sub RestartOneServer {
@@ -2213,8 +2304,8 @@ sub RestartOneServer {
 		# a Short name instead of a port number, start all instances
 		# with that name.
 		my $receivedName = $formH->{'shortName'};
-		my $numServers = @ServerCommandLines;
-		for (my $i = 0; $i < $numServers; ++$i)
+		my $numServers   = @ServerCommandLines;
+		for (my $i = 0 ; $i < $numServers ; ++$i)
 			{
 			my $port = $ServerCommandPorts[$i];
 			my $name = $ShortServerNameForPort{$port};
@@ -2231,7 +2322,7 @@ sub RestartOneServer {
 		$result = "";
 		}
 
-	for (my $i = 0; $i < @portNumbers; ++$i)
+	for (my $i = 0 ; $i < @portNumbers ; ++$i)
 		{
 		my $portNumber = $portNumbers[$i];
 		if (ServerOnPortIsRunning($portNumber))
@@ -2249,61 +2340,68 @@ sub RestartOneServer {
 		$result = 'Error could not restart service';
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub SetServerPortIsRunning {
 	my ($portNumber, $isRunning) = @_;
-	$ServerPortIsRunning{$portNumber} = $isRunning; # 0 == stopped, 1 == running
-	}
+	$ServerPortIsRunning{$portNumber} = $isRunning;    # 0 == stopped, 1 == running
+}
 
 sub ServerOnPortIsStopped {
 	my ($portNumber) = @_;
-	my $result = (defined($ServerPortIsRunning{$portNumber})) ? ($ServerPortIsRunning{$portNumber} == 0): 1;
-	return($result);
-	}
+	my $result =
+		(defined($ServerPortIsRunning{$portNumber})) ? ($ServerPortIsRunning{$portNumber} == 0) : 1;
+	return ($result);
+}
 
 sub ServerOnPortIsRunning {
 	my ($portNumber) = @_;
-	my $result = (defined($ServerPortIsRunning{$portNumber})) ? ($ServerPortIsRunning{$portNumber} == 1): 0;
-	return($result);
-	}
-	
+	my $result =
+		(defined($ServerPortIsRunning{$portNumber})) ? ($ServerPortIsRunning{$portNumber} == 1) : 0;
+	return ($result);
+}
+
 sub SetServerOnPortIsStarting {
 	my ($portNumber, $isStarting) = @_;
-	$ServerPortIsStarting{$portNumber} = $isStarting; # 0 == not in startup phase, 1 == starting
-	}
+	$ServerPortIsStarting{$portNumber} = $isStarting;    # 0 == not in startup phase, 1 == starting
+}
 
 sub SetAllServersToNotStarting {
 	%ServerPortIsStarting = ();
-	}
+}
 
 sub ServerOnPortIsStarting {
 	my ($portNumber) = @_;
-	my $result = (defined($ServerPortIsStarting{$portNumber})) ? ($ServerPortIsStarting{$portNumber} == 1): 0;
-	return($result);
-	}
+	my $result =
+		  (defined($ServerPortIsStarting{$portNumber}))
+		? ($ServerPortIsStarting{$portNumber} == 1)
+		: 0;
+	return ($result);
+}
 
 sub HighestInitialPortInUse {
-	return($HighestInitialServerPort);
-	}
+	return ($HighestInitialServerPort);
+}
 
 # This responds to swarmserver.pm#ServiceIsRunning(), which translates the
 # "yes"/"no" returned here into 1/0.
 sub ServiceIsRunning {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = 'no';
+	my $result    = 'no';
 	my $shortName = defined($formH->{'shortname'}) ? $formH->{'shortname'} : '';
 	if ($shortName ne '')
 		{
-		my $numServicesRunning = (defined( $PortsForShortServerNames{$shortName})) ?
-						 @{$PortsForShortServerNames{$shortName}}: 0;
+		my $numServicesRunning =
+			(defined($PortsForShortServerNames{$shortName}))
+			? @{$PortsForShortServerNames{$shortName}}
+			: 0;
 		if ($numServicesRunning > 0)
 			{
-			for (my $i = 0; $i < $numServicesRunning; ++$i)
+			for (my $i = 0 ; $i < $numServicesRunning ; ++$i)
 				{
 				my $portNumber = $PortsForShortServerNames{$shortName}->[$i];
-				my $isRunning = ServerOnPortIsRunning($portNumber);
+				my $isRunning  = ServerOnPortIsRunning($portNumber);
 				if ($isRunning)
 					{
 					$result = 'yes';
@@ -2320,25 +2418,27 @@ sub ServiceIsRunning {
 				}
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Returns count 0..up of number of instances of service with $shortName running.
 sub NumInstancesOfShortNameRunning {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = 0;
+	my $result    = 0;
 	my $shortName = defined($formH->{'shortname'}) ? $formH->{'shortname'} : '';
 	if ($shortName ne '')
 		{
-		my $numServicesRunning = (defined( $PortsForShortServerNames{$shortName})) ?
-						 @{$PortsForShortServerNames{$shortName}}: 0;
+		my $numServicesRunning =
+			(defined($PortsForShortServerNames{$shortName}))
+			? @{$PortsForShortServerNames{$shortName}}
+			: 0;
 		if ($numServicesRunning > 0)
 			{
-			for (my $i = 0; $i < $numServicesRunning; ++$i)
+			for (my $i = 0 ; $i < $numServicesRunning ; ++$i)
 				{
 				my $portNumber = $PortsForShortServerNames{$shortName}->[$i];
-				my $isRunning = ServerOnPortIsRunning($portNumber);
+				my $isRunning  = ServerOnPortIsRunning($portNumber);
 				if ($isRunning)
 					{
 					++$result;
@@ -2354,38 +2454,38 @@ sub NumInstancesOfShortNameRunning {
 				}
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub AddListenersForZombies {
 	foreach my $shortName (keys %PortForZombieShortName)
 		{
 		AddListenerForPort($PortForZombieShortName{$shortName}, $shortName);
 		}
-	}
+}
 
 # Some helpers for WEBSOCKET servers.
 sub ShortNameIsForWEBSOCKServer {
 	my ($shortName) = @_;
 	my $result = defined($IsWEBSOCKETServer{$shortName}) ? 1 : 0;
-	return($result);
-	}
+	return ($result);
+}
 
 sub PortIsForWEBSOCKServer {
 	my ($port) = @_;
 	my $result = defined($PortIsForWEBSOCKETServer{$port}) ? 1 : 0;
-	return($result);
-	}
+	return ($result);
+}
 
 sub SetWebSocketServerPort {
 	my ($port) = @_;
 	$PrimaryWEBSOCKETPort = $port;
-	}
+}
 
 sub WebSocketServerPort {
-	return($PrimaryWEBSOCKETPort);
-	}
+	return ($PrimaryWEBSOCKETPort);
+}
 
 # Set host and port for the WebSocket client.
 sub InitWebSocketClient {
@@ -2394,20 +2494,20 @@ sub InitWebSocketClient {
 		{
 		my $port = $key;
 		InitWebSocket($srvrAddr, $port);
-		last; # Start a client for the first one only.
+		last;    # Start a client for the first one only.
 		}
-	}
+}
 
 sub SetMainSelfTest {
 	my ($shouldTest) = @_;
 	$MainSelfTest = $shouldTest;
-	return($MainSelfTest);
-	}
+	return ($MainSelfTest);
+}
 
 sub ShouldSelfTestMain {
-	return($MainSelfTest);
-	}
-} ##### Swarm Server management
+	return ($MainSelfTest);
+}
+}    ##### Swarm Server management
 
 
 { ##### Server address
@@ -2417,7 +2517,7 @@ my $ServerAddress;
 # After, it can be retrieved with $addr = ServerAddress();
 sub InitServerAddress {
 	my ($S) = @_;
-	
+
 	my $ipaddr = GetReadableAddress($S);
 	$ServerAddress = $ipaddr;
 
@@ -2428,7 +2528,7 @@ sub InitServerAddress {
 	$addrH{'SERVER_ADDRESS'} = $ServerAddress;
 	my $extraConfigName = 'SRVR';
 	SaveExtraConfigValues($extraConfigName, \%addrH);
-	}
+}
 
 # Look for an IPv4 address and convert it to human readable.
 # If none found, take the last address seen (which will probably fail).
@@ -2442,7 +2542,7 @@ sub GetReadableAddress {
 		{socktype => Socket::SOCK_RAW, flags => Socket::AI_PASSIVE});
 	die "Cannot getaddrinfo - $error" if $error;
 	my $bestI = -1;
-	for (my $i = 0; $i < @res; ++$i)
+	for (my $i = 0 ; $i < @res ; ++$i)
 		{
 		#Monitor("$i family: |$res[$i]->{family}|\n");
 		my $fam = '';
@@ -2457,7 +2557,7 @@ sub GetReadableAddress {
 			#last;
 			#Monitor("$i IPv4 addr: |$res[$i]->{addr}|\n");
 			}
-		else # IPv6
+		else    # IPv6
 			{
 			$fam = '6';
 			#Monitor("$i IPv6 addr: |$res[$i]->{addr}|\n");
@@ -2466,15 +2566,16 @@ sub GetReadableAddress {
 		# my ($err2, $ipaddr) = Socket::getnameinfo($res[$i]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
 		#Monitor("$fam |$ipaddr|\n");
 		}
-		
-	my ($err2, $ipaddr) = Socket::getnameinfo($res[$bestI]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
-	return($ipaddr);		
-	}
+
+	my ($err2, $ipaddr) =
+		Socket::getnameinfo($res[$bestI]->{addr}, Socket::NI_NUMERICHOST, Socket::NIx_NOSERV);
+	return ($ipaddr);
+}
 
 sub ServerAddress {
-	return($ServerAddress);
-	}
-} ##### Server address
+	return ($ServerAddress);
+}
+}    ##### Server address
 
 { ##### MainLoop and friends
 my @listenerArray;
@@ -2482,7 +2583,7 @@ my @listenerPortArray;
 my @listenerShortnameArray;
 my $readable;
 my %RequestAction;
-my $Date; # YYYYMMDD
+my $Date;    # YYYYMMDD
 
 # For maintenance timeouts: if server is so busy that timeout is never triggered, force a call to
 # DoMaintenance() if more than $timeout seconds has elapsed.
@@ -2493,40 +2594,40 @@ sub SetLastPeriodicCallTime {
 	my ($lrt) = @_;
 	$lrt ||= time;
 	$LastPeriodicCallTime = $lrt;
-	}
+}
 
 sub GetLastPeriodicCallTime {
-	return($LastPeriodicCallTime);
-	}
+	return ($LastPeriodicCallTime);
+}
 
 sub GetCurrentTime {
 	my $ct = time;
-	return($ct);
-	}
+	return ($ct);
+}
 
 # Handle all requests until 'EXITEXITEXIT' or 'FORCEEXIT' is received.
 # Maintenance, if any, is done about once a minute. Currently just a check for date change.
 # Most of the real work is done by Respond below, which in turn calls GrabArguments and ResultPage.
 sub MainLoop {
 	my ($port_listen) = @_;
-	
-	
+
+
 	$Date = DateYYYYMMDD();
-	
+
 	# Handle http://host:port/Viewer/?req=redirect etc.
 	SetUpRequestActionHandlers();
-	
-	$readable = IO::Select->new;     # Create a new IO::Select object
+
+	$readable = IO::Select->new;    # Create a new IO::Select object
 
 	AddAllListeners($readable);
-	
+
 	SetLastPeriodicCallTime();
-	
+
 	# Start WEBSOCKET client. Only for the first WEBSOCKET server seen (lowest port number,
 	# and that's the first one in the data/serverlist.txt list).
 	#Monitor("Main starting WEBSOCKET client.\n");
 	InitWebSocketClient();
-	
+
 	$WebSockIsUp = WebSocketSend("Main first call to WS");
 
 	# Now ok to call WebSocketSend().
@@ -2537,21 +2638,21 @@ sub MainLoop {
 		{
 		OpenMonPage();
 		}
-	
+
 	# Warn if WS not up, might be someone upgrading.
 	if (!$WebSockIsUp)
 		{
 		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
 		print("No likely cause for that, sorry.\n");
 		}
-	
-	my %InputLines; # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
-	
-	while(1)
+
+	my %InputLines;   # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
+
+	while (1)
 		{
 		my $maintenanceTimeoutSeconds = MaintenanceSeconds();
 		my ($ready) = IO::Select->select($readable, undef, undef, $maintenanceTimeoutSeconds);
-		
+
 		my $forcePeriodic = 0;
 		if (!defined($ready))
 			{
@@ -2560,14 +2661,14 @@ sub MainLoop {
 			}
 		else
 			{
-			my $ct = GetCurrentTime;
+			my $ct       = GetCurrentTime;
 			my $lastTime = GetLastPeriodicCallTime();
 			if ($ct - $lastTime >= $maintenanceTimeoutSeconds)
 				{
 				$forcePeriodic = 1;
 				}
 			}
-		
+
 		foreach my $sock (@$ready)
 			{
 			# New connection?
@@ -2583,44 +2684,44 @@ sub MainLoop {
 					return;
 					}
 				}
-			} # foreach my $sock (@$ready)
-		
+			}    # foreach my $sock (@$ready)
+
 		if ($forcePeriodic)
 			{
 			DoMaintenance();
 			SetLastPeriodicCallTime();
 			}
-		} # while(1)
-	}
+		}    # while(1)
+}
 
 sub AcceptNewConnection {
 	my ($newReadySocket, $InputLinesH) = @_;
 	# Accept the connection and add it to our readable list.
 	my ($new_sock, $iaddr) = $newReadySocket->accept;
 	$readable->add($new_sock) if $new_sock;
-	my($port,$inaddr) = sockaddr_in($iaddr);
+	my ($port, $inaddr) = sockaddr_in($iaddr);
 	my $thePeerAddress = inet_ntoa($inaddr);
 	Output("NEW SOCKET, accepted request from $thePeerAddress\n");
 	$InputLinesH->{$new_sock}[0] = $thePeerAddress;
 	binmode $new_sock;
-	}
+}
 
 sub HandleEstablishedConnection {
 	my ($sock, $InputLinesH) = @_;
 	my $buff;
-	my $closed = 0;
-	my $contentLengthSeen = 0; # content-length
+	my $closed                = 0;
+	my $contentLengthSeen     = 0;    # content-length
 	my $contentLengthExpected = 0;
-	my $emptyLineSeen = 0;
+	my $emptyLineSeen         = 0;
 	my $contentLengthReceived = 0;
-	my $posted = '';
-	my $result = 1; # Exit requests return 0, meaning the whole server is done.
-	
-	while ($buff=<$sock>)
+	my $posted                = '';
+	my $result                = 1;    # Exit requests return 0, meaning the whole server is done.
+
+	while ($buff = <$sock>)
 		{
 		push @{$InputLinesH->{$sock}}, $buff;
 		Output("Rcvd: |$buff|\n");
-		
+
 		if ($emptyLineSeen)
 			{
 			$contentLengthReceived += length($buff);
@@ -2628,20 +2729,20 @@ sub HandleEstablishedConnection {
 			chomp($buffCopy);
 			$posted .= $buffCopy;
 			}
-	
+
 		if ($buff =~ m!EXITEXITEXIT! && $buff !~ m!req\=!)
 			{
 			if (ExitExitExitObeyed($sock))
 				{
-				return(0);
+				return (0);
 				}
 			}
 		elsif ($buff =~ m!FORCEEXIT! && $buff !~ m!req\=!)
 			{
 			ForceExit($sock);
-			return(0);
+			return (0);
 			}
-		elsif ($buff =~ m!content-length!i) # "content-length: $cl \r\n";
+		elsif ($buff =~ m!content-length!i)    # "content-length: $cl \r\n";
 			{
 			$contentLengthSeen = 1;
 			RecordContentLength($buff, \$contentLengthExpected);
@@ -2649,32 +2750,35 @@ sub HandleEstablishedConnection {
 		elsif ($buff =~ m!^\s*$!)
 			{
 			$emptyLineSeen = 1;
-			$contentLengthReceived = $sock->read($posted, $contentLengthExpected); # data for POST request
+			$contentLengthReceived =
+				$sock->read($posted, $contentLengthExpected);    # data for POST request
 			}
-		
-		if ( $emptyLineSeen
-			&& (($contentLengthSeen && $contentLengthReceived >= $contentLengthExpected)
-			|| (!$contentLengthSeen)) )
+
+		if (
+			$emptyLineSeen
+			&& (   ($contentLengthSeen && $contentLengthReceived >= $contentLengthExpected)
+				|| (!$contentLengthSeen))
+			)
 			{
 			RespondNormally($sock, $InputLinesH, $posted);
 			$closed = 1;
 			last;
 			}
 		}
-	
+
 	if (!$closed)
 		{
 		RespondToUnexpectedClose($sock, $InputLinesH, $posted);
 		$closed = 1;
 		}
-	
-	return(1);
-	}
+
+	return (1);
+}
 
 sub ExitExitExitObeyed {
 	my ($sock) = @_;
 	my $result = 1;
-	
+
 	if ($IGNOREEXITREQUEST)
 		{
 		Output("EXITEXITEXIT received - ignoring.\n");
@@ -2690,56 +2794,56 @@ sub ExitExitExitObeyed {
 		Output("EXITEXITEXIT bye!\n");
 		print("$SERVERNAME EXITEXITEXIT bye!\n");
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub ForceExit {
 	my ($sock) = @_;
-	
+
 	$readable->remove($sock);
 	$sock->close;
 	ForceStopAllSwarmServers();
 	sleep(1);
 	Output("FORCEEXIT bye!\n");
 	print("$SERVERNAME FORCEEXIT bye!\n");
-	}
+}
 
 sub RecordContentLength {
 	my ($buff, $contentLengthExpectedR) = @_;
-	
+
 	$buff =~ m!\s(\d+)!;
 	$$contentLengthExpectedR = $1;
-	}
+}
 
 sub RespondNormally {
 	my ($sock, $InputLinesH, $posted) = @_;
-	
+
 	Output("Finished receiving normally, will close\n");
-	
+
 	Output("Copy of received lines:\n-----------------\n");
-	my $numLines = defined($InputLinesH->{$sock}[0]) ?  @{$InputLinesH->{$sock}}: 0;
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines = defined($InputLinesH->{$sock}[0]) ? @{$InputLinesH->{$sock}} : 0;
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		Output("|$InputLinesH->{$sock}[$i]|\n");
 		}
 	Output("-----------------\n");
-	
+
 	Respond($sock, \@{$InputLinesH->{$sock}}, $posted);
 	Output("Normal connection close after response\n");
-	
+
 	$readable->remove($sock);
 	$sock->close;
 	@{$InputLinesH->{$sock}} = ();
 	delete $InputLinesH->{$sock};
-	
+
 	if ($CommandServerHasBeenNotified)
 		{
 		RestartCommandServers();
-		$CommandServerHasBeenNotified = 0;
+		$CommandServerHasBeenNotified    = 0;
 		$CommandServersHaveBeenRestarted = 1;
 		}
-	}
+}
 
 sub RespondToUnexpectedClose {
 	my ($sock, $InputLinesH, $posted) = @_;
@@ -2748,33 +2852,33 @@ sub RespondToUnexpectedClose {
 	$readable->remove($sock);
 	$sock->close;
 	Output("UNEXPECTED END OF INPUT, copy of received lines after close:\n-----------------\n");
-	my $numLines = defined($InputLinesH->{$sock}[0]) ?  @{$InputLinesH->{$sock}}: 0;
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines = defined($InputLinesH->{$sock}[0]) ? @{$InputLinesH->{$sock}} : 0;
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		Output("|$InputLinesH->{$sock}[$i]|");
 		}
 	Output("-----------------\n");
 	@{$InputLinesH->{$sock}} = ();
 	delete $InputLinesH->{$sock};
-	}
+}
 
 # Set up handlers for http://host:port/Viewer/?req=redirect etc.
 sub SetUpRequestActionHandlers {
-	$RequestAction{'req|redirect'} = \&RedirectToCorrectedPort; # req=redirect
-	$RequestAction{'req|add_one_specific_server'} = \&AddOneServer; 		# $obj holds server short name
-	$RequestAction{'req|start_one_specific_server'} = \&StartOneServer; 	# $obj holds server port
-	$RequestAction{'req|stop_one_specific_server'} = \&StopOneServer; 		# $obj holds server port
+	$RequestAction{'req|redirect'}                = \&RedirectToCorrectedPort;    # req=redirect
+	$RequestAction{'req|add_one_specific_server'} = \&AddOneServer;   # $obj holds server short name
+	$RequestAction{'req|start_one_specific_server'}   = \&StartOneServer;   # $obj holds server port
+	$RequestAction{'req|stop_one_specific_server'}    = \&StopOneServer;    # $obj holds server port
 	$RequestAction{'req|restart_one_specific_server'} = \&RestartOneServer; # $obj holds server port
-	$RequestAction{'req|ruthere'} = \&RUThere; 								# req=ruthere
-	$RequestAction{'req|serverstatus'} = \&ServerStatus; 					# req=serverstatus
-	$RequestAction{'req|sessionStart'} = \&SessionStart; 					# req=sessionStart
-	$RequestAction{'req|running'} = \&ServiceIsRunning; 					# req=running
-	$RequestAction{'req|servercount'} = \&NumInstancesOfShortNameRunning; 	# req=servercount
-	$RequestAction{'req|id'} = \&Identify; 									# req=id
-	$RequestAction{'req|showhelp'} = \&ShowHelp; 							# req=showhelp
-	$RequestAction{'signal'} = \&BroadcastSignal; 							# signal=anything
-	$RequestAction{'ssinfo'} = \&ReceiveInfo; 								# ssinfo=anything, eg 'ssinfo=serverUp'
-	}
+	$RequestAction{'req|ruthere'}                     = \&RUThere;          # req=ruthere
+	$RequestAction{'req|serverstatus'}                = \&ServerStatus;     # req=serverstatus
+	$RequestAction{'req|sessionStart'}                = \&SessionStart;     # req=sessionStart
+	$RequestAction{'req|running'}                     = \&ServiceIsRunning; # req=running
+	$RequestAction{'req|servercount'} = \&NumInstancesOfShortNameRunning;    # req=servercount
+	$RequestAction{'req|id'}          = \&Identify;                          # req=id
+	$RequestAction{'req|showhelp'}    = \&ShowHelp;                          # req=showhelp
+	$RequestAction{'signal'}          = \&BroadcastSignal;                   # signal=anything
+	$RequestAction{'ssinfo'}          = \&ReceiveInfo;    # ssinfo=anything, eg 'ssinfo=serverUp'
+}
 
 # Add placeholder entries in @listenerArray etc for a service started up initially.
 sub AddNonListenerEntryForPortAndName {
@@ -2783,7 +2887,7 @@ sub AddNonListenerEntryForPortAndName {
 	# Avoid duplicate.
 	my $numListeners = @listenerArray;
 
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerPortArray[$i] == $port)
 			{
@@ -2791,39 +2895,39 @@ sub AddNonListenerEntryForPortAndName {
 			}
 		}
 
-	push @listenerArray, '';
-	push @listenerPortArray, $port;
+	push @listenerArray,          '';
+	push @listenerPortArray,      $port;
 	push @listenerShortnameArray, $shortName;
-	}
+}
 
 # Add listeners for main port (us) and all unused swarm server ports.
 sub AddAllListeners {
 	my ($readable) = @_;
 
-	my $listener = 
-  		IO::Socket::INET->new( LocalPort => $port_listen, Listen => SOMAXCONN, ReuseAddr => 1 );
+	my $listener =
+		IO::Socket::INET->new(LocalPort => $port_listen, Listen => SOMAXCONN, ReuseAddr => 1);
 	die "Can't create socket on port $port_listen for listening: $!" unless $listener;
-	$readable->add($listener);          # Add the listener to it
-	push @listenerArray, $listener;
-	push @listenerPortArray, $port_listen;
+	$readable->add($listener);    # Add the listener to it
+	push @listenerArray,          $listener;
+	push @listenerPortArray,      $port_listen;
 	push @listenerShortnameArray, "Main";
-	
+
 	# Add listeners for first free port up, so total of swarm ports listened to
 	# is TOTAL_SWARM_PORTS_TO_MONITOR.
 	# TOTAL_SWARM_PORTS_TO_MONITOR is in data\intramine_config.txt, default value 48.
-	my $firstFreePort = HighestInitialPortInUse() + 1;	
+	my $firstFreePort            = HighestInitialPortInUse() + 1;
 	my $totalSwarmPortsToMonitor = CVal('TOTAL_SWARM_PORTS_TO_MONITOR') + 0;
-	my $numSwarmPortsInUse = $firstFreePort - $kSwarmServerStartingPort;
-	my $numExtraPortsToMonitor = $totalSwarmPortsToMonitor - $numSwarmPortsInUse;
+	my $numSwarmPortsInUse       = $firstFreePort - $kSwarmServerStartingPort;
+	my $numExtraPortsToMonitor   = $totalSwarmPortsToMonitor - $numSwarmPortsInUse;
 	if ($numExtraPortsToMonitor < 0)
 		{
 		$numExtraPortsToMonitor = 0;
 		}
-	for (my $port = $firstFreePort; $port < $firstFreePort + $numExtraPortsToMonitor; ++$port)
+	for (my $port = $firstFreePort ; $port < $firstFreePort + $numExtraPortsToMonitor ; ++$port)
 		{
 		AddListenerForPort($port, '');
-		# my $listener = 
-	  	# 	IO::Socket::INET->new( LocalPort => $port, Listen => 20, ReuseAddr => 1 );
+		# my $listener =
+		# 	IO::Socket::INET->new( LocalPort => $port, Listen => 20, ReuseAddr => 1 );
 		# die "Can't create socket on port $port for listening: $!" unless $listener;
 		# $readable->add($listener);          # Add the listener to it
 		# push @listenerArray, $listener;
@@ -2833,17 +2937,17 @@ sub AddAllListeners {
 	Output("$SERVERNAME: listening for connections on port $port_listen\n");
 
 	AddListenersForZombies();
-	
-	InitServerAddress($listener);	
-	}
+
+	InitServerAddress($listener);
+}
 
 # Port monitored here is either the main port (default 81) or one of the unused swarm
 # server ports.
 sub SockIsInListenerList {
-	my ($sock) = @_;
-	my $result = '';
+	my ($sock)       = @_;
+	my $result       = '';
 	my $numListeners = @listenerArray;
-	for (my $i = 0; $i < $numListeners; ++$i)
+	for (my $i = 0 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerArray[$i] ne '' && $sock == $listenerArray[$i])
 			{
@@ -2851,9 +2955,9 @@ sub SockIsInListenerList {
 			last;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Not currently used.
 sub DumpListeners {
@@ -2861,13 +2965,13 @@ sub DumpListeners {
 
 	Monitor("LISTENERS\n");
 	Monitor("------------\n");
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		my $listening = ($listenerArray[$i] ne '') ? 'listening' : 'NOT';
 		Monitor("$listening $listenerPortArray[$i] $listenerShortnameArray[$i]\n");
 		}
 	Monitor("------------\n");
-	}
+}
 
 # $shortName can be ''.
 sub AddListenerForPort {
@@ -2876,47 +2980,46 @@ sub AddListenerForPort {
 
 	# Avoid duplicate.
 	my $numListeners = @listenerArray;
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerPortArray[$i] == $port && $listenerArray[$i] ne '')
 			{
-			return($result);
+			return ($result);
 			}
 		}
 
-	my $listener = 
-	IO::Socket::INET->new( LocalPort => $port, Listen => 20, ReuseAddr => 1 );
+	my $listener = IO::Socket::INET->new(LocalPort => $port, Listen => 20, ReuseAddr => 1);
 	die "Can't create socket on port $port for listening: $!" unless $listener;
-	$readable->add($listener);          # Add the listener to it
+	$readable->add($listener);    # Add the listener to it
 
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerPortArray[$i] == $port)
 			{
-			$listenerArray[$i] = $listener;
+			$listenerArray[$i]          = $listener;
 			$listenerShortnameArray[$i] = $shortName;
-			$result = 1;
+			$result                     = 1;
 			last;
 			}
 		}
 
 	if (!$result)
 		{
-		push @listenerArray, $listener;
-		push @listenerPortArray, $port;
-		push @listenerShortnameArray, $shortName; # Can be ''
+		push @listenerArray,          $listener;
+		push @listenerPortArray,      $port;
+		push @listenerShortnameArray, $shortName;    # Can be ''
 		$result = 1;
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub RemoveListenerForPort {
-	my ($port) = @_;
-	my $result = 0;
+	my ($port)       = @_;
+	my $result       = 0;
 	my $numListeners = @listenerArray;
 
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerPortArray[$i] == $port)
 			{
@@ -2932,17 +3035,17 @@ sub RemoveListenerForPort {
 			}
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 sub FirstFreePort {
-	my ($shortName) = @_;
-	my $result = 0;
+	my ($shortName)  = @_;
+	my $result       = 0;
 	my $numListeners = @listenerArray;
 
 	if ($shortName ne '')
 		{
-		for (my $i = 1; $i < $numListeners; ++$i)
+		for (my $i = 1 ; $i < $numListeners ; ++$i)
 			{
 			if ($listenerArray[$i] ne '' && $listenerShortnameArray[$i] eq $shortName)
 				{
@@ -2953,7 +3056,7 @@ sub FirstFreePort {
 			}
 		}
 
-	for (my $i = 1; $i < $numListeners; ++$i)
+	for (my $i = 1 ; $i < $numListeners ; ++$i)
 		{
 		if ($listenerArray[$i] ne '' && $listenerShortnameArray[$i] eq '')
 			{
@@ -2965,7 +3068,7 @@ sub FirstFreePort {
 
 	if ($result == 0)
 		{
-		for (my $i = 1; $i < $numListeners; ++$i)
+		for (my $i = 1 ; $i < $numListeners ; ++$i)
 			{
 			if ($listenerArray[$i] ne '')
 				{
@@ -2975,11 +3078,11 @@ sub FirstFreePort {
 				}
 			}
 		}
-	
+
 	if ($result == 0)
 		{
 		my $highestPort = 0;
-		for (my $i = 1; $i < $numListeners; ++$i)
+		for (my $i = 1 ; $i < $numListeners ; ++$i)
 			{
 			if ($highestPort < $listenerPortArray[$i])
 				{
@@ -2987,13 +3090,13 @@ sub FirstFreePort {
 				}
 			}
 		++$highestPort;
-		push @listenerArray, '';
-		push @listenerPortArray, $highestPort;
-		push @listenerShortnameArray, ''; # Can be ''
+		push @listenerArray,          '';
+		push @listenerPortArray,      $highestPort;
+		push @listenerShortnameArray, '';             # Can be ''
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Send back full HTTP response. Headers are minimal.
 # "Access-Control-Allow-Origin: *" is important, it helps with traffic between servers
@@ -3001,8 +3104,8 @@ sub FirstFreePort {
 sub Respond {
 	my ($s, $arr, $posted) = @_;
 	Output("Responding\n");
-	
-	my $mimeType = '';
+
+	my $mimeType      = '';
 	my $numInputLines = @$arr;
 	if ($numInputLines >= 2)
 		{
@@ -3010,7 +3113,7 @@ sub Respond {
 		my %form;
 		my $isOptionsRequest = 0;
 		GrabArguments($arr, $posted, \%form, \$isOptionsRequest);
-		
+
 		if (!($IGNOREEXITREQUEST && defined($form{'EXITEXITEXIT'})))
 			{
 			if ($isOptionsRequest)
@@ -3021,12 +3124,13 @@ sub Respond {
 				print $s "Allow: GET,POST,OPTIONS\r\n";
 				print $s "Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n";
 				print $s "Access-Control-Allow-Origin: *\r\n";
-				print $s "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n";
+				print $s
+"Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n";
 				}
 			else
 				{
 				my $contents = ResultPage($arr, \%form, $clientAddr, \$mimeType);
-				my $cl = length($contents);
+				my $cl       = length($contents);
 				if ($cl)
 					{
 					print $s "HTTP/1.1 200 OK\r\n";
@@ -3039,7 +3143,8 @@ sub Respond {
 					print $s "content-length: $cl \r\n";
 					print $s "Allow: GET,POST,OPTIONS\r\n";
 					print $s "Access-Control-Allow-Origin: *\r\n";
-					print $s "Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n";
+					print $s
+"Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With\r\n";
 					print $s "\r\n";
 					print $s "$contents";
 					}
@@ -3059,7 +3164,7 @@ sub Respond {
 		print $s "HTTP/1.1 404 Not Found\r\n";
 		}
 	Output("END RESPONSE\n");
-	}
+}
 
 # GET /path/?one=two&three=another HTTP/1.0
 # or
@@ -3067,29 +3172,29 @@ sub Respond {
 sub GrabArguments {
 	my ($arr, $posted, $formH, $isOptionsR) = @_;
 	my $obj = $arr->[1];
-	
+
 	# Get headers.
 	my $numReqLines = @$arr;
-	for (my $i = 2; $i < $numReqLines; ++$i)
+	for (my $i = 2 ; $i < $numReqLines ; ++$i)
 		{
 		my $value = $arr->[$i];
 		if ($value =~ m!^([a-zA-Z0-9-]+):!)
 			{
 			my $headerName = $1;
-			my $headerVal = $value;
+			my $headerVal  = $value;
 			$headerVal =~ s!^[a-zA-Z0-9-]+:\s*!!;
 			$formH->{$headerName} = $headerVal;
 			}
 		}
-	
-	my $doingPost = 0; # post contents can sometimes? be encoded twice for some unknown reason.
-	my @parts = split(" ", $obj);
+
+	my $doingPost = 0;    # post contents can sometimes? be encoded twice for some unknown reason.
+	my @parts     = split(" ", $obj);
 	if (@parts == 3)
 		{
 		$formH->{METHOD} = $parts[0];
 		$formH->{OBJECT} = $parts[1];
 		my $arguments = '';
-		
+
 		if ($formH->{METHOD} =~ m!post!i)
 			{
 			$arguments = $posted;
@@ -3101,12 +3206,12 @@ sub GrabArguments {
 			Output("OPTIONS request\n");
 			# Ignore arguments.
 			}
-		else # get
+		else    # get
 			{
 			my $pastQidx = index($parts[1], '?') + 1;
 			$arguments = ($pastQidx > 0) ? substr($parts[1], $pastQidx) : '';
 			}
-		
+
 		if ($arguments ne '')
 			{
 			my @pairs = split(/&/, $arguments);
@@ -3126,7 +3231,7 @@ sub GrabArguments {
 					}
 				# Store values in a hash:
 				$formH->{$name} = $value;
-				} 
+				}
 			}
 		}
 	else
@@ -3135,7 +3240,7 @@ sub GrabArguments {
 		Output("ERROR num parts is $numParts!\n");
 		Output(" - obj received was |$obj|\n");
 		}
-	}
+}
 
 # Return JS to change window.location for redirects, or various content for a request
 # based on 'req=...' such as req=redirect, req=id.
@@ -3145,17 +3250,17 @@ sub GrabArguments {
 # happens if main here receives a request that should obviously be handled by a
 # different server, eg something like
 # http://192.168.1.132:81/Files
-# will be redirected to 
+# will be redirected to
 # http://192.168.1.132:43128/Files
 # (assuming main here is on port 81, and the 'Files' server is on port 43128).
 # req=ruthere and req=id are sent by swarm servers, response is just server name and port.
 sub ResultPage {
 	my ($arr, $formH, $peeraddress, $mimeTypeR) = @_;
 	my $result = '';
-	my $obj = $formH->{OBJECT};
-	
+	my $obj    = $formH->{OBJECT};
+
 	my $requestHandled = 0;
-	
+
 	# Handle redirects up front.
 	if ($obj =~ m!^/(\w+)(/|$)!)
 		{
@@ -3163,25 +3268,25 @@ sub ResultPage {
 		if (IsShortName($potentialShortName))
 			{
 			Output("Redirecting \$obj |$obj|\n");
-			$result = RedirectBasedOnShortName($obj, $potentialShortName);
-			$$mimeTypeR = CVal('html');
+			$result         = RedirectBasedOnShortName($obj, $potentialShortName);
+			$$mimeTypeR     = CVal('html');
 			$requestHandled = 1;
 			}
 		}
-	
+
 	if (!$requestHandled)
 		{
 		foreach my $nameValue (keys %RequestAction)
 			{
-			my @keyParts = split(/\|/, $nameValue);
-			my $namePart = $keyParts[0];
-			my $optionalValuePart = (defined($keyParts[1])) ? $keyParts[1]: '';
+			my @keyParts          = split(/\|/, $nameValue);
+			my $namePart          = $keyParts[0];
+			my $optionalValuePart = (defined($keyParts[1])) ? $keyParts[1] : '';
 			# Eg $formH->{'href'} = path to file, or $formH->{'req'} eq 'id'
-			if ( defined($formH->{$namePart})
-			 && ($optionalValuePart eq '' || $optionalValuePart eq $formH->{$namePart}) )
+			if (defined($formH->{$namePart})
+				&& ($optionalValuePart eq '' || $optionalValuePart eq $formH->{$namePart}))
 				{
 				Output(" for $nameValue.\n");
-				$result = $RequestAction{$nameValue}->($obj, $formH, $peeraddress);
+				$result         = $RequestAction{$nameValue}->($obj, $formH, $peeraddress);
 				$requestHandled = 1;
 				last;
 				}
@@ -3196,10 +3301,10 @@ sub ResultPage {
 		{
 		GetResultFromFile($obj, \$result, \$mimeTypeR);
 		}
-	
+
 	Output("ResultPage bottom, Raw \$obj: |$obj|\n");
-	return $result;	
-	}
+	return $result;
+}
 
 # CSS JS images.
 # Note this version of GetResultFromFile() doesn't try as hard as
@@ -3216,16 +3321,16 @@ sub GetResultFromFile {
 		my $ext = lc($1);
 		Output("for image: |$obj|\n");
 		my $filePath = $obj;
-		$filePath =~ s!^/!!; # vs substr($obj, 1);
-		#Monitor("Image file path: |$filePath|\n");
+		$filePath =~ s!^/!!;    # vs substr($obj, 1);
+								#Monitor("Image file path: |$filePath|\n");
 		my $gotIt = 0;
 		if (-f $filePath)
 			{
 			#Monitor("Got it!\n");
-			$gotIt = 1;
+			$gotIt     = 1;
 			$$result_R = GetBinFile($filePath);
 			}
-		
+
 		if (!$gotIt)
 			{
 			#Monitor("Image open of |$filePath| FAILED, falling back to images folder\n");
@@ -3240,7 +3345,7 @@ sub GetResultFromFile {
 		Output(" for CSS.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $CSS_DIR . $1;
-		$$result_R = GetTextFile($filePath);
+		$$result_R     = GetTextFile($filePath);
 		$$$mimeTypeR_R = CVal('css');
 		}
 	elsif ($obj =~ m!\.js$!i)
@@ -3248,7 +3353,7 @@ sub GetResultFromFile {
 		Output(" for JS.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $JS_DIR . $1;
-		$$result_R = GetTextFile($filePath);
+		$$result_R     = GetTextFile($filePath);
 		$$$mimeTypeR_R = CVal('js');
 		}
 	elsif ($obj =~ m!\.ttf$!i)
@@ -3256,35 +3361,35 @@ sub GetResultFromFile {
 		Output(" for FONT.\n");
 		$obj =~ m!/([^/]+)$!;
 		my $filePath = $FONT_DIR . $1;
-		$$result_R = GetBinFile($filePath);
+		$$result_R     = GetBinFile($filePath);
 		$$$mimeTypeR_R = CVal('ttf');
 		}
-	}
+}
 
 sub Identify {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $portNumber = $port_listen;
-	my $srvrAddr = ServerAddress();
-	my $result = "$SERVERNAME on $srvrAddr:$portNumber";
-	
-	return($result);
-	}
+	my $srvrAddr   = ServerAddress();
+	my $result     = "$SERVERNAME on $srvrAddr:$portNumber";
+
+	return ($result);
+}
 
 # Respond to req=ruthere from a command server, which is waiting for restart.
 sub RUThere {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = Identify($obj, $formH, $peeraddress);
-	
+
 	# Ok to restart command servers after responding to this
 	# - but just to be safe, only do it once - after all how many times should
 	# we be restarting during a session? Once, methinks.
 	if (!$CommandServersHaveBeenRestarted)
 		{
-		$CommandServerHasBeenNotified = 1; 
+		$CommandServerHasBeenNotified = 1;
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Called once a minute or so, check for important changes such as change of date.
 # (Revision, testing doing this every two seconds to see if it helps
@@ -3293,12 +3398,12 @@ sub DoMaintenance {
 	HandleDateChange();
 
 	#my $numDumpedMessages = ShowMessages();
-	
+
 	# Call WebSocketReceiveAllMessages() periodically (currently one a minute)
 	# to "drain" all pending WebSockets messages.
 	#Monitor("About to call WebSocketReceiveAllMessages\n");
 	my $numMessagesSeen = WebSocketReceiveAllMessages();
-	}
+}
 
 sub HandleDateChange {
 	# Compare last known date against current date. If changed, broadcast 'signal=dayHasChanged'.
@@ -3308,24 +3413,24 @@ sub HandleDateChange {
 		$Date = $currentDate;
 		BroadcastDateHasChanged();
 		}
-	}
+}
 
 # 'send 'signal=dayHasChanged' to all servers. ToDo responds by recalculating the
 # number of overdue pending ToDo items.
 sub BroadcastDateHasChanged {
 	my %form;
 	$form{'signal'} = 'dayHasChanged';
-	my $ob = '/?signal=dayHasChanged';
+	my $ob                 = '/?signal=dayHasChanged';
 	my $ignoredPeerAddress = '';
 	BroadcastSignal($ob, \%form, $ignoredPeerAddress);
-	}
+}
 
-} ##### MainLoop and friends
+}    ##### MainLoop and friends
 
 sub GetBinFile {
 	my ($filePath) = @_;
-	return(ReadBinFileWide($filePath));
-	}
+	return (ReadBinFileWide($filePath));
+}
 
 sub GetTextFile {
 	my ($filePath) = @_;
@@ -3334,9 +3439,9 @@ sub GetTextFile {
 		{
 		$result = '';
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub RedirectTemplateForShortName {
 	my $theBody = <<'FINIS';
@@ -3348,23 +3453,23 @@ sub RedirectTemplateForShortName {
 </head><body></body></html>
 FINIS
 
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 # Redirect to port that's handling requests based on short name (Search, Viewer etc).
 # However if it's a "req=portNumber" request, just return a current port number for the short name.
 sub RedirectBasedOnShortName {
 	my ($obj, $shortName) = @_;
-	
+
 	my $goodPort = NextPortForShortName($shortName);
 	if (!$goodPort)
 		{
 		$goodPort = PortForBackgroundShortServerName($shortName);
 		}
-	
+
 	my $serverAddr = ServerAddress();
-	my $theBody = '';
-	if ($goodPort == 0) # No port available for $shortName service.
+	my $theBody    = '';
+	if ($goodPort == 0)    # No port available for $shortName service.
 		{
 		$theBody = 'Not up!';
 		}
@@ -3387,37 +3492,37 @@ sub RedirectBasedOnShortName {
 			{
 			$obj .= '?req=main';
 			}
-			
+
 		$obj = encode_utf8($obj);
-		
+
 		$theBody =~ s!_ARGS_!$obj!;
 		}
-	
-	return($theBody);
-	}
+
+	return ($theBody);
+}
 
 # https://ascii.co.uk/art/hummingbird
 sub ShowHummingbird {
 
 	my $birdGif = "<img src='hbird.gif'><br>";
 	Monitor("$birdGif");
-	}
+}
 
 # Respond to req=showhelp by showing Documentation/contents.html
 # using the default browser. This is the hard way I suppose, but
 # with this approach relative links in the help files work.
 sub ShowHelp {
-	my $scriptFullPath = $0; # path of calling program, normally for intramine_main.pl
-	my $scriptFullDir = DirectoryFromPathTS($scriptFullPath);
+	my $scriptFullPath         = $0;    # path of calling program, normally for intramine_main.pl
+	my $scriptFullDir          = DirectoryFromPathTS($scriptFullPath);
 	my $documentationDirectory = $scriptFullDir . 'Documentation/';
-	my $filepath = $documentationDirectory . 'contents.html';
+	my $filepath               = $documentationDirectory . 'contents.html';
 	my $proc;
 	my $status;
 	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath", 0, 0, ".")
-		|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+		|| ($status = Win32::FormatMessage(Win32::GetLastError()));
 
-	return('OK');
-	}
+	return ('OK');
+}
 
 { ##### Maintenance timeout, not really needed, it's set to 60 seconds.
 my $MaintenanceTimeout;
@@ -3425,17 +3530,17 @@ my $MaintenanceTimeout;
 sub SetMaintenanceIntervalSeconds {
 	my ($maintenanceTimeoutSeconds) = @_;
 	$MaintenanceTimeout = $maintenanceTimeoutSeconds;
-	}
+}
 
 sub MaintenanceSeconds {
-	return($MaintenanceTimeout);
-	}
-} ##### Maintenance timeout
+	return ($MaintenanceTimeout);
+}
+}    ##### Maintenance timeout
 
 # Ask the default browser to open a page on the Mon service.
 sub OpenMonPage {
 	my $serverIP = ServerAddress();
-	my $monPort = NextPortForShortName('Mon');
+	my $monPort  = NextPortForShortName('Mon');
 	if ($monPort != 0)
 		{
 		my $url = "http://$serverIP:$monPort/Mon/?req=main";
@@ -3451,7 +3556,7 @@ sub OpenMonPage {
 		}
 }
 
-{##### TESTING
+{ ##### TESTING
 my $NumServersUnderTest;
 my $NumServersFinishedTesting;
 my $TotalFailures;
@@ -3462,21 +3567,21 @@ my $TotalFailures;
 # Limit tests to one instance per Short name, in case two or more instances of the service
 # are running.
 sub RunAllTests {
-	$NumServersUnderTest = 0;
+	$NumServersUnderTest       = 0;
 	$NumServersFinishedTesting = 0;
-	$TotalFailures = 0;
-	
+	$TotalFailures             = 0;
+
 	print("TESTING BEGINS\n");
 	if (ShouldSelfTestMain())
 		{
-		RunMainTests(); # This is us
+		RunMainTests();    # This is us
 		}
-	
+
 	my $firstSwarmPort = SwarmServerFirstPort();
-	my $lastSwarmPort = HighestInitialPortInUse();
+	my $lastSwarmPort  = HighestInitialPortInUse();
 	my %shortNameTested;
-	
-	for (my $port = $firstSwarmPort; $port <= $lastSwarmPort; ++$port)
+
+	for (my $port = $firstSwarmPort ; $port <= $lastSwarmPort ; ++$port)
 		{
 		my $shortName = ShortServerNameForPort($port);
 		if (!defined($shortNameTested{$shortName}))
@@ -3494,23 +3599,23 @@ sub RunAllTests {
 				}
 			}
 		}
-	}
-	
+}
+
 sub RunMainTests {
 	print("############## Internal Main tests #################\n");
-	
+
 	my @errors;
-	
+
 	# Check we have Page names.
-	my $pgA = GetPageNames();
+	my $pgA      = GetPageNames();
 	my $numPages = @$pgA;
 	if ($numPages == 0)
 		{
 		push @errors, "GetPageNames() returned an empty array.";
 		}
 	my $testServerName = CVal('INTRAMINE_TEST_NAME');
-	my $haveTestName = 0;
-	for (my $i = 0; $i < $numPages; ++$i)
+	my $haveTestName   = 0;
+	for (my $i = 0 ; $i < $numPages ; ++$i)
 		{
 		if ($pgA->[$i] eq $testServerName)
 			{
@@ -3522,14 +3627,14 @@ sub RunMainTests {
 		{
 		push @errors, "$testServerName not found in Page names.";
 		}
-	
+
 	# Check Short names.
 	$haveTestName = IsShortName($testServerName);
 	if (!$haveTestName)
 		{
 		push @errors, "$testServerName not found in Short names.";
 		}
-	
+
 	# Test adding a server.
 	my %formH;
 	$formH{'shortname'} = $testServerName;
@@ -3552,52 +3657,52 @@ sub RunMainTests {
 		{
 		push @errors, "Could not RESTART instance of $testServerName on port $testPortNumber.";
 		}
-	
+
 	# Stop the added server.
 	StopOneServer('', \%formH, '');
-	
+
 	# Run a maintenance test. test_MainTest.pl will check to see how things went.
 	# This isn't a full test, MainLoop() is busy so it can't pick up on backinservice
 	# signals. We send one backinservice for each instance of the test service, hoping
 	# the first one will trigger maintenance of the second test service and the second one
 	# will end maintenance of the service.
-	%formH = ();
+	%formH           = ();
 	$formH{'signal'} = 'testMaintenance';
-	$formH{'name'} = $testServerName;
+	$formH{'name'}   = $testServerName;
 	my $ob = '/?signal=testMaintenance';
 	BroadcastSignal($ob, \%formH, '');
 	$formH{'signal'} = 'backinservice';
 	BroadcastSignal($ob, \%formH, '');
 	BroadcastSignal($ob, \%formH, '');
-	
+
 	if (ShortServerNameIsUndergoingMaintenance($testServerName))
 		{
 		push @errors, "$testServerName not removed from maintenance.";
 		}
-	
-	sleep(2); # Allow maintenance to happen in the test services
-	
+
+	sleep(2);    # Allow maintenance to happen in the test services
+
 	print("############## End Internal Main tests #############\n");
-	}
+}
 
 sub TestOneServer {
 	my ($shortName, $port) = @_;
 	print("Testing $shortName on port $port\n");
 	my $serverAddress = ServerAddress();
-	
+
 	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       		# protocol
-	                PeerAddr=> $serverAddress, 		# Address of server
-	                PeerPort=> "$port"      		# port of server typ. 43124..up
-	                ) or (ServerErrorReport() && return(''));
-	
+		Proto    => 'tcp',             # protocol
+		PeerAddr => $serverAddress,    # Address of server
+		PeerPort => "$port"            # port of server typ. 43124..up
+	) or (ServerErrorReport() && return (''));
+
 	#print $remote "GET /?req=test HTTP/1.1\n\n"; 		# Argument-based approach
-	print $remote "GET /$shortName/test/ HTTP/1.1\n\n"; # A more RESTful approach.
-	
+	print $remote "GET /$shortName/test/ HTTP/1.1\n\n";    # A more RESTful approach.
+
 	my $response = '';
-	my $line = <$remote>; 	# 200 OK typically to start off the response
-	
-	# We want the lines after a blank line.	
+	my $line     = <$remote>;    # 200 OK typically to start off the response
+
+	# We want the lines after a blank line.
 	my $collectingResults = 0;
 	while (defined($line))
 		{
@@ -3613,21 +3718,21 @@ sub TestOneServer {
 				$response .= "\n$line";
 				}
 			}
-		if ($line=~ m!^\s*$!)
+		if ($line =~ m!^\s*$!)
 			{
 			$collectingResults = 1;
 			}
 		$line = <$remote>;
 		}
-		
-	return($response);
-	}
-	
+
+	return ($response);
+}
+
 sub ServerTestIsDone {
-	my ($formH) = @_;
-	my $shortName = defined($formH->{'shortname'}) ? $formH->{'shortname'}: 'UNKNOWN SERVER';
-	my $testResults = defined($formH->{'result'}) ? $formH->{'result'} : '(NO RESULTS REPORTED)';
-	
+	my ($formH)     = @_;
+	my $shortName   = defined($formH->{'shortname'}) ? $formH->{'shortname'} : 'UNKNOWN SERVER';
+	my $testResults = defined($formH->{'result'})    ? $formH->{'result'} : '(NO RESULTS REPORTED)';
+
 	if ($testResults eq 'ok')
 		{
 		print("-----\n$shortName OK\n-----\n");
@@ -3635,24 +3740,24 @@ sub ServerTestIsDone {
 	else
 		{
 		my @errors = split(/__SEP__/, $testResults);
-		my $count = @errors;
+		my $count  = @errors;
 		print("-----\n");
 		my $testWord = ($count > 1) ? 'tests' : 'test';
 		print("$shortName failed $count $testWord:\n");
-		for (my $i = 0; $i < $count; ++$i)
+		for (my $i = 0 ; $i < $count ; ++$i)
 			{
 			print("$errors[$i]\n");
 			}
 		print("-----\n");
 		$TotalFailures += $count;
 		}
-	
+
 	++$NumServersFinishedTesting;
 	if ($NumServersFinishedTesting >= $NumServersUnderTest)
 		{
 		TestingIsComplete();
 		}
-	}
+}
 
 sub TestingIsComplete {
 	if ($TotalFailures)
@@ -3665,7 +3770,7 @@ sub TestingIsComplete {
 		print("\nTESTING ENDS - all tests passed.\n\n");
 		}
 	ForceStopAllSwarmServers();
-	system( 'pause' ); # Press any key to continue
+	system('pause');    # Press any key to continue
 	exit(0);
-	}
-} ##### TESTING
+}
+}    ##### TESTING

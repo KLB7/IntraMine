@@ -1,5 +1,5 @@
 # list_missing_Perl_modules.pl: for ActivePerl, and probably obsolete.
-# 
+#
 # list modules that are missing based on "use" in a Perl file
 # or all Perl files at the top of a folder, and generate a bat file that can be run manually
 # to install the modules. Examines given file, or for a folder examines all
@@ -107,11 +107,11 @@ my $PathIsForFile;
 
 sub GetFileList {
 	my ($fileOrFolderPath) = @_;
-	$NumFiles = 0;
+	$NumFiles         = 0;
 	$CurrentFileIndex = 0;
-	$PathIsForFile = -1;
-	
-	if (-f $fileOrFolderPath) # a file path
+	$PathIsForFile    = -1;
+
+	if (-f $fileOrFolderPath)    # a file path
 		{
 		push @FileList, $fileOrFolderPath;
 		$PathIsForFile = 1;
@@ -122,47 +122,47 @@ sub GetFileList {
 			{
 			$fileOrFolderPath .= "/";
 			}
-		if (-d $fileOrFolderPath) # a folder path
+		if (-d $fileOrFolderPath)    # a folder path
 			{
 			my $d = DirHandle->new($fileOrFolderPath);
 			if (defined($d))
 				{
 				my $fileName;
-			    while (defined($fileName = $d->read))
+				while (defined($fileName = $d->read))
 					{
 					my $path = $fileOrFolderPath . $fileName;
 					if (-f $path && $path =~ m!\.p[lm]$!)
-			        	{
-			        	push @FileList, $path;
-			        	}
+						{
+						push @FileList, $path;
+						}
 					}
 				}
 			$PathIsForFile = 0;
 			}
 		}
-	
+
 	$NumFiles = @FileList;
-	return($NumFiles);
-	}
-	
+	return ($NumFiles);
+}
+
 sub NextFilePath {
 	my $path = '';
 	if ($NumFiles && $CurrentFileIndex < $NumFiles)
 		{
 		$path = $FileList[$CurrentFileIndex++];
 		}
-	
-	return($path);
-	}
+
+	return ($path);
+}
 
 sub ArgumentPathIsForFile {
 	if (!defined($PathIsForFile) || $PathIsForFile == -1)
 		{
 		die("Maintenance Error, ArgumentPathIsForFile() called but there are no files to process!");
 		}
-	return($PathIsForFile);
-	}
-} ##### List of files to examine
+	return ($PathIsForFile);
+}
+}    ##### List of files to examine
 
 { ##### Output file path
 my $OutputFilePath;
@@ -171,7 +171,7 @@ sub DetermineOutputFilePath {
 	my ($fileOrFolderPath) = @_;
 	$OutputFilePath = '';
 	my $dir = '';
-	
+
 	my $isFile = ArgumentPathIsForFile();
 	if ($isFile)
 		{
@@ -188,92 +188,97 @@ sub DetermineOutputFilePath {
 		}
 	my $baseFileName = 'install_these_modules_';
 	my $uniqueNumber = 1;
-	my $extension = '.bat';
-	my $outFilePath = $dir . $baseFileName . $uniqueNumber . $extension;
+	my $extension    = '.bat';
+	my $outFilePath  = $dir . $baseFileName . $uniqueNumber . $extension;
 	while (-f $outFilePath)
 		{
 		++$uniqueNumber;
 		$outFilePath = $dir . $baseFileName . $uniqueNumber . $extension;
 		}
 	$OutputFilePath = $outFilePath;
-	
+
 	print("List of missing modules will be in |$OutputFilePath|\n");
-	}
+}
 
 sub OutputFilePath {
-	if (!defined($OutputFilePath) ||$OutputFilePath eq '')
+	if (!defined($OutputFilePath) || $OutputFilePath eq '')
 		{
 		die("Maintenance Error when calling OutputFilePath(), \$OutputFilePath has not been set!");
 		}
-	return($OutputFilePath);
-	}
-} ##### Output file path
+	return ($OutputFilePath);
+}
+}    ##### Output file path
 
 { ##### Parse file(s) and note missing modules
-my @MissingModuleNames; 			# Eg Thing.pm, Win32::OLE::Const.pm
-my $CountOfFilesWithSyntaxErrors; 	# Includes errors of any sort, not just missing modules.
-my @NonModuleErrorPaths; 			# Paths to files with non-missing-module syntax errors
+my @MissingModuleNames;              # Eg Thing.pm, Win32::OLE::Const.pm
+my $CountOfFilesWithSyntaxErrors;    # Includes errors of any sort, not just missing modules.
+my @NonModuleErrorPaths;             # Paths to files with non-missing-module syntax errors
 
 sub GetMissingModulesList {
 	my $errorCount = 0;
 	$CountOfFilesWithSyntaxErrors = 0;
 	while ((my $filePath = NextFilePath()) ne '')
 		{
-		my $syntaxOk = 0;
+		my $syntaxOk   = 0;
 		my $otherError = 0;
 		print("Checking |$filePath|...\n");
 		# Ask Perl to do a syntax check.
-		open( my $perl, "-|", 'perl -c ' . $filePath . ' 2>&1' )
-            || die $@;
-        while (my $item = <$perl>)
+		open(my $perl, "-|", 'perl -c ' . $filePath . ' 2>&1')
+			|| die $@;
+		while (my $item = <$perl>)
 			{
 			# TEST ONLY
 			#print("** $item\n");
-			
-            if ($item =~ m!^Can\'t locate (.+?\.p[lm])!)
-            	{
-            	my $moduleName = $1;
-                ++$errorCount;
-                push @MissingModuleNames, $moduleName unless (grep {$moduleName eq $_} @MissingModuleNames);
-                print("MISSING MODULE detected: |$moduleName|\n");
-             	}
-             elsif ($item =~ m!syntax ok!i)
-             	{
-             	$syntaxOk = 1;
-             	}
-             elsif ($item !~ m!BEGIN failed!)
-             	{
-             	++$otherError;
-             	}
-        	}
-        
-        if ($errorCount > 0 || $otherError > 0)
-        	{
-        	$syntaxOk = 0;
-        	}
-        if (!$syntaxOk)
-        	{
-        	++$CountOfFilesWithSyntaxErrors;
-        	if ($otherError)
-        		{
-        		push @NonModuleErrorPaths, $filePath;
-        		}
-        	}
+
+			if ($item =~ m!^Can\'t locate (.+?\.p[lm])!)
+				{
+				my $moduleName = $1;
+				++$errorCount;
+				push @MissingModuleNames, $moduleName
+					unless (grep {$moduleName eq $_} @MissingModuleNames);
+				print("MISSING MODULE detected: |$moduleName|\n");
+				}
+			elsif ($item =~ m!syntax ok!i)
+				{
+				$syntaxOk = 1;
+				}
+			elsif ($item !~ m!BEGIN failed!)
+				{
+				++$otherError;
+				}
+			}
+
+		if ($errorCount > 0 || $otherError > 0)
+			{
+			$syntaxOk = 0;
+			}
+		if (!$syntaxOk)
+			{
+			++$CountOfFilesWithSyntaxErrors;
+			if ($otherError)
+				{
+				push @NonModuleErrorPaths, $filePath;
+				}
+			}
 		}
-	}
+}
 
 # Write lines of the form "ppm install moduleName" for entries in @MissingModuleNames, to .bat file.
 # Mention files with syntax errors NOT due to missing modules (those errors need a personal touch).
 sub WriteMissingModulesList {
-	my $numMissingModules = @MissingModuleNames;
+	my $numMissingModules      = @MissingModuleNames;
 	my $countOfNonModuleErrors = @NonModuleErrorPaths;
 	if ($countOfNonModuleErrors > 0)
 		{
-		my $countWord = ($countOfNonModuleErrors == 1) ? 'file': "$countOfNonModuleErrors files";
-		print("\n\nNOTE the following $countWord had some sort of syntax error not caused by missing modules.\n");
-		print("If you don't see 'No missing modules' after a few more runs, you might have a real syntax error.\n");
+		my $countWord = ($countOfNonModuleErrors == 1) ? 'file' : "$countOfNonModuleErrors files";
+		print(
+"\n\nNOTE the following $countWord had some sort of syntax error not caused by missing modules.\n"
+		);
+		print(
+"If you don't see 'No missing modules' after a few more runs, you might have a real syntax error.\n"
+		);
 		print("----------------------\n");
-		for (my $i = 0; $i < $countOfNonModuleErrors; ++$i)
+		for (my $i = 0 ; $i < $countOfNonModuleErrors ; ++$i)
 			{
 			print("$NonModuleErrorPaths[$i]\n");
 			}
@@ -283,11 +288,11 @@ sub WriteMissingModulesList {
 	if ($numMissingModules > 0)
 		{
 		# Sort missing module names, to eg install X before X::Y.
-		my @sortedNames = sort { $a cmp $b } @MissingModuleNames;
+		my @sortedNames = sort {$a cmp $b} @MissingModuleNames;
 		my $outFilePath = OutputFilePath();
-		my $fileH = FileHandle->new("> $outFilePath")
+		my $fileH       = FileHandle->new("> $outFilePath")
 			or die("FILE ERROR could not make $outFilePath!");
-		for (my $i = 0; $i < $numMissingModules; ++$i)
+		for (my $i = 0 ; $i < $numMissingModules ; ++$i)
 			{
 			my $missingModuleName = $sortedNames[$i];
 			$missingModuleName =~ s!\.p[lm]$!!;
@@ -311,5 +316,5 @@ sub WriteMissingModulesList {
 		{
 		print("No missing modules, no output file was created.\n");
 		}
-	}
-} ##### Parse file(s) and note missing modules
+}
+}    ##### Parse file(s) and note missing modules

@@ -12,12 +12,12 @@ use Carp;
 sub DollarsAndCents {
 	my ($inS) = @_;
 	_DollarsPrint($inS, 0);
-	}
+}
 
 sub Dollars {
 	my ($inS) = @_;
 	_DollarsPrint($inS, 1);
-	}
+}
 
 use ExportAbove;
 
@@ -25,75 +25,75 @@ use ExportAbove;
 # Result in () if negative.
 sub _DollarsPrint {
 	my ($inS, $suppressPennies) = @_;
-	my $outS = "\$";
-	my $dollars = '';
-	my $cents = '';
+	my $outS      = "\$";
+	my $dollars   = '';
+	my $cents     = '';
 	my $haveCents = 0;
-	my $isNeg = 0;
+	my $isNeg     = 0;
 
 	##print("Dollar input: $inS\n");
 	if ($inS < 0)
 		{
 		$isNeg = 1;
-		$inS = -$inS;
+		$inS   = -$inS;
 		}
-    $inS = int(($inS + .005) * 100) / 100;
+	$inS = int(($inS + .005) * 100) / 100;
 
-    if ($inS =~ /^(.*?)\.(.*?)$/)
-    	{
-    	$dollars = $1;
-    	$cents = $2;
-    	$haveCents = 1;
-    	}
-    else
-    	{
-    	$dollars = $inS;
-    	}
-    $dollars = commify($dollars);
-    $outS .= $dollars;
+	if ($inS =~ /^(.*?)\.(.*?)$/)
+		{
+		$dollars   = $1;
+		$cents     = $2;
+		$haveCents = 1;
+		}
+	else
+		{
+		$dollars = $inS;
+		}
+	$dollars = commify($dollars);
+	$outS .= $dollars;
 
-    if (!$suppressPennies)
-    	{
-    	$outS .= '.';
-    	if ($haveCents)
-    		{
-    		my $centsDigits = length($cents);
-    		if ($centsDigits == 2)
-    			{
-    			$outS .= $cents;
-    			}
-    		elsif (!$centsDigits)
-    			{
-    			$outS .= '00';
-    			}
-    		elsif ($centsDigits == 1)
-    			{
-    			$outS .= $cents;
-    			$outS .= '0';
-    			}
-    		else
-    			{
-    			my $roundedCents = int(('.' . $cents)*100);
-    			$outS .= $roundedCents;
-    			}
-    		}
-    	else
-    		{
-    		$outS .= '00';
-    		}
-    	}
+	if (!$suppressPennies)
+		{
+		$outS .= '.';
+		if ($haveCents)
+			{
+			my $centsDigits = length($cents);
+			if ($centsDigits == 2)
+				{
+				$outS .= $cents;
+				}
+			elsif (!$centsDigits)
+				{
+				$outS .= '00';
+				}
+			elsif ($centsDigits == 1)
+				{
+				$outS .= $cents;
+				$outS .= '0';
+				}
+			else
+				{
+				my $roundedCents = int(('.' . $cents) * 100);
+				$outS .= $roundedCents;
+				}
+			}
+		else
+			{
+			$outS .= '00';
+			}
+		}
 
 	if ($isNeg)
 		{
 		$outS = '(' . $outS . ')';
 		}
-    $outS;
-	}
+	$outS;
+}
 
 sub commify {
-   local $_  = shift;
-   1 while s/^([-+]?\d+)(\d{3})/$1,$2/;
-   return $_;
-   }
+	local $_ = shift;
+	1 while s/^([-+]?\d+)(\d{3})/$1,$2/;
+	return $_;
+}
 
 return 1;

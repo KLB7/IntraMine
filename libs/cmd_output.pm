@@ -24,24 +24,24 @@ sub InitCmdOutput {
 	$CmdOutputPath = $cmdOutputPath;
 	MakeDirWide($CmdOutputPath);
 	DeleteFileWide($CmdOutputPath);
-	}
+}
 
 sub WriteToOutput {
 	my ($msg) = @_;
 
-	return(AppendToTextFileWide($CmdOutputPath, $msg));
-	}
+	return (AppendToTextFileWide($CmdOutputPath, $msg));
+}
 
 sub WriteDoneAndCloseOutput {
 	my $result = WriteToOutput('***A-L-L***D-O-N-E***');
 	CloseCmdOutput();
-	return($result);
-	}
+	return ($result);
+}
 
 # Does nothing at the moment, file is closed between writes.
 sub CloseCmdOutput {
-	return(1);
-	}
+	return (1);
+}
 
 
 

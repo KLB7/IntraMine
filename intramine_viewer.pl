@@ -2094,7 +2094,8 @@ sub GetPrettyTextContents {
 							push @jumpList, $jlStart . $term . $jlEnd;
 							}
 						# For display, remove '\' from '\:'.
-						$lines[$i] =~ s!\\:!:!g;
+						# ARG too soon! See AddGlossaryAnchor().
+						#$lines[$i] =~ s!\\:!:!g;
 						}
 
 					my $rowID     = 'R' . $lineNum;
@@ -2683,6 +2684,11 @@ sub AddGlossaryAnchor {
 		my $rep        = "<h2 id=\"$anchorText\"><strong>$originalText</strong>:</h2>";
 		#		my $rep = "<a id=\"$anchorText\"><strong>$originalText</strong>:</a>";
 		$$txtR = $pre . $rep . $post;
+		}
+	# While we're passing by, remove the '\' from '\:'.
+	elsif (index($line, "\:") >= 0)
+		{
+		$$txtR =~ s!\\:!:!g;
 		}
 }
 

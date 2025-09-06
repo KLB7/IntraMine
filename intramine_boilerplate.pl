@@ -32,16 +32,16 @@ use swarmserver;
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -51,9 +51,9 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 ##### MODIFY AND ADD THIS: %RequestAction, for actions that your server responds to.
 ##### Put in %RequestAction entries to show pages, load dynamic JS and CSS, respond to events.
 my %RequestAction;
-$RequestAction{'req|main'} = \&ThePage; 	# req=main: ThePage() returns HTML for our page
+$RequestAction{'req|main'} = \&ThePage;    # req=main: ThePage() returns HTML for our page
 #$RequestAction{'req|test'} = \&SelfTest;	# Ask this server to test itself. Arg-based.
-$RequestAction{'/test/'} = \&SelfTest;	# swarmserver.pm#SelfTest(), ask this server to test itself.
+$RequestAction{'/test/'} = \&SelfTest;  # swarmserver.pm#SelfTest(), ask this server to test itself.
 ##### END MODIFY AND ADD THIS
 
 ##### COPY THIS line into your new server too, it does the network request/response handling.
@@ -86,7 +86,7 @@ MainLoop(\%RequestAction);
 # 2020-03-11 14_34_38-Example IntraMine Server.png
 sub ThePage {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	my $theBody = <<'FINIS';
 <!doctype html>
 <html><head>
@@ -124,7 +124,7 @@ FINIS
 
 	# The top navigation bar, with our page name highlighted.
 	# See swarmserver.pm#TopNav();
-	my $topNav = TopNav($PAGENAME);				
+	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	# Show formH hash contents in a table, repeated a few times to trigger scrollbar.
@@ -133,20 +133,20 @@ FINIS
 
 	# Put in main IP, main port, our short name for JavaScript.
 	# These are needed in intramine_config.js for example
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 # The custom contents for this example (you won't need this).
 # Turn contents of hash %$formH into a table, contents repeated a few times.
 sub GetHTMLforFormH {
 	my ($formH) = @_;
-	
+
 	Output("GetHTMLforFormH refreshing table of hash \%$formH keys and values.\n");
-	
+
 	my $formHContents = '<table border="1"><tr><th>Key</th><th>Value</th></tr>' . "\n";
-	for (my $i = 0; $i < 8; ++$i)
+	for (my $i = 0 ; $i < 8 ; ++$i)
 		{
 		foreach my $key (sort keys %$formH)
 			{
@@ -159,5 +159,5 @@ sub GetHTMLforFormH {
 			}
 		}
 	$formHContents .= '</table>' . "\n";
-	return($formHContents);
-	}
+	return ($formHContents);
+}

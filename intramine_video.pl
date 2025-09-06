@@ -21,31 +21,31 @@ use swarmserver;
 use win_wide_filepaths;
 use win_user32_local;
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 
 my %VideMimeTypeForExtension;
-$VideMimeTypeForExtension{'mp4'} = 'video/mp4';
-$VideMimeTypeForExtension{'m4v'} = 'video/MP4V-ES';
+$VideMimeTypeForExtension{'mp4'}  = 'video/mp4';
+$VideMimeTypeForExtension{'m4v'}  = 'video/MP4V-ES';
 $VideMimeTypeForExtension{'webm'} = 'video/webm';
-$VideMimeTypeForExtension{'3gp'} = 'video/3gpp';
-$VideMimeTypeForExtension{'mkv'} = 'video/x-matroska';
-$VideMimeTypeForExtension{'avi'} = 'video/x-msvideo';
+$VideMimeTypeForExtension{'3gp'}  = 'video/3gpp';
+$VideMimeTypeForExtension{'mkv'}  = 'video/x-matroska';
+$VideMimeTypeForExtension{'avi'}  = 'video/x-msvideo';
 $VideMimeTypeForExtension{'mpeg'} = 'video/mpeg';
-$VideMimeTypeForExtension{'ogv'} = 'video/ogg';
-$VideMimeTypeForExtension{'ts'} = 'video/mp2t';
-$VideMimeTypeForExtension{'3g2'} = 'video/3gpp2';
-$VideMimeTypeForExtension{'ogg'} = 'application/ogg';
+$VideMimeTypeForExtension{'ogv'}  = 'video/ogg';
+$VideMimeTypeForExtension{'ts'}   = 'video/mp2t';
+$VideMimeTypeForExtension{'3g2'}  = 'video/3gpp2';
+$VideMimeTypeForExtension{'ogg'}  = 'application/ogg';
 
 
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -53,9 +53,9 @@ StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 my %RequestAction;
-$RequestAction{'href'} = \&ShowVideo; 					# Open file, href = anything
-#$RequestAction{'href'} = \&FullFile; 					# Open file, href = anything
-#$RequestAction{'/file/'} = \&FullFile; 				# RESTful alternative, /file/is followed by file path in $obj
+$RequestAction{'href'} = \&ShowVideo;    # Open file, href = anything
+#$RequestAction{'href'} = \&FullFile; 	 # Open file, href = anything
+#$RequestAction{'/file/'} = \&FullFile;  # RESTful alternative, /file/is followed by file path in $obj
 
 MainLoop(\%RequestAction);
 
@@ -69,7 +69,7 @@ sub ShowVideo {
 		}
 
 	my $filePath = $formH->{'FULLPATH'};
-	my $exists = FileOrDirExistsWide($filePath);
+	my $exists   = FileOrDirExistsWide($filePath);
 	if (!$exists)
 		{
 		$filePath = "Error, |$filePath| not found on disk.\n";
@@ -78,12 +78,12 @@ sub ShowVideo {
 	$ctrlSPath = encode_utf8($ctrlSPath);
 	$ctrlSPath =~ s!%!%25!g;
 	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	my $title = $filePath;
-	my $theBody = VideoFileTemplate();
+	my $title    = $filePath;
+	my $theBody  = VideoFileTemplate();
 	my $fileName = FileNameFromPath($title);
 	$fileName = &HTML::Entities::encode($fileName);
 	$theBody =~ s!_TITLE_!$fileName!;
-	$title =~ s!/!\\!g;
+	$title   =~ s!/!\\!g;
 	$title = &HTML::Entities::encode($title);
 	$theBody =~ s!_TITLEHEADER_!$title!;
 	# Keep this last, else a casual mention of _TITLE_ etc in the file contents
@@ -93,7 +93,7 @@ sub ShowVideo {
 
 	my $tempFilePath = SaveTempVideoFile($theBody);
 	OpenTempVideoFile($tempFilePath);
-	}
+}
 
 sub VideoFileTemplate {
 	my $theBody = <<'FINIS';
@@ -109,21 +109,21 @@ _FILECONTENTS_
 </body></html>
 FINIS
 
-	return($theBody);
+	return ($theBody);
 
-	}
+}
 
 sub SaveTempVideoFile {
-	my ($theBody) = @_;
-	my $LogDir = FullDirectoryPath('LogDir');
-	my $basePath = $LogDir . 'temp/tempvideo';
+	my ($theBody)      = @_;
+	my $LogDir         = FullDirectoryPath('LogDir');
+	my $basePath       = $LogDir . 'temp/tempvideo';
 	my $randomInteger2 = random_int_between(1001, 60000);
-	my $tempVideoPath = $basePath . time . $randomInteger2 . '.html';
+	my $tempVideoPath  = $basePath . time . $randomInteger2 . '.html';
 	# TEST ONLY
 	#print("SaveTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
 	WriteBinFileWide($tempVideoPath, $theBody);
-	return($tempVideoPath);
-	}
+	return ($tempVideoPath);
+}
 
 sub OpenTempVideoFile {
 	my ($tempVideoPath) = @_;
@@ -133,8 +133,8 @@ sub OpenTempVideoFile {
 	#print("OpenTempVideoFile \$tempVideoPath: |$tempVideoPath|\n");
 
 	Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $tempVideoPath", 0, 0, ".")
-			|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
-	}
+		|| ($status = Win32::FormatMessage(Win32::GetLastError()));
+}
 
 sub FullFile {
 	my ($obj, $formH, $peeraddress) = @_;
@@ -145,22 +145,22 @@ sub FullFile {
 		$formH->{'FULLPATH'} = $formH->{'href'};
 		}
 
-	my $filePath = $formH->{'FULLPATH'};
-	my $title = $filePath;
-	my $exists = FileOrDirExistsWide($filePath);
+	my $filePath  = $formH->{'FULLPATH'};
+	my $title     = $filePath;
+	my $exists    = FileOrDirExistsWide($filePath);
 	my $ctrlSPath = $filePath;
 	if ($exists == 1)
 		{
 		$title = $filePath;
-		
+
 		$ctrlSPath = encode_utf8($ctrlSPath);
 		$ctrlSPath =~ s!%!%25!g;
 		$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 		}
-	
+
 	# The top navigation bar, with our page name highlighted.
 	# See swarmserver.pm#TopNav();
-	my $topNav = TopNav($PAGENAME);				
+	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	my $customCSS = '';
@@ -183,15 +183,15 @@ sub FullFile {
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
 	# Keep this last, else a casual mention of _TITLE_ etc in the file contents
 	# could get replaced by one of the above substitutions.
 	my $fileContents = VideoElement($filePath);
 	$theBody =~ s!_FILECONTENTS_!$fileContents!;
 
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 sub FullFileTemplate {
 	my $theBody = <<'FINIS';
@@ -229,13 +229,13 @@ window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + sho
 </body></html>
 FINIS
 
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 sub VideoElement {
 	my ($filePath) = @_;
 
-my $theBody = <<'FINIS';
+	my $theBody = <<'FINIS';
 <video controls>
   <source src="_FILEPATH_"_MIMETYPE_ />
   <p>Sorry, your browser doesn't support this video.</p>
@@ -243,8 +243,8 @@ my $theBody = <<'FINIS';
 FINIS
 
 	$filePath =~ s!\\!/!g;
-	$theBody =~ s!_FILEPATH_!$filePath!;
-	my $mimeType = VideoMimeTypeForPath($filePath);
+	$theBody  =~ s!_FILEPATH_!$filePath!;
+	my $mimeType    = VideoMimeTypeForPath($filePath);
 	my $mimeTypeAtt = '';
 	if ($mimeType ne '')
 		{
@@ -252,8 +252,8 @@ FINIS
 		}
 	$theBody =~ s!_MIMETYPE_!$mimeTypeAtt!;
 
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 sub VideoMimeTypeForPath {
 	my ($filePath) = @_;
@@ -267,6 +267,6 @@ sub VideoMimeTypeForPath {
 		{
 		$mimeType = $VideMimeTypeForExtension{$ext};
 		}
-	
-	return($mimeType);
-	}
+
+	return ($mimeType);
+}

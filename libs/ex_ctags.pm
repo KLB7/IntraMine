@@ -1,5 +1,5 @@
 # ex_ctagsex_ctags.pm: interface to universal ctags with support for table of contents
-# for various languages. See toc_local.pm for example usage. 
+# for various languages. See toc_local.pm for example usage.
 
 package ex_ctags;
 require Exporter;
@@ -8,7 +8,7 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
-use Win32::Process; # for calling Universal ctags.exe
+use Win32::Process;    # for calling Universal ctags.exe
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -24,12 +24,12 @@ my $CtagsOutputFilePathBase;
 my $CtagsOutputFilePath;
 my $CTAGS_DIR;
 my $CTAGS_EXE;
-my %SupportedExtension; # eg $SupportedExtension{'cpp'} = 'C++';
+my %SupportedExtension;    # eg $SupportedExtension{'cpp'} = 'C++';
 
 sub InitExCtags {
 	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir) = @_;
 	$port_listen = $portListen;
-	$LogDir = $logDir;
+	$LogDir      = $logDir;
 	my $port = $port_listen;
 	$CtagsOutputFilePathBase = $firstPartOfPath . '_' . $port;
 	#$CTAGS_DIR = CVal('CTAGS_DIR');
@@ -40,10 +40,12 @@ sub InitExCtags {
 
 	if (!(-f $CTAGS_EXE))
 		{
-		die("ex_ctags.pm InitCtags error, terminating, could not find universal ctags.exe in |$CTAGS_DIR|! Did you set CTAGS_DIR in /data/intramine_config.txt?");
+		die(
+"ex_ctags.pm InitCtags error, terminating, could not find universal ctags.exe in |$CTAGS_DIR|! Did you set CTAGS_DIR in /data/intramine_config.txt?"
+		);
 		}
 	GetCTagSupportedTypes();
-	}
+}
 
 # eg $SupportedExtension{'cpp'} = 'C++';
 sub GetCTagSupportedTypes {
@@ -148,20 +150,20 @@ Yaml     *.yml
 FINIS
 
 	my @typeLines = split(/\n/, $theTypes);
-	my $numTypes = @typeLines;
-	for (my $i = 0; $i < $numTypes; ++$i)
+	my $numTypes  = @typeLines;
+	for (my $i = 0 ; $i < $numTypes ; ++$i)
 		{
-		my @typeExt = split(/ +/, $typeLines[$i]);
-		my $lang = $typeExt[0];
+		my @typeExt    = split(/ +/, $typeLines[$i]);
+		my $lang       = $typeExt[0];
 		my $numEntries = @typeExt;
-		for (my $j = 1; $j < $numEntries; ++$j)
+		for (my $j = 1 ; $j < $numEntries ; ++$j)
 			{
 			my $ext = lc($typeExt[$j]);
 			$ext =~ s!^\*\.!!;
 			$SupportedExtension{$ext} = $lang;
 			}
 		}
-	}
+}
 
 sub IsSupportedByCTags {
 	my ($filePath) = @_;
@@ -174,31 +176,32 @@ sub IsSupportedByCTags {
 			$result = 1;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Call Universal Ctags to generate ctags for $dir . $fileName, to a temp file that only
 # one instance of this server uses. Wait until done, then return path to the ctags temp file.
-# LIMITATION this does not work as quickly as it could if $fileName or $dir contain "unicode" characters,
-# since an entire temp copy of the file is made, with a plain ascii name. A better workaround would be
-# to use Win32::API to import CreateProcessW, but I'm just not up to it today. Sorry.
+# LIMITATION this does not work as quickly as it could if $fileName or $dir contain
+# "unicode" characters, since an entire temp copy of the file is made, with a plain
+# ascii name. A better workaround would be to use Win32::API to import CreateProcessW,
+# but I'm just not up to it today. Sorry.
 sub MakeCtagsForFile {
 	my ($dir, $fileName, $errorMsgR) = @_;
-	my $result = '';
+	my $result       = '';
 	my $tempFilePath = '';
-	my $tempDir = '';
+	my $tempDir      = '';
 	my $proc;
-	
+
 	# Trouble with "wide" file names. Towards a workaround, copy the file being processed to
 	# something temp with a "narrow" name.
 	my $haveWideName = 0;
 	if ($fileName =~ m![^\x00-\x7f]! || $dir =~ m![^\x00-\x7f]!)
-	# WRONG if ($fileName =~ m![\x80-\xFF]! || $dir =~ m![\x80-\xFF]!)
+		# WRONG if ($fileName =~ m![\x80-\xFF]! || $dir =~ m![\x80-\xFF]!)
 		{
 		$haveWideName = 1;
 		}
-	
+
 	if ($haveWideName)
 		{
 		my $ext = '';
@@ -208,7 +211,7 @@ sub MakeCtagsForFile {
 			}
 		my $randomInteger = random_int_between(1001, 60000);
 		$tempFilePath = 'temp_code_copy_' . $port_listen . time . $randomInteger . ".$ext";
-		$tempDir = $LogDir . 'temp/';
+		$tempDir      = $LogDir . 'temp/';
 		#print("Copying |$dir$fileName| to |$tempDir$tempFilePath|\n");
 		if (CopyFileWide($dir . $fileName, $tempDir . $tempFilePath, 0))
 			{
@@ -216,12 +219,15 @@ sub MakeCtagsForFile {
 			my $randomInteger2 = random_int_between(1001, 60000);
 			$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger2 . '.txt';
 			# -numeric -unsorted tags, using -f output path.
-			my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$tempFilePath\"", 0, 0, $tempDir);
+			my $didit =
+				Win32::Process::Create($proc, $CTAGS_EXE,
+				" --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$tempFilePath\"",
+				0, 0, $tempDir);
 			if (!$didit)
 				{
-				my $status = Win32::FormatMessage( Win32::GetLastError() );
+				my $status = Win32::FormatMessage(Win32::GetLastError());
 				$$errorMsgR = "MakeCtagsForFile Error |$status|, could not run $CTAGS_EXE!";
-				return($result);
+				return ($result);
 				}
 			$proc->Wait(INFINITE);
 			$result = $CtagsOutputFilePath;
@@ -233,19 +239,22 @@ sub MakeCtagsForFile {
 		my $randomInteger = random_int_between(1001, 60000);
 		$CtagsOutputFilePath = $CtagsOutputFilePathBase . time . $randomInteger . '.txt';
 		# -numeric -unsorted tags, using -f output path.
-		my $didit = Win32::Process::Create($proc, $CTAGS_EXE, " --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$fileName\"", 0, 0, $dir);
+		my $didit =
+			Win32::Process::Create($proc, $CTAGS_EXE,
+			" --quiet=yes -n -u -f \"$CtagsOutputFilePath\" \"$fileName\"",
+			0, 0, $dir);
 		if (!$didit)
 			{
-			my $status = Win32::FormatMessage( Win32::GetLastError() );
+			my $status = Win32::FormatMessage(Win32::GetLastError());
 			$$errorMsgR = "MakeCtagsForFile Error |$status|, could not run $CTAGS_EXE!";
-			return($result);
+			return ($result);
 			}
 		$proc->Wait(INFINITE);
 		$result = $CtagsOutputFilePath;
 		}
-	
-	return($result, $tempDir . $tempFilePath);
-	}
+
+	return ($result, $tempDir . $tempFilePath);
+}
 
 # Call universal ctags, output piped back to $$resultR with backticks.
 # Oddly the default output is not STDOUT, the "-f -" is needed for that.
@@ -253,13 +262,14 @@ sub GetCtagsString {
 	my ($filePath, $resultR) = @_;
 	my $ctagsArgs = " -f - --quiet=yes -n -u \"$filePath\"";
 	$$resultR = `$CTAGS_EXE $ctagsArgs`;
-	}
+}
 
 #http://ctags.sourceforge.net/FORMAT
 #PropertyGetterSetter	qqmljsast_p.h	682;"	c	namespace:QQmlJS::AST
 #PropertyGetterSetter	qqmljsast_p.h	696;"	f	class:QQmlJS::AST::PropertyGetterSetter
 #tagname}<Tab>{tagfile}<Tab>{tagaddress
-#tagname tab sourcefile tab \d+ not-tab tab c or f tab not-colon to the end for 'f' is the owning class, ignore trailer if 'c'
+#tagname tab sourcefile tab \d+ not-tab tab c or f tab not-colon to the end for 'f'
+# is the owning class, ignore trailer if 'c'
 # - technically that not-tab is ;"
 # - there can be other "kinds" besides c or f, ignore them
 # - mind you, need to check struct, and <template> files
@@ -269,49 +279,61 @@ sub GetCtagsString {
 # (In progress, individual language are being addressed in order to
 # generate more accurate tables of contents.)
 sub LoadCtags {
-	my ($filePath, $tagStringR, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH, $errorMsgR) = @_;
+	my ($filePath, $tagStringR, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH,
+		$functionEntryForLineH, $errorMsgR)
+		= @_;
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
-	my @lines = split(/\n/, $$tagStringR);
+	my @lines    = split(/\n/, $$tagStringR);
 	my $numLines = @lines;
-	
+
 	# Per-language regex's to extract tags:
 	if ($filePath =~ m!\.ts$!i)
 		{
-		$itemCount = LoadTypeScriptTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount = LoadTypeScriptTags(\@lines, $classEntryForLineH, $structEntryForLineH,
+			$methodEntryForLineH, $functionEntryForLineH);
 		}
 	elsif ($filePath =~ m!\.java$!i)
 		{
-		$itemCount = LoadJavaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount =
+			LoadJavaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH,
+			$functionEntryForLineH);
 		}
 	elsif ($filePath =~ m!\.rs$!i)
 		{
-		$itemCount = LoadRustTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount =
+			LoadRustTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH,
+			$functionEntryForLineH);
 		}
 	elsif ($filePath =~ m!\.(rb|ruby)$!i)
 		{
-		$itemCount = LoadRubyTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount =
+			LoadRubyTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH,
+			$functionEntryForLineH);
 		}
 	elsif ($filePath =~ m!\.cs$!i)
 		{
-		$itemCount = LoadCSharpTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount = LoadCSharpTags(\@lines, $classEntryForLineH, $structEntryForLineH,
+			$methodEntryForLineH, $functionEntryForLineH);
 		}
 	elsif ($filePath =~ m!\.jl$!i)
 		{
-		$itemCount = LoadJuliaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH, $functionEntryForLineH);
+		$itemCount =
+			LoadJuliaTags(\@lines, $classEntryForLineH, $structEntryForLineH, $methodEntryForLineH,
+			$functionEntryForLineH);
 		}
-	else # Default class/struct/function handling
+	else    # Default class/struct/function handling
 		{
-		for (my $i = 0; $i < $numLines; ++$i)
+		for (my $i = 0 ; $i < $numLines ; ++$i)
 			{
 			# selectUrl\tqfiledialog.cpp\t1085;"\tf\tclass:QFileDialog\ttyperef:typename:void
 			if ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])\t[^:]+:([^\t]+)\t[^\t]+$!)
 				{
-				my $tagname = $1;
+				my $tagname    = $1;
 				my $lineNumber = $2;
-				my $kind = $3;
-				my $owner = $4;
+				my $kind       = $3;
+				my $owner      = $4;
 				if ($kind eq 'c')
 					{
 					$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -334,11 +356,12 @@ sub LoadCtags {
 				# else $kind eq 'e' for enum etc - ignore
 				}
 			# qt_tildeExpansion\tqfiledialog.cpp\t1100;"\tf\ttyperef:typename:Q_AUTOTEST_EXPORT QString
-			elsif ($lines[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])!) # no class or namespace specifier
+			elsif ($lines[$i] =~
+				m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([csf])!)    # no class or namespace specifier
 				{
-				my $tagname = $1;
+				my $tagname    = $1;
 				my $lineNumber = $2;
-				my $kind = $3;
+				my $kind       = $3;
 				if ($kind eq 'c')
 					{
 					$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -360,34 +383,35 @@ sub LoadCtags {
 						}
 					# This is out mainly because the ctags parser returns nested functions before
 					# the enclosing function, and seems to miss some nested functions too.
-	#				else
-	#					{
-	#					$methodEntryForLineH->{"$lineNumber"} = "$topScopeFunctionName.$tagname";
-	#					$methodNameForLineH->{"$lineNumber"} = $tagname;
-	#					# TEST ONLY codathon
-	#					print("N: |$lines[$i]|\n");
-	#					}
-						
+					# else
+					#	{
+					#	$methodEntryForLineH->{"$lineNumber"} = "$topScopeFunctionName.$tagname";
+					#	$methodNameForLineH->{"$lineNumber"} = $tagname;
+					#	# TEST ONLY codathon
+					#	print("N: |$lines[$i]|\n");
+					#	}
+
 					++$itemCount;
 					}
 				# else $kind eq 'e' for enum etc - ignore
 				}
 			}
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Get tag hashes of class/interface/method/function entries from lines in a TypeScript
 # file. Note struct is ignored.
 # Return count of all tags.
 sub LoadTypeScriptTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		# Eg (function, function, class, method, interface):
 		# isDeclarationFileInJSOnlyNonConfiguredProject	session.ts	23;"	f	namespace:ts.server
@@ -395,14 +419,14 @@ sub LoadTypeScriptTags {
 		# MultistepOperation	session.ts	166;"	c	namespace:ts.server
 		# immediate	session.ts	188;"	m	class:ts.server.MultistepOperation
 		# PendingErrorCheck	session.ts	113;"	i	namespace:ts.server
-		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!
+		if (   $linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!
 			|| $linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])$!)
-		#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!)
+			#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])\t([^\t]+)$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = defined($4)? $4: '';
+			my $kind       = $3;
+			my $owner      = defined($4) ? $4 : '';
 
 			if ($kind eq 'c' || $kind eq 'i')
 				{
@@ -410,7 +434,7 @@ sub LoadTypeScriptTags {
 				}
 			elsif ($kind eq 'm')
 				{
-				my $class = $owner;
+				my $class         = $owner;
 				my $lastPeriodPos = rindex($class, '.');
 				if ($lastPeriodPos >= 0)
 					{
@@ -433,19 +457,20 @@ sub LoadTypeScriptTags {
 			++$itemCount;
 			}
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Get tag hashes of class/interface/method entries for a Java file.
 # Return count of all tags.
 sub LoadJavaTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		# Trailing scope.
 		# ResponseContext	Transport.java	154;"	c	interface:Transport
@@ -454,11 +479,11 @@ sub LoadJavaTags {
 		# getNode	Transport.java	96;"	m	interface:Transport.Connection
 		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmi])\t([^\t]+)$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = $4;
-			
+			my $kind       = $3;
+			my $owner      = $4;
+
 			# Strip "interface" or "class" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
@@ -483,7 +508,7 @@ sub LoadJavaTags {
 					{
 					$tagname = $owner . '#' . $tagname;
 					}
-				
+
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			}
@@ -493,10 +518,10 @@ sub LoadJavaTags {
 		# (I suspect all methods have a trailing scope.)
 		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cfmi])$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			
+			my $kind       = $3;
+
 			if ($kind eq 'c' || $kind eq 'i')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -508,19 +533,20 @@ sub LoadJavaTags {
 			}
 		++$itemCount;
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Do P method, f function, i interface, s struct.
 # Return count of all tags.
 sub LoadRustTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		#Tag examples
 		# Plugin	plugin.rs	21;"	i
@@ -530,11 +556,11 @@ sub LoadRustTags {
 		# Trailing scope.
 		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([iPsf])\t([^\t]+)$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = $4;
-			
+			my $kind       = $3;
+			my $owner      = $4;
+
 			# Strip "interface" or "class" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
@@ -559,17 +585,17 @@ sub LoadRustTags {
 					{
 					$tagname = $owner . '#' . $tagname;
 					}
-				
+
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			}
 		# No trailing scope.
 		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([iPsf])$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			
+			my $kind       = $3;
+
 			if ($kind eq 's' || $kind eq 'i')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -581,21 +607,22 @@ sub LoadRustTags {
 			}
 		++$itemCount;
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Do S singletonMethod, c class, f method, m module. Note ctags doesn't always give
 # an owning class or object for a singleton, so those are listed
 # as unowned methods at the bottom of the TOC.
 # Return count of all tags.
 sub LoadRubyTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		# Tag examples:
 		# wheels	vehicle.rb	16;"	S
@@ -603,11 +630,11 @@ sub LoadRubyTags {
 		# initialize	floor.rb	6;"	f	class:RubyWarrior.Floor
 		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([fcSm])\t([^\t]+)$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = $4;
-			
+			my $kind       = $3;
+			my $owner      = $4;
+
 			# Strip "module" or "class" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
@@ -648,17 +675,17 @@ sub LoadRubyTags {
 					{
 					$tagname = $owner . '#' . $tagname;
 					}
-				
+
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			}
 		# No trailing scope. (Orphan S singletons show up here.)
 		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([fcSm])$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			
+			my $kind       = $3;
+
 			if ($kind eq 'c')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -674,29 +701,30 @@ sub LoadRubyTags {
 			}
 		++$itemCount;
 		}
-		
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Get tag hashes of c class, m method, p property, s struct, i interface entries for a C# file.
 # Return count of all tags.
 sub LoadCSharpTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		# Trailing scope. C# entries sometimes have a trailing "\tfile:".
 		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])\t([^\t]+)((\t\w+\:)?)$!)
-		#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])\t([^\t]+)$!)
+			#if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])\t([^\t]+)$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = $4;
-			
+			my $kind       = $3;
+			my $owner      = $4;
+
 			# Strip "interface:" or "class:" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
@@ -721,7 +749,7 @@ sub LoadCSharpTags {
 					{
 					$tagname = $owner . '#' . $tagname;
 					}
-				
+
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			}
@@ -731,10 +759,10 @@ sub LoadCSharpTags {
 		# (I suspect all methods have a trailing scope.)
 		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([cmpsi])$!)
 			{
-			my $tagname = $1;
+			my $tagname    = $1;
 			my $lineNumber = $2;
-			my $kind = $3;
-			
+			my $kind       = $3;
+
 			if ($kind eq 'c' || $kind eq 'i' || $kind eq 's')
 				{
 				$classEntryForLineH->{"$lineNumber"} = $tagname;
@@ -746,9 +774,9 @@ sub LoadCSharpTags {
 			}
 		++$itemCount;
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # Get tag hashes of n module s struct f function entries for a Julia file.
 # Some functions can belong to modules such as Base that are not present
@@ -756,22 +784,23 @@ sub LoadCSharpTags {
 # Note a '!' can be part of a function name.
 # Return count of all tags.
 sub LoadJuliaTags {
-	my ($linesA, $classEntryForLineH, $structEntryForLineH, 
-		$methodEntryForLineH, $functionEntryForLineH) = @_;
+	my ($linesA, $classEntryForLineH, $structEntryForLineH,
+		$methodEntryForLineH, $functionEntryForLineH)
+		= @_;
 	my $itemCount = 0;
-	my $numLines = @{$linesA};
-	
-	my $module = ''; # The module name for the file.
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+	my $numLines  = @{$linesA};
+
+	my $module = '';    # The module name for the file.
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		if ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([nsf])\t([^\t]+)((\t\w+\:)?)$!)
 			{
-			my $tagname = $1; 		# NOTE may include '!'
+			my $tagname    = $1;    # NOTE may include '!'
 			my $lineNumber = $2;
-			my $kind = $3;
-			my $owner = $4;
-			
+			my $kind       = $3;
+			my $owner      = $4;
+
 			# Strip "module:" from start of $owner.
 			my $colonPos = index($owner, ':');
 			if ($colonPos > 0)
@@ -785,7 +814,7 @@ sub LoadJuliaTags {
 					{
 					$tagname = $owner . '.' . $tagname;
 					}
-				$classEntryForLineH->{"$lineNumber"} = $tagname;				
+				$classEntryForLineH->{"$lineNumber"} = $tagname;
 				}
 			elsif ($kind eq 's')
 				{
@@ -802,10 +831,10 @@ sub LoadJuliaTags {
 			}
 		elsif ($linesA->[$i] =~ m!^([^\t]+)\t[^\t]+\t(\d+)[^\t]+\t([nsf])$!)
 			{
-			my $tagname = $1; 		# NOTE may include '!'
+			my $tagname    = $1;    # NOTE may include '!'
 			my $lineNumber = $2;
-			my $kind = $3;
-			
+			my $kind       = $3;
+
 			if ($kind eq 'n')
 				{
 				$module = $tagname;
@@ -826,7 +855,7 @@ sub LoadJuliaTags {
 			}
 		++$itemCount;
 		}
-		
+
 	# In Julia a function can be defined for a module that is not itself
 	# defined in the current file. If a module is not defined, poke in
 	# an entry for it so that functions can be grouped under it - but
@@ -834,7 +863,7 @@ sub LoadJuliaTags {
 	my %missingModules;
 	foreach my $lineNum (keys %{$classEntryForLineH})
 		{
-		my $value = $classEntryForLineH->{$lineNum};
+		my $value   = $classEntryForLineH->{$lineNum};
 		my $octoPos = index($value, '#');
 		if ($octoPos > 0)
 			{
@@ -845,15 +874,15 @@ sub LoadJuliaTags {
 				}
 			}
 		}
-	
+
 	foreach my $missingModule (keys %missingModules)
 		{
 		my $lineNum = $missingModules{$missingModule};
 		$classEntryForLineH->{"$lineNum"} = $missingModule;
 		}
-	
-	return($itemCount);
-	}
+
+	return ($itemCount);
+}
 
 # CSS tags are a mess from the perspective of using them as anchors: there can be several
 # defined on one line, characters such as space hash '>' and comma are used. The approach here
@@ -874,24 +903,26 @@ sub LoadCssCtags {
 	my $itemCount = 0;
 	$$errorMsgR = '';
 
-	my @lines = split(/\n/, $$tagStringR);
+	my @lines    = split(/\n/, $$tagStringR);
 	my $numLines = @lines;
-	
-	for (my $i = 0; $i < $numLines; ++$i)
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		# tag tab filename tab linenumber (no ';')
 		if ($lines[$i] =~ m!^([^\t]+)\t([^\t]+)\t([^\t;]+)!)
-		#if ($lines[$i] =~ m!^(.+?)\s+.+?$lcCssFileName\s+(\d+);!i)
-		#if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
+			#if ($lines[$i] =~ m!^(.+?)\s+.+?$lcCssFileName\s+(\d+);!i)
+			#if ($lines[$i] =~ m!^(.+?)\s+$lcCssFileName\s+(\d+);!i)
 			{
 			my $displayedTagname = $1;
-			my $lineNumber = $3;
+			my $lineNumber       = $3;
 			#my $lineNumber = $2;
-			
-			if (index($displayedTagname, ",") > 0) # multiple tags, separate entries for linenum by '|'
+
+			if (
+				index($displayedTagname, ",") >
+				0)    # multiple tags, separate entries for linenum by '|'
 				{
 				my @tags = split(/,\s*/, $displayedTagname);
-				for (my $j = 0; $j < @tags; ++$j)
+				for (my $j = 0 ; $j < @tags ; ++$j)
 					{
 					$displayedTagname = $tags[$j];
 					my $tagname = $displayedTagname;
@@ -899,41 +930,41 @@ sub LoadCssCtags {
 					$tagname =~ s![^A-Za-z0-9_]+!_!g;
 					if (defined($tagEntryForLineH->{"$lineNumber"}))
 						{
-						$tagEntryForLineH->{"$lineNumber"} .= "|$tagname";
+						$tagEntryForLineH->{"$lineNumber"}         .= "|$tagname";
 						$tagDisplayedNameForLineH->{"$lineNumber"} .= "|$displayedTagname";
 						}
 					else
 						{
-						$tagEntryForLineH->{"$lineNumber"} = $tagname;
+						$tagEntryForLineH->{"$lineNumber"}         = $tagname;
 						$tagDisplayedNameForLineH->{"$lineNumber"} = $displayedTagname;
 						}
 					}
 				}
-			else # single tag, but can be multiple entries for the same line number
+			else    # single tag, but can be multiple entries for the same line number
 				{
 				my $tagname = $displayedTagname;
 				$tagname =~ s!^[^A-Za-z0-9_]+!!;
 				$tagname =~ s![^A-Za-z0-9_]+!_!g;
-				
+
 				if (defined($tagEntryForLineH->{"$lineNumber"}))
 					{
-					$tagEntryForLineH->{"$lineNumber"} .= "|$tagname";
+					$tagEntryForLineH->{"$lineNumber"}         .= "|$tagname";
 					$tagDisplayedNameForLineH->{"$lineNumber"} .= "|$displayedTagname";
 					}
 				else
 					{
-					$tagEntryForLineH->{"$lineNumber"} = $tagname;
+					$tagEntryForLineH->{"$lineNumber"}         = $tagname;
 					$tagDisplayedNameForLineH->{"$lineNumber"} = $displayedTagname;
 					}
 				}
 			}
 		}
 
-	$itemCount = keys %$tagDisplayedNameForLineH; # Approximate, but good enough.
+	$itemCount = keys %$tagDisplayedNameForLineH;    # Approximate, but good enough.
 
-	return($itemCount);
-	}
-} ##### Universal Ctags Support
+	return ($itemCount);
+}
+}    ##### Universal Ctags Support
 
 use ExportAbove;
 1;

@@ -32,16 +32,16 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -61,18 +61,19 @@ Output("Starting $SHORTNAME on port $port_listen\n\n");
 #OPENER_VISUALSTUDIOCODE	%LOCALAPPDATA%/Programs/Microsoft VS Code/Code.exe
 # Best to start Atom by hand also before using with IntraMine.
 #OPENER_ATOM	%LOCALAPPDATA%/atom/atom.exe
-# Remote text editor ('REMOTE_OPENER_APP'): path for app to use on remote PCs (not the IntraMine box itself).
+# Remote text editor ('REMOTE_OPENER_APP'): path for app to use on remote PCs
+# (not the IntraMine box itself).
 # Options are similar to those for text editor above, note they are paths to apps on the
 # remote PC, not the IntraMine PC.
 ###############################################################
-my $WhichLocalEditor = CVal('LOCAL_OPENER_APP');
-my $TextEditorPath = CVal($WhichLocalEditor);
-my $WhichRemoteEditor = CVal('REMOTE_OPENER_APP');
+my $WhichLocalEditor     = CVal('LOCAL_OPENER_APP');
+my $TextEditorPath       = CVal($WhichLocalEditor);
+my $WhichRemoteEditor    = CVal('REMOTE_OPENER_APP');
 my $RemoteTextEditorPath = CVal($WhichRemoteEditor);
-my $LocalPdfEditor = CVal('LOCAL_OPENER_PDF');
-my $LocalWordEditor = CVal('LOCAL_OPENER_WORD_DOCX');
+my $LocalPdfEditor       = CVal('LOCAL_OPENER_PDF');
+my $LocalWordEditor      = CVal('LOCAL_OPENER_WORD_DOCX');
 ###############################################################
-$TextEditorPath =~ s!/!\\!g;
+$TextEditorPath       =~ s!/!\\!g;
 $RemoteTextEditorPath =~ s!/!\\!g;
 
 # Port for remote open requests.
@@ -87,7 +88,7 @@ my $RemoteOpenPort = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT');
 LoadRemoteMappings();
 
 my %RequestAction;
-$RequestAction{'req|open'} = \&OpenTheFile; # req=open $formH->{'file'}
+$RequestAction{'req|open'} = \&OpenTheFile;    # req=open $formH->{'file'}
 #$RequestAction{'req|id'} = \&Identify; # req=id
 
 # Over to swarmserver.pm.
@@ -97,17 +98,17 @@ MainLoop(\%RequestAction);
 # Call preferred editing app to open the file path supplied in $formH->{'file'}.
 sub OpenTheFile {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	# Originating peer address is $formH->{'clientipaddress'}. This is required.
 	my $clientIPAddress = defined($formH->{'clientipaddress'}) ? $formH->{'clientipaddress'} : '';
 	if ($clientIPAddress eq '')
 		{
-		return("MAINTENANCE ERROR, \"$formH->{'clientipaddress'} is NOT SET.");
+		return ("MAINTENANCE ERROR, \"$formH->{'clientipaddress'} is NOT SET.");
 		}
-	
-	my $serverAddr = ServerAddress();
+
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
-	
+
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
 	if ($clientIPAddress ne '127.0.0.1' && $clientIPAddress ne $serverAddr)
@@ -115,12 +116,12 @@ sub OpenTheFile {
 		$clientIsRemote = 1;
 		}
 
-	my $status = 'OK';
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+	my $status   = 'OK';
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	$filepath =~ s!\\!/!g;
-	
+
 	Output("OpenTheFile \$filepath: |$filepath|\n");
-		
+
 	if ($clientIsRemote)
 		{
 		RemoteOpenFile($clientIPAddress, $filepath, \$status);
@@ -129,33 +130,33 @@ sub OpenTheFile {
 		{
 		LocalOpenFile($filepath, \$status);
 		}
-	
+
 	if ($status ne 'OK')
 		{
 		Output("OpenTheFile ERROR: |$status|\n");
 		}
 
-	return($status);
-	}
-	
+	return ($status);
+}
+
 # Fire off a temporary batch file to open the file with path $filepath.
 # This is called only for requests made on the IntraMine server box.
 sub LocalOpenFile {
 	my ($filepath, $statusR) = @_;
-	
+
 	my $ext = '';
 	if ($filepath =~ m!\.(\w+)$!)
 		{
 		$ext = lc($1);
 		}
-		
+
 	# Double up any % signs to avoid interpolation in the batch file.
 	$filepath =~ s!\%!\%\%!g;
 	# Reverse the slashes to all '\', some apps like that better. Eg Word and Eclipse.
 	$filepath =~ s!/!\\!g;
-	
+
 	my $batPath;
-	
+
 	if ($ext =~ m!docx?!)
 		{
 		$batPath = GetTempBatPathForFile($LocalWordEditor, $filepath);
@@ -166,16 +167,17 @@ sub LocalOpenFile {
 		}
 	else
 		{
-		# Eg $batPath = GetTempBatPathForFile("%ProgramFiles(x86)%\\Notepad++\\notepad++.exe", $filepath);
+		# Eg
+		# $batPath = GetTempBatPathForFile("%ProgramFiles(x86)%\\Notepad++\\notepad++.exe", $filepath);
 		$batPath = GetTempBatPathForFile($TextEditorPath, $filepath);
 		}
-	
+
 	my $openresult = system(1, "\"$batPath\">nul 2>&1");
 	if ($openresult == -1)
 		{
 		$$statusR = "Could not open |$filepath|";
 		}
-	}
+}
 
 # Send request to $clientIPAddress:$RemoteOpenPort to please open remote version of $filepath
 # using $RemoteTextEditorPath. We expect a PowerShell server IntraMine-Remote.ps1 (copied over
@@ -185,13 +187,13 @@ sub LocalOpenFile {
 sub RemoteOpenFile {
 	my ($clientIPAddress, $filepath, $statusR) = @_;
 	my $remoteEditor = $RemoteTextEditorPath;
-	
+
 	if ($remoteEditor eq '')
 		{
 		$$statusR = "ERROR no value for REMOTE_OPENER_APP found in intramine_config.txt";
 		return;
 		}
-	
+
 	# Put remote \\host-name\share\ in place of Drive:/folders... to come up with the file
 	# path from the perspective of the remove PC making the Open request. The entries
 	# for this mapping are near the bottom of data/intramine_config.txt. Again, there's
@@ -202,50 +204,52 @@ sub RemoteOpenFile {
 		$$statusR = "ERROR no remote mapping found in intramine_config.txt for |$filepath|";
 		return;
 		}
-	
+
 	my $remotePort = $RemoteOpenPort;
-	
+
 	RequestRemoteOpen($clientIPAddress, $remotePort, $remoteEditor, $remotePath, $statusR);
-	}
+}
 
 sub RequestRemoteOpen {
 	my ($clientIPAddress, $remotePort, $remoteEditor, $filepath, $statusR) = @_;
-	
+
 	Output("RRO clientIPAddress: |$clientIPAddress|\n");
 	Output("     RRO remotePort: |$remotePort|\n");
-	
+
 	my $remote = IO::Socket::INET->new(
-	                Proto   	=> 'tcp',       			# protocol
-	                PeerAddr	=> "$clientIPAddress", 			# Address of server
-	                PeerPort	=> "$remotePort",      		# port of server (eg 81)
-	                Timeout		=> 2
-	                ) or (($$statusR = "ERROR could not connect to $clientIPAddress:$remotePort") && return);
-	
+		Proto    => 'tcp',                 # protocol
+		PeerAddr => "$clientIPAddress",    # Address of server
+		PeerPort => "$remotePort",         # port of server (eg 81)
+		Timeout  => 2
+	) or (($$statusR = "ERROR could not connect to $clientIPAddress:$remotePort") && return);
+
 	IO::Socket::Timeout->enable_timeouts_on($remote);
 	$remote->read_timeout(1.0);
 	$remote->write_timeout(1.0);
-	
+
 	# Eclipse 2018-12 cannot open a file if forward slashes are used in the path.
 	$filepath =~ s!/!\\!g;
-	
+
 	$filepath = uri_escape($filepath);
-	
+
 	# Send the request, with headers that Chrome would typically supply.
 	print $remote "GET /?app=$remoteEditor&path=$filepath HTTP/1.1\n";
-	print $remote "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\n";
+	print $remote
+"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3\n";
 	print $remote "Accept-Encoding: gzip, deflate\n";
 	print $remote "Accept-Language: en-US,en;q=0.9\n";
 	print $remote "Cache-Control: max-age=0\n";
 	print $remote "Connection: keep-alive\n";
 	print $remote "Host: $clientIPAddress:$remotePort\n";
 	print $remote "Upgrade-Insecure-Requests: 1\n";
-	print $remote "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36\n\n";
-	
+	print $remote
+"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36\n\n";
+
 	my $line = <$remote>;
 	chomp($line) if (defined($line));
 	close $remote;
 	my $itWentWell = (defined($line) && $line =~ m!ok!i) ? 1 : 0;
-	
+
 	if (!$itWentWell)
 		{
 		if (defined($line))
@@ -257,7 +261,7 @@ sub RequestRemoteOpen {
 			$$statusR = "ERROR no response to open request from $clientIPAddress:$remotePort";
 			}
 		}
-	}
+}
 
 # $batPath = GetTempBatPathForFile("%ProgramFiles(x86)%\\Notepad++\\notepad++.exe", $filepath); etc.
 # Create a temporary .bat file that will open $filepath when run, using the program specified
@@ -266,26 +270,27 @@ sub RequestRemoteOpen {
 # (that's the "chcp 65001" part).
 sub GetTempBatPathForFile {
 	my ($progPath, $filepath) = @_;
-	my $LogDir = FullDirectoryPath('LogDir'); # ...logs/IntraMine/
+	my $LogDir        = FullDirectoryPath('LogDir');       # ...logs/IntraMine/
 	my $randomInteger = random_int_between(1001, 60000);
-	my $batPath = $LogDir . 'temp/' . 'tempbat' . $port_listen . '_' . time . $randomInteger . '.bat';
+	my $batPath =
+		$LogDir . 'temp/' . 'tempbat' . $port_listen . '_' . time . $randomInteger . '.bat';
 	MakeDirectoriesForFile($batPath);
-	
+
 	my $outFileH = FileHandle->new("> $batPath")
-		or return("FILE ERROR could not make |$batPath|!");
+		or return ("FILE ERROR could not make |$batPath|!");
 	binmode($outFileH, ":utf8");
 	print $outFileH "chcp 65001\n";
 	print $outFileH "\"$progPath\" \"$filepath\"\n";
-	
+
 	# Self-destruct.
 	print $outFileH "del \"%~f0\"\n";
 	close($outFileH);
-	
-	return($batPath);
-	}
-	
+
+	return ($batPath);
+}
+
 { ##### Remote dir for IntraMine dir
-my %RemotePathForLocalPath; # eg $RemotePathForLocalPath{'c:/qt'} = '\\DESKTOP-D4KOMRV\wsqt';
+my %RemotePathForLocalPath;    # eg $RemotePathForLocalPath{'c:/qt'} = '\\DESKTOP-D4KOMRV\wsqt';
 
 # Load up remote directory names for directories on the IntraMine box
 # from intramine_config.txt. We look for lines like
@@ -296,7 +301,7 @@ my %RemotePathForLocalPath; # eg $RemotePathForLocalPath{'c:/qt'} = '\\DESKTOP-D
 sub LoadRemoteMappings {
 	# Get entire intramine_config.txt as as hash.
 	my $configH = ConfigHashRef();
-	
+
 	# Loop through entire config hash looking for likely IntraMine directories as keys.
 	foreach my $key (keys %$configH)
 		{
@@ -308,8 +313,8 @@ sub LoadRemoteMappings {
 			$RemotePathForLocalPath{$key} = $remoteValue;
 			}
 		}
-	}
-	
+}
+
 # For remote access, turn eg C:/Qt/folder/file.cpp into //DESKTOP-D4KOMRV/wsqt/folder/file.cpp
 # based on the line
 # C:/Qt<tab>\\DESKTOP-D4KOMRV\wsqt
@@ -319,7 +324,7 @@ sub RemotePathForIntraMinePath {
 	$intraminePath =~ s!\\!/!g;
 	$intraminePath = lc($intraminePath);
 	my $result = '';
-	
+
 	foreach my $key (keys %RemotePathForLocalPath)
 		{
 		if ($intraminePath =~ m!^$key!)
@@ -329,16 +334,16 @@ sub RemotePathForIntraMinePath {
 			$result = $intraminePath;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Any string that starts with a letter-colon-forward slash, or _INTRAMINE_ counts.
 # It doesn't matter if we pick up too many entries.
 sub LooksLikeIntraMineDirectory {
 	my ($maybeDir) = @_;
 	my $result = 0;
-	
+
 	if ($maybeDir eq '_INTRAMINE_')
 		{
 		$result = 1;
@@ -351,7 +356,7 @@ sub LooksLikeIntraMineDirectory {
 			$result = 1;
 			}
 		}
-	
-	return($result);
-	}
-} ##### Remote dir for IntraMine dir
+
+	return ($result);
+}
+}    ##### Remote dir for IntraMine dir

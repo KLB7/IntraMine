@@ -29,10 +29,10 @@ binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
@@ -40,15 +40,16 @@ SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 # Service names.
 my $VIEWERNAME = CVal('VIEWERSHORTNAME');
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
 my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-my $CudPath = $FileWatcherDir . CVal('FWCURRENTCHANGESFILE');	# Changed Updated Deleted log path, typ. data/cud.log
+my $CudPath        = $FileWatcherDir
+	. CVal('FWCURRENTCHANGESFILE');    # Changed Updated Deleted log path, typ. data/cud.log
 my $LastCudModTime = '';
 # Limit number of changed/new and deleted file paths displayed, both must separately
 # be less than $STATUS_FILEDISPLAY_LIMIT;
@@ -59,16 +60,18 @@ if ($STATUS_FILEDISPLAY_LIMIT eq '' || $STATUS_FILEDISPLAY_LIMIT < 10)
 	}
 
 my %RequestAction;
-$RequestAction{'req|main'} = \&StatusPage; 						# req=main
-$RequestAction{'req|addserverform'} = \&GetAddServerForm; 		# req=addserverform
-$RequestAction{'req|filestatus'} = \&FileStatusHTML; 			# req=filestatus, return HTML tables of file changes/deletes
-$RequestAction{'signal'} = \&HandleBroadcastRequest; 			# signal = anything, but for here specifically signal=filechange
+$RequestAction{'req|main'}          = \&StatusPage;          # req=main
+$RequestAction{'req|addserverform'} = \&GetAddServerForm;    # req=addserverform
+$RequestAction{'req|filestatus'} =
+	\&FileStatusHTML;    # req=filestatus, return HTML tables of file changes/deletes
+$RequestAction{'signal'} =
+	\&HandleBroadcastRequest;    # signal = anything, but for here specifically signal=filechange
 
 
 # Current lists of new/changed and deleted files (full paths). These could be scoped better.
 my @NewChangedFullPaths;
 my @DeletedPaths;
-my %EntryForPathSeen; # avoid duplicates
+my %EntryForPathSeen;            # avoid duplicates
 
 # Get things going. Not essential. We do intend to report changes AFTER
 # this server has started, but not while it was shut down.
@@ -145,51 +148,51 @@ FINIS
 		{
 		$refreshMilliseconds = 5000;
 		}
-	my $refreshSeconds = int(($refreshMilliseconds + 500)/1000);
+	my $refreshSeconds = int(($refreshMilliseconds + 500) / 1000);
 	$theBody =~ s!_STATUS_REFRESH_SECONDS_!$refreshSeconds!g;
-	
+
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
-	
+
 	# The IPv4 Address for this server (eg 192.168.0.14);
 	# peeraddress might be eg 192.168.0.17
 	my $serverAddr = ServerAddress();
-	
-	my $port = $port_listen;
-	my $mainPort = $server_port;
-	my $errorID = "'errorLine'";
-	my $fileContentID = "'fileStatus'";
+
+	my $port                  = $port_listen;
+	my $mainPort              = $server_port;
+	my $errorID               = "'errorLine'";
+	my $fileContentID         = "'fileStatus'";
 	my $serverStatusContentID = "'serverStatusDetails'";
 
 	$theBody =~ s!_STATUS_REFRESH_MILLISECONDS_!$refreshMilliseconds!;
 	# Put in the dynamic port numbers that status.js needs to know.
 	$theBody =~ s!_THEPORT_!$port_listen!;
-	
+
 	# HTML id's etc that status.js needs.
-	my $pageServerTableId = CVal('PAGE_SERVER_STATUS_TABLE');
+	my $pageServerTableId       = CVal('PAGE_SERVER_STATUS_TABLE');
 	my $backgroundServerTableId = CVal('BACKGROUND_SERVER_STATUS_TABLE');
-	my $statusButtonClass = CVal('STATUS_BUTTON_HOLDER_CLASS');
-	my $portHolderClass = CVal('PORT_STATUS_HOLDER_CLASS');
+	my $statusButtonClass       = CVal('STATUS_BUTTON_HOLDER_CLASS');
+	my $portHolderClass         = CVal('PORT_STATUS_HOLDER_CLASS');
 	$theBody =~ s!PAGE_SERVER_STATUS_TABLE!$pageServerTableId!;
 	$theBody =~ s!BACKGROUND_SERVER_STATUS_TABLE!$backgroundServerTableId!;
 	$theBody =~ s!STATUS_BUTTON_HOLDER_CLASS!$statusButtonClass!;
 	$theBody =~ s!PORT_STATUS_HOLDER_CLASS!$portHolderClass!;
-	
+
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
 	return $theBody;
-	}
+}
 
 # Collect page server names and put them in a drop down in a form.
-# status.js#addServerSubmit() submits a request to Main to add a server. 
+# status.js#addServerSubmit() submits a request to Main to add a server.
 sub GetAddServerForm {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	# Get list of short server names available, as <select> options.
 	# <option value="Name">Name</option>
 	my $serverOptions = GetServerNamesAsOptions();
-	
+
 	my $addDropdown = <<"DROPIT";
 <select name="addOne" id="addOne"">
 $serverOptions
@@ -209,20 +212,20 @@ FINIS
 	# Rev May 26 2021, localhost is no longer used here.
 	# Possibly required by Chrome for "CORS-RFC1918 Support". Doesn't hurt to be safe.
 	my $serverAddr = ServerAddress();
-	my $action = "http://$serverAddr:$server_port/?rddm=1";
+	my $action     = "http://$serverAddr:$server_port/?rddm=1";
 
 	$theSource =~ s!_ACTION_!\'$action\'!;
-	
-	return($theSource);
-	}
+
+	return ($theSource);
+}
 
 # Skip non-empty values in %shortNamesType (currently 'PERSISTENT', 'BACKGROUND'). The
 # empty values are for Page servers.
 sub GetServerNamesAsOptions {
 	my $result = '';
 	my %shortNamesType;
-	GetShortServerNamesType(\%shortNamesType); # swarmserver.pm
-	
+	GetShortServerNamesType(\%shortNamesType);    # swarmserver.pm
+
 	foreach my $name (sort keys %shortNamesType)
 		{
 		if ($shortNamesType{$name} eq '')
@@ -230,9 +233,9 @@ sub GetServerNamesAsOptions {
 			$result .= "<option value=\"$name\">$name</option>\n";
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # Generic 'signal' handler, here we are especially interested in 'signal=filechange', emitted
 # by intramine_filewatcher.pl#IndexChangedFiles(). Which means for us here that
@@ -249,12 +252,12 @@ sub HandleBroadcastRequest {
 			{
 			ReloadChangedDeletedFilesList();
 			}
-		} # 'filechange' signal
+		}    # 'filechange' signal
 
 	# Returned value is ignored by broadcaster
 	# - this is more of a "UDP" than "TCP" approach to communicating.
-	return('OK');
-	}
+	return ('OK');
+}
 
 # Load lists of new/changed and deleted files from $CudPath, removing older entries from both
 # if list size exceeds $STATUS_FILEDISPLAY_LIMIT.
@@ -263,14 +266,16 @@ sub ReloadChangedDeletedFilesList {
 	# Load list of new file paths if $CudPath exists and has been changed (new $LastCudModTime)
 	if (-f $CudPath)
 		{
-		my  ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-			$atime,$mtime,$ctime,$blksize,$blocks)
-			= stat($CudPath);
+		my (
+			$dev,  $ino,   $mode,  $nlink, $uid,     $gid, $rdev,
+			$size, $atime, $mtime, $ctime, $blksize, $blocks
+		) = stat($CudPath);
 		if ($LastCudModTime eq "" || $LastCudModTime != $mtime)
 			{
 			my %tempEntries;
-			my $numEntries = LoadKeyTabValueHashFromFile(\%tempEntries, $CudPath, "new changed deleted files");
-			
+			my $numEntries =
+				LoadKeyTabValueHashFromFile(\%tempEntries, $CudPath, "new changed deleted files");
+
 			if ($numEntries)
 				{
 				foreach my $path (sort keys %tempEntries)
@@ -290,7 +295,12 @@ sub ReloadChangedDeletedFilesList {
 							}
 						# Avoid duplicates, which can sneak in sometimes. For example, if File Watcher is monitoring
 						# a folder and also one of its subfolders. It happens.
-						if (!(defined($EntryForPathSeen{$path}) && $EntryForPathSeen{$path} eq $entry))
+						if (
+							!(
+								defined($EntryForPathSeen{$path})
+								&& $EntryForPathSeen{$path} eq $entry
+							)
+							)
 							{
 							push @NewChangedFullPaths, $entry;
 							$EntryForPathSeen{$path} = $entry;
@@ -302,11 +312,11 @@ sub ReloadChangedDeletedFilesList {
 						}
 					# else maintenance booboo, spank the dev.
 					}
-					
+
 				# Limit number of current entries to $STATUS_FILEDISPLAY_LIMIT
 				# in both @NewChangedFullPaths and @DeletedPaths.
 				my $numChangedNew = @NewChangedFullPaths;
-				my $overLimit = $numChangedNew - $STATUS_FILEDISPLAY_LIMIT;
+				my $overLimit     = $numChangedNew - $STATUS_FILEDISPLAY_LIMIT;
 				while ($overLimit-- > 0)
 					{
 					shift @NewChangedFullPaths;
@@ -319,9 +329,9 @@ sub ReloadChangedDeletedFilesList {
 					}
 				}
 			$LastCudModTime = $mtime;
-			} # $CudPath has been modified
-		} # $CudPath exists
-	}
+			}    # $CudPath has been modified
+		}    # $CudPath exists
+}
 
 # Return two HTML tables listing 'New / Changed Files' and 'Deleted Files'.
 # Called in response to 'req=filestatus' which is emitted by status.js#refreshStatus().
@@ -332,19 +342,19 @@ sub FileStatusHTML {
 
 	# TEST ONLY
 	#print("FileStatusHTML top\n");
-	
+
 	# Check if Viewer is available. If so, links will be put on
 	# the New / Changed Files entries.
 	my $viewerIsRunning = ServiceIsRunning('Viewer');
-	
-	my $host  = ServerAddress();
+
+	my $host = ServerAddress();
 	my $port = $server_port;
 
-	my $result = '<table><tr><th>New / Changed Files</th></tr>' . "\n";
+	my $result        = '<table><tr><th>New / Changed Files</th></tr>' . "\n";
 	my $numChangedNew = @NewChangedFullPaths;
-	my @ReversedNew = reverse @NewChangedFullPaths;
-		
-	for (my $i = 0; $i < $numChangedNew; ++$i)
+	my @ReversedNew   = reverse @NewChangedFullPaths;
+
+	for (my $i = 0 ; $i < $numChangedNew ; ++$i)
 		{
 		my $displayedPath = $ReversedNew[$i];
 		my $displayedTime = '';
@@ -354,9 +364,9 @@ sub FileStatusHTML {
 			$displayedTime = $fields[1];
 			$displayedPath = $fields[0];
 			}
-			
-		$displayedPath = encode_utf8(LinkForFilePath($displayedPath,
-							$host, $port, $peeraddress, $viewerIsRunning));
+
+		$displayedPath = encode_utf8(
+			LinkForFilePath($displayedPath, $host, $port, $peeraddress, $viewerIsRunning));
 
 		$displayedPath =~ s!%!%25!g;
 		$displayedPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
@@ -366,11 +376,11 @@ sub FileStatusHTML {
 		$result .= "<tr><td>$displayedPath</td><td>$displayedTime</td></tr>\n";
 		}
 	$result .= '</table><br>' . "\n";
-	
+
 	$result .= '<table><tr><th>Deleted Files</th></tr>' . "\n";
-	my $numDeleted = @DeletedPaths;
+	my $numDeleted      = @DeletedPaths;
 	my @ReversedDeleted = reverse @DeletedPaths;
-	for (my $i = 0; $i < $numDeleted; ++$i)
+	for (my $i = 0 ; $i < $numDeleted ; ++$i)
 		{
 		my $displayedPath = $ReversedDeleted[$i];
 		$displayedPath = encode_utf8($displayedPath);
@@ -378,14 +388,14 @@ sub FileStatusHTML {
 		$displayedPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 		$result .= "<tr><td>$displayedPath</td></tr>\n";
 		}
-	
+
 	$result .= '</table>' . "\n";
 
 	# TEST ONLY
 	#print("FileStatusHTML bottom\n");
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Return a link to $path that uses IntraMine's Viewer,
 # or just the path if the Viewer is not running.
@@ -394,16 +404,17 @@ sub LinkForFilePath {
 
 	if (!$viewerIsRunning)
 		{
-		return($path);
+		return ($path);
 		}
 
 	my $viewerLink = $path;
 	if ($viewerIsRunning)
 		{
-		$viewerLink = "<a href=\"http://$host:$port/$VIEWERNAME/?href=$path\" target=\"_blank\">$path</a>";
+		$viewerLink =
+			"<a href=\"http://$host:$port/$VIEWERNAME/?href=$path\" target=\"_blank\">$path</a>";
 		}
 	my $result = $viewerLink;
-	
-	return($result);
-	}
+
+	return ($result);
+}
 

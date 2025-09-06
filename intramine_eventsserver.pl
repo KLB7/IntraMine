@@ -22,23 +22,23 @@ use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
-use holidays; 	# holidays for EventsPage()
+use holidays;    # holidays for EventsPage()
 use swarmserver;
 
 # Start standard boilerplate.
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 #binmode(STDOUT, ":unix:utf8");
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -50,13 +50,13 @@ my $EventsTextPath = FullDirectoryPath('EVENTSTEXTPATH');
 
 # Request actions, dependent on the task at hand.
 my %RequestAction;
-$RequestAction{'req|main'} = \&EventsPage; 					# req=main
-$RequestAction{'req|css'} = \&GetRequestedFile; 			# req=css
-$RequestAction{'req|eventsjs'} = \&EventsPageJS; 			# req=eventsjs
-$RequestAction{'req|js'} = \&GetRequestedFile; 				# req=js
-$RequestAction{'req|eventscontent'} = \&EventsPageContent; 	# req=eventscontent
-$RequestAction{'req|open'} = \&OpenTheFile; 				# req=open
-#$RequestAction{'req|id'} = \&Identify; 					# req=id - see swarmserver.pm#ServerIdentify()
+$RequestAction{'req|main'}          = \&EventsPage;           # req=main
+$RequestAction{'req|css'}           = \&GetRequestedFile;     # req=css
+$RequestAction{'req|eventsjs'}      = \&EventsPageJS;         # req=eventsjs
+$RequestAction{'req|js'}            = \&GetRequestedFile;     # req=js
+$RequestAction{'req|eventscontent'} = \&EventsPageContent;    # req=eventscontent
+$RequestAction{'req|open'}          = \&OpenTheFile;          # req=open
+#$RequestAction{'req|id'} = \&Identify; # req=id - see swarmserver.pm#ServerIdentify()
 
 # One last line of boilerplate, over to swarmserver.pm to handle network request/response.
 MainLoop(\%RequestAction);
@@ -68,19 +68,21 @@ MainLoop(\%RequestAction);
 sub OpenTheFile {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
-	
+
 	#print("EVENTS OpenTheFile called, for |$formH->{'file'}|\n");
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	$filepath =~ s!\\!/!g;
 	Output("|$filepath|\n");
 	my $ProcessObj;
-	my $openresult = Win32::Process::Create($ProcessObj, $ENV{COMSPEC}, "/c start notepad++ \"$filepath\"", 0, 0, ".");
+	my $openresult =
+		Win32::Process::Create($ProcessObj, $ENV{COMSPEC}, "/c start notepad++ \"$filepath\"",
+		0, 0, ".");
 	if (!$openresult)
 		{
 		$status = "Could not open |$filepath|";
 		}
-	return($status);
-	}
+	return ($status);
+}
 
 # Called in response to 'req=main' from intramine_main.pl.
 sub EventsPage {
@@ -126,49 +128,53 @@ FINIS
 
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
-	
+
 	my $serverAddr = ServerAddress();
-	my $loadItems = "'req=eventsjs', function fn(arrr) {loadPageContent(arrr);}";
-	my $contentID = 'eventscalendars';
-	my $host = $serverAddr;
-	my $port = $port_listen;
-	my $pgLoader = GetStandardPageLoader($loadItems, $contentID, $host, $port);
+	my $loadItems  = "'req=eventsjs', function fn(arrr) {loadPageContent(arrr);}";
+	my $contentID  = 'eventscalendars';
+	my $host       = $serverAddr;
+	my $port       = $port_listen;
+	my $pgLoader   = GetStandardPageLoader($loadItems, $contentID, $host, $port);
 	$theBody =~ s!_LOADANDGO_!$pgLoader!;
 
 	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
 	return $theBody;
-	}
+}
 
 sub EventsPageContent {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $todayDate = DateYYYYMMDD();
 	$todayDate =~ m!^(\d\d\d\d)(\d\d)!;
-	my $startYear = $1;
+	my $startYear  = $1;
 	my $startMonth = $2;
 	if (defined($formH->{'startym'}))
 		{
 		$formH->{'startym'} =~ m!^(\d\d\d\d)(\d\d)!;
 		my $yr = $1;
 		my $mn = $2;
-		if ( defined($yr) && defined($mn)
-		  && $yr >= 2010 && $yr <= 2030 && $mn >= 1 && $mn <= 12 )
+		if (   defined($yr)
+			&& defined($mn)
+			&& $yr >= 2010
+			&& $yr <= 2030
+			&& $mn >= 1
+			&& $mn <= 12)
 			{
-			$startYear = $yr;
+			$startYear  = $yr;
 			$startMonth = $mn;
 			}
 		}
-		
+
 	LoadCalendarEventsFromText($EventsTextPath);
-	
+
 	my $theBody = EventsPageContentHTML($peeraddress, $todayDate, $startYear, $startMonth);
 	return $theBody;
-	}
+}
 
 { ##### Events Calendar
 # Year-Month-Day, Event type, Text (assume event type 'deadline' if it's blank)
-my %CalendarEvents; # $CalendarEvents{YYYYMMDD} = "deadline\tAppendix out\tLeave a tip"
+my %CalendarEvents;    # $CalendarEvents{YYYYMMDD} = "deadline\tAppendix out\tLeave a tip"
 my $lastRefreshTime;
 my $lastModTime;
 my $minimumRefreshSeconds;
@@ -177,14 +183,14 @@ my $loadFromText;
 
 sub LoadCalendarEventsFromText {
 	my ($path) = @_;
-	
+
 	%CalendarEvents = ();
 	my @events;
 	my $numEvents = LoadFileIntoArray(\@events, $path, "calendar events");
 	Output("$numEvents calendar event rows loaded.\n");
-	for (my $row = 1; $row < $numEvents; ++$row)
+	for (my $row = 1 ; $row < $numEvents ; ++$row)
 		{
-		my @fields = split(/\t/, $events[$row]);
+		my @fields    = split(/\t/, $events[$row]);
 		my $numFields = @fields;
 		my $dateEntry = $fields[0];
 		if ($numFields >= 3 && $dateEntry =~ m!\d+!)
@@ -200,7 +206,7 @@ sub LoadCalendarEventsFromText {
 					$eventType = 'deadline';
 					}
 				my $eventText = $fields[2];
-				my $comment = $fields[3];
+				my $comment   = $fields[3];
 				$comment ||= '';
 				if ($eventText ne '')
 					{
@@ -216,28 +222,28 @@ sub LoadCalendarEventsFromText {
 				}
 			}
 		}
-	}
+}
 
 
 sub EventsPageContentHTML {
 	my ($peeraddress, $todayDate, $startYear, $startMonth) = @_;
 	my $theBody = EventsPageContentHtmlTemplate();
-	
+
 	my $yr = $startYear;
-	my $m = $startMonth;
-	
+	my $m  = $startMonth;
+
 	my $todayIsNotAWorkingDay = (IsWeekendYYYYMMDD($todayDate) || IsAHolidayYYYYMMDD($todayDate));
-	
+
 	my @cals;
-	for (my $i = 1; $i <= 4; ++$i)
+	for (my $i = 1 ; $i <= 4 ; ++$i)
 		{
 		my $month = $m;
-		my $year = $yr;
-		
-		my $cal = HTML::CalendarMonthSimple->new('year'=>$year,'month'=>$month);
-		for (my $day = 1; $day < 32; ++$day)
+		my $year  = $yr;
+
+		my $cal = HTML::CalendarMonthSimple->new('year' => $year, 'month' => $month);
+		for (my $day = 1 ; $day < 32 ; ++$day)
 			{
-			my $yyyymd = sprintf("%04d%02d%02d", $year,$month,$day);
+			my $yyyymd = sprintf("%04d%02d%02d", $year, $month, $day);
 			if (IsAHolidayYYYYMMDD($yyyymd))
 				{
 				my $holidayName = HolidayNameForYYYYMMDD($yyyymd);
@@ -253,23 +259,26 @@ sub EventsPageContentHTML {
 			if ($y == $year && $m == $month)
 				{
 				my $evtAndText = $CalendarEvents{$ymd};
-				my @entries = split(/\|/, $evtAndText);
-				for (my $i = 0; $i < @entries; ++$i)
+				my @entries    = split(/\|/, $evtAndText);
+				for (my $i = 0 ; $i < @entries ; ++$i)
 					{
-					my @fields = split(/\t/, $entries[$i]);
+					my @fields    = split(/\t/, $entries[$i]);
 					my $eventType = $fields[0];
-					my $name = $fields[1];
+					my $name      = $fields[1];
 					$name =~ s!'!\\'!g;
-					
+
 					if ($eventType eq 'deadline')
 						{
 						if ($ymd < $todayDate)
 							{
-							$eventType = 'pastdeadline'; # These show in a slightly darker and more ominous colour. Yes I am Canadian.
+							$eventType = 'pastdeadline'
+								;    # These show in a slightly darker and more ominous colour.
+									 # Yes I am Canadian.
 							}
 						}
-					
-					# Always show tip if there's a comment in $fields[2] or event is in the future (show days remaining).
+
+					# Always show tip if there's a comment in $fields[2] or event is in the future
+					# (show days remaining).
 					if ((defined($fields[2]) && $fields[2] ne '') || $todayDate < $ymd)
 						{
 						my $tipStr = '';
@@ -283,9 +292,9 @@ sub EventsPageContentHTML {
 							my $daysLeftStr = "$daysRemaining business days left (inclusive)";
 							$tipStr = $daysLeftStr;
 							}
-							
+
 						my $haveUserComment = 0;
-						if (defined($fields[2]) && $fields[2] ne '') # comment
+						if (defined($fields[2]) && $fields[2] ne '')    # comment
 							{
 							$haveUserComment = 1;
 							my $comment = $fields[2];
@@ -299,89 +308,94 @@ sub EventsPageContentHTML {
 								$tipStr = "$comment";
 								}
 							}
-							
+
 						if ($haveUserComment)
 							{
-							my $tipMarker = "<div class='tipmarker'><p class='tipmarkeractual'><img src='comment.png' alt='' width='6' height='6' /></p></div>";
-							$cal->addcontent($d, "<div class='$eventType hastip'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a>$tipMarker</div>");
+							my $tipMarker =
+"<div class='tipmarker'><p class='tipmarkeractual'><img src='comment.png' alt='' width='6' height='6' /></p></div>";
+							$cal->addcontent($d,
+"<div class='$eventType hastip'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a>$tipMarker</div>"
+							);
 							}
 						else
 							{
-							$cal->addcontent($d, "<p class='$eventType'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a></p>");
+							$cal->addcontent($d,
+"<p class='$eventType'><a href=\"#\" class=\"plainhintanchor\" onmouseOver=\"showhint('$tipStr', this, event, '500px', false)\">$name</a></p>"
+							);
 							}
 						}
-					else # In the past and no comment: no tooltip.
+					else    # In the past and no comment: no tooltip.
 						{
 						$cal->addcontent($d, "<p class='$eventType'>$name</p>");
 						}
-					} # for entries in current calendar events record
-				} # if year and month agree
-			}# for each calendar events record
-		
+					}    # for entries in current calendar events record
+				}    # if year and month agree
+			}    # for each calendar events record
+
 		$cal->border(3);
 		$cal->weekendcolor('#DDDDDD');
-		$cal->todaycolor('#CBFFA8'); # '#FFFFDD'
-		$cal->headercolor('black'); # or 
+		$cal->todaycolor('#CBFFA8');    # '#FFFFDD'
+		$cal->headercolor('black');     # or
 		$cal->headercontentcolor('white');
-		
+
 		$cal->saturday('Sat');
 		$cal->sunday('Sun');
-		$cal->weekdays('Mon','Tue','Wed','Thu','Fri');
-		
+		$cal->weekdays('Mon', 'Tue', 'Wed', 'Thu', 'Fri');
+
 		push @cals, $cal;
-		
-		
+
+
 		++$m;
 		if ($m > 12)
 			{
 			$m = 1;
 			++$yr;
 			}
-		} # for 1 to 4 (months)
-	
-	for (my $i = 0; $i < @cals; ++$i)
+		}    # for 1 to 4 (months)
+
+	for (my $i = 0 ; $i < @cals ; ++$i)
 		{
-		my $calNumber = $i + 1;
+		my $calNumber    = $i + 1;
 		my $calRepString = '_CALENDAR' . $calNumber . '_';
-		my $htmlCal = $cals[$i]->as_HTML;
+		my $htmlCal      = $cals[$i]->as_HTML;
 		$theBody =~ s!$calRepString!$htmlCal!g;
 		}
-	
+
 	# Ahead-back arrows nav links.
 	my $singleAheadMonth = $startMonth + 1;
-	my $singleAheadYear = $startYear;
+	my $singleAheadYear  = $startYear;
 	if ($singleAheadMonth > 12)
 		{
 		$singleAheadMonth -= 12;
 		++$singleAheadYear;
 		}
-	my $singleAheadYM = sprintf("%04d%02d", $singleAheadYear,$singleAheadMonth);
+	my $singleAheadYM    = sprintf("%04d%02d", $singleAheadYear, $singleAheadMonth);
 	my $doubleAheadMonth = $startMonth + 3;
-	my $doubleAheadYear = $startYear;
+	my $doubleAheadYear  = $startYear;
 	if ($doubleAheadMonth > 12)
 		{
 		$doubleAheadMonth -= 12;
 		++$doubleAheadYear;
 		}
-	my $doubleAheadYM = sprintf("%04d%02d", $doubleAheadYear,$doubleAheadMonth);
+	my $doubleAheadYM   = sprintf("%04d%02d", $doubleAheadYear, $doubleAheadMonth);
 	my $singleBackMonth = $startMonth - 1;
-	my $singleBackYear = $startYear;
+	my $singleBackYear  = $startYear;
 	if ($singleBackMonth < 1)
 		{
 		$singleBackMonth += 12;
 		--$singleBackYear;
 		}
-	my $singleBackYM = sprintf("%04d%02d", $singleBackYear,$singleBackMonth);
+	my $singleBackYM    = sprintf("%04d%02d", $singleBackYear, $singleBackMonth);
 	my $doubleBackMonth = $startMonth - 3;
-	my $doubleBackYear = $startYear;
+	my $doubleBackYear  = $startYear;
 	if ($doubleBackMonth < 1)
 		{
 		$doubleBackMonth += 12;
 		--$doubleBackYear;
 		}
-	my $doubleBackYM = sprintf("%04d%02d", $doubleBackYear,$doubleBackMonth);
-	
-	my $serverAddr = ServerAddress();
+	my $doubleBackYM = sprintf("%04d%02d", $doubleBackYear, $doubleBackMonth);
+
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
@@ -389,12 +403,13 @@ sub EventsPageContentHTML {
 		{
 		$clientIsRemote = 1;
 		}
-	
-	my $rdm = random_int_between(1, 65000);
+
+	my $rdm   = random_int_between(1, 65000);
 	my $editL = '';
 	if (!$clientIsRemote)
 		{
-		$editL = "<a id='eventseditlink' href='$EventsTextPath?rddm=$rdm'  onclick='OpenEventsFile(this.href); return false;'>Edit Events</a>";
+		$editL =
+"<a id='eventseditlink' href='$EventsTextPath?rddm=$rdm'  onclick='OpenEventsFile(this.href); return false;'>Edit Events</a>";
 		}
 	$theBody =~ s!_EDITEVENTSLINK_!$editL!;
 	$theBody =~ s!_DOUBLEBACK_!startym=$doubleBackYM\&rddm=$rdm!;
@@ -405,13 +420,13 @@ sub EventsPageContentHTML {
 	# Rev May 26 2021, localhost is no longer used here.
 	# Required by Chrome for "CORS-RFC1918 Support".
 	$theBody =~ s!localhost!$serverAddr!g;
-	
+
 	# Put in port for this server.
 	$theBody =~ s!_EVENTSPORT_!$port_listen!g;
 
-	
+
 	return $theBody;
-	}
+}
 
 sub EventsPageContentHtmlTemplate {
 	my $theBody = <<'FINIS';
@@ -454,12 +469,12 @@ _EDITEVENTSLINK_
 	<div style="clear:both;"></div>
 </div>
 FINIS
-		
+
 	my $today = NiceToday();
 	$theBody =~ s!_DATESTAMP_!$today!g;
-	
+
 	return $theBody;
-	}
+}
 
 sub EventsPageJS {
 	my ($obj, $formH, $peeraddress) = @_;
@@ -557,23 +572,23 @@ function OpenEventsFile(hrefplusRand) {
 	}	
 FINIS
 
-	my $serverAddr = ServerAddress();
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
 	if ($peeraddress ne '127.0.0.1' && $peeraddress ne $serverAddr)
-	#if ($peeraddress ne '127.0.0.1')
+		#if ($peeraddress ne '127.0.0.1')
 		{
 		$clientIsRemote = 1;
 		}
-	
+
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
-	my $host = $serverAddr;
-	my $port = $port_listen;
+	my $host          = $serverAddr;
+	my $port          = $port_listen;
 	$theJS =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theJS =~ s!_THEHOST_!$host!g;
 	$theJS =~ s!_THEPORT_!$port!g;
-	
-	return($theJS);
-	}
 
-} ##### Events Calendar
+	return ($theJS);
+}
+
+}    ##### Events Calendar
 

@@ -41,18 +41,19 @@ sub InitCommandStrings {
 # server until it is back up, but does not redirect the command's output.
 # if $monitorUntilDone then 'monitor=1' is added to url, UNLESS $willRestart.
 # 'monitor' redirects command's output to a file, which is periodically reported in the
-# id='theTextWithoutJumpList' div that follows the commands (see cmdServer.js#monitorCmdOutUntilDone()).
+# id='theTextWithoutJumpList' div that follows the commands
+# (see cmdServer.js#monitorCmdOutUntilDone()).
 # To run something and not monitor it set, $willRestart and $monitorUntilDone to 0, eg
 #	$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word From Anywhere', 0, 0);
 # For examples see intramine_commandserver.pl#Commands().
 sub OneCommandString {
-	my @passedIn = @_;
-	my $idx = 0;
-	my $cmdPath = $passedIn[$idx++];
-	my $displayedName = $passedIn[$idx++];
-	my $willRestart = $passedIn[$idx++];
+	my @passedIn         = @_;
+	my $idx              = 0;
+	my $cmdPath          = $passedIn[$idx++];
+	my $displayedName    = $passedIn[$idx++];
+	my $willRestart      = $passedIn[$idx++];
 	my $monitorUntilDone = $passedIn[$idx++];
-	
+
 	# Any additional params are treated as inputs for additional arguments to the command
 	# being executed,  with supplied param value as the default input field value.
 	# For a blank input field, pass in "". Argument values with spaces should be "put in quotes"
@@ -64,16 +65,18 @@ sub OneCommandString {
 		my $value = $passedIn[$idx];
 		if ($argNumber == 1)
 			{
-			$argInputs = "&nbsp;&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
+			$argInputs =
+"&nbsp;&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
 			}
 		else
 			{
-			$argInputs .= "&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
+			$argInputs .=
+"&nbsp;<input name='Arg${commandNumber}_$argNumber' value='$value' size='8' style='margin-top: 8px;'>";
 			}
 		++$idx;
 		++$argNumber;
 		}
-	
+
 	# Put args in a separate cell.
 	if ($argInputs eq "")
 		{
@@ -81,13 +84,13 @@ sub OneCommandString {
 		}
 	$argInputs = "</td><td>$argInputs</td>";
 
-	my $rdm = random_int_between(1, 65000);
-	my $rdmStr = "rddm=$rdm";
-	my $cmdHtmlStart = "<tr><td><div class='cmdItem'>";
-	my $cmdHtmlEnd = '</tr>';
-	my $willRestartStr = ($willRestart) ? '&willrestart=1' : '';
-	my $monitorStr = ($monitorUntilDone && !$willRestart) ? '&monitor=1' : '';
-	my $onClick = "onclick='runTheCommand(this); return false;'";
+	my $rdm            = random_int_between(1, 65000);
+	my $rdmStr         = "rddm=$rdm";
+	my $cmdHtmlStart   = "<tr><td><div class='cmdItem'>";
+	my $cmdHtmlEnd     = '</tr>';
+	my $willRestartStr = ($willRestart)                       ? '&willrestart=1' : '';
+	my $monitorStr     = ($monitorUntilDone && !$willRestart) ? '&monitor=1'     : '';
+	my $onClick        = "onclick='runTheCommand(this); return false;'";
 	# onmouseOver=\"showhint('$tipStr', this, event, '250px')\"
 	#my $tipStr = '<p>' . &HTML::Entities::encode($cmdPath) . '</p>';
 	my $tipStr = $cmdPath;
@@ -99,31 +102,35 @@ sub OneCommandString {
 	# nope $tipStr = &HTML::Entities::decode($tipStr);
 	$tipStr = "<p>$tipStr</p>";
 	my $onmouseOver = "onmouseOver='showhint(\"$tipStr\", this, event, \"500px\", false)'";
-	my $cmdString = $cmdHtmlStart . "<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor' $onClick $onmouseOver id='Cmd$commandNumber'>$displayedName</a></div>" .$argInputs . $cmdHtmlEnd . "\n";
+	my $cmdString =
+		  $cmdHtmlStart
+		. "<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor' $onClick $onmouseOver id='Cmd$commandNumber'>$displayedName</a></div>"
+		. $argInputs
+		. $cmdHtmlEnd . "\n";
 
 	++$commandNumber;
 
-	return($cmdString);	
-	}
+	return ($cmdString);
+}
 
 # Like above, but an input button instead of table row, and extra arguments are not supported.
 # Pass a unique (on your web page) id as the last argument.
 # For an example see intramine_reindex.pl#ReindexButton().
 sub OneCommandButton {
-	my @passedIn = @_;
-	my $idx = 0;
-	my $cmdPath = $passedIn[$idx++];
-	my $displayedName = $passedIn[$idx++];
-	my $willRestart = $passedIn[$idx++];
+	my @passedIn         = @_;
+	my $idx              = 0;
+	my $cmdPath          = $passedIn[$idx++];
+	my $displayedName    = $passedIn[$idx++];
+	my $willRestart      = $passedIn[$idx++];
 	my $monitorUntilDone = $passedIn[$idx++];
-	my $id = $passedIn[$idx++];
+	my $id               = $passedIn[$idx++];
 
-	my $rdm = random_int_between(1, 65000);
-	my $rdmStr = "rddm=$rdm";
-	my $willRestartStr = ($willRestart) ? '&willrestart=1' : '';
-	my $monitorStr = ($monitorUntilDone && !$willRestart) ? '&monitor=1' : '';
-	my $onClick = "onclick='runTheCommand(this); return false;'";
-	my $tipStr = $cmdPath;
+	my $rdm            = random_int_between(1, 65000);
+	my $rdmStr         = "rddm=$rdm";
+	my $willRestartStr = ($willRestart)                       ? '&willrestart=1' : '';
+	my $monitorStr     = ($monitorUntilDone && !$willRestart) ? '&monitor=1'     : '';
+	my $onClick        = "onclick='runTheCommand(this); return false;'";
+	my $tipStr         = $cmdPath;
 	$tipStr =~ s!\"([^"]*?)\"!&ldquo;$1&rdquo;!g;
 	$tipStr =~ s!\"!&ldquo;!g;
 	$tipStr =~ s!\<!&lt;!g;
@@ -132,15 +139,18 @@ sub OneCommandButton {
 	# nope $tipStr = &HTML::Entities::decode($tipStr);
 	$tipStr = "<p>$tipStr</p>";
 	my $onmouseOver = "onmouseOver='showhint(\"$tipStr\", this, event, \"500px\", false)'";
-	my $button = "<input id=\"$id\" class=\"submit-button\" type=\"submit\" value=\"$displayedName\" />";
-	my $cmdString = "<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor' $onClick $onmouseOver id='Cmd$commandNumber'>$button</a>" . "\n";
+	my $button =
+		"<input id=\"$id\" class=\"submit-button\" type=\"submit\" value=\"$displayedName\" />";
+	my $cmdString =
+"<a href='$cmdPath?$rdmStr$willRestartStr$monitorStr' class='plainhintanchor' $onClick $onmouseOver id='Cmd$commandNumber'>$button</a>"
+		. "\n";
 
 	++$commandNumber;
 
-	return($cmdString);	
+	return ($cmdString);
 
-	}
-} ##### Command Strings
+}
+}    ##### Command Strings
 
 # onclick='runTheCommand(this);... See cmdServer.js#runTheCommand() which uses Ajax to
 # call back with argument "req=open",
@@ -152,13 +162,13 @@ sub _RunTheCommand {
 	SetIgnoreProc($ignoreProc);
 
 	my $status = 'OK';
-	
-	my $filepath = defined($formH->{'file'})? $formH->{'file'}: '';
+
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	$filepath =~ s!\\!/!g;
 
 	# $ENV{COMSPEC} is typically %SystemRoot%\system32\cmd.exe
 	# $Proc->GetExitCode($exitcode) will return STILL_ACTIVE if the process is still running.
-	
+
 	my $proc;
 	if (defined($formH->{'monitor'}))
 		{
@@ -169,19 +179,20 @@ sub _RunTheCommand {
 		if ($ignoreProc)
 			{
 			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath", 0, 0, ".")
-				|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+				|| ($status = Win32::FormatMessage(Win32::GetLastError()));
 			}
 		else
 			{
-			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath 1> $cmdFilePath 2>&1", 0, 0, ".")
-				|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+			Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath 1> $cmdFilePath 2>&1",
+				0, 0, ".")
+				|| ($status = Win32::FormatMessage(Win32::GetLastError()));
 			}
 		StartMonitoringCmdOutput($proc);
 		}
-	else # will restart, or monitoring not wanted
+	else    # will restart, or monitoring not wanted
 		{
 		Win32::Process::Create($proc, $ENV{COMSPEC}, "/c $filepath", 0, 0, ".")
-			|| ($status = Win32::FormatMessage( Win32::GetLastError() ));
+			|| ($status = Win32::FormatMessage(Win32::GetLastError()));
 		SetProc($proc);
 		}
 
@@ -190,9 +201,9 @@ sub _RunTheCommand {
 		{
 		print("NOTE RunTheCommand() has detected restart request...\n");
 		}
-		
-	return($status); # meaningless, but required
-	}
+
+	return ($status);    # meaningless, but required
+}
 
 # 'Ping' main server with req=ruthere until it comes back to life.
 # Currently no errors, all responses from here start with 'OK'.
@@ -201,29 +212,30 @@ sub _RunTheCommand {
 sub MainServerResponse {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $srverPort = MainServerPort();
-	my $srvrAddr = ServerAddress();
+	my $srvrAddr  = ServerAddress();
 	print("   Pinging $srvrAddr:$srverPort\n");
-	
+
 	my $remote = IO::Socket::INET->new(
-	                Proto   => 'tcp',       			# protocol
-	                PeerAddr=> "$srvrAddr", 			# Address of server
-	                PeerPort=> "$srverPort",      		# port of server (eg 81)
-	                ) or (return("OK main server did not respond"));
-	
+		Proto    => 'tcp',           # protocol
+		PeerAddr => "$srvrAddr",     # Address of server
+		PeerPort => "$srverPort",    # port of server (eg 81)
+	) or (return ("OK main server did not respond"));
+
 	IO::Socket::Timeout->enable_timeouts_on($remote);
 	# setup the timeouts
-	$remote->read_timeout(1.0); # was 5.0
-	$remote->write_timeout(1.0); # was 5.0
-	
+	$remote->read_timeout(1.0);     # was 5.0
+	$remote->write_timeout(1.0);    # was 5.0
+
 	print $remote "GET /?req=ruthere HTTP/1.1\n\n";
 	my $line = <$remote>;
 	chomp($line) if (defined($line));
 	close $remote;
 	my $restarted = (defined($line) && length($line) > 0);
-	my $result = $restarted ? "OK restarted" : "OK connection but no response from $srvrAddr:$srverPort";
+	my $result =
+		$restarted ? "OK restarted" : "OK connection but no response from $srvrAddr:$srverPort";
 	print("MainServerResponse received: |$result|\n");
-	return($result);
-	}
+	return ($result);
+}
 
 { ##### Monitor Command Output
 my $CmdOutputPath;
@@ -235,41 +247,41 @@ my $FileMissingCheckCount;
 sub InitCommandMonitoring {
 	my ($cmdOutputPath, $suffix) = @_;
 	$CmdOutputPath = $cmdOutputPath . '_' . $suffix . '.txt';
-	$Proc = undef;
-	}
+	$Proc          = undef;
+}
 
 sub SetIgnoreProc {
 	my ($ignoreProc) = @_;
 	$IgnoreProc = $ignoreProc;
-	}
+}
 
 sub ShouldIgnoreProc {
-	return($IgnoreProc);
-	}
+	return ($IgnoreProc);
+}
 
 sub StartMonitoringCmdOutput {
 	my ($proc) = @_;
 	SetProc($proc);
-	$FilePosition = 0;
+	$FilePosition          = 0;
 	$FileMissingCheckCount = 0;
-	}
+}
 
 sub SetProc {
 	my ($proc) = @_;
 	$Proc = $proc;
-	}
+}
 
 sub GetProc {
-	return($Proc);
-	}
+	return ($Proc);
+}
 
 sub ClearProc {
 	$Proc = undef;
-	}
+}
 
 sub CommandFilePath {
-	return($CmdOutputPath);
-	}
+	return ($CmdOutputPath);
+}
 
 # Return lines from cmd file output,
 # Or '***N-O-T-H-I-N-G***N-E-W***' if nothing new since last check.
@@ -287,7 +299,7 @@ sub CommandFilePath {
 # and cmd_monitor.js#monitorCmdOutUntilDone() for the fetch().
 sub CommandOutput {
 	my ($obj, $formH, $peeraddress) = @_;
-	my $result = ''; # NOTE there must be some result, else an error 404 is triggered.
+	my $result        = '';    # NOTE there must be some result, else an error 404 is triggered.
 	my $reportAllDone = 0;
 
 	if (!ShouldIgnoreProc())
@@ -297,7 +309,7 @@ sub CommandOutput {
 			{
 			# We are done, but might not have read all of the output yet.
 			# 1 millisecond == 1000 microseconds
-			usleep(300000); # 0.3 seconds
+			usleep(300000);    # 0.3 seconds
 			$reportAllDone = 1;
 			}
 		else
@@ -306,35 +318,35 @@ sub CommandOutput {
 			$proc->GetExitCode($exitcode);
 			if ($exitcode == STILL_ACTIVE)
 				{
-				; # business as usual
+				;    # business as usual
 				}
 			else
 				{
 				ClearProc();
 				# 1 millisecond == 1000 microseconds
-				usleep(300000); # 0.3 seconds
+				usleep(300000);    # 0.3 seconds
 				$reportAllDone = 1;
 				}
 			}
 		}
-	
+
 	my $usePassedInFilePosition = 0;
-	my $lastFilePosition = $FilePosition;
+	my $lastFilePosition        = $FilePosition;
 	if (defined($formH->{'filepos'}))
 		{
 		$usePassedInFilePosition = 1;
-		$lastFilePosition = $formH->{'filepos'};
+		$lastFilePosition        = $formH->{'filepos'};
 		}
 
 	# Read, even if not still active, to pick up all lines.
 	my $cmdFilePath = CommandFilePath();
 	if (-f $cmdFilePath)
 		{
-		my $bw = File::ReadBackwards->new($cmdFilePath) or
-			return("***E-R-R-O-R***Could not open '$cmdFilePath'!");
-		my $line = '';
+		my $bw = File::ReadBackwards->new($cmdFilePath)
+			or return ("***E-R-R-O-R***Could not open '$cmdFilePath'!");
+		my $line            = '';
 		my $newFilePosition = $bw->tell;
-		
+
 		my @lines;
 		my $currentFilePosition = $newFilePosition;
 		while ($currentFilePosition > $lastFilePosition && defined($line = $bw->readline))
@@ -344,7 +356,7 @@ sub CommandOutput {
 			$currentFilePosition = $bw->tell;
 			}
 		$bw->close();
-		
+
 		my $numLines = @lines;
 		if ($numLines > 0)
 			{
@@ -388,25 +400,25 @@ sub CommandOutput {
 		{
 		$result = "|$lastFilePosition|" . $result;
 		}
-	
+
 	if ($reportAllDone)
 		{
 		$result .= "***A-L-L***D-O-N-E***";
 		}
-	
-	return($result);
-	}
-} ##### Monitor Command Output
+
+	return ($result);
+}
+}    ##### Monitor Command Output
 
 use ExportAbove;
 
 # Borrowed from common.pm (sorry, didn't want to include the whole module).
 sub random_int_between {
-	my($min, $max) = @_;
+	my ($min, $max) = @_;
 	# Assumes that the two arguments are integers!
 	return $min if $min == $max;
-	($min, $max) = ($max, $min)  if  $min > $max;
+	($min, $max) = ($max, $min) if $min > $max;
 	return $min + int rand(1 + $max - $min);
-	}
+}
 
 return 1;

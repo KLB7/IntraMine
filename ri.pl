@@ -44,8 +44,8 @@ use intramine_config;
 use cmd_output;
 use elasticsearch_bulk_indexer;
 use reverse_filepaths;
-use win_wide_filepaths; # for win_wide_filepaths.pm#DeepFindFileWide()
-use ext;	# For ext.pm#EndsWithTextExtension()
+use win_wide_filepaths;    # for win_wide_filepaths.pm#DeepFindFileWide()
+use ext;                   # For ext.pm#EndsWithTextExtension()
 
 # First, force Run as admin.
 # Borrowed from Win32::RunAsAdmin,
@@ -53,33 +53,34 @@ use ext;	# For ext.pm#EndsWithTextExtension()
 # below around l.77 to suppress the console.
 restart() if (!check());
 
-sub check { Win32::IsAdminUser(); }
+sub check {Win32::IsAdminUser();}
 
 sub escape_args {
-    return '' unless @_;
-    my @args = ();
-    foreach (@_) {
-        my $a = $_;
-        $a =~ s/"/\\"/g;
-        push @args, $a;
-    }
-    return '"' . join ('" "', @args) . '"';
+	return '' unless @_;
+	my @args = ();
+	foreach (@_)
+		{
+		my $a = $_;
+		$a =~ s/"/\\"/g;
+		push @args, $a;
+		}
+	return '"' . join('" "', @args) . '"';
 }
 
 sub restart {
-    my @actual_args = Devel::PL_origargv->get; # Thank you, Anonymous Monk!
-    run (shift(@actual_args), shift(@actual_args) . ' ' . escape_args(@actual_args));
-    exit;
+	my @actual_args = Devel::PL_origargv->get;    # Thank you, Anonymous Monk!
+	run(shift(@actual_args), shift(@actual_args) . ' ' . escape_args(@actual_args));
+	exit;
 }
 
 sub run {
-    my $shell = Win32::OLE->new("Shell.Application");
-    $shell->ShellExecute (shift, shift, shift, 'runas', 0);
+	my $shell = Win32::OLE->new("Shell.Application");
+	$shell->ShellExecute(shift, shift, shift, 'runas', 0);
 }
 # End Run as admin.
 
 # Phase 3 wants to know if we should add a test document to the Elasticsearch index.
-my $AddTestDocuments = shift@ARGV;
+my $AddTestDocuments = shift @ARGV;
 $AddTestDocuments ||= 0;
 if ($AddTestDocuments =~ m!addTestDoc!i)
 	{
@@ -88,11 +89,11 @@ if ($AddTestDocuments =~ m!addTestDoc!i)
 
 ##### PHASE 1 of 3, make File Watcher Utilitites config file.
 
-my $TESTING = 0; # ==1: make fwatcher.xml.txt instead of fwatcher.xml.
+my $TESTING = 0;    # ==1: make fwatcher.xml.txt instead of fwatcher.xml.
 
-select((select(STDOUT), $|=1)[0]); 	# Unbuffer output.
+select((select(STDOUT), $| = 1)[0]);    # Unbuffer output.
 
-LoadConfigValues('SRVR');			# intramine_config.pm
+LoadConfigValues('SRVR');               # intramine_config.pm
 
 my $LogDir = FullDirectoryPath('LogDir');
 InitCmdOutput($LogDir . 'temp/tempout_' . 'REINDEX' . '.txt');
@@ -121,18 +122,26 @@ if ($MainPort eq '')
 # - monitoring will pick up again when intramine_filewatcher.pl is restarted below.
 TellWatcherIgnoreFWWS();
 my $startFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_START_SERVICE');
-my $stopFileWatcherServicePath = FullDirectoryPath('FILEWATCHER_STOP_SERVICE');
+my $stopFileWatcherServicePath  = FullDirectoryPath('FILEWATCHER_STOP_SERVICE');
 if (!(-f $startFileWatcherServicePath))
 	{
-	Output("Error, cannot continue, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt\n");
+	Output(
+"Error, cannot continue, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt\n"
+	);
 	WriteDoneAndCloseOutput();
-	die ("Maintenance error, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt! Expecting path to start_filewatcher_service.bat.")
+	die(
+"Maintenance error, FILEWATCHER_START_SERVICE is incorrect in data/intramine_config.txt! Expecting path to start_filewatcher_service.bat."
+	);
 	}
 if (!(-f $stopFileWatcherServicePath))
 	{
-	Output("Error, cannot continue, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt\n");
+	Output(
+"Error, cannot continue, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt\n"
+	);
 	WriteDoneAndCloseOutput();
-	die ("Maintenance error, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt! Expecting path to stop_filewatcher_service.bat.")
+	die(
+"Maintenance error, FILEWATCHER_STOP_SERVICE is incorrect in data/intramine_config.txt! Expecting path to stop_filewatcher_service.bat."
+	);
 	}
 
 my $ConfigFilePath = CVal('FWWS_CONFIG');
@@ -147,14 +156,16 @@ if ($TESTING)
 	{
 	$ConfigFilePath .= '.txt';
 	}
-my $EntryTemplatePath = FullDirectoryPath('FWWS_ENTRY_TEMPLATE');
+my $EntryTemplatePath     = FullDirectoryPath('FWWS_ENTRY_TEMPLATE');
 my $SearchDirectoriesPath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
 
 my $batresult = system(1, "\"$stopFileWatcherServicePath\">nul 2>&1");
 if ($batresult == -1)
 	{
-	Output("Error, cannot continue, could not stop the File Watcher service with |$stopFileWatcherServicePath|!\n");
-	WriteDoneAndCloseOutput();	
+	Output(
+"Error, cannot continue, could not stop the File Watcher service with |$stopFileWatcherServicePath|!\n"
+	);
+	WriteDoneAndCloseOutput();
 	die("ERROR, could not stop the File Watcher service with |$stopFileWatcherServicePath|!\n");
 	}
 
@@ -173,8 +184,10 @@ Output("Starting File Watcher.\n");
 $batresult = system(1, "\"$startFileWatcherServicePath\">nul 2>&1");
 if ($batresult == -1)
 	{
-	Output("Error, cannot continue, could not restart the File Watcher service with |$startFileWatcherServicePath|!\n");
-	WriteDoneAndCloseOutput();	
+	Output(
+"Error, cannot continue, could not restart the File Watcher service with |$startFileWatcherServicePath|!\n"
+	);
+	WriteDoneAndCloseOutput();
 	die("ERROR, could not restart the File Watcher service with |$startFileWatcherServicePath|!\n");
 	}
 
@@ -183,12 +196,14 @@ Output("$EntryCount directories will be monitored by File Watcher, see |$ConfigF
 ##### PHASE 2, init Elasticsearch index and delete full paths list.
 Output("Beginning Elasticsearch index and full path list rebuild.\n");
 
-my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
-my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
+my $esIndexName     = CVal('ES_INDEXNAME');    # default 'intramine'
+my $esTextIndexType = CVal('ES_TEXTTYPE');     # default 'text'
 if ($esIndexName eq '' || $esTextIndexType eq '')
 	{
-	Output("Error, cannot continue, intramine_config.pm does not have values for ES_INDEXNAME and ES_TEXTTYPE!\n");
-	WriteDoneAndCloseOutput();	
+	Output(
+"Error, cannot continue, intramine_config.pm does not have values for ES_INDEXNAME and ES_TEXTTYPE!\n"
+	);
+	WriteDoneAndCloseOutput();
 	die("ERROR, intramine_config.pm does not have values for ES_INDEXNAME and ES_TEXTTYPE!");
 	}
 
@@ -198,10 +213,10 @@ my $numShards = CVal('ELASTICSEARCH_NUMSHARDS') + 0;
 my $numReplicas = CVal('ELASTICSEARCH_NUMREPLICAS') + 0;
 
 # Delete file(s) holding list of full paths to all files in indexed directories.
-my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
+my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
+my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
 
-DeleteFullPathListFiles($fullFilePathListPath); # reverse_filepaths.pm
+DeleteFullPathListFiles($fullFilePathListPath);                              # reverse_filepaths.pm
 
 my $e = Search::Elasticsearch->new(nodes => "localhost:9200");
 
@@ -210,9 +225,7 @@ my $response = '';
 # Delete IntraMine's Elasticsearch index if it exists.
 if ($e->indices->exists(index => $esIndexName))
 	{
-	$response = $e->indices->delete(
-			index => $esIndexName
-		);
+	$response = $e->indices->delete(index => $esIndexName);
 	ShowResponse($response, "$esIndexName index deletion");
 	Output("Pausing for a few seconds to allow deletion to complete.\n");
 	sleep(12);
@@ -224,18 +237,18 @@ else
 
 # Create a new empty Elasticsearch index for IntraMine.
 $response = $e->indices->create(
-	index      => $esIndexName,
-	body => {
+	index => $esIndexName,
+	body  => {
 		settings => {
-	       number_of_shards 	=> $numShards,			# default 5
-	       number_of_replicas 	=> $numReplicas,		# default 0
-	       auto_expand_replicas	=> 'false',				# prevents autocreating unwanted replica(s)
-			"analysis" => {
+			number_of_shards     => $numShards,      # default 5
+			number_of_replicas   => $numReplicas,    # default 0
+			auto_expand_replicas => 'false',         # prevents autocreating unwanted replica(s)
+			"analysis"           => {
 				"analyzer" => {
 					"index_analyzer" => {
-						"char_filter" 	=> "icu_normalizer",
-						"tokenizer" 	=> "icu_tokenizer",
-						"filter"    	=> "icu_folding"
+						"char_filter" => "icu_normalizer",
+						"tokenizer"   => "icu_tokenizer",
+						"filter"      => "icu_folding"
 					}
 				}
 			}
@@ -273,15 +286,15 @@ if (!$dirCount)
 	exit(0);
 	}
 
-my %myFileNameForPath;	# for Elasticsearch indexing
-my %rawPathList; 		# for full path List (used for auto linking)
-my %rawImagePathList;	# ditto, just images
+my %myFileNameForPath;    # for Elasticsearch indexing
+my %rawPathList;          # for full path List (used for auto linking)
+my %rawImagePathList;     # ditto, just images
 my $numDirs = @DirectoriesToIndex;
 
 my @files;
 my @folders;
 
-for (my $i = 0; $i < $numDirs; ++$i)
+for (my $i = 0 ; $i < $numDirs ; ++$i)
 	{
 	# _INTRAMINE_ stands for the dir that holds this program, and all IntraMine files.
 	if ($DirectoriesToIndex[$i] eq '_INTRAMINE_')
@@ -293,27 +306,27 @@ for (my $i = 0; $i < $numDirs; ++$i)
 		{
 		$DirectoriesToIndex[$i] .= '/';
 		}
-	
+
 	Output("Getting paths to |$DirectoriesToIndex[$i]|\n");
-	
+
 	# win_wide_filepaths.pm#DeepFindFileWide()
 	DeepFindFileWide($DirectoriesToIndex[$i], \@files, \@folders);
 	}
-	
-for (my $i = 0; $i < @files; ++$i)
+
+for (my $i = 0 ; $i < @files ; ++$i)
 	{
 	my $pathForwardSlashes = $files[$i];
 	$pathForwardSlashes =~ s![\\]!/!g;
 	$pathForwardSlashes =~ m!([^/]+)$!;
 	my $sourceFileName = $1;
-	
+
 	my $lcpathForwardSlashes = $pathForwardSlashes;
 	$lcpathForwardSlashes = lc($lcpathForwardSlashes);
-	# Indexing. Optionally skip .log files. 
+	# Indexing. Optionally skip .log files.
 	if (FileShouldBeIndexed($lcpathForwardSlashes, \@DirectoriesToIgnore))
 		{
 		$myFileNameForPath{$pathForwardSlashes} = $sourceFileName;
-		$rawPathList{$lcpathForwardSlashes} = lc($sourceFileName);
+		$rawPathList{$lcpathForwardSlashes}     = lc($sourceFileName);
 		}
 	elsif (FileIsImageInGoodLocation($pathForwardSlashes, \@DirectoriesToIgnore))
 		{
@@ -325,7 +338,8 @@ for (my $i = 0; $i < @files; ++$i)
 #my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
 #my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
 my $maxFileSizeKB = CVal('ELASTICSEARCH_MAXFILESIZE_KB');
-my $ElasticIndexer = elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexType, $maxFileSizeKB);
+my $ElasticIndexer =
+	elasticsearch_bulk_indexer->new($esIndexName, $esTextIndexType, $maxFileSizeKB);
 
 # Add our test document to index, and list of file paths.
 if ($AddTestDocuments)
@@ -335,28 +349,28 @@ if ($AddTestDocuments)
 
 # Run through all files, load and index them into Elasticsearch.
 Output("File list gathered, indexing files.\n");
-my $numDocs = keys %myFileNameForPath;
-my $docCounter = 0;
-my $numDocsIndexed = 0;
+my $numDocs           = keys %myFileNameForPath;
+my $docCounter        = 0;
+my $numDocsIndexed    = 0;
 my $numDocsNotIndexed = 0;
 foreach my $fullPath (sort keys %myFileNameForPath)
 	{
-	if (($docCounter++%100) == 0)
+	if (($docCounter++ % 100) == 0)
 		{
 		Output("  $docCounter / $numDocs... $fullPath\n");
 		}
-#	if (($docCounter%10000) == 0)
-#		{
-		#Output("  FLUSHING, and waiting five seconds...\n");
-		#my $flushResult = $ElasticIndexer->Flush();
-		#Output("  Flush result: |$flushResult|\n");
-		#sleep(5);
-#		}
+	#	if (($docCounter%10000) == 0)
+	#		{
+	#Output("  FLUSHING, and waiting five seconds...\n");
+	#my $flushResult = $ElasticIndexer->Flush();
+	#Output("  Flush result: |$flushResult|\n");
+	#sleep(5);
+	#		}
 	# Note $fileSizeBytes is always set, whether or not added to index.
 	my $fileSizeBytes = 0;
-	my $wasIndexed = $ElasticIndexer->AddDocumentToIndex($myFileNameForPath{$fullPath},
-														 $fullPath, \$fileSizeBytes);
-	
+	my $wasIndexed    = $ElasticIndexer->AddDocumentToIndex($myFileNameForPath{$fullPath},
+		$fullPath, \$fileSizeBytes);
+
 	if ($wasIndexed)
 		{
 		++$numDocsIndexed;
@@ -374,7 +388,9 @@ if ($numDocs)
 	Output("\nElasticSearch final flush...\n");
 	$ElasticIndexer->Flush();
 	sleep(1);
-	Output("$numDocsIndexed out of $numDocs files indexed, $numDocsNotIndexed skipped due to being too large or file errors.\n");
+	Output(
+"$numDocsIndexed out of $numDocs files indexed, $numDocsNotIndexed skipped due to being too large or file errors.\n"
+	);
 
 	my $healthResult = $ElasticIndexer->ClusterHealth();
 	Output("Elasticsearch cluster Health: |$healthResult|\n");
@@ -404,7 +420,7 @@ AddIncrementalNewPaths(\%rawImagePathList);
 # Consolidate will do the right thing, even though the name isn't quite right
 # (mainly it's used by intramine_filewatcher.pl when IntraMine is running,
 # to consolidate the two full path files during the wee hours of the night).
-ConsolidateFullPathLists(1); # 1 == force consolidation
+ConsolidateFullPathLists(1);    # 1 == force consolidation
 
 # Dump a table of file counts in various size ranges.
 DumpFileSizeBinCountsAndLargeFiles();
@@ -426,7 +442,7 @@ WriteDoneAndCloseOutput();
 sub Output {
 	my ($txt) = @_;
 	WriteToOutput($txt);
-	}
+}
 
 # Make a new File Watcher config file specifying which directories to monitor.
 # A template with placeholders ($entryTemplatePath) is used to stamp out XML entries for each
@@ -441,15 +457,16 @@ sub MakeConfigFiles {
 		WriteDoneAndCloseOutput();
 		die("Error, |$entryTemplatePath| is missing or empty!");
 		}
-	my %daemonNames; # Avoid duplicate <daemonName> entries in fwatcher.xml
+	my %daemonNames;    # Avoid duplicate <daemonName> entries in fwatcher.xml
 	my %loadedDirs;
 	my $dirCount = 0;
-	
+
 	if (-f $searchDirectoriesPath)
 		{
 		my %indexDummyHash;
 		my %ignoreDummyHash;
-		LoadSearchDirectoriesToHashes($searchDirectoriesPath, \%indexDummyHash, \%loadedDirs, \%ignoreDummyHash);
+		LoadSearchDirectoriesToHashes($searchDirectoriesPath, \%indexDummyHash, \%loadedDirs,
+			\%ignoreDummyHash);
 		}
 	else
 		{
@@ -465,17 +482,17 @@ sub MakeConfigFiles {
 	# 	$loadedDirs{$intramineDir} = 1;
 	# 	delete $loadedDirs{'_INTRAMINE_'};
 	# 	}
-	
+
 	my %dirs;
 	$dirCount = GetDirsToMonitor(\%loadedDirs, \%dirs);
-	
+
 	if (-f $configFilePath)
 		{
 		unlink($configFilePath . '.old2');
 		if (-f $configFilePath . '.old')
 			{
 			my $before = $configFilePath . '.old';
-			my $after = $configFilePath . '.old2';
+			my $after  = $configFilePath . '.old2';
 			if (!rename($before, $after))
 				{
 				Output("Error, cannot continue, could not rename |$before| to |$after|!\n");
@@ -484,7 +501,7 @@ sub MakeConfigFiles {
 				}
 			}
 		my $before = $configFilePath;
-		my $after = $configFilePath . '.old';
+		my $after  = $configFilePath . '.old';
 		unlink($after);
 		if (!rename($before, $after))
 			{
@@ -495,36 +512,36 @@ sub MakeConfigFiles {
 		}
 
 	my $configXML = '<?xml version="1.0" standalone="yes"?>' . "\n<fWatcherConfig>\n";
-	
+
 	my @configEntries;
 	foreach my $dir (sort keys %dirs)
 		{
 		my $currentTemplate = $configTemplate;
-		my $name = '';
+		my $name            = '';
 		# Pick up last dir name, use it as <config> item <daemonName>
 		if ($dir =~ m!([^\\/]+)$!)
 			{
 			$name = $1;
 			}
-		elsif ($dir =~ m!\:!) # $dir is a drive letter, eg H:\
+		elsif ($dir =~ m!\:!)    # $dir is a drive letter, eg H:\
 			{
 			$name = $dir;
 			$name =~ s!\W!!g;
 			}
 		else
 			{
-			if ($dir =~ m!([^\\/]+)[\\/]*?$!) # not needed - if a slash on the end snuck through
+			if ($dir =~ m!([^\\/]+)[\\/]*?$!)    # not needed - if a slash on the end snuck through
 				{
 				$name = $1;
 				}
 			}
-		
+
 		if ($name ne '')
 			{
 			# Avoid duplicate names.
-			my $baseName = $name;
+			my $baseName  = $name;
 			my $increment = 1;
-			my $newName = $name;
+			my $newName   = $name;
 			while (defined($daemonNames{$newName}))
 				{
 				$newName = $name . '_' . $increment;
@@ -532,16 +549,16 @@ sub MakeConfigFiles {
 				}
 			$name = $newName;
 			$daemonNames{$name} = 1;
-			
+
 			$currentTemplate =~ s!_NAME_!$name!;
-			$currentTemplate =~ s!_PATH_NO_TS_!$dir!;	# <path> entry, no Trailing Slash
+			$currentTemplate =~ s!_PATH_NO_TS_!$dir!;    # <path> entry, no Trailing Slash
 			push @configEntries, $currentTemplate;
 			}
 		}
-	
+
 	$configXML .= join("\n", @configEntries);
 	$configXML .= "</fWatcherConfig>";
-	
+
 	unlink($configFilePath);
 	my $fh = FileHandle->new(">$configFilePath");
 	if (!defined($fh))
@@ -553,12 +570,12 @@ sub MakeConfigFiles {
 
 	print $fh "$configXML";
 	close($fh);
-	
+
 	# Make a special list of folders to monitor. Used by bats/foldermonitor.ps1.
 	MakeFolderListForFolderMonitor(\%dirs);
-	
-	return($dirCount);
-	}
+
+	return ($dirCount);
+}
 
 # Winnow %$loadedDirs_H, to avoid nested directories. Also normalize the entries for use
 # by File Watcher (use back slashes).
@@ -568,16 +585,16 @@ sub GetDirsToMonitor {
 	my %rawDirs;
 	foreach my $dir (sort keys %$loadedDirs_H)
 		{
-		$dir =~ s!/!\\!g;			# Use backslashes
-		$dir =~ s![\\/]$!!;			# Trim any trailing slash
-		# Arg, put  a slash back at the end if it was the only one (for a drive letter)
+		$dir =~ s!/!\\!g;      # Use backslashes
+		$dir =~ s![\\/]$!!;    # Trim any trailing slash
+			# Arg, put  a slash back at the end if it was the only one (for a drive letter)
 		if ($dir !~ m!\\!)
 			{
 			$dir .= "\\";
 			}
 		$rawDirs{$dir} = 1;
 		}
-	
+
 	foreach my $dir (sort keys %rawDirs)
 		{
 		if ($rawDirs{$dir} ne 'skip')
@@ -585,20 +602,20 @@ sub GetDirsToMonitor {
 			$dirsH->{$dir} = 1;
 			}
 		}
-	
+
 	my $dirCount = keys %$dirsH;
-	return($dirCount);
-	}
+	return ($dirCount);
+}
 
 # Load the template for one directory entry in File Watcher's XML config file.
 sub LoadConfigTemplate {
 	my ($filePath) = @_;
-	
+
 	my $result = '';
-	my $fh = FileHandle->new("$filePath") or return $result;
-	my $line = '';
+	my $fh     = FileHandle->new("$filePath") or return $result;
+	my $line   = '';
 	my @lines;
-	while ($line=<$fh>)
+	while ($line = <$fh>)
 		{
 		chomp $line;
 		push @lines, $line;
@@ -606,7 +623,7 @@ sub LoadConfigTemplate {
 	close($fh);
 	$result = join("\n", @lines);
 	return $result;
-	}
+}
 
 # Make a special list of folders to monitor. Used by bats/foldermonitor.ps1. We monitor
 # directories that have a "1" in the Monitor column in (default) data/search_directories.txt.
@@ -614,10 +631,10 @@ sub LoadConfigTemplate {
 # - see intramine_filewatcher.pl#StartPowerShellFolderMonitor().
 sub MakeFolderListForFolderMonitor {
 	my ($dirsH) = @_;
-	
+
 	# Default location data/foldermonitorlist.txt.
 	my $folderMonitorFolderListPath = FullDirectoryPath('FOLDERMONITOR_FOLDERLISTPATH');
-	my $fh = FileHandle->new(">$folderMonitorFolderListPath");
+	my $fh                          = FileHandle->new(">$folderMonitorFolderListPath");
 	if (!defined($fh))
 		{
 		Output("Error, cannot continue, could not open |$folderMonitorFolderListPath|!\n");
@@ -630,19 +647,19 @@ sub MakeFolderListForFolderMonitor {
 		print $fh "$dir\n";
 		}
 	close($fh);
-	}
+}
 
 ##### PHASE2 sub
 sub ShowResponse {
 	my ($response, $title) = @_;
-	
+
 	Output("\n\n$title response:\n-----\n");
 	foreach my $key (sort keys %$response)
 		{
 		Output("$key: $response->{$key}\n");
 		}
 	Output("-----\n");
-	}
+}
 
 
 ##### PHASE 3 subs
@@ -651,17 +668,18 @@ sub ShowResponse {
 sub LoadDirectoriesToIndex {
 	my ($directoriesToIndexA, $directoriesToIgnoreA) = @_;
 	my $configFilePath = FullDirectoryPath('ELASTICSEARCHDIRECTORIESPATH');
-	my $dirCount = 0;
-	
+	my $dirCount       = 0;
+
 	if (-f $configFilePath)
 		{
 		my @dummyMonitorArray;
 		my $haveSome = LoadSearchDirectoriesToArrays($configFilePath, $directoriesToIndexA,
-						\@dummyMonitorArray, $directoriesToIgnoreA); # intramine_config.pm#LoadSearchDirectoriesToArrays()
-		
+			\@dummyMonitorArray, $directoriesToIgnoreA)
+			;    # intramine_config.pm#LoadSearchDirectoriesToArrays()
+
 		$dirCount = @$directoriesToIndexA;
 
-		for (my $i = 0; $i < $dirCount; ++$i)
+		for (my $i = 0 ; $i < $dirCount ; ++$i)
 			{
 			$directoriesToIndexA->[$i] =~ s!\\!/!g;
 			}
@@ -672,9 +690,9 @@ sub LoadDirectoriesToIndex {
 		WriteDoneAndCloseOutput();
 		die("ERROR, |$configFilePath| not found!");
 		}
-		
-	return($dirCount);
-	}
+
+	return ($dirCount);
+}
 
 # True if file exists and isn't a "nuisance" file and has a good extension.
 # And not in a subfolder that should be ignored, as listed in
@@ -683,18 +701,18 @@ sub FileShouldBeIndexed {
 	my ($fullPath, $directoriesToIgnoreA) = @_;
 	my $result = 0;
 	if (   $fullPath !~ m!/\.!
-	  && !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
-	  &&   $fullPath !~ m!/(temp|junk)/!i )
+		&& !($SKIPLOGFILES && $fullPath =~ m!\.(log|out)$!i)
+		&& $fullPath !~ m!/(temp|junk)/!i)
 		{
 		if (EndsWithTextExtension($fullPath)
-          || ($IndexIfNoExtension && $fullPath !~ m!\.\w+$!)  )
-        	{
-        	$result = 1;
-        	}
+			|| ($IndexIfNoExtension && $fullPath !~ m!\.\w+$!))
+			{
+			$result = 1;
+			}
 		}
 
 	my $numIgnoreDirs = @$directoriesToIgnoreA;
-	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+	for (my $i = 0 ; $i < $numIgnoreDirs ; ++$i)
 		{
 		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
 			{
@@ -702,9 +720,9 @@ sub FileShouldBeIndexed {
 			last;
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 sub FileIsImageInGoodLocation {
 	my ($fullPath, $directoriesToIgnoreA) = @_;
@@ -716,7 +734,7 @@ sub FileIsImageInGoodLocation {
 		}
 
 	my $numIgnoreDirs = @$directoriesToIgnoreA;
-	for (my $i = 0; $i < $numIgnoreDirs; ++$i)
+	for (my $i = 0 ; $i < $numIgnoreDirs ; ++$i)
 		{
 		if (index($fullPath, $directoriesToIgnoreA->[$i]) == 0)
 			{
@@ -725,14 +743,14 @@ sub FileIsImageInGoodLocation {
 			}
 		}
 
-	return($result);
-	}
+	return ($result);
+}
 
 # Add a text file and a .cpp file for index and link testing.
 sub AddTestDocuments {
 	my ($es, $rawPathListH) = @_;
 	my $testProgDir = FullDirectoryPath('TEST_PROGRAM_DIR');
-	
+
 	my $testDocName = CVal('ES_INDEX_TEST_FILE_NAME');
 	my $testDocPath = $testProgDir . $testDocName;
 	AddOneTestDocument($testDocName, $testDocPath, $es, $rawPathListH);
@@ -740,7 +758,7 @@ sub AddTestDocuments {
 	$testDocName = CVal('ES_INDEX_TEST_FILE_NAME_2');
 	$testDocPath = $testProgDir . $testDocName;
 	AddOneTestDocument($testDocName, $testDocPath, $es, $rawPathListH);
-	}
+}
 
 sub AddOneTestDocument {
 	my ($testDocName, $testDocPath, $es, $rawPathListH) = @_;
@@ -748,21 +766,23 @@ sub AddOneTestDocument {
 	if (FileOrDirExistsWide($testDocPath) == 1)
 		{
 		my $fileSizeBytes = 0;
-		my $wasIndexed = $es->AddDocumentToIndex($testDocName, $testDocPath, \$fileSizeBytes);
+		my $wasIndexed    = $es->AddDocumentToIndex($testDocName, $testDocPath, \$fileSizeBytes);
 		$testDocPath = lc($testDocPath);
 		$rawPathListH->{$testDocPath} = lc($testDocName);
 		}
 	else
 		{
-		Output("ERROR (will continue), |$testDocPath| was not found on disk. test_Search.pl and other test programs might fail if run later.\n");
+		Output(
+"ERROR (will continue), |$testDocPath| was not found on disk. test_Search.pl and other test programs might fail if run later.\n"
+		);
 		}
-	}
+}
 
 # Start/stop services.
 sub StopLinkerAndWatcherServices {
 	my $serverAddress = $ServerAddress;
-	my $portNumber = $MainPort;
-	my $msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Linker';
+	my $portNumber    = $MainPort;
+	my $msg           = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Linker';
 	Output("Stopping Linker service\n");
 	SendRequest($serverAddress, $portNumber, $msg);
 	sleep(1);
@@ -770,12 +790,12 @@ sub StopLinkerAndWatcherServices {
 	$msg = 'rddm=1&req=stop_one_specific_server&shortName=' . 'Watcher';
 	Output("Stopping Watcher service\n");
 	SendRequest($serverAddress, $portNumber, $msg);
-	}
+}
 
 sub StartLinkerAndWatcherServices {
 	my $serverAddress = $ServerAddress;
-	my $portNumber = $MainPort;
-	my $msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Linker';
+	my $portNumber    = $MainPort;
+	my $msg           = 'rddm=1&req=start_one_specific_server&shortName=' . 'Linker';
 	Output("Starting Linker service\n");
 	SendRequest($serverAddress, $portNumber, $msg);
 	sleep(1);
@@ -783,19 +803,19 @@ sub StartLinkerAndWatcherServices {
 	$msg = 'rddm=1&req=start_one_specific_server&shortName=' . 'Watcher';
 	Output("Starting Watcher service\n");
 	SendRequest($serverAddress, $portNumber, $msg);
-	}
+}
 
 sub SendRequest {
 	my ($serverAddress, $portNumber, $msg) = @_;
 	my $main = IO::Socket::INET->new(
-				Proto   => 'tcp',       		# protocol
-				PeerAddr=> "$serverAddress", 	# Address of server
-				PeerPort=> "$portNumber"      	# port of server typ. 43124..up
-				) or (ServerErrorReport() && return);
-	
+		Proto    => 'tcp',               # protocol
+		PeerAddr => "$serverAddress",    # Address of server
+		PeerPort => "$portNumber"        # port of server typ. 43124..up
+	) or (ServerErrorReport() && return);
+
 	print $main "GET /?$msg HTTP/1.1\n\n";
-	close $main;	# No reply needed.
-	}
+	close $main;                         # No reply needed.
+}
 
 # Called by ri.pl when Reindex command is running,
 # tell intramine_filewatcher.pl to not restart
@@ -804,15 +824,15 @@ sub SendRequest {
 # too soon.
 sub TellWatcherIgnoreFWWS {
 	my $serverAddress = $ServerAddress;
-	my $portNumber = $MainPort;
-	my $msg = 'signal=IGNOREFWWS&name=Watcher';
+	my $portNumber    = $MainPort;
+	my $msg           = 'signal=IGNOREFWWS&name=Watcher';
 	SendRequest($serverAddress, $portNumber, $msg);
-	}
+}
 
-sub ServerErrorReport{
-        print Win32::FormatMessage( Win32::GetLastError() );
-        return 1;
-    }
+sub ServerErrorReport {
+	print Win32::FormatMessage(Win32::GetLastError());
+	return 1;
+}
 
 { ##### File sizes histogram
 # Of occasional interest, just how many big files are in the source directories?
@@ -823,28 +843,32 @@ sub ServerErrorReport{
 # anything larger isn't indexed.
 my $MaxKB;
 my $NumBins;
-my $hist;			# bins for 0..2000 KB (almost all files end up in the first bin, 0-100 KB)
+my $hist;         # bins for 0..2000 KB (almost all files end up in the first bin, 0-100 KB)
 my $SmallMaxKB;
 my $SmallNumBins;
-my $smallHist;		# bins for 0..100 KB (a finer breakdown for the vast majority of files)
+my $smallHist;    # bins for 0..100 KB (a finer breakdown for the vast majority of files)
 
 # Track largest files, the ones not indexed.
 my %FileSizeForFullPath;
 
 # 20 bins in 100 KB increments up to 2 MB, indexed 0..19.
 sub InitFileSizeBinning {
-	$MaxKB = 2000;
+	$MaxKB   = 2000;
 	$NumBins = 20;
-	$hist = Math::SimpleHisto::XS->new(
-    	min => 0, max => $MaxKB, nbins => $NumBins
-  		);
-  	
-  	$SmallMaxKB = 100;
-  	$SmallNumBins = 10;
-	$smallHist = Math::SimpleHisto::XS->new(
-    	min => 0, max => $SmallMaxKB, nbins => $SmallNumBins
-  		);
-	}
+	$hist    = Math::SimpleHisto::XS->new(
+		min   => 0,
+		max   => $MaxKB,
+		nbins => $NumBins
+	);
+
+	$SmallMaxKB   = 100;
+	$SmallNumBins = 10;
+	$smallHist    = Math::SimpleHisto::XS->new(
+		min   => 0,
+		max   => $SmallMaxKB,
+		nbins => $SmallNumBins
+	);
+}
 
 sub AddToFileSizeBin {
 	my ($fileSizeBytes) = @_;
@@ -854,49 +878,50 @@ sub AddToFileSizeBin {
 		{
 		$smallHist->fill($fileSizeKiloB);
 		}
-	}
+}
 
 sub DumpFileSizeBinCountsAndLargeFiles {
 	my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-	my $fileSizePath = $FileWatcherDir . CVal('FILESIZE_BIN_NAME'); # .../filesizes.out
-	my $fileH = FileHandle->new("> $fileSizePath");
+	my $fileSizePath   = $FileWatcherDir . CVal('FILESIZE_BIN_NAME');    # .../filesizes.out
+	my $fileH          = FileHandle->new("> $fileSizePath");
 	if (!defined($fileH))
 		{
 		Output("Error (will continue), could not open $fileSizePath\n");
 		return;
 		}
-	
+
 	# 1 Coarse file counts in 100 KB bins.
-	my $values = $hist->all_bin_contents();
-	my $bottoms = $hist->bin_lower_boundaries();
-	my $tops = $hist->bin_upper_boundaries();
+	my $values         = $hist->all_bin_contents();
+	my $bottoms        = $hist->bin_lower_boundaries();
+	my $tops           = $hist->bin_upper_boundaries();
 	my $underflowCount = $hist->underflow();
-	my $overflowCount = $hist->overflow();
-	my $numBins = @$values;
-	
+	my $overflowCount  = $hist->overflow();
+	my $numBins        = @$values;
+
 	if ($underflowCount > 0)
 		{
-		print $fileH "LOGIC ERROR we have Underflow: |$underflowCount| files less than zero bytes in size (doh)\n";
+		print $fileH
+"LOGIC ERROR we have Underflow: |$underflowCount| files less than zero bytes in size (doh)\n";
 		}
-	
+
 	print $fileH "TABLE 1 Bin Counts\n";
 	print $fileH "Bin\tMin KB\tMax KB\tCount\n";
-	for (my $i = 0; $i < $numBins; ++$i)
+	for (my $i = 0 ; $i < $numBins ; ++$i)
 		{
 		print $fileH "$i\t$bottoms->[$i]\t$tops->[$i]\t$values->[$i]\n";
 		}
 	print $fileH "$numBins\t$MaxKB+\t-\t$overflowCount\n";
-	
+
 	# 2 Fine file counts in 10 KB bins for the 0..100 KB range.
-	$values = $smallHist->all_bin_contents();
-	$bottoms = $smallHist->bin_lower_boundaries();
-	$tops = $smallHist->bin_upper_boundaries();
+	$values         = $smallHist->all_bin_contents();
+	$bottoms        = $smallHist->bin_lower_boundaries();
+	$tops           = $smallHist->bin_upper_boundaries();
 	$underflowCount = $smallHist->underflow();
-	$overflowCount = $smallHist->overflow();
-	$numBins = @$values;
+	$overflowCount  = $smallHist->overflow();
+	$numBins        = @$values;
 	print $fileH "\n\nTABLE 2 Bin Counts for 0 to 100 KB\n";
 	print $fileH "Bin\tMin KB\tMax KB\tCount\n";
-	for (my $i = 0; $i < $numBins; ++$i)
+	for (my $i = 0 ; $i < $numBins ; ++$i)
 		{
 		print $fileH "$i\t$bottoms->[$i]\t$tops->[$i]\t$values->[$i]\n";
 		}
@@ -904,26 +929,27 @@ sub DumpFileSizeBinCountsAndLargeFiles {
 		{
 		print $fileH "$numBins\t$SmallMaxKB+\t-\t$overflowCount\n";
 		}
-	
+
 	# 3 List of files not indexed, typically due to being above the $maxFileSizeKB cutoff.
 	print $fileH "\n\nTABLE 3 Files not indexed, by size\nPath\tKB\n";
-	foreach my $path (sort {$FileSizeForFullPath{$a} <=> $FileSizeForFullPath{$b}} keys %FileSizeForFullPath)
+	foreach my $path (sort {$FileSizeForFullPath{$a} <=> $FileSizeForFullPath{$b}}
+		keys %FileSizeForFullPath)
 		{
 		print $fileH "$path\t$FileSizeForFullPath{$path}\n";
 		}
 	close($fileH);
 	Output("List of skipped files is in |$fileSizePath|\n");
-	}
+}
 
 sub RememberNonIndexedFile {
 	my ($path, $fileSizeBytes) = @_;
 	my $fileSizeKiloB = $fileSizeBytes / 1000;
 	$FileSizeForFullPath{$path} = $fileSizeKiloB;
-	}
-} ##### File sizes histogram
+}
+}    ##### File sizes histogram
 
 # Doesn't work.
 # BEGIN {
 #     Win32::SetChildShowWindow(0)
-#         if defined &Win32::SetChildShowWindow; 
+#         if defined &Win32::SetChildShowWindow;
 # }

@@ -37,7 +37,7 @@
 # In the Viewer service's front end JavaScript:
 # - To trace CodeMirror autolinks, start with cmAutoLinks.js#addAutoLinks(), which ends up
 # calling back to CmLinks() via "req=cmLinks".
-# - To trace non-CodeMirror (mainly .txt and Perl) autolinks, start with autoLinks.js#addAutoLinks(),
+# - To trace non-CodeMirror (mainly .txt and Perl) links, start with autoLinks.js#addAutoLinks(),
 #  which ends up calling back to NonCmLinks() via "req=nonCmLinks".
 # In the Files service's front end JavaScript:
 # - FullPathForPartial() is called by files.js#openAutoLink(), via "req=autolink".
@@ -2581,7 +2581,6 @@ sub ModuleLink {
 		{
 		#
 		my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'></a>";
-		#my $docsLink = "<a href='https://metacpan.org/pod/$srcTxt' target='_blank'><img src='metacpan-icon.png' /></a>";
 
 		# Link to file if possible, follow with meta-cpan link.
 		if ($fullPath ne '')

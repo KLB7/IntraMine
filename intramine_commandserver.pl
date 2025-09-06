@@ -43,16 +43,16 @@ use cmd_monitor;
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages
-my $kDISPLAYMESSAGES = 0;		# 1 == print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
+my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -63,13 +63,13 @@ InitCommandMonitoring($LogDir . 'temp/tempout', $port_listen);
 
 # Requests come from browsers, and from JavaScript for this page in response to user actions.
 my %RequestAction;
-$RequestAction{'req|main'} = \&CommandPage; 			# req=main
-$RequestAction{'req|css'} = \&GetRequestedFile; 		# req=css
-$RequestAction{'req|js'} = \&GetRequestedFile; 			# req=js
-$RequestAction{'req|content'} = \&Commands; 			# req=content, cmdServer.js#loadPageContent()
-$RequestAction{'req|open'} = \&RunTheCommand; 			# req=open
-$RequestAction{'req|ping'} = \&MainServerResponse; 		# req=ping
-$RequestAction{'req|monitor'} = \&CommandOutput; 		# req=monitor
+$RequestAction{'req|main'}    = \&CommandPage;         # req=main
+$RequestAction{'req|css'}     = \&GetRequestedFile;    # req=css
+$RequestAction{'req|js'}      = \&GetRequestedFile;    # req=js
+$RequestAction{'req|content'} = \&Commands;            # req=content, cmdServer.js#loadPageContent()
+$RequestAction{'req|open'}    = \&RunTheCommand;       # req=open
+$RequestAction{'req|ping'}    = \&MainServerResponse;  # req=ping
+$RequestAction{'req|monitor'} = \&CommandOutput;       # req=monitor
 #$RequestAction{'req|id'} = \&Identify; 				# req=id
 
 # Over to swarmserver.pm.
@@ -131,9 +131,9 @@ FINIS
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
-	my $serverAddr = ServerAddress();
-	my $host = $serverAddr;
-	my $port = $port_listen;
+	my $serverAddr     = ServerAddress();
+	my $host           = $serverAddr;
+	my $port           = $port_listen;
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
@@ -144,12 +144,12 @@ FINIS
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_THEPORT_!$port!;
-	
-	# Put in main IP, main port, our short name for JavaScript.
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
-	return $theBody;	
-	}
+	# Put in main IP, main port, our short name for JavaScript.
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
+	return $theBody;
+}
 
 # Fill in the commands shown on the page. Called by cmdServer.js#loadPageContent() to fill in
 # <div id="cmdcontainer">.
@@ -165,7 +165,8 @@ FINIS
 	InitCommandStrings();
 
 	# Handy for Perl progs in the IntraMine folder, and batch files etc in the bat/ subfolder.
-	# But your program can be anywhere, just set the path to it as first argument to OneCommandString().
+	# But your program can be anywhere, just set the path to it as first
+	# argument to OneCommandString().
 	# BaseDirectory() is the directory holding this program: it's the folder holding
 	# Perl Intramine programs (including this one).
 	# That's enough to call Perl programs. Batch files typically call Perl programs internally,
@@ -175,23 +176,36 @@ FINIS
 	# up in .../mine/.
 	# A "known" program such as Microsoft Word can be started with "start programName"
 	# as the path, see eg "start winword" below.
-	
-	my $serverDirectory = BaseDirectory(); # intramine_config.pm#BaseDirectory()
-	
+
+	my $serverDirectory = BaseDirectory();    # intramine_config.pm#BaseDirectory()
+
 	#
 	# OneCommandString params:
 	# OneCommandString(path, tooltip, IntraMine will restart (0/1), display stdout from program (0/1), optionalArg(s))
 	#
 	my $cmdLs = '';
-	$cmdLs .= OneCommandString($serverDirectory . 'bats/echo1.bat hello there', 'Batch say hello there', 0, 1);
-	$cmdLs .= OneCommandString($serverDirectory . 'bats/echo1.bat', 'Batch say args', 0, 1, "arg_one", "\"this is arg_two\"", "and_three");
-	$cmdLs .= OneCommandString('perl ' . $serverDirectory . 'echo1.pl hi you', 'Perl say hi you', 0, 1);
-	$cmdLs .= OneCommandString('perl ' . $serverDirectory . 'test_programs/test_backwards_tell.pl', 'Test ReadBackwards tell()', 0, 1);
-	
+	$cmdLs .= OneCommandString(
+		$serverDirectory . 'bats/echo1.bat hello there',
+		'Batch say hello there',
+		0, 1
+	);
+	$cmdLs .= OneCommandString(
+		$serverDirectory . 'bats/echo1.bat',
+		'Batch say args',
+		0, 1, "arg_one", "\"this is arg_two\"", "and_three"
+	);
+	$cmdLs .=
+		OneCommandString('perl ' . $serverDirectory . 'echo1.pl hi you', 'Perl say hi you', 0, 1);
+	$cmdLs .= OneCommandString(
+		'perl ' . $serverDirectory . 'test_programs/test_backwards_tell.pl',
+		'Test ReadBackwards tell()',
+		0, 1
+	);
+
 	# An example of calling an exe without monitoring (last two args to OneCommandString are 0,0),
 	# made available **only** on the PC where Intramine is running.
 	# Last two args to OneCommandString are 0,0 meaning no restart, no monitoring.
-	my $serverAddr = ServerAddress();
+	my $serverAddr     = ServerAddress();
 	my $clientIsRemote = 0;
 	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
 	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
@@ -205,18 +219,22 @@ FINIS
 		{
 		$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word (Locally Only)', 0, 0);
 		}
-	
+
 	# "Extract method": copy some Perl, run this, Paste into an editor for the method and call.
 	# Deleted, since Tk is not longer installed by default.
-	#$cmdLs .= OneCommandString($serverDirectory . 'bats/extract_method.bat', 'Extract Perl Method (Copy code, run this and Ok resulting dialog, Paste)', 0, 1);	
+	#$cmdLs .= OneCommandString($serverDirectory . 'bats/extract_method.bat', 'Extract Perl Method (Copy code, run this and Ok resulting dialog, Paste)', 0, 1);
 
 	# Open data/search_directories.txt (in the IntraMine folder) using default text editor.
 	# This will only work on the IntraMine machine.
 	if (!$clientIsRemote)
 		{
-		$cmdLs .= OneCommandString($serverDirectory . "data/search_directories.txt", 'Open data/search_directories (Locally Only)', 0, 0);
+		$cmdLs .= OneCommandString(
+			$serverDirectory . "data/search_directories.txt",
+			'Open data/search_directories (Locally Only)',
+			0, 0
+		);
 		}
-		
+
 	# Other commands:
 	###$cmdLs .= OneCommandString($serverDirectory . 'bats/backup.bat', 'Back up files', 0, 1);
 	###$cmdLs .= OneCommandString($serverDirectory . 'bats/backup.bat list', 'List backup folders', 0, 1);
@@ -228,8 +246,8 @@ FINIS
 	###$cmdLs .= OneCommandString('start winword', 'Start Microsoft Word From Anywhere', 0, 0);
 
 	$theBody =~ s!_COMMANDS_!$cmdLs!;
-	return($theBody);
-	}
+	return ($theBody);
+}
 
 sub RunTheCommand {
 	my ($obj, $formH, $peeraddress) = @_;
@@ -239,6 +257,6 @@ sub RunTheCommand {
 	#ReportActivity($SHORTNAME);
 
 	my $status = _RunTheCommand($obj, $formH, $peeraddress);
-	return($status);
-	}
+	return ($status);
+}
 

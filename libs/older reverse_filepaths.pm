@@ -51,12 +51,14 @@ use win_wide_filepaths;
 
 
 { ##### Directory list
-my $FullPathListPath;		# For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-my %FileNameForFullPath; 	# as saved in /fullpaths.out: $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
-my $NextFreePathInteger;	# for %FullPathForInteger keys: 1..up
-my %FullPathForInteger;		# eg $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt';
-my %IntegerForFullPath;		# eg $IntegerForFullPath{'C:/dir1/dir2/dir3/file.txt'} = 8397
-my %IntKeysForPartialPath; # $IntKeysForPartialPath{'dir3/file.txt'} = '8397|27|90021';
+my $FullPathListPath
+	;    # For fullpaths.out, typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+my %FileNameForFullPath
+	;   # as saved in /fullpaths.out: $FileNameForFullPath{C:/dir1/dir2/dir3/file.txt} = 'file.txt';
+my $NextFreePathInteger;      # for %FullPathForInteger keys: 1..up
+my %FullPathForInteger;       # eg $FullPathForInteger{8397} = 'C:/dir1/dir2/dir3/file.txt';
+my %IntegerForFullPath;       # eg $IntegerForFullPath{'C:/dir1/dir2/dir3/file.txt'} = 8397
+my %IntKeysForPartialPath;    # $IntKeysForPartialPath{'dir3/file.txt'} = '8397|27|90021';
 
 # TEST currently under development.
 # Conclusion: not worth writing %FullPathForPartialPath to a db, takes too long.
@@ -65,57 +67,60 @@ my $db;
 
 # Load %IntKeysForPartialPath, and build %IntKeysForPartialPath from it.
 sub InitDirectoryFinder {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$NextFreePathInteger = 1;
 	my $pathCount = InitFullPathList($filePath);
 	BuildPartialPathList(\%FileNameForFullPath);
 	LoadIncrementalDirectoryFinderLists($filePath);
-	
-	return($pathCount);
-	}
+
+	return ($pathCount);
+}
 
 sub ReinitDirectoryFinder {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-	
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+
 	# Empty out %FileNameForFullPath and %IntKeysForPartialPath.
-	%FileNameForFullPath = ();
+	%FileNameForFullPath   = ();
 	%IntKeysForPartialPath = ();
-	%FullPathForInteger = ();
-	%IntegerForFullPath = ();
-	$NextFreePathInteger = 1;
-	
-	return(InitDirectoryFinder($filePath));
-	}
+	%FullPathForInteger    = ();
+	%IntegerForFullPath    = ();
+	$NextFreePathInteger   = 1;
+
+	return (InitDirectoryFinder($filePath));
+}
 
 # intramine_filewatcher.pl doesn't need the full list of partial paths vs full paths, it just needs the list
 # of file names for full paths in %FileNameForFullPath.
 sub InitFullPathList {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$FullPathListPath = $filePath;
-	
-	my $pathCount = LC_LoadKeyTabValueHashFromFile(\%FileNameForFullPath, $FullPathListPath, "file names for full paths");
+
+	my $pathCount = LC_LoadKeyTabValueHashFromFile(\%FileNameForFullPath, $FullPathListPath,
+		"file names for full paths");
 	if (!$pathCount)
 		{
-		print("WARNING (will continue) in reverse_filepaths.pm#InitFullPathList(), |$FullPathListPath| did not load. First run maybe.\n");
+		print(
+"WARNING (will continue) in reverse_filepaths.pm#InitFullPathList(), |$FullPathListPath| did not load. First run maybe.\n"
+		);
 		}
-	
-	return($pathCount);
-	}
+
+	return ($pathCount);
+}
 
 # Associate an integer with each file path.
 # %IntKeysForPartialPath values are a piped list of those integers. The integers are smaller
 # than their corresponding paths, reducing memory needs.
 sub BuildFullPathsForIntegers {
 	my ($fileNameForFullPathH) = @_;
-	
-	keys %$fileNameForFullPathH; # reset iterator
+
+	keys %$fileNameForFullPathH;    # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
 		$FullPathForInteger{$NextFreePathInteger} = $fullPath;
-		$IntegerForFullPath{$fullPath} = $NextFreePathInteger;
+		$IntegerForFullPath{$fullPath}            = $NextFreePathInteger;
 		++$NextFreePathInteger;
 		}
-	}
+}
 
 # Fill in %IntKeysForPartialPath{'partial path to file'} =
 #  'integer keys for one or more full paths corresponding to partial path, separate by |'.
@@ -141,10 +146,10 @@ sub BuildFullPathsForIntegers {
 #  - check first with: if (defined($fileNameForFullPathH->{$fullPath}))...skip it.
 sub BuildPartialPathList {
 	my ($fileNameForFullPathH) = @_;
-	
+
 	BuildFullPathsForIntegers($fileNameForFullPathH);
-	
-	keys %$fileNameForFullPathH; # reset iterator
+
+	keys %$fileNameForFullPathH;    # reset iterator
 	while (my ($fullPath, $fileName) = each %$fileNameForFullPathH)
 		{
 		# Add entry for just file name, see eg line A above.
@@ -157,7 +162,7 @@ sub BuildPartialPathList {
 			{
 			$IntKeysForPartialPath{$fullPath} = "$intKeyForFullPath";
 			}
-		
+
 		# Add entries for partial paths (lines B C etc above);
 		# - skip entries where a period '.' starts the folder name.
 		my $linkSpecifier = $fullPath;
@@ -167,7 +172,7 @@ sub BuildPartialPathList {
 		$linkSpecifier =~ s!^//[^/]+/!!;
 		# Trim the leading drive:/ spec.
 		$linkSpecifier =~ s!^\w:/!!;
-		
+
 		# Progressively add entries and strip leading dirs until nothing is left.
 		while ($partialPath ne '')
 			{
@@ -177,12 +182,12 @@ sub BuildPartialPathList {
 					{
 					# Avoid adding the same path twice.
 					my $seenAlready = 0;
-					my $allpaths = $IntKeysForPartialPath{$partialPath};
+					my $allpaths    = $IntKeysForPartialPath{$partialPath};
 					if ($allpaths =~ m!\|!)
 						{
-						my @paths = split(/\|/, $allpaths);
+						my @paths    = split(/\|/, $allpaths);
 						my $numPaths = @paths;
-						for (my $i = 0; $i < $numPaths; ++$i)
+						for (my $i = 0 ; $i < $numPaths ; ++$i)
 							{
 							if ($fullPath eq $FullPathForInteger{$paths[$i]})
 								{
@@ -195,7 +200,7 @@ sub BuildPartialPathList {
 						{
 						$seenAlready = 1;
 						}
-					
+
 					if (!$seenAlready)
 						{
 						$IntKeysForPartialPath{$partialPath} .= "|$intKeyForFullPath";
@@ -205,7 +210,7 @@ sub BuildPartialPathList {
 					{
 					$IntKeysForPartialPath{$partialPath} = $intKeyForFullPath;
 					}
-				
+
 				if ($partialPath !~ m!/!)
 					{
 					$linkSpecifier = '';
@@ -220,21 +225,22 @@ sub BuildPartialPathList {
 				last;
 				}
 			}
-		}	
-	}
+		}
+}
 
 # Load additional fullpaths2.out to %FileNameForFullPath.
 sub LoadIncrementalFullPathLists {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	while (-f $fragPath)
 		{
 		my %rawFileNameForFullPath;
-		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath, "more file names for full paths");
+		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath,
+			"more file names for full paths");
 		if ($pathCount)
 			{
 			my %newFileNameForFullPath;
@@ -255,20 +261,21 @@ sub LoadIncrementalFullPathLists {
 		++$num;
 		$fragPath = $base . $num . $ext;
 		}
-	}
+}
 
 # Load additional fullpaths2.out to %FileNameForFullPath, create new partial path entries too.
 sub LoadIncrementalDirectoryFinderLists {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	while (-f $fragPath)
 		{
 		my %rawFileNameForFullPath;
-		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath, "more file names for full paths");
+		my $pathCount = LC_LoadKeyTabValueHashFromFile(\%rawFileNameForFullPath, $fragPath,
+			"more file names for full paths");
 		if ($pathCount)
 			{
 			my %newFileNameForFullPath;
@@ -280,7 +287,7 @@ sub LoadIncrementalDirectoryFinderLists {
 					$newFileNameForFullPath{$path} = $rawFileNameForFullPath{$path};
 					}
 				}
-				
+
 			my $numNewEntries = keys %newFileNameForFullPath;
 			if ($numNewEntries)
 				{
@@ -296,13 +303,13 @@ sub LoadIncrementalDirectoryFinderLists {
 		++$num;
 		$fragPath = $base . $num . $ext;
 		}
-	}
+}
 
 # Add to %FileNameForFullPath.
 sub AddIncrementalNewPaths {
 	my ($fileNameForFullPathH) = @_;
 	my %newFileNameForFullPath;
-	
+
 	keys %$fileNameForFullPathH;
 	while (my ($path, $fileName) = each %$fileNameForFullPathH)
 		{
@@ -311,7 +318,7 @@ sub AddIncrementalNewPaths {
 			$newFileNameForFullPath{$path} = $fileNameForFullPathH->{$path};
 			}
 		}
-	
+
 	my $numNewPaths = keys %newFileNameForFullPath;
 	if ($numNewPaths)
 		{
@@ -321,28 +328,28 @@ sub AddIncrementalNewPaths {
 			$FileNameForFullPath{$path} = $newFileNameForFullPath{$path};
 			}
 		}
-	}
+}
 
 # Update all paths in %FileNameForFullPath after a folder rename. Follow with a call
 # to ConsolidateFullPathLists() to make it permanent.
 # All paths should be lowercase and use forward slashes.
 sub UpdatePathsForFolderRenames {
 	my ($numRenames, $renamedFolderPathsA, $oldFolderPathA, $newPathForOldPathH) = @_;
-	my @oldFolderPathCopy = @$oldFolderPathA;
-	my @renamedFolderPathsCopy = @$renamedFolderPathsA;
+	my @oldFolderPathCopy       = @$oldFolderPathA;
+	my @renamedFolderPathsCopy  = @$renamedFolderPathsA;
 	my %tempFileNameForFullPath = %FileNameForFullPath;
-	
+
 	if ($numRenames == 1)
 		{
 		my $oldFolderPath = $oldFolderPathCopy[0];
 		my $newFolderPath = $renamedFolderPathsCopy[0];
-		
+
 		keys %FileNameForFullPath;
 		while (my ($path, $fileName) = each %FileNameForFullPath)
 			{
 			if (index($path, $oldFolderPath) == 0)
 				{
-				my $newPath = $newFolderPath . substr($path, length($oldFolderPath));
+				my $newPath  = $newFolderPath . substr($path, length($oldFolderPath));
 				my $oldEntry = $FileNameForFullPath{$path};
 				$newPathForOldPathH->{$path} = $newPath;
 				delete($tempFileNameForFullPath{$path});
@@ -359,11 +366,12 @@ sub UpdatePathsForFolderRenames {
 			{
 			# If old path agrees with left part of %FileNameForFullPath, kill the old entry and
 			# replace it with new one. We spin off a new hash to avoid confusing the loop.
-			for (my $i = 0; $i < $numRenames; ++$i)
+			for (my $i = 0 ; $i < $numRenames ; ++$i)
 				{
 				if (index($path, $oldFolderPathCopy[$i]) == 0)
 					{
-					my $newPath = $renamedFolderPathsCopy[$i] . substr($path, length($oldFolderPathCopy[$i]));
+					my $newPath =
+						$renamedFolderPathsCopy[$i] . substr($path, length($oldFolderPathCopy[$i]));
 					my $oldEntry = $FileNameForFullPath{$path};
 					$newPathForOldPathH->{$path} = $newPath;
 					delete($tempFileNameForFullPath{$path});
@@ -374,13 +382,13 @@ sub UpdatePathsForFolderRenames {
 			}
 		}
 	%FileNameForFullPath = %tempFileNameForFullPath;
-	}
+}
 
 # Add to %FileNameForFullPath, and create new partial path entries too.
 sub AddIncrementalNewDirectoryFinderLists {
 	my ($fileNameForFullPathH) = @_;
 	my %newFileNameForFullPath;
-	
+
 	keys %$fileNameForFullPathH;
 	while (my ($path, $fileName) = each %$fileNameForFullPathH)
 		{
@@ -398,31 +406,32 @@ sub AddIncrementalNewDirectoryFinderLists {
 			$FileNameForFullPath{$path} = $newFileNameForFullPath{$path};
 			}
 		BuildPartialPathList(\%newFileNameForFullPath);
-		}	
-	}
+		}
+}
 
 sub SaveIncrementalFullPaths {
 	my ($fileNameForFullPathH) = @_;
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
-	my $fileH = FileHandle->new(">> $fragPath") or return("File Error, could not open |$fragPath|!");
+	my $fileH    = FileHandle->new(">> $fragPath")
+		or return ("File Error, could not open |$fragPath|!");
 	binmode($fileH, ":utf8");
-    foreach my $key (sort(keys %$fileNameForFullPathH))
-        {
-        print $fileH "$key\t$fileNameForFullPathH->{$key}\n";
-        }
-    close $fileH;
-	}
+	foreach my $key (sort(keys %$fileNameForFullPathH))
+		{
+		print $fileH "$key\t$fileNameForFullPathH->{$key}\n";
+		}
+	close $fileH;
+}
 
 # Requires $fullPath all lower case, with forward slashes.
 sub FullPathIsKnown {
 	my ($fullPath) = @_;
-	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1: 0;
-	return($result);
-	}
+	my $result = (defined($FileNameForFullPath{$fullPath})) ? 1 : 0;
+	return ($result);
+}
 
 # Every now and then, consolidate fullpaths.out and fullpaths2.out, mainly to shrink
 # the size of fullpaths2, which is completely loaded by intramine_fileserver.pl
@@ -433,25 +442,26 @@ sub FullPathIsKnown {
 # If fullpaths2.out does not exist, there is nothing to consolidate.
 sub ConsolidateFullPathLists {
 	my ($forceConsolidation) = @_;
-	
+
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
-	if ( $forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)) )
+	if ($forceConsolidation || (-f $fragPath || !(-f $FullPathListPath)))
 		{
 		unlink($FullPathListPath);
 		unlink($fragPath);
-		my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
+		my $fileH = FileHandle->new("> $FullPathListPath")
+			or return ("File Error, could not open |$FullPathListPath|!");
 		binmode($fileH, ":utf8");
-	    foreach my $key (sort(keys %FileNameForFullPath))
-	        {
-	        print $fileH "$key\t$FileNameForFullPath{$key}\n";
-	        }
-	    close $fileH;
+		foreach my $key (sort(keys %FileNameForFullPath))
+			{
+			print $fileH "$key\t$FileNameForFullPath{$key}\n";
+			}
+		close $fileH;
 		}
-	}
+}
 
 # The main call for autolinking.
 # Full path given partial path and context directory.
@@ -463,17 +473,17 @@ sub ConsolidateFullPathLists {
 # See notes below for BestMatchingFullPath().
 sub FullPathInContextNS {
 	my ($partialPath, $contextDir) = @_;
-	
+
 	$linkSpecifier = lc($partialPath);
 	$linkSpecifier =~ s!\\!/!g;
-	
+
 	if ($partialPath !~ m!^//!)
 		{
 		$linkSpecifier =~ s!^/!!;
 		}
-	
-	return(BestMatchingFullPath($partialPath, $contextDir));
-	}
+
+	return (BestMatchingFullPath($partialPath, $contextDir));
+}
 
 # Full path, given a partial path and context directory.
 # For linking with perhaps nuisance HTML prepended. Used in intramine_file_viewer_cm.pl#ModuleLink().
@@ -488,31 +498,31 @@ sub FullPathInContextNS {
 sub FullPathInContextTrimmed {
 	my ($partialPath, $contextDir) = @_;
 	$linkSpecifier = lc($partialPath);
-	
+
 	my $result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		# TEST ONLY
 		#print("FPFFAOD_1 QUICK HIT on |$partialPath|!\n");
-		return($result);
+		return ($result);
 		}
-	
+
 	# Try again, trim any leading HTML tags or spaces etc.
 	# Eg &nbsp;&nbsp;&bull;&nbsp;<strong>bootstrap.min.css
 	# NOTE this changes $linkSpecifier for all below.
-	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!; # leading spaces or bullets etc
-	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!; # leading <strong> or <em>
+	$linkSpecifier =~ s!^.+?\;([^;]+)$!$1!;    # leading spaces or bullets etc
+	$linkSpecifier =~ s!^\<\w+\>(.+)$!$1!;     # leading <strong> or <em>
 	$result = BestMatchingFullPath($partialPath, $contextDir);
 	if ($result ne '')
 		{
 		# TEST ONLY
 		#print("FPFFAOD_2 TRIMMED HIT on |$partialPath|!\n");
-		return($result);
+		return ($result);
 		}
-	
+
 	# No luck
-	return('');	
-	}
+	return ('');
+}
 
 # BestMatchingFullPath
 # Args: a $linkSpecifier such as src/main.cpp, and a $contextDir (which is
@@ -540,14 +550,14 @@ sub FullPathInContextTrimmed {
 sub BestMatchingFullPath {
 	my ($partialPath, $contextDir) = @_;
 	my $result = '';
-	
+
 	# Allow any full path, not just the indexed ones.
 	if ($partialPath =~ m!^\w:/!)
 		{
 		if (defined($IntKeysForPartialPath{$partialPath})
-		 || FileOrDirExistsWide($partialPath))
+			|| FileOrDirExistsWide($partialPath))
 			{
-			$result = $linkSpecifier; # it's actually a full path (probably)
+			$result = $linkSpecifier;    # it's actually a full path (probably)
 			}
 		}
 	# For a //host/share UNC, check for a record of the
@@ -560,12 +570,12 @@ sub BestMatchingFullPath {
 			}
 		}
 	else
-		{		
+		{
 		if (defined($IntKeysForPartialPath{$partialPath}))
 			{
 			my $allpaths = $IntKeysForPartialPath{$partialPath};
-			
-			if ($allpaths =~ m!\|!) # more than one candidate full path
+
+			if ($allpaths =~ m!\|!)    # more than one candidate full path
 				{
 				# We will try to pick up on the context provided by $contextDir to produce
 				# the best candidate. See 'Multipath link resolution.txt' for examples. The key is
@@ -576,22 +586,23 @@ sub BestMatchingFullPath {
 				# of "C:\Proj1\src", and if it asks for a full path corresponding to
 				# "dialog.h", we should return "C:\Proj1\headers\dialog.h", not some other dialog.h
 				# that is "farther away" from our current dialog.cpp.
-				my @paths = split(/\|/, $allpaths);
-				my $numPaths = @paths;
+				my @paths     = split(/\|/, $allpaths);
+				my $numPaths  = @paths;
 				my $bestScore = 0;
-				my $bestIdx = 0;
-				
-				for (my $i = 0; $i < $numPaths; ++$i)
+				my $bestIdx   = 0;
+
+				for (my $i = 0 ; $i < $numPaths ; ++$i)
 					{
-					my $testPath = $FullPathForInteger{$paths[$i]};
+					my $testPath     = $FullPathForInteger{$paths[$i]};
 					my $currentScore = LeftOverlapLength($contextDir, $testPath);
 					if ($bestScore < $currentScore)
 						{
 						$bestScore = $currentScore;
-						$bestIdx = $i;
+						$bestIdx   = $i;
 						}
 					# On a tie score, prefer the shorter path? Perhaps, you decide....
-					elsif ($bestScore > 0 && $bestScore == $currentScore 
+					elsif ($bestScore > 0
+						&& $bestScore == $currentScore
 						&& length($testPath) < length($FullPathForInteger{$paths[$bestIdx]}))
 						{
 						$bestIdx = $i;
@@ -608,12 +619,12 @@ sub BestMatchingFullPath {
 			}
 		else
 			{
-			; # well there's not much we can do really
+			;    # well there's not much we can do really
 			}
 		}
-	
-	return($result);
-	}
+
+	return ($result);
+}
 
 # NOT USED. See ConsolidateFullPathLists.
 # Save $FullPathListPath (eg C:/fwws/fullpaths.out),
@@ -621,20 +632,21 @@ sub BestMatchingFullPath {
 sub SaveRawFullPathList {
 	my ($rawListH, $filePath) = @_;
 	$FullPathListPath = $filePath;
-	
-	my $fileH = FileHandle->new("> $FullPathListPath") or return("File Error, could not open |$FullPathListPath|!");
+
+	my $fileH = FileHandle->new("> $FullPathListPath")
+		or return ("File Error, could not open |$FullPathListPath|!");
 	binmode($fileH, ":utf8");
-    foreach my $key (sort(keys %$rawListH))
-        {
-        print $fileH "$key\t$rawListH->{$key}\n";
-        }
-    close $fileH;
-    
+	foreach my $key (sort(keys %$rawListH))
+		{
+		print $fileH "$key\t$rawListH->{$key}\n";
+		}
+	close $fileH;
+
 	# Delete any "fragment" update files that accompany $FullPathListPath: fullpaths2.out etc
 	$FullPathListPath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	while (-f $fragPath)
 		{
@@ -643,26 +655,26 @@ sub SaveRawFullPathList {
 		$fragPath = $base . $num . $ext;
 		}
 
-    return('');
-	}
-	
+	return ('');
+}
+
 sub DeleteFullPathListFiles {
-	my ($filePath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+	my ($filePath) = @_;    # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
 	$filePath =~ m!^(.+?)(\.\w+)$!;
-	my $base = $1;
-	my $ext = $2;
-	my $num = 2;
+	my $base     = $1;
+	my $ext      = $2;
+	my $num      = 2;
 	my $fragPath = $base . $num . $ext;
 	unlink($filePath);
 	unlink($fragPath);
-	}
-	
+}
+
 # TEST currently under development.
 # For now, I've decided that too much work would be needed to implement a db-based
 # approach to auto-linking, probably a two-month delay. Maybe next version....
 sub TestInitDirectoryFinder_DB {
-	my ($filePath, $dbPath) = @_; # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
-	
+	my ($filePath, $dbPath) = @_;  # typ. CVal('FILEWATCHERDIRECTORY') . CVal('FULL_PATH_LIST_NAME')
+
 	# First test, put all file paths in db as values.
 	# This takes 80 minutes, 2.2 GB for 293,000 files. Too slow.
 	# $NextFreePathInteger = 1;
@@ -670,7 +682,7 @@ sub TestInitDirectoryFinder_DB {
 	#TestBuildPartialPathList_DB(\%FileNameForFullPath, $dbPath);
 	# For test, skip incremental.
 	#LoadIncrementalDirectoryFinderLists($filePath);
-	
+
 	# Second test, use full path indexes. They are temp, we're just after a speed estimate.
 	# This takes 50 minutes, 1.8 GB - so a bit better than the first one.
 	# There were about 3.6 million db entries for the 293,000 files indexed.
@@ -678,46 +690,46 @@ sub TestInitDirectoryFinder_DB {
 	my $pathCount = InitDirectoryFinder($filePath);
 	print("Done building \%IntKeysForPartialPath in memory\n");
 	SavePartialPathsDB($dbPath);
-	
-	return($pathCount);
-	}
+
+	return ($pathCount);
+}
 
 sub SavePartialPathsDB {
 	my ($dbPath) = @_;
-	
+
 	if (-f $dbPath)
 		{
 		unlink($dbPath);
 		}
-	
+
 	$db = DBM::Deep->new($dbPath);
 
 	# Pump out %FullPathForPartialPath to the db.
 	print("Putting \%IntKeysForPartialPath to disk\n");
 	my $soFarCount = 0;
-	my $totalCount = keys %IntKeysForPartialPath; # reset iterator
+	my $totalCount = keys %IntKeysForPartialPath;    # reset iterator
 	while (my ($partialPath, $fullPaths) = each %IntKeysForPartialPath)
 		{
-		if (($soFarCount++%10000) == 0)
+		if (($soFarCount++ % 10000) == 0)
 			{
 			print("  $soFarCount / $totalCount...\n");
 			}
-		
+
 		$db->{$partialPath} = $fullPaths;
 		}
 	print("Done putting \%IntKeysForPartialPath to disk\n");
-	}
+}
 
 sub TestBuildPartialPathList_DB {
 	my ($fileNameForFullPathH, $dbPath) = @_;
-	
+
 	if (-f $dbPath)
 		{
 		unlink($dbPath);
 		}
-	
+
 	$db = DBM::Deep->new($dbPath);
-	
+
 	# First build the list in memory.
 	print("Building \%FullPathForPartialPath in memory\n");
 	foreach my $fullPath (keys %$fileNameForFullPathH)
@@ -731,7 +743,7 @@ sub TestBuildPartialPathList_DB {
 			{
 			$FullPathForPartialPath{$fullPath} = $fullPath;
 			}
-		
+
 		# Add entries for partial paths (lines B C etc above);
 		# - skip entries where a period '.' starts the folder name.
 		my $linkSpecifier = $fullPath;
@@ -741,7 +753,7 @@ sub TestBuildPartialPathList_DB {
 		$linkSpecifier =~ s!^//[^/]+/!!;
 		# Trim the leading drive:/ spec.
 		$linkSpecifier =~ s!^\w:/!!;
-		
+
 		# Progressively add entries and strip leading dirs until nothing is left.
 		while ($partialPath ne '')
 			{
@@ -751,12 +763,12 @@ sub TestBuildPartialPathList_DB {
 					{
 					# Avoid adding the same path twice.
 					my $seenAlready = 0;
-					my $allpaths = $FullPathForPartialPath{$partialPath};
+					my $allpaths    = $FullPathForPartialPath{$partialPath};
 					if ($allpaths =~ m!\|!)
 						{
-						my @paths = split(/\|/, $allpaths);
+						my @paths    = split(/\|/, $allpaths);
 						my $numPaths = @paths;
-						for (my $i = 0; $i < $numPaths; ++$i)
+						for (my $i = 0 ; $i < $numPaths ; ++$i)
 							{
 							if ($fullPath eq $paths[$i])
 								{
@@ -769,7 +781,7 @@ sub TestBuildPartialPathList_DB {
 						{
 						$seenAlready = 1;
 						}
-					
+
 					if (!$seenAlready)
 						{
 						$FullPathForPartialPath{$partialPath} .= "|$fullPath";
@@ -796,22 +808,22 @@ sub TestBuildPartialPathList_DB {
 				}
 			}
 		}
-		
+
 	# Pump out %FullPathForPartialPath to the db.
 	print("Putting FullPathForPartialPath to disk\n");
 	my $soFarCount = 0;
-	my $totalCount = keys %FullPathForPartialPath; # reset iterator
+	my $totalCount = keys %FullPathForPartialPath;    # reset iterator
 	while (my ($partialPath, $fullPaths) = each %FullPathForPartialPath)
 		{
-		if (($soFarCount++%10000) == 0)
+		if (($soFarCount++ % 10000) == 0)
 			{
 			print("  $soFarCount / $totalCount...\n");
 			}
-		
+
 		$db->{$partialPath} = $fullPaths;
 		}
 	print("Done putting FullPathForPartialPath to disk\n");
-	}
+}
 
 sub FullPathsForPartial_DB {
 	my ($partialPath) = @_;
@@ -820,10 +832,10 @@ sub FullPathsForPartial_DB {
 		{
 		$result = '';
 		}
-	
-	return($result);
-	}
-} ##### Directory list
+
+	return ($result);
+}
+}    ##### Directory list
 
 use ExportAbove;
 1;

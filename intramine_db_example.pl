@@ -57,7 +57,7 @@
 use strict;
 use warnings;
 use utf8;
-use DBM::Deep; # not really needed in your own server, most likely
+use DBM::Deep;    # not really needed in your own server, most likely
 use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -67,16 +67,16 @@ use swarmserver;
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
 
-$|  = 1;
+$| = 1;
 
-my $PAGENAME = '';
-my $SHORTNAME = '';
+my $PAGENAME    = '';
+my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
-my $kLOGMESSAGES = 0;			# 1 == Log Output() messages, and print to console window
-my $kDISPLAYMESSAGES = 0;		# 1 == just print messages from Output() to console window
+my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages, and print to console window
+my $kDISPLAYMESSAGES = 0;    # 1 == just print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
 # Use the Output() sub for routine log/print. See swarmserver.pm#Output().
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
@@ -100,10 +100,10 @@ my $db = DBM::Deep->new($dbPath);
 if (!$dbExisted)
 	{
 	# Poke a few entries in. Rate that fruit.
-	$db->{Apple} = '4';
+	$db->{Apple}  = '4';
 	$db->{Orange} = '3';
 	$db->{Banana} = '5';
-	$db->{Lime} = '1';
+	$db->{Lime}   = '1';
 	}
 # End make a tiny table. Things get interesting again:)
 
@@ -117,10 +117,11 @@ if (!$dbExisted)
 my $APINAME = 'fruit';
 my %RequestAction;
 # Always put a 'req|main' action if your service responds to user requests with an HTML page.
-$RequestAction{'req|main'} = \&OurPage; 				# req=main: OurPage() returns HTML for our page
+$RequestAction{'req|main'} = \&OurPage;    # req=main: OurPage() returns HTML for our page
 # "/fruit/" handles GET/POST to retrieve/set db entries.
-$RequestAction{"/$APINAME/"} = \&HandleFruitRequest;	# get to return whole table, post to add or update a fruit rating
-$RequestAction{'/test/'} = \&SelfTest;	# swarmserver.pm#SelfTest(), ask this server to test itself.
+$RequestAction{"/$APINAME/"} =
+	\&HandleFruitRequest;    # get to return whole table, post to add or update a fruit rating
+$RequestAction{'/test/'} = \&SelfTest;  # swarmserver.pm#SelfTest(), ask this server to test itself.
 # If we were using an argument-based rather than RESTful approach, the request actions
 # would look like this:
 ###$RequestAction{'req|addafruit'} = \&AddOrUpdateFruit; 	# req=addafruit: Create/Update a fruit entry
@@ -157,9 +158,9 @@ MainLoop(\%RequestAction);
 # 2020-02-18 12_43_13-Example of DB access.png
 sub OurPage {
 	my ($obj, $formH, $peeraddress) = @_;
-	
+
 	Output("\$peeraddress: |$peeraddress|\n");
-	
+
 	my $theBody = <<'FINIS';
 <!doctype html>
 <html><head>
@@ -229,87 +230,87 @@ Here it's needed in spinner.js for the value of "SPECIAL_INDEX_NAME_HTML". -->
 </body></html>
 FINIS
 
-	my $topNav = TopNav($PAGENAME);		# The top navigation bar, with our page name highlighted
+	my $topNav = TopNav($PAGENAME);    # The top navigation bar, with our page name highlighted
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	# Make up a name for the fruit table div container.
 	my $fruitTableId = 'fruit-table';
-	$theBody =~ s!_FRUIT_TABLE_ID_!$fruitTableId!g; # There are two instances, hence the 'g'
+	$theBody =~ s!_FRUIT_TABLE_ID_!$fruitTableId!g;    # There are two instances, hence the 'g'
 
 	# We could show the fruit table contents here, if desired. Instead, the table is loaded
 	# at the bottom of db_example.js, which allows putting in the DELETE buttons more easily.
-#	my $dbTableContents = GetHTMLforDbContents();
-#	$theBody =~ s!_DBCONTENTS_!$dbTableContents!;
-	
+	#	my $dbTableContents = GetHTMLforDbContents();
+	#	$theBody =~ s!_DBCONTENTS_!$dbTableContents!;
+
 	# Display database table path.
 	$theBody =~ s!_DBPATH_!$dbPath!;
-	
+
 	# db_example.js needs this service's IP address and port for fetch() calls.
 	# The IPv4 Address for this server (eg 192.168.0.14):
 	# peeraddress might be eg 192.168.0.17
-	$theBody =~ s!_THEPORT_!$port_listen!; # our port
+	$theBody =~ s!_THEPORT_!$port_listen!;    # our port
 	$theBody =~ s!_APINAME_!$APINAME!;
-	
+
 	$theBody =~ s!_D_SHORTNAME_!$SHORTNAME!;
 	$theBody =~ s!_D_OURPORT_!$port_listen!;
 	$theBody =~ s!_D_MAINPORT_!$server_port!;
-	
+
 	# Put in main IP, main port (def. 81), and our Short name (DBX) for JavaScript.
 	# These are needed in intramine_config.js for example
-	PutPortsAndShortnameAtEndOfBody(\$theBody); # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
-	
-	return($theBody);
-	}
+	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
+
+	return ($theBody);
+}
 
 sub HandleFruitRequest {
 	my ($obj, $formH, $peeraddress) = @_;
 	if (!defined($obj) || !defined($formH->{'METHOD'}))
 		{
-		return("ERROR");
+		return ("ERROR");
 		}
-	
+
 	if ($formH->{'METHOD'} =~ m!post!i)
 		{
 		if ($obj =~ m!$SHORTNAME/$APINAME/([^/]+)/([^/]+)/!i)
 			{
 			my $fruitName = $1;
-			my $rating = $2;
-			return(AddOrUpdateFruit($obj, $formH, $peeraddress, $fruitName, $rating));
+			my $rating    = $2;
+			return (AddOrUpdateFruit($obj, $formH, $peeraddress, $fruitName, $rating));
 			}
 		# An argument-based approach to adding a fruit would look like this:
 		# (given GET http://host:port/DBX/?fruitname=apple&rating=4)
-#		else
-#			{
-#			my $fruitName = $formH->{'fruitname'};
-#			my $rating = $formH->{'rating'};
-#			return(AddOrUpdateFruit($obj, $formH, $peeraddress, $fruitName, $rating));
-#			}
+		#		else
+		#			{
+		#			my $fruitName = $formH->{'fruitname'};
+		#			my $rating = $formH->{'rating'};
+		#			return(AddOrUpdateFruit($obj, $formH, $peeraddress, $fruitName, $rating));
+		#			}
 		}
-	elsif ($formH->{'METHOD'} =~ m!get!i) # GET, return whole table
+	elsif ($formH->{'METHOD'} =~ m!get!i)    # GET, return whole table
 		{
-		return(GetHTMLforDbContents($obj, $formH, $peeraddress));
+		return (GetHTMLforDbContents($obj, $formH, $peeraddress));
 		}
 	elsif ($formH->{'METHOD'} =~ m!delete!i)
 		{
 		if ($obj =~ m!$SHORTNAME/$APINAME/([^/]+)/!i)
 			{
 			my $fruitName = $1;
-			return(DeleteFruit($obj, $formH, $peeraddress, $fruitName));
+			return (DeleteFruit($obj, $formH, $peeraddress, $fruitName));
 			}
 		}
 	else
 		{
-		return("ERROR BAD METHOD");
+		return ("ERROR BAD METHOD");
 		}
-	}
+}
 
 # Load up an HTML table from our $db. This is called by OurPage() above for initial display
 # and by db_examples.js#refreshFruitDisplay().
 sub GetHTMLforDbContents {
-	my ($obj, $formH, $peeraddress) = @_; # these are ignored
-	
+	my ($obj, $formH, $peeraddress) = @_;    # these are ignored
+
 	Output("GetHTMLforDbContents refreshing fruit table display.\n");
-	
+
 	my $contents = '<table border="1"><tr><th>Fruit</th><th>Rating</th><th>&nbsp;</th></tr>' . "\n";
 	while (my ($key, $value) = each %$db)
 		{
@@ -318,16 +319,16 @@ sub GetHTMLforDbContents {
 			$value = 'UNDEF';
 			}
 		$contents .= "<tr><td>$key</td><td>$value</td><td>DELBTN</td></tr>\n";
-  		}
-  	$contents .= '</table>' . "\n";
-	return($contents);
-	}
+		}
+	$contents .= '</table>' . "\n";
+	return ($contents);
+}
 
 # Add or update db entry for eg DBX/fruit/apple/3/.
 # see db_example.js#addFruitSubmit() for the Ajax call to this.
 sub AddOrUpdateFruit {
 	my ($obj, $formH, $peeraddress, $fruitName, $rating) = @_;
-	
+
 	my $propercaseFruitName = ucfirst($fruitName);
 	$propercaseFruitName =~ s![^A-Za-z0-9_ -]+!!g;
 	if ($propercaseFruitName eq '')
@@ -338,13 +339,13 @@ sub AddOrUpdateFruit {
 		{
 		$rating = 1;
 		}
-	
+
 	Output("AddOrUpdateFruit adding |$propercaseFruitName| with rating |$rating|.\n");
 	$db->{$propercaseFruitName} = $rating;
-	
+
 	# Returned value is mostly ignored.
-	return('OK');
-	}
+	return ('OK');
+}
 
 # Respond to eg DELETE DBX/fruit/apple/
 sub DeleteFruit {
@@ -353,8 +354,8 @@ sub DeleteFruit {
 	my $delItem = $db->delete($fruitName);
 	if (!defined($delItem))
 		{
-		return(""); # This will trigger an error message on the web page.
+		return ("");    # This will trigger an error message on the web page.
 		}
-	
-	return('OK');
-	}
+
+	return ('OK');
+}

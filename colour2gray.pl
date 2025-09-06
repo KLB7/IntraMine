@@ -12,13 +12,13 @@ use File::Find;
 use File::Copy;
 
 my $filePath = shift @ARGV;
-my $pathH = FileHandle->new("$filePath") or die("Could not open $filePath!");
+my $pathH    = FileHandle->new("$filePath") or die("Could not open $filePath!");
 my @outlines;
 my $line = '';
 while ($line = <$pathH>)
 	{
 	chomp($line);
-	
+
 	$line =~ s{#([0-9A-F]{6})\b}
 {
 	grayscaleRGB(
@@ -32,16 +32,16 @@ while ($line = <$pathH>)
 close($pathH);
 
 my $numLines = @outlines;
-for (my $i = 0; $i < $numLines; ++$i)
+for (my $i = 0 ; $i < $numLines ; ++$i)
 	{
 	print("$outlines[$i]\n");
 	}
 
 sub grayscaleRGB {
-	my($r,$g,$b) = @_;
-	
+	my ($r, $g, $b) = @_;
+
 	# Convert RGB to grayscale
-	$r=$g=$b = 0.30*$r + 0.59*$g + 0.11*$b;
-	return(sprintf("#%x%x%x", $r, $g, $b));
-	}
-	
+	$r = $g = $b = 0.30 * $r + 0.59 * $g + 0.11 * $b;
+	return (sprintf("#%x%x%x", $r, $g, $b));
+}
+

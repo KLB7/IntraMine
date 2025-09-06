@@ -8,7 +8,7 @@
 # in all indexed directories, used for file linking.
 # So you should run this once after installing IntraMine, and thereafter only when you've made
 # a big change to your installed source files such as adding thousands of files.
-# 
+#
 # First stop IntraMine if it is running.
 # Also install and start Elasticsearch before running this program.
 # Run this program.
@@ -73,11 +73,11 @@ use intramine_config;
 use reverse_filepaths;
 
 # Unbuffer output, in case we are being called from the Intramine Cmd page.
-select((select(STDOUT), $|=1)[0]);
+select((select(STDOUT), $| = 1)[0]);
 
-LoadConfigValues();							# intramine_config.pm
-my $esIndexName = CVal('ES_INDEXNAME'); 	# default 'intramine'
-my $esTextIndexType = CVal('ES_TEXTTYPE'); 	# default 'text'
+LoadConfigValues();                            # intramine_config.pm
+my $esIndexName     = CVal('ES_INDEXNAME');    # default 'intramine'
+my $esTextIndexType = CVal('ES_TEXTTYPE');     # default 'text'
 if ($esIndexName eq '' || $esTextIndexType eq '')
 	{
 	die("ERROR, intramine_config.pm could not find values for ES_INDEXNAME and ES_TEXTTYPE!");
@@ -89,9 +89,9 @@ my $numShards = CVal('ELASTICSEARCH_NUMSHARDS') + 0;
 my $numReplicas = CVal('ELASTICSEARCH_NUMREPLICAS') + 0;
 
 # Delete file(s) holding list of full paths to all files in indexed directories.
-my $FileWatcherDir = CVal('FILEWATCHERDIRECTORY');
-my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME'); # .../fullpaths.out
-DeleteFullPathListFiles($fullFilePathListPath); # reverse_filepaths.pm
+my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
+my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
+DeleteFullPathListFiles($fullFilePathListPath);                              # reverse_filepaths.pm
 
 my $e = Search::Elasticsearch->new(nodes => "localhost:9200");
 
@@ -100,9 +100,7 @@ my $response = '';
 # Delete IntraMine's Elasticsearch index if it exists.
 if ($e->indices->exists(index => $esIndexName))
 	{
-	$response = $e->indices->delete(
-			index => $esIndexName
-		);
+	$response = $e->indices->delete(index => $esIndexName);
 	ShowResponse($response, "$esIndexName index deletion");
 	sleep(10);
 	}
@@ -113,18 +111,18 @@ else
 
 # Create a new empty Elasticsearch index for IntraMine.
 $response = $e->indices->create(
-	index      => $esIndexName,
-	body => {
+	index => $esIndexName,
+	body  => {
 		settings => {
-	       number_of_shards 	=> $numShards,			# default 5
-	       number_of_replicas 	=> $numReplicas,		# default 0
-	       auto_expand_replicas	=> 'false',				# prevents autocreating unwanted replica(s)
-			"analysis" => {
+			number_of_shards     => $numShards,      # default 5
+			number_of_replicas   => $numReplicas,    # default 0
+			auto_expand_replicas => 'false',         # prevents autocreating unwanted replica(s)
+			"analysis"           => {
 				"analyzer" => {
 					"index_analyzer" => {
-						"char_filter" 	=> "icu_normalizer",
-						"tokenizer" 	=> "icu_tokenizer",
-						"filter"    	=> "icu_folding"
+						"char_filter" => "icu_normalizer",
+						"tokenizer"   => "icu_tokenizer",
+						"filter"      => "icu_folding"
 					}
 				}
 			}
@@ -132,7 +130,7 @@ $response = $e->indices->create(
 	}
 );
 
- # For Elasticsearch 6.5.1, this worked fine: it doesn't have the "settings" wrapper.
+# For Elasticsearch 6.5.1, this worked fine: it doesn't have the "settings" wrapper.
 #$response = $e->indices->create(
 #	index      => $esIndexName,
 #	"body" => {
@@ -157,11 +155,11 @@ print("Done Elasticsearch index init.\n");
 ###############
 sub ShowResponse {
 	my ($response, $title) = @_;
-	
+
 	print("\n\n$title response:\n-----\n");
 	foreach my $key (sort keys %$response)
 		{
 		print("$key: $response->{$key}\n");
 		}
 	print("-----\n");
-	}
+}
