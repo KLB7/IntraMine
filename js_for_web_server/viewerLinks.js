@@ -16,6 +16,8 @@ function editOpen(href) {
 		return;
 		}
 	
+	href = href.replace(/^file\:\/\/\//, '');
+	
 	if (useAppForEditing && !onMobile)
 		{
 		editWithPreferredApp(href);
@@ -78,13 +80,16 @@ async function appEditWithPort(href, openerPort) {
 async function editWithIntraMine(href) {
 	showSpinner();
 
+	href = decodeURIComponent(href);
+
 	// Pull any #Header from the href, put it back on the end later.
 	let header = '';
 	let headerMatch = /(#.+?$)/.exec(href);
 	if (headerMatch !== null)
 		{
-		header = headerMatch[1];
-		href = href.replace(/#.+?$/, '');
+		header = headerMatch[1]; 
+		header = header.substring(1);
+		href = href.replace(/#.+?$/, ''); // Take out the '#' temporarily
 		}
 	
 	try {
@@ -93,8 +98,16 @@ async function editWithIntraMine(href) {
 			{
 			hideSpinner();
 			let properHref = href.replace(/^file\:\/\/\//, '');
-			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + header;
+
+			properHref = encodeURIComponent(properHref);
+			if (header !== '')
+				{
+				header = encodeURIComponent(header);
+				header = '#' + header;
+				}
 			
+			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + header;
+
 			window.open(url, "_blank");
 			}
 		else
@@ -111,12 +124,24 @@ async function editWithIntraMine(href) {
 	}
 }
 
+// Not used.
+// Avoid encodeURIComponent when inViewer.
+async function openViewNoEncode(href, serviceShortName) {
+	openView(href, serviceShortName, false, true);
+}
+
+// openView, but force encodeURIComponent() on the href
+// for reasons unknown to me.
+async function openViewEncode(href, serviceShortName) {
+	openView(href, serviceShortName, true, false);
+}
+
 // Viewer links. Get a good port, do a window.open().
 // openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
-async function openView(href, serviceShortName) {
-	// TEST ONLY
-	//console.log(mainIP + " " + theMainPort + " " + serviceShortName);
-	
+// overrideNoEncode is not used.
+async function openView(href, serviceShortName, forceEncode = false, overrideNoEncode = false) {
+	href = decodeURIComponent(href);
+
 	let actualShortName = serviceShortName;
 
 	// We want the port for a Viewer, there is no actual Video service.
@@ -129,7 +154,7 @@ async function openView(href, serviceShortName) {
 		const port = await fetchPort(mainIP, theMainPort, actualShortName, errorID);
 		if (port !== "")
 			{
-			openViewWithPort(href, port, serviceShortName);
+			openViewWithPort(href, port, serviceShortName, forceEncode, overrideNoEncode);
 			}
 	}
 	catch(error) {
@@ -140,10 +165,51 @@ async function openView(href, serviceShortName) {
 }
 
 // Open a view of a file, using the Viewer (intramine_file_viewer_cm.pl).
-function openViewWithPort(href, servicePort, serviceShortName) {
+function openViewWithPort(href, servicePort, serviceShortName, forceEncode, overrideNoEncode) {
 	const rePort = /\:\d+/;
 	href = href.replace(rePort, ":" + servicePort);
 
+	// A typical href contains a second instance of href in IntraMine, eg
+	// href="http://192.168.40.8:43129/Viewer/?href=c:/strawberry/c/include/c++/13.2.0/bits/stl_numeric.h&searchItems=accumulate#accumulate"
+	// (Don't ask, it's carved in stone at this point.)
+	// Pull out the interior hrefProper, encode it, put it back.
+	// The href proper runs from '=' to just before either '&' or '"'.
+	// This takes care of eg a '+' in the file path.
+	const matchResult = href.match(/=[^&"]+/);
+	if (matchResult !== null)
+		{
+		let hrefProper = matchResult[0];
+		hrefProper = hrefProper.substring(1);
+
+		let inViewer = false;
+		if (typeof viewerShortName !== 'undefined' && shortServerName === viewerShortName)
+			{
+			// We are in the Viewer.
+			inViewer = true;
+			}		
+		
+		if (1 || ((inViewer && !overrideNoEncode) || forceEncode))
+			{
+			let preAnchor = '';
+			let theAnchor = '';
+			let postAnchor = '';
+			let anchorPosition = hrefProper.indexOf("#");
+			if (anchorPosition > 0)
+				{
+				preAnchor = hrefProper.substring(0, anchorPosition);
+				postAnchor = hrefProper.substring(anchorPosition + 1);
+				theAnchor = '#';
+				}
+			else
+				{
+				preAnchor = hrefProper;
+				}
+			preAnchor = encodeURIComponent(preAnchor);
+			postAnchor = encodeURIComponent(postAnchor);
+			href = href.replace(/=[^&"]+/, '=' + preAnchor + theAnchor + postAnchor);
+			}
+		}
+	
 	if (serviceShortName === videoShortName)
 		{
 		// Replace videoShortName with viewerShortName.
@@ -163,6 +229,17 @@ async function openVideo(href) {
 
 // Call back to IntraMine's Viewer
 async function openDirectory(href) {
+
+	// Remove file:///, which wrecks the link.
+	href = href.replace(/^file\:\/\/\//, '');
+	let hrefMatch = /openDirectory\(&quot;(.+?)&quot;/.exec(href);
+	if (hrefMatch !== null)
+		{
+		href = hrefMatch[1];
+		}
+	
+	href = encodeURIComponent(href);
+	
 	try {
 		const port = await fetchPort(mainIP, theMainPort, viewerShortName, errorID);
 		if (port !== "")

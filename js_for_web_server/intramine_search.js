@@ -165,7 +165,7 @@ async function searchSubmit(oFormElement) {
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
-			let resp = await response.text();
+			let resp = decodeURIComponent(await response.text());
 			// Pull elapsed time from beginning of response.
 			let elapsed = '';
 			let firstSpanMatch = /^(<span>[^<]+<\/span>)/.exec(resp);

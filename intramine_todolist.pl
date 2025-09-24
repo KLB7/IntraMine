@@ -432,6 +432,8 @@ sub ArchiveOneItem {
 
 	my $itemString = "**$title**\nDue: $dueDate    Created: $created\n$description\n---\n";
 
+	$itemString = encode_utf8($itemString);
+
 	my $didit    = AppendToBinFileWide($filePath, $itemString);
 	my $tryCount = 0;
 	while (!$didit && ++$tryCount <= 3)

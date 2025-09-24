@@ -17,6 +17,7 @@ use strict;
 use warnings;
 use utf8;
 use HTML::Entities;
+use Encode;
 #use Win32::FindFile;
 #use Time::HiRes qw ( time ); # For testing
 use Time::Piece;
@@ -253,6 +254,9 @@ sub GetDirsAndFiles {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $dir    = $formH->{'dir'};
 	my $result = '';
+
+	$dir = decode_utf8($dir);
+	#Monitor("GetDirsAndFiles request for dir: |$dir|\n");
 
 	Output("GetDirsAndFiles request for dir: |$dir|\n");
 	if (FileOrDirExistsWide($dir) != 2)

@@ -21,7 +21,8 @@ use warnings;
 #use Carp qw(cluck longmess shortmess); # when the going gets tough...
 use utf8;
 use MIME::Base64 qw(encode_base64);
-use Path::Tiny   qw(path);
+use HTML::Entities;
+use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use intramine_config;
@@ -1469,7 +1470,7 @@ sub RememberDirMentionGloss {
 	my $displayedLinkName = $quoteChar . $extOriginal . $quoteChar;
 
 	my $repString =
-"<a href=\"$dirFullPath\" onclick=\"openDirectory(this.href); return false;\">$displayedLinkName</a>";
+"<a href=\"\" onclick='openDirectory(&quot;$dirFullPath&quot;); return false;'>$displayedLinkName</a>";
 
 	my $repLength        = length($displayedLinkName);
 	my $repStartPosition = $startPos;
@@ -1489,13 +1490,14 @@ sub GetTextFileRepGloss {
 	my $editLink   = '';
 	my $viewerPath = $longestSourcePath;
 	my $editorPath = $viewerPath;
-	$editorPath =~ s!\\!/!g;
-	$editorPath =~ s!%!%25!g;
-	$editorPath =~ s!\+!\%2B!g;
 
+	# Encode the links and switch \ to /.
 	$viewerPath =~ s!\\!/!g;
+	$editorPath =~ s!\\!/!g;
 	$viewerPath =~ s!%!%25!g;
-	$viewerPath =~ s!\+!\%2B!g;
+	$editorPath =~ s!%!%25!g;
+	$editorPath = lc(&HTML::Entities::encode($editorPath));
+	$viewerPath = lc(&HTML::Entities::encode($viewerPath));
 
 	my $displayedLinkName = $properCasedPath . $anchorWithNum;
 	# In a ToDo item a full link can be too wide too often.

@@ -160,6 +160,8 @@ sub GetCMToc {
 		# TEST ONLY
 		#print("NOT SUPPORTED\n");
 		}
+
+	$$toc_R = encode_utf8($$toc_R);
 }
 
 # Get text file as a big string. Returns 1 if successful, 0 on failure.

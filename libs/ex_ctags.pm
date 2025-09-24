@@ -260,8 +260,51 @@ sub MakeCtagsForFile {
 # Oddly the default output is not STDOUT, the "-f -" is needed for that.
 sub GetCtagsString {
 	my ($filePath, $resultR) = @_;
+	my $dir          = DirectoryFromPathTS($filePath);
+	my $fileName     = FileNameFromPath($filePath);
+	my $tempFilePath = '';
+	my $tempDir      = '';
+
 	my $ctagsArgs = " -f - --quiet=yes -n -u \"$filePath\"";
+
+	# Trouble with "wide" file names. Towards a workaround, copy the file being processed to
+	# something temp with a "narrow" name.
+	my $haveWideName = 0;
+	if ($fileName =~ m![^\x00-\x7f]! || $dir =~ m![^\x00-\x7f]!)
+		{
+		$haveWideName = 1;
+		}
+
+	if ($haveWideName)
+		{
+		my $ext = '';
+		if ($fileName =~ m!\.(\w+)$!)
+			{
+			$ext = $1;
+			}
+		my $randomInteger = random_int_between(1001, 60000);
+		$tempFilePath = 'temp_code_copy_' . $port_listen . time . $randomInteger . ".$ext";
+		$tempDir      = $LogDir . 'temp/';
+
+		if (CopyFileWide($dir . $fileName, $tempDir . $tempFilePath, 0))
+			{
+			my $tempFullPath = $tempDir . $tempFilePath;
+			$ctagsArgs = " -f - --quiet=yes -n -u \"$tempFullPath\"";
+			}
+		else
+			{
+			$$resultR = '';
+			}
+		}
+
+
 	$$resultR = `$CTAGS_EXE $ctagsArgs`;
+
+	if ($haveWideName)
+		{
+		unlink($tempDir . $tempFilePath);
+		}
+
 }
 
 #http://ctags.sourceforge.net/FORMAT

@@ -508,6 +508,8 @@ sub SearchResults {
 			}
 		}
 
+	$result = uri_escape_utf8($result);
+
 	return $result;
 }
 

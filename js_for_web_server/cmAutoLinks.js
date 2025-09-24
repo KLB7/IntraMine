@@ -1016,19 +1016,6 @@ function fireOneFileLink(linkPath, forEdit, serviceName) {
 		if (hrefMatch2 !== null)
 			{
 			let href2 = hrefMatch2[1];
-			let indexOfHash = -1;
-			if ((indexOfHash = href2.indexOf('#')) > 0)
-				{
-				let pathBeforeHash = href2.substring(0, indexOfHash);
-				let pathAfterHash = href2.substring(indexOfHash + 1);
-				pathBeforeHash = encodeURIComponent(pathBeforeHash);
-				pathAfterHash = encodeURI(pathAfterHash);
-				href2 = pathBeforeHash + '#' + pathAfterHash;
-				}
-			else
-				{
-				href2 = encodeURIComponent(href2);
-				}
 
 			let href2Enc = href2;
 
@@ -1070,13 +1057,7 @@ function fireOneViewerLink(href, serviceName) {
 
 // linkPath: |<a href="c:/perlprogs/intramine/docs/" onclick="openDirectory(this.href); return false;">"docs"</a>|
 function fireOneDirectoryLink(linkPath) {
-	let hrefMatch = /href\=\"([^"]+)\"/.exec(linkPath);
-	if (hrefMatch !== null)
-		{
-		let href = hrefMatch[1];
-		href = encodeURIComponent(href);
-		openDirectory(href); // viewerLinks.js#openDirectory()
-		}
+	openDirectory(linkPath); // viewerLinks.js#openDirectory()
 }
 
 //Open image in a new browser tab.

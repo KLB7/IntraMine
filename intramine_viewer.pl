@@ -256,6 +256,10 @@ sub FullFile {
 	my $textHolderName = 'scrollText';
 	my $usingCM        = 'true';         # for _USING_CM_ etc (using CodeMirror)
 
+	my $encPath = $filePath;
+	$encPath = &HTML::Entities::encode($encPath);
+
+	# Trying to phase out $ctrlSPath.
 	my $ctrlSPath = $filePath;
 
 	my $topNav = TopNav($PAGENAME);
@@ -375,9 +379,12 @@ sub FullFile {
 
 	# Use $ctrlSPath for $filePath beyond this point.
 	# Why? It works. Otherwise Unicode is messed up.
-	$filePath = $ctrlSPath;
+	$filePath = $encPath;
 
-	$theBody =~ s!_PATH_!$filePath!g;
+	# Trying to phase out $ctrlSPath. Not going well, back to using it.
+	#$filePath = $ctrlSPath;
+
+	$theBody =~ s!_PATH_!$ctrlSPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 
 	$theBody =~ s!_USING_CM_!$usingCM!;
@@ -560,13 +567,13 @@ sub TitleDisplay {
 		{
 		$currentPath = substr($currentPath, 0, $lastSlashPos);
 		my $directoryAnchor =
-"<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
+"<a href='' onclick='openDirectory(&quot;$currentPath&quot;); return false;'>$currentPath</a><br>";
 		$directoryAnchorList .= $directoryAnchor;
 		$lastSlashPos = rindex($currentPath, '/');
 		}
 
 	my $result =
-"<span id=\"viewEditTitle\" class=\"slightShadow\" onmouseover=\"showhint(&quot;$directoryAnchorList&quot;, this, event, '600px', false);\" >$filePath</span>";
+"<span id=\"viewEditTitle\" class=\"slightShadow\" onmouseover=\"showhint(`$directoryAnchorList`, this, event, '600px', false);\" >$filePath</span>";
 
 	return ($result);
 }
@@ -1101,12 +1108,14 @@ sub LoadTheFile {
 	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
+		$filepath = &HTML::Entities::decode($filepath);
+
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+
 		if ($result eq '' && FileOrDirExistsWide($filepath) == 1)
 			{
 			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
 			}
-		#####$result = uri_escape_utf8(ReadTextFileWide($filepath));
 		}
 
 	return ($result);
@@ -2528,7 +2537,9 @@ sub GlossedFootnote {
 			$newIndex = $oldIndex;
 			}
 		}
-	$footnoteLines[0] =~ s!^(<div\s+id=\'fn\w+\'>)\[\^(\w+)]:!$1\*\*$newIndex\*\*\.!;
+
+	$footnoteLines[0] =~
+		s!^<div\s+id=(['"])fn(\w+)['"]>\[\^(\w+)]:!<div id=$1fn$newIndex$1>\*\*$newIndex\*\*\.!;
 
 	# Fix the back ref too, on the last line. Look for #fnref_BACKREF_
 	my $lastLine = @footnoteLines;
@@ -2596,6 +2607,13 @@ sub GlossedPopupForFootnote {
 		my @footnoteLines = split(/\n/, $glossedFootnote);
 		my $numLines      = @footnoteLines;
 		ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+		# Pad out the footnote vertically if it's tiny, to allow easier mousing over (sic).
+		if ($numLines < 3)
+			{
+			push @footnoteLines, "<p></p>";
+			unshift @footnoteLines, "<p></p>";
+			}
+
 		my $foot = join("\n", @footnoteLines);
 
 		$foot  = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");

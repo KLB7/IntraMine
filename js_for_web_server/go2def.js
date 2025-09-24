@@ -84,7 +84,7 @@ async function ShowDefIfHovering(term, event) {
 	}
 }
 
-// Call back to intramine_linker.pl#Definitions(), which will ask Elasticsearch
+// Call back to intramine_linker.pl#Go2(), which will ask Elasticsearch
 // for mentions of the term (word or short phrase),
 // winnowed by universal ctags in some cases to find real definitions.
 // Show any result with tooltip.js#showhint().

@@ -9,7 +9,7 @@
 # for each file.
 # Those with definitions are packaged up as links and returned.
 # As a last resort, any hits found for the word or phrase are returned.
-# See also intramine_linker.pl#Definitions().
+# See also intramine_linker.pl#Go2().
 
 package elasticsearch_find_def;
 
@@ -24,6 +24,7 @@ $tabstop = 4;
 use Search::Elasticsearch;
 use Encode;
 use Encode::Guess;
+use URI::Escape;
 
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -134,6 +135,108 @@ sub Monitor {
 }
 }    ##### Monitor, for feedback to the "Mon" service
 
+# See intramine_linker.pl#Go2.
+sub Instances {
+	my ($self, $rawquery, $fullPath) = @_;
+	my $result = '';
+
+	my @wantedExt;
+	GetExtensionsForDefinition($fullPath, \@wantedExt);
+	my $numExtensions = @wantedExt;
+	if ($numExtensions == 0)
+		{
+		return ('<p>nope</p>');
+		}
+
+	my $definitionKeyword = DefKeyForPath($fullPath);
+	if ($definitionKeyword eq '')
+		{
+		# If extension is supported by universal ctags we can continue
+		# the hard way (use ctags to find files with definitions).
+		if (HasCtagsSupport($self, $fullPath))
+			{
+			$result = GetCtagsDefinitionLinks($self, $rawquery, \@wantedExt, $fullPath);
+			}
+		}
+
+	if ($result ne '' && $result ne '<p>nope</p>')
+		{
+		return ($result);
+		}
+
+	my @keywords;
+	if ($definitionKeyword ne '')
+		{
+		if (index($definitionKeyword, '|') > 0)
+			{
+			@keywords = split(/\|/, $definitionKeyword);
+			}
+		else
+			{
+			push @keywords, $definitionKeyword;
+			}
+		}
+
+	my $numHits;
+	my $numFiles;
+	for (my $i = 0 ; $i < @keywords ; ++$i)
+		{
+		my $query = $keywords[$i] . ' ' . $rawquery;
+		$numHits  = 0;
+		$numFiles = 0;
+		$result = GetDefinitionLinks($self, $query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
+		if ($result ne '' && $result ne '<p>nope</p>')
+			{
+			last;
+			}
+		}
+
+	# Faint hope: perhaps the selected term is defined in some other
+	# language? We'll try .js and .css. Maybe .pl, .pm.
+	if ($result eq '' || $result eq '<p>nope</p>')
+		{
+		$numHits  = 0;
+		$numFiles = 0;
+		$result =
+			GetDefinitionLinksInOtherLanguages($self, $rawquery, \@wantedExt, \$numHits,
+			\$numFiles);
+		}
+
+	# Last hope: accept any hits anywhere.
+	if ($result eq '' || $result eq '<p>nope</p>')
+		{
+		$result = GetAnyLinks($self, $rawquery, $fullPath, 1, undef);
+		}
+
+	return ($result);
+}
+
+# Determine language based on $fullPath extension, then
+# push all extensions for the corresponding language.
+sub GetExtensionsForDefinition {
+	my ($fullPath, $wantedExtA) = @_;
+	if ($fullPath =~ m!\.(\w+)$!)
+		{
+		my $ext   = lc($1);
+		my $langH = LanguageForExtensionHashRef();
+		if (defined($langH->{$ext}))
+			{
+			my $languageName   = $langH->{$ext};
+			my $extsForLan     = ExtensionsForLanguageHashRef();
+			my $rawExtensions  = $extsForLan->{$languageName};
+			my @extForLanguage = split(/,/, $rawExtensions);
+			for (my $i = 0 ; $i < @extForLanguage ; ++$i)
+				{
+				# Some such as pod should be skipped.
+				if ($extForLanguage[$i] ne 'pod')
+					{
+					push @{$wantedExtA}, $extForLanguage[$i];
+					}
+				}
+			}
+		}
+}
+
 # GetDefinitionLinks(): call Elasticsearch to retrieve documents matching $rawquery.
 # Match words supplied as a phrase.
 # Only content is searched, a file name mention becomes a FLASH link in IntraMine.
@@ -214,6 +317,17 @@ sub GetDefinitionLinksInOtherLanguages {
 			GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound, '');
 		}
 
+	# Do Perl too
+	if ($numFound == 0 && $extA->[0] ne "pl" && $extA->[0] ne "pm")
+		{
+		my @perlExtensions;
+		push @perlExtensions, 'pl';
+		push @perlExtensions, 'pm';
+		$result =
+			GetCtagsResultsForExtensions($self, $rawquery, \@perlExtensions, $e, \$numFound, '');
+		}
+
+
 	if ($numFound == 0)
 		{
 		$result = '<p>nope</p>';
@@ -225,7 +339,7 @@ sub GetDefinitionLinksInOtherLanguages {
 # Called by intramine_linker.pl#Definitions() as a last resort,
 # look for any file containing the $rawquery, return links if found.
 sub GetAnyLinks {
-	my ($self, $rawquery, $fullPath) = @_;
+	my ($self, $rawquery, $fullPath, $doDefinitions, $resultsSoFar) = @_;
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
 
@@ -237,34 +351,38 @@ sub GetAnyLinks {
 	my $result     = '';
 
 	# First try preferred extensions. If no hits, try ALL extensions.
-	my $numHits = GetDefinitionHits($self, $rawquery, \@PreferredExtensions, $e, \$rawResults);
-	if ($numHits)
+	my $numHits = 0;
+	if ($doDefinitions)
 		{
-		my @rawFullPaths;
-		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
-		my @otherRawFullPaths;
-
-		for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
+		$numHits = GetDefinitionHits($self, $rawquery, \@PreferredExtensions, $e, \$rawResults);
+		if ($numHits)
 			{
-			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
-			if ($fixedFullPath ne $fullPath)
+			my @rawFullPaths;
+			GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS});
+			my @otherRawFullPaths;
+
+			for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
 				{
-				push @otherRawFullPaths, $rawFullPaths[$i];
+				my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+				if ($fixedFullPath ne $fullPath)
+					{
+					push @otherRawFullPaths, $rawFullPaths[$i];
+					}
 				}
-			}
 
-		my @winnowedFullPaths;
-		my $numRemaining =
-			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+			my @winnowedFullPaths;
+			my $numRemaining =
+				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
 
-		if ($numRemaining)
-			{
-			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-				$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
-			}
-		else
-			{
-			$result = '<p>nope</p>';
+			if ($numRemaining)
+				{
+				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+					$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+				}
+			else
+				{
+				$result = '<p>nope</p>';
+				}
 			}
 		}
 
@@ -799,8 +917,13 @@ sub FormatFullPathsResults {
 			# Horrible hack, having space trouble:
 			$pathWithSearchItems =~ s! !__IMSPC__!g;
 
+			my $openViewFuncName = "openView";
+			if ($isCM)
+				{
+				$openViewFuncName = "openViewEncode";
+				}
 			my $anchor =
-"<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"openView(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+"<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"$openViewFuncName(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
 			my $entry = "<p>$anchor</p>\n";
 
@@ -835,7 +958,7 @@ sub HasCMExtension {
 }
 
 sub DefKeyForPath {
-	my ($self, $fullPath) = @_;
+	my ($fullPath) = @_;
 	my $result = '';
 	if ($fullPath =~ m!\.(\w+)$!)
 		{

@@ -365,7 +365,8 @@ FINIS
 
 
 	# Full path is unhelpful in the <title>, trim down to just file name.
-	my $fileName = FileNameFromPath($title);
+	my $fileName          = FileNameFromPath($title);
+	my $unencodedFileName = $fileName;
 	$fileName = &HTML::Entities::encode($fileName);
 	my $displayedTitle = '&#128393' . $fileName;    # "lower left pencil"
 
@@ -387,17 +388,29 @@ FINIS
 	# Watch out for apostrophe in path, it's a killer in the JS above.
 	$filePath =~ s!'!\\'!g;
 
-	my $encPath = $filePath;
-	$encPath = &HTML::Entities::encode($encPath);
-	$theBody =~ s!_PATH_!$encPath!g;
-	$theBody =~ s!_ENCODEDPATH_!$encPath!g;
-	$theBody =~ s!_FILENAME_!$fileName!g;
-
-
 	my $ctrlSPath = encode_utf8($filePath);
 	$ctrlSPath =~ s!%!%25!g;
 	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-	$theBody   =~ s!_NOTIFYPATH_!$ctrlSPath!g;
+
+	$theBody =~ s!_PATH_!$ctrlSPath!g;
+	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
+	$theBody =~ s!_NOTIFYPATH_!$ctrlSPath!g;
+
+	my $encFileName = encode_utf8($unencodedFileName);
+	$encFileName =~ s!%!%25!g;
+	$encFileName =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+
+	$theBody =~ s!_FILENAME_!$encFileName!g;
+
+	# my $encPath = $filePath;
+	# $encPath = &HTML::Entities::encode($encPath);
+	# $theBody =~ s!_PATH_!$encPath!g;
+
+	# $theBody =~ s!_ENCODEDPATH_!$encPath!g;
+	# $theBody =~ s!_FILENAME_!$fileName!g;
+
+
+	# $theBody   =~ s!_NOTIFYPATH_!$ctrlSPath!g;
 
 	my $cmTextHolderName = $canHaveTOC ? 'scrollTextRightOfContents' : 'scrollText';
 	my $tocHolderName    = $canHaveTOC ? 'scrollContentsList'        : '';
@@ -469,18 +482,21 @@ sub ChevronFilePathControl {
 	# my $fileAnchor = "<a href='$currentPath' onclick='editOpen(this.href); return false;'>$currentPath</a><br>";
 	# $directoryAnchorList .= $fileAnchor ;
 
+	# Just a whine, the placement of single and double quotes and
+	# also back ticks and &quot; is extremely delicate below.
+
 	my $lastSlashPos = rindex($currentPath, '/');
 	while ($lastSlashPos > 0)
 		{
 		$currentPath = substr($currentPath, 0, $lastSlashPos);
 		my $directoryAnchor =
-"<a href='$currentPath' onclick='openDirectory(this.href); return false;'>$currentPath</a><br>";
+"<a href='' onclick='openDirectory(&quot;$currentPath&quot;); return false;'>$currentPath</a><br>";
 		$directoryAnchorList .= $directoryAnchor;
 		$lastSlashPos = rindex($currentPath, '/');
 		}
 
 	my $result =
-"<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showChevronHint(&quot;$directoryAnchorList&quot;, this, event, false, false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
+"<span id=\"viewEditTitle\" class=\"slightShadow\" onclick=\"toggleFilePath(this, 'expand.jpg', 'contract.jpg'); return(false);\" onmouseover=\"showChevronHint(`$directoryAnchorList`, this, event, false, false);\" ><img src='expand.jpg'>&nbsp;$fileName</span>";
 
 	return ($result);
 }
@@ -544,10 +560,13 @@ sub GetTOC {
 		$filepath = &HTML::Entities::decode($filepath);
 
 		GetCMToc($filepath, \$result);
-		if ($result ne '')
-			{
-			$result = uri_escape_utf8($result);
-			}
+		# if ($result ne '')
+		# 	{
+		# 	if ($filepath !~ m!\.(p[lm]|cgi|t)$!i)
+		# 		{
+		# 		$result = uri_escape_utf8($result);
+		# 		}
+		# 	}
 		}
 
 	return ($result);

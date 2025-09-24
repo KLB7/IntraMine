@@ -135,7 +135,7 @@ $RequestAction{'req|cmLinks'} = \&CmLinks;    # req=cmLinks... - linking for Cod
 $RequestAction{'req|nonCmLinks'} =
 	\&NonCmLinks;                             # req=nonCmLinks... - linking for non-CodeMirror files
 $RequestAction{'req|autolink'} = \&FullPathForPartial;    # req=autolink&partialpath=...
-$RequestAction{'req|defs'}     = \&Definitions;           # req=defs, find definitions
+$RequestAction{'req|defs'}     = \&Go2;                   # req=defs, find definitions and mentions
 $RequestAction{'/test/'}       = \&SelfTest;              # Ask this server to test itself.
 
 # List of English words, for spell checking.
@@ -309,10 +309,10 @@ sub ReinitDirFinder {
 }
 
 # Call into elasticsearch_find_def.pm to retrieve links to files
-# that contain definitions for the $rawquery word or phrase. The $fullPath is
-# needed only for its extension, to determine the language wanted.
+# that contain definitions or mentions for the $rawquery word or phrase.
+# The $fullPath is needed only for its extension, to determine the language wanted.
 # $DoGo2Def is set from 'GOTODEFINITION' in data/intramine_config_8.txt.
-sub Definitions {
+sub Go2 {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $rawquery = defined($formH->{'findthis'}) ? $formH->{'findthis'} : '';
 	my $fullPath = defined($formH->{'path'})     ? $formH->{'path'}     : '';
@@ -321,105 +321,85 @@ sub Definitions {
 		return ('<p>nope</p>');
 		}
 
-	my $result = '';
+	my $result = $ElasticSearcher->Instances($rawquery, $fullPath);
 
-	my @wantedExt;
-	GetExtensionsForDefinition($fullPath, \@wantedExt);
-	my $numExtensions = @wantedExt;
-	if ($numExtensions == 0)
-		{
-		return ('<p>nope</p>');
-		}
+	return ($result);
 
-	my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
-	if ($definitionKeyword eq '')
-		{
-		# If extension is supported by universal ctags we can continue
-		# the hard way (use ctags to find files with definitions).
-		if ($ElasticSearcher->HasCtagsSupport($fullPath))
-			{
-			$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt, $fullPath);
-			}
-		}
+	# my @wantedExt;
+	# GetExtensionsForDefinition($fullPath, \@wantedExt);
+	# my $numExtensions = @wantedExt;
+	# if ($numExtensions == 0)
+	# 	{
+	# 	return ('<p>nope</p>');
+	# 	}
 
-	if ($result ne '' && $result ne '<p>nope</p>')
-		{
-		return ($result);
-		}
+	# my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
+	# if ($definitionKeyword eq '')
+	# 	{
+	# 	# If extension is supported by universal ctags we can continue
+	# 	# the hard way (use ctags to find files with definitions).
+	# 	if ($ElasticSearcher->HasCtagsSupport($fullPath))
+	# 		{
+	# 		$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt, $fullPath);
+	# 		}
+	# 	}
 
-	my @keywords;
-	if ($definitionKeyword ne '')
-		{
-		if (index($definitionKeyword, '|') > 0)
-			{
-			@keywords = split(/\|/, $definitionKeyword);
-			}
-		else
-			{
-			push @keywords, $definitionKeyword;
-			}
-		}
+	# if ($result ne '' && $result ne '<p>nope</p>')
+	# 	{
+	# 	return ($result);
+	# 	}
 
-	my $numHits;
-	my $numFiles;
-	for (my $i = 0 ; $i < @keywords ; ++$i)
-		{
-		my $query = $keywords[$i] . ' ' . $rawquery;
-		$numHits  = 0;
-		$numFiles = 0;
-		$result   = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles,
-			$fullPath);
-		if ($result ne '' && $result ne '<p>nope</p>')
-			{
-			last;
-			}
-		}
+	# my @keywords;
+	# if ($definitionKeyword ne '')
+	# 	{
+	# 	if (index($definitionKeyword, '|') > 0)
+	# 		{
+	# 		@keywords = split(/\|/, $definitionKeyword);
+	# 		}
+	# 	else
+	# 		{
+	# 		push @keywords, $definitionKeyword;
+	# 		}
+	# 	}
 
-	# Faint hope: perhaps the selected term is defined in some other
-	# language? We'll try .js and .css. Maybe .pl, .pm.
-	if ($result eq '' || $result eq '<p>nope</p>')
-		{
-		$numHits  = 0;
-		$numFiles = 0;
-		$result =
-			$ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits,
-			\$numFiles);
-		}
+	# my $numHits;
+	# my $numFiles;
+	# for (my $i = 0 ; $i < @keywords ; ++$i)
+	# 	{
+	# 	my $query = $keywords[$i] . ' ' . $rawquery;
+	# 	$numHits  = 0;
+	# 	$numFiles = 0;
+	# 	$result   = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles,
+	# 		$fullPath);
+	# 	if ($result ne '' && $result ne '<p>nope</p>')
+	# 		{
+	# 		last;
+	# 		}
+	# 	}
 
-	# Last hope: accept any hits anywhere.
-	if ($result eq '' || $result eq '<p>nope</p>')
-		{
-		$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath);
-		}
+	# # Faint hope: perhaps the selected term is defined in some other
+	# # language? We'll try .js and .css. Maybe .pl, .pm.
+	# if ($result eq '' || $result eq '<p>nope</p>')
+	# 	{
+	# 	$numHits  = 0;
+	# 	$numFiles = 0;
+	# 	$result =
+	# 		$ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits,
+	# 		\$numFiles);
+	# 	}
+
+	# # Last hope: accept any hits anywhere.
+	# if ($result eq '' || $result eq '<p>nope</p>')
+	# 	{
+	# 	$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath, 1, undef);
+	# 	}
+	# elsif ($numHits < $GoToLinksMax)
+	# 	{
+	# 	$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath, 0, $result);
+	# 	}
 
 
 	return ($result);
-}
-
-# Determine language based on $fullPath extension, then
-# push all extensions for the corresponding language.
-sub GetExtensionsForDefinition {
-	my ($fullPath, $wantedExtA) = @_;
-	if ($fullPath =~ m!\.(\w+)$!)
-		{
-		my $ext   = lc($1);
-		my $langH = LanguageForExtensionHashRef();
-		if (defined($langH->{$ext}))
-			{
-			my $languageName   = $langH->{$ext};
-			my $extsForLan     = ExtensionsForLanguageHashRef();
-			my $rawExtensions  = $extsForLan->{$languageName};
-			my @extForLanguage = split(/,/, $rawExtensions);
-			for (my $i = 0 ; $i < @extForLanguage ; ++$i)
-				{
-				# Some such as pod should be skipped.
-				if ($extForLanguage[$i] ne 'pod')
-					{
-					push @{$wantedExtA}, $extForLanguage[$i];
-					}
-				}
-			}
-		}
 }
 
 # For all files where the view is generated by CodeMirror ("CodeMirror files").
@@ -1198,7 +1178,10 @@ sub RememberDirMention {
 		my $dirHint =
 " onmouseover=\"showhint('<br>$directoryPath<br>&nbsp;', this, event, '500px', false);\"";
 		my $repString =
-"<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
+"<a href=\"\" onclick='openDirectory(&quot;$directoryPath&quot;); return false;'$dirHint>$displayedDir</a>";
+
+		#my $repString =
+		#"<a href=\"$directoryPath\" onclick=\"openDirectory(this.href); return false;\"$dirHint>$displayedDir</a>";
 
 		push @repStr,                   $repString;
 		push @repLen,                   $repLength;
@@ -1446,11 +1429,8 @@ sub GetTextFileRep {
 	my $viewerPath = $bestVerifiedPath;
 	my $editorPath = $bestVerifiedPath;
 	$viewerPath =~ s!\\!/!g;
-	if ($haveRefToText)
-		{
-		$viewerPath =~ s!%!%25!g;
-		$viewerPath =~ s!\+!\%2B!g;
-		}
+
+	$viewerPath =~ s!%!%25!g;
 
 	$editorPath =~ s!\\!/!g;
 	$editorPath =~ s!%!%25!g;

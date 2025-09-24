@@ -8,7 +8,9 @@ How to Go2
 ============
 g2_2.gif
 
-When displaying a file with IntraMine, click on a word (Viewer) or double-click to select a word (Editor). Or, in either the Viewer or Editor, select a short phrase with the mouse, and keep your cursor fairly still (+/- about 20 pixels). In a second or so you will see one or more clickable links pop up, up to a default maximum of 8. Select a link and the corresponding file will open in a new tab, with instances of the word or phrase highlighted in the text and marked in the scrollbar.
+When displaying a file with IntraMine, click on a word (Viewer) or double-click to select a word (Editor). Or, in either the Viewer or Editor, select a short phrase with the mouse, and keep your cursor fairly still (+/- about 20 pixels). In typically a second or so you will see one or more clickable links pop up, up to a default maximum of 8. Select a link and the corresponding file will open in a new tab, with instances of the word or phrase highlighted in the text and marked in the scrollbar.
+
+(If you're looking up a very common word or short phrase, you might not see a response for roughly four seconds.)
 
 How to NOT Go2
 =================

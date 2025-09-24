@@ -635,7 +635,6 @@ sub FormatHitResults {
 				{
 				if ($hitCounter < $maxNumHits)
 					{
-					$path = encode_utf8($path);
 					$path =~ s!\\!/!g;
 					my $lcpath = lc($path);
 
@@ -643,7 +642,7 @@ sub FormatHitResults {
 						{
 						++$hitCounter;
 						$fullPathSeen{$lcpath} = 1;
-						$displayedPath = encode_utf8($displayedPath);
+
 						# Replace / with \ in path, some apps still want that.
 						$displayedPath =~ s!/!\\!g;
 						$displayedPath =~ m!([^\\]+)$!;
@@ -663,11 +662,9 @@ sub FormatHitResults {
 						_DecodeWhitespace(\@fixedLines, $excerptArr);
 						my $excerptRaw = join("", @fixedLines);
 						$excerptRaw =~ s!  !&nbsp;&nbsp;!g;
-						my $excerpt = _GetEncodedExcerpt($excerptRaw);
 
-
-						$path =~ s!%!%25!g;
-						$path =~ s!\+!\%2B!g;
+						my $excerpt = $excerptRaw;
+						# Not needed: my $excerpt = _GetEncodedExcerpt($excerptRaw);
 
 						my $pathWithSearchItems = $path . $searchItems . $definitionName;
 
@@ -768,38 +765,6 @@ sub _DecodeWhitespace {
 		$excerptArr->[$i] = join("", @lines);
 		push @$fixedLinesA, $excerptArr->[$i];
 		}
-}
-
-sub _GetEncodedExcerpt {
-	my ($excerptRaw) = @_;
-	my $excerpt = '';
-
-	my $decoder = Encode::Guess->guess($excerptRaw);
-	if (ref($decoder))
-		{
-		my $decoderName = $decoder->name();
-		if ($decoderName =~ m!iso-8859-\d+!)
-			{
-			$excerpt = $excerptRaw;
-			}
-		else
-			{
-			if ($decoderName eq 'utf8')
-				{
-				$excerpt = encode_utf8($excerptRaw);
-				}
-			else
-				{
-				$excerpt = $excerptRaw;
-				}
-			}
-		}
-	else
-		{
-		$excerpt = $excerptRaw;
-		}
-
-	return ($excerpt);
 }
 
 # Put a place to break in $displayedPath if it's very long, to avoid sideways scroll.

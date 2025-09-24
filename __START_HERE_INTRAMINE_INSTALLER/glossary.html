@@ -728,8 +728,17 @@ a.embedded_image {
 	font-weight: bold;
 }
 
+#viewEditTitle img {
+	margin-bottom: -2px;
+}
+
 #viewEditDateSize {
 	margin-right: 12px;
+}
+
+.slightShadow  {
+	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
+	text-shadow: 2px 2px 1px #C0C0C0;
 }
 
 #title-blockTR {
@@ -825,6 +834,63 @@ a.embedded_image {
 	max-width: 100%;
 }
 
+/* Footnotes */
+.footDiv {
+	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}
+
+.gloss_div {
+	margin-bottom: 6px;
+}
+
+/* footnote tables proper: */
+.gloss_div table tbody tr:first-child {
+	margin: 0;
+	text-indent: -26px;
+}
+
+.gloss_div table:not(:first-child) tbody tr:first-child {
+	text-indent: 0 !important;
+	padding-left: 26px !important;
+}
+
+.gloss_div table tbody tr:not(first-child) {
+	display: block;
+	margin: 0;
+	padding-left: 26px;
+	padding-top: 6px;
+}
+
+/* Footnote actual tables, to be shown as proper tables. */
+.gloss_div table.bordered tbody tr:first-child {
+	text-indent: 0 !important;
+}
+
+.gloss_div table.bordered tbody tr:not(first-child) {
+	display: table-row;
+	margin: 0;
+	padding-left: 0 !important;
+	padding-top: 0;
+}
+
+.gloss_div table.bordered td {
+	border-top: 1px solid #ccc;
+}
+
+
+.gloss_div table.bordered tbody tr:hover {
+    background: #fbf8e9 !important;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}
+
+.allfootnotes {
+	/*background-color: lightblue;*/
+}
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;
@@ -910,7 +976,7 @@ div#indicator {
 div#indicatorPC {
     position: absolute;
     z-index: 99;
-    top: 0px;
+    top: 0;
     /*left: 3px;*/
     right: 0.74%;
     /*opacity: .5;*/
@@ -1035,6 +1101,16 @@ code {
 	padding-left: 60px;
 }
 
+/* Footnoe inline HTML, less indent because there are no line numbers. */
+.gloss_div .rawHTML {
+	padding-left: 26px;
+}
+
+/* Even less indent for the popup version of the footnote. */
+.footDiv .rawHTML {
+	padding-left: 4px;
+}
+
 /* Also for raw HTML, reduce <p> margin. */
 p {
 	margin-top: 6px;
@@ -1066,7 +1142,6 @@ table, tr, td {
 td {
 	vertical-align: top;
 	padding-left: 4px;
-	/*overflow-wrap: break-word;*/
 }
 
 thead {
@@ -1099,11 +1174,13 @@ td:first-child:after, th:first-child:after {
     content: attr(n);
 }
 
+
 td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
     background-color: rgb(200, 255, 200);
 }
 
 /* Raw HTML tables in Markdown, no line numbers. */
+
 .rawHTML table :nth-child(1) {
 	background: #fafafa;
 	color: black;
@@ -1112,9 +1189,8 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 }
 
 .rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
-    content: auto;
+    content: none;
 }
-
 
 h1, h2, h3, h4 {
 	font-family: helvetica, arial, sans-serif;
@@ -1278,11 +1354,11 @@ paragraph (ie not the first paragraph in the item).
 .bordered th {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
-    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(to top, #ebf3fc, #dce9f9);
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
@@ -1360,32 +1436,90 @@ paragraph (ie not the first paragraph in the item).
 	padding: 0;
 	}
 
+/* Override td :nth-child(1) for footnotes at end of Viewer display. */
+
+/* TEST ONLY */
+.gloss_div table.bordered {
+	margin-left: 26px;
+}
+
+.gloss_div table.bordered th {
+	background: #dce9f9 !important;
+	background-color: #dce9f9 !important;
+	border: 2px red !important;
+}
+
+.gloss_div table.bordered tr {
+	background: #fafafa !important;
+	background-color: #fafafa !important;
+	border: 2px red !important;
+}
+
+
+.gloss_div table.bordered td {
+	text-align: left !important;
+	text-indent: 0 !important;
+	padding-left: 0 !important;
+}
+/*
+.gloss_div table:not(first-child) tbody tr:first-child {
+	text-indent: 0;
+	padding-left: 26px !important;
+}
+*/
+.gloss_div table.bordered :nth-child(1) {
+	color: black !important;
+}
+
+/*
+.gloss_div table.bordered tbody tr:not(first-child) {
+	padding-left: 0;
+}
+*/
+/* Keep this one. */
+.gloss_div table :nth-child(1) {
+	background: #fafafa;
+	color: black;
+	text-align: left;
+	min-width: auto; 
+}
+
+.gloss_div .bordered td:first-child, .bordered th:first-child {
+  	color: black;
+}
+
+
 </style>
 <style>
 /* tooltip.css: for popup hints and images, see also tooltip.js. */
 
 #hintbox{ /*CSS for pop up hint box */
-position:absolute;
-top: 0;
-background-color: #FFFFF4;
-/*width: 150px; Default width of hint.*/ 
-padding: 0; /* was 6px */
-/*border:1px solid black;*/
-font:normal 13px Verdana;
-line-height:18px;
-z-index:100;
-/*border-right: 3px solid black;
-border-bottom: 3px solid black;*/
-visibility: hidden;
-	
-overflow: auto;
-overflow-wrap: break-word;
-word-wrap: break-word;
--ms-word-break: break-all;
-word-break: break-word;
+	position:absolute;
+	top: 0;
+	background-color: #FFFFF4;
+	width: 400px; /*Default width of hint.*/ 
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 6px;
+	padding-right: 6px;
+	font:normal 13px Verdana;
+	line-height:18px;
+	z-index:100;
+	visibility: hidden;
+		
+	overflow: auto;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-word;
 
-border: none;
-box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+	border: none;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.16), 0 8px 8px rgba(0,0,0,0.20);
+}
+
+/* Make font in footnotes the same as in a regular pop up hint box. */
+.footDiv {
+	font:normal 13px Verdana;
 }
 
 .hintanchor{ /*CSS for link that shows hint onmouseover (no longer used)*/
@@ -1628,11 +1762,11 @@ paragraph (ie not the first paragraph in the item).
 #hintbox .bordered th {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
-    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
-    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(to top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(to top, #ebf3fc, #dce9f9);
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
@@ -1776,13 +1910,13 @@ span.ll-com { /* comments */
 <div id="indicator"></div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
-<div id='scrollContentsList'><li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
-<ul>
+<div id='scrollContentsList'><ul>
+<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
 <li class='h2' im-text-ln='9'><a href='#dotted_underline'>dotted underline</a></li>
 <li class='h2' im-text-ln='6'><a href='#elasticsearch'>Elasticsearch</a></li>
 <li class='h2' im-text-ln='7'><a href='#file_watcher'>File Watcher</a></li>
 <li class='h2' im-text-ln='3'><a href='#open_a_powershell_terminal'>open a powershell terminal</a></li>
-<li class='h2' im-text-ln='8'><a href='#universal_ctags'>Universal ctags</a></li></ul></div><div id='scrollTextRightOfContents'><table class='imt'><span id='top-of-document'></span><tr id='R1'><td n='1'></td><td>Definitions etc for the IntraMine installer.</td></tr>
+<li class='h2' im-text-ln='8'><a href='#universal_ctags'>Universal ctags</a></li></ul></div><div id='scrollTextRightOfContents'><span id='top-of-document'></span><table class='imt'><tr id='R1'><td n='1'></td><td>Definitions etc for the IntraMine installer.</td></tr>
 <tr id='R2'><td n='2'></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td><h2 id="open_a_powershell_terminal"><strong>open a powershell terminal</strong>:</h2> search for "Windows PowerShell" in the task bar</td></tr>
 <tr id='R4'><td n='4'></td><td>search field, and select "Run as administrator".</td></tr>
@@ -8526,6 +8660,8 @@ JD.debounce = function(func, wait, immediate) {
 // IntraMine use, see eg showhint() calls in
 // intramine_linker.pl#GetImageFileRep(), intramine_boilerplate.pl#ThePage().
 
+let tipIsShowing = false;
+
 // Cursor position, updated when hintbox is showing.
 let cursor_x = -1;
 let cursor_y = -1;
@@ -8704,7 +8840,11 @@ function positionAndShowHint() {
 	// For text, shrink the height to fit within window if necessary.
 	else
 		{
-		hintElement.style.width = "650px";
+		// TEST ONLY
+		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
+		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
+		
+		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
 			let reducedHeight = windowHeight - tl.top;
@@ -8886,7 +9026,7 @@ function tipTopAndLeft(bestDirection, x, y, hintWidth, hintHeight, windowWidth, 
 }
 
 // The main event.
-function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	"use strict";
 
 	if (shouldDecode === undefined)
@@ -8922,13 +9062,13 @@ function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 		{
 		setTimeout(function() {
 			showWithFreshPort(decodeHint(hintContents), obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	else
 		{
 		setTimeout(function() {
 			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
-			}, 100);
+			}, 350);
 		}
 	}
 
@@ -8951,6 +9091,17 @@ function decodeHint(text) {
 async function showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage) {
 	let hintShown = false;
 	let image_url = "";
+
+	// "tipIsShowing", combined with a delay of 350 msec when calling this function,
+	// catches most cases where the cursor moves to a hint on an adjacent line
+	// - we don't want the tip being shown to go away in the case where the cursor
+	// is still over a tip being shown but ALSO over another tip. However, this
+	// isn't perfect, and sometimes the tip on the adjacent line doesn't show
+	// when the cursor moves away from the tip being shown.
+	if (tipIsShowing)
+		{
+		return;
+		}
 
 	if (isAnImage)
 		{
@@ -9057,7 +9208,9 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 			}
 		else
 			{
-			hintElement.style.width = "650px";
+			hintElement.style.width = tipwidth; // "650px";
+			// TEST ONLY
+			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {
@@ -9095,6 +9248,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		hintElement.style.visibility = "hidden";
 		hintElement.style.left = "-500px";
 		removeClass(obj, anchorClassName);
+		tipIsShowing = false;
 		return;
 		}
 
@@ -9146,6 +9300,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 
 	document.addEventListener('mousemove', recordMousePosition);
 	document.documentElement.addEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = true;
 
 	if (typeof window.ontouchstart === 'undefined')
 		{
@@ -9256,7 +9411,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "auto";
+	hintElement.style.width = "300px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
@@ -9270,6 +9425,7 @@ function hideTip(e) {
 	
 	document.removeEventListener('mousemove', recordMousePosition);
 	document.removeEventListener('mouseleave', handleMouseLeave);
+	tipIsShowing = false;
 }
 
 function touchhidetip(e) {
@@ -9331,14 +9487,14 @@ function isW(s) {
 /*!***************************************************
 * mark.js v9.0.0
 * https://markjs.io/
-* Copyright (c) 2014–2018, Julian Kühnel
+* Copyright (c) 2014â2018, Julian KÃ¼hnel
 * Released under the MIT license https://git.io/vwTVl
 *****************************************************/
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Mark=t()}(this,function(){"use strict";function e(t){return(e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(t)}function t(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function r(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}function o(){return(o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var r in n)Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r])}return e}).apply(this,arguments)}var i=
 /* */
 function(){function e(n){var r=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:[],i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:5e3;t(this,e),this.ctx=n,this.iframes=r,this.exclude=o,this.iframesTimeout=i}return r(e,[{key:"getContexts",value:function(){var e=[];return(void 0!==this.ctx&&this.ctx?NodeList.prototype.isPrototypeOf(this.ctx)?Array.prototype.slice.call(this.ctx):Array.isArray(this.ctx)?this.ctx:"string"==typeof this.ctx?Array.prototype.slice.call(document.querySelectorAll(this.ctx)):[this.ctx]:[]).forEach(function(t){var n=e.filter(function(e){return e.contains(t)}).length>0;-1!==e.indexOf(t)||n||e.push(t)}),e}},{key:"getIframeContents",value:function(e,t){var n,r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:function(){};try{var o=e.contentWindow;if(n=o.document,!o||!n)throw new Error("iframe inaccessible")}catch(e){r()}n&&t(n)}},{key:"isIframeBlank",value:function(e){var t="about:blank",n=e.getAttribute("src").trim();return e.contentWindow.location.href===t&&n!==t&&n}},{key:"observeIframeLoad",value:function(e,t,n){var r=this,o=!1,i=null,a=function a(){if(!o){o=!0,clearTimeout(i);try{r.isIframeBlank(e)||(e.removeEventListener("load",a),r.getIframeContents(e,t,n))}catch(e){n()}}};e.addEventListener("load",a),i=setTimeout(a,this.iframesTimeout)}},{key:"onIframeReady",value:function(e,t,n){try{"complete"===e.contentWindow.document.readyState?this.isIframeBlank(e)?this.observeIframeLoad(e,t,n):this.getIframeContents(e,t,n):this.observeIframeLoad(e,t,n)}catch(e){n()}}},{key:"waitForIframes",value:function(e,t){var n=this,r=0;this.forEachIframe(e,function(){return!0},function(e){r++,n.waitForIframes(e.querySelector("html"),function(){--r||t()})},function(e){e||t()})}},{key:"forEachIframe",value:function(t,n,r){var o=this,i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},a=t.querySelectorAll("iframe"),s=a.length,c=0;a=Array.prototype.slice.call(a);var u=function(){--s<=0&&i(c)};s||u(),a.forEach(function(t){e.matches(t,o.exclude)?u():o.onIframeReady(t,function(e){n(t)&&(c++,r(e)),u()},u)})}},{key:"createIterator",value:function(e,t,n){return document.createNodeIterator(e,t,n,!1)}},{key:"createInstanceOnIframe",value:function(t){return new e(t.querySelector("html"),this.iframes)}},{key:"compareNodeIframe",value:function(e,t,n){if(e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING){if(null===t)return!0;if(t.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)return!0}return!1}},{key:"getIteratorNode",value:function(e){var t=e.previousNode();return{prevNode:t,node:null===t?e.nextNode():e.nextNode()&&e.nextNode()}}},{key:"checkIframeFilter",value:function(e,t,n,r){var o=!1,i=!1;return r.forEach(function(e,t){e.val===n&&(o=t,i=e.handled)}),this.compareNodeIframe(e,t,n)?(!1!==o||i?!1===o||i||(r[o].handled=!0):r.push({val:n,handled:!0}),!0):(!1===o&&r.push({val:n,handled:!1}),!1)}},{key:"handleOpenIframes",value:function(e,t,n,r){var o=this;e.forEach(function(e){e.handled||o.getIframeContents(e.val,function(e){o.createInstanceOnIframe(e).forEachNode(t,n,r)})})}},{key:"iterateThroughNodes",value:function(e,t,n,r,o){for(var i,a,s,c=this,u=this.createIterator(t,e,r),l=[],h=[];s=void 0,s=c.getIteratorNode(u),a=s.prevNode,i=s.node;)this.iframes&&this.forEachIframe(t,function(e){return c.checkIframeFilter(i,a,e,l)},function(t){c.createInstanceOnIframe(t).forEachNode(e,function(e){return h.push(e)},r)}),h.push(i);h.forEach(function(e){n(e)}),this.iframes&&this.handleOpenIframes(l,e,n,r),o()}},{key:"forEachNode",value:function(e,t,n){var r=this,o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},i=this.getContexts(),a=i.length;a||o(),i.forEach(function(i){var s=function(){r.iterateThroughNodes(e,i,t,n,function(){--a<=0&&o()})};r.iframes?r.waitForIframes(i,s):s()})}}],[{key:"matches",value:function(e,t){var n="string"==typeof t?[t]:t,r=e.matches||e.matchesSelector||e.msMatchesSelector||e.mozMatchesSelector||e.oMatchesSelector||e.webkitMatchesSelector;if(r){var o=!1;return n.every(function(t){return!r.call(e,t)||(o=!0,!1)}),o}return!1}}]),e}(),a=
 /* */
-function(){function e(n){t(this,e),this.opt=o({},{diacritics:!0,synonyms:{},accuracy:"partially",caseSensitive:!1,ignoreJoiners:!1,ignorePunctuation:[],wildcards:"disabled"},n)}return r(e,[{key:"create",value:function(e){return"disabled"!==this.opt.wildcards&&(e=this.setupWildcardsRegExp(e)),e=this.escapeStr(e),Object.keys(this.opt.synonyms).length&&(e=this.createSynonymsRegExp(e)),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),this.opt.diacritics&&(e=this.createDiacriticsRegExp(e)),e=this.createMergedBlanksRegExp(e),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.createJoinersRegExp(e)),"disabled"!==this.opt.wildcards&&(e=this.createWildcardsRegExp(e)),e=this.createAccuracyRegExp(e),new RegExp(e,"gm".concat(this.opt.caseSensitive?"":"i"))}},{key:"sortByLength",value:function(e){return e.sort(function(e,t){return e.length===t.length?e>t?1:-1:t.length-e.length})}},{key:"escapeStr",value:function(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}},{key:"createSynonymsRegExp",value:function(e){var t=this,n=this.opt.synonyms,r=this.opt.caseSensitive?"":"i",o=this.opt.ignoreJoiners||this.opt.ignorePunctuation.length?"\0":"";for(var i in n)if(n.hasOwnProperty(i)){var a=Array.isArray(n[i])?n[i]:[n[i]];a.unshift(i),(a=this.sortByLength(a).map(function(e){return"disabled"!==t.opt.wildcards&&(e=t.setupWildcardsRegExp(e)),e=t.escapeStr(e)}).filter(function(e){return""!==e})).length>1&&(e=e.replace(new RegExp("(".concat(a.map(function(e){return t.escapeStr(e)}).join("|"),")"),"gm".concat(r)),o+"(".concat(a.map(function(e){return t.processSynonyms(e)}).join("|"),")")+o))}return e}},{key:"processSynonyms",value:function(e){return(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),e}},{key:"setupWildcardsRegExp",value:function(e){return(e=e.replace(/(?:\\)*\?/g,function(e){return"\\"===e.charAt(0)?"?":""})).replace(/(?:\\)*\*/g,function(e){return"\\"===e.charAt(0)?"*":""})}},{key:"createWildcardsRegExp",value:function(e){var t="withSpaces"===this.opt.wildcards;return e.replace(/\u0001/g,t?"[\\S\\s]?":"\\S?").replace(/\u0002/g,t?"[\\S\\s]*?":"\\S*")}},{key:"setupIgnoreJoinersRegExp",value:function(e){return e.replace(/[^(|)\\]/g,function(e,t,n){var r=n.charAt(t+1);return/[(|)\\]/.test(r)||""===r?e:e+"\0"})}},{key:"createJoinersRegExp",value:function(e){var t=[],n=this.opt.ignorePunctuation;return Array.isArray(n)&&n.length&&t.push(this.escapeStr(n.join(""))),this.opt.ignoreJoiners&&t.push("\\u00ad\\u200b\\u200c\\u200d"),t.length?e.split(/\u0000+/).join("[".concat(t.join(""),"]*")):e}},{key:"createDiacriticsRegExp",value:function(e){var t=this.opt.caseSensitive?"":"i",n=this.opt.caseSensitive?["aàáảãạăằắẳẵặâầấẩẫậäåāą","AÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćč","CÇĆČ","dđď","DĐĎ","eèéẻẽẹêềếểễệëěēę","EÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïī","IÌÍỈĨỊÎÏĪ","lł","LŁ","nñňń","NÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøō","OÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rř","RŘ","sšśșş","SŠŚȘŞ","tťțţ","TŤȚŢ","uùúủũụưừứửữựûüůū","UÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿ","YÝỲỶỸỴŸ","zžżź","ZŽŻŹ"]:["aàáảãạăằắẳẵặâầấẩẫậäåāąAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćčCÇĆČ","dđďDĐĎ","eèéẻẽẹêềếểễệëěēęEÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïīIÌÍỈĨỊÎÏĪ","lłLŁ","nñňńNÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøōOÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rřRŘ","sšśșşSŠŚȘŞ","tťțţTŤȚŢ","uùúủũụưừứửữựûüůūUÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿYÝỲỶỸỴŸ","zžżźZŽŻŹ"],r=[];return e.split("").forEach(function(o){n.every(function(n){if(-1!==n.indexOf(o)){if(r.indexOf(n)>-1)return!1;e=e.replace(new RegExp("[".concat(n,"]"),"gm".concat(t)),"[".concat(n,"]")),r.push(n)}return!0})}),e}},{key:"createMergedBlanksRegExp",value:function(e){return e.replace(/[\s]+/gim,"[\\s]+")}},{key:"createAccuracyRegExp",value:function(e){var t=this,n=this.opt.accuracy,r="string"==typeof n?n:n.value,o="string"==typeof n?[]:n.limiters,i="";switch(o.forEach(function(e){i+="|".concat(t.escapeStr(e))}),r){case"partially":default:return"()(".concat(e,")");case"complementary":return i="\\s"+(i||this.escapeStr("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~¡¿")),"()([^".concat(i,"]*").concat(e,"[^").concat(i,"]*)");case"exactly":return"(^|\\s".concat(i,")(").concat(e,")(?=$|\\s").concat(i,")")}}}]),e}(),s=
+function(){function e(n){t(this,e),this.opt=o({},{diacritics:!0,synonyms:{},accuracy:"partially",caseSensitive:!1,ignoreJoiners:!1,ignorePunctuation:[],wildcards:"disabled"},n)}return r(e,[{key:"create",value:function(e){return"disabled"!==this.opt.wildcards&&(e=this.setupWildcardsRegExp(e)),e=this.escapeStr(e),Object.keys(this.opt.synonyms).length&&(e=this.createSynonymsRegExp(e)),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),this.opt.diacritics&&(e=this.createDiacriticsRegExp(e)),e=this.createMergedBlanksRegExp(e),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.createJoinersRegExp(e)),"disabled"!==this.opt.wildcards&&(e=this.createWildcardsRegExp(e)),e=this.createAccuracyRegExp(e),new RegExp(e,"gm".concat(this.opt.caseSensitive?"":"i"))}},{key:"sortByLength",value:function(e){return e.sort(function(e,t){return e.length===t.length?e>t?1:-1:t.length-e.length})}},{key:"escapeStr",value:function(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}},{key:"createSynonymsRegExp",value:function(e){var t=this,n=this.opt.synonyms,r=this.opt.caseSensitive?"":"i",o=this.opt.ignoreJoiners||this.opt.ignorePunctuation.length?"\0":"";for(var i in n)if(n.hasOwnProperty(i)){var a=Array.isArray(n[i])?n[i]:[n[i]];a.unshift(i),(a=this.sortByLength(a).map(function(e){return"disabled"!==t.opt.wildcards&&(e=t.setupWildcardsRegExp(e)),e=t.escapeStr(e)}).filter(function(e){return""!==e})).length>1&&(e=e.replace(new RegExp("(".concat(a.map(function(e){return t.escapeStr(e)}).join("|"),")"),"gm".concat(r)),o+"(".concat(a.map(function(e){return t.processSynonyms(e)}).join("|"),")")+o))}return e}},{key:"processSynonyms",value:function(e){return(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),e}},{key:"setupWildcardsRegExp",value:function(e){return(e=e.replace(/(?:\\)*\?/g,function(e){return"\\"===e.charAt(0)?"?":""})).replace(/(?:\\)*\*/g,function(e){return"\\"===e.charAt(0)?"*":""})}},{key:"createWildcardsRegExp",value:function(e){var t="withSpaces"===this.opt.wildcards;return e.replace(/\u0001/g,t?"[\\S\\s]?":"\\S?").replace(/\u0002/g,t?"[\\S\\s]*?":"\\S*")}},{key:"setupIgnoreJoinersRegExp",value:function(e){return e.replace(/[^(|)\\]/g,function(e,t,n){var r=n.charAt(t+1);return/[(|)\\]/.test(r)||""===r?e:e+"\0"})}},{key:"createJoinersRegExp",value:function(e){var t=[],n=this.opt.ignorePunctuation;return Array.isArray(n)&&n.length&&t.push(this.escapeStr(n.join(""))),this.opt.ignoreJoiners&&t.push("\\u00ad\\u200b\\u200c\\u200d"),t.length?e.split(/\u0000+/).join("[".concat(t.join(""),"]*")):e}},{key:"createDiacriticsRegExp",value:function(e){var t=this.opt.caseSensitive?"":"i",n=this.opt.caseSensitive?["aÃ Ã¡áº£Ã£áº¡Äáº±áº¯áº³áºµáº·Ã¢áº§áº¥áº©áº«áº­Ã¤Ã¥ÄÄ","AÃÃáº¢Ãáº Äáº°áº®áº²áº´áº¶Ãáº¦áº¤áº¨áºªáº¬ÃÃÄÄ","cÃ§ÄÄ","CÃÄÄ","dÄÄ","DÄÄ","eÃ¨Ã©áº»áº½áº¹Ãªá»áº¿á»á»á»Ã«ÄÄÄ","EÃÃáººáº¼áº¸Ãá»áº¾á»á»á»ÃÄÄÄ","iÃ¬Ã­á»Ä©á»Ã®Ã¯Ä«","IÃÃá»Ä¨á»ÃÃÄª","lÅ","LÅ","nÃ±ÅÅ","NÃÅÅ","oÃ²Ã³á»Ãµá»Ã´á»á»á»á»á»Æ¡á»á»¡á»á»á»£Ã¶Ã¸Å","OÃÃá»Ãá»Ãá»á»á»á»á»Æ á»á» á»á»á»¢ÃÃÅ","rÅ","RÅ","sÅ¡ÅÈÅ","SÅ ÅÈÅ","tÅ¥ÈÅ£","TÅ¤ÈÅ¢","uÃ¹Ãºá»§Å©á»¥Æ°á»«á»©á»­á»¯á»±Ã»Ã¼Å¯Å«","UÃÃá»¦Å¨á»¤Æ¯á»ªá»¨á»¬á»®á»°ÃÃÅ®Åª","yÃ½á»³á»·á»¹á»µÃ¿","YÃá»²á»¶á»¸á»´Å¸","zÅ¾Å¼Åº","ZÅ½Å»Å¹"]:["aÃ Ã¡áº£Ã£áº¡Äáº±áº¯áº³áºµáº·Ã¢áº§áº¥áº©áº«áº­Ã¤Ã¥ÄÄAÃÃáº¢Ãáº Äáº°áº®áº²áº´áº¶Ãáº¦áº¤áº¨áºªáº¬ÃÃÄÄ","cÃ§ÄÄCÃÄÄ","dÄÄDÄÄ","eÃ¨Ã©áº»áº½áº¹Ãªá»áº¿á»á»á»Ã«ÄÄÄEÃÃáººáº¼áº¸Ãá»áº¾á»á»á»ÃÄÄÄ","iÃ¬Ã­á»Ä©á»Ã®Ã¯Ä«IÃÃá»Ä¨á»ÃÃÄª","lÅLÅ","nÃ±ÅÅNÃÅÅ","oÃ²Ã³á»Ãµá»Ã´á»á»á»á»á»Æ¡á»á»¡á»á»á»£Ã¶Ã¸ÅOÃÃá»Ãá»Ãá»á»á»á»á»Æ á»á» á»á»á»¢ÃÃÅ","rÅRÅ","sÅ¡ÅÈÅSÅ ÅÈÅ","tÅ¥ÈÅ£TÅ¤ÈÅ¢","uÃ¹Ãºá»§Å©á»¥Æ°á»«á»©á»­á»¯á»±Ã»Ã¼Å¯Å«UÃÃá»¦Å¨á»¤Æ¯á»ªá»¨á»¬á»®á»°ÃÃÅ®Åª","yÃ½á»³á»·á»¹á»µÃ¿YÃá»²á»¶á»¸á»´Å¸","zÅ¾Å¼ÅºZÅ½Å»Å¹"],r=[];return e.split("").forEach(function(o){n.every(function(n){if(-1!==n.indexOf(o)){if(r.indexOf(n)>-1)return!1;e=e.replace(new RegExp("[".concat(n,"]"),"gm".concat(t)),"[".concat(n,"]")),r.push(n)}return!0})}),e}},{key:"createMergedBlanksRegExp",value:function(e){return e.replace(/[\s]+/gim,"[\\s]+")}},{key:"createAccuracyRegExp",value:function(e){var t=this,n=this.opt.accuracy,r="string"==typeof n?n:n.value,o="string"==typeof n?[]:n.limiters,i="";switch(o.forEach(function(e){i+="|".concat(t.escapeStr(e))}),r){case"partially":default:return"()(".concat(e,")");case"complementary":return i="\\s"+(i||this.escapeStr("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~Â¡Â¿")),"()([^".concat(i,"]*").concat(e,"[^").concat(i,"]*)");case"exactly":return"(^|\\s".concat(i,")(").concat(e,")(?=$|\\s").concat(i,")")}}}]),e}(),s=
 /* */
 function(){function n(e){t(this,n),this.ctx=e,this.ie=!1;var r=window.navigator.userAgent;(r.indexOf("MSIE")>-1||r.indexOf("Trident")>-1)&&(this.ie=!0)}return r(n,[{key:"log",value:function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"debug",r=this.opt.log;this.opt.debug&&"object"===e(r)&&"function"==typeof r[n]&&r[n]("mark.js: ".concat(t))}},{key:"getSeparatedKeywords",value:function(e){var t=this,n=[];return e.forEach(function(e){t.opt.separateWordSearch?e.split(" ").forEach(function(e){e.trim()&&-1===n.indexOf(e)&&n.push(e)}):e.trim()&&-1===n.indexOf(e)&&n.push(e)}),{keywords:n.sort(function(e,t){return t.length-e.length}),length:n.length}}},{key:"isNumeric",value:function(e){return Number(parseFloat(e))==e}},{key:"checkRanges",value:function(e){var t=this;if(!Array.isArray(e)||"[object Object]"!==Object.prototype.toString.call(e[0]))return this.log("markRanges() will only accept an array of objects"),this.opt.noMatch(e),[];var n=[],r=0;return e.sort(function(e,t){return e.start-t.start}).forEach(function(e){var o=t.callNoMatchOnInvalidRanges(e,r),i=o.start,a=o.end;o.valid&&(e.start=i,e.length=a-i,n.push(e),r=a)}),n}},{key:"callNoMatchOnInvalidRanges",value:function(e,t){var n,r,o=!1;return e&&void 0!==e.start?(r=(n=parseInt(e.start,10))+parseInt(e.length,10),this.isNumeric(e.start)&&this.isNumeric(e.length)&&r-t>0&&r-n>0?o=!0:(this.log("Ignoring invalid or overlapping range: "+"".concat(JSON.stringify(e))),this.opt.noMatch(e))):(this.log("Ignoring invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)),{start:n,end:r,valid:o}}},{key:"checkWhitespaceRanges",value:function(e,t,n){var r,o=!0,i=n.length,a=t-i,s=parseInt(e.start,10)-a;return(r=(s=s>i?i:s)+parseInt(e.length,10))>i&&(r=i,this.log("End range automatically set to the max value of ".concat(i))),s<0||r-s<0||s>i||r>i?(o=!1,this.log("Invalid range: ".concat(JSON.stringify(e))),this.opt.noMatch(e)):""===n.substring(s,r).replace(/\s+/g,"")&&(o=!1,this.log("Skipping whitespace only range: "+JSON.stringify(e)),this.opt.noMatch(e)),{start:s,end:r,valid:o}}},{key:"getTextNodes",value:function(e){var t=this,n="",r=[];this.iterator.forEachNode(NodeFilter.SHOW_TEXT,function(e){r.push({start:n.length,end:(n+=e.textContent).length,node:e})},function(e){return t.matchesExclude(e.parentNode)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},function(){e({value:n,nodes:r})})}},{key:"matchesExclude",value:function(e){return i.matches(e,this.opt.exclude.concat(["script","style","title","head","html"]))}},{key:"wrapRangeInTextNode",value:function(e,t,n){var r=this.opt.element?this.opt.element:"mark",o=e.splitText(t),i=o.splitText(n-t),a=document.createElement(r);return a.setAttribute("data-markjs","true"),this.opt.className&&a.setAttribute("class",this.opt.className),a.textContent=o.textContent,o.parentNode.replaceChild(a,o),i}},{key:"wrapRangeInMappedTextNode",value:function(e,t,n,r,o){var i=this;e.nodes.every(function(a,s){var c=e.nodes[s+1];if(void 0===c||c.start>t){if(!r(a.node))return!1;var u=t-a.start,l=(n>a.end?a.end:n)-a.start,h=e.value.substr(0,a.start),f=e.value.substr(l+a.start);if(a.node=i.wrapRangeInTextNode(a.node,u,l),e.value=h+f,e.nodes.forEach(function(t,n){n>=s&&(e.nodes[n].start>0&&n!==s&&(e.nodes[n].start-=l),e.nodes[n].end-=l)}),n-=l,o(a.node.previousSibling,a.start),!(n>a.end))return!1;t=a.end}return!0})}},{key:"wrapGroups",value:function(e,t,n,r){return r((e=this.wrapRangeInTextNode(e,t,t+n)).previousSibling),e}},{key:"separateGroups",value:function(e,t,n,r,o){for(var i=t.length,a=1;a<i;a++){var s=e.textContent.indexOf(t[a]);t[a]&&s>-1&&r(t[a],e)&&(e=this.wrapGroups(e,s,t[a].length,o))}return e}},{key:"wrapMatches",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){t.nodes.forEach(function(t){var o;for(t=t.node;null!==(o=e.exec(t.textContent))&&""!==o[a];){if(i.opt.separateGroups)t=i.separateGroups(t,o,a,n,r);else{if(!n(o[a],t))continue;var s=o.index;if(0!==a)for(var c=1;c<a;c++)s+=o[c].length;t=i.wrapGroups(t,s,o[a].length,r)}e.lastIndex=0}}),o()})}},{key:"wrapMatchesAcrossElements",value:function(e,t,n,r,o){var i=this,a=0===t?0:t+1;this.getTextNodes(function(t){for(var s;null!==(s=e.exec(t.value))&&""!==s[a];){var c=s.index;if(0!==a)for(var u=1;u<a;u++)c+=s[u].length;var l=c+s[a].length;i.wrapRangeInMappedTextNode(t,c,l,function(e){return n(s[a],e)},function(t,n){e.lastIndex=n,r(t)})}o()})}},{key:"wrapRangeFromIndex",value:function(e,t,n,r){var o=this;this.getTextNodes(function(i){var a=i.value.length;e.forEach(function(e,r){var s=o.checkWhitespaceRanges(e,a,i.value),c=s.start,u=s.end;s.valid&&o.wrapRangeInMappedTextNode(i,c,u,function(n){return t(n,e,i.value.substring(c,u),r)},function(t){n(t,e)})}),r()})}},{key:"unwrapMatches",value:function(e){for(var t=e.parentNode,n=document.createDocumentFragment();e.firstChild;)n.appendChild(e.removeChild(e.firstChild));t.replaceChild(n,e),this.ie?this.normalizeTextNode(t):t.normalize()}},{key:"normalizeTextNode",value:function(e){if(e){if(3===e.nodeType)for(;e.nextSibling&&3===e.nextSibling.nodeType;)e.nodeValue+=e.nextSibling.nodeValue,e.parentNode.removeChild(e.nextSibling);else this.normalizeTextNode(e.firstChild);this.normalizeTextNode(e.nextSibling)}}},{key:"markRegExp",value:function(e,t){var n=this;this.opt=t,this.log('Searching with expression "'.concat(e,'"'));var r=0,o="wrapMatches";this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),this[o](e,this.opt.ignoreGroups,function(e,t){return n.opt.filter(t,e,r)},function(e){r++,n.opt.each(e)},function(){0===r&&n.opt.noMatch(e),n.opt.done(r)})}},{key:"mark",value:function(e,t){var n=this;this.opt=t;var r=0,o="wrapMatches",i=this.getSeparatedKeywords("string"==typeof e?[e]:e),s=i.keywords,c=i.length;this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),0===c?this.opt.done(r):function e(t){var i=new a(n.opt).create(t),u=0;n.log('Searching with expression "'.concat(i,'"')),n[o](i,1,function(e,o){return n.opt.filter(o,t,r,u)},function(e){u++,r++,n.opt.each(e)},function(){0===u&&n.opt.noMatch(t),s[c-1]===t?n.opt.done(r):e(s[s.indexOf(t)+1])})}(s[0])}},{key:"markRanges",value:function(e,t){var n=this;this.opt=t;var r=0,o=this.checkRanges(e);o&&o.length?(this.log("Starting to mark with the following ranges: "+JSON.stringify(o)),this.wrapRangeFromIndex(o,function(e,t,r,o){return n.opt.filter(e,t,r,o)},function(e,t){r++,n.opt.each(e,t)},function(){n.opt.done(r)})):this.opt.done(r)}},{key:"unmark",value:function(e){var t=this;this.opt=e;var n=this.opt.element?this.opt.element:"*";n+="[data-markjs]",this.opt.className&&(n+=".".concat(this.opt.className)),this.log('Removal selector "'.concat(n,'"')),this.iterator.forEachNode(NodeFilter.SHOW_ELEMENT,function(e){t.unwrapMatches(e)},function(e){var r=i.matches(e,n),o=t.matchesExclude(e);return!r||o?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT},this.opt.done)}},{key:"opt",set:function(e){this._opt=o({},{element:"",className:"",exclude:[],iframes:!1,iframesTimeout:5e3,separateWordSearch:!0,acrossElements:!1,ignoreGroups:0,each:function(){},noMatch:function(){},filter:function(){return!0},done:function(){},debug:!1,log:window.console},e)},get:function(){return this._opt}},{key:"iterator",get:function(){return new i(this.ctx,this.opt.iframes,this.opt.exclude,this.opt.iframesTimeout)}}]),n}();return function(e){var t=this,n=new s(e);return this.mark=function(e,r){return n.mark(e,r),t},this.markRegExp=function(e,r){return n.markRegExp(e,r),t},this.markRanges=function(e,r){return n.markRanges(e,r),t},this.unmark=function(e){return n.unmark(e),t},this}});
 
@@ -9964,6 +10120,8 @@ function toggleTOC(toggleElem) {
 			}
 		else
 			{
+			// TEST ONLY
+			//console.log("toggleTOC.js#76");
 			reJumpToLineNumber(topLineNumber);
 			///// was restoreTopPosition(textElement, theTopPos);
 			}
@@ -10677,6 +10835,8 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
+	// TEST ONLY
+	//console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -10690,6 +10850,8 @@ function doResize() {
 function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
+	// TEST ONLY
+	//console.log("reJumpAndHighlight delayed 100");
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
@@ -10764,6 +10926,8 @@ function reJump(delayMsec) {
 			}
 		else
 			{
+			// TEST ONLY
+			//console.log("viewerStart.js#166");
 			reJumpToLineNumber(h, delayMsec);
 			}
 		}
@@ -10787,8 +10951,10 @@ function jumpToMarkdownLineFromStorage() {
 	// TEST ONLY
 	//console.log("jumpToMarkdownLineFromStorage looking for " + markdownLineNumberStr);
 
+	// Note sure why I was deleting the remembered line number,
+	// leaving it in for now.
+	//localStorage.removeItem(markdownLineNumberKey);
 
-	localStorage.removeItem(markdownLineNumberKey);
 	const textDiv = document.getElementById("scrollTextRightOfContents");
 	if (textDiv === null)
 		{
@@ -11045,6 +11211,8 @@ function getElementForHash(h) {
 				{
 				if (!isNaN(hCopy))
 					{
+					// TEST ONLY
+					//console.log("viewerStart.js#449");
 					reJumpToLineNumber(hCopy);
 					break;
 					}
@@ -11066,7 +11234,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 		delayMsec = 0;
 		}
 
-	let lineNum = parseInt(h, 10) - 1;
+	let lineNum = parseInt(h, 10);
+	///let lineNum = parseInt(h, 10) - 1;
 	if (lineNum < 0)
 		{
 		lineNum = 0;
@@ -11075,7 +11244,8 @@ async function reJumpToLineNumber(h, delayMsec) {
 	// Try for class "imt" tables first (found in .txt files),
 	// if not found look for rows in all tables.
 	let rows;
-	if (hasTextExtension())
+	let isText = hasTextExtension();
+	if (isText)
 		{
 		const rowNodes = document.querySelectorAll(`table.${'imt'} tr`);
 		rows = Array.from(rowNodes);
@@ -11089,6 +11259,9 @@ async function reJumpToLineNumber(h, delayMsec) {
 		{
 		lineNum = rows.length - 1;
 		}
+
+	// TEST ONLY
+	//console.log("Looking for line number |" + lineNum + "|");
 	
 	if (lineNum >= 0)
 		{
@@ -11117,12 +11290,43 @@ async function reJumpToLineNumber(h, delayMsec) {
 		
 		if (el !== null)
 			{
+			// If inline HTML is present, then we have gone too far, need to back
+			// up to the row with id 'RNNN' where NNN is the wanted line number.
+			if (isText && el.hasAttribute('id') && lineNum > 0)
+				{
+				let rowNum = lineNum;
+				let rowID = el.id;
+				let rowLineStr = rowID.substring(1);
+				let rowLineNumber = parseInt(rowLineStr, 10);
+
+				// TEST ONLY
+				//console.log("Line number for that row is |" + rowLineNumber + "|");
+
+				while (rowLineNumber > lineNum && rowNum > 0)
+					{
+					--rowNum;
+					el = rows[rowNum];
+					if (el.hasAttribute('id'))
+						{
+						rowID = el.id;
+						rowLineStr = rowID.substring(1);
+						rowLineNumber = parseInt(rowLineStr, 10);
+						// TEST ONLY
+						//console.log("rowline " + rowLineNumber + " seen on row " + rowNum);
+						}
+					else
+						{
+						// TEST ONLY
+						//console.log("No line id for row |" + rowNum + "|");
+						}
+					}
+				}
+
 			if (delayMsec > 0)
 				{
 				await delay(delayMsec);
 				}
 
-			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView(true);
 			resetTopNavPosition();
 			if (!onMobile)
@@ -11133,10 +11337,6 @@ async function reJumpToLineNumber(h, delayMsec) {
 				{
 				scrollMobileIndicator(); // if mobile
 				}
-
-			// setTimeout(function() {
-			// 	el.style.backgroundColor = "transparent";
-			// 	}, 2000);
 			}
 
 		// Restore Table of Contents scrolled position and highlight.
@@ -11219,6 +11419,9 @@ function finishStartup() {
 	positionViewItems();
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	setImagesButtonText();
+	
+	// TEST ONLY
+	//console.log("finishStartup");
 	reJump();
 }
 
@@ -12236,6 +12439,46 @@ function addHintboxListener() {
 		}
 }
 
+// Jump from footnote/citation reference to the note,
+// remembering the line number we came from.
+function scrollToFootnote(newIndexId, refLineNumber) {
+	let noteElement = document.getElementById(newIndexId);
+	if (noteElement !== null)
+		{
+		localStorage.setItem(thePath + '?' + 'noteRefLine' , refLineNumber);
+		noteElement.scrollIntoView();
+		}
+}
+
+// Scroll (jump) from footnote back to the reference that triggered
+// the jump. If none, pot luck.
+function scrollBackToFootnoteRef(ourAnchor) {
+	let refLine = localStorage.getItem(thePath + '?' + 'noteRefLine');
+	if (refLine !== null)
+		{
+		reJumpToLineNumber(refLine, 0);
+		}
+	// else try for the first reference
+	else
+		{
+		let id = ourAnchor.href;
+		if (id !== null)
+			{
+			let idProperPos = id.indexOf('fnref');
+			if (idProperPos >= 0)
+				{
+				let firstrefId = id.substring(idProperPos + 5);
+				firstrefId = 'fnref' + firstrefId;
+				let firstRef = document.getElementById(firstrefId);
+				if (firstRef !== null)
+					{
+					firstRef.scrollIntoView();
+					}
+				}
+			}
+		}
+}
+
 if (onMobile)
 	{
 	addHintTimer = setInterval(addHintboxListener, 200);
@@ -12638,8 +12881,8 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 			}
 
 		// For restoring scrolled position after a reload.
-		let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
-		lineNum -= deductionForInlineHTMLChunks;
+		//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+		//lineNum -= deductionForInlineHTMLChunks;
 		location.hash = lineNum.toString();
 		}
 		
@@ -12650,6 +12893,13 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		}
 }
 
+// No longer used.
+// For .txt documents displayed by IntraMine's Viewer, deduct
+// 1 from the line number to show for each inline HTML chunk
+// that is before lineNum. This makes the row count for
+// regular (non-line HTML) text agree with the
+// wanted lineNum.
+// Return (+ve) correction to deduct from lineNum.
 function inlineHTMLDeductionBeforeLine(lineNum) {
 	let correction = 0;
 	if (!hasTextExtension())
@@ -12680,8 +12930,6 @@ function inlineHTMLDeductionBeforeLine(lineNum) {
 			}
 		}
 
-	// TEST ONLY
-	//console.log("Correction: " + correction);
 	return(correction);
 }
 

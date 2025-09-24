@@ -452,9 +452,26 @@ sub TextDocxPdfLine {
 sub RunGlossToHTML {
 	my ($obj, $formH, $peeraddress) = @_;
 
-	$FileOrDir       = defined($formH->{'file_or_dir'}) ? $formH->{'file_or_dir'} : '';
-	$InlineImages    = defined($formH->{'inline'})      ? $formH->{'inline'}      : 0;
-	$HoverGIFS       = defined($formH->{'hover_gifs'})  ? $formH->{'hover_gifs'}  : 0;
+	$FileOrDir    = defined($formH->{'file_or_dir'}) ? $formH->{'file_or_dir'} : '';
+	$InlineImages = defined($formH->{'inline'})      ? $formH->{'inline'}      : 0;
+	if ($InlineImages eq 'yes')
+		{
+		$InlineImages = 1;
+		}
+	elsif ($InlineImages eq 'no')
+		{
+		$InlineImages = 0;
+		}
+	$HoverGIFS = defined($formH->{'hover_gifs'}) ? $formH->{'hover_gifs'} : 0;
+	if ($HoverGIFS eq 'yes')
+		{
+		$HoverGIFS = 1;
+		}
+	elsif ($HoverGIFS eq 'no')
+		{
+		$HoverGIFS = 0;
+		}
+
 	$StartRun        = 1;
 	$RunIsUnderWeigh = 1;
 

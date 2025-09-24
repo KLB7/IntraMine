@@ -26,6 +26,12 @@ function addAutoLinks() {
 	
 	let firstVisibleLineNum = firstVisibleLineNumber(el); // showHideTOC.js
 	let lastVisibleLineNum = lastVisibleLineNumber(el);
+	// If there's no scroll bar we often get last line as 0.
+	// If it's 0, force to 200.
+	if (lastVisibleLineNum === 0)
+		{
+		lastVisibleLineNum = 200;
+		}
 	// Go past the window bottom, sometimes this makes scrolling smoother.
 	lastVisibleLineNum = Math.floor(firstVisibleLineNum + (lastVisibleLineNum - firstVisibleLineNum) * 1.5);
 	
@@ -119,8 +125,6 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 						if (rowElem !== null)
 							{
 							let repStr = lines[ind];
-							let regex = /\%2B/gi;
-							repStr = repStr.replace(regex, '+');
 							let regex2 = /:81\//g;
 							repStr = repStr.replace(regex2, ":" + ourSSListeningPort + "/");
 							rowElem.innerHTML = repStr;

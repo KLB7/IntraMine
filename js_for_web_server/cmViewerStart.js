@@ -1,6 +1,10 @@
 // cmViewerStart.js: CodeMirror handling. Used in: intramine_viewer.pl for read-only
 // CodeMirror views.
 
+function getRandInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
@@ -299,8 +303,12 @@ function decodeHTMLEntities(text) {
 async function loadFileIntoCodeMirror(cm, path) {
 	path = encodeURIComponent(path);
 
+	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&rddm=' + String(getRandInt(1, 65000));
+
 	try {
-		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
+
+
+		//let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
 		const response = await fetch(theAction);
 		if (response.ok)
 			{

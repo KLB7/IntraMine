@@ -187,12 +187,10 @@ sub ConvertTextToHTML {
 	StartHtmlFile($filePath, $context, \$contents);    # Start HTML, inline CSS
 	GetPrettyText($context, $filePath, \$contents);    # The text, in tables
 	EndHtmlFile($filePath, \$contents);                # inline JavaScript, finish HTML
-
 	my $outPath = $filePath;
 	$outPath =~ s!txt$!html!i;
 
-	WriteTextFileWide($outPath, $contents);
-	#WriteUTF8FileWide($outPath, $contents); # Doesn't handle non-ASCII well. Sigh.
+	WriteUTF8FileWide($outPath, $contents);            # Doesn't handle non-ASCII well. Sigh.
 }
 
 # Get text file as a big string. Returns 1 if successful, 0 on failure.
@@ -577,7 +575,7 @@ sub GetPrettyText {
 			. "</table>$bottomShim</div>";
 		}
 
-	$$contents_R .= encode_utf8($textContents);
+	$$contents_R .= $textContents;
 }
 
 { ##### HTML hash and footnotes
@@ -919,7 +917,9 @@ sub GlossedFootnote {
 			$newIndex = $oldIndex;
 			}
 		}
-	$footnoteLines[0] =~ s!^(<div\s+id=\'fn\w+\'>)\[\^(\w+)]:!$1\*\*$newIndex\*\*\.!;
+
+	$footnoteLines[0] =~
+		s!^<div\s+id=(['"])fn(\w+)['"]>\[\^(\w+)]:!<div id=$1fn$newIndex$1>\*\*$newIndex\*\*\.!;
 
 	# Fix the back ref too, on the last line. Look for #fnref_BACKREF_
 	my $lastLine = @footnoteLines;
@@ -988,6 +988,12 @@ sub GlossedPopupForFootnote {
 		my @footnoteLines = split(/\n/, $glossedFootnote);
 		my $numLines      = @footnoteLines;
 		ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+		# Pad out the footnote vertically if it's tiny, to allow easier mousing over (sic).
+		if ($numLines < 3)
+			{
+			push @footnoteLines, "<p></p>";
+			unshift @footnoteLines, "<p></p>";
+			}
 		my $foot = join("\n", @footnoteLines);
 		$foot = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");
 

@@ -185,7 +185,8 @@ function hasClass(el, className) {
 	if (el.classList)
 		return el.classList.contains(className);
 	else
-	return(typeof el.className !== 'undefined' && !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
+	return(typeof el.className !== 'undefined'
+			&& !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)')));
 }
 
 function addClass(el, className) {
@@ -397,7 +398,7 @@ myCodeMirror.on("change", onCodeMirrorChange);
 function decodeHTMLEntities(text) {
 	let entities =
 			[ [ 'amp', '&' ], [ 'apos', '\'' ], [ '#x27', '\'' ], [ '#x2F', '/' ], [ '#39', '\'' ],
-					[ '#47', '/' ], [ 'lt', '<' ], [ 'gt', '>' ], [ 'nbsp', ' ' ], [ 'quot', '"' ] ];
+				[ '#47', '/' ], [ 'lt', '<' ], [ 'gt', '>' ], [ 'nbsp', ' ' ], [ 'quot', '"' ] ];
 
 	for (let i = 0, max = entities.length; i < max; ++i)
 		text = text.replace(new RegExp('&' + entities[i][0] + ';', 'g'), entities[i][1]);
@@ -414,7 +415,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 	path = encodeURIComponent(path);
 
 	try {
-		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&rddm=' + String(getRandomInt(1, 65000));
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file='
+						+ path + '&rddm=' + String(getRandomInt(1, 65000));
+
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
@@ -848,7 +851,8 @@ function setIsMarkdown() {
 	if (extPos > 1)
 		{
 		let ext = fileName.slice(extPos + 1);
-		if (ext === "md" || ext === "MD" || ext === "mkd" || ext === "MKD" || ext === "markdown" || ext === "MARKDOWN")
+		if (ext === "md" || ext === "MD" || ext === "mkd" || ext === "MKD"
+			|| ext === "markdown" || ext === "MARKDOWN")
 			{
 			// .md files don't have line numbers and need special handling
 			// when inserting links and glossary popups - see addAutoLinks().
