@@ -498,11 +498,11 @@ async function showDirectory(dirPath) {
 		}
 	
 	// Handle drive first.
-	driveChanged('scrollDriveListLeft', openRels[0]);
-	let theDrive = openRels[0];
-	theDrive = theDrive.substring(0, theDrive.length - 1);
+	let driveSpec = openRels[0];
+	driveSpec = driveSpec.toUpperCase();
+	driveChanged('scrollDriveListLeft', driveSpec);
 	let eid = document.getElementById('driveselector_1');
-	eid.value = openRels[0];
+	eid.value = driveSpec;
 
 	await delay(500);
 

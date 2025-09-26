@@ -99,6 +99,11 @@ sub new {
 	$self->{PORT}       = $port_listen;
 	$self->{VIEWERNAME} = $VIEWERNAME;
 	$self->{MONITOR}    = $monitorCallback;
+
+	@{$self->{FULLPATHS}} = ();
+	@{$self->{PATHQUERY}} = ();
+	%{$self->{PATHSEEN}}  = ();
+
 	InitMonitor($monitorCallback);
 
 	@PreferredExtensions = @$preferredExtensionsA;
@@ -140,6 +145,10 @@ sub Instances {
 	my ($self, $rawquery, $fullPath) = @_;
 	my $result = '';
 
+	@{$self->{FULLPATHS}} = ();
+	@{$self->{PATHQUERY}} = ();
+	%{$self->{PATHSEEN}}  = ();
+
 	my @wantedExt;
 	GetExtensionsForDefinition($fullPath, \@wantedExt);
 	my $numExtensions = @wantedExt;
@@ -159,12 +168,15 @@ sub Instances {
 			}
 		}
 
-	if ($result ne '' && $result ne '<p>nope</p>')
-		{
-		return ($result);
-		}
+	# if ($result ne '' && $result ne '<p>nope</p>')
+	# 	{
+	# 	return ($result);
+	# 	}
 
 	my @keywords;
+	my $numHits;
+	my $numFiles;
+
 	if ($definitionKeyword ne '')
 		{
 		if (index($definitionKeyword, '|') > 0)
@@ -175,25 +187,25 @@ sub Instances {
 			{
 			push @keywords, $definitionKeyword;
 			}
-		}
 
-	my $numHits;
-	my $numFiles;
-	for (my $i = 0 ; $i < @keywords ; ++$i)
-		{
-		my $query = $keywords[$i] . ' ' . $rawquery;
-		$numHits  = 0;
-		$numFiles = 0;
-		$result = GetDefinitionLinks($self, $query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
-		if ($result ne '' && $result ne '<p>nope</p>')
+		for (my $i = 0 ; $i < @keywords ; ++$i)
 			{
-			last;
+			my $query = $keywords[$i] . ' ' . $rawquery;
+			$numHits  = 0;
+			$numFiles = 0;
+			$result =
+				GetDefinitionLinks($self, $query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
+			if (NumHitsSoFar($self) > 0)
+				{
+				last;
+				}
 			}
 		}
 
+
 	# Faint hope: perhaps the selected term is defined in some other
 	# language? We'll try .js and .css. Maybe .pl, .pm.
-	if ($result eq '' || $result eq '<p>nope</p>')
+	if (NumHitsSoFar($self) == 0)
 		{
 		$numHits  = 0;
 		$numFiles = 0;
@@ -203,9 +215,34 @@ sub Instances {
 		}
 
 	# Last hope: accept any hits anywhere.
-	if ($result eq '' || $result eq '<p>nope</p>')
+	my $putDividerBefore = -1;
+	if (!HitLimitReached($self))
 		{
-		$result = GetAnyLinks($self, $rawquery, $fullPath, 1, undef);
+		my $dividerWanted = 0;
+		my $numSoFar      = NumHitsSoFar($self);
+		if ($numSoFar > 0)
+			{
+			$dividerWanted = 1;
+			}
+		my $numDefinitionsAdded = 0;
+		$result = GetAnyLinks($self, $rawquery, $fullPath, 1, \$numDefinitionsAdded);
+		if ($dividerWanted)
+			{
+			my $numAfterGetAny   = NumHitsSoFar($self);
+			my $totalDefinitions = $numSoFar + $numDefinitionsAdded;
+			if ($numAfterGetAny > $numSoFar && $numAfterGetAny > $totalDefinitions)
+				{
+				$putDividerBefore = $numSoFar + $numDefinitionsAdded;
+				}
+			}
+		}
+
+	FormatFullPathsResults($self, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME},
+		$putDividerBefore, \$result);
+
+	if ($result eq '')
+		{
+		$result = '<p>nope</p>';
 		}
 
 	return ($result);
@@ -241,7 +278,6 @@ sub GetExtensionsForDefinition {
 # Match words supplied as a phrase.
 # Only content is searched, a file name mention becomes a FLASH link in IntraMine.
 # No restriction on folder, sometimes restrictions on extensions.
-# FormatFullPathsResults() formats hits as HTML, with best Elasticsearch score first.
 sub GetDefinitionLinks {
 	my ($self, $rawquery, $extA, $numHitsR, $numFilesR, $fullPath) = @_;
 	$fullPath = lc($fullPath);
@@ -272,8 +308,9 @@ sub GetDefinitionLinks {
 		my $numRemaining = @otherRawFullPaths;
 		if ($numRemaining)
 			{
-			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-				$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
+			RememberPaths($self, \@otherRawFullPaths, $rawquery);
+			#FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+			#	$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
 			}
 		else
 			{
@@ -293,40 +330,67 @@ sub GetDefinitionLinks {
 
 # If a definition search turns up nothing, maybe the term selected
 # was in a different language. So try looking for JavaScript
-# or CSS definitions, we might get lucky.
+# or CSS definitions etc, we might get lucky. Especially if
+# the query is in a .txt file.
 sub GetDefinitionLinksInOtherLanguages {
 	my ($self, $rawquery, $extA, $numHitsR, $numFilesR) = @_;
 	my $result = '';
 	my $e      = $self->{SEARCHER};
-	my $rawResults;
-	#my $numHits = 0;
-	#my $numFiles = 0;
+	my @otherExtensions;
 	my $numFound = 0;
 
 	if ($extA->[0] ne "js")
 		{
-		my @jsExtension;
-		push @jsExtension, 'js';
-		$result = GetCtagsResultsForExtensions($self, $rawquery, \@jsExtension, $e, \$numFound, '');
+		push @otherExtensions, 'js';
 		}
-	if ($numFound == 0 && $extA->[0] ne "css")
+	if ($extA->[0] ne "css")
 		{
-		my @cssExtension;
-		push @cssExtension, 'css';
-		$result =
-			GetCtagsResultsForExtensions($self, $rawquery, \@cssExtension, $e, \$numFound, '');
+		push @otherExtensions, 'css';
 		}
 
-	# Do Perl too
-	if ($numFound == 0 && $extA->[0] ne "pl" && $extA->[0] ne "pm")
+	# Perl
+	if ($extA->[0] ne "pl" && $extA->[0] ne "pm")
 		{
-		my @perlExtensions;
-		push @perlExtensions, 'pl';
-		push @perlExtensions, 'pm';
-		$result =
-			GetCtagsResultsForExtensions($self, $rawquery, \@perlExtensions, $e, \$numFound, '');
+		push @otherExtensions, 'pl';
+		push @otherExtensions, 'pm';
 		}
 
+	# C/C++
+	if ($extA->[0] ne "cpp" && $extA->[0] ne "c" && $extA->[0] ne "h")
+		{
+		push @otherExtensions, 'cpp';
+		push @otherExtensions, 'h';
+		push @otherExtensions, 'c';
+		}
+
+	# Python bzl,py,pyw
+	if ($extA->[0] ne "bzl" && $extA->[0] ne "py" && $extA->[0] ne "pyw")
+		{
+		push @otherExtensions, 'bzl';
+		push @otherExtensions, 'py';
+		push @otherExtensions, 'pyw';
+		}
+
+	# Java
+	if ($extA->[0] ne "bzl")
+		{
+		push @otherExtensions, 'java';
+		}
+
+	# C#
+	if ($extA->[0] ne "cs")
+		{
+		push @otherExtensions, 'cs';
+		}
+
+	# Go
+	if ($extA->[0] ne "go")
+		{
+		push @otherExtensions, 'go';
+		}
+
+
+	$result = GetCtagsResultsForExtensions($self, $rawquery, \@otherExtensions, $e, \$numFound, '');
 
 	if ($numFound == 0)
 		{
@@ -339,12 +403,19 @@ sub GetDefinitionLinksInOtherLanguages {
 # Called by intramine_linker.pl#Definitions() as a last resort,
 # look for any file containing the $rawquery, return links if found.
 sub GetAnyLinks {
-	my ($self, $rawquery, $fullPath, $doDefinitions, $resultsSoFar) = @_;
-	$fullPath = lc($fullPath);
+	my ($self, $rawquery, $fullPath, $doDefinitions, $numDefinitionsAddedR) = @_;
+	$$numDefinitionsAddedR = 0;
+	$fullPath              = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
 
 	# TEST ONLY, show message on the "Mon" page.
-	#Monitor("GetAnyLinks called for |$rawquery|\n");
+	my $chattyHere = 0;
+	if ($rawquery =~ m!getanylinks!i)
+		{
+		#$chattyHere = 1;
+		#my $hitsSoFar = NumHitsSoFar($self);
+		#Monitor("GetAnyLinks top, hits so far |$hitsSoFar|\n");
+		}
 
 	my $e          = $self->{SEARCHER};
 	my $rawResults = '';
@@ -366,28 +437,54 @@ sub GetAnyLinks {
 				my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
 				if ($fixedFullPath ne $fullPath)
 					{
+					# if ($chattyHere)
+					# 	{
+					# 	Monitor("Pushing |$rawFullPaths[$i]| to \@otherRawFullPaths\n");
+					# 	}
 					push @otherRawFullPaths, $rawFullPaths[$i];
 					}
 				}
 
 			my @winnowedFullPaths;
+			my @notWinnowedFullPaths;
 			my $numRemaining =
-				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
+				\@notWinnowedFullPaths);
 
 			if ($numRemaining)
 				{
-				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-					$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+				if ($chattyHere)
+					{
+					my $numdefs  = @winnowedFullPaths;
+					my $numOther = @notWinnowedFullPaths;
+					Monitor("Picked up $numdefs defs and $numOther nondefs.\n");
+					}
+				my $numBeforeAdding = NumHitsSoFar($self);
+				RememberPaths($self, \@winnowedFullPaths, $rawquery);
+				my $numAfterAdding = NumHitsSoFar($self);
+				$$numDefinitionsAddedR += $numAfterAdding - $numBeforeAdding;
+				RememberPaths($self, \@notWinnowedFullPaths, $rawquery);
+				#FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				#	$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 				}
 			else
 				{
-				$result = '<p>nope</p>';
+				my $notWinnowed = @notWinnowedFullPaths;
+				if ($notWinnowed)
+					{
+					RememberPaths($self, \@otherRawFullPaths, $rawquery);
+					}
 				}
 			}
 		}
 
-	if ($result eq '' || $result eq '<p>nope</p>')
+	if (!HitLimitReached($self))
+		#if ($result eq '' || $result eq '<p>nope</p>')
 		{
+		if ($chattyHere)
+			{
+			Monitor("Last gasp, about to call GetAnyHits\n");
+			}
 		my $numHits = GetAnyHits($self, $rawquery, $e, \$rawResults);
 		if ($numHits)
 			{
@@ -406,18 +503,32 @@ sub GetAnyLinks {
 
 
 			my @winnowedFullPaths;
+			my @notWinnowedFullPaths;
 			my $numRemaining =
-				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
+				\@notWinnowedFullPaths);
 
 			if ($numRemaining)
 				{
-				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-					$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+				if ($chattyHere)
+					{
+					my $numdefs  = @winnowedFullPaths;
+					my $numOther = @notWinnowedFullPaths;
+					Monitor("GetAnyHits picked up $numdefs defs and $numOther nondefs.\n");
+					}
+				my $numBeforeAdding = NumHitsSoFar($self);
+				RememberPaths($self, \@winnowedFullPaths, $rawquery);
+				my $numAfterAdding = NumHitsSoFar($self);
+				$$numDefinitionsAddedR += $numAfterAdding - $numBeforeAdding;
+				RememberPaths($self, \@notWinnowedFullPaths, $rawquery);
+				#FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				#	$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 				}
 			else
 				{
-				FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-					$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
+				RememberPaths($self, \@otherRawFullPaths, $rawquery);
+				#FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+				#	$self->{VIEWERNAME}, \@otherRawFullPaths, \$result);
 				}
 			}
 		else
@@ -705,7 +816,7 @@ sub GetCtagsResultsForExtensions {
 
 		my @winnowedFullPaths;
 		$numRemaining =
-			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths);
+			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths, undef);
 
 		if (!$numRemaining)
 			{
@@ -713,8 +824,9 @@ sub GetCtagsResultsForExtensions {
 			}
 		else
 			{
-			FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
-				$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
+			RememberPaths($self, \@winnowedFullPaths, $rawquery);
+			#FormatFullPathsResults($rawquery, $self->{SHOWNHITS}, $self->{HOST}, $self->{PORT},
+			#	$self->{VIEWERNAME}, \@winnowedFullPaths, \$result);
 			}
 		}
 
@@ -837,7 +949,7 @@ sub FolderComp {
 # 	}
 
 sub WinnowFullPathsUsingCtags {
-	my ($rawquery, $rawFullPathsA, $winnowedFullPathsA) = @_;
+	my ($rawquery, $rawFullPathsA, $winnowedFullPathsA, $notWinnowedFullPathsA) = @_;
 	my $numRemaining = 0;
 	# Generate ctags summary file for each full path.
 	my $numRawPaths = @$rawFullPathsA;
@@ -852,83 +964,151 @@ sub WinnowFullPathsUsingCtags {
 		my @lines = split(/\n/, $tagString);
 
 		my $numLines = @lines;
+		my $gottaHit = 0;
 		for (my $j = 0 ; $j < $numLines ; ++$j)
 			{
 			if (index($lines[$j], $rawquery) >= 0 && $lines[$j] =~ m!(^|\W)$rawquery(\W|$)!)
 				{
 				++$numRemaining;
 				push @$winnowedFullPathsA, $filePath;
+				$gottaHit = 1;
 				last;
 				}
+			}
+		if (!$gottaHit && defined($notWinnowedFullPathsA))
+			{
+			push @$notWinnowedFullPathsA, $filePath;
 			}
 		}
 
 	return ($numRemaining);
 }
 
+sub NumHitsSoFar {
+	my ($self) = @_;
+	my $result = @{$self->{FULLPATHS}};
+
+	return ($result);
+}
+
+sub HitLimitReached {
+	my ($self) = @_;
+	my $hits   = @{$self->{FULLPATHS}};
+	my $result = 0;
+	if ($hits >= $self->{SHOWNHITS})
+		{
+		$result = 1;
+		}
+
+	return ($result);
+}
+
+sub RememberPaths {
+	my ($self, $pathsA, $query) = @_;
+	my $numPaths   = @$pathsA;
+	my $hitCounter = @{$self->{FULLPATHS}};
+
+	if ($hitCounter >= $self->{SHOWNHITS})
+		{
+		return;
+		}
+
+	for (my $i = 0 ; $i < $numPaths ; ++$i)
+		{
+		if ($hitCounter >= $self->{SHOWNHITS})
+			{
+			last;
+			}
+
+		my $path   = $pathsA->[$i];
+		my $lcpath = lc(encode_utf8($path));
+		if (!defined($self->{PATHSEEN}{$lcpath}))
+			{
+			++$hitCounter;
+			$self->{PATHSEEN}{$lcpath} = 1;
+			push @{$self->{FULLPATHS}}, $pathsA->[$i];
+			push @{$self->{PATHQUERY}}, $query;
+			}
+		}
+}
+
+# FormatFullPathsResults() formats hits as HTML, with best Elasticsearch score first.
 sub FormatFullPathsResults {
-	my ($rawquery, $maxNumHits, $host, $port, $viewerName, $winnowedFullPathsA, $resultR) = @_;
-	my %fullPathSeen;    # Avoid showing the same file twice.
-	my $numPaths = @$winnowedFullPathsA;
-
-	# Strip leading white from the query, it's never wanted.
-	$rawquery =~ s!^\s+!!;
-	my $originalRawquery = $rawquery;
-
-	my $definitionName = $rawquery;
-	$definitionName = '#' . $definitionName;
-	my $hitCounter = 0;
+	my ($self, $host, $port, $viewerName, $putDividerBefore, $resultR) = @_;
+	my $numPaths = @{$self->{FULLPATHS}};
+	if ($numPaths == 0)
+		{
+		return;
+		}
 
 	$$resultR = "<div>\n";
+
+	# Experiment, put a background color on definitions.
+	my $defColorClassName = "class='go2-def-instance'";
+
+	my $hitCounter = 0;
+	my $maxNumHits = $self->{SHOWNHITS};
 	for (my $i = 0 ; $i < $numPaths ; ++$i)
 		{
 		if ($hitCounter >= $maxNumHits)
 			{
 			last;
 			}
-		my $path          = $winnowedFullPathsA->[$i];
-		my $displayedPath = $path;
-		$path =~ s!\\!/!g;
-		my $lcpath = lc(encode_utf8($path));
-		if (!defined($fullPathSeen{$lcpath}))
+
+		my $path  = $self->{FULLPATHS}->[$i];
+		my $query = $self->{PATHQUERY}->[$i];
+		$query =~ s!^\s+!!;
+		my $displayedPath  = $path . '#' . $query;
+		my $definitionName = '#' . $query;
+		# Replace / with \ in path, some apps still want that.
+		$displayedPath =~ s!/!\\!g;
+		$displayedPath =~ m!([^\\]+)$!;
+		my $isCM = HasCMExtension($path);
+
+		# search Items, encode_utf8 if NOT CodeMirror,
+		# use &HTML::Entities::encode for CodeMirror.
+		# I have no idea why this works:(
+		my $searchItems;
+		if ($isCM)
 			{
-			++$hitCounter;
-			$fullPathSeen{$lcpath} = 1;
-			$displayedPath = $displayedPath . '#' . $originalRawquery;
-			# Replace / with \ in path, some apps still want that.
-			$displayedPath =~ s!/!\\!g;
-			$displayedPath =~ m!([^\\]+)$!;
+			$searchItems = '&searchItems=' . &HTML::Entities::encode($query);
+			}
+		else
+			{
+			$searchItems = '&searchItems=' . encode_utf8($query);
+			}
 
-			# search Items, encode_utf8 if NOT CodeMirror,
-			# use &HTML::Entities::encode for CodeMirror.
-			# I have no idea why this works:(
-			my $isCM = HasCMExtension($path);
-			my $searchItems;
-			if ($isCM)
-				{
-				$searchItems = '&searchItems=' . &HTML::Entities::encode($rawquery);
-				}
-			else
-				{
-				$searchItems = '&searchItems=' . encode_utf8($rawquery);
-				}
-
-			my $pathWithSearchItems = $path . $searchItems . $definitionName;
-			# Horrible hack, having space trouble:
-			$pathWithSearchItems =~ s! !__IMSPC__!g;
-
-			my $openViewFuncName = "openView";
-			if ($isCM)
-				{
-				$openViewFuncName = "openViewEncode";
-				}
-			my $anchor =
+		my $pathWithSearchItems = $path . $searchItems . $definitionName;
+		# Horrible hack, having space trouble:
+		$pathWithSearchItems =~ s! !__IMSPC__!g;
+		my $openViewFuncName = "openView";
+		if ($isCM)
+			{
+			$openViewFuncName = "openViewEncode";
+			}
+		my $anchor =
 "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"$openViewFuncName(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
 
-			my $entry = "<p>$anchor</p>\n";
-
-			$$resultR .= $entry;
+		# Add color to defining links.
+		my $entry = '';
+		if ($putDividerBefore > 0 && $putDividerBefore > $i)
+			{
+			# $defColorClassName
+			$entry = "<p $defColorClassName>$anchor</p>\n";
 			}
+		else
+			{
+			$entry = "<p>$anchor</p>\n";
+			}
+
+		if ($i == $putDividerBefore)
+			{
+			$$resultR .= "<hr />\n";
+			}
+
+		$$resultR .= $entry;
+
+		++$hitCounter;
 		}
 
 	if ($$resultR eq '')
@@ -943,12 +1123,92 @@ sub FormatFullPathsResults {
 	$$resultR = encode_utf8($$resultR);
 }
 
+# sub FormatFullPathsResults {
+# 	my ($rawquery, $maxNumHits, $host, $port, $viewerName, $winnowedFullPathsA, $resultR) = @_;
+
+# 	# THIS SUB IS GOING AWAY.
+# 	return;
+
+# 	my %fullPathSeen;    # Avoid showing the same file twice.
+# 	my $numPaths = @$winnowedFullPathsA;
+
+# 	# Strip leading white from the query, it's never wanted.
+# 	$rawquery =~ s!^\s+!!;
+# 	my $originalRawquery = $rawquery;
+
+# 	my $definitionName = $rawquery;
+# 	$definitionName = '#' . $definitionName;
+# 	my $hitCounter = 0;
+
+# 	$$resultR = "<div>\n";
+# 	for (my $i = 0 ; $i < $numPaths ; ++$i)
+# 		{
+# 		if ($hitCounter >= $maxNumHits)
+# 			{
+# 			last;
+# 			}
+# 		my $path          = $winnowedFullPathsA->[$i];
+# 		my $displayedPath = $path;
+# 		$path =~ s!\\!/!g;
+# 		my $lcpath = lc(encode_utf8($path));
+# 		if (!defined($fullPathSeen{$lcpath}))
+# 			{
+# 			++$hitCounter;
+# 			$fullPathSeen{$lcpath} = 1;
+# 			$displayedPath = $displayedPath . '#' . $originalRawquery;
+# 			# Replace / with \ in path, some apps still want that.
+# 			$displayedPath =~ s!/!\\!g;
+# 			$displayedPath =~ m!([^\\]+)$!;
+
+# 			# search Items, encode_utf8 if NOT CodeMirror,
+# 			# use &HTML::Entities::encode for CodeMirror.
+# 			# I have no idea why this works:(
+# 			my $isCM = HasCMExtension($path);
+# 			my $searchItems;
+# 			if ($isCM)
+# 				{
+# 				$searchItems = '&searchItems=' . &HTML::Entities::encode($rawquery);
+# 				}
+# 			else
+# 				{
+# 				$searchItems = '&searchItems=' . encode_utf8($rawquery);
+# 				}
+
+# 			my $pathWithSearchItems = $path . $searchItems . $definitionName;
+# 			# Horrible hack, having space trouble:
+# 			$pathWithSearchItems =~ s! !__IMSPC__!g;
+
+# 			my $openViewFuncName = "openView";
+# 			if ($isCM)
+# 				{
+# 				$openViewFuncName = "openViewEncode";
+# 				}
+# 			my $anchor =
+# "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"$openViewFuncName(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";
+
+# 			my $entry = "<p>$anchor</p>\n";
+
+# 			$$resultR .= $entry;
+# 			}
+# 		}
+
+# 	if ($$resultR eq '')
+# 		{
+# 		$$resultR = "";
+# 		}
+# 	else
+# 		{
+# 		$$resultR .= "</div>\n";
+# 		}
+
+# 	$$resultR = encode_utf8($$resultR);
+# }
+
 # Requires $filePath lowercase
 sub HasCMExtension {
 	my ($filePath) = @_;
 	my $isCM = 1;
-	if (   $filePath =~ m!\.(p[lm]|cgi|t)$!i
-		|| $filePath =~ m!\.pod$!i
+	if (   $filePath =~ m!\.pod$!i
 		|| $filePath =~ m!\.(txt|log|bat)$!i
 		|| $filePath =~ m!\.md$!i)
 		{

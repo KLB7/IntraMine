@@ -80,34 +80,41 @@ async function appEditWithPort(href, openerPort) {
 async function editWithIntraMine(href) {
 	showSpinner();
 
-	href = decodeURIComponent(href);
+	// TEST ONLY
+	console.log("href IN: |" + href + "|");
 
-	// Pull any #Header from the href, put it back on the end later.
-	let header = '';
-	let headerMatch = /(#.+?$)/.exec(href);
-	if (headerMatch !== null)
+	let properHref = href.replace(/^file\:\/\/\//, '');
+	properHref = properHref.replace(/^file:/, '');
+
+	properHref = decodeURIComponent(properHref); // Needed, not sure why....
+
+	let endOfPathPos = properHref.indexOf("&");
+	if (endOfPathPos < 0)
 		{
-		header = headerMatch[1]; 
-		header = header.substring(1);
-		href = href.replace(/#.+?$/, ''); // Take out the '#' temporarily
+		endOfPathPos = properHref.indexOf("#");
+		}
+
+	if (endOfPathPos > 0)
+		{
+		let path = properHref.substring(0, endOfPathPos);
+		let postPath = properHref.substring(endOfPathPos);
+		path = encodeURIComponent(path);
+		properHref = path + postPath;
+		}
+	else
+		{
+		properHref = encodeURIComponent(properHref);
 		}
 	
 	try {
 		const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
 		if (port !== "")
 			{
+			// TEST ONLY
+			console.log("properHref: |" + properHref + "|");
+
 			hideSpinner();
-			let properHref = href.replace(/^file\:\/\/\//, '');
-
-			properHref = encodeURIComponent(properHref);
-			if (header !== '')
-				{
-				header = encodeURIComponent(header);
-				header = '#' + header;
-				}
-			
-			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref + header;
-
+			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref;
 			window.open(url, "_blank");
 			}
 		else

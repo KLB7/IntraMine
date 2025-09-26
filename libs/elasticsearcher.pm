@@ -710,6 +710,8 @@ sub FormatHitResults {
 			{
 			$$resultR .= "</table>\n";
 			}
+
+		#$$resultR = encode_utf8($$resultR);
 		}    # if (defined($numHits)...
 
 	return ($hitCounter);

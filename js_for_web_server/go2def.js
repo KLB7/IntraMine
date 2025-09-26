@@ -6,8 +6,8 @@
 // Track mouse, we show the definition links if the mouse doesn't move much.
 let defStartingX = 0;
 let defStartingY = 0;
-let maximumDeltaX = 20;
-let maximumDeltaY = 20;
+let maximumDeltaX = 30;
+let maximumDeltaY = 30;
 let mouseHasMovedALot = false;
 let definitionMouseMoveTimeout = 250; // milliseconds
 

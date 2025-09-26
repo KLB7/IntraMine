@@ -255,7 +255,7 @@ sub callbackInitPathsAndGlossary {
 	# Also init the definition finder, delayed until here because
 	# we need the server address.
 	my $esIndexName  = 'intramine';
-	my $maxNumHits   = 40;
+	my $maxNumHits   = 20;
 	my $maxShownHits = $GoToLinksMax;    # Links actually, not hits.
 
 	# TEST ONLY

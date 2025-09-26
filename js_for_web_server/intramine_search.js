@@ -359,28 +359,39 @@ function swapLangExt() {
 }
 
 // elasticsearcher.pm#FormatHitResults() inserts calls to this, to open a file
-// in the Viewer (intramine_file_viewer.pl).
+// in the Viewer (intramine_viewer.pl).
 // Viewer port is retrieved to persuade the browser that it's a legit call.
 async function viewerOpenAnchor(href) {
 	// Remove file:///, which wrecks the link.
 	let properHref = href.replace(/^file\:\/\/\//, '');
 	properHref = properHref.replace(/^file:/, '');
 
-	// Pull any #Header from the href, put it back on the end later.
-	let header = '';
-	let headerMatch = /(#.+?$)/.exec(properHref);
-	if (headerMatch !== null)
+	let endOfPathPos = properHref.indexOf("&");
+	if (endOfPathPos < 0)
 		{
-		header = headerMatch[1];
-		properHref = properHref.replace(/#.+?$/, '');
-		}	
+		endOfPathPos = properHref.indexOf("#");
+		}
+
+	if (endOfPathPos > 0)
+		{
+		let path = properHref.substring(0, endOfPathPos);
+		let postPath = properHref.substring(endOfPathPos);
+		path = encodeURIComponent(path);
+		properHref = path + postPath;
+		}
+	else
+		{
+		properHref = encodeURIComponent(properHref);
+		}
+
+	//properHref = properHref.replace(/\+/g, "%2B");
 
 		try {
 			const port = await fetchPort(theHost, theMainPort, viewerShortName, errorID);
 			if (port !== "")
 				{
 				let url = 'http://' + theHost + ':' + port + '/' + viewerShortName + '/?href=' +
-					properHref + header;
+					properHref;
 				window.open(url, "_blank");
 				}
 		}

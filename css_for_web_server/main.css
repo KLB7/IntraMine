@@ -784,6 +784,11 @@ a.embedded_image {
 	font-weight: bold;
 }
 
+/* For Go2, color on defining instances. */
+.go2-def-instance {
+	background-color: rgb(200, 255, 200);
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 #theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}

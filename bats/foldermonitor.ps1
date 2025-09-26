@@ -8,6 +8,10 @@
 # So this script does two things: it signals when a file change has happened, which
 # cuts down file re-indexing time, and it supplies the old folder name when a folder
 # is renamed.
+
+$ErrorActionPreference='SilentlyContinue'
+$ProgressPreference='SilentlyContinue'
+
 $mainPort = $args[0]
 $dirListPath = $args[1]
 $global:oldNewBasePath = $args[2]

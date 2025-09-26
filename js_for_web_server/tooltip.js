@@ -22,7 +22,7 @@ const DIRECTION_LEFT = 3;
 
 let anchorClassName = "showHintAnchorClass"; 	// applied while mouse over element
 let hitAnchorClassName = "invisiblehintanchor"; // applied if not present in element, permanently
-let definitionClassName = 'defhint'; // When showing links to a definition
+//let definitionClassName = 'defhint'; // When showing links to a definition - not used.
 
 let overAnchorTimer = null;
 let shMainPort = 0; // See setMainPort() just below.
@@ -581,7 +581,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		addClass(obj, hitAnchorClassName);
 		}
 
-	removeClass(hintElement, definitionClassName);
+	//removeClass(hintElement, definitionClassName);
 	
 	hideTipJustInCase(obj);
 	
@@ -625,7 +625,8 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 		hintParams.y = e.pageY;
 		// Change the background color: mostly this will be triggered
 		// for a hint showing links to definitions.
-		addClass(hintElement, definitionClassName);
+		// Revision, this doesn't help anyone, don't bother.
+		//addClass(hintElement, definitionClassName);
 		}
 	
 	hintParams.isAnImage = isAnImage;
