@@ -1057,6 +1057,7 @@ sub FormatFullPathsResults {
 
 		my $path  = $self->{FULLPATHS}->[$i];
 		my $query = $self->{PATHQUERY}->[$i];
+		$query =~ s!%!%25!g;
 		$query =~ s!^\s+!!;
 		my $displayedPath  = $path . '#' . $query;
 		my $definitionName = '#' . $query;
@@ -1084,7 +1085,8 @@ sub FormatFullPathsResults {
 		my $openViewFuncName = "openView";
 		if ($isCM)
 			{
-			$openViewFuncName = "openViewEncode";
+			$openViewFuncName = "openView";
+			#$openViewFuncName = "openViewEncode";
 			}
 		my $anchor =
 "<a href=\"http://$host:$port/$viewerName/?href=$pathWithSearchItems\" onclick=\"$openViewFuncName(this.href, '$viewerName'); return false;\"  target=\"_blank\">$displayedPath</a>";

@@ -122,7 +122,14 @@ async function searchSubmit(oFormElement) {
 			{
 			if (oField.name === 'findthis')
 				{
+				let findTerm = oField.value;
+				////console.log("findTerm: |" + findTerm + "|");
+				////findTerm = findTerm.replace(/\%/g, "%25");
+				// console.log("findTerm AFTER: |" + findTerm + "|");
+				////let encTerm = encodeURIComponent(findTerm);
+				////console.log("findTerm ENC: |" + encTerm + "|");
 				sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(oField.value);
+				////sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(findTerm);
 				findThis = oField.value;
 				}
 			else
@@ -160,6 +167,9 @@ async function searchSubmit(oFormElement) {
 	sSearch += "&extFilter=" + val;
 
 	try {
+		// TEST ONLY
+		//console.log(sSearch);
+
 		let theAction = oFormElement.action + sSearch;
 		blurTextBox(); // Remove the darned suggestions select dropdown that sometimes stays up.
 		const response = await fetch(theAction);
@@ -374,10 +384,14 @@ async function viewerOpenAnchor(href) {
 
 	if (endOfPathPos > 0)
 		{
+		// TEST ONLY
+		//console.log("properHref BEFORE: |" + properHref + "|");
 		let path = properHref.substring(0, endOfPathPos);
 		let postPath = properHref.substring(endOfPathPos);
 		path = encodeURIComponent(path);
 		properHref = path + postPath;
+		// TEST ONLY
+		//console.log("properHref AFTER: |" + properHref + "|");
 		}
 	else
 		{
@@ -392,6 +406,10 @@ async function viewerOpenAnchor(href) {
 				{
 				let url = 'http://' + theHost + ':' + port + '/' + viewerShortName + '/?href=' +
 					properHref;
+
+				// TEST ONY
+				console.log(url);
+				
 				window.open(url, "_blank");
 				}
 		}

@@ -80,9 +80,6 @@ async function appEditWithPort(href, openerPort) {
 async function editWithIntraMine(href) {
 	showSpinner();
 
-	// TEST ONLY
-	console.log("href IN: |" + href + "|");
-
 	let properHref = href.replace(/^file\:\/\/\//, '');
 	properHref = properHref.replace(/^file:/, '');
 
@@ -110,9 +107,6 @@ async function editWithIntraMine(href) {
 		const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
 		if (port !== "")
 			{
-			// TEST ONLY
-			console.log("properHref: |" + properHref + "|");
-
 			hideSpinner();
 			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref;
 			window.open(url, "_blank");
@@ -147,6 +141,10 @@ async function openViewEncode(href, serviceShortName) {
 // openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
 // overrideNoEncode is not used.
 async function openView(href, serviceShortName, forceEncode = false, overrideNoEncode = false) {
+
+	// TEST ONLY
+	//console.log("openView href: |" + href + "|");
+	
 	href = decodeURIComponent(href);
 
 	let actualShortName = serviceShortName;

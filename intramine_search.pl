@@ -458,6 +458,12 @@ sub SearchResults {
 		;    # Leave any user-typed quotes, sometimes typing is quicker.
 		}
 
+	# TEST ONLY
+	# my $fiddle = encode_utf8($rawquery);
+	# $fiddle = decode_utf8($rawquery);
+	# print("\$fiddle: |$fiddle|\n");
+	#print("\$rawquery: |$rawquery|\n");
+
 	# Extension filter, provided as wanted language names, eg $formH{'EXT_Plain%20Text'}='yes'.
 	# See ext.pm for the corresponding lists of extensions for languages.
 	my @wantedExt;

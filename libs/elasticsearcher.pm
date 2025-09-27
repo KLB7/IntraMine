@@ -81,6 +81,7 @@ sub GetSearchResults {
 			}
 		}
 
+
 	# Trim query, strip quotes if present.
 	my $query = $rawquery;
 	$query =~ s!^ +!!;
@@ -668,8 +669,12 @@ sub FormatHitResults {
 
 						my $pathWithSearchItems = $path . $searchItems . $definitionName;
 
+						# An innocent question, if you're reading this: why does the
+						# next line work, but the commented out line after it not work?
 						my $anchor =
-"<a href='$pathWithSearchItems' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$title</a>";
+"<a href='' onclick = \"viewerOpenAnchor('$pathWithSearchItems'); return false;\" class='canopen' target='_blank'>$title</a>";
+						# 						my $anchor =
+						# "<a href='$pathWithSearchItems' onclick = \"viewerOpenAnchor(this.href); return false;\" class='canopen' target='_blank'>$title</a>";
 
 
 						my $editAnchor = '';
