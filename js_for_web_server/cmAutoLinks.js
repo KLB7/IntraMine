@@ -1035,6 +1035,7 @@ function fireOneFileLink(linkPath, forEdit, serviceName) {
 						}
 					else
 						{
+						href2Enc = decodeURI(href2Enc);
 						editWithIntraMine(href2Enc);
 						}
 					}

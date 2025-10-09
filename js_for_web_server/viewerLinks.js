@@ -79,51 +79,75 @@ async function appEditWithPort(href, openerPort) {
 // Use IntraMine's CodeMirror-based editor (intramine_editor.pl).
 async function editWithIntraMine(href) {
 	showSpinner();
+	// Remove file:///, which wrecks the link.
+	href = href.replace(/^file\:\/\/\//, '');
+	href = href.replace(/^file:/, '');
 
-	let properHref = href.replace(/^file\:\/\/\//, '');
-	properHref = properHref.replace(/^file:/, '');
-
-	properHref = decodeURIComponent(properHref); // Needed, not sure why....
-
-	let endOfPathPos = properHref.indexOf("&");
-	if (endOfPathPos < 0)
+	// Trim off searchItems etc
+	let ampPos = href.indexOf("&");
+	if (ampPos < 0)
 		{
-		endOfPathPos = properHref.indexOf("#");
+		ampPos = href.indexOf("#");
+		}
+	let trailer = '';
+	if (ampPos > 0)
+		{
+		trailer = href.substring(ampPos);
+		href =  href.substring(0, ampPos);
 		}
 
-	if (endOfPathPos > 0)
-		{
-		let path = properHref.substring(0, endOfPathPos);
-		let postPath = properHref.substring(endOfPathPos);
-		path = encodeURIComponent(path);
-		properHref = path + postPath;
+	href = encodeURI(href);
+	href = href.replace(/\+/g, "%2B");
+
+	// Encode the trailer.
+	console.log("Edit Raw trailer: |" + trailer + "|");
+	trailer = trailer.replace(/\&/g, "____AMPER____");
+	trailer = trailer.replace(/\?/g, "____QUEST____");
+	trailer = trailer.replace(/\=/g, "____EQAL____");
+	trailer = trailer.replace(/\+/g, "____PLUSS____");
+	trailer = trailer.replace(/\#/g, "____ANK____");
+	trailer = trailer.replace(/\%/g, "____PCTT____");
+	trailer = encodeURIComponent(trailer);
+	trailer = trailer.replace(/____AMPER____/g, "&");
+	trailer = trailer.replace(/____QUEST____/g, "?");
+	trailer = trailer.replace(/____EQAL____/g, "=");
+	trailer = trailer.replace(/____PLUSS____/g, "+");
+	trailer = trailer.replace(/____ANK____/g, "#");
+	trailer = trailer.replace(/____PCTT____/g, "%");
+	console.log("Edit Enc trailer: |" + trailer + "|");
+
+
+	// Put back the trailer
+	href = href + trailer;
+
+		try {
+			const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
+			if (port !== "")
+				{
+				hideSpinner();
+				let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' +
+				href;
+
+				// TEST ONLY
+				console.log("url: |" + url + "|");
+
+				window.open(url, "_blank");
+				}
+			else
+				{
+				// Trouble getting Editor port number.
+				hideSpinner();
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = 'Error, could not retrieve port number for the Editor!';
+				}
 		}
-	else
-		{
-		properHref = encodeURIComponent(properHref);
-		}
-	
-	try {
-		const port = await fetchPort(theHost, theMainPort, editorShortName, errorID);
-		if (port !== "")
-			{
+		catch(error) {
 			hideSpinner();
-			let url = 'http://' + theHost + ':' + port + '/' + editorShortName + '/?href=' + properHref;
-			window.open(url, "_blank");
-			}
-		else
-			{
-			// Trouble getting Editor port number.
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = 'Error, could not retrieve port number for the Editor!';
-			}
+			// There was a connection error of some sort
+		//		let e1 = document.getElementById(errorID);
+		//		e1.innerHTML = 'Connection error while attempting to retrieve port number!';
+		}
 	}
-	catch(error) {
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = 'Connection error while attempting to open file!';
-		hideSpinner();
-	}
-}
 
 // Not used.
 // Avoid encodeURIComponent when inViewer.
@@ -141,12 +165,6 @@ async function openViewEncode(href, serviceShortName) {
 // openView() calls are put in by eg intramine_linker.pl#GetTextFileRep().
 // overrideNoEncode is not used.
 async function openView(href, serviceShortName, forceEncode = false, overrideNoEncode = false) {
-
-	// TEST ONLY
-	//console.log("openView href: |" + href + "|");
-	
-	href = decodeURIComponent(href);
-
 	let actualShortName = serviceShortName;
 
 	// We want the port for a Viewer, there is no actual Video service.
@@ -174,47 +192,45 @@ function openViewWithPort(href, servicePort, serviceShortName, forceEncode, over
 	const rePort = /\:\d+/;
 	href = href.replace(rePort, ":" + servicePort);
 
-	// A typical href contains a second instance of href in IntraMine, eg
-	// href="http://192.168.40.8:43129/Viewer/?href=c:/strawberry/c/include/c++/13.2.0/bits/stl_numeric.h&searchItems=accumulate#accumulate"
-	// (Don't ask, it's carved in stone at this point.)
-	// Pull out the interior hrefProper, encode it, put it back.
-	// The href proper runs from '=' to just before either '&' or '"'.
-	// This takes care of eg a '+' in the file path.
-	const matchResult = href.match(/=[^&"]+/);
-	if (matchResult !== null)
-		{
-		let hrefProper = matchResult[0];
-		hrefProper = hrefProper.substring(1);
+	// Remove file:///, which wrecks the link.
+	href = href.replace(/^file\:\/\/\//, '');
+	href = href.replace(/^file:/, '');
 
-		let inViewer = false;
-		if (typeof viewerShortName !== 'undefined' && shortServerName === viewerShortName)
-			{
-			// We are in the Viewer.
-			inViewer = true;
-			}		
-		
-		if (1 || ((inViewer && !overrideNoEncode) || forceEncode))
-			{
-			let preAnchor = '';
-			let theAnchor = '';
-			let postAnchor = '';
-			let anchorPosition = hrefProper.indexOf("#");
-			if (anchorPosition > 0)
-				{
-				preAnchor = hrefProper.substring(0, anchorPosition);
-				postAnchor = hrefProper.substring(anchorPosition + 1);
-				theAnchor = '#';
-				}
-			else
-				{
-				preAnchor = hrefProper;
-				}
-			preAnchor = encodeURIComponent(preAnchor);
-			postAnchor = encodeURIComponent(postAnchor);
-			href = href.replace(/=[^&"]+/, '=' + preAnchor + theAnchor + postAnchor);
-			}
+	// Trim off searchItems etc
+	let ampPos = href.indexOf("&");
+	if (ampPos < 0)
+		{
+		ampPos = href.indexOf("#");
 		}
-	
+	let trailer = '';
+	if (ampPos > 0)
+		{
+		trailer = href.substring(ampPos);
+		href =  href.substring(0, ampPos);
+		}
+
+	href = href.replace(/\+/g, "%2B");
+
+	// Encode the trailer.
+	//console.log("Viewer Raw trailer: |" + trailer + "|");
+	trailer = trailer.replace(/\&/g, "____AMPER____");
+	trailer = trailer.replace(/\?/g, "____QUEST____");
+	trailer = trailer.replace(/\=/g, "____EQAL____");
+	trailer = trailer.replace(/\+/g, "____PLUSS____");
+	trailer = trailer.replace(/\#/g, "____ANK____");
+	trailer = trailer.replace(/\%/g, "____PCTT____");
+	trailer = encodeURIComponent(trailer);
+	trailer = trailer.replace(/____AMPER____/g, "&");
+	trailer = trailer.replace(/____QUEST____/g, "?");
+	trailer = trailer.replace(/____EQAL____/g, "=");
+	trailer = trailer.replace(/____PLUSS____/g, "+");
+	trailer = trailer.replace(/____ANK____/g, "#");
+	trailer = trailer.replace(/____PCTT____/g, "%");
+	//console.log("Viewer Enc trailer: |" + trailer + "|");
+
+	// Put back the trailer
+	href = href + trailer;
+
 	if (serviceShortName === videoShortName)
 		{
 		// Replace videoShortName with viewerShortName.

@@ -80,6 +80,7 @@ function openTheFile(el, file) {
 
 	// For some reason File Tree tacks a '/' on at end of file name.
 	let trimmedFile = file.replace(/\/$/, '');
+	let unencodedTrimmedFile = trimmedFile;
 	trimmedFile = encodeURIComponent(trimmedFile);
 
 	let sFieldType = el.toUpperCase();
@@ -91,11 +92,7 @@ function openTheFile(el, file) {
 			}
 		else // Use IntraMine's Editor service
 			{
-			editWithIntraMine(trimmedFile);
-//			let url =
-//			'http://' + theHost + ':' + theMainPort + '/' + editorShortName + '/?href=' + trimmedFile
-//					+ '&rddm=' + String(getRandomInt(1, 65000));
-//			window.open(url, "_blank");
+			editWithIntraMine(unencodedTrimmedFile);
 			}
 		}
 	else

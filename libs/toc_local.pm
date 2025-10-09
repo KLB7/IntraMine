@@ -336,8 +336,10 @@ sub GetTextTOC {
 	my ($filePath, $toc_R) = @_;
 	my $contents;
 	my $octets;
+
 	if (!LoadTextFileContents($filePath, \$contents, \$octets))
 		{
+		#print("LOAD FAILURE!\n");
 		return;
 		}
 

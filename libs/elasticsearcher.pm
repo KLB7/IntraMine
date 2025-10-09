@@ -621,14 +621,14 @@ sub FormatHitResults {
 		my $definitionName = '';
 		if ($query =~ m!(^[\w:]+)$!)
 			{
-			$definitionName = '#' . $1;
+			$definitionName = '#' . &HTML::Entities::encode($1);
 			}
 
 		for my $hit (@{$rawResults->{'hits'}->{'hits'}})
 			{
 			my $score = sprintf("%0.3f", $hit->{'_score'});
 			my $mtime = $hit->{'_source'}->{'moddate'};
-			my $path  = $hit->{'_source'}->{'displaypath'};
+			my $path  = &HTML::Entities::encode($hit->{'_source'}->{'displaypath'});
 
 			my $displayedPath = $path;
 
@@ -684,7 +684,7 @@ sub FormatHitResults {
 						if ($alllowEditing && (!$remote || $ext !~ m!^(docx|pdf)!i))
 							{
 							$editAnchor =
-"<a href='$pathWithSearchItems' onclick = \"editOpen(this.href); return false;\">&nbsp;&nbsp;<img src='edit1.png' width='17' height='12' /></a>";
+"<a href='' onclick = \"editOpen('$pathWithSearchItems'); return false;\">&nbsp;&nbsp;<img src='edit1.png' width='17' height='12' /></a>";
 							}
 
 						# Wrap up $editAnchor in a span, for optional removal later.

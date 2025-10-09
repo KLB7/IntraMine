@@ -1495,7 +1495,7 @@ sub GetTextFileRepGloss {
 	$viewerPath =~ s!\\!/!g;
 	$editorPath =~ s!\\!/!g;
 	$viewerPath =~ s!%!%25!g;
-	$editorPath =~ s!%!%25!g;
+	#$editorPath =~ s!%!%25!g; # Don't know why this isn't wanted.
 	$editorPath = lc(&HTML::Entities::encode($editorPath));
 	$viewerPath = lc(&HTML::Entities::encode($viewerPath));
 
@@ -1535,7 +1535,7 @@ sub GetTextFileRepGloss {
 	if ($allowEditing)
 		{
 		$editLink =
-			"<a href='$editorPath' class='canedit' onclick=\"editOpen(this.href); return false;\">"
+			  "<a href='' class='canedit' onclick=\"editOpen('$editorPath'); return false;\">"
 			. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
 		}
 

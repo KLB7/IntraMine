@@ -145,6 +145,13 @@ sub Instances {
 	my ($self, $rawquery, $fullPath) = @_;
 	my $result = '';
 
+	# Having real trouble with a '%' in the search query, but searching
+	# for Perl hash names such as %hashName is wanted.
+	# intramine_search.js#searchSubmit() converts % to ____PC____
+	# and we convert it back here. It's the only way I've found
+	# that works, after spending too long on the problem.
+	$rawquery =~ s!____PC____!%!;
+
 	@{$self->{FULLPATHS}} = ();
 	@{$self->{PATHQUERY}} = ();
 	%{$self->{PATHSEEN}}  = ();
@@ -1055,7 +1062,13 @@ sub FormatFullPathsResults {
 			last;
 			}
 
-		my $path  = $self->{FULLPATHS}->[$i];
+
+		my $path = $self->{FULLPATHS}->[$i];
+
+		$path =~ s!%!%25!g;
+		$path =~ s!\+!%2B!g;
+		$path = &HTML::Entities::encode($path);
+
 		my $query = $self->{PATHQUERY}->[$i];
 		$query =~ s!%!%25!g;
 		$query =~ s!^\s+!!;

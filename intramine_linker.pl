@@ -709,10 +709,10 @@ sub EvaluateLinkCandidates {
 	# (\"([^"]+)\.\w+([#:][^"]+)?\") : "quoted file specifier", must have file extension
 	# (\'([^']+)\.\w+([#:][^']+)?\') : 'quoted file specifier', must have file extension
 	# (\"[^"]+\")|(\'[^']+\')		 : "directory" | 'directory'
-	# \.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)? : unquoted file specifier, must have ext
+	# \.(\w\w?\w?\w?\w?\w?\w?)([#:][\w:~-]+)? : unquoted file specifier, must have ext
 	# ((https?://([^\s)<\"](?\!ttp:))+)) : web link
 	while ($strippedLine =~
-m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][A-Za-z0-9_:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g
+m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#:][^"]+)?\")|(\'([^']+)\.\w+([#:][^']+)?\')|(\"[^"]+\")|(\'[^']+\')|\.(\w\w?\w?\w?\w?\w?\w?)([#:][\w:~-]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g
 		)
 		{
 		my $startPos = $-[0];    # this does include the '.', beginning of entire match
@@ -1432,21 +1432,9 @@ sub GetTextFileRep {
 
 	$viewerPath =~ s!%!%25!g;
 
-	$editorPath =~ s!\\!/!g;
-	$editorPath =~ s!%!%25!g;
-	$editorPath =~ s!\+!\%2B!g;
+	$editorPath = &HTML::Entities::encode($editorPath);
 
 	my $displayedLinkName = $displayTextForAnchor;
-
-	if ($allowEditing)
-		{
-		if (!$clientIsRemote || $extProper !~ m!docx|pdf!i)
-			{
-			$editLink =
-"<a href='$editorPath' class='canedit' onclick=\"editOpen(this.href); return false;\">"
-				. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
-			}
-		}
 
 	# Change leading ':' to '#' in $anchorWithNum.
 	if (index($anchorWithNum, ':') == 0)
@@ -1464,6 +1452,18 @@ sub GetTextFileRep {
 		$anchorWithNum = ShortenedClassAnchor($anchorWithNum);
 		}
 
+
+	if ($allowEditing)
+		{
+		if (!$clientIsRemote || $extProper !~ m!docx|pdf!i)
+			{
+			$editLink =
+"<a href='' class='canedit' onclick=\"editOpen('$editorPath$anchorWithNum'); return false;\">"
+				. "<img class='edit_img' src='edit1.png' width='17' height='12'>" . '</a>';
+			}
+		}
+
+
 	# Show a hint with the actual full path for the file specifier.
 	my $fullPathHint =
 		" onmouseover=\"showhint('<br>$viewerPath<br>&nbsp;', this, event, '500px', false);\"";
@@ -1471,6 +1471,7 @@ sub GetTextFileRep {
 
 	my $viewerLink =
 "<a href=\"http://$host:$port/$VIEWERNAME/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$VIEWERNAME'); return false;\"  target=\"_blank\"$fullPathHint>$displayedLinkName</a>";
+
 	$$repStringR = "$viewerLink$editLink";
 }
 

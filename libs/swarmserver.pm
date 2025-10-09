@@ -1148,7 +1148,16 @@ sub GetNamesAndValuesOfArguments {
 			my ($name, $value) = split(/=/, $pair);
 
 			# Convert + signs to spaces:
-			$value =~ tr/+/ /;
+			if (defined($value))
+				{
+				$value =~ tr/+/ /;
+				}
+			else
+				{
+				#print("MISSING VALUE for |$pair| (possibly %3D for equals?)\n");
+				$name  = '';
+				$value = '';
+				}
 
 			if ($name eq 'findthis')
 				{
@@ -1167,9 +1176,14 @@ sub GetNamesAndValuesOfArguments {
 				# %N, then convert back to utf8. ouch. While I'm on the subject, these encode/decode
 				# names are even less distinguishable after a quarter of an hour than
 				# Rozencranz and Guildenstern.
-				$value = encode_utf8($value);
-				$value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
-				$value = decode_utf8($value);
+
+				# Don't enc/dec if $name is 'searchItems'
+				if ($name ne 'searchItems')
+					{
+					$value = encode_utf8($value);
+					$value =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+					$value = decode_utf8($value);
+					}
 				}
 
 			if ($doingPost)
@@ -1179,7 +1193,10 @@ sub GetNamesAndValuesOfArguments {
 				}
 
 			# Store values in a hash:
-			$formH->{$name} = $value;
+			if ($name ne '')
+				{
+				$formH->{$name} = $value;
+				}
 			}
 		}
 }

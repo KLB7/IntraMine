@@ -454,8 +454,8 @@ sub GetDateSizeStringsAndColumnWidths {
 		}
 
 	# Put file name, date, size in separate spans with fixed width in characters ('ch').
-	# Add 2 to $filesWidth for hover icons or edit pencil.
-	$filesWidth += 2;
+	# Add a bit to $filesWidth for hover icons or edit pencil.
+	$filesWidth += 7;
 	my $wF = $filesWidth . 'ch';
 	my $wD = $modDatesWidth . 'ch';
 	my $wS = $fileSizesWidth . 'ch';

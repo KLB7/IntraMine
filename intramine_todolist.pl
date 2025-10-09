@@ -322,7 +322,7 @@ sub GetData {
 				1,     $IMAGES_DIR, $COMMON_IMAGES_DIR, '',
 				undef, undef
 			);
-			$gloss = uri_escape_utf8($gloss);
+			#$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.
 			$gloss =~ s!\%0A!!g;

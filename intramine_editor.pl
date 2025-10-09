@@ -557,16 +557,11 @@ sub GetTOC {
 	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
 	if ($filepath ne '')
 		{
-		$filepath = &HTML::Entities::decode($filepath);
-
 		GetCMToc($filepath, \$result);
-		# if ($result ne '')
-		# 	{
-		# 	if ($filepath !~ m!\.(p[lm]|cgi|t)$!i)
-		# 		{
-		# 		$result = uri_escape_utf8($result);
-		# 		}
-		# 	}
+		if ($filepath !~ m!txt$!i)
+			{
+			$result = decode_utf8($result);
+			}
 		}
 
 	return ($result);

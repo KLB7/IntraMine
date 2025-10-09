@@ -20,6 +20,7 @@ use strict;
 use warnings;
 use utf8;
 use HTML::Entities;
+use Encode qw(decode encode);
 #use Win32::FindFile;
 use Time::Piece;
 use Time::HiRes qw ( time );
@@ -436,6 +437,14 @@ FINIS
 sub SearchResults {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $rawquery = defined($formH->{'findthis'}) ? $formH->{'findthis'} : '';
+
+	# Having real trouble with a '%' in the search query, but searching
+	# for Perl hash names such as %hashName is wanted.
+	# intramine_search.js#searchSubmit() converts % to ____PC____
+	# and we convert it back here. It's the only way I've found
+	# that works, after spending too long on the problem.
+	$rawquery =~ s!____PC____!%!;
+
 	$rawquery =~ s!^\s+!!;
 	$rawquery =~ s!\s+$!!;
 	my $shouldQuote = defined($formH->{'matchexact'}) ? 1                     : 0;
@@ -457,12 +466,6 @@ sub SearchResults {
 		{
 		;    # Leave any user-typed quotes, sometimes typing is quicker.
 		}
-
-	# TEST ONLY
-	# my $fiddle = encode_utf8($rawquery);
-	# $fiddle = decode_utf8($rawquery);
-	# print("\$fiddle: |$fiddle|\n");
-	#print("\$rawquery: |$rawquery|\n");
 
 	# Extension filter, provided as wanted language names, eg $formH{'EXT_Plain%20Text'}='yes'.
 	# See ext.pm for the corresponding lists of extensions for languages.

@@ -710,6 +710,7 @@ sub GetContentBasedOnExtension {
 		GetCMToc($filePath, \$toc);
 		if ($toc ne '')
 			{
+			$toc               = decode_utf8($toc);
 			$$textHolderName_R = 'scrollTextRightOfContents';
 			$$meta_R      = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 			$$customCSS_R = $cssForCM . $nonCmThemeCssFile;
@@ -799,17 +800,15 @@ sub EditButton {
 	else
 		{
 		$result = <<'FINIS';
-<a href='_FILEPATH_' onclick='editOpen(this.href); return false;'><input class="submit-button" type="submit" value="Edit" /></a>
+<a href='' onclick='editOpen("_FILEPATH_"); return false;'><input class="submit-button" type="submit" value="Edit" /></a>
 FINIS
 
-		# TEST ONLY encode_utf8 out
 		my $encFilePath = $filePath;
-		#my $encFilePath = encode_utf8($filePath);
+
+		# Leave out my $encFilePath = encode_utf8($filePath);
 		$encFilePath =~ s!\\!/!g;
 		$encFilePath =~ s!^file\:///!!;
-		$encFilePath =~ s!%!%25!g;
-		$encFilePath =~ s!\+!\%2B!g;
-		# prob not needed $encFilePath = &HTML::Entities::encode($encFilePath);
+		# Leave out prob not needed $encFilePath = &HTML::Entities::encode($encFilePath);
 		$result =~ s!_FILEPATH_!$encFilePath!;
 		}
 
@@ -835,6 +834,12 @@ sub InitialHighlightItems {
 		$searchItems = lc($searchItems);
 		$searchItems =~ s!\"!!g;
 		my @items = split(/ +/, $searchItems);
+
+		for (my $i = 0 ; $i < @items ; ++$i)
+			{
+			$items[$i] = encode_utf8($items[$i]);
+			$items[$i] =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
+			}
 
 		if ($usingCM eq 'true')
 			{
@@ -2698,9 +2703,13 @@ sub AddGlossaryAnchor {
 		my $originalText = $term;
 		$term = lc($term);
 		$term =~ s!\*!!g;
+
 		my $anchorText = AnchorForGlossaryTerm($term);
 		my $rep        = "<h2 id=\"$anchorText\"><strong>$originalText</strong>:</h2>";
 		#		my $rep = "<a id=\"$anchorText\"><strong>$originalText</strong>:</a>";
+		# Sometimes an escaped colon sneaks into the first paragraph, delete the \.
+		$post =~ s!\\:!:!g;
+
 		$$txtR = $pre . $rep . $post;
 		}
 	# While we're passing by, remove the '\' from '\:'.

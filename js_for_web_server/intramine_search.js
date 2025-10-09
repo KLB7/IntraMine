@@ -123,18 +123,13 @@ async function searchSubmit(oFormElement) {
 			if (oField.name === 'findthis')
 				{
 				let findTerm = oField.value;
-				////console.log("findTerm: |" + findTerm + "|");
-				////findTerm = findTerm.replace(/\%/g, "%25");
-				// console.log("findTerm AFTER: |" + findTerm + "|");
-				////let encTerm = encodeURIComponent(findTerm);
-				////console.log("findTerm ENC: |" + encTerm + "|");
-				sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(oField.value);
-				////sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(findTerm);
+				findTerm = findTerm.replace(/\%/g, "____PC____");
+				let encTerm = encodeURIComponent(findTerm);
+				sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(encTerm);
 				findThis = oField.value;
 				}
 			else
 				{
-				// sSearch += "&" + escape(oField.name) + "=" + escape(oField.value);
 				sSearch += "&" + encodeURIComponent(oField.name) + "=" + encodeURIComponent(oField.value);
 				}
 			}
@@ -373,43 +368,47 @@ function swapLangExt() {
 // Viewer port is retrieved to persuade the browser that it's a legit call.
 async function viewerOpenAnchor(href) {
 	// Remove file:///, which wrecks the link.
-	let properHref = href.replace(/^file\:\/\/\//, '');
-	properHref = properHref.replace(/^file:/, '');
+	href = href.replace(/^file\:\/\/\//, '');
+	href = href.replace(/^file:/, '');
 
-	let endOfPathPos = properHref.indexOf("&");
-	if (endOfPathPos < 0)
+	// Trim off searchItems etc
+	let ampPos = href.indexOf("&");
+	let trailer = '';
+	if (ampPos > 0)
 		{
-		endOfPathPos = properHref.indexOf("#");
+		trailer = href.substring(ampPos);
+		href =  href.substring(0, ampPos);
 		}
 
-	if (endOfPathPos > 0)
-		{
-		// TEST ONLY
-		//console.log("properHref BEFORE: |" + properHref + "|");
-		let path = properHref.substring(0, endOfPathPos);
-		let postPath = properHref.substring(endOfPathPos);
-		path = encodeURIComponent(path);
-		properHref = path + postPath;
-		// TEST ONLY
-		//console.log("properHref AFTER: |" + properHref + "|");
-		}
-	else
-		{
-		properHref = encodeURIComponent(properHref);
-		}
+	href = encodeURI(href);
+	href = href.replace(/\+/g, "%2B");
 
-	//properHref = properHref.replace(/\+/g, "%2B");
+	// Encode the trailer.
+	console.log("Raw trailer: |" + trailer + "|");
+	trailer = trailer.replace(/\&/g, "____AMPER____");
+	trailer = trailer.replace(/\?/g, "____QUEST____");
+	trailer = trailer.replace(/\=/g, "____EQAL____");
+	trailer = trailer.replace(/\+/g, "____PLUSS____");
+	trailer = trailer.replace(/\#/g, "____ANK____");
+	trailer = trailer.replace(/\%/g, "____PCTT____");
+	trailer = encodeURIComponent(trailer);
+	trailer = trailer.replace(/____AMPER____/g, "&");
+	trailer = trailer.replace(/____QUEST____/g, "?");
+	trailer = trailer.replace(/____EQAL____/g, "=");
+	trailer = trailer.replace(/____PLUSS____/g, "+");
+	trailer = trailer.replace(/____ANK____/g, "#");
+	trailer = trailer.replace(/____PCTT____/g, "%");
+	console.log("Enc trailer: |" + trailer + "|");
+
+
+	// Put back the trailer
+	href = href + trailer;
 
 		try {
 			const port = await fetchPort(theHost, theMainPort, viewerShortName, errorID);
 			if (port !== "")
 				{
-				let url = 'http://' + theHost + ':' + port + '/' + viewerShortName + '/?href=' +
-					properHref;
-
-				// TEST ONY
-				console.log(url);
-				
+				let url = 'http://' + theHost + ':' + port + '/' + viewerShortName + '/?href=' + href;
 				window.open(url, "_blank");
 				}
 		}

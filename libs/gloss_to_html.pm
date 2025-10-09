@@ -1881,7 +1881,7 @@ sub EvaluateLinkCandidates {
 	# .ext up to 7 chars
 	# http:// or https://
 	while ($line =~
-m!((\[([^\]]+)]\((https?://[^)]+)\))|(\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[A-Za-z0-9_:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g
+m!((\[([^\]]+)]\((https?://[^)]+)\))|(\"([^"]+)\.\w+(#[^"]+)?\")|(\'([^']+)\.\w+(#[^']+)?\')|\.(\w\w?\w?\w?\w?\w?\w?)(\#[\w:]+)?|((https?://([^\s)<\"](?\!ttp:))+)))!g
 		)
 		{
 		my $startPos = $-[0];    # this does include the '.', beginning of entire match

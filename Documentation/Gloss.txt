@@ -560,7 +560,7 @@ Task list			Task lists are everywhere. For example, IntraMine's ToDo page:)
 ---
 Gloss does do hashed headings, such as #### This is an h4 heading, but underlining with five or more of = - or ~ just looks better in the original. Adding more and more characters to a line shouldn't make the resulting text smaller and smaller.
 
-And one last important thing omitted is the line as a unit of comprehension. In a formatted text document there are words and sentences and paragraphs as units of comprehension, but arguably not lines. In Gloss when you press Enter you end a paragraph, not a line, and line wrap keeps all the text visible. As a nice side effect of this approach, Gloss requires absolutely no extra blank lines anywhere.
+And one last important thing omitted is the line as a unit of comprehension. In a formatted text document there are words and sentences and paragraphs as units of comprehension, but arguably not lines. In Gloss when you press Enter you end a paragraph, not a line, and line wrap keeps all the text visible. As a nice side effect of this approach, Gloss requires absolutely no extra blank lines anywhere (except to separate footnote bodies).
 
 contents.html
 

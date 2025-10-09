@@ -23,6 +23,9 @@ async function showDefinitionHint(term, event) {
 		return;
 		}
 
+	// Do an early fix for '%' in the term, usually at the start.
+	term = term.replace(/\%/g, "____PC____");
+
 	// Note initial mouse position. We haven't moved much yet.
 	defStartingX = event.pageX;
 	defStartingY = event.pageY;
