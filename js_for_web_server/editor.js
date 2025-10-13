@@ -266,14 +266,9 @@ function onWindowResize() {
 	repositionTocToggle();
 }
 
-
-//window.addEventListener("load", makeDebouncedOnWindowResize);
-//window.addEventListener("resize", JD.debounce(onWindowResize, 100));
 window.addEventListener("resize", onWindowResize);
 
-//window.addEventListener("load", reJump);
 window.addEventListener("load", makeDebouncedClearAddLinks);
-//window.addEventListener("resize", JD.debounce(doResize, 100)); // swarmserver.pm#TooltipSource()
 
 function doResize() {
 	restoreColumnWidths();
@@ -451,6 +446,8 @@ async function loadFileIntoCodeMirror(cm, path) {
 
 			loadTOC(originalPath);
 
+			loadDateAndSize(originalPath);
+
 			initializeSpellCheck();
 
 			getLineNumberForTocEntries();
@@ -469,6 +466,9 @@ async function loadFileIntoCodeMirror(cm, path) {
 			cm.on("scroll", lazyOnScroll);
 
 			setIsMarkdown();
+
+			// Add handler for Add to dictionary.
+			addRightClickHandler(); // cmAutoLinks.js#addRightClickHandler()
 
 			hideSpinner();
 			}
@@ -504,6 +504,35 @@ async function loadTOC(path) {
 			{
 			let text = decodeURIComponent(await response.text());
 			let e1 = document.getElementById(tocHolderName);
+			e1.innerHTML = text;
+			hideSpinner();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>Error, server reached but it returned an error!</p>';
+			hideSpinner();
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>loadTOC connection error!</p>';
+		hideSpinner();
+	}
+}
+
+async function loadDateAndSize(path) {
+	path = encodeURIComponent(path);
+
+	try {
+		let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=dateandsize&file=' + path;
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			let e1 = document.getElementById(dateSizeHolderID);
 			e1.innerHTML = text;
 			hideSpinner();
 			}
@@ -692,6 +721,8 @@ async function saveFile(path) {
 
 				let lineNum = currentTOCLineNum();
 				loadTOC(originalPath);
+
+				loadDateAndSize(originalPath);
 
 				myCodeMirror.focus();
 				

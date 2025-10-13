@@ -136,7 +136,8 @@ $RequestAction{'req|nonCmLinks'} =
 	\&NonCmLinks;                             # req=nonCmLinks... - linking for non-CodeMirror files
 $RequestAction{'req|autolink'} = \&FullPathForPartial;    # req=autolink&partialpath=...
 $RequestAction{'req|defs'}     = \&Go2;                   # req=defs, find definitions and mentions
-$RequestAction{'/test/'}       = \&SelfTest;              # Ask this server to test itself.
+$RequestAction{'req|addtodictionary'} = \&AddToDictionary;    # req=addtodictionary
+$RequestAction{'/test/'}              = \&SelfTest;           # Ask this server to test itself.
 
 # List of English words, for spell checking.
 my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
@@ -2625,3 +2626,22 @@ sub PodLink {
 
 	return ($result);
 }
+
+sub AddToDictionary {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $word = (defined($formH->{'word'})) ? $formH->{'word'} : '';
+	if ($word eq '')
+		{
+		return ("nope");
+		}
+
+	my $result = "yes";
+	my $res    = AddOneWordToDictionary($word);    #intramine_spellcheck.pm
+	if (!$res)
+		{
+		$result = "nope";
+		}
+
+	return ($result);
+}
+

@@ -365,6 +365,7 @@ sub AppendToTextFileWide {
 # Returns
 # 1 == OK
 # 0 == failure
+# (If this doesn't work for you, try AppendToExistingUTF8FileWide.)
 sub AppendToExistingTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -484,6 +485,55 @@ sub AppendToExistingBinFileWide {
 		}
 
 	binmode $fileH;
+	print $fileH "$contents";
+	close($fileH);
+
+	return (1);
+}
+
+# Try this if AppendToExistingTextFileWide doesn't work.
+# See eg intramine_spellcheck.pm#AddOneWordToDictionary().
+# Append $contents as (UTF-8) text to $filepath, preserving previous contents.
+# ERROR and returns 0 if $filepath does not exist, thanks to 'OPEN_EXISTING'.
+# Returns
+# 1 == OK
+# 0 == failure
+sub AppendToExistingUTF8FileWide {
+	my ($filePath, $contents) = @_;
+	#my $octets = decode('utf8', $filePath);
+	my $filePathWin = encode("UTF-16LE", "$filePath\0");
+
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [],
+		Win32API::File::OPEN_EXISTING, 0, 0);    # to append, goes with "wa"
+	if (!$F)
+		{
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1);    # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [],
+				Win32API::File::OPEN_EXISTING, 0, 0);    # to append, goes with "wa"
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return (0);
+			}
+		}
+
+	my $fileH;
+	if (!Win32API::File::OsFHandleOpen($fileH = IO::Handle->new(), $F, "wa"))
+		{
+		#carp("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
+		return (0);
+		}
+
+	binmode($fileH, ":encoding(UTF-8)");
 	print $fileH "$contents";
 	close($fileH);
 

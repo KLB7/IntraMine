@@ -170,16 +170,6 @@ sub FullFile {
 	my $fileServerPort       = $port_listen;
 	my $usingRESTfulApproach = 0;
 
-	# TEST ONLY
-	if (defined($formH->{'href'}))
-		{
-		#print("FF href: |$formH->{'href'}|\n");
-		}
-	if (defined($formH->{'searchItems'}))
-		{
-		#print("FF si: |$formH->{'searchItems'}|\n");
-		}
-
 	$formH->{'FULLPATH'} = '';
 	# Accept argument based 'href=filepath' in $formH or more RESTful /file/path in $obj.
 	if (!defined($formH->{'href'}))

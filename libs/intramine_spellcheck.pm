@@ -11,6 +11,10 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
+use Path::Tiny qw(path);
+use lib path($0)->absolute->parent->child('libs')->stringify;
+use win_wide_filepaths;
+
 
 # Dictionary.
 my $dict;    # Word list file full path
@@ -25,7 +29,7 @@ my $haveRefToText;    # For CodeMirror we get the text not a ref, and this is 0.
 my $line;             # Full text of a single line.
 my $len;              # Length of $line.
 
-# Error markup.
+# Spelling error markup.
 # In non-CodeMirror views where the text is directly altered, replacements are
 # more easily done in reverse order to avoid throwing off the start/end.
 # For CodeMirror the @repStr etc entries are passed back without altering the text.
@@ -47,18 +51,33 @@ sub InitDictionary {
 sub ReadDictionary {
 	%wordsH = ();
 
-	open my $din, "<", $dict or return;
-	while (<$din>)
+	my $list  = ReadTextFileDecodedWide($dict);
+	my @lines = split(/\n/, $list);
+	for (my $i = 0 ; $i < @lines ; ++$i)
 		{
-		chomp;
-		my $lcword = lc($_);
+		my $lcword = lc($lines[$i]);
 		$wordsH{$lcword} = 1;
 		}
-	close $din or die $!;
 }
 
 sub DictionaryPath {
 	return ($dict);
+}
+
+# Add $word to data/EnglishWords.txt.
+# See intramine_linker.pl#AddToDictionary().
+sub AddOneWordToDictionary {
+	my ($word) = @_;
+	if (defined($wordsH{$word}))
+		{
+		return (1);
+		}
+
+	AppendToExistingUTF8FileWide($dict, "$word\n");
+	my $lcword = lc($word);
+	$wordsH{$lcword} = 1;
+
+	return (1);
 }
 
 # See intramine_linker.pl#AddWebAndFileLinksToVisibleLinesForCodeMirror().

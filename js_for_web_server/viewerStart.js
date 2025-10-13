@@ -87,17 +87,18 @@ function doResize() {
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
 // See intramine_viewer.pl#InitialHighlightItems().
-function reJumpAndHighlight() {
+async function reJumpAndHighlight() {
 	addDragger && addDragger(); // dragTOC.js#addDragger()
 	
-	// TEST ONLY
-	//console.log("reJumpAndHighlight delayed 100");
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
 	highlightInitialItems();
 
 	setIsMarkdown();
+
+	await delay(150);
+
 	if (isMarkdown)
 		{
 		addAutoLinksForMarkdown();

@@ -26,12 +26,14 @@ function addAutoLinks() {
 	
 	let firstVisibleLineNum = firstVisibleLineNumber(el); // showHideTOC.js
 	let lastVisibleLineNum = lastVisibleLineNumber(el);
-	// If there's no scroll bar we often get last line as 0.
-	// If it's 0, force to 200.
+	// If there's no scroll bar we often get last line as 0. This can
+	// happen on a reJump() when loading as well.
+	// If it's 0, force to 200 past first line.
 	if (lastVisibleLineNum === 0)
 		{
-		lastVisibleLineNum = 200;
+		lastVisibleLineNum = firstVisibleLineNum + 200;
 		}
+
 	// Go past the window bottom, sometimes this makes scrolling smoother.
 	lastVisibleLineNum = Math.floor(firstVisibleLineNum + (lastVisibleLineNum - firstVisibleLineNum) * 1.5);
 	

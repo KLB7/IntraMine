@@ -257,6 +257,23 @@ function addClickHandlersForLinkMarkup(className) {
 		}
 }
 
+// Handle SHIFT RIGHT click, triggering Add to dictionary.
+function addRightClickHandler() {
+
+	myCodeMirror.getWrapperElement().addEventListener('contextmenu', function(e) {
+		if (e.shiftKey)
+			{
+			const clickedElement = e.target;
+			if (clickedElement.classList.contains("cmAutoLinkSpelling"))
+				{
+				let targetText = clickedElement.textContent;
+				e.preventDefault();
+				AddWordToDictionary(targetText);
+				}
+			}
+	  }, false);
+}
+
 // Mark up mentions of headings (typically functions and classes) within our document.
 function markUpInternalHeaderMentions(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, jsonResult) {
 	let myLines = visibleText.split("\n");
@@ -632,6 +649,11 @@ function typeAndClass(target, checkForIMG) {
 		linkType = "file";
 		className = "cmAutoLink";
 		}
+	else if (hasClass(target, "cmAutoLinkSpelling"))
+		{
+		linkType = "spelling";
+		className = "cmAutoLinkSpelling";
+		}
 	// glossary, spelling, return linkType "" since it doesn't respond to clicks.
 	return {theType: linkType, theClass: className};
 }
@@ -918,7 +940,9 @@ function inCodeMirrorText(evt) {
 
 // Dispatch of link handling, based on link type (file (non-image), image, web, internal link).
 function fireOneLink(target, linkType, className, forEdit) {
+
 	let targetText = target.textContent;
+
 	if (targetText === "")
 		{
 		return;
@@ -998,8 +1022,52 @@ function fireOneLink(target, linkType, className, forEdit) {
 			{
 			fireOnePerlModuleLink(targetText, linkPath, linkType, forEdit);
 			}
-	
 		}
+}
+
+// Call Linker to add the targetText to the dictionary.
+async function AddWordToDictionary(targetText) {
+	showSpinner();
+	targetText = encodeURIComponent(targetText);
+
+	try {
+		const port = await fetchPort(mainIP, theMainPort, linkerShortName, errorID);
+		if (port !== "")
+			{
+			AddWordToDictionaryWithPort(targetText, port);
+			}
+		}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = 'AddWordToDictionary connection error while attempting to retrieve port number!';
+		}
+
+}
+
+async function AddWordToDictionaryWithPort(targetText, port) {
+	try {
+		let theAction = 'http://' + mainIP + ':' + port + '/?req=addtodictionary&word=' + targetText;
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = response.text(); // Expect "yes" or "nope"
+			clearAndAddAutoLinks();
+			hideSpinner();
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>Error, server reached for AddWordToDictionary but it returned an error!</p>';
+			hideSpinner();
+			}
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>AddWordToDictionary connection error!</p>';
+		hideSpinner();
+	}
 }
 
 // <a href="http://192.168.1.132:81/Viewer/?href=c:/perlprogs/mine/data/swarmserver.txt"

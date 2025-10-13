@@ -384,7 +384,6 @@ async function viewerOpenAnchor(href) {
 	href = href.replace(/\+/g, "%2B");
 
 	// Encode the trailer.
-	console.log("Raw trailer: |" + trailer + "|");
 	trailer = trailer.replace(/\&/g, "____AMPER____");
 	trailer = trailer.replace(/\?/g, "____QUEST____");
 	trailer = trailer.replace(/\=/g, "____EQAL____");
@@ -398,7 +397,6 @@ async function viewerOpenAnchor(href) {
 	trailer = trailer.replace(/____PLUSS____/g, "+");
 	trailer = trailer.replace(/____ANK____/g, "#");
 	trailer = trailer.replace(/____PCTT____/g, "%");
-	console.log("Enc trailer: |" + trailer + "|");
 
 
 	// Put back the trailer

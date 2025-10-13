@@ -75,11 +75,23 @@ The Editor can spell check .txt files. When you open a .txt file in the Editor, 
 
 Spell checker on/off is remembered across sessions for each file. Only displayed lines are checked at one time, so there won't be any slowdown when the spell checker is on.
 
-The spell checker uses a single word list, in data/EnglishWords.txt. You can add words to this file if you want, the simple format is one word per line. And it's harmless to duplicate entries.
+The spell checker uses a single word list, in data/EnglishWords.txt (in your IntraMine folder). You can add words to this file if you want, the simple format is one word per line. And it's harmless to duplicate entries.
+
+By the way, you're not limited to English words, much of Unicode is supported.
+
+Note however that words fewer than four characters in length are **not checked**. So the spell checking isn't of much use for languages such as Chinese.
 
 *Spell checking off*: "checkingoff.png"
 
 *Spell checking on*: "checkingon.png"
+
+Adding words to the dictionary
+------------------------------
+Hold down the SHIFT key and RIGHT click in the word you want to add (it will have a red squiggly underline).The word will be added to your dictionary, and the reg squiggly underline will go away.
+
+To add a whole bunch of words at once, as mentioned above open data/EnglishWords.txt and paste in the words, one per line.
+
+@@@@@
 
 Under the hood
 ==============

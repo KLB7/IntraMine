@@ -77,13 +77,15 @@ my $MISSINGNAME = 4;    # ''
 
 
 my %RequestAction;
-$RequestAction{'href'}           = \&FullFile;           # href=anything, treated as a file path
-$RequestAction{'req|loadfile'}   = \&LoadTheFile;        # req=loadfile
-$RequestAction{'req|loadTOC'}    = \&GetTOC;             # req=loadTOC
-$RequestAction{'req|save'}       = \&Save;               # req=save
-$RequestAction{'dir'}            = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
-$RequestAction{'req|oktosaveas'} = \&OkToSaveAs;         # req=oktosaveas
-$RequestAction{'req|saveas'}     = \&SaveAs;             # req=save
+$RequestAction{'href'}            = \&FullFile;           # href=anything, treated as a file path
+$RequestAction{'req|loadfile'}    = \&LoadTheFile;        # req=loadfile
+$RequestAction{'req|loadTOC'}     = \&GetTOC;             # req=loadTOC
+$RequestAction{'req|dateandsize'} = \&GetDateAndSize;     # req=dateandsize
+$RequestAction{'req|save'}        = \&Save;               # req=save
+$RequestAction{'dir'}             = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
+$RequestAction{'req|oktosaveas'}  = \&OkToSaveAs;         # req=oktosaveas
+$RequestAction{'req|saveas'}      = \&SaveAs;             # req=save
+
 # not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
 # Over to swarmserver.pm.
@@ -191,6 +193,7 @@ let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let tocHolderName = '_TOCHOLDERNAME_';
 let ourServerPort = '_THEPORT_';
 let errorID = "editor_error";
+let dateSizeHolderID = 'viewEditDateSize';
 
 let weAreRemote = _WEAREREMOTE_;
 let allowEditing = _ALLOW_EDITING_;
@@ -219,7 +222,12 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 <body>
 <div id="indicator"></div> <!-- iPad scroll indicator -->
 _TOPNAV_
-_TITLEHEADER__SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON__SAVE_AS_ACTION_<span id="editor_error">&nbsp;</span>
+<div id="title-block">
+_TITLEHEADER_
+</div>
+<div id="button-block">
+_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON__SAVE_AS_ACTION_<span id="editor_error">&nbsp;</span>
+</div>
 _SAVEASFILEPICKER_
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>_TOCANDCONTENTHOLDER_</div>
@@ -381,6 +389,8 @@ FINIS
 	# Show full path ($title) as expandable/collapsible with links to directories in the path.
 	my $expandImg             = "<img src='expand.jpg'>";
 	my $chevronControlForPath = ChevronFilePathControl($title, $fileName);
+	# For padding, to make the height match the Viewer.
+	$chevronControlForPath .= "<br><span id='viewEditDateSize'><span>&nbsp;</span></span>";
 	$theBody =~ s!_TITLEHEADER_!$chevronControlForPath!;
 
 	my $canHaveTOC = CanHaveTOC($filePath);
@@ -466,6 +476,20 @@ FINIS
 	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
 	return $theBody;
+}
+
+sub GetDateAndSize {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = ' ';
+	if (defined($formH->{'file'}))
+		{
+		my $filePath = $formH->{'file'};
+		my $modDate  = GetFileModTimeWide($filePath);
+		my $size     = GetFileSizeWide($filePath);
+		$result = DateSizeString($modDate, $size);
+		}
+
+	return ($result);
 }
 
 # Show a chevron (>>) and file name, attach a showhint() with links to all directories

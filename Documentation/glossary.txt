@@ -138,7 +138,7 @@ Context directory: the path to the directory holding a referencing file. Eg "p:/
 
 Glossary popup, glossary popups: for general use with IntraMine, glossary popup definitions are contained in any files called "glossary_master.txt" as found in any folder listed in your data/search_directories.txt file. See the glossary_master.txt file at the top of your IntraMine folder for an example. Glossary terms in all source and text files displayed with IntraMine's Viewer will have a dotted underline, and pausing your mouse over the term will show the definition. Popups support rich styling such as bold, italic, FLASH links, and images. For more see "Glossary popups.html".
 
-A separate glossary is available for use with gloss2html.pl. It should be called "glossary.txt" and placed at the top level of any folder containing text files that you want to convert to standalone HTML using gloss2html. For details see "gloss2html.pl for standalone Gloss files.html".
+A separate glossary is available for use with gloss2html.pl and the Glosser service. It should be called "glossary.txt" and placed at the top level of any folder containing text files that you want to convert to standalone HTML using gloss2html. For details see "Glosser.html" and "gloss2html.pl for standalone Gloss files.html".
 
 Shortcut on your desktop: To make a shortcut to any file, in a Windows File Explorer view hold down the Shift and Ctrl keys and drag the file to your desktop, or wherever you want the shortcut.
 
