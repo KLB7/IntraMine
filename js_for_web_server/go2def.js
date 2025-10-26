@@ -23,6 +23,11 @@ async function showDefinitionHint(term, event) {
 		return;
 		}
 
+	if (event === null || event.pageX === null)
+		{
+		return;
+		}
+
 	// Do an early fix for '%' in the term, usually at the start.
 	term = term.replace(/\%/g, "____PC____");
 

@@ -11,7 +11,6 @@ How to do a quick install.txt
 IntraMine initial install.txt
 Installing Elasticsearch.txt
 Installing File Watcher.txt
-Updating CodeMirror.txt
 Installing universal ctags.txt
 Checks before the first run.txt
 Build your Elasticsearch index and run IntraMine.txt
@@ -69,6 +68,7 @@ Stealing from IntraMine.txt
 Configuring folders to index and monitor.txt
 A note on port numbers.txt
 Updating Perl.txt
+Updating CodeMirror.txt
 Elasticsearch with replicas.txt
 Testing with IntraMine.txt
 

@@ -86,6 +86,7 @@ _FOLDER_LIST_
 <table id="ignore_table">
 _IGNORE_LIST_
 </table>
+<progress id="progress-bar" value="0" max="100" visibility="hidden" width="400px"></progress>
 <div id="cmdcontainer">
  
 </div>

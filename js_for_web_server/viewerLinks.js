@@ -100,7 +100,7 @@ async function editWithIntraMine(href) {
 	href = href.replace(/\+/g, "%2B");
 
 	// Encode the trailer.
-	console.log("Edit Raw trailer: |" + trailer + "|");
+	//console.log("Edit Raw trailer: |" + trailer + "|");
 	trailer = trailer.replace(/\&/g, "____AMPER____");
 	trailer = trailer.replace(/\?/g, "____QUEST____");
 	trailer = trailer.replace(/\=/g, "____EQAL____");
@@ -114,7 +114,7 @@ async function editWithIntraMine(href) {
 	trailer = trailer.replace(/____PLUSS____/g, "+");
 	trailer = trailer.replace(/____ANK____/g, "#");
 	trailer = trailer.replace(/____PCTT____/g, "%");
-	console.log("Edit Enc trailer: |" + trailer + "|");
+	//console.log("Edit Enc trailer: |" + trailer + "|");
 
 
 	// Put back the trailer
@@ -129,7 +129,7 @@ async function editWithIntraMine(href) {
 				href;
 
 				// TEST ONLY
-				console.log("url: |" + url + "|");
+				//console.log("url: |" + url + "|");
 
 				window.open(url, "_blank");
 				}

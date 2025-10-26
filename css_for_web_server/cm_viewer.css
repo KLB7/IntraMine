@@ -256,6 +256,22 @@ div#indicator {
     padding: 0;
 }
 
+div#indicatorPC {
+    position: absolute;
+    z-index: 99;
+    top: 0;
+    /*left: 3px;*/
+    right: 0.74%;
+    /*opacity: .5;*/
+    width: 9px;
+    height: 20px;
+    background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
+    border: 1px solid gray; /*none;*/
+    margin: 0;
+    padding: 0;
+	pointer-events: none;
+}
+
 /* Table of Contents highlight for current item. */
 .tocitup {
 	background-color: lightgreen;

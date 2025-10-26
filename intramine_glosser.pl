@@ -84,6 +84,7 @@ _DESCRIPTION_
 <div id='top_buttons'>_CONTROLS_ <span id='running'></span>
 </div>
 <div id="runmessage">&nbsp;</div>
+<progress id="progress-bar" value="0" max="100" visibility="hidden" width="400px"></progress>
 <div id='scrollAdjustedHeight'>
 	<div id='theTextWithoutJumpList'>
 	</div>
@@ -113,7 +114,6 @@ let errorID = "runMessageDiv";
 <script src="lru.js"></script>
 
 <script src="glosser.js"></script>
-
 </body></html>
 FINIS
 
@@ -499,6 +499,14 @@ sub ActualRunGlossToHTML {
 
 sub ShowFeedback {
 	my ($msg) = @_;
+	# Strip out progress numbers. Not enabled at the moment.
+	# my $progressMessage = '';
+	# if ($msg =~ m!\|(TOTAL|CURRENT|DONE)\s+([^\|]+)\|!)
+	# 	{
+	# 	my $signal = $1;
+	# 	my $numbers = $2;
+	# 	$msg =~ s!\|.+?\|!!;
+	# 	}
 	my @msgA = split(/\n/, $msg);
 	$msg = 'NEWGLOSSMESSAGE:' . '<p>' . join('</p><p>', @msgA) . '</p>';
 	WebSocketSend($msg);

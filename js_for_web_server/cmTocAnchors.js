@@ -184,7 +184,6 @@ function cmRejumpToAnchor() {
 		{
 		anchor = decodeURIComponent(anchor);
 		anchor = anchor.replace(/^#/, '');
-
 		if (isNaN(anchor))
 			{
 			let lineNumber = lineNumberForAnchor(anchor);
@@ -453,6 +452,17 @@ function onScroll() {
 	
 	// Too soon - this is now done in cmAutoLinks.js#handleFileLinkMouseUp().
 	// goingToAnchor = false;
+
+	// Experiment, try to get the yellow "scroll indicator" showing.
+	scrollIndicator();
+
+	window.clearTimeout( isScrollingIndicator );
+	
+	// Set a timeout to run after scrolling ends
+	isScrollingIndicator = setTimeout(function() {
+		// Run the callback
+		hideIndicator();
+	}, 3000);
 }
 
 function finishWindowResize(el) {

@@ -29,7 +29,7 @@ sc config "File Watcher Windows Service" start=auto
 
 Note we're not starting File Watcher just yet. The File Watcher service also requires its own separate configuration file listing which folders to monitor. We'll get to both of those in the last step, "Build your Elasticsearch index and run IntraMine.txt".
 
-We're done installing File Watcher, and you can move on to: "Updating CodeMirror.txt".
+We're done installing File Watcher, and you can move on to: "Installing universal ctags.txt".
 
 Putting File Watcher elsewhere
 ===============================
@@ -61,7 +61,7 @@ sc description "File Watcher Windows Service" "Watches for file system changes i
 sc config "File Watcher Windows Service" start=auto
 ---
 
-We're done installing File Watcher, and you can move on to: "Updating CodeMirror.txt".
+We're done installing File Watcher, and you can move on to: "Installing universal ctags.txt".
 
 Deleting the File Watcher service
 ==================================
@@ -72,7 +72,7 @@ sc delete "File Watcher Windows Service"
 ---
 
 
-Next: "Updating CodeMirror.txt"
+Next: "Installing universal ctags.txt"
 
 ---
 contents.txt

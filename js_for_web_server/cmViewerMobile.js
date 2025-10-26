@@ -6,18 +6,18 @@
  * is there. Find is hopeless, but browser's built-in Find works somewhat.
  */
 
-let indicatorElem = document.getElementById('indicator');
-let indicatorM = 0;
+let indicatorElemMobile = document.getElementById('indicator');
+let indicatorM_Mobile = 0;
 let lazyMobileScrollIndicator = JD.debounce(scrollMobileIndicator, 100);
-let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
+let lzySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100); // sic, sorry
 
 if (onMobile) // iPad only for now....
 	{
 	addTouchEndHandler("search-button", showSearch);
 	// TEST ONLY
 	addClickHandler("search-button", showSearch);
-	lazySetUpMobileIndicator();
-	window.addEventListener("resize", lazySetUpMobileIndicator);
+	lzySetUpMobileIndicator();
+	window.addEventListener("resize", lzySetUpMobileIndicator);
 	myCodeMirror.on("scroll", scrollMobileIndicator);
 
 	// TEST ONLY - triggered for text body, but not Find dialog.
@@ -36,7 +36,7 @@ if (onMobile) // iPad only for now....
 	}
 else
 	{
-	indicatorElem.style.display = 'none';
+	indicatorElemMobile.style.display = 'none';
 	hideIt("search-button");
 	hideIt("small-tip");
 	}
@@ -47,15 +47,15 @@ function scrollMobileIndicator() {
 		return;
 		}
 
-	if (indicatorM > 0)
+	if (indicatorM_Mobile > 0)
 		{
 		let cmScrollInfo = myCodeMirror.getScrollInfo();
 		let mainScrollY = cmScrollInfo.top;
 		let rect = markerMainElement.getBoundingClientRect();
 		let yTop = rect.top;
 		let arrowHeight = 2; // Small gap above and below scroll area.
-		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
-		indicatorElem.style.top = newThumbTop + "px";
+		let newThumbTop = indicatorM_Mobile * mainScrollY + yTop + arrowHeight;
+		indicatorElemMobile.style.top = newThumbTop + "px";
 		}
 }
 
@@ -81,8 +81,8 @@ function setUpMobileIndicator() {
 	let usableTextHeight = textViewableHeight - 2 * arrowHeight;
 
 	let indicatorHeight = (usableTextHeight / mainScrolllHeight) * usableTextHeight;
-	indicatorElem.style.height = indicatorHeight + "px";
-	indicatorM = (usableTextHeight - indicatorHeight) / (mainScrolllHeight - usableTextHeight);
+	indicatorElemMobile.style.height = indicatorHeight + "px";
+	indicatorM_Mobile = (usableTextHeight - indicatorHeight) / (mainScrolllHeight - usableTextHeight);
 	scrollMobileIndicator();
 }
 

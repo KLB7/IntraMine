@@ -408,7 +408,7 @@ async function getRunningCountForShortName(shortName) {
 }
 
 // Flash an "LED" when there's some IntraMine activity on a port.
-// See statusEvents.js#requestSSE().
+// See statusEvents.js.
 function showActivity(data) {
 	// Break data into 'activity' space name space port.
 	let spacePos = data.indexOf(' ');

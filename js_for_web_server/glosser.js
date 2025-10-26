@@ -56,8 +56,20 @@ function doResize() {
 
 // Handle WebSockets message "NEWGLOSSMESSAGE".
 // as sent by intramine_glosser.pl via gloss_to_html.pm.
+// For the messages with TOTAL etc see roughly gloss_to_html.pm#146, 159, 181.
 async function refreshGlosserDisplay(message) {
 	message = message.replace(/NEWGLOSSMESSAGE\:?/, '');
+
+	let progMatch = /\|(TOTAL|CURRENT|DONE)\s+([^\|]+)\|/.exec(message);
+	if (progMatch !== null)
+		{
+		let progressMessageType = progMatch[1];
+		let progNums = progMatch[2];
+		showProgressSoFar(progressMessageType, progNums);
+		message = message.replace(/\|.+?\|/, '');
+		}
+
+
 	let e1 = document.getElementById('theTextWithoutJumpList');
 	e1.innerHTML += message;
 	doResize();
@@ -415,10 +427,65 @@ function restoreCheckBoxes() {
 		}
 }
 
+// Progress bar, and clamp().
+//<progress id="progress-bar" value="0" max="100" visibility="hidden"></progress>
+
+// For the messages with "progressMessageType" see roughly gloss_to_html.pm#146, 159, 181.
+function showProgressSoFar(progressMessageType, progNums) {
+	if (progressMessageType === 'TOTAL')
+		{
+		showProgressBar();
+		}
+	else if (progressMessageType === 'CURRENT')
+		{
+		let numMatch = /(\d+)\s+(\d+)/.exec(progNums);
+		if (numMatch !== null)
+			{
+			let currentStr = numMatch[1];
+			let totalStr = numMatch[2];
+			let cur = +currentStr;
+			let tot = +totalStr;
+			if (tot !== 0)
+				{
+				let val = cur/tot;
+				val *= 100;
+				setProgress(val);	
+				}
+			}
+		}
+	else if (progressMessageType === 'DONE')
+		{
+		hideProgressBar();
+		}
+}
+
+function setProgress(val) {
+	let progressElement = document.getElementById("progress-bar");
+	progressElement.value = clamp(val);
+}
+
+function showProgressBar() {
+	let progressElement = document.getElementById('progress-bar');
+	progressElement.style.height = "6px";
+	progressElement.style.width = "400px";
+	progressElement.value = 0;
+	progressElement.style.accentColor = 'green';
+	progressElement.style.visibility = 'visible';
+}
+
+function hideProgressBar() {
+	let progressElement = document.getElementById('progress-bar');
+	progressElement.value = 0;
+	progressElement.style.visibility = 'hidden';
+}
+
+const clamp = (val, min = 0, max = 100) => Math.min(Math.max(val, min), max);
+
 ready(finishDirPickerSetup);
 ready(restoreCheckBoxes);
 ready(doResize);
 ready(hideSpinner);
+ready(hideProgressBar);
 window.addEventListener("resize", doResize);
 window.addEventListener("resize", doDirectoryPickerResize);
 

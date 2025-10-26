@@ -417,7 +417,9 @@ sub FullFile {
 	# Add Search/Find.
 	my $search =
 		"<input id=\"search-button\" class=\"submit-button\" type=\"submit\" value=\"Find\" />";
-	$theBody =~ s!_SEARCH_!$search!;
+	#$theBody =~ s!_SEARCH_!$search!;
+	# Rev, Find isn't that useful and the browser has a built-in Find.
+	$theBody =~ s!_SEARCH_!!;
 
 	# Detect any searchItems passed along for hilighting. If there are any, add a
 	# "Hide/Show Initial Hits" button at top of page.
@@ -476,6 +478,7 @@ _CSS_
 _TEXTTABLECSS_
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <link rel="stylesheet" type="text/css" href="dragTOC.css" />
+<link rel="stylesheet" type="text/css" href="hide_contents.css" />
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -518,6 +521,7 @@ let doubleClickTime = _DOUBLECLICKTIME_;
 let selectedTheme = '_THEME_';
 let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
 
+let arrowHeight = 18;
 </script>
 <script>
 	// Call fn when ready.
@@ -816,6 +820,13 @@ sub InitialHighlightItems {
 	my ($formH, $usingCM, $searchItems) = @_;
 	my $highlightItems = '';
 
+	# Fix quotes.
+	$searchItems =~ s!%22!"!g;
+	# And spaces
+	$searchItems =~ s!%20! !g;
+	# And apostrophes.
+	$searchItems =~ s!___APOSS___!'!g;    # See elasticsearcher.pm#FormatHitResults()
+
 	if ($searchItems ne '')
 		{
 		my $forExactPhrase = ($searchItems =~ m!^\"!);
@@ -1049,6 +1060,7 @@ sub CodeMirrorJS {
 <script src="cmViewerMobile.js" ></script>
 <script src="showHideTOC.js" ></script>
 <script src="cmShowSearchItems.js" ></script>
+<script src="indicator.js" ></script>
 <script src="cmToggle.js" ></script>
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>

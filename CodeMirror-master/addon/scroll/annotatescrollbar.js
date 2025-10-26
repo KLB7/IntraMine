@@ -1,6 +1,9 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
+// Added for more precise markers.
+//let arrowHeight = 18; // Needed for PC only.
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -50,13 +53,73 @@
 
   Annotation.prototype.computeScale = function() {
     var cm = this.cm;
-    var hScale = (cm.getWrapperElement().clientHeight - cm.display.barHeight - this.buttonHeight * 2) /
-      cm.getScrollerElement().scrollHeight
-    if (hScale != this.hScale) {
-      this.hScale = hScale;
+	  
+	// REVISION improve accuracy of marker placement by correcting hScale.
+  let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	let viewWidth = rect.right - rect.left;
+	let mainScrolllHeight = 0;
+	let widthDifference = 0;
+	let heightDifference = 0;
+	let haveVerticalScroll = false;
+	let haveHorizontalScroll = false;
+
+  let scrollEl = cm.getWrapperElement().querySelector('.CodeMirror-scroll');
+  mainScrolllHeight = scrollEl.scrollHeight;
+  widthDifference = cm.getScrollerElement().offsetWidth - cm.getScrollerElement().clientWidth;
+  //widthDifference = cm.getWrapperElement().offsetWidth - cm.getScrollerElement().clientWidth;
+  heightDifference = cm.getWrapperElement().offsetHeight - cm.getScrollerElement().clientHeight;
+  if (scrollEl.scrollHeight > scrollEl.clientHeight)
+    {
+    haveVerticalScroll = true;
+    }
+  if (scrollEl.scrollWidth > scrollEl.clientWidth)
+    {
+    haveHorizontalScroll = true;
+    }
+	
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	if (mainScrolllHeight > usableTextHeight)
+		{
+		let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
+		indicatorM =
+					(usableTextHeight - indicatorHeight) / (mainScrolllHeight - textViewableHeight);
+    }
+
+	
+    if (indicatorM != this.hScale) {
+      this.hScale = indicatorM;
       return true;
     }
   };
+
 
   Annotation.prototype.update = function(annotations) {
     this.annotations = annotations;
@@ -96,24 +159,29 @@
     {
     cm.display.barWidth = 17;
     }
+
+  // Adjust top and bottom by arrowHeight.
+  // (to allow for the top arrow in the scroll bar).
+  let widthDifference = cm.getScrollerElement().offsetWidth - cm.getScrollerElement().clientWidth;
+  let arrowHeight = widthDifference;
   if (cm.display.barWidth) for (var i = 0, nextTop; i < anns.length; i++) {
       var ann = anns[i];
       if (ann.to.line > lastLine) continue;
-      var top = nextTop || getY(ann.from, true) * hScale;
-      var bottom = getY(ann.to, false) * hScale;
+      var top = nextTop || getY(ann.from, true) * hScale; + arrowHeight;
+      var bottom = getY(ann.to, false) * hScale; + arrowHeight;
       while (i < anns.length - 1) {
         if (anns[i + 1].to.line > lastLine) break;
-        nextTop = getY(anns[i + 1].from, true) * hScale;
+        nextTop = getY(anns[i + 1].from, true) * hScale; + arrowHeight;
         if (nextTop > bottom + .9) break;
         ann = anns[++i];
-        bottom = getY(ann.to, false) * hScale;
+        bottom = getY(ann.to, false) * hScale; + arrowHeight;
       }
       if (bottom == top) continue;
       var height = Math.max(bottom - top, 3);
 
       var elt = frag.appendChild(document.createElement("div"));
       elt.style.cssText = "position: absolute; right: 0px; width: " + Math.max(cm.display.barWidth - 1, 2) + "px; top: "
-        + (top + this.buttonHeight) + "px; height: " + height + "px";
+        + (top + arrowHeight) + "px; height: " + height + "px";
       elt.className = this.options.className;
       if (ann.id) {
         elt.setAttribute("annotation-id", ann.id);

@@ -605,17 +605,22 @@ sub FormatHitResults {
 	my %fullPathSeen;    # Avoid showing the same file twice.
 	my $hitCounter = 0;
 
+	my $quoteChar = ($matchExactPhrase) ? '"' : '';
+	$query =~ s!'!___APOSS___!g;
+	$query = &HTML::Entities::encode($quoteChar . $query . $quoteChar);
+	#$query =~ s!___APOSS___!\&#39;!g;
+
 	my $numHits = $rawResults->{'hits'}{'total'}{'value'};
 
 	if (defined($numHits) && $numHits > 0)
 		{
-		my $quoteChar = ($matchExactPhrase) ? '"' : '';
 		# With a RESTful approach (abandoned for now):
 		#my $searchItems = '/?searchItems=' .
 		#                                 &HTML::Entities::encode($quoteChar . $query . $quoteChar);
 		# With the non-RESTful "href=path&searchItems=..." approach:
-		my $searchItems =
-			'&searchItems=' . &HTML::Entities::encode($quoteChar . $query . $quoteChar);
+		my $searchItems = '&searchItems=' . $query;
+		#my $searchItems =
+		#	'&searchItems=' . &HTML::Entities::encode($quoteChar . $query . $quoteChar);
 		$$resultR = "<table id='elasticSearchResultsTable'>\n";
 
 		my $definitionName = '';

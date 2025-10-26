@@ -13,7 +13,7 @@ let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
 
 let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
 let lazyScroll = JD.debounce(scrollIndicator, 500);
-let arrowHeight = 18; // Needed for PC only.
+//let arrowHeight = 18; // Needed for PC only.
 
 otherIndicatorElem.style.display = 'none';
 
@@ -83,13 +83,26 @@ function setUpIndicator() {
 		return;
 		}
 	
-	recalculateIndicatorM();
-
-	lazyScroll();
-	
-	setTimeout(function() {
+	if (usingCM)
+		{
+		setTimeout(function() {
+			// CodeMirror can take some time to settle down.
+			recalculateIndicatorM();
+			}, 3000);
+		setTimeout(function() {
 				hideIndicator();
-			}, 1000);
+			}, 4000);
+
+		}
+	else
+		{
+		recalculateIndicatorM();
+		setTimeout(function() {
+					hideIndicator();
+				}, 1000);
+		}
+	
+	lazyScroll();
 }
 
 function recalculateIndicatorM() {
@@ -102,14 +115,37 @@ function recalculateIndicatorM() {
 	let yTop = rect.top;
 	let yBottom = rect.bottom;
 	let textViewableHeight = yBottom - yTop;
-	let mainScrolllHeight = markerMainElement.scrollHeight;
-	
 	let viewWidth = rect.right - rect.left;
-	let widthDifference = viewWidth - markerMainElement.clientWidth;
-	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
-	let haveVerticalScroll = (widthDifference > 2) ? true : false;
-	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
-
+	let mainScrolllHeight = 0;
+	let widthDifference = 0;
+	let heightDifference = 0;
+	let haveVerticalScroll = false;
+	let haveHorizontalScroll = false;
+	if (usingCM)
+		{
+		let scrollEl = myCodeMirror.getWrapperElement().querySelector('.CodeMirror-scroll');
+		mainScrolllHeight = scrollEl.scrollHeight;
+		widthDifference = myCodeMirror.getScrollerElement().offsetWidth - myCodeMirror.getScrollerElement().clientWidth;
+		//widthDifference = myCodeMirror.getWrapperElement().offsetWidth - myCodeMirror.getScrollerElement().clientWidth;
+		heightDifference = myCodeMirror.getWrapperElement().offsetHeight - myCodeMirror.getScrollerElement().clientHeight;
+		if (scrollEl.scrollHeight > scrollEl.clientHeight)
+			{
+			haveVerticalScroll = true;
+			}
+		if (scrollEl.scrollWidth > scrollEl.clientWidth)
+			{
+			haveHorizontalScroll = true;
+			}
+		}
+	else
+		{
+		mainScrolllHeight = markerMainElement.scrollHeight;
+		widthDifference = viewWidth - markerMainElement.clientWidth;
+		heightDifference = textViewableHeight - markerMainElement.clientHeight;
+		haveVerticalScroll = (widthDifference > 2) ? true : false;
+		haveHorizontalScroll = (heightDifference > 2) ? true : false;
+		}
+	
 	let arrowMultiplier = 2;
 	if (typeof window.ontouchstart !== 'undefined')
 		{
@@ -180,7 +216,7 @@ function scrollMobileIndicator() {
 		}
 }
 
-// Non-mobile, set indicatorElem.top
+// Non-mobile, set indicatorElem.style.top
 function scrollIndicator() {
 	if (onMobile)
 		{
@@ -191,7 +227,17 @@ function scrollIndicator() {
 		{
 		indicatorElem.style.display = 'block';
 		
-		let mainScrollY = markerMainElement.scrollTop;
+		let mainScrollY = 0
+		if (usingCM)
+			{
+			let scrollEl = myCodeMirror.getWrapperElement().querySelector('.CodeMirror-scroll');
+			mainScrollY = scrollEl.scrollTop;
+			}
+		else
+			{
+			mainScrollY = markerMainElement.scrollTop;
+			}
+
 		let rect = markerMainElement.getBoundingClientRect();
 		let yTop = rect.top;
 		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
@@ -205,7 +251,7 @@ function scrollIndicator() {
 // Add a scroll listener that hides the 'indicatorPC' box after a few seconds.
 let isScrollingIndicator = null;
 function addHideIndicatorScrollListener() {
-	let el = document.getElementById(cmTextHolderName);
+	let el = document.getElementById(cmTextHolderName);	
 	if (el !== null)
 		{
 		el.addEventListener("scroll", function() {

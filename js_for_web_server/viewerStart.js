@@ -28,6 +28,9 @@ if (typeof window.ontouchstart !== 'undefined')
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
+// Hide messy redraw. See also showMainContent called in finishStartup() below.
+hideMainContent();
+
 // Adjust some element heights so scrolling works properly.
 function doResize() {
 	restoreColumnWidths();
@@ -428,6 +431,8 @@ function getElementForHash(h) {
 	hCopy = hCopy.replace(/ /g, '_');
 	hCopy = hCopy.replace(/\%20/g, '_');
 	hCopy = hCopy.replace(/\(\)$/, '');
+	hCopy = hCopy.replace(/\'/g, '');
+	
 	let el = document.getElementById(hCopy);
 	if (el === null)
 		{
@@ -664,6 +669,12 @@ function finishStartup() {
 	// TEST ONLY
 	//console.log("finishStartup");
 	reJump();
+
+	// Show content after drawing is done.
+	// This is work in progress, not perfect.
+	setTimeout(function() {
+		showMainContent();
+		}, 500);
 }
 
 // Code block highlighting with lolight, used
@@ -862,7 +873,7 @@ function updateMarkers(evt) {
 		markHitsInScrollbar(textMarkerClass, scrollMarkerClass);
 		}
 
-	// EXPERIMENT, try showing hint for Go to definition.
+	// Show hint for Go to definition.
 	if (!theSelection.selectionIsTooBig)
 		{
 		let text = window.getSelection().toString();
@@ -1717,6 +1728,54 @@ function scrollBackToFootnoteRef(ourAnchor) {
 					}
 				}
 			}
+		}
+}
+
+// Hide/show content during load to reduce flicker.
+function hideMainContent() {
+	return;
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+}
+
+function showMainContent() {
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
 		}
 }
 

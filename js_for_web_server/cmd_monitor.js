@@ -388,6 +388,8 @@ async function monitorCmdOutUntilDone(ank, originator, requestedRunID) {
 			if (response.ok)
 				{
 				let text = await response.text();
+				// For the progress bar, pass the full text.
+				let originalText = text;
 
 				// Extract file position from start of string.
 				let filePosMatch = /^\|(\d+)\|/.exec(text);
@@ -458,6 +460,9 @@ async function monitorCmdOutUntilDone(ank, originator, requestedRunID) {
 					e1.scrollTop = e1.scrollHeight;
 					await sleepABit(1000);
 					}
+
+				// Update any associated progress bar.
+				updateProgressBar(originalText);
 				}
 			else
 				{
@@ -474,6 +479,7 @@ async function monitorCmdOutUntilDone(ank, originator, requestedRunID) {
 					wsSendMessage("StopCmd:" + shortServerName);
 					}
 				hideSpinner();
+				updateProgressBar("***E-R-R-O-R***");
 				}
 			}
 		catch(error) {
@@ -490,10 +496,67 @@ async function monitorCmdOutUntilDone(ank, originator, requestedRunID) {
 				wsSendMessage("StopCmd:" + shortServerName);
 				}
 			hideSpinner();
+			updateProgressBar("***E-R-R-O-R***");
 			}
 		} // while keepGoing
 	}
 
 function uniqueRunID() {
 	return("id" + Math.random().toString(16).slice(2));
+}
+
+// Progress bar updating. A progress bar is optional.
+// See reindex.js for setProgress() etc.
+function updateProgressBar(text) {
+	// Do we even have a progress bar?
+	let progressElements = document.getElementsByTagName('progress');
+	if (progressElements.length === 0)
+		{
+		return;
+		}
+	let progressElement = progressElements[0];
+
+	// Skip if nothing new.
+	if (text.indexOf("***N-O-T-H-I-N-G***N-E-W***") >= 0)
+		{
+		return;
+		}
+
+	// Remove file position from start of string.
+	text = text.replace(/^\|\d+\|/, '');
+		
+	// Decipher the text message and update the progress bar accordingly.
+	// There isn't really a "start showing" message, we show
+	// the progress bar if there seems to be progress.
+
+	// Hide if done or error.
+	if (text.indexOf("***A-L-L***D-O-N-E***") >= 0
+		|| text.indexOf("***E-R-R-O-R***") >= 0)
+		{
+		hideProgressBar();
+		return;
+		}
+	
+	// The main event: any progress to show?
+	// We're looking for messages of the form ri.pl#360
+	// Output("  $docCounter / $numDocs... $fullPath\n");
+	let progMatch = /(\d+)\s+\/\s+(\d+)\.\.\./.exec(text);
+	if (progMatch !== null)
+		{
+		let numSoFar = progMatch[1];
+		let totalDocs = progMatch[2];
+		let cur = +numSoFar;
+		let tot = +totalDocs;
+		if (tot !== 0)
+			{
+			let val = cur/tot;
+			val *= 100;
+			let currentProgressValue = progressElement.value;
+			if (currentProgressValue === 0)
+				{
+				showProgressBar();
+				}
+			setProgress(val);	
+			}
+		}
 }

@@ -143,7 +143,8 @@ sub ConvertGlossToHTML {
 	InitSpecialIndexFileHandling();
 
 	my $fileWord = ($numFilesToConvert > 1) ? 'files' : 'file';
-	Output("Converting $numFilesToConvert $fileWord from .txt to .html in |$context|\n");
+	Output(   "|TOTAL $numFilesToConvert|"
+			. "Converting $numFilesToConvert $fileWord from .txt to .html in |$context|\n");
 
 	# Is there a file named "glossary.txt"? Load a list of glossary entries into memory.
 	# Note the glossary file is converted later by ConvertTextToHTML().
@@ -152,9 +153,10 @@ sub ConvertGlossToHTML {
 
 	for (my $i = 0 ; $i < $numFilesToConvert ; ++$i)
 		{
-		ConvertTextToHTML($context, $listOfFilesToConvert[$i]);
+		my $docNumber = $i + 1;
+		ConvertTextToHTML($context, $listOfFilesToConvert[$i], $docNumber, $numFilesToConvert);
 		}
-	Output("Done.\n");
+	Output("|DONE 1|" . "Done.\n");
 }
 
 # Default output is to just print.
@@ -175,8 +177,8 @@ sub Output {
 }
 
 sub ConvertTextToHTML {
-	my ($context, $filePath) = @_;
-	Output("Converting |$filePath|\n");
+	my ($context, $filePath, $docNo, $numFilesToConvert) = @_;
+	Output("|CURRENT $docNo $numFilesToConvert|" . "Converting |$filePath|\n");
 
 	ClearDocumentGlossaryTermsSeen();
 
@@ -190,7 +192,7 @@ sub ConvertTextToHTML {
 	my $outPath = $filePath;
 	$outPath =~ s!txt$!html!i;
 
-	WriteUTF8FileWide($outPath, $contents);            # Doesn't handle non-ASCII well. Sigh.
+	WriteTextFileWide($outPath, $contents);
 }
 
 # Get text file as a big string. Returns 1 if successful, 0 on failure.
@@ -575,7 +577,7 @@ sub GetPrettyText {
 			. "</table>$bottomShim</div>";
 		}
 
-	$$contents_R .= $textContents;
+	$$contents_R .= encode_utf8($textContents);
 }
 
 { ##### HTML hash and footnotes

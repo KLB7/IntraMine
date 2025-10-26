@@ -161,7 +161,6 @@ function reJump() {
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
-
 		let el = document.getElementById(h);
 		if (el !== null)
 			{
@@ -351,6 +350,12 @@ async function loadFileIntoCodeMirror(cm, path) {
 				}, 600);
 			lazyOnScroll = JD.debounce(onScroll, 100);
 			cm.on("scroll", lazyOnScroll);
+
+			// Show content after drawing is done.
+			setTimeout(function() {
+				showMainContent();
+				}, 500);
+
 			hideSpinner();
 			}
 		else
@@ -374,3 +379,59 @@ function testNoticeKeyPress(cm, evt) {
 	e1.innerHTML = 'KEYPRESS ' + evt.keyCode;
 }
 
+// Set top of nav to zero, fixes an iPad scroll problem where nav goes off the top.
+function resetTopNavPosition() {
+	let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+	if (nav !== null)
+		{
+		nav.parentNode.scrollTop = 0;
+		}
+}
+
+// Hide/show content during load to reduce flicker.
+function hideMainContent() {
+	return;
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+}
+
+function showMainContent() {
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+}

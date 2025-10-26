@@ -37,7 +37,54 @@ function disableReindexIfRemote() {
 		}
 }
 
+// Progress bar, and clamp().
+//<progress id="progress-bar" value="0" max="100" visibility="hidden"></progress>
+
+function setProgress(val) {
+	//console.log("Setting progress to " + val);
+	let progressElements = document.getElementsByTagName('progress');
+	if (progressElements.length === 0)
+		{
+		return;
+		}
+	let progressElement = progressElements[0];
+	
+	progressElement.value = clamp(val);
+}
+
+function showProgressBar() {
+	//console.log("Showing progress bar");
+	let progressElements = document.getElementsByTagName('progress');
+	if (progressElements.length === 0)
+		{
+		return;
+		}
+	let progressElement = progressElements[0];
+
+	progressElement.style.height = "6px";
+	progressElement.style.width = "400px";
+	progressElement.value = 0;
+	progressElement.style.accentColor = 'green';
+	progressElement.style.visibility = 'visible';
+}
+
+function hideProgressBar() {
+	//console.log("Hiding progress bar");
+	let progressElements = document.getElementsByTagName('progress');
+	if (progressElements.length === 0)
+		{
+		return;
+		}
+	let progressElement = progressElements[0];
+
+	progressElement.value = 0;
+	progressElement.style.visibility = 'hidden';
+}
+
+const clamp = (val, min = 0, max = 100) => Math.min(Math.max(val, min), max);
+
 ready(doResize);
 ready(hideSpinner);
 ready(disableReindexIfRemote);
+ready(hideProgressBar);
 window.addEventListener("resize", doResize);

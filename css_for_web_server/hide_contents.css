@@ -1,0 +1,21 @@
+/* hide_contents.css: For reducing flicker on refresh.
+Used in Viewer and Editor services.
+*/
+.panes-separator {
+	visibility: hidden;
+}
+
+#scrollAdjustedHeight {
+	/* Experiment, trying to reduce flicker on refresh. */
+	visibility: hidden;
+}
+
+#scrollContentsList {
+	/* Experiment, trying to reduce flicker on refresh. */
+	visibility: hidden;
+}
+
+#scrollTextRightOfContents {
+	
+	visibility: hidden;
+}

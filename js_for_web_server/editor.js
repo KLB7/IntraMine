@@ -3,6 +3,18 @@
 // Load, Save file, manage content resizing.
 // March 2022, autolinks (FLASH links) are now supported.
 
+// let onMobile = false; // true if we have touch events.
+// if (typeof window.ontouchstart !== 'undefined')
+// 	{
+// 	onMobile = true;
+// 	}
+
+// let markerMainElement = document.getElementById("scrollTextRightOfContents");
+// if (markerMainElement === null)
+// 	{
+// 	markerMainElement = document.getElementById("scrollText");
+// 	}
+
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
@@ -469,6 +481,10 @@ async function loadFileIntoCodeMirror(cm, path) {
 
 			// Add handler for Add to dictionary.
 			addRightClickHandler(); // cmAutoLinks.js#addRightClickHandler()
+
+			//setUpIndicator();
+
+			showMainContent();
 
 			hideSpinner();
 			}
@@ -1022,6 +1038,7 @@ function cmEditorRejumpToAnchor() {
 		anchor = anchor.replace(/ /g, '_');
 		anchor = anchor.replace(/\%20/g, '_');
 		anchor = anchor.replace(/\(\)$/, '');
+		anchor = anchor.replace(/\'/g, '');
 
 		let result = cmEditorRejumpToHeading(anchor);
 		if (!result && !isNaN(anchor))
@@ -1063,6 +1080,82 @@ function cmEditorRejumpToLine(lineNum) {
 function codeMirrorIsDirty() {
 	return(!myCodeMirror.doc.isClean());
 }
+
+// Set top of nav to zero, fixes an iPad scroll problem where nav goes off the top.
+function resetTopNavPosition() {
+	let nav = document.getElementById("nav"); // nope nav.style.top = 0;
+	if (nav !== null)
+		{
+		nav.parentNode.scrollTop = 0;
+		}
+}
+
+function hideIt(id) {
+	let el = document.getElementById(id);
+	if (el !== null)
+		{
+		el.style.display = 'none';
+		}
+}
+
+// Hide/show content during load to reduce flicker.
+function hideMainContent() {
+	return;
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "hidden";
+		}
+}
+
+function showMainContent() {
+	let elem = document.getElementById("scrollContentsList");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("panes-separator");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollTextRightOfContents");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+	elem = document.getElementById("scrollAdjustedHeight");
+	if (elem !== null)
+		{
+		elem.style.visibility = "visible";
+		}
+}
+
+// Dummy functions and a variable: Editor does not have a precise scroll indicator.
+function scrollIndicator() {
+
+}
+
+function hideIndicator() {
+
+}
+
+let isScrollingIndicator;
 
 pasteDateTimeOnF4();
 addClickHandler("undo-button", editorUndo);

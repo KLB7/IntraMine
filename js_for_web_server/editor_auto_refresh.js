@@ -33,8 +33,10 @@ function handleFileChanged(message) {
 		let timeStamp = currentResult[4];
 		pathFromMessage = decodeURIComponent(pathFromMessage);
 		pathFromMessage = pathFromMessage.replace(/%25/g, "%");
+		pathFromMessage = pathFromMessage.toLowerCase();
+		let lcTheEncodedPath = theEncodedPath.toLowerCase();
 		
-		if (pathFromMessage === theEncodedPath)
+		if (pathFromMessage === lcTheEncodedPath)
 			{
 			let currentTime = Date.now();
 			// lineNumberStr > 0 means the Viewer should jump to that line
@@ -52,11 +54,6 @@ function handleFileChanged(message) {
 				}
 			else
 				{
-				// TEST ONLY
-				//console.log(" Editor timestamp: |" + lastEditorUpdateTime + "|");
-				//console.log("Watcher timestamp: |" + timeStamp + "|");
-
-
 				let timestampKey = theEncodedPath + '?' + 'timestamp';
 				let previousTimestamp = "0";
 

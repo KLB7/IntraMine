@@ -112,6 +112,7 @@ sub FullFile {
 <link rel="stylesheet" type="text/css" href="cm_editor_links.css" />
 <link rel="stylesheet" type="text/css" href="cm_editor_fix.css" />
 <link rel="stylesheet" type="text/css" href="dragTOC.css" />
+<link rel="stylesheet" type="text/css" href="hide_contents.css" />
 
 <link rel="stylesheet" type="text/css" href="jqueryFileTree.css" />
 <link rel="stylesheet" type="text/css" href="newFileButton.css" />
@@ -217,10 +218,14 @@ let weAreEditing = true; // Don't adjust user selection or do internal links if 
 
 //let onMobile = false; // mobile is going away. Too difficult to test.
 
+let arrowHeight = 18;
+
 </script>
 </head>
 <body>
-<div id="indicator"></div> <!-- iPad scroll indicator -->
+<!-- added for touch scrolling, an indicator -->
+<div id="indicator"></div> <!-- iPad -->
+<!-- <div id="indicatorPC"></div> -->
 _TOPNAV_
 <div id="title-block">
 _TITLEHEADER_
@@ -267,6 +272,8 @@ _SAVEASFILEPICKER_
 <script src="cmShowSearchItems.js" ></script>
 <script src="cmToggle.js" ></script>
 <script src="cmMobile.js" ></script>
+<!-- <script src="indicator.js" ></script> -->
+
 <script src="diff_match_patch_uncompressed.js" ></script>
 <script src="restore_edits.js" ></script>
 <script src="cmScrollTOC.js" ></script>
