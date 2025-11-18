@@ -44,6 +44,11 @@ use mon;
 
 my $QUICKDRIVELIST = 1;    # Set to 0 for slower but more accurate list
 
+# "Main" server's effective Short name, needed for WebSockets publishing.
+sub MainServerName {
+	return ('IM_MAIN');
+}
+
 { ##### Server address
 my $ServerAddress;
 
@@ -646,8 +651,10 @@ sub MainLoop {
 	# Start up WebSocket communications.
 	InitWebSocketClient();
 	my $sname = OurShortName();
-	$WebSockIsUp = WebSocketSend("$sname checking in");
-
+	#my $mainName       = MainServerName();
+	my $checkinMessage = "$sname" . "_checking_in";
+	#my $checkinMessage = "PUBLISH__TS_" . $mainName . "_TE_" . "$sname" . "_checking_in";
+	# OUT not needed $WebSockIsUp = WebSocketSend($checkinMessage);
 
 	# Now ok to call WebSocketSend().
 	MonNowOkToSend();
@@ -1000,7 +1007,7 @@ sub Respond {
 					# HEAD request handling: this is just the last piece. If you want to
 					# deal with HEAD requests, ResultPage() should also be modified to return
 					# the anticipated length of $contents somehow, and not return the full $contents.
-					if ($form{'METHOD'} !~ m!head!i)
+					if (!defined($form{'METHOD'}) || $form{'METHOD'} !~ m!head!i)
 						{
 						print $s "$contents";
 						}
@@ -1105,6 +1112,9 @@ sub GrabArguments {
 		my $numParts = @parts;
 		Output("ERROR num parts is $numParts!\n");
 		Output(" - obj received was |$obj|\n");
+		# TEMP
+		#print("ERROR num parts is $numParts!\n");
+		#print(" - obj received was |$obj|\n");
 		}
 }
 
@@ -1320,6 +1330,13 @@ m!^Content-Disposition:\s+form-data;\s+name=['"]([^'"]+)['"];\s+filename=['"]([^
 # ResultPage: redirect, do default page action, handle a signal, return a file.
 sub ResultPage {
 	my ($reportItR, $arr, $formH, $peeraddress, $mimeTypeR) = @_;
+
+	# TEMP early return
+	if (!defined($formH->{OBJECT}))
+		{
+		return ("ERROR OBJ NOT DEFINED");
+		}
+
 	my $obj    = $formH->{OBJECT};
 	my $result = '';
 
@@ -2106,13 +2123,89 @@ sub RedirectFromMain {
 		PeerPort => "$portNumber"
 	) or (ServerErrorReport() && return);
 
-	$obj = uri_escape($obj);    # This is needed due to the '?' and '=' and '&' in $obj.
+	$obj = uri_escape_utf8($obj);    # This is needed due to the '?' and '=' and '&' in $obj.
 
 	print $mains "GET /?req=redirect&resource=$obj HTTP/1.1\r\n\r\n";
 	my $line = '';
 	while ($line = <$mains>)
 		{
 		$result .= $line . "\n";
+		}
+	close $mains;
+
+	return ($result);
+}
+
+sub FetchPort {
+	my ($shortName)   = @_;
+	my $serverAddress = ServerAddress();      # This is common to all servers in IntraMine, local IP
+	my $portNumber    = MainServerPort();     # Typ. 81
+	my $mains         = IO::Socket::INET->new(
+		Proto    => 'tcp',                    # protocol
+		PeerAddr => "$serverAddress",
+		PeerPort => "$portNumber"
+	) or (return ("ERROR Main could not be reached!"));
+
+	print $mains "GET /$shortName/?req=portNumber HTTP/1.1\r\n\r\n";
+	my $line   = '';
+	my $result = "***ERROR no port retrieved for $shortName!";
+
+	while ($line = <$mains>)
+		{
+		chomp($line);
+		if ($line =~ m!^\d+$!)
+			{
+			$result = $line;
+			last;
+			}
+		}
+	close $mains;
+
+	return ($result);
+}
+
+# Somewhat special purpose, pass text to the Linker and ask for
+# FLASH links to be inserted. This is similar to autoLinks.js#requestLinkMarkupWithPort.
+# For an example see intramine_viewer.pl#AddFlashLinksToFootnote().
+sub RequestLinkMarkupWithPort {
+	my ($linkerPort, $linkerArgumentsH) = @_;
+	my $serverAddress = ServerAddress();      # This is common to all servers in IntraMine, local IP
+	my $portNumber    = $linkerPort;
+	my $mains         = IO::Socket::INET->new(
+		Proto    => 'tcp',                    # protocol
+		PeerAddr => "$serverAddress",
+		PeerPort => "$portNumber"
+	) or (return ("***ERROR Main could not be reached!"));
+
+	my $remoteValue         = $linkerArgumentsH->{'REMOTE_VALUE'};
+	my $allowEditValue      = $linkerArgumentsH->{'ALLOW_EDIT_VALUE'};
+	my $useAppValue         = $linkerArgumentsH->{'USE_APP_VALUE'};
+	my $visibleText         = $linkerArgumentsH->{'VISIBLE_TEXT'};
+	my $peerAddress         = $linkerArgumentsH->{'PEER_ADDRESS'};
+	my $thePath             = $linkerArgumentsH->{'THE_PATH'};
+	my $firstVisibleLineNum = $linkerArgumentsH->{'FIRST_LINE_NUM'};
+	my $lastVisibleLineNum  = $linkerArgumentsH->{'LAST_LINE_NUM'};
+	my $shouldInline        = $linkerArgumentsH->{'SHOULD_INLINE'};
+
+	my $args =
+"GET /?req=nonCmLinks&remote=$remoteValue&allowEdit=$allowEditValue&useApp=$useAppValue&text=$visibleText&peerAddress=$peerAddress&path=$thePath&first=$firstVisibleLineNum&last=$lastVisibleLineNum&shouldInline=$shouldInline HTTP/1.1\r\n\r\n";
+	print $mains "$args";
+	my $line   = '';
+	my $result = "";
+
+	# TEMP OUT $line = <$mains>;    # Skip headers
+	my $blankLineSeen = 0;
+	while ($line = <$mains>)
+		{
+		# Content proper starts after the first \r\n.
+		if (!$blankLineSeen && $line =~ m!^\r\n$!)
+			{
+			$blankLineSeen = 1;
+			}
+		elsif ($blankLineSeen)
+			{
+			$result .= $line;
+			}
 		}
 	close $mains;
 
@@ -2289,7 +2382,7 @@ sub RequestBroadcast {
 	close $remote;
 }
 
-# Send out an "activity" WebSockets message. This is picked up by statusEvents.js.
+# Publish an "activity" WebSockets message. This is picked up by statusEvents.js.
 # Note only FileWatcher calls this. Other activity reporting is done in web client JavaScript
 # using websockets.js#wsSendMessage().
 sub ReportActivity {
@@ -2298,7 +2391,7 @@ sub ReportActivity {
 	my $name = OurShortName();
 	my $port = OurListeningPort();
 
-	WebSocketSend('activity ' . $name . ' ' . $port);
+	WebSocketSend('PUBLISH__TS_activity_TE_' . 'activity ' . $name . ' ' . $port);
 }
 
 sub ServerErrorReport {

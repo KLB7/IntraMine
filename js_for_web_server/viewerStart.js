@@ -170,8 +170,6 @@ function reJump(delayMsec) {
 			}
 		else
 			{
-			// TEST ONLY
-			//console.log("viewerStart.js#166");
 			reJumpToLineNumber(h, delayMsec);
 			}
 		}
@@ -666,8 +664,6 @@ function finishStartup() {
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	setImagesButtonText();
 	
-	// TEST ONLY
-	//console.log("finishStartup");
 	reJump();
 
 	// Show content after drawing is done.

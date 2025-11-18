@@ -984,7 +984,7 @@ div#indicatorPC {
     top: 0;
     /*left: 3px;*/
     right: 0.74%;
-    /*opacity: .5;*/
+    opacity: .75;
     width: 9px;
     height: 20px;
     background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
@@ -1944,6 +1944,7 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='17'><a href='#page_name'>Page name</a></li>
 <li class='h2' im-text-ln='29'><a href='#page_service,_page_server,_page_services,_page_servers'>Page service, page server, page services, page servers</a></li>
 <li class='h2' im-text-ln='74'><a href='#partial_path,_file_specifier,_link_specifier,_link_specifiers,_file_specifiers'>Partial path, file specifier, link specifier, link specifiers, file specifiers</a></li>
+<li class='h2' im-text-ln='164'><a href='#precision_thumb'>Precision thumb</a></li>
 <li class='h2' im-text-ln='135'><a href='#referencing_file'>Referencing file</a></li>
 <li class='h2' im-text-ln='147'><a href='#reindex_service'>Reindex service</a></li>
 <li class='h2' im-text-ln='149'><a href='#reserved_service,_reserved_services,_reserved_server,_reserved_servers'>Reserved service, reserved services, reserved server, reserved servers</a></li>
@@ -6005,7 +6006,18 @@ oeF6JdRrVgbgD8K63nrr6C+tAAAAAElFTkSuQmCC
 <tr id='R159'><td n='159'></td><td></td></tr>
 <tr id='R160'><td n='160'></td><td><h2 id="footnote,_footnotes,_citation,_citations"><strong>Footnote, footnotes, citation, citations</strong>:</h2> <a href="./Gloss.html#Footnotes and citations" target="_blank">"Gloss.txt#Footnotes and citations"</a> has details. A note starts flush left with "[^id}:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of Gloss can be used in the note body. The note pops up if you hover over a reference.</td></tr>
 <tr id='R161'><td n='161'></td><td></td></tr>
-<tr id='R162'><td n='162'></td><td><h2 id="indexed_location"><strong>indexed location</strong>:</h2> in IntraMine, this refers to a directory that has been listed in your data/search_directories.txt file, or a subdirectory of one listed there. See <a href="./Configuring folders to index and monitor.html" target="_blank">"Configuring folders to index and monitor.txt"</a> for details.</td></tr></table><p id='bottomShim'></p></div></div>
+<tr id='R162'><td n='162'></td><td><h2 id="indexed_location"><strong>indexed location</strong>:</h2> in IntraMine, this refers to a directory that has been listed in your data/search_directories.txt file, or a subdirectory of one listed there. See <a href="./Configuring folders to index and monitor.html" target="_blank">"Configuring folders to index and monitor.txt"</a> for details.</td></tr>
+<tr id='R163'><td n='163'></td><td></td></tr>
+<tr id='R164'><td n='164'></td><td><h2 id="precision_thumb"><strong>Precision thumb</strong>:</h2> Viewer and Editor displays of large documents have a yellow "precision thumb" marker in the scroll bar that corresponds to the true relative size of a page and is correctly positioned. Marker positions for selected text are also correctly positioned, and the combination means that if you scroll to a scroll bar marker and it's say one-third of the way down the yellow marker then it will be one-third of the way down the page being viewed. The precision thumb appears only in large documents (roughly greater than 4,000 lines), and is useful until about 10,000 lines. It disappears when you're not scrolling.</td></tr>
+<tr id='R165'><td n='165'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADkAAAApCAIAAAAArBZJAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
+AAEkSURBVFhH7daxasJQFMZxn0myZPMN8hTdupjFSSQEMiSD85nuULyDmw8gnK1bpz6BmTp1v5Tg
+EBrSz95TLMR7A+fPnTQf/EiEuHAP7OuecOzcAj+YMuSI4Vit3pAjhmO1ekOOGI7DWpmZiJqmISJm
+hm9xHNBqrW1+Zq0dX4DjUFZmBmjf+O7iOJS1f/S3EVF0VjSOUuv9qXWa1DpNap2mOVnNd1VVlb8V
+0XvLGNO1RdcWn+/55fUJTlmWEf0fGKxdW3y8PYO1rusBGti6PW+zfbY7rYazOab5IVm/LPNDsjmm
+2T6L1wonIiv8Bm6PMUat/2pmVrmIrGPKn+FYrd6QI4ZjtXpDjhiO1eoNOWI4Vqs35IjhWK3ekCOG
+Y7V6Q44Yjp27AmkA1E6c/TDFAAAAAElFTkSuQmCC
+"  /></td></tr></table><p id='bottomShim'></p></div></div>
 <script>
 let thePath = 'C:/perlprogs/IntraMine/Documentation/glossary.txt';
 let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/glossary.txt';
@@ -6681,7 +6693,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 	hintElement.style.top = "-500px";
 	if (tipwidth === "")
 		{
-		tipwidth = "300px";
+		tipwidth = "450px";
 		}
 	hintElement.widthobj = hintElement.style;
 
@@ -6837,7 +6849,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "300px";
+	hintElement.style.width = "450px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
@@ -8356,8 +8368,6 @@ function reJump(delayMsec) {
 			}
 		else
 			{
-			// TEST ONLY
-			//console.log("viewerStart.js#166");
 			reJumpToLineNumber(h, delayMsec);
 			}
 		}
@@ -8852,8 +8862,6 @@ function finishStartup() {
 	loadCommonestEnglishWords(); // See commonEnglishWords.js.
 	setImagesButtonText();
 	
-	// TEST ONLY
-	//console.log("finishStartup");
 	reJump();
 
 	// Show content after drawing is done.
@@ -9995,7 +10003,7 @@ let lazyMobileScroll = JD.debounce(scrollMobileIndicator, 500);
 let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
 
 let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
-let lazyScroll = JD.debounce(scrollIndicator, 500);
+let lazyScroll = JD.debounce(scrollIndicator, 1); // was 500
 //let arrowHeight = 18; // Needed for PC only.
 
 otherIndicatorElem.style.display = 'none';

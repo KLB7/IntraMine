@@ -12,7 +12,7 @@ let lazyMobileScroll = JD.debounce(scrollMobileIndicator, 500);
 let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
 
 let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
-let lazyScroll = JD.debounce(scrollIndicator, 500);
+let lazyScroll = JD.debounce(scrollIndicator, 1); // was 500
 //let arrowHeight = 18; // Needed for PC only.
 
 otherIndicatorElem.style.display = 'none';

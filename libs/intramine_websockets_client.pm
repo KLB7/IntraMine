@@ -207,12 +207,18 @@ sub WebSocketSend {
 
 	ChattyPrint("About to call \$client->write |$msg|.\n");
 
-	# TEST ONLY
-	#print("Sending: |$msg|\n");
-
 	$client->write($MessageGuard . $msg . $MessageGuard);
 
 	my $result = 0;
+
+	# TEST don't bother to check the message went through.
+	# Result, not checking works better. In particular, this
+	# helps with the horrible horrible lockup when restarting
+	# with a .txt View open.
+	# I can vaguely see the reason, was trying to do in effect a
+	# synchronous read off a WebSocket below, and everyone says
+	# do async or expect trouble.
+	return (1);
 
 	# Confirm the send by reading the same message back from the WebSockets server.
 	# Since the IntraMine WebSockets server is just an echo server there are
@@ -347,7 +353,7 @@ sub WebSocketReceiveAllMessages {
 
 	my $numMessagesSeen = 0;
 
-	# TEST ONLY
+	# DISABLED
 	return (0);
 
 	# TEST ONLY

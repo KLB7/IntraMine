@@ -222,7 +222,8 @@ async function requestNewFile(newFilePath) {
 			let text = await response.text();
 			if (text === 'ok')
 				{
-				showNewFile(encodeURIComponent(newFilePath));
+				showNewFile(newFilePath);
+				//showNewFile(encodeURIComponent(newFilePath));
 				}
 			else
 				{

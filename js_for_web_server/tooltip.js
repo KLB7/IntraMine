@@ -604,7 +604,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 	hintElement.style.top = "-500px";
 	if (tipwidth === "")
 		{
-		tipwidth = "300px";
+		tipwidth = "450px";
 		}
 	hintElement.widthobj = hintElement.style;
 
@@ -760,7 +760,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "300px";
+	hintElement.style.width = "450px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)

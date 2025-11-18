@@ -121,9 +121,9 @@ async function putData(rawData) {
 			wsSendMessage("todochanged " + overdueCount);
 			
 			// Trigger reload, and ToDo flash in the nav bar
-			// (see todoFlash.js). Also send an "activity" message.
+			// (see todoFlash.js). Also publish an "activity" message.
 			wsSendMessage("todoflash");
-			wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+			wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 			//let responseTxt = request.responseText;
 			let responseTxt = await response.text();

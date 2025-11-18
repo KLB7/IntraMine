@@ -658,6 +658,14 @@ sub StartAllServers {
 			|| die ServerErrorReport();
 		$BackgroundProcIDs{$BackgroundCommandLines[$i]} = $proc;
 		++$numServersStarted;
+
+		# Pause briefly after starting the WebSockets service
+		if ($BackgroundCommandLines[$i] =~ m!intramine_websockets\.pl!i)
+			{
+			my $wsDelaySeconds = 2;
+			#Monitor("Pausing for $wsDelaySeconds seconds to allow WS to start.\n");
+			sleep($wsDelaySeconds);
+			}
 		}
 	Output("$numServers background server starts attempted\n------------\n");
 
@@ -2629,6 +2637,8 @@ sub MainLoop {
 	InitWebSocketClient();
 
 	$WebSockIsUp = WebSocketSend("Main first call to WS");
+	# This isn't needed.
+	#$WebSockIsUp = WebSocketSend("SUBSCRIBE__TS_" . $SERVERNAME . "_TE_");
 
 	# Now ok to call WebSocketSend().
 	MonNowOkToSend();
@@ -3402,7 +3412,9 @@ sub DoMaintenance {
 	# Call WebSocketReceiveAllMessages() periodically (currently one a minute)
 	# to "drain" all pending WebSockets messages.
 	#Monitor("About to call WebSocketReceiveAllMessages\n");
-	my $numMessagesSeen = WebSocketReceiveAllMessages();
+	#my $numMessagesSeen = WebSocketReceiveAllMessages(); # THIS JUST RETURNS 0 now.
+	# TEST ONLY report how many messages seen. Consistently ZERO.
+	#Monitor("WS Main messages seen: |$numMessagesSeen|\n");
 }
 
 sub HandleDateChange {
@@ -3555,6 +3567,37 @@ sub OpenMonPage {
 		print("Mon service was not started, no feedback will be shown.\n");
 		}
 }
+
+# NOT USED, and it didn't work, due probably to using an outdated version of PowerShell.
+{ ##### PowerShell websockets server
+my $PowerShellWebsocketsProc;
+
+sub StartPowerShellWebsocketsServer {
+	my ($portNumber) = @_;
+	# TODO my $websocketsPSPath = FullDirectoryPath('WEBSOCKETS_PS1_FILE');
+	my $websocketsPSPath = "C:/perlprogs/IntraMine/programs_do_not_ship/websockets_server.ps1";
+	# TO DO this is delicate, find a better way
+	my $powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
+	my $powerShellArgs =
+"-NoProfile -ExecutionPolicy Bypass -InputFormat None -File \"$websocketsPSPath\" $portNumber";
+	my $result =
+		Win32::Process::Create($PowerShellWebsocketsProc, $powerShellPath, $powerShellArgs, 0, 0,
+		".");
+	if ($result == 0)
+		{
+		Monitor("FATAL ERROR, could not start |$websocketsPSPath|.\n");
+		}
+}
+
+sub StopPowerShellWebsocketsServer {
+	my $exitcode = 1;
+	$PowerShellWebsocketsProc->GetExitCode($exitcode);
+	if ($exitcode == STILL_ACTIVE)
+		{
+		$PowerShellWebsocketsProc->Kill(0);
+		}
+}
+}    ##### PowerShell websockets server
 
 { ##### TESTING
 my $NumServersUnderTest;

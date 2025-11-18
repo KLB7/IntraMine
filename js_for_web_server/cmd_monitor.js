@@ -115,8 +115,8 @@ async function runTheCommand(ank) {
 	// Set the run ID.
 	runID = uniqueRunID();
 	
-	// Send "activity" message.
-	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	// Publish "activity" message.
+	wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 	let e1 = document.getElementById(runMessageDiv);
 	e1.innerHTML = 'Running...';

@@ -96,6 +96,8 @@ If your view comes from clicking on a link in Search results, the words you sear
 
 If you select a word or short phrase, it will be highlighted in the text and on the scroll bar. To cancel a highlight, click on a blank line or after a non-word character.
 
+In documents longer than about 4,000 lines you'll see a precision thumb to help with scrolling to a highlight.
+
 *Initial hit on search word "headingAboveContents" is pink, current selected text is blue, the other instance of it is marked in green.*
 2019-11-30 20_09_10-intramine_status.pl.png
 

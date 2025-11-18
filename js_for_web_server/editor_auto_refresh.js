@@ -12,6 +12,12 @@ let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
 // Register callback for the auto refresh, "changeDetected".
 function registerAutorefreshCallback() {
 	addCallback("changeDetected", handleFileChanged); // websockets.js#addCallback()
+	// Too soon wsSendMessage("SUBSCRIBE__TS_CHANGEDETECTED_TE_");
+	setTimeout(editorSubscribeToChangeDetected, 1000);
+}
+
+function editorSubscribeToChangeDetected() {
+	wsSendMessage("SUBSCRIBE__TS_CHANGEDETECTED_TE_hello");
 }
 
 // Remember time of last Save. See editor.js#notifyFileChangedAndRememberCursorLine().

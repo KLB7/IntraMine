@@ -79,8 +79,8 @@ async function addFruitSubmit(oFormElement) { // oFormElement is not used.
 // GET  http://n.n.n.n:81/DBX/fruit/,
 // after addFruitSubmit() above successfully adds a fruit with rating.
 async function refreshFruitDisplay() {
-	// Send "activity" message.
-	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	// Publish "activity" message.
+	wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 	try {
 	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'

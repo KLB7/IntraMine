@@ -482,6 +482,9 @@ sub NonCmLinks {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = 'nope';
 
+	# TEST ONLY
+	#Monitor("NonCmLinks reached.\n");
+
 	ReportActivity($SHORTNAME);
 
 	if (   defined($formH->{'text'})

@@ -3,17 +3,17 @@
 // Load, Save file, manage content resizing.
 // March 2022, autolinks (FLASH links) are now supported.
 
-// let onMobile = false; // true if we have touch events.
-// if (typeof window.ontouchstart !== 'undefined')
-// 	{
-// 	onMobile = true;
-// 	}
+let onMobile = false; // true if we have touch events.
+if (typeof window.ontouchstart !== 'undefined')
+	{
+	onMobile = true;
+	}
 
-// let markerMainElement = document.getElementById("scrollTextRightOfContents");
-// if (markerMainElement === null)
-// 	{
-// 	markerMainElement = document.getElementById("scrollText");
-// 	}
+let markerMainElement = document.getElementById("scrollTextRightOfContents");
+if (markerMainElement === null)
+	{
+	markerMainElement = document.getElementById("scrollText");
+	}
 
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
@@ -474,7 +474,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 				cmEditorRejumpToAnchor();
 				addAutoLinks();
 				}, 600);
-			lazyOnScroll = JD.debounce(onScroll, 100);
+			lazyOnScroll = JD.debounce(onScroll, 1); // was 100
 			cm.on("scroll", lazyOnScroll);
 
 			setIsMarkdown();
@@ -482,7 +482,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 			// Add handler for Add to dictionary.
 			addRightClickHandler(); // cmAutoLinks.js#addRightClickHandler()
 
-			//setUpIndicator();
+			setUpIndicator();
 
 			showMainContent();
 
@@ -812,7 +812,11 @@ function notifyFileChangedAndRememberCursorLine(path) {
 	RememberLastEditorUpdateTime();
 
 	// trigger | lineNumber | filePath | timestamp
-	let msg = 'changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
+	// The older "broadcast" approach:
+	//let msg = 'changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
+	// The newer "publish" approach: Viewer and Editor both subscribe to changeDetected.
+	let msg = 'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
+	//console.log(msg);
 	wsSendMessage(msg);
 }
 
@@ -1146,7 +1150,8 @@ function showMainContent() {
 		}
 }
 
-// Dummy functions and a variable: Editor does not have a precise scroll indicator.
+// Dummy functions: these things are done elsewhere
+// in the Editor (I hope to come back eventually and say where).
 function scrollIndicator() {
 
 }
@@ -1154,8 +1159,6 @@ function scrollIndicator() {
 function hideIndicator() {
 
 }
-
-let isScrollingIndicator;
 
 pasteDateTimeOnF4();
 addClickHandler("undo-button", editorUndo);

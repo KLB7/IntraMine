@@ -468,7 +468,7 @@ Footnotes and citations
 --------------------------
 Just so we're on the same page, a footnote is generally either an explanation or a citation. And a citation is either a quotation with source, or just a source of something in the main text. You'll find some examples below.
 
-Gloss shows footnotes as superscripts and citations are shown inline when converted to HTML. That's really the only difference between the two.
+Gloss shows footnote references as superscripts and citation references are shown inline when converted to HTML. That's really the only difference between the two.
 
 To see footnotes and citations as converted to HTML, use IntraMine's Viewer or convert your .txt source file to standalone HTML using IntraMine's Glosser service or the gloss2html.pl Perl program at the top of your IntraMine folder.
 
@@ -483,7 +483,7 @@ To put a note in your source text:
  - follow with the note
  - the note ends when there's a blank line
  - if you want an apparently blank line, put a space or tab on it
- - most Gloss styling can be used, as described above. However, you can't reference a note inside the body of a note, and linking is limited in the same way as described for popups in standalone HTML, see "Glossary popups.txt#Standalone is special" - basically, you can link to .txt or .html or image files in the same folder, or any web page
+ - most Gloss styling can be used, as described above. However, you can't reference a note inside the body of a note. Linking for standalone HTML is limited in the same way as described for popups in standalone HTML, see "Glossary popups.txt#Standalone is special" - basically, you can link to .txt or .html or image files in the same folder, or any web page. When viewing a .txt file with IntraMine's Viewer, full FLASH links are implemented (as of November 2025)
  - although you can define a note anywhere in your .txt document, it's best to put them all at the bottom. Line numbers in the HTML version will have skips where the notes were extracted from the main text if you don't put them at the bottom.
  
 Here's an **example**, with a zero-width space at the beginning of the line to disable processing in the HTML version:

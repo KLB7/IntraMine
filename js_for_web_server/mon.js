@@ -19,6 +19,8 @@ function ready(fn) {
 
 function registerMonCallback() {
 	addCallback("NEWRUNMESSAGE", refreshMonDisplay);
+	// New, subscribe to "MON" messages, matching mon.pm
+	wsSendMessage('SUBSCRIBE__TS_MONITOR_TE_');
 	// Also refresh the display as we come up.
 	refreshMonDisplay("NEWRUNMESSAGE");
 }

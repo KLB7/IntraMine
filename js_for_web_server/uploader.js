@@ -124,7 +124,7 @@ function onreadystatechangeHandler(evt) {
 // upload the file with sendXHRequest().
 async function uploadTheFile(formData, uri) {
 	// Send an "activity" message.
-	wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort);
+	wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 	
 	showSpinner();
 

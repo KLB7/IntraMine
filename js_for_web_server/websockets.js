@@ -44,11 +44,17 @@ function addCallback(trigger, callback) {
 function doCallback(message) {
 	for (const trigger in commandTable)
 		{
-		let regex = new RegExp('_MG_(' + trigger + '.*?)_MG_', "g");
+		// Strip _MG_ and publish/subscribe/echo control introduction.
+		// Message eg (note the double underscores):
+		// _MG_SUBSCRIBE__TS_IM_MAIN_TE_trigger plus_MG_
+		// _MG(_SUBSCRIBE__TS_(\w+)_TE_|_PUBLISH__TS_(\w+)_TE_|_ECHO_|_)(trigger.*?)_MG_
+		let regex = new RegExp('.*?_MG(_SUBSCRIBE__TS_(\\w+)_TE_|_PUBLISH__TS_(\\w+)_TE_|_ECHO_|_)(' + trigger + '.*?)_MG_', "g");
+		//let regex = new RegExp('_MG_(' + trigger + '.*?)_MG_', "g");
+
 		let currentResult = {};
 		while ((currentResult = regex.exec(message)) !== null)
 			{
-			let relevantMessage = currentResult[1];
+			let relevantMessage = currentResult[4]; // was [1]
 			commandTable[trigger](relevantMessage);
 			}
 		}

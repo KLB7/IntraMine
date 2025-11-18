@@ -1099,6 +1099,7 @@ function fireOneFileLink(linkPath, forEdit, serviceName) {
 					{
 					if (useAppForEditing)
 						{
+						href2Enc = decodeURI(href2Enc);
 						editWithPreferredApp(href2Enc);
 						}
 					else

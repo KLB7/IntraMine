@@ -265,7 +265,7 @@ sub GetCtagsString {
 	my $tempFilePath = '';
 	my $tempDir      = '';
 
-	my $ctagsArgs = " -f - --quiet=yes -n -u \"$filePath\"";
+	my $ctagsArgs = " -f - --quiet=yes --input-encoding=UTF-8 -n -u \"$filePath\"";
 
 	# Trouble with "wide" file names. Towards a workaround, copy the file being processed to
 	# something temp with a "narrow" name.
@@ -289,7 +289,7 @@ sub GetCtagsString {
 		if (CopyFileWide($dir . $fileName, $tempDir . $tempFilePath, 0))
 			{
 			my $tempFullPath = $tempDir . $tempFilePath;
-			$ctagsArgs = " -f - --quiet=yes -n -u \"$tempFullPath\"";
+			$ctagsArgs = " -f - --quiet=yes --input-encoding=UTF-8 -n -u \"$tempFullPath\"";
 			}
 		else
 			{

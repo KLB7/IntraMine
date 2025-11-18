@@ -12,7 +12,7 @@ function sleepABit(ms) {
 }
 
 // Called by addScrollListenerAndSetMarkdown() below, and viewerStart.js#reJumpAndHighlight() on "load".
-function addAutoLinks() {
+function addAutoLinks() {	
 	let el = document.getElementById(cmTextHolderName);
 	if (el === null)
 		{

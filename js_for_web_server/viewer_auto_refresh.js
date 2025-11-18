@@ -18,9 +18,25 @@ let doubleNoticeSeconds = 5;
 let doubleNoticeMilliseconds = 5000;
 let lastEditorUpdateTime = Date.now(); // Last update from IntraMine's Editor
 
+function getRandomDelay(min, max) {
+	// min and max are in milliseconds
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  const minDelay = 500; // .5 second
+  const maxDelay = 2000; // 2 seconds
+  
+  const randomTime = getRandomDelay(minDelay, maxDelay);  
+
 // Register callback for the auto refresh, "changeDetected".
 function registerAutorefreshCallback() {
 	addCallback("changeDetected", handleFileChanged);
+	// Too soon wsSendMessage("SUBSCRIBE__TS_CHANGEDETECTED_TE_");
+	setTimeout(viewerSubscribeToChangeDetected, randomTime);
+}
+
+function viewerSubscribeToChangeDetected() {
+	wsSendMessage("SUBSCRIBE__TS_CHANGEDETECTED_TE_hello");
 }
 
 function handleFileChanged(message) {
@@ -103,7 +119,7 @@ function handleFileChanged(message) {
 							{
 							window.location.reload();
 							}
-						// TEST ONY
+						// TEST ONLY
 						// else
 						// 	{
 						// 	console.log("Reload skipped, times are close.");

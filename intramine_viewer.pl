@@ -23,7 +23,8 @@ use FileHandle;
 use Encode;
 use Encode::Guess;
 use HTML::Entities;
-use URI::Escape;
+#use URI::Escape;
+use URI::Escape qw(uri_unescape);
 use Text::Tabs;
 $tabstop = 4;
 #use Syntax::Highlight::Perl::Improved ':BASIC'; # ':BASIC' or ':FULL' - FULL doesn't seem to do much
@@ -141,9 +142,17 @@ $RequestAction{'req|openDirectory'} = \&OpenDirectory;    # req=openDirectory
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
 $RequestAction{'req|css'} = \&GetRequestedFile;    # req=css  see swarmserver.pm#GetRequestedFile()
 $RequestAction{'req|js'}  = \&GetRequestedFile;    # req=js
+$RequestAction{'req|timestamp'} = \&GetTimeStamp;    # req=timestamp
 # Testing
-$RequestAction{'/test/'} = \&SelfTest;             # Ask this server to test itself.
+$RequestAction{'/test/'} = \&SelfTest;               # Ask this server to test itself.
 # Not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
+
+# For calling the Linker to supply FLASH links etc. See AddFlashLinksToFootnote below.
+my %LinkerArguments;
+$LinkerArguments{'FIRST_LINE_NUM'} = "1";
+$LinkerArguments{'LAST_LINE_NUM'}  = "1";
+$LinkerArguments{'SHOULD_INLINE'}  = "1";
+
 
 MainLoop(\%RequestAction);
 
@@ -220,6 +229,7 @@ sub FullFile {
 		$clientIsRemote = 1;
 		}
 
+
 	my $allowEditing =
 		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
 	my $useAppForEditing = 0;
@@ -251,6 +261,13 @@ sub FullFile {
 
 	# Trying to phase out $ctrlSPath.
 	my $ctrlSPath = $filePath;
+
+	$LinkerArguments{'REMOTE_VALUE'}     = $clientIsRemote;
+	$LinkerArguments{'ALLOW_EDIT_VALUE'} = $tfAllowEditing;
+	$LinkerArguments{'USE_APP_VALUE'}    = $useAppForEditing;
+	$LinkerArguments{'PEER_ADDRESS'}     = $peeraddress;
+	$LinkerArguments{'THE_PATH'}         = uri_escape_utf8($filePath);
+
 
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
@@ -339,6 +356,18 @@ sub FullFile {
 		$customJS .= OptionalCustomJSforMarkdown();
 		}
 
+	# OUT, no longer needed, restart_editor_viewer.js is used for all views.
+	# Replace restart.js with restart_editor_viewer.js for .txt files.
+	# <script src="restart.js"></script>
+	# This is needed because txt files in the Viewer lock up
+	# after doing window.location.reload();
+	# and I can't figure out why - refresh by viewer_auto_refresh.js
+	# also does a reload, for example, and there it works.
+	# if ($filePath =~ m!\.(txt|log|bat)$!i)
+	# 	{
+	# 	$customJS =~ s!restart\.js!restart_text_view.js!;
+	# 	}
+
 	$theBody =~ s!_JAVASCRIPT_!$customJS!;
 
 	# Full path is unhelpful in the <title>, trim down to just file name.
@@ -376,6 +405,8 @@ sub FullFile {
 
 	$theBody =~ s!_PATH_!$ctrlSPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
+
+	$theBody =~ s!_FILE_MOD_DATE!$modDate!;
 
 	$theBody =~ s!_USING_CM_!$usingCM!;
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$textHolderName!g;
@@ -442,6 +473,24 @@ sub FullFile {
 	# and cm_viewer.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
 
+	# .txt files, put in mono or proportional font, '' otherwise.
+	# ___TEXT___FONT___
+	# my $textFontCssFile = '';
+	# if ($fileName =~ m!\.(txt|log|bat)$!i)
+	# 	{
+	# 	my $useProportional = 1;
+	# 	if ($useProportional)
+	# 		{
+	# 		$textFontCssFile = '<link rel="stylesheet" type="text/css" href="txt_font_prop.css" />';
+	# 		}
+	# 	else
+	# 		{
+	# 		$textFontCssFile = '<link rel="stylesheet" type="text/css" href="txt_font_mono.css" />';
+	# 		}
+	# 	}
+	# # else leave empty
+	# $theBody =~ s!___TEXT___FONT___!$textFontCssFile!;
+
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
@@ -501,6 +550,7 @@ let allowEditing = _ALLOW_EDITING_;
 let useAppForEditing = _USE_APP_FOR_EDITING_;
 let thePath = '_PATH_';
 let theEncodedPath = '_ENCODEDPATH_';
+let fileModTime = '_FILE_MOD_DATE';
 let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let specialTextHolderName = 'specialScrollTextRightOfContents';
@@ -704,7 +754,8 @@ sub GetContentBasedOnExtension {
 		GetCMToc($filePath, \$toc);
 		if ($toc ne '')
 			{
-			$toc               = decode_utf8($toc);
+			# OUT
+			#$toc               = decode_utf8($toc);
 			$$textHolderName_R = 'scrollTextRightOfContents';
 			$$meta_R      = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
 			$$customCSS_R = $cssForCM . $nonCmThemeCssFile;
@@ -1048,7 +1099,7 @@ sub CodeMirrorJS {
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
-<script src="restart.js"></script>
+<script src="restart_editor_viewer.js"></script>
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
@@ -1078,7 +1129,7 @@ sub NonCodeMirrorJS {
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
-<script src="restart.js"></script>
+<script src="restart_editor_viewer.js"></script>
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
@@ -2572,6 +2623,9 @@ sub GlossedFootnote {
 
 	#my $foot = $glossedFootnote;
 
+	# Ask Linker for additional (FLASH) links.
+	AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
+
 	# TO DO avoid re-splitting the footnote.
 	# Rep inline HTML keys with HTML, preserving the back reference.
 	@footnoteLines = split(/\n/, $glossedFootnote);
@@ -2608,6 +2662,9 @@ sub GlossedPopupForFootnote {
 			0,         $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir,
 			undef,     undef
 		);
+
+		# Ask Linker for additional (FLASH) links.
+		AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
 
 		# TO DO avoid splitting the footnote.
 		# Rep inline HTML keys with HTML, preserving the back reference.
@@ -2661,6 +2718,31 @@ sub FootnoteIndexComp {
 
 	return ($indexA <=> $indexB);
 }
+
+sub AddFlashLinksToFootnote {
+	my ($contentsR, $contextDir) = @_;
+
+	my $linkerShortName = CVal('LINKERSHORTNAME');
+	my $linkerPort      = FetchPort($linkerShortName);
+
+	if (index($linkerPort, "***ERROR") == 0)
+		{
+		# Linker is not reachable.
+		return;
+		}
+
+	$LinkerArguments{'VISIBLE_TEXT'} = uri_escape_utf8($$contentsR);
+
+	my $result = RequestLinkMarkupWithPort($linkerPort, \%LinkerArguments);
+	$result = decode_utf8(uri_unescape($result));
+	#$result = uri_unescape_utf8($result); - sub does not exist!?
+
+	if (index($result, '***ERROR') != 0 && $result ne '')
+		{
+		$$contentsR = $result;
+		}
+}
+
 }    ##### HTML hash and footnotes
 
 sub LineNumberFromRowText {
@@ -4154,6 +4236,21 @@ sub InsideExistingAnchor {
 	return ($insideExistingAnchor);
 }
 }    ##### Internal Links
+
+# Date time stamp in millisecons.
+# See also common.pm#DateSizeString().
+sub GetTimeStamp {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = "0";
+	if (defined($formH->{'href'}))
+		{
+		my $filePath = $formH->{'href'};
+		my $modDate  = GetFileModTimeWide($filePath);
+		$result = $modDate;
+		}
+
+	return ($result);
+}
 
 # Obsolete, CodeMirror is being used instead for Perl display.
 # Much as AddInternalLinksToLine() just above, but only single words

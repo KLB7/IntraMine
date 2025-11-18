@@ -48,6 +48,8 @@ _A simple glossary popup. The cursor is paused over "FLASH link". Links in the d
 _A glossary popup showing off. This is the popup for "Gloss", IntraMine's Markdown for intranet use._
 ![Fancy popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/gloss1.png)
 
+_A glimpse of a standalone HTML doc generated with IntraMine's Glosser service, about IntraMine's Editor. The cursor pauses in turn over a GIF and a glossary popup. There's an image on line 49._
+![Standalone](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/ed.gif)
 
 ## Free as in free
 If you see a use for IntraMine's FLASH link algorithms etc in your own work, go right ahead: all original work is covered by an UNLICENSE. (Some software included with or used by IntraMine, such as Perl, Unversal ctags, CodeMirror and Elasticsearch, is covered by separate license agreements.)

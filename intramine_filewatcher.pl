@@ -727,7 +727,9 @@ sub SendOneFileContentsChanged {
 			}
 		}
 
-	my $msg = 'changeDetected 0 ' . $filePath . '     ' . $messageTime;
+	#my $msg = 'changeDetected 0 ' . $filePath . '     ' . $messageTime;
+	my $msg =
+		'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected 0 ' . $filePath . '     ' . $messageTime;
 
 	WebSocketSend($msg);
 }

@@ -1,0 +1,7 @@
+.CodeMirror {
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}
+
+#scrollTextRightOfContents, #scrollText, .footDiv {
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+}

@@ -47,6 +47,11 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
+my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
+my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
+my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
+my $AllowRemoteEditing     = CVal('ALLOW_REMOTE_EDITING');
+
 my $kLOGMESSAGES     = 0;    # 1 == Log Output() messages
 my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console window
 # Log is at logs/IntraMine/$SHORTNAME $port_listen datestamp.txt in the IntraMine folder.
@@ -225,7 +230,7 @@ let arrowHeight = 18;
 <body>
 <!-- added for touch scrolling, an indicator -->
 <div id="indicator"></div> <!-- iPad -->
-<!-- <div id="indicatorPC"></div> -->
+<div id="indicatorPC"></div> <!-- precision thumb -->
 _TOPNAV_
 <div id="title-block">
 _TITLEHEADER_
@@ -240,7 +245,7 @@ _SAVEASFILEPICKER_
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
 <script src="websockets.js"></script>
-<script src="restart.js"></script>
+<script src="restart_editor_viewer.js"></script>
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
@@ -262,7 +267,6 @@ _SAVEASFILEPICKER_
 <script src="spellcheck.js"></script>
 <script src="saveAsButton.js"></script>
 <script type="text/javascript" src="editor.js" ></script>
-<!-- <script type="text/javascript" src="cmMobile.js" ></script> -->
 
 <script src="isW.js" ></script>
 <script src="viewerLinks.js" ></script>
@@ -271,8 +275,8 @@ _SAVEASFILEPICKER_
 <script src="showHideTOC.js" ></script>
 <script src="cmShowSearchItems.js" ></script>
 <script src="cmToggle.js" ></script>
+<script src="indicator.js" ></script>
 <script src="cmMobile.js" ></script>
-<!-- <script src="indicator.js" ></script> -->
 
 <script src="diff_match_patch_uncompressed.js" ></script>
 <script src="restore_edits.js" ></script>
@@ -449,10 +453,22 @@ FINIS
 	my $amRemoteValue = $clientIsRemote ? 'true' : 'false';
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 
-	my $tfAllowEditing = 'true';
+	my $allowEditing =
+		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
+	my $useAppForEditing = 0;
+	if ($allowEditing)
+		{
+		$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing)
+				|| (!$clientIsRemote && $UseAppForLocalEditing));
+		}
+
+	my $tfAllowEditing     = ($allowEditing)     ? 'true' : 'false';
+	my $tfUseAppForEditing = ($useAppForEditing) ? 'true' : 'false';
+
+	#my $tfAllowEditing = 'true';
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 
-	my $tfUseAppForEditing = 'false';
+	#my $tfUseAppForEditing = 'false';
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
 
 	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
@@ -475,9 +491,28 @@ FINIS
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
 
-	# The highlight class for table of contents selected element - see also non_cm_test.css
+	# The highlight class for table of contents selected element - see also non_cm_text.css
 	# and cm_editor_links.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
+
+	# .txt files, put in mono or proportional font, '' otherwise.
+	# ___TEXT___FONT___
+	# my $textFontCssFile = '';
+	# if ($fileName =~ m!\.(txt|log|bat)$!i)
+	# 	{
+	# 	my $useProportional = 1;
+	# 	if ($useProportional)
+	# 		{
+	# 		$textFontCssFile = '<link rel="stylesheet" type="text/css" href="txt_font_prop.css" />';
+	# 		}
+	# 	else
+	# 		{
+	# 		$textFontCssFile = '<link rel="stylesheet" type="text/css" href="txt_font_mono.css" />';
+	# 		}
+	# 	}
+	# # else leave empty
+	# $theBody =~ s!___TEXT___FONT___!$textFontCssFile!;
+
 
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
@@ -589,10 +624,6 @@ sub GetTOC {
 	if ($filepath ne '')
 		{
 		GetCMToc($filepath, \$result);
-		if ($filepath !~ m!txt$!i)
-			{
-			$result = decode_utf8($result);
-			}
 		}
 
 	return ($result);

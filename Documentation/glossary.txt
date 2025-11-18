@@ -160,3 +160,6 @@ Glosser: see "Glosser.txt", a service that generates standalone HTML from Gloss-
 Footnote, footnotes, citation, citations: "Gloss.txt#Footnotes and citations" has details. A note starts flush left with "[^id}:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of Gloss can be used in the note body. The note pops up if you hover over a reference.
 
 indexed location: in IntraMine, this refers to a directory that has been listed in your data/search_directories.txt file, or a subdirectory of one listed there. See "Configuring folders to index and monitor.txt" for details.
+
+Precision thumb: Viewer and Editor displays of large documents have a yellow "precision thumb" marker in the scroll bar that corresponds to the true relative size of a page and is correctly positioned. Marker positions for selected text are also correctly positioned, and the combination means that if you scroll to a scroll bar marker and it's say one-third of the way down the yellow marker then it will be one-third of the way down the page being viewed. The precision thumb appears only in large documents (roughly greater than 4,000 lines), and is useful until about 10,000 lines. It disappears when you're not scrolling.
+"dornt.png"

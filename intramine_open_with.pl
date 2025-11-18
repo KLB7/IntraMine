@@ -103,6 +103,8 @@ sub OpenTheFile {
 	my $clientIPAddress = defined($formH->{'clientipaddress'}) ? $formH->{'clientipaddress'} : '';
 	if ($clientIPAddress eq '')
 		{
+		# TEST ONLY
+		Monitor("clientipaddress NOT SET");
 		return ("MAINTENANCE ERROR, \"$formH->{'clientipaddress'} is NOT SET.");
 		}
 
@@ -175,8 +177,12 @@ sub LocalOpenFile {
 	my $openresult = system(1, "\"$batPath\">nul 2>&1");
 	if ($openresult == -1)
 		{
+		# TEST ONLY
+		#Monitor("Could not open |$filepath|");
 		$$statusR = "Could not open |$filepath|";
 		}
+	# TEST ONLY
+	#Monitor("batpath was |$batPath|");
 }
 
 # Send request to $clientIPAddress:$RemoteOpenPort to please open remote version of $filepath
@@ -230,7 +236,7 @@ sub RequestRemoteOpen {
 	# Eclipse 2018-12 cannot open a file if forward slashes are used in the path.
 	$filepath =~ s!/!\\!g;
 
-	$filepath = uri_escape($filepath);
+	$filepath = uri_escape_utf8($filepath);
 
 	# Send the request, with headers that Chrome would typically supply.
 	print $remote "GET /?app=$remoteEditor&path=$filepath HTTP/1.1\n";

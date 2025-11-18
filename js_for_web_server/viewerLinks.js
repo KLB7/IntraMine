@@ -50,13 +50,29 @@ async function editWithPreferredApp(href) {
 // Call Opener intramine_open_with.pl to open a file using user's preferred editor
 // (as specified in data/intramine_config.txt, "LOCAL_OPENER_APP" etc).
 async function appEditWithPort(href, openerPort) {
+	href = href.replace(/^file\:\/\/\//, '');
+	// Trim off searchItems etc
+	let ampPos = href.indexOf("&");
+	if (ampPos < 0)
+		{
+		ampPos = href.indexOf("#");
+		}
+	let trailer = '';
+	if (ampPos > 0)
+		{
+		trailer = href.substring(ampPos);
+		href =  href.substring(0, ampPos);
+		}
+
+	href = encodeURI(href);
+	href = href.replace(/\+/g, "%2B");
+	
 	try {
-		let properHref = href.replace(/^file\:\/\/\//, '');
-		let theAction = 'http://' + mainIP + ':' + openerPort + '/' + openerShortName + '/?req=open&clientipaddress=' + clientIPAddress + '&file=' + properHref;
+		let theAction = 'http://' + mainIP + ':' + openerPort + '/' + openerShortName + '/?req=open&clientipaddress=' + clientIPAddress + '&file=' + href;
 		const response = await fetch(theAction);
 		if (response.ok)
 			{
-			let text = await response.text();
+			let text = await response.text();			
 			if (text !== 'OK')
 				{
 				let e1 = document.getElementById(errorID);

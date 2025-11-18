@@ -165,7 +165,7 @@ LOCAL_OPENER_APP	OPENER_NOTEPADPP
 # See intramine_open_with.pl around line 54.
 # Check the path, update it here if yours is different.
 # Set LOCAL_OPENER_APP to one of the entries below, after checking the path.
-OPENER_NOTEPADPP		%ProgramFiles(x86)%/Notepad++/notepad++.exe
+OPENER_NOTEPADPP		%ProgramFiles%/Notepad++/notepad++.exe
 OPENER_NOTETAB			%ProgramFiles(x86)%/NoteTab Light/NoteTab.exe
 OPENER_ECLIPSE			C:/javascript-2018-12/eclipse/eclipse.exe
 OPENER_KOMODO			%ProgramFiles(x86)%/ActiveState Komodo Edit 9/komodo.exe

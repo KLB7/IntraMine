@@ -10,22 +10,22 @@
 // For now, I will attempt to use option+z, shift+option+z for undo/redo on iPad.
 // Find is hopeless, but browser's built-in Find works somewhat.
 // NEEDED, a note that undo is option+z, redo is shift+option+z.
-let onMobile = false; // Set below, true if we have touch events.
-if (typeof window.ontouchstart !== 'undefined')
-	{
-	onMobile = true;
-	}
+// let onMobile = false; // Set below, true if we have touch events.
+// if (typeof window.ontouchstart !== 'undefined')
+// 	{
+// 	onMobile = true;
+// 	}
 
-let markerMainElement = document.getElementById("scrollTextRightOfContents");
-if (markerMainElement === null)
-	{
-	markerMainElement = document.getElementById("scrollText");
-	}
+// let markerMainElement = document.getElementById("scrollTextRightOfContents");
+// if (markerMainElement === null)
+// 	{
+// 	markerMainElement = document.getElementById("scrollText");
+// 	}
 
-let indicatorElem = document.getElementById('indicator');
-let indicatorM = 0;
+//let indicatorElem = document.getElementById('indicator');
+//let indicatorM = 0;
 let lazyMobileScrollIndicator = JD.debounce(scrollMobileIndicator, 100); // Unused
-let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
+//let lazySetUpMobileIndicator = JD.debounce(setUpMobileIndicator, 100);
 
 if (onMobile) // iPad only for now....
 	{

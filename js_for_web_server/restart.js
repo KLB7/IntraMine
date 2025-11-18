@@ -1,6 +1,7 @@
 // restart.js: detect that our service has restarted after stopping, respond
 // by reloading our page.
 // Show red in the nav bar if IntraMine isn't up (see main.css nav li > a.noIntraMine).
+// For .txt View restart see restart_text_view.js.
 
 let serviceIsUp = true;
 let isRunningAction = '';				// Check service is up
@@ -109,7 +110,7 @@ async function handleRestartIfNeeded()
 			}
 		else // Just do a reload.
 			{
-			window.location.reload();
+			window.location.reload(true);
 			}
 		} 		// port retrieved
 	else 		//   - no idea what went wrong.

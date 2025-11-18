@@ -348,7 +348,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 			setTimeout(function() {
 				cmRejumpToAnchor();
 				}, 600);
-			lazyOnScroll = JD.debounce(onScroll, 100);
+			lazyOnScroll = JD.debounce(onScroll, 1); // was 100
 			cm.on("scroll", lazyOnScroll);
 
 			// Show content after drawing is done.
