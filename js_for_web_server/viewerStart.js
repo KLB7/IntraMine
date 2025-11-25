@@ -671,6 +671,9 @@ function finishStartup() {
 	setTimeout(function() {
 		showMainContent();
 		}, 500);
+
+	// TEST ONLY
+	//console.log("STARTED");
 }
 
 // Code block highlighting with lolight, used

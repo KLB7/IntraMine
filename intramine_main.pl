@@ -101,6 +101,7 @@ use IO::Select;
 use Win32::Process 'STILL_ACTIVE';
 use Win32;
 use Win32::API;
+use Win32::Process;
 use Encode      qw/encode decode/;
 use Time::HiRes qw(usleep);
 use Win32::Console;
@@ -1609,7 +1610,7 @@ sub SessionStart {
 # Return an HTML table listing servers and status. One should perhaps
 # use YAML or JSON or something agreed upon. It's on my To Do List:) Meanwhile
 # I'm calling it an "HTML Fragment."
-# This is called by the Status server, see status.js#refreshStatus() ("req=filestatus").
+# This is called by the Status server, see status.js#refreshStatus() ("req=serverstatus").
 sub ServerStatus {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $pageServerTableId       = CVal('PAGE_SERVER_STATUS_TABLE');
@@ -1811,6 +1812,9 @@ sub AddSummaryLines {
 	$summary .= "<tr><td$cellAlign>Total servers</td><td>$numberOfSwarmServers</td></tr>";
 	$summary .= "<tr><td$cellAlign>Started</td><td>$initiallyStarted</td></tr>";
 	$summary .= "<tr><td$cellAlign>Session start</td><td>$startTime</td></tr>";
+	# Throw in stop/start/restart buttons for IntraMine.
+	my $ssrButtons = StopStartRestartButtons();
+	$summary .= "<tr><td colspan=2>$ssrButtons</td></tr>";
 	$summary .= "</table>";
 
 	# Links to configuration files.
@@ -1832,6 +1836,19 @@ sub AddSummaryLines {
 		}
 	$configList .= "\n</div>\n";
 	$$resultR = $summary . $configList . $$resultR;
+}
+
+# Not working well, turned off for now.
+sub StopStartRestartButtons {
+	return ('');
+
+	my $result =
+'<input onclick="stopIntraMine();" id="stop-intramine-button" class="submit-button" type="submit" value="Stop IntraMine" /><input onclick="restartIntraMine();" id="restart-intramine-button" class="submit-button" type="submit" value="Restart IntraMine" />';
+
+	# 	my $result =
+	# '<input onclick="stopIntraMine();" id="stop-intramine-button" class="submit-button" type="submit" value="Stop IntraMine" /><input onclick="startIntraMine();" id="start-intramine-button" class="submit-button" type="submit" value="Start IntraMine" /><input onclick="restartIntraMine();" id="restart-intramine-button" class="submit-button" type="submit" value="Restart IntraMine" />';
+
+	return ($result);
 }
 
 # Get names of all configuration files in the data folder.
@@ -2819,6 +2836,31 @@ sub ForceExit {
 	print("$SERVERNAME FORCEEXIT bye!\n");
 }
 
+sub StopIntraMine {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'ok';
+	sleep(1);
+	ForceStopAllSwarmServers();
+	sleep(1);
+	# Ha ha just kidding return ($result);
+	exit(0);
+}
+
+sub RestartIntraMine {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'ok';
+	my $fwwsproc;
+	my $status         = 'OK';
+	my $flag           = Win32::Process::CREATE_NEW_CONSOLE();
+	my $RestartBatPath = BaseDirectory() . 'bats/' . 'STOP_START_INTRAMINE.bat';
+
+	Win32::Process::Create($fwwsproc, $ENV{COMSPEC}, "/c $RestartBatPath", 0, $flag, ".")
+		|| ($status = Win32::FormatMessage(Win32::GetLastError()));
+
+	sleep(1);
+	return ($result);
+}
+
 sub RecordContentLength {
 	my ($buff, $contentLengthExpectedR) = @_;
 
@@ -2883,11 +2925,13 @@ sub SetUpRequestActionHandlers {
 	$RequestAction{'req|serverstatus'}                = \&ServerStatus;     # req=serverstatus
 	$RequestAction{'req|sessionStart'}                = \&SessionStart;     # req=sessionStart
 	$RequestAction{'req|running'}                     = \&ServiceIsRunning; # req=running
-	$RequestAction{'req|servercount'} = \&NumInstancesOfShortNameRunning;    # req=servercount
-	$RequestAction{'req|id'}          = \&Identify;                          # req=id
-	$RequestAction{'req|showhelp'}    = \&ShowHelp;                          # req=showhelp
-	$RequestAction{'signal'}          = \&BroadcastSignal;                   # signal=anything
-	$RequestAction{'ssinfo'}          = \&ReceiveInfo;    # ssinfo=anything, eg 'ssinfo=serverUp'
+	$RequestAction{'req|servercount'}    = \&NumInstancesOfShortNameRunning;    # req=servercount
+	$RequestAction{'req|id'}             = \&Identify;                          # req=id
+	$RequestAction{'req|showhelp'}       = \&ShowHelp;                          # req=showhelp
+	$RequestAction{'signal'}             = \&BroadcastSignal;                   # signal=anything
+	$RequestAction{'ssinfo'}             = \&ReceiveInfo;    # ssinfo=anything, eg 'ssinfo=serverUp'
+	$RequestAction{'req|requestStop'}    = \&StopIntraMine;  # req=id
+	$RequestAction{'req|requestRestart'} = \&RestartIntraMine;    # req=id
 }
 
 # Add placeholder entries in @listenerArray etc for a service started up initially.

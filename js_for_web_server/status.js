@@ -498,5 +498,70 @@ function flashOneServer(port, flashIt) {
 		}
 }
 
+async function stopIntraMine() {
+	console.log("stopIntraMine called.");
+	let e1 = document.getElementById(errorID);
+	try {
+		let theAction = 'http://' + theHost + ':' + theMainPort + '/?req=requestStop';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text === 'ok')
+				{
+				e1.innerHTML = '<p>Stop request in progress</p>';
+				}
+			else
+				{
+				e1.innerHTML = '<p>Error, ' + text + '</p>';
+				}
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			e1.innerHTML = '<p>Error, requestStop failed!</p>';
+			}
+
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		e1.innerHTML = '<p>Connection error!</p>';
+	}
+}
+
+async function startIntraMine() {
+	console.log("startIntraMine called. Not implemented.");
+}
+
+async function restartIntraMine() {
+	console.log("restartIntraMine called.");
+	try {
+		let theAction = 'http://' + theHost + ':' + theMainPort + '/?req=requestRestart';
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text === 'ok')
+				{
+				e1.innerHTML = '<p>Request request in progress</p>';
+				}
+			else
+				{
+				e1.innerHTML = '<p>Error, ' + text + '</p>';
+				}
+			}
+		else
+			{
+			// We reached our target server, but it returned an error
+			e1.innerHTML = '<p>Error, requestStop failed!</p>';
+			}
+
+	}
+	catch(error) {
+		// There was a connection error of some sort
+		e1.innerHTML = '<p>Connection error!</p>';
+	}
+}
+
 ready(loadAddServerForm);
 ready(refreshStatus);

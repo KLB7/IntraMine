@@ -2,6 +2,8 @@
 // by just changing the nav bar to red on stop, and when IntraMine comes back
 // restore nav bar color and re-init the WebSockets connection.
 // Show red in the nav bar if IntraMine isn't up (see main.css nav li > a.noIntraMine).
+// NOTE reload is not currently possible with Viewer or Editor tabs,
+// something (I think WebSockets) locks up.
 
 let serviceIsUp = true;
 let isRunningAction = '';				// Check service is up
@@ -128,6 +130,7 @@ function showOurServiceIsDown()
 		}
 	}
 
+// Change nav bar colors back to normal, and re-init WebSockets connection.
 async function showWeAreBack(port) {
 	if (serviceIsUp)
 		{
@@ -152,6 +155,17 @@ async function showWeAreBack(port) {
 	initializing = true;
 	wsIsConnected = 0;
 	wsInit();
+
+	// Editor, avoid redoing FLASH links on restart.
+	// I admit this is a bit sneaky. See
+	// editor.js#onCodeMirrorChange().
+	if (typeof firstMaintainButtonsCall !== 'undefined')
+		{
+		firstMaintainButtonsCall = true;
+		}
+	
+	// Doesn't work: window.location.replace(window.location.href);
+	// Doesn't work: window.location.reload(true);
 }
 
 window.addEventListener("load", checkForRestartPeriodically);

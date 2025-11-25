@@ -108,6 +108,8 @@ sub ListenForWSConnections {
 					Output("utf8: |$msg|\n");
 					if ($msg =~ m!$MessageGuard(FORCEEXIT|EXITEXITEXIT)$MessageGuard!)
 						{
+						# Disconnect all. Doesn't work at the moment(20251122)
+						#$serv->shutdown();
 						print("WS EXIT bye!\n");
 						exit(0);
 						}

@@ -1,7 +1,7 @@
-// restart.js: detect that our service has restarted after stopping, respond
-// by reloading our page.
+// restart.js: detect that our service has stopped/restarted, respond
+// by just changing the nav bar to red on stop, and when IntraMine comes back
+// restore nav bar color and re-init the WebSockets connection.
 // Show red in the nav bar if IntraMine isn't up (see main.css nav li > a.noIntraMine).
-// For .txt View restart see restart_text_view.js.
 
 let serviceIsUp = true;
 let isRunningAction = '';				// Check service is up
@@ -27,7 +27,7 @@ async function checkForRestartPeriodically()
 		return;
 		}
 	
-	await sleepMs(5000); // 5 seconds, things are just starting so be patient.
+	await sleepMs(5000); // Check every five seconds.
 
 	while (true)
 		{
@@ -84,11 +84,8 @@ async function checkAndHandleRestart()
 
 	}
 
-// Reload our window, if our backend service was down and came back.
-// Ask for a port number for our service (port numbers can change
-// if IntraMine is restarted) first.
-// If our port number has changed, update window.location.href
-// (which triggers a reload). Otherwise just call reload().
+// "Restart" our window, if our backend service was down and came back.
+// doTheRestart resets WebSockets but does not reload the page.
 async function handleRestartIfNeeded()
 	{
 	if (serviceIsUp)
@@ -100,18 +97,7 @@ async function handleRestartIfNeeded()
 	const port = await fetchPort(theHost, theMainPort, shortServerName, errorID);
 	if (port !== "")
 		{
-		if (port !== ourSSListeningPort)
-			{
-			// Change port and reload
-			// http://192.168.40.8:43131/Editor/?href=...
-			let oldHref = window.location.href;
-			let newHref = oldHref.replace(/:\d+/, ":" + port);
-			window.location.href = newHref; // triggers reload
-			}
-		else // Just do a reload.
-			{
-			window.location.reload(true);
-			}
+		doTheRestart(port);
 		} 		// port retrieved
 	else 		//   - no idea what went wrong.
 		{
@@ -120,9 +106,7 @@ async function handleRestartIfNeeded()
 		}
 	}
 
-// Put some red in the nav bar. There's no need to remove it,
-// since the page will be reloaded if and when our service comes back.
-// Note it might never come back if it was removed from data/serverlist.txt.
+// Put some red in the nav bar.
 function showOurServiceIsDown()
 	{
 	if (!serviceIsUp)
@@ -143,5 +127,34 @@ function showOurServiceIsDown()
 		addClass(aTags[i], noIntraMineClass);
 		}
 	}
+
+async function doTheRestart(port) {
+	if (serviceIsUp)
+		{
+		return;
+		}
+	
+	serviceIsUp = true;
+	
+	let navbar = document.getElementById("nav");
+	if (navbar === null)
+		{
+		return;
+		}
+	
+	let aTags = navbar.getElementsByTagName("a");
+	for (let i = 0; i < aTags.length; i++)
+		{
+		removeClass(aTags[i], noIntraMineClass);
+		}
+
+	// Re-establish WebSockets.
+	initializing = true;
+	wsIsConnected = 0;
+	wsInit();
+
+	// And do a "hard" reload? No, it tends to lock things up, alas.
+	//window.location.reload(true);
+}
 
 window.addEventListener("load", checkForRestartPeriodically);
