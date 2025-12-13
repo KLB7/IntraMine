@@ -91,6 +91,8 @@ BEGIN {
 	Win32::API::More->Import(Kernel32 => qq{BOOL FindNextFileW(HANDLE hFindFile, LPWSTR lpFFData)});
 
 	Win32::API::More->Import(Kernel32 => qq{HANDLE FindClose(HANDLE hFindDile)});
+
+	Win32::API::More->Import(Kernel32 => qq{BOOL SetCurrentDirectoryW(LPWSTR lpPathName)});
 }
 
 
@@ -1150,6 +1152,16 @@ sub ActualPathIfTooDeep {
 	my $actualPath = $foundIt ? "$dirPath/$fileName" : $proposedFilePath;
 
 	return ($actualPath);
+}
+
+# Doesn't work, do not use.
+sub SetCurrentDirectoryWide {
+	my ($dirPath) = @_;
+	#$dirPath =~ s!/!\\!g;
+
+	my $dirPathWin = encode("UTF-16LE", "$dirPath\0");
+	my $result     = SetCurrentDirectoryW($dirPathWin);
+	return ($result);
 }
 
 # Probably works, not tested.

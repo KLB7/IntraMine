@@ -117,7 +117,7 @@ function reloadUnlessUserSaysNo() {
 }
 
 function userSaysReload() {
-	let msg = "File has changed on disk, but you have unsaved changes here. Click Yes to reload and lose your changes made here, click No to keep the changes you've made.";
+	let msg = "File has changed on disk, but you have unsaved changes here. Click Ok to reload and lose your changes made here, click Cancel to keep the changes you've made.";
 	return (window.confirm(msg));
 }
 

@@ -157,11 +157,9 @@ async function showWeAreBack(port) {
 	wsInit();
 
 	// Editor, avoid redoing FLASH links on restart.
-	// I admit this is a bit sneaky. See
-	// editor.js#onCodeMirrorChange().
-	if (typeof firstMaintainButtonsCall !== 'undefined')
+	if (typeof skipAddingLinks !== 'undefined')
 		{
-		firstMaintainButtonsCall = true;
+		skipAddingLinks = true;
 		}
 	
 	// Doesn't work: window.location.replace(window.location.href);

@@ -1,0 +1,115 @@
+/* showDiffDetails.css */
+
+.diffOverlay {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stays in place even when scrolling */
+	z-index: 1000; /* On top of other content */
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.1); /* Semi-transparent black background */
+	justify-content: center;
+	align-items: center;
+}
+
+
+.diffContent {
+	font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
+	background-color: #fff;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	max-width: 800px;
+	height: 80%;
+	flex: auto;
+	overflow: auto;
+	position: relative;
+}
+
+/*
+#theActualDiffs {
+	background-color: #fff;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	max-width: 800px;
+	height: 80%;
+	flex: auto;
+	overflow: auto;
+	position: relative;
+}
+*/
+
+/*
+#diffTableId table {
+	overflow: auto;
+	width: 100%;
+}
+*/
+
+tr.diffrow td:nth-child(1) {
+	background-color: #F8F8F8;
+	color: #808080;
+	text-align: left;
+	min-width: 3.5em; /* enough for 99999 one hopes */
+}
+
+tr.diffrow td:first-child:after {
+		content: attr(n);
+}
+
+
+.pos_line_class {
+	background-color: #ccffbb;
+}
+
+.neg_line_class {
+	background-color: #ffcccb;
+}
+
+/*
+tr .diffrow {
+	
+}
+
+td .diff_line_num {
+	
+}
+*/
+
+table#thisisthetablefordiffdetails {
+	position: relative;
+	top: 55px;
+	table-layout: fixed;
+	max-width: 760px;
+	overflow: auto;
+	/*top: 50px;*/
+}
+
+table#thisisthetablefordiffdetails td {
+	max-width: 740px; /* Set the maximum width for table data cells */
+	word-wrap: break-word; /* Ensure long words break and wrap */
+	overflow-wrap: break-word; /* Modern alternative to word-wrap */
+}
+
+#closeDiffsButtonId {
+	float: right;
+	position: sticky;
+	top: 0;
+	background-color: lightyellow;
+}
+
+
+#closeDiffsButtonId:hover {
+	background-color: red;
+	color: white;
+}
+
+/*
+#closeDiffButtonDivId {
+	float: right;
+	position: sticky;
+	top: 0;
+}
+*/

@@ -53,6 +53,9 @@ my $MessageGuard = '_MG_';    # Broadcast
 # my $SubscribeGuard = '_MG_SUBSCRIBE__';    # Subscribe
 # my $PublishGuard   = '_MG_PUBLISH__';      # Publish
 
+# my $ReconnectMessage  = 'R_E_C_N_N_E_C_T';    # sic
+# my $ReconnectSeconds  = 0;                    #21600;                # 6 hours
+# my $LastReconnectTime = time();
 
 LoadConfigValues();
 
@@ -156,6 +159,21 @@ sub ListenForWSConnections {
 							$_->send_utf8($msg) for $conn->server->connections;
 							Output("BROADCAST: |$msg|\n");
 							}
+
+						# Refresh now and then. Doesn't work.
+						# if ($ReconnectSeconds > 0)
+						# 	{
+						# 	my $currentTime             = time();
+						# 	my $secondsSinceLastRefresh = $currentTime - $LastReconnectTime;
+						# 	if ($secondsSinceLastRefresh >= $ReconnectSeconds)
+						# 		{
+						# 		$LastReconnectTime = $currentTime;
+						# 		my $reconnectMessage =
+						# 			"$MessageGuard" . "$ReconnectMessage" . "$MessageGuard";
+						# 		$_->send_utf8($reconnectMessage) for $conn->server->connections;
+						# 		Output("RECONNECT: |$msg|\n");
+						# 		}
+						# 	}
 						}
 				},
 				disconnect => sub {

@@ -21,11 +21,11 @@ color: #047d65ff;
 }
 
 
-.Operator { color: #000000ff; }
-.Subroutine { color: #000000ff; }
 .Builtin_Function { color: #000000ff; }
+.CodeTerm { color: #000000ff; }
 .Package { color: #000000ff; }
 .Builtin_Operator { color: #000000ff; }
-.CodeTerm { color: #000000ff; }
+.Subroutine { color: #000000ff; }
+.Operator { color: #000000ff; }
 span.Symbol.brace-highlight { color: black !important; }
 mark.scroll-hilite { background-color: #ccffcc; }

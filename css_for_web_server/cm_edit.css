@@ -56,3 +56,11 @@ pointer-events: none;
 .CodeMirror:not(.CodeMirror-focused) .CodeMirror-cursors {
   visibility: visible !important;
 }
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background: #C0C0C0; /* Dark gray thumb */
+}
+#scrollTextRightOfContents {
+	scrollbar-color: #C0C0C0 white;
+}

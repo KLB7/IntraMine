@@ -20,10 +20,17 @@ Check out "Gloss.txt" to understand how to use Gloss, and I think you'll appreci
 
 Some features
 =================
+
+The basics
+--------------
 The Editor also has syntax highlighting for source files, a table of contents, and of course the ability to Save. 
 
+Saving
+----------
 If you close an Editor tab and later re-open it, you will be offered the opportunity to restore and save any unsaved changes.
 
+Buttons
+---------------
 There are buttons at the top for Save, Revert, Undo, Redo, Toggle, Find, View, and Save As. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:
 TABLE
 Action			Keys
@@ -41,19 +48,33 @@ Indent			Tab (same as above)
 Outdent			Ctrl+[ (remove a tab from selected lines)
 Outdent			Shift+Tab (same as above)
 
+Date stamps
+---------------
 A date-time stamp can be inserted by pressing either F4 or Ctrl-Space.
 F4: 			11:34 AM Monday, September 11, 2023
 Ctrl-Space: 	Mon Sep 11 2023 11:34:58
 
+Brace matching
+----------------
 And you have brace matching: click on or next to a curly brace ('{' or '}') to highlight it and its matching counterpart.
 bracesEditor.png
 
+File path display
+-----------------
 At top left just to the left of the Save button you'll find a **chevron control** for the file path display. Click the chevron or text to the right of it to switch between showing the file name (default) and the file's full path. You can drag over the full path to select it.
 chevron.gif
 
+Selection highlighting
+-------------------------
 If you select a word or short phrase, it will be highlighted in the text and on the scroll bar. To cancel a highlight, click on a blank line or after a non-word character.
 
+Precision thumb
+----------------
 In documents longer than about 4,000 lines you'll see a precision thumb to help with scrolling to a highlight.
+
+Git diff changes
+----------------
+The Editor will show git diff changes (by comparison with your last commit) if a file is under git version control. Much like VS Code, with pipes '|' for new/change lines and a little red triangle '▸' for deleted lines. Clicking on a pipe or triangle will show details of the changes. THe Viewer also shows changes.
 
 Standalone is special
 ======================

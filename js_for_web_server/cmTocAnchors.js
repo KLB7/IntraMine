@@ -424,6 +424,8 @@ function linkForInternalAnchor(anchor) {
 	return (result);
 }
 
+const debouncedUpdateHash = JD.debounce(updateHash, 200);
+
 // Get line number at top of view, store it in location.hash. We are not goingToAnchor (going
 // to line number instead).
 function onScroll() {
@@ -447,7 +449,10 @@ function onScroll() {
 			{
 			lineNumber = 1;
 			}
-		location.hash = lineNumber.toString();
+		
+		// Note this can cause throttling - but seems harmless.
+		//location.hash = lineNumber.toString();
+		debouncedUpdateHash(lineNumber);
 		}
 	
 	// Too soon - this is now done in cmAutoLinks.js#handleFileLinkMouseUp().
@@ -463,6 +468,10 @@ function onScroll() {
 		// Run the callback
 		hideIndicator();
 	}, 3000);
+}
+
+function updateHash(lineNumber) {
+	location.hash = lineNumber.toString();
 }
 
 function finishWindowResize(el) {

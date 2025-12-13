@@ -277,6 +277,9 @@ cfg.theme = selectedTheme;
 // TEST ONLY
 //console.log("selected theme: |" + selectedTheme + "|");
 
+// Gutters
+cfg.gutters = ["CodeMirror-linenumbers", "cmGitDiffGutter"];
+
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
 
@@ -354,6 +357,7 @@ async function loadFileIntoCodeMirror(cm, path) {
 			// Show content after drawing is done.
 			setTimeout(function() {
 				showMainContent();
+				addDiffClickHandler(myCodeMirror);
 				}, 500);
 
 			hideSpinner();

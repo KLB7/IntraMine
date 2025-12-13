@@ -13,7 +13,7 @@
 # The Editor also shows autolinks and hover images, and glossary popups.
 #
 # See also Documentation/Editor.html.
-#
+# t
 
 # perl C:\perlprogs\intramine\intramine_editor.pl server_port our_listening_port
 
@@ -121,6 +121,8 @@ sub FullFile {
 
 <link rel="stylesheet" type="text/css" href="jqueryFileTree.css" />
 <link rel="stylesheet" type="text/css" href="newFileButton.css" />
+
+<link rel="stylesheet" type="text/css" href="showDiffDetails.css" />
 
 <link rel="stylesheet" type="text/css"  href="/theme/3024-day.css">
 <link rel="stylesheet" type="text/css"  href="/theme/3024-night.css">
@@ -241,6 +243,7 @@ _SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELL
 _SAVEASFILEPICKER_
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>_TOCANDCONTENTHOLDER_</div>
+_DIFF_SPECIFICS_POPUP_
 
 <script src="intramine_config.js"></script>
 <script src="spinner.js"></script>
@@ -266,6 +269,7 @@ _SAVEASFILEPICKER_
 <script src="debounce.js"></script>
 <script src="spellcheck.js"></script>
 <script src="saveAsButton.js"></script>
+<script src="showDiffDetails.js"></script>
 <script type="text/javascript" src="editor.js" ></script>
 
 <script src="isW.js" ></script>
@@ -400,7 +404,7 @@ FINIS
 	# Show full path ($title) as expandable/collapsible with links to directories in the path.
 	my $expandImg             = "<img src='expand.jpg'>";
 	my $chevronControlForPath = ChevronFilePathControl($title, $fileName);
-	# For padding, to make the height match the Viewer.
+	# Mainly for padding, to make the height match the Viewer.
 	$chevronControlForPath .= "<br><span id='viewEditDateSize'><span>&nbsp;</span></span>";
 	$theBody =~ s!_TITLEHEADER_!$chevronControlForPath!;
 
@@ -408,7 +412,11 @@ FINIS
 
 	# Watch out for apostrophe in path, it's a killer in the JS above.
 	$filePath =~ s!'!\\'!g;
-
+	my $properCasedPath = Win32::GetLongPathName($filePath);
+	if (defined($properCasedPath) && $properCasedPath ne '')
+		{
+		$filePath = $properCasedPath;
+		}
 	my $ctrlSPath = encode_utf8($filePath);
 	$ctrlSPath =~ s!%!%25!g;
 	$ctrlSPath =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
@@ -495,6 +503,11 @@ FINIS
 	# and cm_editor_links.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
 
+	# Display popup for the specifics of git diff HEAD at line where the gutter is clicked.
+	#$theBody =~ s!_DIFF_SPECIFICS_POPUP_!!;
+	my $diffSpecificsPopup = DiffSpecificsPopup();
+	$theBody =~ s!_DIFF_SPECIFICS_POPUP_!$diffSpecificsPopup!;
+
 	# .txt files, put in mono or proportional font, '' otherwise.
 	# ___TEXT___FONT___
 	# my $textFontCssFile = '';
@@ -541,7 +554,12 @@ sub ChevronFilePathControl {
 	my ($filePath, $fileName) = @_;
 	$filePath =~ s!\\!/!g;
 	$filePath =~ s!//!/!g;
-	my $currentPath         = $filePath;
+	my $currentPath = Win32::GetLongPathName($filePath);
+	if (!defined($currentPath) || $currentPath eq '')
+		{
+		$currentPath = $filePath;
+		}
+	$currentPath =~ s!\\!/!g;
 	my $directoryAnchorList = "<em>Click above to expand/contract</em><br><hr>";
 
 	# One could put in an Edit link, but we're in the Editor for the file already.
@@ -552,6 +570,12 @@ sub ChevronFilePathControl {
 	# also back ticks and &quot; is extremely delicate below.
 
 	my $lastSlashPos = rindex($currentPath, '/');
+	# Redo the file name to catch proper case.
+	if ($lastSlashPos > 0)
+		{
+		$fileName = substr($currentPath, $lastSlashPos + 1);
+		}
+
 	while ($lastSlashPos > 0)
 		{
 		$currentPath = substr($currentPath, 0, $lastSlashPos);
@@ -646,6 +670,8 @@ sub Save {
 		my $contents = $formH->{'contents'};
 		# Does not help, in fact it hurts: $contents = encode_utf8($contents);
 		$contents = uri_unescape($contents);
+
+		$contents =~ s/\R/\015\012/g;    # Fix line endings
 
 		if (!WriteBinFileWide($filepath, $contents))    # win_wide_filepaths.pm#WriteBinFileWide()
 			{
@@ -746,6 +772,9 @@ sub SaveAs {
 
 		my $contents = $formH->{'contents'};
 		$contents = uri_unescape($contents);
+
+		$contents =~ s/\R/\015\012/g;    # Fix line endings
+
 		if (!WriteBinFileWide($filepath, $contents))    # win_wide_filepaths.pm#WriteBinFileWide()
 			{
 			$status = "FILE ERROR! Could not do Save As for |$filepath|.\n";
@@ -1288,6 +1317,20 @@ sub TextDocxPdfLine {
 			. $size
 			. '</span></li>';
 		}
+
+	return ($result);
+}
+
+sub DiffSpecificsPopup {
+	my $result = <<'FINIS';
+<div id='uniqueDiffSpecificsOverlay' class='diffOverlay'>
+<div class='diffContent' id='diffContentId'>
+<button id="closeDiffsButtonId" onclick="closeDiffPopup();">X</button>
+<div id='theActualDiffs'>
+</div>
+</div>
+</div>
+FINIS
 
 	return ($result);
 }

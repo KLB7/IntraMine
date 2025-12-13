@@ -113,7 +113,7 @@ $i = $i+1
 			# Stop if IntraMine does not respond:
 			#Invoke-WebRequest -Uri $watcherURL | Out-Null
 		# Stop only if forced to stop: 
-        try {Invoke-WebRequest -Uri $watcherURL | Out-Null} catch {}
+        try {Invoke-WebRequest -UseBasicParsing -Uri $watcherURL | Out-Null} catch {}
 		
 		# Save list of folder renames to disk, one old name pipe new name per line.
 		if ($global:oldNewPaths -ne '')
@@ -138,7 +138,7 @@ $i = $i+1
     $global:heartbeatCounter = $global:heartbeatCounter + 1
     if ($global:heartbeatCounter -gt 60)
         {
-        try {Invoke-WebRequest -Uri $heartbeatURL | Out-Null} catch {}
+        try {Invoke-WebRequest -UseBasicParsing -Uri $heartbeatURL | Out-Null} catch {}
         $global:heartbeatCounter = 1
         }
     #Write-Host "." -NoNewline

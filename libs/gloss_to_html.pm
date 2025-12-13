@@ -2853,6 +2853,7 @@ let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
 let useLolight = true;
 let weAreStandalone = true;
+const textDiffChangedLines = [];
 </script>
 <script>
 	// Call fn when ready.

@@ -736,10 +736,12 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+/*
 .slightShadow  {
 	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
 	text-shadow: 2px 2px 1px #C0C0C0;
 }
+*/
 
 #title-blockTR {
 	max-height: 60px;
@@ -837,6 +839,10 @@ a.embedded_image {
 
 #scrollTextRightOfContents img, #scrollText img{
 	max-width: 100%;
+}
+
+#scrollTextRightOfContents, #scrollText {
+	scrollbar-color: #C0C0C0 white;
 }
 
 /* Footnotes */
@@ -941,6 +947,21 @@ a.embedded_image {
 	pointer-events: none;
 }
 
+.diff-scroll {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: 1.0;
+	background-color: #0096FF;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
 
 .initial-hits-highlight {
 	background-color: #ffcccc;
@@ -1164,8 +1185,8 @@ td.vam {
 td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
-	text-align: right;
-	min-width: 3em; /* enough for 99999 one hopes */
+	text-align: left;
+	min-width: 3.5em; /* enough for 99999 one hopes */
 }
 
 th {
@@ -1956,7 +1977,7 @@ span.ll-com { /* comments */
 <tr id='R25'><td n='25'></td><td><p class="ol-1">1. First, get IntraMine up and running, as described in IntraMine's Documentation folder. Double-click on Documentation/<a href="./contents.html" target="_blank">contents.html</a> to get started with that, you'll see installation instructions at the top.</p></td></tr>
 <tr id='R26'><td n='26'></td><td><p class="ol-1">2. Take a look at the included example master glossary, "glossary_master.txt" included at the top of your IntraMine folder. It describes the whole glossary process and includes four example glossary entries.</p></td></tr>
 <tr id='R27'><td n='27'></td><td><p class="ol-1">3. Make a new file called "glossary_master.txt" in any <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EIndexed%20location%3C%2Fstrong%3E%3A%20in%20IntraMine%2C%20this%20refers%20to%20a%20directory%20that%20has%20been%20listed%20in%20your%20data%2Fsearch_directories.txt%20file%2C%20or%20a%20subdirectory%20of%20one%20listed%20there.%20See%20%3Ca%20href%3D%22.%2Fconfiguring%20folders%20to%20index%20and%20monitor.html%22%20target%3D%22_blank%22%3E%22Configuring%20folders%20to%20index%20and%20monitor.txt%22%3C%2Fa%3E%20for%20details.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">indexed location</a> (or contained subfolder). Your indexed locations are listed in IntraMine's data/search_directories.txt file. (Avoid the IntraMine folder though, to prevent conflicts when you next update IntraMine.)</p></td></tr>
-<tr id='R28'><td n='28'></td><td><p class="ol-1">4. Start putting glossary entries in your new file, using the format described in the the included master glossary (glossary_master.txt at the top of your IntraMine folder), or as described in <a href="#Glossary_entry_details">"Glossary entry details</a>" below. The simplest form of an entry is the term to define followed by a colon ":" and then the definition of the term. The definition can use <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>, as described below.</p></td></tr>
+<tr id='R28'><td n='28'></td><td><p class="ol-1">4. Start putting glossary entries in your new file, using the format described in the the included master glossary (glossary_master.txt at the top of your IntraMine folder), or as described in <a href="#Glossary_entry_details">"Glossary entry details</a>" below. The simplest form of an entry is the term to define followed by a colon ":" and then the definition of the term. The definition can use <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20Go2%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>, as described below.</p></td></tr>
 <tr id='R29'><td n='29'></td><td><p class="ol-1">5. Save your new glossary_master.txt file after you have an entry or two.</p></td></tr>
 <tr id='R30'><td n='30'></td><td><p class="ol-1">6. Using IntraMine (either the Search or Files page), open a source or text file that mentions one of your new glossary terms. There must be one somewhere, otherwise you wouldn't need a glossary, right? If that's tedious, use IntraMine's Search page to search for a term you just defined.</p></td></tr>
 <tr id='R31'><td n='31'></td><td><p class="ol-1">7. Look for the term and you'll see it has a dotted underline. Here's an example term so you can see what it will look like: <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ESwarm%20server%3C%2Fstrong%3E%3A%20A%20service%20written%20to%20run%20under%20IntraMine.%20A%20server%20is%20a%20%22swarm%22%20server%20if%20it%20uses%20%22swarmserver.pm%22%20to%20answer%20HTTP%20requests%2C%20and%20communicate%20with%20other%20services%2C%20including%20IntraMine%27s%20main%20service.%20There%27s%20more%20in%20%3Ca%20href%3D%22.%2Fwriting%20your%20own%20intramine%20server.html%22%20target%3D%22_blank%22%3E%22Writing%20your%20own%20IntraMine%20server.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">swarm server</a>. Hover your cursor over the term, and the definition will pop up in a "tooltip" style box. Move your cursor away, and the tooltip goes away.</p></td></tr>
@@ -2344,7 +2365,7 @@ AABJRU5ErkJggg==
 <tr id='R59'><td n='59'></td><td></td></tr>
 <tr id='R60'><td n='60'></td><td><h3 id="Content">Content</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R62'><td n='62'></td><td>The definition part of an entry can be plain text, text styled with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00010%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00011%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00012%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>, or a single image specifier in "quotes". As far as Gloss, basically everything except CODE blocks, inline HTML, and <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFootnotes%3C%2Fstrong%3E%3A%20%3Ca%20href%3D%22.%2Fgloss.html%23Footnotes%20and%20citations%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Footnotes%20and%20citations%22%3C%2Fa%3E%20has%20details.%20A%20note%20starts%20flush%20left%20with%20%22%5B%5Eid%7D%3A%22%20where%20%22id%22%20is%20a%20string%20of%20numbers%20or%20letters%20that%20uniquely%20identifies%20the%20note.%20References%20have%20the%20form%20%22%5B%5Eid%5D%22%20and%20are%20citations%20if%20preceded%20by%20a%20space%20or%20tab%2C%20footnote%20otherwise.%20Most%20of%20Gloss%20can%20be%20used%20in%20the%20note%20body.%20The%20note%20pops%20up%20if%20you%20hover%20over%20a%20reference.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Footnote%2C%20citation%2C%20citations%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">footnotes</a> can be used in a glossary entry, as described in <a href="./Gloss.html" target="_blank">"Gloss.txt"</a>. Source and text and image <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFile%20specifiers%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20FLASH%20links%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%EA%9E%89%2FCpp%2FOtherProjects%2FProject51%2Fsrc%2Fmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2Fflash%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.txt%22%3C%2Fa%3E%20for%20details.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Partial%20path%2C%20file%20specifier%2C%20link%20specifier%2C%20link%20specifiers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">file specifiers</a> must be in "quotes", such as "project51/main.cpp" or "image27.png". <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20linking%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2Fgloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2Fflash%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.html%22%3C%2Fa%3E%20and%20also%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2Flinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20links%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH linking</a> for directory specifiers is also supported, and these again need to be in "quotes". If you don't like double quotes, you can use 'single quotes' instead.</td></tr>
+<tr id='R62'><td n='62'></td><td>The definition part of an entry can be plain text, text styled with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20Go2%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00010%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00011%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00012%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>, or a single image specifier in "quotes". As far as Gloss, basically everything except CODE blocks, inline HTML, and <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFootnotes%3C%2Fstrong%3E%3A%20%3Ca%20href%3D%22.%2Fgloss.html%23Footnotes%20and%20citations%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Footnotes%20and%20citations%22%3C%2Fa%3E%20has%20details.%20A%20note%20starts%20flush%20left%20with%20%22%5B%5Eid%7D%3A%22%20where%20%22id%22%20is%20a%20string%20of%20numbers%20or%20letters%20that%20uniquely%20identifies%20the%20note.%20References%20have%20the%20form%20%22%5B%5Eid%5D%22%20and%20are%20citations%20if%20preceded%20by%20a%20space%20or%20tab%2C%20footnote%20otherwise.%20Most%20of%20Gloss%20can%20be%20used%20in%20the%20note%20body.%20The%20note%20pops%20up%20if%20you%20hover%20over%20a%20reference.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Footnote%2C%20citation%2C%20citations%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">footnotes</a> can be used in a glossary entry, as described in <a href="./Gloss.html" target="_blank">"Gloss.txt"</a>. Source and text and image <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFile%20specifiers%3C%2Fstrong%3E%3A%20For%20IntraMine%27s%20FLASH%20links%2C%20a%20partial%20path%20always%20includes%20the%20file%20name%2C%20and%20includes%20zero%20or%20more%20directories%20that%20are%20in%20its%20full%20path.%20Directories%20can%20be%20skipped%2C%20and%20can%20be%20out%20of%20order.%20Drive%20letter%20is%20also%20optional%20%28but%20must%20of%20course%20be%20first%20if%20present%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFor%20example%2C%20%22project51%2FCpp%2Fmain.cpp%22%20would%20be%20a%20partial%20path%20for%20%22P%EA%9E%89%2FCpp%2FOtherProjects%2FProject51%2Fsrc%2Fmain.cpp%22.%20Under%20the%20right%20circumstances%2C%20it%20could%20uniquely%20identify%20the%20main.cpp%20wanted%20for%20linking.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2Fflash%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.txt%22%3C%2Fa%3E%20for%20details.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Partial%20path%2C%20file%20specifier%2C%20link%20specifier%2C%20link%20specifiers%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">file specifiers</a> must be in "quotes", such as "project51/main.cpp" or "image27.png". <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EFLASH%20linking%3C%2Fstrong%3E%3A%20when%20you%20type%20a%20%22file%20specifier%22%20such%20as%20qtcpserver.cpp%20in%20a%20text%20or%20source%20file%2C%20IntraMine%20links%20it%20to%20the%20instance%20that%27s%20closest%20to%20where%20you%27re%20typing%2C%20based%20on%20directory%20hops%20up%20and%20down%20to%20go%20from%20one%20to%20the%20other.%20If%20needed%2C%20you%20can%20add%20some%20directory%20names%20or%20a%20drive%20letter%20to%20pin%20down%20the%20file%20you%20want%2C%20but%20mostly%20that%27s%20not%20necessary.%20You%20can%20also%20link%20to%20headings%20within%20other%20files%2C%20such%20as%20%3Ca%20href%3D%22.%2Fgloss.html%23Gloss%20vs%20MultiMarkdown%20tables%22%20target%3D%22_blank%22%3E%22Gloss.txt%23Gloss%20vs%20MultiMarkdown%20tables%22%3C%2Fa%3E%20%28for%20heading%20links%2C%20quotes%20are%20recommended%20though%20not%20required%29.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ESee%20%3Ca%20href%3D%22.%2Fflash%20links.html%22%20target%3D%22_blank%22%3E%22FLASH%20links.html%22%3C%2Fa%3E%20and%20also%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2Flinker.html%22%20target%3D%22_blank%22%3E%22Linker.html%22%3C%2Fa%3E%20in%20IntraMine%27s%20Documentation%20folder%20for%20more%20details%20and%20some%20examples.%20And%20autolinking_demo.pl%20at%20the%20top%20of%20your%20IntraMine%20folder%20for%20a%20running%20example%20of%20the%20FLASH%20link%20algorithm.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20is%20short%20for%20Fast%20Local%20Automatic%20Source%20and%20text%20Hyperlinks.%20And%20yes%2C%20it%20does%20encourage%20%22FLASH%20links%22%20which%20suffers%20from%20RAS%20syndrome.%20I%27ll%20fix%20that%20when%20we%20all%20stop%20saying%20%22PIN%20number.%22%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20Autolinks%2C%20automatic%20links%2C%20automatic%20linking%2C%20autolinking%2C%20FLASH%20link%2C%20FLASH%20links%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">FLASH linking</a> for directory specifiers is also supported, and these again need to be in "quotes". If you don't like double quotes, you can use 'single quotes' instead.</td></tr>
 <tr id='R63'><td n='63'></td><td></td></tr>
 <tr id='R64'><td n='64'></td><td>Images in <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGlossary%20popup%3C%2Fstrong%3E%3A%20for%20general%20use%20with%20IntraMine%2C%20glossary%20popup%20definitions%20are%20contained%20in%20any%20files%20called%20%22glossary_master.txt%22%20as%20found%20in%20any%20folder%20listed%20in%20your%20data%2Fsearch_directories.txt%20file.%20See%20the%20glossary_master.txt%20file%20at%20the%20top%20of%20your%20IntraMine%20folder%20for%20an%20example.%20Glossary%20terms%20in%20all%20source%20and%20text%20files%20displayed%20with%20IntraMine%27s%20Viewer%20will%20have%20a%20dotted%20underline%2C%20and%20pausing%20your%20mouse%20over%20the%20term%20will%20show%20the%20definition.%20Popups%20support%20rich%20styling%20such%20as%20bold%2C%20italic%2C%20FLASH%20links%2C%20and%20images.%20For%20more%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20separate%20glossary%20is%20available%20for%20use%20with%20gloss2html.pl%20and%20the%20Glosser%20service.%20It%20should%20be%20called%20%3Ca%20href%3D%22.%2Fglossary.html%22%20target%3D%22_blank%22%3E%22glossary.txt%22%3C%2Fa%3E%20and%20placed%20at%20the%20top%20level%20of%20any%20folder%20containing%20text%20files%20that%20you%20want%20to%20convert%20to%20standalone%20HTML%20using%20gloss2html.%20For%20details%20see%20%3Ca%20href%3D%22.%2Fglosser.html%22%20target%3D%22_blank%22%3E%22Glosser.html%22%3C%2Fa%3E%20and%20%3Ca%20href%3D%22.%2Fgloss2html.pl%20for%20standalone%20gloss%20files.html%22%20target%3D%22_blank%22%3E%22gloss2html.pl%20for%20standalone%20Gloss%20files.html%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EAlt%3A%20glossary%20popups%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">glossary popup</a> entries are <strong>displayed fully in place (inline)</strong> rather than popping up if you hover over a link, so try to avoid huge images in your definition. This is being done mainly because images in definitions are important enough to show immediately, and also because a popup in a popup is probably one popup too far. If the image is too large when displayed, you will get scroll bars.</td></tr>
 <tr id='R65'><td n='65'></td><td></td></tr>
@@ -2394,7 +2415,7 @@ AABJRU5ErkJggg==
 <tr id='R93'><td n='93'></td><td></td></tr>
 <tr id='R94'><td n='94'></td><td><h3 id="A_fancy_example">A fancy example</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R96'><td n='96'></td><td>Here's a picture of a more elaborate "glossed" definition, from IntraMine's supplied glossary_master.txt file. As for any other glossary definition, if you have "<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00013%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00014%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00015%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>" (or "gloss") in a document and you're using IntraMine to view it, the word will have a dotted underline and the definition below will pop up in a tooltip window if you hover your cursor over "gloss". Note it's different from the definition that pops up here for Gloss, the one here is defined in Documentation/<a href="./glossary.html" target="_blank">glossary.txt</a> and applies only to documents in the Documentation folder. The one shown below will appear in all source and text files when viewed with IntraMine.</td></tr>
+<tr id='R96'><td n='96'></td><td>Here's a picture of a more elaborate "glossed" definition, from IntraMine's supplied glossary_master.txt file. As for any other glossary definition, if you have "<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EGloss%3C%2Fstrong%3E%3A%20IntraMine%27s%20Markdown%20variant%2C%20minimal%20memorable%20markup%20designed%20for%20intranet%20use.%20You%20can%20use%20it%20fully%20in%20text%20files%20and%20use%20FLASH%20links%20in%20source%20files%2C%20as%20described%20in%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E.%20Gloss%20can%20also%20be%20used%20in%20glossary%20definitions%20which%20show%20in%20any%20text%20or%20source%20file%2C%20see%20%3Ca%20href%3D%22.%2Fglossary%20popups.html%22%20target%3D%22_blank%22%3E%22Glossary%20popups.html%22%3C%2Fa%3E%20for%20glossary%20usage.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EA%20sample%20table%20%28see%20%3Ca%20href%3D%22.%2Fgloss.html%23Tables%22%20target%3D%22_blank%22%3E%22Gloss.html%23Tables%22%3C%2Fa%3E%20for%20details%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%20class%3D%27bordered%27%3E%3Ccaption%3EGloss%20support%20in%20various%20contexts%3C%2Fcaption%3E%3Cthead%3E%3Ctr%3E%3Cth%3EFeature%3C%2Fth%3E%3Cth%3EIntraMine%20Viewer%2C%20text%3C%2Fth%3E%3Cth%3EViewer%2C%20source%3C%2Fth%3E%3Cth%3EGlossary%20popups%3C%2Fth%3E%3Cth%3EToDo%3C%2Fth%3E%3C%2Ftr%3E%3C%2Fthead%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3EBold%2C%20italic%2C%20code%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EFLASH%20links%3C%2Ftd%3E%3Ctd%3EYes%20%28full%20support%29%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3E%22Quotes%20needed%22%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImage%20hovers%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%20%28inlined%29%3C%2Ftd%3E%3Ctd%3E%22Quotes%22%20and%20full%20path%20needed%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ETables%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%20%28use%20tab%20or%20%5Ct%20to%20separate%20cells%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ELists%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3ECODE%20blocks%3C%2Ftd%3E%3Ctd%3EYes%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3Ctd%3ENo%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%28A%20TABLE%20ends%20when%20there%27s%20a%20line%20with%20no%20tab.%29%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EQuotes%20can%20be%20single%20or%20double%2C%20eg%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%22Gloss.html%22%3C%2Fa%3E%20or%20%3Ca%20href%3D%22.%2Fgloss.html%22%20target%3D%22_blank%22%3E%27Gloss.html%27%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EIntraMine%27s%20Editor%20fully%20supports%20FLASH%20links%2C%20Go2%2C%20image%20hovers%2C%20and%20glossary%20popups%2C%20but%20otherwise%20shows%20Gloss%20markup%20as%20typed.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EYou%20can%20also%20have%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1%27%3E1.%20Numbered%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27ol-1-1%27%3E1.1%20with%20subitems%2C%20up%20to%2099.99%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered%27%3E%26nbsp%3B%26bull%3B%20bulleted%20lists%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cp%20class%3D%27outdent-unordered-sub%27%3E%26%239702%3B%20with%20subitems%20too%3C%2Fp%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EBold%3C%2Fstrong%3E%2C%20%3Cem%3Eitalic%3C%2Fem%3E%2C%20and%20%3Ccode%3E%2F%2A%20Code%20snippets%20%2A%2F%20int%20x%20%3D%2042%3B%3C%2Fcode%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EImages%20will%20be%20shown%20inline%2C%20eg%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00013%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fgif%3Bbase64%2C__img__cache__00014%22%20%20%2F%3E%20%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00015%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cspan%20class%3D%27textSymbol%27%20style%3D%27color%3A%20%23FFBF00%3B%27%3E%26%23128578%3B%3C%2Fspan%3E%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Gloss</a>" (or "gloss") in a document and you're using IntraMine to view it, the word will have a dotted underline and the definition below will pop up in a tooltip window if you hover your cursor over "gloss". Note it's different from the definition that pops up here for Gloss, the one here is defined in Documentation/<a href="./glossary.html" target="_blank">glossary.txt</a> and applies only to documents in the Documentation folder. The one shown below will appear in all source and text files when viewed with IntraMine.</td></tr>
 <tr id='R97'><td n='97'></td><td></td></tr>
 <tr id='R98'><td n='98'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAo4AAAMkCAIAAAC5nDaLAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
@@ -3459,6 +3480,7 @@ let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
 let weAreStandalone = true;
+const textDiffChangedLines = [];
 </script>
 <script>
 	// Call fn when ready.
@@ -5646,6 +5668,8 @@ if (typeof window.ontouchstart !== 'undefined')
 	onMobile = true;
 	}
 
+let diffScrollMarkerClass = "diff-scroll"; // For markDiffsInScrollbar()
+
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
@@ -5690,6 +5714,8 @@ function doResize() {
 		highlightInitialItems();
 		}
 
+	markDiffsInScrollbar(diffScrollMarkerClass);
+
 	if (!onMobile)
 		{
 		scrollIndicator();
@@ -5718,6 +5744,7 @@ async function reJumpAndHighlight() {
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
 	highlightInitialItems();
+	//markDiffsInScrollbar(diffScrollMarkerClass);
 
 	setIsMarkdown();
 
@@ -6012,6 +6039,10 @@ function jumpToMarkdownLineFromStorage() {
 
 function preLineHeight() {
 	const preElement = document.querySelector('pre');
+	if (preElement === null)
+		{
+		return(17);
+		}
 	const computedStyle = window.getComputedStyle(preElement);
 	const lineHeight = computedStyle.lineHeight;
 
@@ -6292,6 +6323,9 @@ function finishStartup() {
 	setTimeout(function() {
 		showMainContent();
 		}, 500);
+
+	// TEST ONLY
+	//console.log("STARTED");
 }
 
 // Code block highlighting with lolight, used
@@ -6850,6 +6884,102 @@ function markHitsInScrollbar(textClassName, scrollHitClassName) {
 		mk.setAttribute("class", scrollHitClassName);
 		mk.style.top = absMarkerPos + "px";
 		markerMainElement.appendChild(mk);
+		}
+}
+
+function markDiffsInScrollbar(scrollHitClassName) {
+	// TEST ONLY
+	//console.log("markDiffsInScrollbar called.");
+
+	let numDiffArrayEntries = textDiffChangedLines.length;
+	if (numDiffArrayEntries === 0)
+		{
+		return;
+		}
+	// console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
+	removeElementsByClass(scrollHitClassName);
+
+	// Light themes want a slightly whiter thumb for diff markers to show up.
+	// Revision, this is done unconditionally in non_cm_text.css.
+	// if (!themeIsDark)
+	// 	{
+	// 	markerMainElement.style.setProperty('scrollbar-color', 'lightgray white');
+	// 	}
+	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let mainScrollY = markerMainElement.scrollTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	// let usableTextHeight = textViewableHeight - 2*arrowHeight;
+
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				//arrowHeight = Math.round(widthDifference) + 1;
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+
+	for (let i = 0; i < numDiffArrayEntries; ++i)
+		{
+		let lineTypeNum = textDiffChangedLines[i];
+		if (lineTypeNum === '0')
+			{
+			continue;
+			}
+		let lineType = lineTypeNum.substr(0, 1); // 'N', 'D', 'C'
+		let lineNum = lineTypeNum.substr(1);
+		lineNum = parseInt(lineNum, 10);
+		if (lineNum === 0 || (lineType !== 'N' && lineType !== 'D'))
+			{
+			continue;
+			}
+		//console.log("Line |" + lineNum + "|");
+		let rowElem = document.getElementById("R" + lineNum);
+		if (rowElem !== null)
+			{
+			let elementBoundRect = rowElem.getBoundingClientRect();
+			let textHitY = elementBoundRect.top;
+			let positionInDoc = mainScrollY + textHitY - yTop;
+			let positionRatio = positionInDoc / mainScrolllHeight;
+			let relativeMarkerPos = positionRatio * usableTextHeight;
+			let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+	
+			let mk = document.createElement("mark");
+			mk.setAttribute("class", scrollHitClassName);
+			mk.style.top = absMarkerPos + "px";
+			markerMainElement.appendChild(mk);
+			}
 		}
 }
 
@@ -7837,16 +7967,20 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		let el = document.getElementById(cmTextHolderName);
 		let limitLineNum = lastVisibleLineNumber(el) + 1;
 		let lineNum = firstVisibleLineNumber(el);
-		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
-		if (tocElem === null)
+		if (typeof lineNum !== 'undefined')
 			{
-			tocElem = getTocElemForLineNumber(lineNum);
-			}
+			tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+			if (tocElem === null)
+				{
+				tocElem = getTocElemForLineNumber(lineNum);
+				}
 
-		// For restoring scrolled position after a reload.
-		//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
-		//lineNum -= deductionForInlineHTMLChunks;
-		location.hash = lineNum.toString();
+			// For restoring scrolled position after a reload.
+			//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+			//lineNum -= deductionForInlineHTMLChunks;
+
+			location.hash = lineNum.toString();
+			}
 		}
 		
 	if (tocElem !== null)

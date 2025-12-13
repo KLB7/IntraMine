@@ -28,6 +28,10 @@
 	max-width: 100%;
 }
 
+#scrollTextRightOfContents, #scrollText {
+	scrollbar-color: #C0C0C0 white;
+}
+
 /* Footnotes */
 .footDiv {
 	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
@@ -130,6 +134,21 @@
 	pointer-events: none;
 }
 
+.diff-scroll {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: 1.0;
+	background-color: #0096FF;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
 
 .initial-hits-highlight {
 	background-color: #ffcccc;

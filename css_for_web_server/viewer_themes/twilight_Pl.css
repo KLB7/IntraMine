@@ -21,9 +21,9 @@ color: #8f9d6aff;
 }
 
 
-.Variable_Array { color: #b2b2f5ff; }
-.Variable_Hash { color: #b2b2f5ff; }
 .Variable_Typeglob { color: #b2b2f5ff; }
 .Variable_Scalar { color: #b2b2f5ff; }
+.Variable_Hash { color: #b2b2f5ff; }
+.Variable_Array { color: #b2b2f5ff; }
 span.Symbol.brace-highlight { color: black !important; }
 mark.scroll-hilite { background-color: #ccffcc; }

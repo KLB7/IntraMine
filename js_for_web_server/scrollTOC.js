@@ -28,16 +28,20 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		let el = document.getElementById(cmTextHolderName);
 		let limitLineNum = lastVisibleLineNumber(el) + 1;
 		let lineNum = firstVisibleLineNumber(el);
-		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
-		if (tocElem === null)
+		if (typeof lineNum !== 'undefined')
 			{
-			tocElem = getTocElemForLineNumber(lineNum);
-			}
+			tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+			if (tocElem === null)
+				{
+				tocElem = getTocElemForLineNumber(lineNum);
+				}
 
-		// For restoring scrolled position after a reload.
-		//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
-		//lineNum -= deductionForInlineHTMLChunks;
-		location.hash = lineNum.toString();
+			// For restoring scrolled position after a reload.
+			//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+			//lineNum -= deductionForInlineHTMLChunks;
+
+			location.hash = lineNum.toString();
+			}
 		}
 		
 	if (tocElem !== null)

@@ -136,8 +136,10 @@ $RequestAction{'req|nonCmLinks'} =
 	\&NonCmLinks;                             # req=nonCmLinks... - linking for non-CodeMirror files
 $RequestAction{'req|autolink'} = \&FullPathForPartial;    # req=autolink&partialpath=...
 $RequestAction{'req|defs'}     = \&Go2;                   # req=defs, find definitions and mentions
-$RequestAction{'req|addtodictionary'} = \&AddToDictionary;    # req=addtodictionary
-$RequestAction{'/test/'}              = \&SelfTest;           # Ask this server to test itself.
+$RequestAction{'req|addtodictionary'}  = \&AddToDictionary;       # req=addtodictionary
+$RequestAction{'req|gitdiffs'}         = \&CmChangedLines;        # req=gitdiffs
+$RequestAction{'req|specificgitdiffs'} = \&CmSpecificGitDiffs;    # req=specificgitdiffs
+$RequestAction{'/test/'}               = \&SelfTest;              # Ask this server to test itself.
 
 # List of English words, for spell checking.
 my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
@@ -399,6 +401,23 @@ sub Go2 {
 	# 	$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath, 0, $result);
 	# 	}
 
+
+	return ($result);
+}
+
+sub CmChangedLines {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'nope';
+
+	if (   defined($formH->{'path'})
+		&& defined($formH->{'first'})
+		&& defined($formH->{'last'}))
+		{
+		my $path         = $formH->{'path'};
+		my $firstLineNum = $formH->{'first'};
+		my $lastLineNum  = $formH->{'last'};
+		CmGetSpecifChangesForText($path, $firstLineNum, $lastLineNum, \$result);
+		}
 
 	return ($result);
 }
@@ -2646,5 +2665,422 @@ sub AddToDictionary {
 		}
 
 	return ($result);
+}
+
+# Currently $lastLineNum is ignored, and $$resultR is set to
+# changed lines for any "chunk" from git containing $firstLineNum.
+sub CmGetChangedLineListForText {
+	my ($path, $firstLineNum, $lastLineNum, $resultR) = @_;
+	$path =~ s!\\!/!g;
+	my $properPath = Win32::GetLongPathName($path);
+	if (defined($properPath) && $properPath ne '')
+		{
+		$path = $properPath;
+		}
+	$path =~ s!\\!/!g;
+	my $gitDir = GetGitDirectoryFromPath($path);
+	if ($gitDir eq "")
+		{
+		$$resultR = " ";
+		return;
+		}
+
+	my $relativePath = substr($path, length($gitDir) + 1);
+	chdir($gitDir);
+	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
+
+	# Call git for a list of differences between current saved version
+	# and last committed version. Note git might not even be installed.
+	my $diffs = `$gitCmd`;
+	if ($diffs ne '')
+		{
+		$$resultR = '';
+		my @changedLines;    # The text, in an array 0..up
+		my @lineNumbers;     # Line number for the changed lines, negative means delete
+		GetChangedLinesForRange($diffs, $firstLineNum, $lastLineNum, \@changedLines, \@lineNumbers);
+		# Package up as HTML.
+		my $numChangedLines = @changedLines;
+		for (my $i = 0 ; $i < $numChangedLines ; ++$i)
+			{
+			my $lineWithType = $lineNumbers[$i];
+			my $lineType     = substr($lineWithType, 0, 1);
+			my $lineNumber   = substr($lineWithType, 1);
+			my $line         = $changedLines[$i];
+
+			my $plusMinusAtLineStart = '';
+			if ($line =~ m!^([+-])!)
+				{
+				$plusMinusAtLineStart = $1;
+				$line =~ s!^[+-]!!;
+				}
+			$plusMinusAtLineStart = &HTML::Entities::encode($plusMinusAtLineStart);
+
+			$line =~ s!%!%25!g;
+			$line =~ s!\+!%2B!g;
+
+			# This decode is critical for non_ASCII, and was a real b*gger to discover.
+			$line = decode_utf8($line);
+			# And the HTML if any on the line needs to be "denatured".
+			$line = &HTML::Entities::encode($line);
+
+			# Preserve tabs and spaces. Except single spaces, those are needed for word-wrap.
+			# Since generating a matching number of non-breaking spaces is hard, we will fudge
+			# an approach that handles up to 8 consecutive spaces, and avoids single spaces.
+			$line =~ s!        !&nbsp; &nbsp; &nbsp; &nbsp; !g;    # 8
+			$line =~ s!       !&nbsp; &nbsp; &nbsp; &nbsp;!g;      # 7
+			$line =~ s!      !&nbsp; &nbsp; &nbsp; !g;             # 6
+			$line =~ s!     !&nbsp; &nbsp; &nbsp;!g;               # 5
+			$line =~ s!    !&nbsp; &nbsp; !g;                      # 4
+			$line =~ s!   !&nbsp; &nbsp;!g;                        # 3
+			$line =~ s!  !&nbsp; !g;                               # 2
+			$line =~ s!\t!&nbsp;&nbsp;&nbsp;&nbsp;!g;              # tabs -> 4 nbsp
+
+			my $lineClass = '';
+			if ($lineType eq 'N')
+				{
+				$lineClass = ' pos_line_class';
+				}
+			elsif ($lineType eq 'D')
+				{
+				$lineClass = ' neg_line_class';
+				}
+
+			my $spacer = '';
+			if ($lineNumber < 10)
+				{
+				$spacer = '   ';
+				}
+			elsif ($lineNumber < 100)
+				{
+				$spacer = '  ';
+				}
+			elsif ($lineNumber < 1000)
+				{
+				$spacer = ' ';
+				}
+
+			my $finalLine =
+"<tr class='diffrow$lineClass'><td n='$lineNumber$spacer$plusMinusAtLineStart'></td><td class='diff_line_num'>$line</td></tr>\n";
+			if ($$resultR eq '')
+				{
+				$$resultR = "<div id='diffTableId'><table id='thisisthetablefordiffdetails'>\n";
+				}
+
+			$$resultR .= $finalLine;
+			#$$resultR .=
+			#	"<p class='$lineClass'><span class='diff_line_num'>$lineNumber</span>$line</p>";
+			}
+
+		if ($$resultR ne '')
+			{
+			$$resultR .= "</table></div>\n";
+			}
+
+		$$resultR = encode_utf8($$resultR);
+		}
+	else
+		{
+		$$resultR = "nope";
+		}
+
+	if ($$resultR eq '')
+		{
+		$$resultR = "nope";
+		}
+}
+
+sub CmSpecificGitDiffs {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'nope';
+
+	if (   defined($formH->{'path'})
+		&& defined($formH->{'first'})
+		&& defined($formH->{'last'}))
+		{
+		my $path         = $formH->{'path'};
+		my $firstLineNum = $formH->{'first'};
+		my $lastLineNum  = $formH->{'last'};
+		CmGetChangedLineListForText($path, $firstLineNum, $lastLineNum, \$result);
+		}
+
+	return ($result);
+}
+
+sub CmGetSpecifChangesForText {
+	my ($path, $firstLineNum, $lastLineNum, $resultR) = @_;
+	$path =~ s!\\!/!g;
+	my $properPath = Win32::GetLongPathName($path);
+	if (defined($properPath) && $properPath ne '')
+		{
+		$path = $properPath;
+		}
+	$path =~ s!\\!/!g;
+	my $gitDir = GetGitDirectoryFromPath($path);
+	if ($gitDir eq "")
+		{
+		return;
+		}
+
+	my $relativePath = substr($path, length($gitDir) + 1);
+	chdir($gitDir);
+	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
+
+	# Call git for a list of differences between current saved version
+	# and last committed version. Note git might not even be installed.
+	my $diffs = `$gitCmd`;
+	if ($diffs ne '')
+		{
+		my @changedLineNumbers;
+		GetLineNumbersForChangedLines($diffs, \@changedLineNumbers);
+		my $numLineNumbers = @changedLineNumbers;
+		if ($numLineNumbers)
+			{
+			my @visibleLineNumbers;
+			for (my $i = 0 ; $i < $numLineNumbers ; ++$i)
+				{
+				push @visibleLineNumbers, $changedLineNumbers[$i];
+				}
+
+			my $numVisibleNumbers = @visibleLineNumbers;
+			if ($numVisibleNumbers > 0)
+				{
+				# TEST ONLY
+				#print("Diffs: |@visibleLineNumbers|\n");
+				my %arrHash;
+				$arrHash{'arr'} = \@visibleLineNumbers;
+				my $json = \%arrHash;
+				#####$$resultR = uri_escape_utf8(encode_json($json));
+				$$resultR = encode_json($json);
+				}
+			}
+		}
+}
+
+sub GetGitDirectoryFromPath {
+	my ($filePath) = @_;
+	my $copyPath   = $filePath;
+	my $result     = '';
+	$copyPath =~ s!\\!/!g;
+	my $slashPos = rindex($filePath, "/");
+	while ($slashPos > 0)
+		{
+		my $testDir = substr($filePath, 0, $slashPos + 1) . '.git';
+		if (FileOrDirExistsWide($testDir) == 2)
+			{
+			$result = substr($filePath, 0, $slashPos);
+			last;
+			}
+		$slashPos = rindex($filePath, "/", $slashPos - 1);
+		}
+
+	return ($result);
+}
+
+
+sub xGetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr) = @_;
+	my @lines         = split(/\n/, $diffs);
+	my $atatLineStart = -1;
+	my $plusSeen      = 0;
+	my $negSeen       = 0;
+	my $negLine       = 0;
+	my $numLines      = @lines;
+	my $line          = '';
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+		# Eg @@ -27,7 +27,7 @@...
+		# or @@ -665,8 +668,15
+		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+			{
+			# Push any neg line if saw neg but no positive.
+			if ($negSeen && !$plusSeen)
+				{
+				push @$changedLineNumsArr, -$negLine;
+				}
+			$plusSeen      = 0;
+			$negSeen       = 0;
+			$negLine       = 0;
+			$atatLineStart = $1 - 1;
+			}
+		elsif ($atatLineStart > 0)
+			{
+			++$atatLineStart;
+			if (index($line, '+') == 0)
+				{
+				$plusSeen = 1;
+				push @$changedLineNumsArr, $atatLineStart;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				$negSeen = 1;
+				$negLine = $atatLineStart;
+				--$atatLineStart;
+				}
+			}
+		}
+
+	if ($negSeen && !$plusSeen)
+		{
+		push @$changedLineNumsArr, -$negLine;
+		}
+
+
+	#print("Changed:\n");
+	#print("@$changedLineNumsArr\n");
+}
+
+# An extra character is added to the start of the line number:
+# N: new/changed
+# D: deleted
+# C: context
+sub GetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr) = @_;
+	my @lines               = split(/\n/, $diffs);
+	my $atatLineStart       = -1;
+	my $plusSeen            = 0;
+	my $negSeen             = 0;
+	my $negLine             = 0;
+	my $consecutiveNegCount = 0;
+	my $numLines            = @lines;
+	my $line                = '';
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+		# Eg @@ -27,7 +27,7 @@...
+		# or @@ -665,8 +668,15
+		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+			{
+			# Push any neg line if saw neg but no positive.
+			if ($negSeen && !$plusSeen)
+				{
+				push @$changedLineNumsArr, 'D' . $negLine;
+				}
+			$plusSeen      = 0;
+			$negSeen       = 0;
+			$negLine       = 0;
+			$atatLineStart = $1 - 1;
+			}
+		elsif ($atatLineStart > 0)
+			{
+			++$atatLineStart;
+			if (index($line, '+') == 0)
+				{
+				if ($consecutiveNegCount)
+					{
+					$atatLineStart -= $consecutiveNegCount;
+					}
+				$plusSeen = 1;
+				push @$changedLineNumsArr, 'N' . $atatLineStart;
+				$consecutiveNegCount = 0;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				++$consecutiveNegCount;
+				$negSeen = 1;
+				$negLine = $atatLineStart;
+				#--$atatLineStart;
+				}
+			else    # "Context" line, no + or - at start
+				{
+				if ($consecutiveNegCount)
+					{
+					$atatLineStart -= $consecutiveNegCount;
+					}
+				push @$changedLineNumsArr, 'C' . $atatLineStart;
+				$consecutiveNegCount = 0;
+				}
+			}
+		}
+
+	if ($negSeen && !$plusSeen)
+		{
+		push @$changedLineNumsArr, 'D' . $negLine;
+		}
+
+
+	#print("Changed:\n");
+	#print("@$changedLineNumsArr\n");
+}
+
+# firstLineNum is the line of interest: capture the chunk of changes
+# containing it.
+# An extra character is added to the start of the line number:
+# N: new/changed
+# D: deleted
+# C: context
+sub GetChangedLinesForRange {
+	my ($diffs, $firstLineNum, $lastLineNum, $changedLinesArr, $lineNumbersArr) = @_;
+	my @lines               = split(/\n/, $diffs);
+	my $numLines            = @lines;
+	my $atatLineStart       = -1;
+	my $lastLineNumInChunk  = -1;
+	my $inTheRightChunk     = 0;
+	my $wantedChunkSeen     = 0;
+	my $consecutiveNegCount = 0;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+		# Eg @@ -27,7 +27,7 @@...
+		# or @@ -665,8 +668,15
+		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+			{
+			$atatLineStart      = $1 - 1;
+			$lastLineNumInChunk = $atatLineStart + $2;
+			if ($firstLineNum >= $atatLineStart && $firstLineNum <= $lastLineNumInChunk)
+				{
+				$inTheRightChunk = 1;
+				$wantedChunkSeen = 1;
+				}
+			else
+				{
+				$inTheRightChunk = 0;
+				}
+			}
+		else
+			{
+			if ($inTheRightChunk)
+				{
+				++$atatLineStart;
+				if (index($line, '+') == 0)
+					{
+					if ($consecutiveNegCount)
+						{
+						$atatLineStart -= $consecutiveNegCount;
+						}
+					#$plusSeen = 1;
+					#push @$changedLineNumsArr, $atatLineStart;
+					push @$changedLinesArr, $line;
+					push @$lineNumbersArr,  'N' . $atatLineStart;
+					$consecutiveNegCount = 0;
+					}
+				elsif (index($line, '-') == 0)
+					{
+					++$consecutiveNegCount;
+					#$negSeen = 1;
+					#$negLine = $atatLineStart;
+					push @$changedLinesArr, $line;
+					push @$lineNumbersArr,  'D' . $atatLineStart;
+					}
+				else    # "context" line, no + or -
+					{
+					if ($consecutiveNegCount)
+						{
+						$atatLineStart -= $consecutiveNegCount;
+						}
+					push @$changedLinesArr, $line;
+					push @$lineNumbersArr,  'C' . $atatLineStart;
+					$consecutiveNegCount = 0;
+					}
+				}
+			elsif ($wantedChunkSeen)
+				{
+				last;
+				}
+			}
+		}
 }
 

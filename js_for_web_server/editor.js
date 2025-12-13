@@ -3,6 +3,9 @@
 // Load, Save file, manage content resizing.
 // March 2022, autolinks (FLASH links) are now supported.
 
+// For a restart: skip the first add links. See onCodeMirrorChange() below.
+let skipAddingLinks = false;
+
 let onMobile = false; // true if we have touch events.
 if (typeof window.ontouchstart !== 'undefined')
 	{
@@ -379,6 +382,9 @@ cfg.matchBrackets = true;
 // Set desired theme.
 cfg.theme = selectedTheme;
 
+// Gutters
+cfg.gutters = ["CodeMirror-linenumbers", "cmGitDiffGutter"];
+
 let cmHolder = document.getElementById(cmTextHolderName);
 let myCodeMirror = CodeMirror(cmHolder, cfg);
 
@@ -391,6 +397,64 @@ if (info)
 	}
 	
 window.addEventListener("load", function() {loadFileIntoCodeMirror(myCodeMirror, theEncodedPath);});
+
+// let gutterElement = myCodeMirror.getGutterElement();
+// if (gutterElement)
+// 	{
+// 	console.log("GOT");
+// 	gutterElement.addEventListener('mouseover', function(event) {
+// 		gutterElement.style.fontWeight = 900;
+// 		console.log("OVER GUTTER");
+// 	});
+// }
+
+//setTimeout(setGutterHover, 200);
+
+//let gutterColorNormal = '';
+
+// Not really needed, the individual gutter markers each have their
+// own mouse handlers - see cmAutoLinks.js#addGitDiffMarkup();
+function setGutterHover() {
+	var gutterElement = myCodeMirror.getWrapperElement().querySelector('.CodeMirror-gutters');
+	if (gutterElement)
+		{
+		//console.log("Have Gutter");
+		let gutterChildren = gutterElement.children;
+		if (gutterChildren)
+			{
+			for (const child of gutterChildren)
+				{
+				//console.log(child);
+				if (hasClass(child, 'cmGitDiffGutter'))
+					{
+					//console.log("FOUND IT");
+					child.addEventListener('mouseover', function(event) {
+						//console.log("before OVER GUTTER");
+						let el = event.target;
+						//gutterColorNormal = el.style.backgroundColor;
+						el.style.backgroundColor = '#FFFF00';
+						//console.log("OVER GUTTER");
+				
+					});
+					child.addEventListener('mouseout', function(event) {
+						//console.log("before OVER GUTTER");
+						let el = event.target;
+						el.style.backgroundColor = '#F7F7F7';
+						//console.log("after leaving gutter");
+				
+					});
+					}
+				}
+			}
+
+		// gutterElement.addEventListener('mouseover', function() {
+		// 	//console.log("before OVER GUTTER");
+		// 	//gutterElement.style.fontWeight = 800;
+		// 	console.log("OVER GUTTER");
+	
+		// });
+		}	
+}
 
 CodeMirror.commands.save = function(cm) {
 	saveFile(theEncodedPath);
@@ -480,11 +544,13 @@ async function loadFileIntoCodeMirror(cm, path) {
 			setIsMarkdown();
 
 			// Add handler for Add to dictionary.
-			addRightClickHandler(); // cmAutoLinks.js#addRightClickHandler()
+			addRightClickHandler(cm); // cmAutoLinks.js#addRightClickHandler()
 
 			setUpIndicator();
 
 			showMainContent();
+
+			addDiffClickHandler(myCodeMirror);
 
 			hideSpinner();
 			}
@@ -665,8 +731,15 @@ function onCodeMirrorChange() {
 
 	if (!myCodeMirror.doc.isClean())
 		{
-		// Restore marks when editing pauses for a couple of seconds.
-		debouncedAddLinks();
+		if (skipAddingLinks)
+			{
+			skipAddingLinks = false;
+			}
+		else
+			{
+			// Restore marks when editing pauses for a couple of seconds.
+			debouncedAddLinks();
+			}
 		}
 }
 
@@ -728,6 +801,9 @@ async function saveFile(path) {
 						removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
 						}
 					}
+
+				// Redo the git diff markers.
+				diffMarkersLoaded = false;
 				
 				onCodeMirrorChange();
 
@@ -745,6 +821,7 @@ async function saveFile(path) {
 				//Too soon: scrollTocEntryIntoView(lineNum, false, true);
 				setTimeout(function() {
 					scrollTocEntryIntoView(lineNum, false, true);
+					clearAndAddAutoLinks();
 					}, 600);	
 				}
 			hideSpinner();

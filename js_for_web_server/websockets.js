@@ -24,6 +24,10 @@ let commandTable = new Object();
 let initializing = true;
 let wsIsConnected = 0;
 let ws;
+// For reconnecting, reconnect any subscriptions.
+let subscribeMessages = new Object();
+let regexReconnect = new RegExp('.*?_MG_R_E_C_N_N_E_C_T_MG_');
+let regexSubscribe = new RegExp('.*?_MG_SUBSCRIBE');
 
 
 // A custom event, to load callbacks from other JS files.
@@ -57,6 +61,13 @@ function doCallback(message) {
 			let relevantMessage = currentResult[4]; // was [1]
 			commandTable[trigger](relevantMessage);
 			}
+		}
+
+	// Check for request to reconnect.
+	currentResult = [];
+	if ((currentResult = regexReconnect.exec(message)) !== null)
+		{
+		handleReconnect();
 		}
 }
 
@@ -117,7 +128,11 @@ function wsInitWithPort(wsPort) {
 		//console.log('Message from server ', event.data);
 		handleWsMessage(event.data);
 	});
-	
+
+	ws.addEventListener('error', function (event) {
+		console.log('WEBSOCKETS ERROR ', event);
+	});
+
 	setTimeout(fireInitEvent, 100);
 }
 
@@ -146,7 +161,7 @@ async function wsSendMessage(message) {
 	if (!wsIsConnected && !initializing)
 		{
 		wsInit();
-		await sleepMS(500);
+		await sleepMS(200);
 		}
 
 	initializing = false;
@@ -156,9 +171,17 @@ async function wsSendMessage(message) {
 		//ws.send('_MG_' + message + '_MG_');
 		if (wsIsConnected)
 			{
+			let wrappedMessage = '_MG_' + message + '_MG_';
 			if (ws.readyState === WebSocket.OPEN)
 				{
-				ws.send('_MG_' + message + '_MG_');
+				ws.send(wrappedMessage);
+				rememberSubscription(wrappedMessage);
+				// A fine idea, unfortunately it disconnects SUBSCRIBE too, so no good.
+				// if (message.indexOf("PUBLISH") == 0)
+				// 	{
+				// 	await sleepMS(200);
+				// 	ws.close();
+				// 	}
 				}
 			else
 				{
@@ -175,6 +198,25 @@ async function wsSendMessage(message) {
 // Run any callback associated with the message.
 function handleWsMessage(message) {
 	doCallback(message);
+}
+
+function rememberSubscription(message) {
+	currentResult = [];
+	if ((currentResult = regexSubscribe.exec(message)) !== null)
+		{
+		subscribeMessages[message] = 1;
+		}
+}
+
+async function handleReconnect() {
+	// TEST ONLY
+	console.log("RECONNECT request received.");
+	await sleepMS(100);
+	for (const message in subscribeMessages)
+		{
+		wsSendMessage(message);
+		await sleepMS(100);
+		}
 }
 
 window.addEventListener("load", wsInit);

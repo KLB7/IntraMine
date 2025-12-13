@@ -9,6 +9,10 @@
 
 // Track lines that have been looked at, by line number.
 let lineSeen = {};
+let diffLineSeen = {};
+let diffMarkersLoaded = false;
+let diffLineNumbers = new Array();
+let diffLineTypes = new Array();
 let linkOrLineNumForText = new Map();
 let doubleClickDetected = false;
 
@@ -110,6 +114,8 @@ async function requestLinkMarkup(cm, visibleText, firstVisibleLineNum, lastVisib
 			if (port !== "")
 				{
 				requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, lastVisibleLineNum, port);
+				await sleepABit(100);
+				addGitDiffMarkers(cm, firstVisibleLineNum, lastVisibleLineNum, port);
 				}
 			// else error, reported by fetchPort().
 			}
@@ -235,6 +241,147 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 		// There was a connection error of some sort. Double bummer, no links.
 		console.log('requestLinkMarkupWithPort connection error!');
 	}
+}
+
+async function addGitDiffMarkers(cm, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
+
+
+	if (!diffMarkersLoaded)
+		{
+		//.log("INITIAL DIFF");
+			try {
+				let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=gitdiffs'
+				+ '&peeraddress=' + encodeURIComponent(peeraddress)
+				+ '&path=' + encodeURIComponent(thePath) + '&first=' + firstVisibleLineNum + '&last='
+				+ lastVisibleLineNum;
+				const response = await fetch(theAction);
+				if (response.ok)
+					{
+					firstVisibleLineNum = parseInt(firstVisibleLineNum);
+					lastVisibleLineNum = parseInt(lastVisibleLineNum);
+					diffLineNumbers.length = 0;
+					diffLineTypes.length = 0;
+					let resp = await response.text();
+					if (resp != 'nope')
+						{
+						let jsonResult = JSON.parse(resp);
+						for (let ind = 0; ind < jsonResult.arr.length; ++ind)
+							{
+							let typeLineNum = jsonResult.arr[ind];
+							let lineType = typeLineNum.substr(0, 1);
+							let lineNum = typeLineNum.substr(1);
+							diffLineNumbers[ind] = lineNum;
+							diffLineTypes[ind] = lineType;
+							//console.log("Diff " + ind + ": |" + lineNum + "|");
+							if (!(lineNum in diffLineSeen) && lineNum >= firstVisibleLineNum && lineNum <= lastVisibleLineNum)
+								{
+								//console.log("Diff line |" + lineNum + "|");
+								addGitDiffMarkup(cm, lineNum, lineType);
+								}
+							}
+						}
+		
+					// Avoid visiting the same lines twice.
+					rememberGitDiffLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
+
+					// Put markers for changes in the scroll bar.
+					addDiffScrollMarkers();
+
+					diffMarkersLoaded = true;
+					}
+			}
+			catch(error) {
+				console.log('addGitDiffMarkers connection error!');
+			}
+		}
+	else
+		{
+		//console.log("NOT initial, change arr len |" + diffLineNumbers.length + "|");
+		firstVisibleLineNum = parseInt(firstVisibleLineNum);
+		lastVisibleLineNum = parseInt(lastVisibleLineNum);
+		for (let ind = 0; ind < diffLineNumbers.length; ++ind)
+			{
+			let lineNum = diffLineNumbers[ind];
+			let lineType = diffLineTypes[ind];
+			if (!(lineNum in diffLineSeen) && lineNum >= firstVisibleLineNum && lineNum <= lastVisibleLineNum)
+				{
+				addGitDiffMarkup(cm, lineNum, lineType);
+				}
+			}
+		// Avoid visiting the same lines twice.
+		rememberGitDiffLinesSeen(firstVisibleLineNum, lastVisibleLineNum);
+		}
+}
+
+// Put markers for changes in the scroll bar.
+async function addDiffScrollMarkers() {
+	if (diffLineNumbers.length == 0)
+		{
+		return;
+		}
+
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let cmScrollInfo = myCodeMirror.getScrollInfo();
+	let clientHeight = cmScrollInfo.clientHeight;
+	let clientWidth = cmScrollInfo.clientWidth;
+	let mainScrollY = cmScrollInfo.top;
+	let mainScrolllHeight = cmScrollInfo.height;
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - clientWidth;
+	let heightDifference = textViewableHeight - clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				arrowHeight = Math.round(widthDifference) + 2;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	for (let i = 0; i < diffLineNumbers.length; ++i)
+		{
+		let lineNum = diffLineNumbers[i];
+		lineNum = parseInt(lineNum);
+		let lineType = diffLineTypes[i];
+		if (lineType !== 'C') // Context line, not changed
+			{
+			let textHitY = myCodeMirror.heightAtLine(lineNum);
+			let positionInDoc = mainScrollY + textHitY - yTop;
+			let positionRatio = positionInDoc / mainScrolllHeight;
+			let relativeMarkerPos = positionRatio * usableTextHeight;
+			let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+	
+			let mk = document.createElement("mark");
+			mk.setAttribute("class", "diff-scroll");
+			mk.style.top = absMarkerPos + "px";
+			markerMainElement.appendChild(mk);
+			}
+		}
 }
 
 // iPad, add poke-a-link handlers. NOT USED.
@@ -439,6 +586,45 @@ function addInternalHeaderMarkup(cm, lineNum, tok, pos, tocLineNum) {
 	});
 	// Track link for later use.
 	linkOrLineNumForText.set(tok, tocLineNum);
+}
+
+function addGitDiffMarkup(cm, lineNum, lineType) {
+	let newMarker = makeDiffMarker(lineType);
+	cm.setGutterMarker(lineNum-1, "cmGitDiffGutter", newMarker);
+
+	let gutterElement = myCodeMirror.getWrapperElement().querySelector('.CodeMirror-gutters');
+	let gutterMarkerElement = gutterElement.children[1];
+	if (gutterMarkerElement)
+		{
+		newMarker.addEventListener('mouseover', function(event) {
+			gutterMarkerElement.style.backgroundColor = '#E0E0FF';
+		});
+		newMarker.addEventListener('mouseout', function(event) {
+			gutterMarkerElement.style.backgroundColor = '#F7F7F7';
+		});
+		}
+
+}
+
+function makeDiffMarker(lineType) {
+	var marker = document.createElement("div");
+	if (lineType === 'D') //delete
+		{
+		marker.style.color = "red";
+		marker.style.marginTop = "-6px";
+		marker.innerHTML = "▸";
+		}
+	else if (lineType === 'N') // New/Changed
+		{
+		marker.style.color = "#0096FF";
+		marker.style.fontWeight = 'bold'; 
+		marker.innerHTML = "|"; //"❚";
+		}
+	else // lineType === 'C' for context, or other
+		{
+		; // no marker
+		}
+	return marker;
 }
 
 // Add <a> links for local files, images, and web pages.
@@ -1373,6 +1559,13 @@ function rememberLinesSeen(firstVisibleLineNum, lastVisibleLineNum) {
 		}
 }
 
+function rememberGitDiffLinesSeen(firstVisibleLineNum, lastVisibleLineNum) {
+	for (let lineNumber = firstVisibleLineNum; lineNumber <= lastVisibleLineNum; ++lineNumber)
+		{
+		diffLineSeen[lineNumber] = 1;
+		}
+}
+
 // Trim lines seen from beginning and end of first/last range.
 function adjustedFirstAndLastVisLineNums(firstVisibleLineNum, lastVisibleLineNum) {
 	let adjustedFirst = firstVisibleLineNum;
@@ -1418,6 +1611,20 @@ function clearMarks() {
 			delete lineSeen[member];
 			}
 		}
+
+	let cm = myCodeMirror;
+	for (var member in diffLineSeen)
+		{
+		cm.setGutterMarker(member-1, "cmGitDiffGutter", null);
+		}
+	for (var member in diffLineSeen)
+		{
+		if (diffLineSeen.hasOwnProperty(member))
+			{
+			delete diffLineSeen[member];
+			}
+		}
+	
 	linkOrLineNumForText.clear();
 }
 

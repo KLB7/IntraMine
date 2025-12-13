@@ -27,7 +27,7 @@ mark.scroll-hilite { background-color: #ccffcc; }
 .marker-highlight { background-color: #ccffcc; }
 .pre_line td { background: #584b57ff; }
 .pre_line td:first-child  { background: #2f1e2e; }
-#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #B0B0B0 #808080; }
+#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #E0E0E0 #B0B0B0; }
 pre { background-color: #584b57ff; color: #b9b6b0; }
 pre.lolight { background: #d5d2d5ff; color: #b9b6b0; }
 .cmAutoLinkImg { color: #b9b6b0; }
@@ -38,3 +38,4 @@ span.cm-comment.cmAutoLinkImg { color: #b9b6b0; }
 .cm-s-paraiso-dark span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
 .bordered tr:hover { color: black; }
 .cm-s-paraiso-dark .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }
+.gloss_div table :nth-child(1) { background: #2f1e2e; color:#b9b6b0; }

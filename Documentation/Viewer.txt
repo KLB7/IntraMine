@@ -125,6 +125,10 @@ Brace matching
 Click on or next to a curly brace ('{' or '}') to highlight it and its matching counterpart. (.txt, .pod, and .md do not have brace matching.)
 braces.png
 
+git diff markers
+-----------------
+IntraMine's Viewer and Editor will both display markers in the line number gutter and in the scrollbar if a file is in a git repository. The gutter markers will show new/changed lines with blue or gray pipes '|',  and deleted lines with red or gray triangles '▸'. 
+
 Under the hood
 ==============
 

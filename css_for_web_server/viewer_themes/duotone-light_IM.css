@@ -20,6 +20,7 @@ tr > th::after { background-color: #faf8f5; }
 .CodeMirror-wrap .cmAutoLinkImg { background-image: none; background-color: #edebe8ff; }
 .pre_line td { background: #e1dfdcff; }
 .pre_line td:first-child  { background: #faf8f5; }
+#scrollTextRightOfContents, #scrollContentsList { scrollbar-color: #C0C0C0 white; }
 pre { background-color: #e1dfdcff; color: #b29762; }
 .cmAutoLinkImg { color: #b29762; }
 .CodeMirror-wrap .cmAutoLinkImg { color: #b29762; }
@@ -29,3 +30,4 @@ span.cm-comment.cmAutoLinkImg { color: #b29762; }
 .cm-s-duotone-light span .cm-matchhighlight { color: black; background-color: lightgreen !important; }
 .bordered tr:hover { color: black; }
 .cm-s-duotone-light .CodeMirror-matchingbracket { color: black !important; background-color: lightgreen !important; }
+.gloss_div table :nth-child(1) { background: #faf8f5; color:#b29762; }

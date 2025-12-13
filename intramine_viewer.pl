@@ -36,6 +36,7 @@ use Win32;
 use Time::HiRes qw(usleep);
 use Path::Tiny  qw(path);
 use Pod::Simple::HTML;
+use Cwd qw();
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use swarmserver;
@@ -289,12 +290,22 @@ sub FullFile {
 			}
 		$theBody =~ s!_THEME_!$theme!;
 
+		my $themeIsDarkVal = 'false';
+		if (ThemeHasDarkBackground($theme))
+			{
+			$themeIsDarkVal = 'true';
+			}
+		$theBody =~ s!_THEME_IS_DARK!$themeIsDarkVal!;
+
 		# Added Feb 2024, if it's a video throw it up in a new browser tab.
 		if (EndsWithVideoExtension($filePath))
 			{
 			ShowVideo($obj, $formH, $peeraddress, $clientIsRemote);
 			return ("1");
 			}
+
+		# Clear out the  array for JavaScript holding git diff changed lines.
+		InitDiffChangedLinesForJS();
 
 		# Categories: see GetContentBasedOnExtension() below. Here we handle HTML.
 		# 1.1
@@ -347,13 +358,29 @@ sub FullFile {
 		}
 
 	# User custom JS, for .txt and Markdown files.
-	if ($filePath =~ m!\.txt$!)
+	if ($filePath =~ m!\.(txt|log|bat)$!i)
 		{
 		$customJS .= OptionalCustomJSforGloss();
+		# Set any diff changed array for.txt
+		my $diffLineString = JsDiffChangedLinesEntry();
+		if ($diffLineString ne "")
+			{
+			$theBody =~
+s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</script>!;
+			}
+		else
+			{
+			$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
+			}
 		}
 	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
 		{
 		$customJS .= OptionalCustomJSforMarkdown();
+		$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
+		}
+	else
+		{
+		$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
 		}
 
 	# OUT, no longer needed, restart_editor_viewer.js is used for all views.
@@ -438,6 +465,11 @@ sub FullFile {
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
 	my $dtime = DoubleClickTime();
 	$theBody =~ s!_DOUBLECLICKTIME_!$dtime!;
+
+	# Display popup for the specifics of git diff HEAD at line where the gutter is clicked.
+	#$theBody =~ s!_DIFF_SPECIFICS_POPUP_!!;
+	my $diffSpecificsPopup = DiffSpecificsPopup();
+	$theBody =~ s!_DIFF_SPECIFICS_POPUP_!$diffSpecificsPopup!;
 
 
 	# Put in an "Edit" button for files that can be edited (if editing is allowed).
@@ -528,6 +560,7 @@ _TEXTTABLECSS_
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <link rel="stylesheet" type="text/css" href="dragTOC.css" />
 <link rel="stylesheet" type="text/css" href="hide_contents.css" />
+<link rel="stylesheet" type="text/css" href="showDiffDetails.css" />
 </head>
 <body>
 <!-- added for touch scrolling, an indicator -->
@@ -544,6 +577,7 @@ _EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ _HOVERINLINE_<span i
 <div id='scrollAdjustedHeight'>
 _FILECONTENTS_
 </div>
+_DIFF_SPECIFICS_POPUP_
 <script>
 let weAreRemote = _WEAREREMOTE_;
 let allowEditing = _ALLOW_EDITING_;
@@ -569,6 +603,7 @@ let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
 let selectedTheme = '_THEME_';
+let themeIsDark = _THEME_IS_DARK;
 let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
 
 let arrowHeight = 18;
@@ -589,10 +624,12 @@ let arrowHeight = 18;
 </script>
 <script src="debounce.js"></script>
 <script src="tooltip.js"></script>
+<script src="showDiffDetails.js"></script>
 _JAVASCRIPT_
 <script>
 window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
 </script>
+_CHANGEDARRAY_
 </body></html>
 FINIS
 
@@ -601,7 +638,15 @@ FINIS
 
 sub TitleDisplay {
 	my ($filePath, $fileName) = @_;
-	my $currentPath = $filePath;
+	$filePath =~ s!\\!/!g;
+	my $currentPath = Win32::GetLongPathName($filePath);
+	if (!defined($currentPath) || $currentPath eq '')
+		{
+		$currentPath = $filePath;
+		}
+
+	$filePath = $currentPath;
+	$filePath    =~ s!/!\\!g;
 	$currentPath =~ s!\\!/!g;
 	$currentPath =~ s!//!/!g;
 	my $directoryAnchorList = "";
@@ -2194,12 +2239,56 @@ sub GetPrettyTextContents {
 	# Tables.
 	PutTablesInText(\@lines);
 
+	# Gutter diff marks,
+	#my $numLines         = @lines;
+	my @changedLines     = (0) x ($numLines + 1);
+	my @lineTypes        = (0) x ($numLines + 1);
+	my $haveChangedLines = GetChangedLinesArray($filePath, \@changedLines, \@lineTypes);
+	my $diffMouseHandlers =
+"onclick='diffMarkerClicked(event)' onmouseover='overDiffMarker(event)' onmouseout='outOfDiffMarker(event)'";
+
 	if (!$isGlossaryFile)
 		{
 		# Put in internal links that reference headers within the current document.
+
+		#PutChangedArrayInPageSource();
+
 		for (my $i = 0 ; $i < @lines ; ++$i)
 			{
 			AddInternalLinksToLine(\${lines [$i]}, \%sectionIdExists);
+
+			if ($haveChangedLines)
+				{
+				my $lineNumber = $i + 1;
+				# Put git diff HEAD change markers in the line numbers.
+				if ($changedLines[$lineNumber] != 0)
+					{
+					my $spacer = '';
+					if ($lineNumber < 10)
+						{
+						$spacer = '   ';
+						}
+					elsif ($lineNumber < 100)
+						{
+						$spacer = '  ';
+						}
+					elsif ($lineNumber < 1000)
+						{
+						$spacer = ' ';
+						}
+					my $lineType = $lineTypes[$lineNumber];
+					if ($lineType eq 'N')    # New/changed
+						{
+						$lines[$i] =~
+							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer|' $diffMouseHandlers!;
+						}
+					elsif ($lineType eq 'D')    # Deleted
+						{
+						$lines[$i] =~
+							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+						}
+					}
+				}
 			}
 		}
 	else    # a glossary file, add anchors (well id's actually).
@@ -2207,6 +2296,39 @@ sub GetPrettyTextContents {
 		for (my $i = 0 ; $i < @lines ; ++$i)
 			{
 			AddGlossaryAnchor(\${lines [$i]});
+
+			if ($haveChangedLines)
+				{
+				my $lineNumber = $i + 1;
+				# Put git diff HEAD change markers in the line numbers.
+				if ($changedLines[$lineNumber] != 0)
+					{
+					my $spacer = '';
+					if ($lineNumber < 10)
+						{
+						$spacer = '   ';
+						}
+					elsif ($lineNumber < 100)
+						{
+						$spacer = '  ';
+						}
+					elsif ($lineNumber < 1000)
+						{
+						$spacer = ' ';
+						}
+					my $lineType = $lineTypes[$lineNumber];
+					if ($lineType eq 'N')    # New/changed
+						{
+						$lines[$i] =~
+							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer|' $diffMouseHandlers!;
+						}
+					elsif ($lineType eq 'D')    # Deleted
+						{
+						$lines[$i] =~
+							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+						}
+					}
+				}
 			}
 		}
 
@@ -2255,6 +2377,251 @@ sub GetPrettyTextContents {
 		{
 		$$contentsR = encode_utf8($$contentsR);
 		}
+}
+
+{ ##### git diff HEAD changed lines for .txt Views, array for JavaScript
+my @DiffChangedLinesForJS;
+
+sub InitDiffChangedLinesForJS {
+	@DiffChangedLinesForJS = ();
+}
+
+sub JsDiffChangedLinesEntry {
+	my $result     = "";
+	my $numEntries = @DiffChangedLinesForJS;
+	if ($numEntries)
+		{
+		for (my $i = 0 ; $i < $numEntries ; ++$i)
+			{
+			$DiffChangedLinesForJS[$i] = "'$DiffChangedLinesForJS[$i]'";
+			}
+		$result = join(",", @DiffChangedLinesForJS);
+		}
+
+	return ($result);
+}
+
+sub GetChangedLinesArray {
+	my ($path, $changedLinesA, $lineTypesA) = @_;
+	my $haveChanges = 0;
+	$path =~ s!\\!/!g;
+	# This is important, git relative path is cAsE sEnsITiVe (true).
+	my $properPath = Win32::GetLongPathName($path);
+	if (defined($properPath) && $properPath ne '')
+		{
+		$path = $properPath;
+		}
+	$path =~ s!\\!/!g;
+	my $gitDir = GetGitDirectoryFromPath($path);
+	if ($gitDir eq "")
+		{
+		return;
+		}
+
+	my $relativePath = substr($path, length($gitDir) + 1);
+	chdir($gitDir);
+	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
+
+	# Call git for a list of differences between current saved version
+	# and last committed version. Note git might not even be installed.
+	my $diffs = `$gitCmd`;
+
+	my $shortDiff = "";
+	if ($diffs ne '')
+		{
+		$shortDiff = substr($diffs, 0, 30);
+		}
+
+	# print("\$gitDir: |$gitDir|\n");
+	# print("\$relativePath: |$relativePath|\n");
+	# print("Diffs for $path: |$shortDiff|\n");
+	# my $currentDir = Cwd::cwd();
+	# print "Current wd: |$currentDir|\n";
+
+	if ($diffs ne '')
+		{
+		my @changedLineNumbers;
+		my @lineTypes;
+		GetLineNumbersForChangedLines($diffs, \@changedLineNumbers, \@lineTypes);
+		my $numLineNumbers = @changedLineNumbers;
+		if ($numLineNumbers)
+			{
+			# Fill @DiffChangedLinesForJS with zeroes.
+			@DiffChangedLinesForJS = @$changedLinesA;
+
+			$haveChanges = 1;
+			for (my $i = 0 ; $i < $numLineNumbers ; ++$i)
+				{
+				my $testNum = $changedLineNumbers[$i];
+				$changedLinesA->[$testNum]       = $changedLineNumbers[$i];
+				$lineTypesA->[$testNum]          = $lineTypes[$i];
+				$DiffChangedLinesForJS[$testNum] = $lineTypes[$i] . $changedLineNumbers[$i];
+				}
+			}
+		}
+
+	return ($haveChanges);
+}
+}    ##### git diff HEAD changed lines for .txt Views, array for JavaScript
+
+sub GetGitDirectoryFromPath {
+	my ($filePath) = @_;
+	my $copyPath   = $filePath;
+	my $result     = '';
+	$copyPath =~ s!\\!/!g;
+	my $slashPos = rindex($filePath, "/");
+	while ($slashPos > 0)
+		{
+		my $testDir = substr($filePath, 0, $slashPos + 1) . '.git';
+		if (FileOrDirExistsWide($testDir) == 2)
+			{
+			$result = substr($filePath, 0, $slashPos);
+			last;
+			}
+		$slashPos = rindex($filePath, "/", $slashPos - 1);
+		}
+
+	return ($result);
+}
+
+# An extra character is added to the start of the line number:
+# N: new/changed
+# D: deleted
+# C: context
+sub GetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr, $lineTypesArr) = @_;
+	my @lines               = split(/\n/, $diffs);
+	my $atatLineStart       = -1;
+	my $plusSeen            = 0;
+	my $negSeen             = 0;
+	my $negLine             = 0;
+	my $consecutiveNegCount = 0;
+	my $numLines            = @lines;
+	my $line                = '';
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+		# Eg @@ -27,7 +27,7 @@...
+		# or @@ -665,8 +668,15
+		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+			{
+			# Push any neg line if saw neg but no positive.
+			if ($negSeen && !$plusSeen)
+				{
+				push @$changedLineNumsArr, $negLine;
+				push @$lineTypesArr,       'D';
+				}
+			$plusSeen      = 0;
+			$negSeen       = 0;
+			$negLine       = 0;
+			$atatLineStart = $1 - 1;
+			}
+		elsif ($atatLineStart > 0)
+			{
+			++$atatLineStart;
+			if (index($line, '+') == 0)
+				{
+				if ($consecutiveNegCount)
+					{
+					$atatLineStart -= $consecutiveNegCount;
+					}
+				$plusSeen = 1;
+				push @$changedLineNumsArr, $atatLineStart;
+				push @$lineTypesArr,       'N';
+				$consecutiveNegCount = 0;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				++$consecutiveNegCount;
+				$negSeen = 1;
+				$negLine = $atatLineStart;
+				#--$atatLineStart;
+				}
+			else    # "Context" line, no + or - at start
+				{
+				if ($consecutiveNegCount)
+					{
+					$atatLineStart -= $consecutiveNegCount;
+					}
+				push @$changedLineNumsArr, $atatLineStart;
+				push @$lineTypesArr,       'C';
+				$consecutiveNegCount = 0;
+				}
+			}
+		}
+
+	if ($negSeen && !$plusSeen)
+		{
+		push @$changedLineNumsArr, $negLine;
+		push @$lineTypesArr,       'D';
+		}
+
+
+	#print("Changed:\n");
+	#print("@$changedLineNumsArr\n");
+}
+
+sub xGetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr, $lineTypesArr) = @_;
+	my @lines         = split(/\n/, $diffs);
+	my $atatLineStart = -1;
+	my $atatCount     = -1;
+	my $plusSeen      = 0;
+	my $negSeen       = 0;
+	my $negLine       = 0;
+	my $numLines      = @lines;
+	my $line          = '';
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+		# Eg @@ -27,7 +27,7 @@...
+		# or @@ -665,8 +668,15
+		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+			{
+			# Push any neg line if saw neg but no positive.
+			if ($negSeen && !$plusSeen)
+				{
+				push @$changedLineNumsArr, -$negLine;
+				}
+			$plusSeen      = 0;
+			$negSeen       = 0;
+			$negLine       = 0;
+			$atatLineStart = $1 - 1;
+			$atatCount     = $2;
+			#print("START LINE $atatLineStart, COUNT $atatCount\n");
+			}
+		elsif ($atatLineStart > 0)
+			{
+			#print("$line\n");
+			++$atatLineStart;
+			if (index($line, '+') == 0)
+				{
+				$plusSeen = 1;
+				push @$changedLineNumsArr, $atatLineStart;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				$negSeen = 1;
+				$negLine = $atatLineStart;
+				--$atatLineStart;
+				}
+			else    # "Context" line
+				{
+
+				}
+			}
+		}
+
+	if ($negSeen && !$plusSeen)
+		{
+		push @$changedLineNumsArr, -$negLine;
+		}
+
+
+	#print("Changed:\n");
+	#print("@$changedLineNumsArr\n");
 }
 
 { ##### HTML hash and footnotes
@@ -4248,6 +4615,20 @@ sub GetTimeStamp {
 		my $modDate  = GetFileModTimeWide($filePath);
 		$result = $modDate;
 		}
+
+	return ($result);
+}
+
+sub DiffSpecificsPopup {
+	my $result = <<'FINIS';
+<div id='uniqueDiffSpecificsOverlay' class='diffOverlay'>
+<div class='diffContent' id='diffContentId'>
+<button id="closeDiffsButtonId" onclick="closeDiffPopup();">X</button>
+<div id='theActualDiffs'>
+</div>
+</div>
+</div>
+FINIS
 
 	return ($result);
 }

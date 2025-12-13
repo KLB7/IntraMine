@@ -179,6 +179,31 @@
     background: url(metacpan-icon.png) no-repeat;
 }
 
+/* Marker in left margin to show git diff HEAD changed lines. */
+.cmDiffMarker {
+	/*opacity: 0.1;*/
+	color: rgb(207, 236, 207);
+	display: inline-block;
+	/*width: 0.4em;*/
+	/*margin-left: -5px;*/
+}
+
+.cmGitDiffGutter {
+	width: 0.4em;
+}
+
+/* Doesn't work
+.CodeMirror-gutters .cmGitDiffGutter:hover {
+	background-color: #f00;
+  }
+*/
+
+/* Alternatively, apply the hover style when hovering over the entire gutter area 
+.CodeMirror-gutters:hover .CodeMirror-linenumber {
+	font-weight: bold;
+  }
+*/
+
 /* TOC shrink/expand element */
 #tocShrinkExpand {
 	position: absolute;
@@ -254,6 +279,22 @@ input#search-button:hover:after {
 	right: 0.75%;
 	opacity: .5;
 	background-color: #990000;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
+.diff-scroll {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.6%;
+	opacity: 1.0;
+	background-color: #0096FF;
 	margin: 0;
 	border: 0;
 	padding: 0;

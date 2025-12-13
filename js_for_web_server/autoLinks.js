@@ -366,5 +366,24 @@ function allLinesHaveBeenSeen(rowIds) {
 	return (true);
 }
 
+// Diff markup handlers.
+function diffMarkerClicked(event) {
+	//console.log("Diff marker clicked.");
+	let tdElem = event.target;
+	showNonCMDiffDetails(tdElem); // showDiffDetails,js
+}
+
+function overDiffMarker(event) {
+	//console.log("Mouse over diff marker.");
+	let tdElem = event.target;
+	tdElem.style.backgroundColor = '#E0E0FF';
+}
+
+function outOfDiffMarker(event) {
+	//console.log("Mouse OUT of diff marker.");
+	let tdElem = event.target;
+	tdElem.style.backgroundColor = '#F7F7F7';
+}
+
 window.addEventListener("load", addScrollListenerAndSetMarkdown);
 

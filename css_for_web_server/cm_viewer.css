@@ -22,6 +22,10 @@
   font: normal 11pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
 }
 
+.cmGitDiffGutter {
+    width: .4em;
+}
+
 /* File, directory, and web links. This is a span, we would like it to look and act like a link. */
 .cmAutoLink, .cmAutoLinkDirectory {
 	text-decoration: underline;
@@ -240,6 +244,21 @@ input#search-button:hover:after {
 	pointer-events: none;
 }
 
+.diff-scroll {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.6%;
+	opacity: 1.0;
+	background-color: #0096FF;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
 
 div#indicator {
     position: absolute;

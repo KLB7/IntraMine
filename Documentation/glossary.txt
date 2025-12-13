@@ -51,7 +51,7 @@ Lists					Yes						No					Yes					Yes
 CODE blocks				Yes						No					No					No
 (A TABLE ends when there's a line with no tab.)
 Quotes can be single or double, eg "Gloss.html" or 'Gloss.html'.
-IntraMine's Editor fully supports FLASH links, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
+IntraMine's Editor fully supports FLASH links, Go2, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
 You can also have
 1. Numbered lists
 1.2 with subitems, up to 99.99

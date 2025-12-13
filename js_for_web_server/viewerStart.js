@@ -25,6 +25,8 @@ if (typeof window.ontouchstart !== 'undefined')
 	onMobile = true;
 	}
 
+let diffScrollMarkerClass = "diff-scroll"; // For markDiffsInScrollbar()
+
 window.addEventListener("load", reJumpAndHighlight);
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
@@ -69,6 +71,8 @@ function doResize() {
 		highlightInitialItems();
 		}
 
+	markDiffsInScrollbar(diffScrollMarkerClass);
+
 	if (!onMobile)
 		{
 		scrollIndicator();
@@ -97,6 +101,7 @@ async function reJumpAndHighlight() {
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
 	highlightInitialItems();
+	//markDiffsInScrollbar(diffScrollMarkerClass);
 
 	setIsMarkdown();
 
@@ -391,6 +396,10 @@ function jumpToMarkdownLineFromStorage() {
 
 function preLineHeight() {
 	const preElement = document.querySelector('pre');
+	if (preElement === null)
+		{
+		return(17);
+		}
 	const computedStyle = window.getComputedStyle(preElement);
 	const lineHeight = computedStyle.lineHeight;
 
@@ -1232,6 +1241,102 @@ function markHitsInScrollbar(textClassName, scrollHitClassName) {
 		mk.setAttribute("class", scrollHitClassName);
 		mk.style.top = absMarkerPos + "px";
 		markerMainElement.appendChild(mk);
+		}
+}
+
+function markDiffsInScrollbar(scrollHitClassName) {
+	// TEST ONLY
+	//console.log("markDiffsInScrollbar called.");
+
+	let numDiffArrayEntries = textDiffChangedLines.length;
+	if (numDiffArrayEntries === 0)
+		{
+		return;
+		}
+	// console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
+	removeElementsByClass(scrollHitClassName);
+
+	// Light themes want a slightly whiter thumb for diff markers to show up.
+	// Revision, this is done unconditionally in non_cm_text.css.
+	// if (!themeIsDark)
+	// 	{
+	// 	markerMainElement.style.setProperty('scrollbar-color', 'lightgray white');
+	// 	}
+	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let mainScrollY = markerMainElement.scrollTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	// let usableTextHeight = textViewableHeight - 2*arrowHeight;
+
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				//arrowHeight = Math.round(widthDifference) + 1;
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+
+	for (let i = 0; i < numDiffArrayEntries; ++i)
+		{
+		let lineTypeNum = textDiffChangedLines[i];
+		if (lineTypeNum === '0')
+			{
+			continue;
+			}
+		let lineType = lineTypeNum.substr(0, 1); // 'N', 'D', 'C'
+		let lineNum = lineTypeNum.substr(1);
+		lineNum = parseInt(lineNum, 10);
+		if (lineNum === 0 || (lineType !== 'N' && lineType !== 'D'))
+			{
+			continue;
+			}
+		//console.log("Line |" + lineNum + "|");
+		let rowElem = document.getElementById("R" + lineNum);
+		if (rowElem !== null)
+			{
+			let elementBoundRect = rowElem.getBoundingClientRect();
+			let textHitY = elementBoundRect.top;
+			let positionInDoc = mainScrollY + textHitY - yTop;
+			let positionRatio = positionInDoc / mainScrolllHeight;
+			let relativeMarkerPos = positionRatio * usableTextHeight;
+			let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+	
+			let mk = document.createElement("mark");
+			mk.setAttribute("class", scrollHitClassName);
+			mk.style.top = absMarkerPos + "px";
+			markerMainElement.appendChild(mk);
+			}
 		}
 }
 
