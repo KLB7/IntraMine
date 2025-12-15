@@ -29,7 +29,7 @@ Saving
 ----------
 If you close an Editor tab and later re-open it, you will be offered the opportunity to restore and save any unsaved changes.
 
-Buttons
+Buttons and keys
 ---------------
 There are buttons at the top for Save, Revert, Undo, Redo, Toggle, Find, View, and Save As. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:
 TABLE
@@ -47,6 +47,7 @@ Indent			Ctrl+] (add a tab to selected lines)
 Indent			Tab (same as above)
 Outdent			Ctrl+[ (remove a tab from selected lines)
 Outdent			Shift+Tab (same as above)
+Comment/uncomment	Ctrl+/ or Cmd+/
 
 Date stamps
 ---------------

@@ -266,6 +266,8 @@ _DIFF_SPECIFICS_POPUP_
 <script src="addon/search/jump-to-line.js"></script>
 <script src="addon/selection/active-line.js"></script>
 <script src="addon/edit/matchbrackets.js"></script>
+<script src="addon/comment/comment.js"></script>
+<!-- <script src="keymap/vim.js"></script> -->
 <script src="debounce.js"></script>
 <script src="spellcheck.js"></script>
 <script src="saveAsButton.js"></script>

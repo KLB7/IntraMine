@@ -350,6 +350,7 @@ let cfg = new Object();
 cfg.lineNumbers = true;
 cfg.viewportMargin = Infinity;
 cfg.lineWrapping = true;
+//cfg.keyMap = "vim";
 cfg.extraKeys = {
 	"Alt-F" : "findPersistent",
 	"Ctrl-Z" : function(cm) {
@@ -358,7 +359,9 @@ cfg.extraKeys = {
 	"Ctrl-Space": function(cm) {
 		insertTimeStamp(cm);
 	},
-	"Shift-Tab" : "indentLess"
+	"Shift-Tab" : "indentLess",
+	"Ctrl-/": "toggleComment",
+    "Cmd-/": "toggleComment"
 };
 // cfg.extraKeys = {
 // 	"Alt-F" : "findPersistent",

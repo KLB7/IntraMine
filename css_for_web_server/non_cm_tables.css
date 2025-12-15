@@ -244,7 +244,7 @@ paragraph (ie not the first paragraph in the item).
     border-top: none;
     background-color: #F8F8F8;
 	color: #808080;
-	text-align: right;
+	text-align: left;
 	min-width: 3em;
 }
 
