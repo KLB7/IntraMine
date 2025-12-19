@@ -953,6 +953,19 @@ sub GlossedFootnote {
 	@footnoteLines = split(/\n/, $glossedFootnote);
 	my $numLines = @footnoteLines;
 	ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+	# Move backref outside of any table etc.
+	if ($numLines)
+		{
+		if ($footnoteLines[$numLines - 1] =~
+			m!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!)
+			{
+			my $backRef = $1;
+			$footnoteLines[$numLines - 1] =~
+				s!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!!;
+			$footnoteLines[$numLines - 1] = $footnoteLines[$numLines - 1] . $backRef;
+			}
+		}
+
 	my $foot = join("\n", @footnoteLines);
 
 	# Spurious LF's, stomp them with malice.

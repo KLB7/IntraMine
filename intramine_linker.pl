@@ -146,6 +146,10 @@ my $wordListPath = BaseDirectory() . 'data/EnglishWords.txt';
 #Monitor("Loading list of English words for spell checking in .txt files from $wordListPath.\n");
 InitDictionary($wordListPath);
 
+# Links to Perl builtins, used by Go2.
+my $perlBuiltinsPath = BaseDirectory() . 'data/perlbuiltins.txt';
+InitPerlBuiltins($perlBuiltinsPath);
+
 # Start up db for tracking deleted files.
 InitDeletesDB();
 
@@ -324,83 +328,18 @@ sub Go2 {
 		return ('<p>nope</p>');
 		}
 
+	# Check for Perl builtin, for Perl or .txt files. "chomp", "binmode" etc.
+	if (HasExtensionForPerlBuiltinLookup($fullPath))
+		{
+		my $link = LinkForPerlBuiltin($rawquery);
+		if ($link ne '')
+			{
+			my $hintFullEntry = encode_utf8("<p><a href='$link' target='_blank'>$rawquery</a></p>");
+			return ($hintFullEntry);
+			}
+		}
+
 	my $result = $ElasticSearcher->Instances($rawquery, $fullPath);
-
-	return ($result);
-
-	# my @wantedExt;
-	# GetExtensionsForDefinition($fullPath, \@wantedExt);
-	# my $numExtensions = @wantedExt;
-	# if ($numExtensions == 0)
-	# 	{
-	# 	return ('<p>nope</p>');
-	# 	}
-
-	# my $definitionKeyword = $ElasticSearcher->DefKeyForPath($fullPath);
-	# if ($definitionKeyword eq '')
-	# 	{
-	# 	# If extension is supported by universal ctags we can continue
-	# 	# the hard way (use ctags to find files with definitions).
-	# 	if ($ElasticSearcher->HasCtagsSupport($fullPath))
-	# 		{
-	# 		$result = $ElasticSearcher->GetCtagsDefinitionLinks($rawquery, \@wantedExt, $fullPath);
-	# 		}
-	# 	}
-
-	# if ($result ne '' && $result ne '<p>nope</p>')
-	# 	{
-	# 	return ($result);
-	# 	}
-
-	# my @keywords;
-	# if ($definitionKeyword ne '')
-	# 	{
-	# 	if (index($definitionKeyword, '|') > 0)
-	# 		{
-	# 		@keywords = split(/\|/, $definitionKeyword);
-	# 		}
-	# 	else
-	# 		{
-	# 		push @keywords, $definitionKeyword;
-	# 		}
-	# 	}
-
-	# my $numHits;
-	# my $numFiles;
-	# for (my $i = 0 ; $i < @keywords ; ++$i)
-	# 	{
-	# 	my $query = $keywords[$i] . ' ' . $rawquery;
-	# 	$numHits  = 0;
-	# 	$numFiles = 0;
-	# 	$result   = $ElasticSearcher->GetDefinitionLinks($query, \@wantedExt, \$numHits, \$numFiles,
-	# 		$fullPath);
-	# 	if ($result ne '' && $result ne '<p>nope</p>')
-	# 		{
-	# 		last;
-	# 		}
-	# 	}
-
-	# # Faint hope: perhaps the selected term is defined in some other
-	# # language? We'll try .js and .css. Maybe .pl, .pm.
-	# if ($result eq '' || $result eq '<p>nope</p>')
-	# 	{
-	# 	$numHits  = 0;
-	# 	$numFiles = 0;
-	# 	$result =
-	# 		$ElasticSearcher->GetDefinitionLinksInOtherLanguages($rawquery, \@wantedExt, \$numHits,
-	# 		\$numFiles);
-	# 	}
-
-	# # Last hope: accept any hits anywhere.
-	# if ($result eq '' || $result eq '<p>nope</p>')
-	# 	{
-	# 	$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath, 1, undef);
-	# 	}
-	# elsif ($numHits < $GoToLinksMax)
-	# 	{
-	# 	$result = $ElasticSearcher->GetAnyLinks($rawquery, $fullPath, 0, $result);
-	# 	}
-
 
 	return ($result);
 }
@@ -2682,16 +2621,28 @@ sub CmGetChangedLineListForText {
 	if ($gitDir eq "")
 		{
 		$$resultR = " ";
+		# TEST ONLY
+		#print("NO GIT DIR for |$path|\n");
 		return;
 		}
 
 	my $relativePath = substr($path, length($gitDir) + 1);
 	chdir($gitDir);
+	# TEST ONLY
+	#print("\$gitDir: |$gitDir|\n");
+	#print("\$relativePath: |$relativePath|\n");
 	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
 
 	# Call git for a list of differences between current saved version
 	# and last committed version. Note git might not even be installed.
 	my $diffs = `$gitCmd`;
+
+	# TEST ONLY
+	# if ($diffs eq '')
+	# 	{
+	# 	print("NO DIFFS.\n");
+	# 	}
+
 	if ($diffs ne '')
 		{
 		$$resultR = '';
@@ -3084,3 +3035,44 @@ sub GetChangedLinesForRange {
 		}
 }
 
+{ ##### Perl builtin links
+my %builtinLinks;    # $builtinLinks{'chomp'} = 'https://perldoc.perl.org/functions/chomp';
+
+sub InitPerlBuiltins {
+	my ($filePath) = @_;
+
+	%builtinLinks = ();
+
+	my $links = ReadTextFileDecodedWide($filePath);
+	if ($links eq '')
+		{
+		return;
+		}
+	my @lines = split(/\n/, $links);
+	for (my $i = 0 ; $i < @lines ; ++$i)
+		{
+		if ($lines[$i] ne '')
+			{
+			my @keyLink = split(/\t/, $lines[$i]);
+			$builtinLinks{$keyLink[0]} = $keyLink[1];
+			}
+		}
+}
+
+sub HasExtensionForPerlBuiltinLookup {
+	my ($filePath) = @_;
+	my $result = ($filePath =~ m!\.(pl|pm|cgi|t|pod|txt|text|conf|def|list|log)$!i);
+	return ($result);
+}
+
+sub LinkForPerlBuiltin {
+	my ($suspectBuiltinName) = @_;
+	my $result = '';
+	if (defined($builtinLinks{$suspectBuiltinName}))
+		{
+		$result = $builtinLinks{$suspectBuiltinName};
+		}
+
+	return ($result);
+}
+}    ##### Perl builtin links

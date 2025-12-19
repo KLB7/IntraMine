@@ -2892,9 +2892,12 @@ sub ReplaceKeysWithHTMLInsideFootnotes {
 
 			# Pull out any trailing back reference anchor
 			my $backRef = '';
-			if ($linesA->[$i] =~ m!(\s*<a\s+href="#fnref[^"]+"\s+onclick.+?</a>)!)
+			if ($linesA->[$i] =~
+				m!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!)
 				{
 				$backRef = $1;
+				$linesA->[$i] =~
+					s!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!!;
 				}
 			if ($putEndTable && $putStartTable)
 				{
@@ -2966,7 +2969,7 @@ sub GlossedFootnote {
 	$footnoteLines[0] =~
 		s!^<div\s+id=(['"])fn(\w+)['"]>\[\^(\w+)]:!<div id=$1fn$newIndex$1>\*\*$newIndex\*\*\.!;
 
-	# Fix the back ref too, on the last line. Look for #fnref_BACKREF_
+	# Fix the backref too, on the last line. Look for #fnref_BACKREF_
 	my $lastLine = @footnoteLines;
 	--$lastLine;
 	if ($lastLine >= 0)
@@ -2998,6 +3001,20 @@ sub GlossedFootnote {
 	@footnoteLines = split(/\n/, $glossedFootnote);
 	my $numLines = @footnoteLines;
 	ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
+	# Move backref outside of any table etc.
+	if ($numLines)
+		{
+		# TEST ONLY
+		#print("|$footnoteLines[$numLines - 1]|\n");
+		if ($footnoteLines[$numLines - 1] =~
+			m!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!)
+			{
+			my $backRef = $1;
+			$footnoteLines[$numLines - 1] =~
+				s!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!!;
+			$footnoteLines[$numLines - 1] = $footnoteLines[$numLines - 1] . $backRef;
+			}
+		}
 	my $foot = join("\n", @footnoteLines);
 
 	# Spurious LF's, stomp them with malice.
