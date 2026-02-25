@@ -28,7 +28,7 @@ use URI::Escape qw(uri_unescape);
 use Text::Tabs;
 $tabstop = 4;
 #use Syntax::Highlight::Perl::Improved ':BASIC'; # ':BASIC' or ':FULL' - FULL doesn't seem to do much
-use Time::HiRes qw ( time );
+use Time::HiRes qw (time gettimeofday);
 use Win32::Process 'STILL_ACTIVE';    # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
 use Text::MultiMarkdown;              # for .md files
@@ -94,6 +94,9 @@ my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 
+# A unique integer ID 1..up is assigned to each browser page displayed.
+my $UniqueBrowserID = 0;
+
 my $CSS_DIR                = FullDirectoryPath('CSS_DIR');
 my $JS_DIR                 = FullDirectoryPath('JS_DIR');
 my $IMAGES_DIR             = FullDirectoryPath('IMAGES_DIR');
@@ -137,15 +140,18 @@ InitThemeIsDark();
 my %RequestAction;
 $RequestAction{'href'}   = \&FullFile; # Open file, href = anything
 $RequestAction{'/file/'} = \&FullFile; # RESTful alternative, /file/is followed by file path in $obj
-$RequestAction{'req|loadfile'}      = \&LoadTheFile;      # req=loadfile
-$RequestAction{'req|openDirectory'} = \&OpenDirectory;    # req=openDirectory
+$RequestAction{'req|loadfile'}        = \&LoadTheFile;                  # req=loadfile
+$RequestAction{'req|reloadnoncmfile'} = \&ReloadTocAndContentsNonCM;    # req=reloadnoncmfile
+$RequestAction{'req|reloadCMTOC'}     = \&ReloadCMTOC;                  # req=reloadCMTOC
+$RequestAction{'req|openDirectory'}   = \&OpenDirectory;                # req=openDirectory
 # The following two callbacks are needed if any css/js files
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
 $RequestAction{'req|css'} = \&GetRequestedFile;    # req=css  see swarmserver.pm#GetRequestedFile()
 $RequestAction{'req|js'}  = \&GetRequestedFile;    # req=js
 $RequestAction{'req|timestamp'} = \&GetTimeStamp;    # req=timestamp
+#$RequestAction{'req|uniqueid'}  = \&UniqueBrowserID;    # req=uniqueid
 # Testing
-$RequestAction{'/test/'} = \&SelfTest;               # Ask this server to test itself.
+$RequestAction{'/test/'} = \&SelfTest;    # Ask this server to test itself.
 # Not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
 # For calling the Linker to supply FLASH links etc. See AddFlashLinksToFootnote below.
@@ -434,6 +440,10 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
 
 	$theBody =~ s!_FILE_MOD_DATE!$modDate!;
+	my ($seconds, $microseconds) = gettimeofday();
+	my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+	$theBody =~ s!_LOADTIME_!$ms!;
+
 
 	$theBody =~ s!_USING_CM_!$usingCM!;
 	$theBody =~ s!_CMTEXTHOLDERNAME_!$textHolderName!g;
@@ -523,6 +533,18 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	# # else leave empty
 	# $theBody =~ s!___TEXT___FONT___!$textFontCssFile!;
 
+	# Unique id, used to help determine whether to reload the page.
+	my $browserID = '';
+	if (defined($formH->{'id'}))
+		{
+		$browserID = $formH->{'id'};
+		}
+	else
+		{
+		$browserID = UniqueBrowserID();    # Assigned int 1..up
+		}
+	$theBody =~ s!_UNIQUE_BROWSER_ID_!$browserID!;
+
 	# Put in main IP, main port, our short name for JavaScript.
 	PutPortsAndShortnameAtEndOfBody(\$theBody);   # swarmserver.pm#PutPortsAndShortnameAtEndOfBody()
 
@@ -536,6 +558,8 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 
 	# TEST ONLY display load time.
 	#print("Full File load time for $consoleDisplayedTitle: $ruffElapsed seconds\n");
+
+	ReportActivity($SHORTNAME);
 
 	return $theBody;
 }
@@ -585,6 +609,7 @@ let useAppForEditing = _USE_APP_FOR_EDITING_;
 let thePath = '_PATH_';
 let theEncodedPath = '_ENCODEDPATH_';
 let fileModTime = '_FILE_MOD_DATE';
+let previousChangeTimeMsecs = '_LOADTIME_';
 let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let specialTextHolderName = 'specialScrollTextRightOfContents';
@@ -605,8 +630,8 @@ let doubleClickTime = _DOUBLECLICKTIME_;
 let selectedTheme = '_THEME_';
 let themeIsDark = _THEME_IS_DARK;
 let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
-
 let arrowHeight = 18;
+let uniqueBrowserID = '_UNIQUE_BROWSER_ID_';
 </script>
 <script>
 	// Call fn when ready.
@@ -626,8 +651,9 @@ let arrowHeight = 18;
 <script src="tooltip.js"></script>
 <script src="showDiffDetails.js"></script>
 _JAVASCRIPT_
+<script src="reportActivity.js"></script>
 <script>
-window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+window.addEventListener("load", reportActivity);
 </script>
 _CHANGEDARRAY_
 </body></html>
@@ -754,7 +780,7 @@ sub GetContentBasedOnExtension {
 	# 	}
 	elsif ($filePath =~ m!\.pod$!i)
 		{
-		GetPrettyPod($formH, $peeraddress, $clientIsRemote, $allowEditing, $fileContents_R);
+		GetPrettyPod($formH, $peeraddress, $clientIsRemote, $allowEditing, 0, $fileContents_R);
 		$$usingCM_R        = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
 		$$meta_R           = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
@@ -765,8 +791,9 @@ sub GetContentBasedOnExtension {
 		{
 		# By default this runs the text through a Gloss processor.
 		# So all your .txt files are belong to Gloss.
+		my $loadFromEditor = 0;
 		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing,
-			$fileContents_R, undef);
+			$fileContents_R, $loadFromEditor, undef);
 
 		$$usingCM_R        = 'false';
 		$$textHolderName_R = 'scrollTextRightOfContents';
@@ -784,7 +811,8 @@ sub GetContentBasedOnExtension {
 	# 2.1 custom, no TOC: md (Markdown)
 	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
 		{
-		GetPrettyMD($formH, $peeraddress, $fileContents_R);
+		my $loadFromEditor = 0;
+		GetPrettyMD($formH, $peeraddress, $loadFromEditor, $fileContents_R);
 		$$usingCM_R = 'false';
 		# IAdd a TOC
 		$$textHolderName_R = 'scrollTextRightOfContents';
@@ -813,6 +841,97 @@ sub GetContentBasedOnExtension {
 			$$customCSS_R = $cssForCM . $nonCmThemeCssFile;
 			$$fileContents_R = "<div id='scrollText'></div>";
 			}
+		}
+}
+
+# In response to a reload request for non-CM displays, return TOC and text contents.
+# Similar to GetContentBasedOnExtension just above.
+sub ReloadTocAndContentsNonCM {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = " ";
+	if (!defined($formH->{'FULLPATH'}))
+		{
+		return ($result);
+		}
+	my $filePath = $formH->{'FULLPATH'};
+
+	my $serverAddr = ServerAddress();
+
+	my $clientIsRemote = 0;
+	# If client is on the server then peeraddress can be either 127.0.0.1 or $serverAddr:
+	# if client is NOT on the server then peeraddress is not 127.0.0.1 and differs from $serverAddr.
+	if (   $peeraddress ne '127.0.0.1'
+		&& $peeraddress ne $serverAddr)    #if ($peeraddress ne $serverAddr)
+										   #if ($peeraddress ne '127.0.0.1')
+		{
+		$clientIsRemote = 1;
+		}
+
+	my $allowEditing =
+		(($clientIsRemote && $AllowRemoteEditing) || (!$clientIsRemote && $AllowLocalEditing));
+
+	my $changeNoticeWasFromEditor = defined($formH->{'useEditor'}) ? $formH->{'useEditor'} : 0;
+	$changeNoticeWasFromEditor = ($changeNoticeWasFromEditor eq 'true') ? 1 : 0;
+	my $loadFromEditor = $changeNoticeWasFromEditor;
+
+	if ($filePath =~ m!\.(txt|log|bat)$!i)
+		{
+		# We need to set some values in %LinkerArguments. Needed when setting FLASH links
+		# for footnotes during file load for txt files.
+		my $useAppForEditing = 0;
+		if ($allowEditing)
+			{
+			$useAppForEditing = (($clientIsRemote && $UseAppForRemoteEditing)
+					|| (!$clientIsRemote && $UseAppForLocalEditing));
+			}
+		my $tfAllowEditing = ($allowEditing) ? 'true' : 'false';
+
+		$LinkerArguments{'REMOTE_VALUE'}     = $clientIsRemote;
+		$LinkerArguments{'ALLOW_EDIT_VALUE'} = $tfAllowEditing;
+		$LinkerArguments{'USE_APP_VALUE'}    = $useAppForEditing;
+		$LinkerArguments{'PEER_ADDRESS'}     = $peeraddress;
+		$LinkerArguments{'THE_PATH'}         = uri_escape_utf8($filePath);
+
+
+		# TEST ONLY
+		#print("\$changeNoticeWasFromEditor: |$changeNoticeWasFromEditor|\n");
+
+		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, \$result,
+			$loadFromEditor, undef);
+		}
+	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
+		{
+		GetPrettyMD($formH, $peeraddress, $loadFromEditor, \$result);
+		}
+	elsif ($filePath =~ m!\.pod$!i)
+		{
+		GetPrettyPod($formH, $peeraddress, $clientIsRemote, $allowEditing, $loadFromEditor,
+			\$result);
+		}
+	# else unsupported file extension
+
+	return ($result);
+}
+
+sub ReloadCMTOC {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = " ";
+	if (!defined($formH->{'FULLPATH'}))
+		{
+		return ($result);
+		}
+	my $filePath = $formH->{'FULLPATH'};
+
+
+	my $toc = '';
+	GetCMToc($filePath, \$toc);
+	if ($toc ne '')
+		{
+		return ($toc);
+		}
+	else
+		{
+		return ('NONE');
 		}
 }
 
@@ -1161,7 +1280,8 @@ sub CodeMirrorJS {
 <script src="cmScrollTOC.js" ></script>
 <script src="dragTOC.js" ></script>
 <script src="go2def.js" ></script>
-<script src="viewer_auto_refresh.js" ></script>
+<!-- <script src="viewer_auto_refresh.js" ></script> -->
+<script src="reload.js" ></script>
 <script src="cmHandlers.js" ></script>
 FINIS
 
@@ -1190,7 +1310,8 @@ sub NonCodeMirrorJS {
 <script src="indicator.js" ></script>
 <script src="toggle.js" ></script>
 <script src="scrollTOC.js" ></script>
-<script src="viewer_auto_refresh.js" ></script>
+<!-- <script src="viewer_auto_refresh.js" ></script> -->
+<script src="reload.js" ></script>
 <script src="dragTOC.js" ></script>
 <script src="go2def.js" ></script>
 <script src="viewer_hover_inline_images.js" ></script>
@@ -1209,12 +1330,38 @@ sub LoadTheFile {
 	my $result = '';
 
 	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
-	if ($filepath ne '')
+	if ($filepath eq '')
 		{
-		$filepath = &HTML::Entities::decode($filepath);
+		return ('___THIS_IS_ACTUALLY_AN_EMPTY_FILE___');
+		}
+	$filepath = &HTML::Entities::decode($filepath);
 
+	my $changeNoticeWasFromEditor = defined($formH->{'useEditor'}) ? $formH->{'useEditor'} : 0;
+	$changeNoticeWasFromEditor = ($changeNoticeWasFromEditor eq 'true') ? 1 : 0;
+	my $loadFromEditor = $changeNoticeWasFromEditor;
+
+	if ($loadFromEditor)
+		{
+		my $dummy = '';
+		if (!LoadFromEditor($filepath, \$dummy, \$result))
+			{
+			$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+			if ($result eq '' && FileOrDirExistsWide($filepath) == 1)
+				{
+				$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
+				}
+			}
+		else
+			{
+			# TEST ONLY
+			#print("Loaded from Editor\n");
+
+			$result = uri_escape_utf8($result);
+			}
+		}
+	else
+		{
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
-
 		if ($result eq '' && FileOrDirExistsWide($filepath) == 1)
 			{
 			$result = '___THIS_IS_ACTUALLY_AN_EMPTY_FILE___';
@@ -1497,7 +1644,7 @@ sub GetWordAsText {
 
 # Markdown.
 sub GetPrettyMD {
-	my ($formH, $peeraddress, $contentsR) = @_;
+	my ($formH, $peeraddress, $loadFromEditor, $contentsR) = @_;
 	my $filePath   = $formH->{'FULLPATH'};
 	my $dir        = lc(DirectoryFromPathTS($filePath));
 	my $serverAddr = ServerAddress();
@@ -1507,7 +1654,17 @@ sub GetPrettyMD {
 	#my $t1 = time;
 
 	my $octets;
-	if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+	if ($loadFromEditor)
+		{
+		if (!LoadFromEditor($filePath, $contentsR, \$octets))
+			{
+			if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+				{
+				return;
+				}
+			}
+		}
+	elsif (!LoadTextFileContents($filePath, $contentsR, \$octets))
 		{
 		return;
 		}
@@ -1808,14 +1965,14 @@ sub AddLineNumbersToMarkdown {
 # Finally, pass that through GetPrettyTextFileContents() to convert the
 # Gloss text to HTML for display. Whew.
 sub GetPrettyPod {
-	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
+	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $loadFromEditor, $contentsR) = @_;
 	my $filePath   = $formH->{'FULLPATH'};
 	my $dir        = lc(DirectoryFromPathTS($filePath));
 	my $serverAddr = ServerAddress();
 	$$contentsR = "";
 
 	my $octets;
-	if (!LoadPodFileContents($filePath, \$octets))
+	if (!LoadPodFileContents($filePath, $loadFromEditor, \$octets))
 		{
 		return;
 		}
@@ -1832,8 +1989,9 @@ sub GetPrettyPod {
 
 
 	# Convert to Gloss HTML display with GetPrettyTextContents().
+	$loadFromEditor = 0;
 	GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR,
-		\$contentsInrawGloss);
+		$loadFromEditor, \$contentsInrawGloss);
 }
 
 # An attempt at a pleasing and useful view of text files.
@@ -1844,7 +2002,8 @@ sub GetPrettyPod {
 # A Table of Contents down the left side lists headings.
 # Alas, handling POD files introduces a light fog of special cases.
 sub GetPrettyTextContents {
-	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $sourceR) = @_;
+	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $loadFromEditor, $sourceR)
+		= @_;
 	my $serverAddr = ServerAddress();
 
 	my $filePath = $formH->{'FULLPATH'};
@@ -1875,7 +2034,17 @@ sub GetPrettyTextContents {
 		}
 	else
 		{
-		if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+		if ($loadFromEditor)
+			{
+			if (!LoadFromEditor($filePath, $contentsR, \$octets))
+				{
+				if (!LoadTextFileContents($filePath, $contentsR, \$octets))
+					{
+					return;
+					}
+				}
+			}
+		elsif (!LoadTextFileContents($filePath, $contentsR, \$octets))
 			{
 			return;
 			}
@@ -2377,6 +2546,124 @@ sub GetPrettyTextContents {
 		{
 		$$contentsR = encode_utf8($$contentsR);
 		}
+}
+
+sub LoadFromEditor {
+	my ($filePath, $contentsR, $octetsR) = @_;
+	my $result = 0;
+
+	# Retrieve a list of port numbers for the Editor service.
+	# Try each in turn until file contents for $filePath are found, or return 0;
+	my @editorPorts;
+	my $editorShortName = CVal('EDITORSHORTNAME');
+	GetAllPortsForService($editorShortName, \@editorPorts);
+	my $numEditorPorts = @editorPorts;
+
+	if ($numEditorPorts == 0)
+		{
+		# TEST ONLY
+		#print("No ports for Editor!\n");
+		return ($result);
+		}
+	else
+		{
+		# TEST ONLY
+		#print("Num ports: $numEditorPorts, first is $editorPorts[0]\n");
+		}
+
+	for (my $i = 0 ; $i < $numEditorPorts ; ++$i)
+		{
+		if (GetContentFromEditor($filePath, $editorShortName, \@editorPorts, $octetsR))
+			{
+			$result = 1;
+			last;
+			}
+		}
+
+	return ($result);
+}
+
+sub GetContentFromEditor {
+	my ($filePath, $editorShortName, $editorPortsA, $octetsR) = @_;
+	my $result   = 0;
+	my $numPorts = @$editorPortsA;
+	for (my $i = 0 ; $i < $numPorts ; ++$i)
+		{
+		my $port = $editorPortsA->[$i];
+		if (GetContentFromOneEditorInstance($filePath, $editorShortName, $port, $octetsR))
+			{
+			$result = 1;
+			last;
+			}
+		}
+	return ($result);
+}
+
+sub GetContentFromOneEditorInstance {
+	my ($filePath, $editorShortName, $port, $octetsR) = @_;
+	my $result = 0;
+
+	# TEST ONLY
+	#print("GetContentFromOneEditorInstance TOP.\n");
+	#print("\$filePath: |$filePath|\n");
+
+	$filePath = uri_escape_utf8($filePath);
+
+	my $serverAddress = ServerAddress();
+
+	my $remote = IO::Socket::INET->new(
+		Proto    => 'tcp',              # protocol
+		PeerAddr => "$serverAddress",
+		PeerPort => "$port"
+	) or (return ($result));
+
+	print $remote "GET /?req=getcachedcontents&file=" . $filePath . " HTTP/1.1\n\n";
+
+	my $collectingResults = 0;
+	my @lines;
+	my $line = <$remote>;
+	while (defined($line))
+		{
+		if ($collectingResults)
+			{
+			chomp($line);
+			push @lines, $line;
+			#$contents .= $line;
+			#print("$line");
+			}
+
+		if (!$collectingResults && $line =~ m!^\s*$!)
+			{
+			$collectingResults = 1;
+			}
+
+		$line = <$remote>;
+		}
+	close $remote;
+
+	my $numLines = @lines;
+	if ($numLines == 0 || ($numLines == 1 && $lines[0] eq ' '))
+		{
+		return ($result);
+		}
+
+	my $contents = join("\n", @lines);
+	# if ($contents =~ m!ERROR OBJ NOT DEFINED!)
+	# 	{
+	# 	my $len = length($contents);
+	# 	if ($len < 100)
+	# 		{
+	# 		print("ERROR SEEN!\n");
+	# 		}
+	# 	}
+	$contents = decode_utf8($contents);
+	$$octetsR = $contents;
+	$result   = 1;
+
+	# TEST ONLY
+	#print("GetContentFromOneEditorInstance BOTTOM.\n");
+
+	return ($result);
 }
 
 { ##### git diff HEAD changed lines for .txt Views, array for JavaScript
@@ -4064,9 +4351,21 @@ sub DoTableRows {
 # Called by GetPrettyPOD().
 # Load the file, then convert to HTML using Pod::Simple::HTML.
 sub LoadPodFileContents {
-	my ($filePath, $octetsR) = @_;
+	my ($filePath, $loadFromEditor, $octetsR) = @_;
+	my $contents = '';
 
-	my $contents = ReadTextFileDecodedWide($filePath, 1);
+	if ($loadFromEditor)
+		{
+		my $dummyContents = '';
+		if (!LoadFromEditor($filePath, \$dummyContents, \$contents))
+			{
+			$contents = ReadTextFileDecodedWide($filePath, 1);
+			}
+		}
+	else
+		{
+		$contents = ReadTextFileDecodedWide($filePath, 1);
+		}
 
 	# Stick in =pod if first line is =heading NAME
 	if ($contents =~ m!^\=head1 NAME!)
@@ -4648,6 +4947,11 @@ sub DiffSpecificsPopup {
 FINIS
 
 	return ($result);
+}
+
+sub UniqueBrowserID {
+	++$UniqueBrowserID;
+	return ("V$UniqueBrowserID");    # Note the 'V', to distinguish from Editor IDs.
 }
 
 # Obsolete, CodeMirror is being used instead for Perl display.

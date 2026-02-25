@@ -1,7 +1,7 @@
 // cmHandlers.js: Set up "load" and "scroll" handlers etc for CodeMirror views.
 
 function cmLoad() {
-	loadFileIntoCodeMirror(myCodeMirror, theEncodedPath);
+	loadFileIntoCodeMirror(myCodeMirror, theEncodedPath, false);
 }
 
 function cmScroll() {

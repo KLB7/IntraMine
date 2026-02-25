@@ -171,6 +171,10 @@ let initialDirectoryPath = '_INITIALDIR_';
 <script src="viewerLinks.js"></script>
 <script src="newFileButton.js"></script>
 <script src="files.js"></script>
+<script src="reportActivity.js" ></script>
+<script>
+window.addEventListener("load", reportActivity);
+</script>
 </body></html>
 FINIS
 

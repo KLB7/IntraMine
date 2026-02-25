@@ -111,6 +111,10 @@ _TOPNAV_
 	let theDefaultUploadDir = '_DEFAULTUPLOADDIR_';
 </script>
 <script src="uploader.js"></script>
+<script src="reportActivity.js" ></script>
+<script>
+window.addEventListener("load", reportActivity);
+</script>
 </body></html>
 FINIS
 

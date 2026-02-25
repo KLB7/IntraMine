@@ -180,7 +180,15 @@ function jumpToLine(lineNum, adjustToShowComment) {
 
 function cmRejumpToAnchor() {
 	let anchor = location.hash;
-	if (anchor.length > 1)
+
+	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+	if (lineNumberStr !== null && !isNaN(lineNumberStr))
+		{
+		let lineNum = parseInt(lineNumberStr, 10);
+		jumpToLine(lineNum, true);
+		}
+
+	else if (anchor.length > 1)
 		{
 		anchor = decodeURIComponent(anchor);
 		anchor = anchor.replace(/^#/, '');
@@ -226,11 +234,18 @@ function cmQuickRejumpToLine() {
 		anchor = anchor.replace(/^#/, '');
 		if (isNaN(anchor))
 			{
-			return;
+			let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+			if (lineNumberStr !== null)
+				{
+				let lineNum = parseInt(lineNumberStr, 10);
+				quickJumpToLine(lineNum);
+				}
 			}
-
-		let lineNum = parseInt(anchor, 10);
-		quickJumpToLine(lineNum);
+		else
+			{
+			let lineNum = parseInt(anchor, 10);
+			quickJumpToLine(lineNum);
+			}
 		}
 }
 

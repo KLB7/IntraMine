@@ -47,6 +47,6 @@ sub AskServerToExit {
 	#	print "intramine_stop.pl Connected to ", $remote->peerhost, # Info message
 	#	      " on port: ", $remote->peerport, "\n";
 
-	print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n";
+	print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n\n";
 	close $remote;
 }

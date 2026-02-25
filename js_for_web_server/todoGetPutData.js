@@ -123,7 +123,8 @@ async function putData(rawData) {
 			// Trigger reload, and ToDo flash in the nav bar
 			// (see todoFlash.js). Also publish an "activity" message.
 			wsSendMessage("todoflash");
-			wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
+			reportActivity();
+			//wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 			//let responseTxt = request.responseText;
 			let responseTxt = await response.text();

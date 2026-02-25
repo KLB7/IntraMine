@@ -116,8 +116,9 @@ _TOPNAV_
 <script src="chatFlash.js"></script>
 <script src="boilerplateDemo.js"></script>
 <script src="tooltip.js"></script>
+<script src="reportActivity.js" ></script>
 <script>
-window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+window.addEventListener("load", reportActivity);
 </script>
 </body></html>
 FINIS

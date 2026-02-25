@@ -227,6 +227,10 @@ Here it's needed in spinner.js for the value of "SPECIAL_INDEX_NAME_HTML". -->
 <script src="chatFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="db_example.js"></script>
+<script src="reportActivity.js" ></script>
+<script>
+window.addEventListener("load", reportActivity);
+</script>
 </body></html>
 FINIS
 

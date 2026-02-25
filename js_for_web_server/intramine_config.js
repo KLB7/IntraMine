@@ -13,6 +13,9 @@ function sleepForSomeMilliseconds(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Experiment, cache port numbers to reduce HTTP calls.
+const portForName = new Map();
+
 // Since this file is included in all IntraMine services, fetchPort() is snuck
 // in here.
 // Return appropriate port number for service named short_name.
@@ -23,6 +26,15 @@ async function fetchPort(main_ip, main_port, short_name, errorID) {
 	let tryCounter = 0;
 	let maxTries = 10;
 	let retry = true;
+
+	// Return port number if set already.
+	// TODO make this work for multiple ports.
+	if (portForName.has(short_name))
+		{
+		let port = portForName.get(short_name);
+		//console.log("Cached port: |" + port + "|");
+		return(port);
+		}
 	
 	while (retry)
 		{
@@ -57,6 +69,7 @@ async function fetchPort(main_ip, main_port, short_name, errorID) {
 					// Success!
 					retry = false;
 					shortPort = text;
+					portForName.set(short_name, shortPort);
 					}
 				}
 			else

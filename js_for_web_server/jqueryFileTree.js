@@ -89,7 +89,8 @@ if(jQuery) (function($){
 				function bindTree(t) {
 					$(t).find('LI A, LI IMG').bind(o.folderEvent, function() {
 						if( $(this).parent().hasClass('directory') ) {
-							wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
+							reportActivity();
+							//wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + ///shortServerName + ' ' + ourSSListeningPort);
 
 							if( $(this).parent().hasClass('collapsed') ) {
 								// Expand

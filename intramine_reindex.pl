@@ -121,6 +121,7 @@ let errorID = "runMessageDiv";
 <script src="viewerLinks.js"></script>
 <script src="cmd_monitor.js"></script>
 <script src="reindex.js"></script>
+<script src="reportActivity.js"></script>
 </body></html>
 FINIS
 

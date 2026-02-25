@@ -366,6 +366,10 @@ function allLinesHaveBeenSeen(rowIds) {
 	return (true);
 }
 
+function forgetLinesSeen() {
+	lineSeen = {};
+}
+
 // Diff markup handlers.
 function diffMarkerClicked(event) {
 	//console.log("Diff marker clicked.");

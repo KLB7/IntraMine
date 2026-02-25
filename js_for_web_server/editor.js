@@ -399,7 +399,7 @@ if (info)
 	CodeMirror.autoLoadMode(myCodeMirror, info.mode);
 	}
 	
-window.addEventListener("load", function() {loadFileIntoCodeMirror(myCodeMirror, theEncodedPath);});
+window.addEventListener("load", function() {loadFileIntoCodeMirror(myCodeMirror, theEncodedPath, false);});
 
 // let gutterElement = myCodeMirror.getGutterElement();
 // if (gutterElement)
@@ -484,7 +484,7 @@ function decodeHTMLEntities(text) {
 // On success, start clean, resize the text area, and add autolinks.
 // The rddm=... arg is needed to avoid a reload from stale cache when
 // the browser's Back button is used.
-async function loadFileIntoCodeMirror(cm, path) {
+async function loadFileIntoCodeMirror(cm, path, reloading) {
 	let originalPath = path;
 	path = encodeURIComponent(path);
 
@@ -786,13 +786,14 @@ async function saveFile(path) {
 		if (response.ok)
 			{
 			let resp = await response.text();
-			if (resp !== 'OK')
+			if (!stringRepresentsInteger(resp))
 				{
 				let e1 = document.getElementById("editor_error");
 				e1.innerHTML = '<p>Error, server said ' + resp + '!</p>';
 				}
 			else
 				{
+				stopReloadCheck(); // reload.js
 				myCodeMirror.doc.markClean();
 				let sve = document.getElementById("save-button");
 				addClass(sve, 'disabled-submit-button');
@@ -812,18 +813,29 @@ async function saveFile(path) {
 
 				setSavedText(originalContents);
 
-				notifyFileChangedAndRememberCursorLine(pathForNotification);
+				//notifyFileChangedAndRememberCursorLine(pathForNotification);
+				let lineNumber = lineNumberStrAtTop();
+				location.hash = lineNumber;
+				if (isMarkdown)
+					{
+					lineNumber -= ExtraBlankLines(lineNumber);
+					}
+				notifyWatcherThatFileHasChanged(lineNumber, resp);
 
-				let lineNum = currentTOCLineNum();
+				setLastSaveTime(resp); // reload.js
+
+				let tocLineNum = currentTOCLineNum();
 				loadTOC(originalPath);
 
 				loadDateAndSize(originalPath);
 
 				myCodeMirror.focus();
+
+				startReloadCheck(); // reload.js
 				
-				//Too soon: scrollTocEntryIntoView(lineNum, false, true);
+				//Too soon: scrollTocEntryIntoView(tocLineNum, false, true);
 				setTimeout(function() {
-					scrollTocEntryIntoView(lineNum, false, true);
+					scrollTocEntryIntoView(tocLineNum, false, true);
 					clearAndAddAutoLinks();
 					}, 600);	
 				}
@@ -847,6 +859,11 @@ async function saveFile(path) {
 	}
 }
 
+function stringRepresentsInteger(str) {
+	const regex = /^\d+$/; 
+	return regex.test(str); 
+}
+
 async function saveFileAsWithPicker() {
 	showSaveAsFilePicker();
 }
@@ -856,7 +873,7 @@ function revertFile(path) {
 	firstMaintainButtonsCall = true;
 	let e1 = document.getElementById(errorID);
 	e1.innerHTML = "&nbsp;";
-	loadFileIntoCodeMirror(myCodeMirror, path);
+	loadFileIntoCodeMirror(myCodeMirror, path, false);
 }
 
 // WebSockets, send cursor line number and file path on a Save.
@@ -897,7 +914,7 @@ function notifyFileChangedAndRememberCursorLine(path) {
 	// The newer "publish" approach: Viewer and Editor both subscribe to changeDetected.
 	let msg = 'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected ' + lineNumber + ' ' + path + '     ' + '0'; // five spaces there
 	//console.log(msg);
-	wsSendMessage(msg);
+	// TEMP OUT wsSendMessage(msg);
 }
 
 // In the Viewer display of Markdown extra blank lines are not shown

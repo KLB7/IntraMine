@@ -94,8 +94,8 @@ function doResize() {
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
 // See intramine_viewer.pl#InitialHighlightItems().
-async function reJumpAndHighlight() {
-	addDragger && addDragger(); // dragTOC.js#addDragger()
+async function reJumpAndHighlight(reloading=false) {
+	addDragger && addDragger(reloading); // dragTOC.js#addDragger()
 	
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
@@ -106,6 +106,11 @@ async function reJumpAndHighlight() {
 	setIsMarkdown();
 
 	await delay(150);
+
+	if (reloading)
+		{
+		forgetLinesSeen();
+		}
 
 	if (isMarkdown)
 		{
@@ -143,8 +148,18 @@ function reJump(delayMsec) {
 		}
 	
 	let h = location.hash;
-	if (h.length > 1)
+	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+	let useStorage = false;
+	if (lineNumberStr !== null && !isNaN(lineNumberStr))
 		{
+		useStorage = true;
+		}
+
+	if (!useStorage && h.length > 1)
+		{
+		// TEST ONLY
+		//console.log("h " + h);
+
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		h = decodeURIComponent(h);
@@ -176,6 +191,17 @@ function reJump(delayMsec) {
 		else
 			{
 			reJumpToLineNumber(h, delayMsec);
+			}
+		}
+	else if (useStorage)
+		{
+		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+		if (lineNumberStr !== null)
+			{
+			if (!isNaN(lineNumberStr))
+				{
+				reJumpToLineNumber(lineNumberStr, delayMsec);
+				}
 			}
 		}
 }
@@ -341,7 +367,7 @@ function jumpToMarkdownLineFromStorage() {
 			}
 		else
 			{
-			//console.log("UNHANDLED: " + kidsName + "ca line " + lineNumber);
+			console.log("UNHANDLED: " + kidsName + "ca line " + lineNumber);
 			++lineNumber;
 			}
 		
@@ -352,6 +378,12 @@ function jumpToMarkdownLineFromStorage() {
 		} // for (let i = 0; i < kids.length; ++i)
 
 	let result = false;
+
+	if (el === null && kids.length > 0)
+		{
+		el = kids[kids.length - 1];
+		}
+	
 	if (el !== null)
 		{
 		// TEST ONLY
@@ -660,18 +692,26 @@ function positionViewItems() {
 	doResize();
 }
 
-function finishStartup() {
+function finishStartup(reloading = false) {
+
 	if (thePath.match(/\.(txt|log|bat)$/))
 		{
 		// use lolight highlighting
 		putInLolightElements();
 		}
 
-	hideIt("search-button");
-	hideIt("small-tip");
+	if (!reloading)
+		{
+		hideIt("search-button");
+		hideIt("small-tip");
+		
+		}
 	positionViewItems();
-	loadCommonestEnglishWords(); // See commonEnglishWords.js.
-	setImagesButtonText();
+	if (!reloading)
+		{
+		loadCommonestEnglishWords(); // See commonEnglishWords.js.
+		setImagesButtonText();
+		}
 	
 	reJump();
 
@@ -683,6 +723,53 @@ function finishStartup() {
 
 	// TEST ONLY
 	//console.log("STARTED");
+}
+
+// Call back to Viewer service with req=reloadnoncmfile and 'FULLPATH'.
+async function reloadNonCM(shortServerName, port, useEditorCache) {
+
+	let theAction = 'http://' + mainIP + ':' + port + '/?req=reloadnoncmfile' + '&FULLPATH=' + encodeURIComponent(thePath) + '&useEditor=' + useEditorCache;
+	let contentDiv = document.getElementById('scrollAdjustedHeight');
+	if (contentDiv === null)
+		{
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Error, scrollAdjustedHeight div is missing!!</p>';
+		return;
+		}
+	
+	try {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== ' ')
+				{
+				prepForReload();
+
+				contentDiv.innerHTML = text;
+
+				let reloading = true;
+				finishStartup(reloading);
+				reJumpAndHighlight(reloading);
+				doResize();
+				startReloadCheck();
+				//reportActivity();
+				}
+			}
+		else
+			{
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>reloadNonCM bad response received!</p>';
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>reloadNonCM connection error :' + error + '!</p>';
+	}
+}
+
+function prepForReload() {
+	stopReloadCheck();
 }
 
 // Code block highlighting with lolight, used

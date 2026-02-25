@@ -184,7 +184,12 @@ sub LC_LoadKeyTabValueHashFromFile {
 		{
 		$Output->("KeyTabValue Loading $hashDescription from $filePath\n");
 		}
-	my $fileH = FileHandle->new("$filePath") or return (0);
+	my $fileH = FileHandle->new("$filePath");    # or return (0);
+	if (!$fileH)
+		{
+		print("Error, could not open |$filePath|\n");
+		return (0);
+		}
 	binmode($fileH, ":utf8");
 	my $line;
 	my $count = 0;

@@ -22,15 +22,19 @@ use Exporter qw(import);
 
 use strict;
 use warnings;
+use Time::HiRes qw(usleep);
 use Carp;
 use utf8;
-use Encode qw/encode decode/;
-use Win32API::File;
+use Encode         qw/encode decode/;
+use Win32API::File qw(ReadFile GetFileSize);
 use Win32::API;
 use IO::Handle;
 use Encode;
 use Encode::Guess;
 use HTML::Entities;
+
+use Time::HiRes qw (time gettimeofday);
+
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 # TODO find a better way, GetFileTime (wide) often fails where stat works.
@@ -137,7 +141,7 @@ sub FileOrDirExistsWide {
 # Returns undef on error.
 # NOTE the returned handle is not closed here.
 # To close it later after my $fh = GetExistingReadFileHandleWide($filePath), do
-# close($fh);
+# close($fh); which also closes the underlying $F.
 # See eg intramine_viewer.pl#GetHTML().
 sub GetExistingReadFileHandleWide {
 	my ($filePath) = @_;
@@ -178,6 +182,97 @@ sub GetExistingReadFileHandleWide {
 		}
 
 	return ($fileH);
+}
+
+# Experiment, do not use.
+# GetExistingReadFileHandleWide: open $filepath, get a Perl file handle and return it.
+# Returns undef on error.
+# NOTE the returned handle is not closed here.
+# To close it later after my $fh = GetExistingReadFileHandleWide($filePath), do
+# close($fh); which also closes the underlying $F.
+# See eg intramine_viewer.pl#GetHTML().
+# This revised version requires exclusive Write access befor acquiring a Read handle.
+sub xxGetExistingReadFileHandleWide {
+	my ($filePath)  = @_;
+	my $filePathWin = encode("UTF-16LE", "$filePath\0");
+	my $fileH       = undef;
+	my $F =
+		Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0,
+		[], Win32API::File::OPEN_EXISTING, 0, 0);
+	if (!$F)
+		{
+		# Failed, try again.
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			usleep(100000);    # 0.1 seconds
+			$F =
+				Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0,
+				[], Win32API::File::OPEN_EXISTING, 0, 0);
+			}
+		}
+
+	if (!$F)
+		{
+		;    # we will return(undef);
+		}
+	else
+		{
+		# Close the exclusive Write handle, get a Read handle.
+		Win32API::File::CloseHandle($F);
+		usleep(100000);    # 0.1 seconds
+		$F =
+			Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ,
+			Win32API::File::FILE_SHARE_READ,
+			[], Win32API::File::OPEN_EXISTING, 0, 0);
+		if (!Win32API::File::OsFHandleOpen($fileH = IO::Handle->new(), $F, "r"))
+			{
+			#carp("OsFHandleOpen for reading FAILED for |$filePathWin|!\n");
+			$fileH = undef;
+			}
+		}
+
+	return ($fileH);
+}
+
+sub GetWin32ReadFileHandle {
+	my ($filePath)  = @_;
+	my $filePathWin = encode("UTF-16LE", "$filePath\0");
+	my $fileH       = undef;
+	my $F =
+		Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0,
+		[], Win32API::File::OPEN_EXISTING, 0, 0);
+	if (!$F)
+		{
+		# Failed, try again.
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			usleep(100000);    # 0.1 seconds
+			$F =
+				Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0,
+				[], Win32API::File::OPEN_EXISTING, 0, 0);
+			}
+		}
+
+	if (!$F)
+		{
+		;    # we will return(undef);
+		}
+	else
+		{
+		# Close the exclusive Write handle, get a Read handle.
+		Win32API::File::CloseHandle($F);
+		usleep(100000);    # 0.1 seconds
+		$F =
+			Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_READ,
+			Win32API::File::FILE_SHARE_READ,
+			[], Win32API::File::OPEN_EXISTING, 0, 0);
+		}
+
+	return ($F);
 }
 
 # WriteTextFileWide: write $contents to $filePath as text, replacing all previous contents.
@@ -817,12 +912,48 @@ sub DeepFindFileWide {
 		}
 }
 
-# ReadTextFileWide: read in text file in one shot.
-# Returns contents of file (which may be ''), or undef if error.
-# See eg intramine_viewer.pl#LoadTextFileContents().
+# Read file.Simple pure Perl is used unless there are non-ASCII
+# chars in the path, in which case we call UnicodeReadTextFileWide.
 sub ReadTextFileWide {
 	my ($filePath) = @_;
 
+	my $haveWideName = 0;
+	# TEST ONLY OUT
+	if ($filePath =~ m![^\x00-\x7f]!)
+		{
+		$haveWideName = 1;
+		}
+
+	if ($haveWideName)
+		{
+		return (UnicodeReadTextFileWide($filePath));
+		}
+
+
+	# open(my $fh, '<', $filePath) or die "Could not open file '$filePath': $!";
+	# my $contents;
+	# read($fh, $contents, -s $fh);
+	# close($fh);
+
+	my $fh;
+	if (!open($fh, '<', $filePath))
+		{
+		print("READ ERROR, could not open |$filePath| for reading!\n");
+		return (undef);
+		}
+	my $contents = do {local $/; <$fh>};
+	close($fh);
+
+	return ($contents);
+}
+
+# ReadTextFileWide: read in text file in one shot.
+# Returns contents of file (which may be ''), or undef if error.
+# See eg intramine_viewer.pl#LoadTextFileContents().
+sub UnicodeReadTextFileWide {
+	my ($filePath) = @_;
+
+	###my $F = GetWin32ReadFileHandle($filePath);
 	my $fh = GetExistingReadFileHandleWide($filePath);
 	if (!defined($fh))
 		{
@@ -831,9 +962,12 @@ sub ReadTextFileWide {
 		}
 
 	my $contents = do {local $/; <$fh>};
+
 	if (!defined($contents))
 		{
 		#carp("RTFW read_file FAILED for |$filePath|\n");
+		#Win32API::File::CloseHandle($F);
+		close($fh);
 		return (undef);
 		}
 	close($fh);

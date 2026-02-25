@@ -142,6 +142,10 @@ sub AddDocumentToIndex {
 	else
 		{
 		$contents = ReadTextFileDecodedWide($progPath);
+		# Feb 2026, going with UTF8 only from now on.
+		# No, bad idea, not all files are UTF8.
+		##$contents = ReadTextFileWide($progPath);
+		##$contents = decode_utf8($contents);
 		}
 
 

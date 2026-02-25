@@ -151,6 +151,7 @@ let errorID = "headingAboveContents";
 <script src="viewerLinks.js"></script>
 <script src="lru.js"></script>
 <script src="intramine_search.js"></script>
+<script src="reportActivity.js" ></script>
 </body></html>
 FINIS
 

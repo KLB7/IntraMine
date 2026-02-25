@@ -256,6 +256,8 @@ $response = $e->indices->create(
 	}
 );
 
+Output("Post index creation.\n");
+
 ShowResponse($response, "$esIndexName index creation");
 
 Output("Finished Elasticsearch index init.\n");
@@ -932,8 +934,10 @@ sub DumpFileSizeBinCountsAndLargeFiles {
 
 	# 3 List of files not indexed, typically due to being above the $maxFileSizeKB cutoff.
 	print $fileH "\n\nTABLE 3 Files not indexed, by size\nPath\tKB\n";
-	foreach my $path (sort {$FileSizeForFullPath{$a} <=> $FileSizeForFullPath{$b}}
-		keys %FileSizeForFullPath)
+	foreach my $path (
+		sort {$FileSizeForFullPath{$a} <=> $FileSizeForFullPath{$b}}
+		keys %FileSizeForFullPath
+		)
 		{
 		print $fileH "$path\t$FileSizeForFullPath{$path}\n";
 		}

@@ -1059,6 +1059,8 @@ sub ForceStopServer {
 			print $remote "GET /?FORCEEXIT=1 HTTP/1.1\n\n";
 			close $remote;
 			Output("FORCEEXIT sent to $serverAddress:$portNumber\n");
+			# TEST ONLY, but no big deal to leave it in.
+			#print("FORCEEXIT sent to $serverAddress:$portNumber\n");
 			SetServerPortIsRunning($portNumber, 0);
 			}
 		}
@@ -1983,6 +1985,38 @@ sub PortForBackgroundShortServerName {
 		(defined($PortForShortBackgroundServerName{$shortName}))
 		? $PortForShortBackgroundServerName{$shortName}
 		: 0;
+	return ($result);
+}
+
+# Return all active port numbers associated with Short name, separated by 'S'.
+# Return '0' if there are no active ports.
+sub AllPortsForService {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = '0';
+	if (defined($formH->{'shortname'}))
+		{
+		my $shortName = $formH->{'shortname'};
+		if (IsShortName($shortName))
+			{
+			my $numEntriesForShortName = NumServersTotalForShortName($shortName);
+			for (my $i = 0 ; $i < $numEntriesForShortName ; ++$i)
+				{
+				my $proposedPort = $PortsForShortServerNames{$shortName}->[$i];
+				if (ServerOnPortIsRunning($proposedPort))
+					{
+					if ($result eq '0')
+						{
+						$result = $proposedPort;
+						}
+					else
+						{
+						$result .= "S$proposedPort";
+						}
+					}
+				}
+			}
+		}
+
 	return ($result);
 }
 
@@ -2930,8 +2964,9 @@ sub SetUpRequestActionHandlers {
 	$RequestAction{'req|showhelp'}       = \&ShowHelp;                          # req=showhelp
 	$RequestAction{'signal'}             = \&BroadcastSignal;                   # signal=anything
 	$RequestAction{'ssinfo'}             = \&ReceiveInfo;    # ssinfo=anything, eg 'ssinfo=serverUp'
-	$RequestAction{'req|requestStop'}    = \&StopIntraMine;  # req=id
-	$RequestAction{'req|requestRestart'} = \&RestartIntraMine;    # req=id
+	$RequestAction{'req|requestStop'}    = \&StopIntraMine;  # req=requestStop
+	$RequestAction{'req|requestRestart'} = \&RestartIntraMine;      # req=requestRestart
+	$RequestAction{'req|allports'}       = \&AllPortsForService;    # req=allports
 }
 
 # Add placeholder entries in @listenerArray etc for a service started up initially.

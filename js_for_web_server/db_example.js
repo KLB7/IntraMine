@@ -80,7 +80,8 @@ async function addFruitSubmit(oFormElement) { // oFormElement is not used.
 // after addFruitSubmit() above successfully adds a fruit with rating.
 async function refreshFruitDisplay() {
 	// Publish "activity" message.
-	wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
+	reportActivity();
+	//wsSendMessage('PUBLISH__TS_activity_TE_' + 'activity ' + shortServerName + ' ' + ourSSListeningPort);
 
 	try {
 	let theAction = 'http://' + theHost + ':' + thePort + '/' + shortServerName + '/'

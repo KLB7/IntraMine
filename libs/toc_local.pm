@@ -169,6 +169,16 @@ sub LoadTextFileContents {
 	my ($filePath, $contentsR, $octetsR) = @_;
 
 	$$octetsR = ReadTextFileWide($filePath);
+
+	if (!defined($$octetsR))
+		{
+		$$contentsR .= "Error, could not open $filePath.";
+		return (0);
+		}
+
+	# TEST assume UTF8
+	#$$octetsR = decode_utf8($$octetsR);
+
 	if (!defined($$octetsR))
 		{
 		$$contentsR .= "Error, could not open $filePath.";

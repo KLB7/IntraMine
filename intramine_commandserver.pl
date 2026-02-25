@@ -125,6 +125,7 @@ let cmdOutputContainerDiv = 'scrollAdjustedHeight';
 <script src="tooltip.js"></script>
 <script src="cmd_monitor.js"></script>
 <script src="cmdServer.js"></script>
+<script src="reportActivity.js" ></script>
 </body></html>
 FINIS
 

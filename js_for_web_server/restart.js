@@ -148,6 +148,13 @@ async function doTheRestart(port) {
 		removeClass(aTags[i], noIntraMineClass);
 		}
 
+	// Clear any error message if possible.
+	if (typeof errorID !== "undefined")
+		{
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>&nbsp;</p>';
+		}
+	
 	// Re-establish WebSockets.
 	initializing = true;
 	wsIsConnected = 0;

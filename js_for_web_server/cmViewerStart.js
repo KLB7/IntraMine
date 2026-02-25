@@ -302,10 +302,10 @@ function decodeHTMLEntities(text) {
 	return text;
 }
 
-async function loadFileIntoCodeMirror(cm, path) {
+async function loadFileIntoCodeMirror(cm, path, useEditorCache) {
 	path = encodeURIComponent(path);
 
-	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&rddm=' + String(getRandInt(1, 65000));
+	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&useEditor=' + useEditorCache + '&rddm=' + String(getRandInt(1, 65000));
 
 	try {
 
@@ -375,6 +375,39 @@ async function loadFileIntoCodeMirror(cm, path) {
 		let e1 = document.getElementById(errorID);
 		e1.innerHTML = '<p>Connection error!</p>';
 		hideSpinner();
+	}
+}
+
+// Call back end (Viewer) to load Table of Contents and then contents.
+// Contents will come from the Editor's cache if available.
+async function reloadCM(shortServerName, port, uniqueBrowserID, useEditorCache)
+	{
+	let theAction = 'http://' + mainIP + ':' + port + '/?req=reloadCMTOC' + '&FULLPATH=' + encodeURIComponent(thePath) + '&uniqueBrowserID=' + uniqueBrowserID;
+	
+	try {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== ' ' && text !== 'NONE')
+				{
+				let tocDiv = document.getElementById('scrollContentsList');
+				if (tocDiv !== null)
+					{
+					tocDiv.innerHTML = text;
+
+					// Now retrieve the actual contents.
+					loadFileIntoCodeMirror(myCodeMirror, thePath, useEditorCache);
+
+					//reportActivity();
+					}
+				}
+			// else no table of contents
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>reloadCM connection error :' + error + '!</p>';
 	}
 }
 

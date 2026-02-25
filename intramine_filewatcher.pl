@@ -22,11 +22,12 @@ use Encode qw(from_to);
 use Encode::Guess;
 use Win32::Process;
 use Win32::Service;
-use Time::HiRes qw(usleep);
+use Time::HiRes qw(usleep gettimeofday);
 # For stopping PowerShell script:
 use Win32::Process 'STILL_ACTIVE';
 use DateTime;
 use Time::Local qw( timelocal_modern );
+use Time::Piece;
 use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -82,6 +83,8 @@ my %RequestAction;
 $RequestAction{'signal|FILESYSTEMCHANGE'} = \&OnChangeDelayedIndexChangedFiles;
 $RequestAction{'signal|HEARTBEAT'}        = \&OnHeartbeatFromFolderMonitor;
 $RequestAction{'signal|IGNOREFWWS'}       = \&IgnoreFWWS;
+$RequestAction{'req|fileHasChanged'}      = \&RememberFileHasChanged;           # req=fileHasChanged
+$RequestAction{'req|hasFileChanged'}      = \&ModTimeAndLine;                   # req=hasFileChanged
 
 my $HaveCheckedLogExists = 0; # we only check the first time, exit if File Watcher log is not found.
 my $LastTimeStampChecked = ''
@@ -115,6 +118,9 @@ InitFWWSMonitor();
 
 # Start up db for tracking deleted files.
 InitDeletesDB();
+
+# Init time stamp for last winnowing of file changed entries.
+InitFileChangeReporting();
 
 # Detect large number of files added or deleted.
 my $Congested         = 0;
@@ -510,9 +516,9 @@ sub IndexChangedFiles {
 	# has been re-created and is no longer deleted. Beating it to death there:)
 	RemoveNewFilesFromDeletes(\%PathsOfCreatedFiles);
 
-	# Send out messages via WebSockets for changed files, so the Viewer can update.
-	# (This needs more work, sometimes the WebSockets message doesn't go through.)
-	SendFileContentsChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
+	# Remember paths of changed files, for signalling a file has change
+	# when polled by Viewer or Editor.
+	RememberFilesChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
 
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
@@ -636,9 +642,9 @@ sub ReportIfCongested {
 		}
 }
 
-# Use WebSockets to send 'changeDetected' messages out to everyone, in particular
-# so that the Viewer can refresh the view.
-sub SendFileContentsChanged {
+# Remember paths of changed files. Viewer/Editor web pages will use HTTP
+# to poll for changes.
+sub RememberFilesChanged {
 	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH, $timeStampForPathH) = @_;
 	my $CHANGED_BROADCAST_LIMIT = 10;    # or 5 or 3?
 	my @pathsOfChangedNotNewFiles;
@@ -664,12 +670,15 @@ sub SendFileContentsChanged {
 				defined($timeStampForPathH->{$pathsOfChangedNotNewFiles[$i]})
 				? $timeStampForPathH->{$pathsOfChangedNotNewFiles[$i]}
 				: '0';
-			SendOneFileContentsChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
+			if ($timeStamp ne '0')
+				{
+				RememberOneFileChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
+				}
 			}
 		}
 }
 
-sub SendOneFileContentsChanged {
+sub xRememberOneFileChanged {
 	my ($filePath, $timeStamp) = @_;
 
 	$filePath =~ s!%!%25!g;
@@ -731,7 +740,7 @@ sub SendOneFileContentsChanged {
 	my $msg =
 		'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected 0 ' . $filePath . '     ' . $messageTime;
 
-	WebSocketSend($msg);
+	# TEMP OUT WebSocketSend($msg);
 }
 
 sub ReportMissingFileWatcherLog {
@@ -947,9 +956,11 @@ sub GetLogChanges {
 						push @PathsOfChangedFilesFileTimes, $timestamp;
 						if (!defined($TimeStampForPath{$pathProperCased}))
 							{
-							my $timestampWithHyphens = $timestamp;
-							$timestampWithHyphens =~ s!:!-!g;
-							$TimeStampForPath{$pathProperCased} = $timestampWithHyphens;
+							$TimeStampForPath{$pathProperCased} = $timestamp;
+							# Older, no idea why I was changing ':' to '-'.
+							# my $timestampWithHyphens = $timestamp;
+							# $timestampWithHyphens =~ s!:!-!g;
+							# $TimeStampForPath{$pathProperCased} = $timestampWithHyphens;
 							}
 						}
 
@@ -1730,7 +1741,8 @@ sub StartPowerShellFolderMonitor {
 	my $fmHeartbeatSignal =
 		CVal('FOLDERMONITOR_HEARTBEAT_SIGNAL');    # default /?signal=HEARTBEAT&name=Watcher
 
-	my $powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
+	my $powerShellPath = "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
+	#my $powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
 	my $foldermonitorPSPath =
 		FullDirectoryPath('FOLDERMONITOR_PS1_FILE');    # ...bats/foldermonitor.ps1
 														# Arguments for $foldermonitorPSPath script:
@@ -1776,4 +1788,216 @@ sub RestartFolderMonitor {
 		}
 }
 }    ##### PowerShell folder monitor start/stop
+
+{ ##### Polled file change reporting, for IntraMine Editor and Viewer
+my %TimeForFileChange;          # $TimeForFileChange{full path} = file mod time in epoch seconds;
+my %LineNumberForFileChange;    # $LineNumberForFileChange{full path} = 2347;
+my %EditorIdForFileChange;      # $EditorIdForFileChange{full path} = 43721;
+my %ViewerNotifiedIdList;       # ViewerNotifiedIdList{full path} = '|123|987|22|';
+my $msecSinceLastWinnow;
+
+sub InitFileChangeReporting {
+	my ($seconds, $microseconds) = gettimeofday();
+	my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+	$msecSinceLastWinnow = $ms;
+}
+
+# Caled by the Editor when a file is saved.
+sub RememberFileHasChanged {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'ok';    # ignored
+	if (!defined($formH->{'path'}))
+		{
+		return ($result);
+		}
+
+	my $filePath = $formH->{'path'};
+	$filePath =~ s!\\!/!g;
+	$filePath = lc($filePath);
+
+	my $fileModSeconds = (defined($formH->{'mtime'})) ? $formH->{'mtime'} : '0';
+	$TimeForFileChange{$filePath} = $fileModSeconds;
+
+	# Older approach using 'now' instead of file mod time.
+	# my ($seconds, $microseconds) = gettimeofday();
+	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+	# $TimeForFileChange{$filePath} = $ms;
+
+	if (defined($formH->{'lineNumber'}))
+		{
+		$LineNumberForFileChange{$filePath} = $formH->{'lineNumber'};
+
+		if (defined($formH->{'id'}))
+			{
+			# 'id' is a unique int id for the browser page.
+			# 'caller' is always 'Editor'. There should always
+			# be an id from the Editor.
+			$EditorIdForFileChange{$filePath} = $formH->{'id'};
+			}
+
+		# Forget Viewer notifications.
+		delete $ViewerNotifiedIdList{$filePath};
+		}
+
+
+	return ($result);
+}
+
+# Called by Editor and Viewer, return mod time and (optional) line number,
+# or 'no' if there is no record.
+sub ModTimeAndLine {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = 'no';    # Must return something, or we get a 404
+	if (!defined($formH->{'path'}))
+		{
+		return ($result);
+		}
+	my $filePath = $formH->{'path'};
+	$filePath =~ s!\\!/!g;
+	$filePath = lc($filePath);
+
+	if (defined($TimeForFileChange{$filePath}))
+		{
+		my $fileTime = $TimeForFileChange{$filePath};
+		$result = $fileTime;
+		if (defined($LineNumberForFileChange{$filePath}))
+			{
+			$result .= 'S';
+			$result .= "$LineNumberForFileChange{$filePath}";
+			}
+		}
+
+	my ($seconds, $microseconds) = gettimeofday();
+	my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+
+	return ($result);
+
+	# my $caller   = "";
+	# my $callerID = "";
+	# if (defined($formH->{'caller'}) && defined($formH->{'id'}))
+	# 	{
+	# 	$caller   = $formH->{'caller'};
+	# 	$callerID = $formH->{'id'};
+	# 	}
+
+	# my ($seconds, $microseconds) = gettimeofday();
+	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+
+	# if (defined($TimeForFileChange{$filePath}))
+	# 	{
+	# 	# No change if request was from Editor and Editor has reported a change.
+	# 	if (   defined($formH->{'id'})
+	# 		&& defined($EditorIdForFileChange{$filePath})
+	# 		&& $formH->{'id'} eq $EditorIdForFileChange{$filePath})
+	# 		{
+	# 		;    # no change
+	# 		}
+	# 	else
+	# 		{
+	# 		# TEST ONLY
+	# 		#print("HFC, for |$filePath| from caller |$caller|.\n");
+	# 		my $fileTime = $TimeForFileChange{$filePath};
+	# 		if ($ms - $fileTime <= 8000)
+	# 			{
+	# 			if (defined($LineNumberForFileChange{$filePath}) && $ms - $fileTime <= 3000)
+	# 				{
+	# 				my $currentIdList =
+	# 					defined($ViewerNotifiedIdList{$filePath})
+	# 					? $ViewerNotifiedIdList{$filePath}
+	# 					: '';
+	# 				if ($caller eq 'Viewer' && $callerID ne "")
+	# 					{
+	# 					if (index($currentIdList, "|$callerID|") < 0)
+	# 						{
+	# 						$result = $fileTime;
+	# 						$result .= 'S';
+	# 						$result .= "$LineNumberForFileChange{$filePath}";
+
+	# 						# Remember Viewer was notified
+	# 						if ($currentIdList eq '')
+	# 							{
+	# 							$ViewerNotifiedIdList{$filePath} = "|$callerID|";
+	# 							}
+	# 						else
+	# 							{
+	# 							$ViewerNotifiedIdList{$filePath} .= "$callerID|";
+	# 							}
+	# 						}
+	# 					}
+	# 				}
+	# 			else    # skip if we just sent an Editor notice with line number
+	# 				{
+	# 				if ($ms - $fileTime >= 6000)
+	# 					{
+	# 					$result = $fileTime;
+	# 					}
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# # TEST ONLY
+	# else
+	# 	{
+	# 	#print("No TS for |$filePath|\n");
+	# 	}
+
+	# Remove ("winnow") old change notices every few seconds.
+	if ($ms - $msecSinceLastWinnow >= 8000)
+		{
+		my %keepTime;
+		my %keepLineNumber;
+		my %keepEditorID;
+		my %keepViewerNotifiedList;
+		foreach my $key (keys %TimeForFileChange)
+			{
+			if ($ms - $TimeForFileChange{$key} <= 8000)
+				{
+				$keepTime{$key} = $TimeForFileChange{$key};
+				if (defined($LineNumberForFileChange{$key}))
+					{
+					$keepLineNumber{$key} = $LineNumberForFileChange{$key};
+					}
+				if (defined($EditorIdForFileChange{$key}))
+					{
+					$keepEditorID{$key} = $EditorIdForFileChange{$key};
+					}
+				if (defined($ViewerNotifiedIdList{$key}))
+					{
+					$keepViewerNotifiedList{$key} = $ViewerNotifiedIdList{$key};
+					}
+				}
+			}
+		%TimeForFileChange       = %keepTime;
+		%LineNumberForFileChange = %keepLineNumber;
+		%EditorIdForFileChange   = %keepEditorID;
+		%ViewerNotifiedIdList    = %keepViewerNotifiedList;
+		$msecSinceLastWinnow     = $ms;
+		}
+
+	return ($result);
+}
+
+# $timeStamp is eg "2026-02-20 3:44:44 PM".
+# Converted to epoch seconds for storage.
+sub RememberOneFileChanged {
+	my ($filePath, $timeStamp) = @_;
+	$filePath =~ s!\\!/!g;
+	$filePath = lc($filePath);
+
+	# TEST ONLY
+	#print("\$timeStamp: |$timeStamp|\n");
+
+	my $t            = localtime()->strptime($timeStamp, "%Y-%m-%d %I:%M:%S %p");
+	my $epochSeconds = $t->epoch;
+	$TimeForFileChange{$filePath} = $epochSeconds;
+
+	# my ($seconds, $microseconds) = gettimeofday();
+	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+	# $TimeForFileChange{$filePath} = $ms;
+	# Delete any line number, so we know latest notice was not from the Editor
+	# TEMP OUT delete $LineNumberForFileChange{$filePath};
+}
+
+}    ##### Polled file change reporting, for IntraMine Editor and Viewer
+
 1;

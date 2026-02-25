@@ -26,6 +26,7 @@ use Encode::Guess;
 use HTML::Entities;
 use Text::Tabs;
 $tabstop = 4;
+use Time::HiRes qw (time gettimeofday);
 use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
@@ -46,6 +47,9 @@ my $SHORTNAME   = '';
 my $server_port = '';
 my $port_listen = '';
 SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
+
+# A unique integer ID 1..up is assigned to each browser page displayed.
+my $UniqueBrowserID = 0;
 
 my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
@@ -80,18 +84,27 @@ my $BADNAME     = 2;    # eg COM7
 my $BADCHAR     = 3;    # eg file?.txt
 my $MISSINGNAME = 4;    # ''
 
-
 my %RequestAction;
-$RequestAction{'href'}            = \&FullFile;           # href=anything, treated as a file path
-$RequestAction{'req|loadfile'}    = \&LoadTheFile;        # req=loadfile
-$RequestAction{'req|loadTOC'}     = \&GetTOC;             # req=loadTOC
-$RequestAction{'req|dateandsize'} = \&GetDateAndSize;     # req=dateandsize
-$RequestAction{'req|save'}        = \&Save;               # req=save
-$RequestAction{'dir'}             = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
-$RequestAction{'req|oktosaveas'}  = \&OkToSaveAs;         # req=oktosaveas
-$RequestAction{'req|saveas'}      = \&SaveAs;             # req=save
+$RequestAction{'href'}                  = \&FullFile;        # href=anything, treated as a file path
+$RequestAction{'req|loadfile'}          = \&LoadTheFile;     # req=loadfile
+$RequestAction{'req|loadTOC'}           = \&GetTOC;          # req=loadTOC
+$RequestAction{'req|dateandsize'}       = \&GetDateAndSize;  # req=dateandsize
+$RequestAction{'req|save'}              = \&Save;            # req=save
+$RequestAction{'req|getcachedcontents'} = \&CachedFileContents;  # req=getcachedcontents
+$RequestAction{'dir'}                   = \&GetDirsAndFiles;     # $formH->{'dir'} is directory path
+$RequestAction{'req|oktosaveas'}        = \&OkToSaveAs;          # req=oktosaveas
+$RequestAction{'req|saveas'}            = \&SaveAs;              # req=save
+$RequestAction{'req|uniqueid'}          = \&UniqueBrowserID;     # req=uniqueid
 
 # not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
+
+# File contents cache. Files saved here have their raw contents cached when saved.
+# The Viewer will call to here when a reload is triggered by an Editor save.
+# This avoids having the Viewer reload from disk, which is problematic at the moment.
+my %ContentsForFilePath;
+my %ContentsSequenceNumberForFilePath;
+my $ContentsSequenceNumber = 1;
+my $MaxContentsEntries     = 20;
 
 # Over to swarmserver.pm.
 MainLoop(\%RequestAction);
@@ -202,6 +215,7 @@ let tocHolderName = '_TOCHOLDERNAME_';
 let ourServerPort = '_THEPORT_';
 let errorID = "editor_error";
 let dateSizeHolderID = 'viewEditDateSize';
+let previousChangeTimeMsecs = '_LOADTIME_';
 
 let weAreRemote = _WEAREREMOTE_;
 let allowEditing = _ALLOW_EDITING_;
@@ -218,15 +232,11 @@ let b64ToggleImage = '';
 let selectedTocId = '_SELECTEDTOCID_';
 let doubleClickTime = _DOUBLECLICKTIME_;
 let selectedTheme = '_THEME_';
-
 let chevronWidth = '600px';
-
 let weAreEditing = true; // Don't adjust user selection or do internal links if editing.
-
 //let onMobile = false; // mobile is going away. Too difficult to test.
-
 let arrowHeight = 18;
-
+let uniqueBrowserID = '_UNIQUE_BROWSER_ID_';
 </script>
 </head>
 <body>
@@ -290,12 +300,14 @@ _DIFF_SPECIFICS_POPUP_
 <script src="dragTOC.js" ></script>
 <script src="go2def.js" ></script>
 <script src="cmEditorHandlers.js" ></script>
-<script src="editor_auto_refresh.js" ></script>
+<!-- <script src="editor_auto_refresh.js" ></script> -->
+<script src="reload.js" ></script>
 <script src="jquery-3.4.1.min.js"></script>
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
+<script src="reportActivity.js" ></script>
 <script>
-window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+window.addEventListener("load", reportActivity);
 </script>
 </body></html>
 FINIS
@@ -410,6 +422,11 @@ FINIS
 	$chevronControlForPath .= "<br><span id='viewEditDateSize'><span>&nbsp;</span></span>";
 	$theBody =~ s!_TITLEHEADER_!$chevronControlForPath!;
 
+	my $nowMsecs = gettimeofday();
+	my ($seconds, $microseconds) = gettimeofday();
+	my $ms = int(($seconds * 1000) + ($microseconds / 1000));
+	$theBody =~ s!_LOADTIME_!$ms!;
+
 	my $canHaveTOC = CanHaveTOC($filePath);
 
 	# Watch out for apostrophe in path, it's a killer in the JS above.
@@ -509,6 +526,19 @@ FINIS
 	#$theBody =~ s!_DIFF_SPECIFICS_POPUP_!!;
 	my $diffSpecificsPopup = DiffSpecificsPopup();
 	$theBody =~ s!_DIFF_SPECIFICS_POPUP_!$diffSpecificsPopup!;
+
+	# Unique id, used to help determine whether to reload the page.
+	my $browserID = '';
+	if (defined($formH->{'id'}))
+		{
+		$browserID = $formH->{'id'};
+		}
+	else
+		{
+		$browserID = UniqueBrowserID();    # Assigned int 1..up
+		}
+	$theBody =~ s!_UNIQUE_BROWSER_ID_!$browserID!;
+
 
 	# .txt files, put in mono or proportional font, '' otherwise.
 	# ___TEXT___FONT___
@@ -656,9 +686,11 @@ sub GetTOC {
 }
 
 # Called by editor.js#saveFile() (via "req=save").
+# Returns mod time of save or 'ERROR...'.
 sub Save {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $status = 'OK';
+	my $result = 'ERROR';
 
 	ReportActivity($SHORTNAME);
 
@@ -673,7 +705,9 @@ sub Save {
 		# Does not help, in fact it hurts: $contents = encode_utf8($contents);
 		$contents = uri_unescape($contents);
 
-		$contents =~ s/\R/\015\012/g;    # Fix line endings
+		my $contentsForCaching = $contents;    # No line end fix, for display only
+
+		$contents =~ s/\R/\015\012/g;          # Fix line endings
 
 		if (!WriteBinFileWide($filepath, $contents))    # win_wide_filepaths.pm#WriteBinFileWide()
 			{
@@ -684,13 +718,49 @@ sub Save {
 				$status = 'OK';
 				}
 			}
+
+		if ($status eq 'OK')
+			{
+			DeleteCachedEntryIfAtMax();
+			$ContentsForFilePath{lc($filepath)}               = $contentsForCaching;
+			$ContentsSequenceNumberForFilePath{lc($filepath)} = ++$ContentsSequenceNumber;
+			# We will return mod time of file.
+			$result = GetFileModTimeWide($filepath);
+			}
+		else
+			{
+			$result = $status;
+			}
 		}
 	else
 		{
 		print("ERROR, file_editor received empty file path!\n");
 		}
 
-	return ($status);
+	return ($result);
+}
+
+sub DeleteCachedEntryIfAtMax {
+	my $numEntries = keys %ContentsForFilePath;
+	if ($numEntries >= $MaxContentsEntries)
+		{
+		my $lowestNum = -1;
+		my $keyForLowest;
+		foreach my $key (keys %ContentsSequenceNumberForFilePath)
+			{
+			if ($lowestNum < 0 || $lowestNum > $ContentsSequenceNumberForFilePath{$key})
+				{
+				$lowestNum    = $ContentsSequenceNumberForFilePath{$key};
+				$keyForLowest = $key;
+				}
+			}
+
+		if ($lowestNum > 0)
+			{
+			delete $ContentsSequenceNumberForFilePath{$keyForLowest};
+			delete $ContentsSequenceNumberForFilePath{$keyForLowest};
+			}
+		}
 }
 
 # Return "ok", "exists" etc in preparation for calling SaveAs().
@@ -1335,4 +1405,39 @@ sub DiffSpecificsPopup {
 FINIS
 
 	return ($result);
+}
+
+sub UniqueBrowserID {
+	++$UniqueBrowserID;
+	return ("$UniqueBrowserID");
+}
+
+sub CachedFileContents {
+	my ($obj, $formH, $peeraddress) = @_;
+	#print("CachedFileContents called.\n");
+	# TEST ONLY
+	# my $contents = 'argle';
+	# print("Returning |$contents|\n");
+	# return ($contents);
+
+	my $contents = ' ';
+	my $filepath = defined($formH->{'file'}) ? $formH->{'file'} : '';
+	if ($filepath ne '')
+		{
+		$filepath = &HTML::Entities::decode($filepath);
+		$filepath =~ s!\\!/!g;
+		$filepath = lc($filepath);
+		if (defined($ContentsForFilePath{$filepath}))
+			{
+			$contents = $ContentsForFilePath{$filepath};
+			#print("CachedFileContents contents returned.\n");
+			}
+		# TEST ONLY
+		else
+			{
+			#print("No contents for |$filepath|\n");
+			}
+		}
+
+	return ($contents);
 }

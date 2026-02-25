@@ -14,7 +14,14 @@ let topLineNumber; // for restoring scrolled position when the separator is drag
 // early in the Editor, see editor.js#loadFileIntoCodeMirror().
 /////window.addEventListener("load", addDragger);
 
-function addDragger() {
+function addDragger(reloading=false) {
+    if (reloading)
+        {
+        leftPane = document.getElementById('scrollContentsList'); // 'left-pane'
+        rightPane = document.getElementById('scrollTextRightOfContents'); // 'right-pane'
+        panesContainer = document.getElementById('scrollAdjustedHeight'); //'panes-container'            
+        }
+    
     if (leftPane === null || rightPane === null || panesContainer === null)
         {
         return;

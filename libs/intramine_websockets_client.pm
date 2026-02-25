@@ -175,6 +175,10 @@ sub WebSocketStart {
 # WebSocketStart() is called if we aren't connected yet.
 sub WebSocketSend {
 	my ($msg, $disconnect) = @_;
+
+	# TEST ONLY
+	#return (1);
+
 	$disconnect ||= 0;
 
 	my $MessageGuard = '_MG_';

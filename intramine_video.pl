@@ -224,7 +224,7 @@ _FILECONTENTS_
 <script src="chatFlash.js"></script>
 
 <script>
-window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+window.addEventListener("load", reportActivity);
 </script>
 </body></html>
 FINIS

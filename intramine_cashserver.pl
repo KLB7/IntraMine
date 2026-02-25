@@ -127,8 +127,9 @@ _LOADANDGO_
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
+<script src="reportActivity.js" ></script>
 <script>
-window.addEventListener('wsinit', function (e) { wsSendMessage('activity ' + shortServerName + ' ' + ourSSListeningPort); }, false);
+window.addEventListener("load", reportActivity);
 </script>
 </body></html>
 FINIS

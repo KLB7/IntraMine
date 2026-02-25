@@ -25,13 +25,14 @@
 use strict;
 use warnings;
 use utf8;
-use Net::WebSocket::Server;
+#use Net::WebSocket::Server;
 use Win32;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
 use LogFile;    # For logging - log files are closed between writes.
 use intramine_config;
+use Net::WebSocket::Server_m;
 
 binmode(STDOUT, ":encoding(UTF-8)");
 Win32::SetConsoleCP(65001);
@@ -96,7 +97,7 @@ sub ListenForWSConnections {
 	# TEST ONLY
 	#print("$short_name is listening on port |$port_listen|\n");
 
-	Net::WebSocket::Server->new(
+	Net::WebSocket::Server_m->new(
 		listen      => $port_listen,
 		silence_max => 0,              # or maybe try 30 (seconds)
 		on_connect  => sub {

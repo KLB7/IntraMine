@@ -200,6 +200,7 @@ if (typeof window.ontouchstart !== 'undefined')
 <script src="todo.js"></script>
 <script src="todoGetPutData.js"></script>
 <script src="viewerLinks.js" ></script>
+<script src="reportActivity.js" ></script>
 </body></html>
 FINIS
 

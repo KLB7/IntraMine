@@ -1,7 +1,7 @@
 // websockets.js
 // Open a WebSocket connection to IntraMine's WS service, register trigger strings
 // and corresponding callbacks.
-// Since the WS (WebSockets) service just echoes any message it receives back to all
+// Since the WS (WebSockets) service by default just echoes any message it receives back to all
 // clients everywhere, no client should respond to a message with another message
 // - unless care is taken, that could cause an endless loop.
 // Triggers are matched on the left, so if the trigger is "hello" then both
@@ -100,7 +100,8 @@ async function wsInit() {
 
 		if (doRetry)
 			{
-			await sleepMS(1000);
+			let rand = getRandInteger(1000, 1500);
+			await sleepMS(rand);
 			}
 		else
 			{
@@ -148,20 +149,26 @@ function sleepMS(ms) {
 // Send a WebSockets message, without confirmation.
 // "sleep" a little if not connected yet.
 async function wsSendMessage(message) {
+
+	// TEST ONLY
+	//return;
+
 	let i = 0;
 
 	if (initializing)
 		{
 		while (!wsIsConnected && ++i < 10)
 			{
-			await sleepMS(100);
+			let rand = getRandInteger(200, 400);
+			await sleepMS(rand);
 			}
 		}
 		
 	if (!wsIsConnected && !initializing)
 		{
 		wsInit();
-		await sleepMS(200);
+		let rand = getRandInteger(400, 800);
+		await sleepMS(rand);
 		}
 
 	initializing = false;
@@ -211,12 +218,18 @@ function rememberSubscription(message) {
 async function handleReconnect() {
 	// TEST ONLY
 	console.log("RECONNECT request received.");
-	await sleepMS(100);
+	let rand = getRandInteger(100, 300);
+	await sleepMS(rand);
 	for (const message in subscribeMessages)
 		{
 		wsSendMessage(message);
-		await sleepMS(100);
+		rand = getRandInteger(100, 300);
+		await sleepMS(rand);
 		}
+}
+
+function getRandInteger(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 window.addEventListener("load", wsInit);

@@ -64,6 +64,7 @@ $RequestAction{'req|main'}          = \&StatusPage;          # req=main
 $RequestAction{'req|addserverform'} = \&GetAddServerForm;    # req=addserverform
 $RequestAction{'req|filestatus'} =
 	\&FileStatusHTML;    # req=filestatus, return HTML tables of file changes/deletes
+$RequestAction{'req|serviceactivitylist'} = \&ActiveServices;    # req=serviceactivitylist
 $RequestAction{'signal'} =
 	\&HandleBroadcastRequest;    # signal = anything, but for here specifically signal=filechange
 
@@ -103,7 +104,9 @@ sub StatusPage {
 </head>
 <body>
 _TOPNAV_
+<!--
 <div id='headingAboveContents'>(refreshed every _STATUS_REFRESH_SECONDS_ seconds after startup)</div>
+-->
 <div id="errorLine">&nbsp;</div>
 <div id='scrollAdjustedHeight'>
 	<div id='theTextWithoutJumpList'>
@@ -135,11 +138,12 @@ let portHolderClass = 'PORT_STATUS_HOLDER_CLASS';
 <script src="websockets.js"></script>
 <script src="restart.js"></script>
 <script src="topnav.js"></script>
-<script src="statusEvents.js"></script>
+<!-- <script src="statusEvents.js"></script> obsolete -->
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script src="tooltip.js"></script>
 <script src="sortTable.js"></script>
+<script src="polledStatusEvents.js"></script>
 </body></html>
 FINIS
 
@@ -251,6 +255,13 @@ sub HandleBroadcastRequest {
 		if ($formH->{'signal'} eq 'filechange')
 			{
 			ReloadChangedDeletedFilesList();
+			}
+		elsif ($formH->{'signal'} eq 'activity')
+			{
+			if (defined($formH->{'activeservice'}) && defined($formH->{'port'}))
+				{
+				RememberActivityForService($formH->{'activeservice'}, $formH->{'port'});
+				}
 			}
 		}    # 'filechange' signal
 
@@ -418,3 +429,62 @@ sub LinkForFilePath {
 	return ($result);
 }
 
+{ ##### Activity reporting
+my %TimeForServiceActivity;    # $TimeForServiceActivity(port number) = floating-point seconds.
+sub RememberActivityForService {
+	my ($shortName, $port) = @_;    # $shortName is not used.
+	my $currentTime = time;
+	$TimeForServiceActivity{$port} = $currentTime;
+
+	# Avoid having older activity reports pile up, in the case where the
+	# Status service is running but no Status page is open.
+	my %keepTheseEntries;
+	foreach my $key (keys %TimeForServiceActivity)
+		{
+		my $receivedTime = $TimeForServiceActivity{$key};
+		my $elapsed      = $currentTime - $receivedTime;
+		if ($elapsed >= 0 && $elapsed <= 3.0)
+			{
+			$keepTheseEntries{$key} = $receivedTime;
+			}
+		}
+
+	%TimeForServiceActivity = %keepTheseEntries;
+}
+
+# Return comma-separated list of ports for services recently reporting activity.
+# Activities older than 1.9 seconds are ignored and deleted. This is a bit
+# delicate, web pages are polling at 1.0 second intervals.
+sub ActiveServices {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $currentTime = time;
+	my $result      = '';
+
+	my @servicePorts;
+	my %keepTheseEntries;
+	foreach my $key (keys %TimeForServiceActivity)
+		{
+		my $receivedTime = $TimeForServiceActivity{$key};
+		my $elapsed      = $currentTime - $receivedTime;
+		if ($elapsed >= 0 && $elapsed <= 1.9)
+			{
+			push @servicePorts, $key;
+			$keepTheseEntries{$key} = $receivedTime;
+			}
+		}
+
+	my $numServicesReportingActivity = @servicePorts;
+	if ($numServicesReportingActivity)
+		{
+		$result = join(',', @servicePorts);
+		}
+	else
+		{
+		$result = ' ';    # Gotta return something
+		}
+
+	%TimeForServiceActivity = %keepTheseEntries;
+
+	return ($result);
+}
+}    ##### Activity reporting

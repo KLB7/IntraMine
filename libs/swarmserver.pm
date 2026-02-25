@@ -19,6 +19,7 @@ use Exporter qw(import);
 use strict;
 use warnings;
 use utf8;
+use Carp        qw(carp);
 use Time::HiRes qw ( time );
 use HTML::Entities;
 use FileHandle;
@@ -786,13 +787,8 @@ sub _MainLoop {
 
 					if (
 						$emptyLineSeen
-						&& (
-							(
-								   $contentLengthSeen
-								&& $contentLengthReceived >= $contentLengthExpected
-							)
-							|| (!$contentLengthSeen)
-						)
+						&& (($contentLengthSeen && $contentLengthReceived >= $contentLengthExpected)
+							|| (!$contentLengthSeen))
 						)
 						{
 						RespondNormally($readable, \$closed, $sock, $InputLinesH, $posted,
@@ -863,6 +859,9 @@ sub ForceExit {
 	$sock->close;
 	Output("FORCEEXIT bye!\n");
 	print("$OurShortName FORCEEXIT bye!\n");
+
+	# NOPE this is too late, takes down WeSockets:
+	#Monitor("Stopping $OurShortName\n");
 }
 
 sub RecordContentLength {
@@ -1334,6 +1333,7 @@ sub ResultPage {
 	# TEMP early return
 	if (!defined($formH->{OBJECT}))
 		{
+		#carp("ERROR OBJ NOT DEFINED\n");
 		return ("ERROR OBJ NOT DEFINED");
 		}
 
@@ -2382,16 +2382,51 @@ sub RequestBroadcast {
 	close $remote;
 }
 
-# Publish an "activity" WebSockets message. This is picked up by statusEvents.js.
-# Note only FileWatcher calls this. Other activity reporting is done in web client JavaScript
-# using websockets.js#wsSendMessage().
+# Get a list of all active ports for a Short name of service.
+# Call back to Main, expect port numbers joined with 'S'.
+sub GetAllPortsForService {
+	my ($shortName, $portsA) = @_;
+	my $serverAddress = ServerAddress();      # This is common to all servers in IntraMine, local IP
+	my $portNumber    = MainServerPort();     # Typ. 81
+	my $remote        = IO::Socket::INET->new(
+		Proto    => 'tcp',                    # protocol
+		PeerAddr => "$serverAddress",
+		PeerPort => "$portNumber"
+	) or (ServerErrorReport() && return);
+	#	print "Connected to ", $remote->peerhost,
+	#	      " on port: ", $remote->peerport, "\n";
+
+	print $remote "GET /?req=allports&shortname=" . $shortName . " HTTP/1.1\n\n";
+	my $response = '';
+	my $line     = <$remote>;    # 200 OK typically to start off the response
+	while (defined($line))
+		{
+		chomp($line);
+		if ($line =~ m!^(\d|S)+$!)
+			{
+			my @ports    = split(/S/, $line);
+			my $numPorts = @ports;
+			for (my $i = 0 ; $i < $numPorts ; ++$i)
+				{
+				push @{$portsA}, $ports[$i];
+				}
+			}
+		$line = <$remote>;
+		}
+
+	close $remote;
+}
+
+# Send a request to Main to broadcast a message to all instances of the Status service
+# that service with Short name $activeShortName has reported some activity.
+# (We don't care what, the Status web pages will just flash their lights in response).
 sub ReportActivity {
 	my ($activeShortName) = @_;    # ignored
 
 	my $name = OurShortName();
 	my $port = OurListeningPort();
 
-	WebSocketSend('PUBLISH__TS_activity_TE_' . 'activity ' . $name . ' ' . $port);
+	RequestBroadcast("signal=activity&name=Status&activeservice=$name&port=$port");
 }
 
 sub ServerErrorReport {
