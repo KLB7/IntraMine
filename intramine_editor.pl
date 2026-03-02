@@ -209,6 +209,7 @@ let thePath = '_PATH_';
 let theFileName = '_FILENAME_';
 let theEncodedPath = '_ENCODEDPATH_';
 let pathForNotification = '_NOTIFYPATH_';
+let fileModTime = '_FILE_MOD_DATE';
 let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let tocHolderName = '_TOCHOLDERNAME_';
@@ -449,6 +450,9 @@ FINIS
 	$encFileName =~ s/%([0-9A-Fa-f]{2})/chr(hex($1))/eg;
 
 	$theBody =~ s!_FILENAME_!$encFileName!g;
+
+	my $modDate = GetFileModTimeWide($filePath);
+	$theBody =~ s!_FILE_MOD_DATE!$modDate!;
 
 	# my $encPath = $filePath;
 	# $encPath = &HTML::Entities::encode($encPath);

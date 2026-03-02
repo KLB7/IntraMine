@@ -672,7 +672,17 @@ sub FormatHitResults {
 						my $excerpt = $excerptRaw;
 						# Not needed: my $excerpt = _GetEncodedExcerpt($excerptRaw);
 
-						my $pathWithSearchItems = $path . $searchItems . $definitionName;
+						# Speculatively jump to a txt file heading or just a definition name.
+						my $hash =
+							($path =~ m!\.txt$!)
+							? '#' . $query
+							: $definitionName;
+						# my $hash =
+						# 	($path =~ m!\.txt$!)
+						# 	? '#' . &HTML::Entities::encode($query)
+						# 	: $definitionName;
+
+						my $pathWithSearchItems = $path . $searchItems . $hash;
 
 						# An innocent question, if you're reading this: why does the
 						# next line work, but the commented out line after it not work?

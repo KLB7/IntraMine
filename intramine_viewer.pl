@@ -1,7 +1,7 @@
 # intramine_viewer.pl: use CodeMirror to display most code files,
-# with custom display (code below) for txt, Perl, and pod.
+# with custom display (code below) for txt, Perl, md, and pod.
 # Pdf and docx also have basic viewers.
-# All code and text files have autolinks, and image hovers, and glossary popups.
+# All code and text files have FLASH links, and image hovers, and glossary popups, and Go2.
 # Text files (.txt) are given the full Gloss (like Markdown) treatment with
 # headings, lists, tables, autolinks, image hovers, special characters,
 # horizontal rules and a table of contents on the left.
@@ -97,10 +97,12 @@ SSInitialize(\$PAGENAME, \$SHORTNAME, \$server_port, \$port_listen);
 # A unique integer ID 1..up is assigned to each browser page displayed.
 my $UniqueBrowserID = 0;
 
-my $CSS_DIR                = FullDirectoryPath('CSS_DIR');
-my $JS_DIR                 = FullDirectoryPath('JS_DIR');
-my $IMAGES_DIR             = FullDirectoryPath('IMAGES_DIR');
-my $COMMON_IMAGES_DIR      = CVal('COMMON_IMAGES_DIR');
+# Standard directory paths.
+my $CSS_DIR           = FullDirectoryPath('CSS_DIR');
+my $JS_DIR            = FullDirectoryPath('JS_DIR');
+my $IMAGES_DIR        = FullDirectoryPath('IMAGES_DIR');
+my $COMMON_IMAGES_DIR = CVal('COMMON_IMAGES_DIR');
+# Editing permissions.
 my $UseAppForLocalEditing  = CVal('USE_APP_FOR_EDITING');
 my $UseAppForRemoteEditing = CVal('USE_APP_FOR_REMOTE_EDITING');
 my $AllowLocalEditing      = CVal('ALLOW_LOCAL_EDITING');
@@ -116,13 +118,14 @@ my $kDISPLAYMESSAGES = 0;    # 1 == print messages from Output() to console wind
 # Use the Output() sub for routine log/print.
 StartNewLog($kLOGMESSAGES, $kDISPLAYMESSAGES);
 
-my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));
+my $GLOSSARYFILENAME = lc(CVal('GLOSSARYFILENAME'));    # default glossary_master.txt
 
 # For ATX-style headings that start with a '#', optionally require blank line before
 # (which is the default).
 my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
-#InitPerlSyntaxHighlighter();
+#InitPerlSyntaxHighlighter(); - Not needed, CodeMirror is now used for Perl display.
+
 my $LogDir    = FullDirectoryPath('LogDir');
 my $ctags_dir = CVal('CTAGS_DIR');
 InitTocLocal($LogDir . 'temp/tempctags',
@@ -131,7 +134,7 @@ InitTocLocal($LogDir . 'temp/tempctags',
 
 Output("Starting $SHORTNAME on port $port_listen\n\n");
 
-#my %ThemeIsDark; # $ThemeIsDark{'theme'} = 1 if bkg is dark, 0 if light.
+# my %ThemeIsDark; # $ThemeIsDark{'theme'} = 1 if bkg is dark, 0 if light.
 InitThemeIsDark();
 
 # This service has no default action. For file display either 'href=path'
@@ -165,7 +168,7 @@ MainLoop(\%RequestAction);
 
 ################### subs
 
-# A browser view of a file. Text, source (226 extensions currently), PDF, HTML, Word.
+# A browser view of a file. Text md etc, source (226 extensions currently), PDF, HTML, Word.
 # Most views are created using CodeMirror.
 # pl, pm, pod, txt, log, bat, cgi, and t extensions have "custom" views generated below, rather
 # than using CodeMirror.
@@ -259,14 +262,14 @@ sub FullFile {
 	my $meta               = "";
 	my $customCSS          = '';
 	my $textTableCSS       = '';
-	# For cmTextHolderName = '_CMTEXTHOLDERNAME_'; -- can also  be 'scrollTextRightOfContents'
+	# For let cmTextHolderName = '_CMTEXTHOLDERNAME_'; -- can also  be 'scrollTextRightOfContents'
 	my $textHolderName = 'scrollText';
 	my $usingCM        = 'true';         # for _USING_CM_ etc (using CodeMirror)
 
 	my $encPath = $filePath;
 	$encPath = &HTML::Entities::encode($encPath);
 
-	# Trying to phase out $ctrlSPath.
+	# Trying to phase out $ctrlSPath. Not done yet.
 	my $ctrlSPath = $filePath;
 
 	$LinkerArguments{'REMOTE_VALUE'}     = $clientIsRemote;
@@ -389,18 +392,6 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 		$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
 		}
 
-	# OUT, no longer needed, restart_editor_viewer.js is used for all views.
-	# Replace restart.js with restart_editor_viewer.js for .txt files.
-	# <script src="restart.js"></script>
-	# This is needed because txt files in the Viewer lock up
-	# after doing window.location.reload();
-	# and I can't figure out why - refresh by viewer_auto_refresh.js
-	# also does a reload, for example, and there it works.
-	# if ($filePath =~ m!\.(txt|log|bat)$!i)
-	# 	{
-	# 	$customJS =~ s!restart\.js!restart_text_view.js!;
-	# 	}
-
 	$theBody =~ s!_JAVASCRIPT_!$customJS!;
 
 	# Full path is unhelpful in the <title>, trim down to just file name.
@@ -430,11 +421,8 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	$theBody =~ s!_DATEANDSIZE_!$sizeDateStr!;
 
 	# Use $ctrlSPath for $filePath beyond this point.
-	# Why? It works. Otherwise Unicode is messed up.
+	# Why? It works. Otherwise (non-ASCII) Unicode is messed up.
 	$filePath = $encPath;
-
-	# Trying to phase out $ctrlSPath. Not going well, back to using it.
-	#$filePath = $ctrlSPath;
 
 	$theBody =~ s!_PATH_!$ctrlSPath!g;
 	$theBody =~ s!_ENCODEDPATH_!$ctrlSPath!g;
@@ -451,12 +439,10 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	my $findTip = '';    #"(Unshift for lower case)"; I have forgotten why I did that
 	$theBody =~ s!_MESSAGE__!$findTip!;
 
-	#####$theBody =~ s!_THEHOST_!$host!g;
 	$theBody =~ s!_THEPORT_!$port!g;
 	$theBody =~ s!_PEERADDRESS_!$peeraddress!g;
-	#####$theBody =~ s!_THEMAINPORT_!$server_port!;
 	$theBody =~ s!_CLIENT_IP_ADDRESS_!$peeraddress!;
-	#####$theBody =~ s!_SHORTSERVERNAME_!$SHORTNAME!;
+
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $openerShortName = CVal('OPENERSHORTNAME');
 	my $editorShortName = CVal('EDITORSHORTNAME');
@@ -469,7 +455,7 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	$theBody =~ s!_LINKERSHORTNAME_!$linkerShortName!;
 	$theBody =~ s!_FILESSHORTNAME_!$filesShortName!;
 	$theBody =~ s!_VIDEOSHORTNAME_!$videoShortName!;
-	#$theBody =~ s!_FILESERVERPORT_!$fileServerPort!g;
+
 	$theBody =~ s!_WEAREREMOTE_!$amRemoteValue!;
 	$theBody =~ s!_ALLOW_EDITING_!$tfAllowEditing!;
 	$theBody =~ s!_USE_APP_FOR_EDITING_!$tfUseAppForEditing!;
@@ -515,7 +501,7 @@ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</sc
 	# and cm_viewer.css.
 	$theBody =~ s!_SELECTEDTOCID_!tocitup!;
 
-	# .txt files, put in mono or proportional font, '' otherwise.
+	# .txt files, put in mono or proportional font, '' otherwise. Needs work.
 	# ___TEXT___FONT___
 	# my $textFontCssFile = '';
 	# if ($fileName =~ m!\.(txt|log|bat)$!i)
@@ -765,19 +751,7 @@ sub GetContentBasedOnExtension {
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		$$customCSS_R    = $cssForNonCm;
 		}
-	# 2. pure custom with TOC: pl, pm, pod, txt, log, bat, cgi, t.
-	# OUT, switching to CodeMirror for Perl display.
-	# elsif ($filePath =~ m!\.(p[lm]|cgi|t)$!i)
-	# 	{
-	# 	GetPrettyPerlFileContents($formH, $peeraddress, $clientIsRemote, $allowEditing,
-	# 		$fileContents_R);
-	# 	$$usingCM_R        = 'false';
-	# 	$$textHolderName_R = 'scrollTextRightOfContents';
-	# 	$$meta_R           = '<meta http-equiv="content-type" content="text/html; charset=utf-8">';
-	# 	$$customCSS_R      = $cssForNonCm;
-	# 	$$textTableCSS_R   = $cssForNonCmTables;
-	# 	$$textTableCSS_R   = $cssForNonCmTables . $nonCmThemeCssFile;
-	# 	}
+	# 2. pure custom with TOC: pod, txt, log, bat, cgi, t.
 	elsif ($filePath =~ m!\.pod$!i)
 		{
 		GetPrettyPod($formH, $peeraddress, $clientIsRemote, $allowEditing, 0, $fileContents_R);
@@ -821,7 +795,7 @@ sub GetContentBasedOnExtension {
 		$$customCSS_R    = $cssForMD . "\n" . $cssForNonCm;
 		$$textTableCSS_R = $cssForNonCmTables . $nonCmThemeCssFile;
 		}
-	else
+	else    # CodeMirror is used for display of everything else if possible.
 		{
 		my $toc = '';
 		GetCMToc($filePath, \$toc);
@@ -913,6 +887,7 @@ sub ReloadTocAndContentsNonCM {
 	return ($result);
 }
 
+# Return Table of Contents for CodeMirror display.
 sub ReloadCMTOC {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = " ";
@@ -1288,7 +1263,7 @@ FINIS
 	return ($jsFiles);
 }
 
-# JavaScript for non-CodeMirror "custom" views (text, and a few others).
+# JavaScript for non-CodeMirror "custom" views (text, Markdown, and a few others).
 sub NonCodeMirrorJS {
 	my $jsFiles = <<'FINIS';
 <script src="intramine_config.js"></script>
@@ -1473,174 +1448,6 @@ sub GetWordAsText {
 	$$contentsR = "";
 	$$contentsR .= "<div id='scrollText'><table><tbody>" . $contents . '</tbody></table></div>';
 }
-
-# Obsolete, CodeMirror is being used now for Perl display.
-# Table Of Contents (TOC) on the left, highlighted Perl on the right.
-# Syntax::Highlight::Perl::Improved does the formatting.
-# Autolinks are added for source and text files, web addresses, and images.
-# "use Package::Module;" is given a local link and a link to metacpan.
-# sub GetPrettyPerlFileContents {
-# 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR) = @_;
-# 	my $filePath   = $formH->{'FULLPATH'};
-# 	my $dir        = lc(DirectoryFromPathTS($filePath));
-# 	my $serverAddr = ServerAddress();
-# 	$$contentsR = "";
-
-# 	my $octets;
-# 	if (!LoadPerlFileContents($filePath, $contentsR, \$octets))
-# 		{
-# 		return;
-# 		}
-
-# 	my @lines = split(/\n/, $octets);
-
-# 	# Put in line numbers etc.
-# 	my @jumpList;
-# 	my @subNames;
-# 	my @sectionList;
-# 	my @sectionNames;
-# 	my $lineNum = 1;
-# 	my %sectionIdExists;    # used to avoid duplicated anchor id's for sections.
-# 	my $braceDepth = 0;     # Valid depth >= 1, 0 means not inside any {}
-
-# 	for (my $i = 0 ; $i < @lines ; ++$i)
-# 		{
-# 		# Put subs etc in TOC, with links.
-# 		# Links for subs are moved up to the first comment that goes with the sub.
-# 		# <span class='line_number'>204</span>&nbsp;<span class='Keyword'>sub</span> <span class='Subroutine'>
-# 		# And also <span class='String'>sub Subname {</span>, since the parser breaks
-# 		# if it encounters '//' sometimes.
-# 		# TODO support "method" and "my method"? (Requires new parser I suspect.)
-# 		if ($lines[$i] =~
-# m!^\<span\s+class=['"]Keyword['"]\>\s*sub\s*\<\/span\>\s*\<span\s+class=['"]Subroutine['"]\>(\w+)\<\/span\>!
-# 			|| $lines[$i] =~ m!^<span\s+class=['"]String['"]>\s*sub\s+(\w+)!)
-# 			{
-# 			# Use $subName as the $id
-# 			my $subName = $1;
-# 			my $id      = $subName;
-# 			$sectionIdExists{$id} = 1;
-# 			my $contentsClass = 'h2';
-# 			my $jlStart       = "<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$id'>";
-# 			my $jlEnd         = "</a></li>";
-# 			my $destAnchorStart  = "<span id='$id'>";
-# 			my $destAnchorEnd    = "</span>";
-# 			my $displayedSubName = $subName;
-# 			push @jumpList, $jlStart . $s_icon . $displayedSubName . '()' . $jlEnd;
-# 			push @subNames, $subName;
-# 			my $anki = $i;
-# 			# Look for highest comment above sub.
-# 			if (
-# 				$i > 0
-# 				&& ($lines[$i - 1] =~
-# 					m!^<tr id='R\d+'><td[^>]+></td><td><span\s+class='Comment_Normal'>!)
-# 				)
-# 				{
-# 				$anki = $i - 1;
-# 				my $testi = $i - 2;
-# 				while ($testi > 0
-# 					&& $lines[$testi] =~
-# 					m!^<tr id='R\d+'><td[^>]+></td><td><span\s+class='Comment_Normal'>!)
-# 					{
-# 					$anki = $testi;
-# 					--$testi;
-# 					}
-# 				}
-# 			if ($anki == $i)
-# 				{
-# 				$lines[$i] =~ s!$subName!$destAnchorStart$subName$destAnchorEnd!;
-# 				}
-# 			else
-# 				{
-# 				$lines[$anki] =~ s!\#!$destAnchorStart\#$destAnchorEnd!;
-# 				}
-# 			}
-# 		# "Sub-modules" - top level { ## Description \n code...}
-# 		elsif ($lines[$i] =~
-# m!\<span\s+class=\'Symbol\'\>\{\<\/span>\s*\<span\s+class=\'Comment_Normal\'\>##+\s+(.+?)\<\/span\>!
-# 			)
-# 			{
-# 			# Use section_name_with_underscores_instead_of_spaces as the $id, unless it's a duplicate.
-# 			# Eg intramine_main_3.pl#Drive_list
-# 			my $sectionName = $1;
-# 			my $id          = $sectionName;
-# 			$id =~ s!\s+!_!g;
-# 			if (defined($sectionIdExists{$id}))
-# 				{
-# 				my $anchorNumber = @sectionList;
-# 				$id = "hdr_$anchorNumber";
-# 				}
-# 			$sectionIdExists{$id} = 1;
-# 			my $contentsClass = 'h2';
-# 			my $jlStart =
-# 				"<li class='$contentsClass' im-text-ln='$lineNum'><a href='#$id'><strong>";
-# 			my $jlEnd           = "</strong></a></li>";
-# 			my $destAnchorStart = "<span id='$id'>";
-# 			my $destAnchorEnd   = "</span>";
-# 			push @sectionList,  $jlStart . $S_icon . $sectionName . $jlEnd;
-# 			push @sectionNames, $sectionName;
-# 			$lines[$i] =~ s!$sectionName!$destAnchorStart$sectionName$destAnchorEnd!;
-# 			}
-
-# 		# Curly brace tracking
-# 		while ($lines[$i] =~ m!<span class=['"]Symbol['"]>([{}])</span>!)
-# 			{
-# 			my $brace      = $1;
-# 			my $braceClass = '';
-# 			if ($brace eq '{')
-# 				{
-# 				++$braceDepth;
-# 				$braceClass = 'b-' . $braceDepth;
-# 				}
-# 			else    # '}'
-# 				{
-# 				$braceClass = 'b-' . $braceDepth;
-# 				--$braceDepth;
-# 				}
-
-# 			$lines[$i] =~
-# s!<span class=['"]Symbol['"]>[{}]</span>!<span class='Symbol $braceClass'>$brace</span>!;
-# 			}
-# 		# mini MultiMarkdown:
-# 		$lines[$i] =~ s!(^|[ #/])(TODO)!$1<span class='notabene'>$2</span>!;
-# 		$lines[$i] =~ s!(REMINDER|NOTE)!<span class='notabene'>$1</span>!;
-
-# 		my $rowID = 'R' . $lineNum;
-# 		$lines[$i] = "<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
-# 		++$lineNum;
-# 		}
-
-# 	# Add internal links to Perl files.
-# 	# Put in links that reference Table Of Contents entries within the current document.
-# 	for (my $i = 0 ; $i < @lines ; ++$i)
-# 		{
-# 		AddInternalLinksToPerlLine(\${lines [$i]}, \%sectionIdExists);
-# 		}
-
-# 	my $topSpan = '';
-# 	if (defined($lines[0]))
-# 		{
-# 		$topSpan = "<span id='top-of-document'></span>";
-# 		}
-# 	my @idx = sort {$subNames[$a] cmp $subNames[$b]} 0 .. $#subNames;
-# 	@jumpList    = @jumpList[@idx];
-# 	@idx         = sort {$sectionNames[$a] cmp $sectionNames[$b]} 0 .. $#sectionNames;
-# 	@sectionList = @sectionList[@idx];
-# 	my $numSectionEntries = @sectionList;
-# 	my $sectionBreak      = ($numSectionEntries > 0) ? '<br>' : '';
-# 	$$contentsR .=
-# 		  "<div id='scrollContentsList'>"
-# 		. "<ul>\n<li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>\n"
-# 		. join("\n", @sectionList)
-# 		. $sectionBreak
-# 		. join("\n", @jumpList)
-# 		. '</ul></div>' . "\n";
-# 	$$contentsR .=
-# 		  "<div id='scrollTextRightOfContents'>$topSpan<table><tbody>"
-# 		. join("\n", @lines)
-# 		. '</tbody></table></div>';
-
-# 	$$contentsR = encode_utf8($$contentsR);
-# }
 
 # Markdown.
 sub GetPrettyMD {
@@ -1998,7 +1805,7 @@ sub GetPrettyPod {
 # This is the main implementation of Gloss, IntraMine's markdown variant
 # optimized for intranet use.
 # All text (.txt) files are run through Gloss processing, see Gloss.txt for details. There are
-# autolinks and hover images and headings and tables and lists and all that.
+# FLASH links and hover images and headings and tables and lists and Go2 and all that.
 # A Table of Contents down the left side lists headings.
 # Alas, handling POD files introduces a light fog of special cases.
 sub GetPrettyTextContents {
@@ -2603,10 +2410,6 @@ sub GetContentFromOneEditorInstance {
 	my ($filePath, $editorShortName, $port, $octetsR) = @_;
 	my $result = 0;
 
-	# TEST ONLY
-	#print("GetContentFromOneEditorInstance TOP.\n");
-	#print("\$filePath: |$filePath|\n");
-
 	$filePath = uri_escape_utf8($filePath);
 
 	my $serverAddress = ServerAddress();
@@ -2648,20 +2451,9 @@ sub GetContentFromOneEditorInstance {
 		}
 
 	my $contents = join("\n", @lines);
-	# if ($contents =~ m!ERROR OBJ NOT DEFINED!)
-	# 	{
-	# 	my $len = length($contents);
-	# 	if ($len < 100)
-	# 		{
-	# 		print("ERROR SEEN!\n");
-	# 		}
-	# 	}
 	$contents = decode_utf8($contents);
 	$$octetsR = $contents;
 	$result   = 1;
-
-	# TEST ONLY
-	#print("GetContentFromOneEditorInstance BOTTOM.\n");
 
 	return ($result);
 }
@@ -2718,12 +2510,6 @@ sub GetChangedLinesArray {
 		{
 		$shortDiff = substr($diffs, 0, 30);
 		}
-
-	# print("\$gitDir: |$gitDir|\n");
-	# print("\$relativePath: |$relativePath|\n");
-	# print("Diffs for $path: |$shortDiff|\n");
-	# my $currentDir = Cwd::cwd();
-	# print "Current wd: |$currentDir|\n";
 
 	if ($diffs ne '')
 		{
@@ -2843,72 +2629,6 @@ sub GetLineNumbersForChangedLines {
 		push @$changedLineNumsArr, $negLine;
 		push @$lineTypesArr,       'D';
 		}
-
-
-	#print("Changed:\n");
-	#print("@$changedLineNumsArr\n");
-}
-
-sub xGetLineNumbersForChangedLines {
-	my ($diffs, $changedLineNumsArr, $lineTypesArr) = @_;
-	my @lines         = split(/\n/, $diffs);
-	my $atatLineStart = -1;
-	my $atatCount     = -1;
-	my $plusSeen      = 0;
-	my $negSeen       = 0;
-	my $negLine       = 0;
-	my $numLines      = @lines;
-	my $line          = '';
-
-	for (my $i = 0 ; $i < $numLines ; ++$i)
-		{
-		my $line = $lines[$i];
-		# Eg @@ -27,7 +27,7 @@...
-		# or @@ -665,8 +668,15
-		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
-			{
-			# Push any neg line if saw neg but no positive.
-			if ($negSeen && !$plusSeen)
-				{
-				push @$changedLineNumsArr, -$negLine;
-				}
-			$plusSeen      = 0;
-			$negSeen       = 0;
-			$negLine       = 0;
-			$atatLineStart = $1 - 1;
-			$atatCount     = $2;
-			#print("START LINE $atatLineStart, COUNT $atatCount\n");
-			}
-		elsif ($atatLineStart > 0)
-			{
-			#print("$line\n");
-			++$atatLineStart;
-			if (index($line, '+') == 0)
-				{
-				$plusSeen = 1;
-				push @$changedLineNumsArr, $atatLineStart;
-				}
-			elsif (index($line, '-') == 0)
-				{
-				$negSeen = 1;
-				$negLine = $atatLineStart;
-				--$atatLineStart;
-				}
-			else    # "Context" line
-				{
-
-				}
-			}
-		}
-
-	if ($negSeen && !$plusSeen)
-		{
-		push @$changedLineNumsArr, -$negLine;
-		}
-
-
-	#print("Changed:\n");
-	#print("@$changedLineNumsArr\n");
 }
 
 { ##### HTML hash and footnotes
@@ -3278,8 +2998,6 @@ sub GlossedFootnote {
 		undef,     undef
 	);
 
-	#my $foot = $glossedFootnote;
-
 	# Ask Linker for additional (FLASH) links.
 	AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
 
@@ -3461,7 +3179,6 @@ sub AddGlossaryAnchor {
 
 		my $anchorText = AnchorForGlossaryTerm($term);
 		my $rep        = "<h2 id=\"$anchorText\"><strong>$originalText</strong>:</h2>";
-		#		my $rep = "<a id=\"$anchorText\"><strong>$originalText</strong>:</a>";
 		# Sometimes an escaped colon sneaks into the first paragraph, delete the \.
 		$post =~ s!\\:!:!g;
 
@@ -3560,7 +3277,7 @@ sub AddEmphasis {
 	# OK hand sign: &#128076;
 	# Hand pointing right: &#9755;
 	# Light bulb: &#128161;
-	# Smiling face: &#128578;
+	# Smiling face: &#128578; - changed to 😊
 	# PEBKAC, ID10T: &#128261;
 
 	if (!$doingPOD)
@@ -3577,10 +3294,11 @@ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><spa
 		$$lineR =~
 			s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 		$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
-		$$lineR =~
-s!\:\)!<span class='textSymbol' style='color: lightgreen; background-color: #808080;'>\&#128578;</span>!g
-			;    # or \&#9786;
-				 # Three or more @'s on a line by themselves produce a "flourish" section break.
+		#$$lineR =~
+		# s!\:\)!<span class='textSymbol' style='color: lightgreen; background-color: #808080;'>\&#128578;</span>!g
+		# 			;    # or \&#9786;
+		$$lineR =~ s!\:\)!😊!g;
+		# Three or more @'s on a line by themselves produce a "flourish" section break.
 		if ($$lineR =~ m!^@@@@*$!)
 			{
 			my $sectionImage = FlourishLink();
@@ -4308,46 +4026,6 @@ sub DoTableRows {
 	return ($idx);
 }
 
-# Obsolete, CodeMirror is being used instead for Perl files.
-# sub LoadPerlFileContents {
-# 	my ($filePath, $contentsR, $octetsR) = @_;
-
-# 	$$octetsR = ReadTextFileWide($filePath);
-# 	if (!defined($$octetsR))
-# 		{
-# 		$$contentsR .= "Error, could not open $filePath.";
-# 		return (0);
-# 		}
-# 	my $decoder = Encode::Guess->guess($$octetsR);
-
-# 	my $eightyeightFired = 0;
-# 	if (ref($decoder))
-# 		{
-# 		my $decoderName = $decoder->name();
-# 		if ($decoderName =~ m!iso-8859-\d+!)
-# 			{
-# 			$$octetsR         = $decoder->decode($$octetsR);
-# 			$eightyeightFired = 1;
-# 			}
-# 		}
-
-# 	# TEST ONLY track Perl load time
-# 	#	print("Perl highlighting...");
-# 	#	my $t1 = time;
-# 	my $formatter = GetPerlHighlighter();
-# 	$$octetsR = $formatter->format_string($$octetsR);
-# 	#	my $elapsed = time - $t1;
-# 	#	my $ruffElapsed = substr($elapsed, 0, 6);
-# 	#	print(" $ruffElapsed seconds\n");
-
-# 	if (!$eightyeightFired)
-# 		{
-# 		$$octetsR = decode_utf8($$octetsR);
-# 		}
-
-# 	return (1);
-# }
-
 # Called by GetPrettyPOD().
 # Load the file, then convert to HTML using Pod::Simple::HTML.
 sub LoadPodFileContents {
@@ -4678,84 +4356,6 @@ sub InitThemeIsDark {
 }
 }    ##### Theme dark vs light
 
-# Obsolete, CodeMirror is being used instead for Perl files.
-# { ##### Perl Syntax Highlight
-# my $formatter;
-# my %StartFormats;
-# my %EndFormats;
-
-# sub InitPerlSyntaxHighlighter {
-# 	$formatter = Syntax::Highlight::Perl::Improved->new();
-
-# 	$StartFormats{'Comment_Normal'}    = "<span class='Comment_Normal'>";
-# 	$StartFormats{'Comment_POD'}       = "<span class='Comment_POD'>";
-# 	$StartFormats{'Directive'}         = "<span class='Directive'>";
-# 	$StartFormats{'Label'}             = "<span class='Label'>";
-# 	$StartFormats{'Quote'}             = "<span class='Quote'>";
-# 	$StartFormats{'String'}            = "<span class='String'>";
-# 	$StartFormats{'Subroutine'}        = "<span class='Subroutine'>";
-# 	$StartFormats{'Variable_Scalar'}   = "<span class='Variable_Scalar'>";
-# 	$StartFormats{'Variable_Array'}    = "<span class='Variable_Array'>";
-# 	$StartFormats{'Variable_Hash'}     = "<span class='Variable_Hash'>";
-# 	$StartFormats{'Variable_Typeglob'} = "<span class='Variable_Typeglob'>";
-# 	#$StartFormats{'Whitespace'} = "<span class='Whitespace'>";
-# 	$StartFormats{'Character'}        = "<span class='Character'>";
-# 	$StartFormats{'Keyword'}          = "<span class='Keyword'>";
-# 	$StartFormats{'Builtin_Function'} = "<span class='Builtin_Function'>";
-# 	$StartFormats{'Builtin_Operator'} = "<span class='Builtin_Operator'>";
-# 	$StartFormats{'Operator'}         = "<span class='Operator'>";
-# 	$StartFormats{'Bareword'}         = "<span class='Bareword'>";
-# 	$StartFormats{'Package'}          = "<span class='Package'>";
-# 	$StartFormats{'Number'}           = "<span class='Number'>";
-# 	$StartFormats{'Symbol'}           = "<span class='Symbol'>";
-# 	$StartFormats{'CodeTerm'}         = "<span class='CodeTerm'>";
-# 	$StartFormats{'DATA'}             = "<span class='DATA'>";
-
-# 	$EndFormats{'Comment_Normal'}    = "</span>";
-# 	$EndFormats{'Comment_POD'}       = "</span>";
-# 	$EndFormats{'Directive'}         = "</span>";
-# 	$EndFormats{'Label'}             = "</span>";
-# 	$EndFormats{'Quote'}             = "</span>";
-# 	$EndFormats{'String'}            = "</span>";
-# 	$EndFormats{'Subroutine'}        = "</span>";
-# 	$EndFormats{'Variable_Scalar'}   = "</span>";
-# 	$EndFormats{'Variable_Array'}    = "</span>";
-# 	$EndFormats{'Variable_Hash'}     = "</span>";
-# 	$EndFormats{'Variable_Typeglob'} = "</span>";
-# 	#$EndFormats{'Whitespace'} = "</span>";
-# 	$EndFormats{'Character'}        = "</span>";
-# 	$EndFormats{'Keyword'}          = "</span>";
-# 	$EndFormats{'Builtin_Function'} = "</span>";
-# 	$EndFormats{'Builtin_Operator'} = "</span>";
-# 	$EndFormats{'Operator'}         = "</span>";
-# 	$EndFormats{'Bareword'}         = "</span>";
-# 	$EndFormats{'Package'}          = "</span>";
-# 	$EndFormats{'Number'}           = "</span>";
-# 	$EndFormats{'Symbol'}           = "</span>";
-# 	$EndFormats{'CodeTerm'}         = "</span>";
-# 	$EndFormats{'DATA'}             = "</span>";
-
-# 	$formatter->set_start_format(\%StartFormats);
-# 	$formatter->set_end_format(\%EndFormats);
-
-# 	my $subH = $formatter->substitutions();
-# 	$subH->{'<'} = '&lt;';
-# 	$subH->{'>'} = '&gt;';
-# 	$subH->{'&'} = '&amp;';
-# 	#$subH->{"\t"} = '&nbsp;&nbsp;&nbsp;&nbsp;';
-# 	#$subH->{"    "} = '&nbsp;&nbsp;&nbsp;&nbsp;';
-# }
-
-# sub GetPerlHighlighter {
-# 	# Some files such as filehandle.pm kill the Perl formatter,
-# 	# and it starts spitting out unhighlighted text.
-# 	# A reset seems to cure that.
-# 	$formatter->reset();
-# 	return ($formatter);
-# }
-
-# }    ##### Perl Syntax Highlight
-
 { ##### Internal Links
 my $line;
 my $len;
@@ -4953,180 +4553,6 @@ sub UniqueBrowserID {
 	++$UniqueBrowserID;
 	return ("V$UniqueBrowserID");    # Note the 'V', to distinguish from Editor IDs.
 }
-
-# Obsolete, CodeMirror is being used instead for Perl display.
-# Much as AddInternalLinksToLine() just above, but only single words
-# are examined for a match against a TOC entry, and word must be followed immediately by '('
-# (possibly with intervening span markup),
-# which limits links to sub() mentions, in code or comments.
-# Or preceded by '&', meaning a subrouting reference.
-# OUTSIDE of a comment, a sub call looks like:
-#		<span class="Subroutine">MakeDirectoriesForFile</span>\s*<span class="Symbol">(</span>....
-# INSIDE of a comment, it's just
-# 		MakeDirectoriesForFile(....
-# sub AddInternalLinksToPerlLine {
-# 	my ($txtR, $sectionIdExistsH) = @_;
-
-# 	# Skip any line that does have a '(' or '&amp;' or is a sub definition.
-# 	if ((index($$txtR, '(') < 0 && index($$txtR, '&amp;') < 0) || index($$txtR, 'sub<') > 0)
-# 		{
-# 		return;
-# 		}
-
-# 	my $line = $$txtR;
-
-# 	# These replacements are more easily done in reverse order to avoid throwing off the start/end.
-# 	my @repStr;    # new link, eg <a href="#GetBinFile">GetBinFile</a>(...)
-# 	my @repLen;    # length of substr to replace in line, eg length('GetBinFile')
-# 	my @repStartPos
-# 		;    # where header being replaced starts, eg zero-based positon of 'B' in 'GetBinFile'
-
-# 	my $currentMatchEndPos = 0;
-# 	while (($currentMatchEndPos = index($line, '(', $currentMatchEndPos)) > 0)
-# 		{
-# 		my $haveGoodMatch = 0;
-# 		# Find end and start of any word before '('. Skip over span stuff if it's code, not comment.
-# 		my $wordEndPos = $currentMatchEndPos;
-# 		if (substr($line, $wordEndPos - 1, 1) eq '>')
-# 			{
-# 			$wordEndPos = rindex($line, '<', $wordEndPos);
-# 			$wordEndPos = rindex($line, '>', $wordEndPos) unless $wordEndPos < 0;
-# 			$wordEndPos = rindex($line, '<', $wordEndPos) unless $wordEndPos < 0;
-# 			}
-# 		#else assume subroutine name is immediately before the '('.
-# 		# If no word end, keep going.
-# 		if ($wordEndPos < 0)
-# 			{
-# 			++$currentMatchEndPos;
-# 			next;
-# 			}
-
-# 		my $wordStartPos  = rindex($line, ' ', $wordEndPos);
-# 		my $rightAnglePos = rindex($line, '>', $wordEndPos);
-# 		if ($rightAnglePos > 0 && ($wordStartPos < 0 || $rightAnglePos > $wordStartPos))
-# 			{
-# 			$wordStartPos = $rightAnglePos;
-# 			}
-# 		my $hashPos = rindex($line, '#', $wordEndPos);
-# 		if ($hashPos > 0 && ($wordStartPos < 0 || $hashPos > $wordStartPos))
-# 			{
-# 			$wordStartPos = $hashPos;
-# 			}
-# 		++$wordStartPos;    # Skip the space or > or #.
-
-# 		my $potentialID = substr($line, $wordStartPos, $wordEndPos - $wordStartPos);
-# 		# Have we matched a known header with our (potential) ID?
-# 		if (defined($sectionIdExistsH->{$potentialID}))
-# 			{
-# 			$haveGoodMatch = 1;
-# 			my $charBeforeMatch = substr($line, $wordStartPos - 1, 1);
-# 			if ($charBeforeMatch eq '#')
-# 				{
-# 				my $insideExistingAnchor = 0;
-# 				# Is there an anchor on the line?
-# 				if (index($line, '<a') > 0)
-# 					{
-# 					# Does the anchor enclose the header mention? That's a hard one.
-# 					#<a href="http://192.168.0.3:43129/?href=c:/perlprogs/mine/notes/server swarm.txt#Set_HTML" target="_blank">server swarm.txt#Set_HTML</a>
-# 					# If it's in the href, it will be preceded immediately by a port number.
-# 					# If it's displayed as the anchor content, it will be preceded immediately
-# 					# by a file extension.
-# 					# REVISION if followed by single or double quote, but there isn't a
-# 					# matching single or double quote before the #, skip it.
-# 					#$posSep = index($line, '.', $prevPos);
-# 					my $currentPos         = $wordEndPos;
-# 					my $nextAnchorStartPos = index($line, '<a ',  $currentPos);
-# 					my $nextAnchorEndPos   = index($line, '</a>', $currentPos);
-# 					if ($nextAnchorEndPos >= 0
-# 						&& ($nextAnchorStartPos < 0 || $nextAnchorEndPos < $nextAnchorStartPos))
-# 						{
-# 						$insideExistingAnchor = 1;
-# 						}
-# 					}
-
-# 				if ($insideExistingAnchor)
-# 					{
-# 					$haveGoodMatch = 0;
-# 					}
-# 				else
-# 					{
-# 					# Skip if we see \w# before the word, likely meaning that a file name precedes
-# 					# the word and it's really a link to another file.
-# 					if ($wordStartPos > 2)
-# 						{
-# 						my $charBefore = substr($line, $wordStartPos - 2, 1);
-# 						my $ordCB      = ord($charBefore);
-# 						my $isExtensionChar =
-# 							(      ($ordCB >= $ORD_a && $ordCB <= $ORD_z)
-# 								|| ($ordCB >= $ORD_A && $ordCB <= $ORD_Z)
-# 								|| ($ordCB >= $ORD_0 && $ordCB <= $ORD_9));
-# 						if ($isExtensionChar)
-# 							{
-# 							$haveGoodMatch = 0;
-# 							}
-# 						}
-# 					}
-# 				}
-
-# 			if ($haveGoodMatch)
-# 				{
-# 				# <a href="#potentialID">potentialID</a>
-# 				push @repStr,      "<a href=\"#$potentialID\">$potentialID</a>";
-# 				push @repStartPos, $wordStartPos;
-# 				push @repLen,      $wordEndPos - $wordStartPos;
-# 				}
-# 			}
-
-# 		++$currentMatchEndPos;
-# 		}    # while ($currentMatchEndPos = (index($line, '(', $currentMatchEndPos)) > 0)
-
-# 	# Also look for \&Subname. In practice, &Subname should do.
-# 	# (Note & is &amp; in the HTML.)
-# 	my $currentMatchStartPos = 0;
-# 	while (($currentMatchStartPos = index($line, '&amp;', $currentMatchStartPos)) > 0)
-# 		{
-# 		# If chars following the '&' form a word, look it up in TOC entries.
-# 		my $wordStartPos = $currentMatchStartPos + 5;
-# 		my $wordEndPos   = $wordStartPos;
-# 		my $nextChar     = substr($line, $wordEndPos, 1);
-# 		my $ordNC        = ord($nextChar);
-# 		while (($ordNC >= $ORD_a && $ordNC <= $ORD_z)
-# 			|| ($ordNC >= $ORD_A && $ordNC <= $ORD_Z)
-# 			|| ($ordNC >= $ORD_0 && $ordNC <= $ORD_9))
-# 			{
-# 			++$wordEndPos;
-# 			$nextChar = substr($line, $wordEndPos, 1);
-# 			$ordNC    = ord($nextChar);
-# 			}
-# 		if ($wordEndPos > $wordStartPos)
-# 			{
-# 			my $potentialID = substr($line, $wordStartPos, $wordEndPos - $wordStartPos);
-# 			if (defined($sectionIdExistsH->{$potentialID}))
-# 				{
-# 				push @repStr,      "<a href=\"#$potentialID\">$potentialID</a>";
-# 				push @repStartPos, $wordStartPos;
-# 				push @repLen,      $wordEndPos - $wordStartPos;
-# 				}
-# 			$currentMatchStartPos += ($wordEndPos - $wordStartPos);
-# 			}
-# 		else
-# 			{
-# 			$currentMatchStartPos += 5;
-# 			}
-# 		}
-
-# 	# Do all reps in reverse order at end.
-# 	my $numReps = @repStr;
-# 	if ($numReps)
-# 		{
-# 		for (my $i = $numReps - 1 ; $i >= 0 ; --$i)
-# 			{
-# 			# substr($line, $pos, $srcLen, $repString);
-# 			substr($line, $repStartPos[$i], $repLen[$i], $repStr[$i]);
-# 			}
-# 		$$txtR = $line;
-# 		}
-# }
 
 ############## Video support
 # Create a temporary .bat file containing the full path of the video,

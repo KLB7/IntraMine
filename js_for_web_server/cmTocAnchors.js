@@ -178,16 +178,19 @@ function jumpToLine(lineNum, adjustToShowComment) {
 		}
 }
 
-function cmRejumpToAnchor() {
+function cmRejumpToAnchor() {	
 	let anchor = location.hash;
 
 	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
-	if (lineNumberStr !== null && !isNaN(lineNumberStr))
+	if (lineNumberStr !== null && !isNaN(lineNumberStr) && location.href.indexOf("searchItems=") < 0)
 		{
-		let lineNum = parseInt(lineNumberStr, 10);
-		jumpToLine(lineNum, true);
+		// Skip storage if we are coming from the Search page.
+		if (location.href.indexOf("searchItems=") < 0)
+			{
+			let lineNum = parseInt(lineNumberStr, 10);
+			jumpToLine(lineNum, true);
+			}
 		}
-
 	else if (anchor.length > 1)
 		{
 		anchor = decodeURIComponent(anchor);
@@ -232,7 +235,8 @@ function cmQuickRejumpToLine() {
 	if (anchor.length > 1)
 		{
 		anchor = anchor.replace(/^#/, '');
-		if (isNaN(anchor))
+		// Skip storage if we are coming from the Search page.
+		if (isNaN(anchor) && location.href.indexOf("searchItems=") < 0)
 			{
 			let lineNumberStr = sessionStorage.getItem('lineNumberStr');
 			if (lineNumberStr !== null)
@@ -244,7 +248,10 @@ function cmQuickRejumpToLine() {
 		else
 			{
 			let lineNum = parseInt(anchor, 10);
-			quickJumpToLine(lineNum);
+			if (lineNum > 0)
+				{
+				quickJumpToLine(lineNum);
+				}
 			}
 		}
 }
@@ -264,6 +271,9 @@ function quickJumpToLine(lineNum) {
 // "::anchor$", eg if we are given "eventListen" where the exact match would be
 // "WebServer::eventListen". And if that fails, look for "^anchor$".
 function lineNumberForAnchor(anchor) {
+	// TEST ONLY
+	//console.log("TOP of lineNumberForAnchor.");
+
 	let lineNumber = -1; // not a good value
 	if (anchor.length > 1)
 		{

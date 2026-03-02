@@ -332,8 +332,6 @@ my $reindexRequestPending;
 sub OnChangeDelayedIndexChangedFiles {
 	my ($obj, $formH, $peeraddress) = @_;
 
-	# TEST OUT: OnHeartbeatFromFolderMonitor();
-
 	# Do a quick initial re-index, to promptly catch changes to a single file.
 	if (!defined($reindexRequestPending) || $reindexRequestPending == 0)
 		{
@@ -516,9 +514,9 @@ sub IndexChangedFiles {
 	# has been re-created and is no longer deleted. Beating it to death there:)
 	RemoveNewFilesFromDeletes(\%PathsOfCreatedFiles);
 
-	# Remember paths of changed files, for signalling a file has change
+	# Remember paths of changed files, for signalling a file has changed
 	# when polled by Viewer or Editor.
-	RememberFilesChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
+	RememberAndNotifyFilesChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
 
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
@@ -644,7 +642,7 @@ sub ReportIfCongested {
 
 # Remember paths of changed files. Viewer/Editor web pages will use HTTP
 # to poll for changes.
-sub RememberFilesChanged {
+sub RememberAndNotifyFilesChanged {
 	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH, $timeStampForPathH) = @_;
 	my $CHANGED_BROADCAST_LIMIT = 10;    # or 5 or 3?
 	my @pathsOfChangedNotNewFiles;
@@ -672,7 +670,7 @@ sub RememberFilesChanged {
 				: '0';
 			if ($timeStamp ne '0')
 				{
-				RememberOneFileChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
+				RememberAndNotifyOneFileChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
 				}
 			}
 		}
@@ -1979,7 +1977,7 @@ sub ModTimeAndLine {
 
 # $timeStamp is eg "2026-02-20 3:44:44 PM".
 # Converted to epoch seconds for storage.
-sub RememberOneFileChanged {
+sub RememberAndNotifyOneFileChanged {
 	my ($filePath, $timeStamp) = @_;
 	$filePath =~ s!\\!/!g;
 	$filePath = lc($filePath);
@@ -1990,6 +1988,10 @@ sub RememberOneFileChanged {
 	my $t            = localtime()->strptime($timeStamp, "%Y-%m-%d %I:%M:%S %p");
 	my $epochSeconds = $t->epoch;
 	$TimeForFileChange{$filePath} = $epochSeconds;
+
+	my $msg =
+		'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected 0 ' . $filePath . '     ' . $epochSeconds;
+	WebSocketSend($msg);
 
 	# my ($seconds, $microseconds) = gettimeofday();
 	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));

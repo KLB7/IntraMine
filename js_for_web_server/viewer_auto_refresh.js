@@ -1,6 +1,6 @@
 // viewer_auto_refresh.js: for IntraMine's Viewer, refresh display
 // when a WebSockets "fileChanged" message is received for a specific file.
-// Attempt to go to line number where the change happened.
+// Attempt to go to line number where the change happened if one is supplied.
 
 // There are currently two separate file change notifications,
 // one from IntraMine's Editor editor.js#notifyFileChangedAndRememberCursorLine()

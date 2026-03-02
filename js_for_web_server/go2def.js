@@ -10,6 +10,8 @@ let maximumDeltaX = 30;
 let maximumDeltaY = 30;
 let mouseHasMovedALot = false;
 let definitionMouseMoveTimeout = 250; // milliseconds
+let waitCursorDivName = 'scrollAdjustedHeight';
+let waitClassName = 'cursorWait';
 
 // If mouse doesn't move much call back to the Linker with req=defs
 // and then call showhint() to pop up a list of links that have
@@ -98,6 +100,7 @@ async function ShowDefIfHovering(term, event) {
 // Show any result with tooltip.js#showhint().
 async function showDefinitionHintWithPort(term, event, linkerPort) {
 	try {
+		setCursorToWait();
 		let theAction = 'http://' + mainIP + ':' + linkerPort + '/?req=defs&findthis=' + encodeURIComponent(term) + '&path=' + encodeURIComponent(thePath);
 		const response = await fetch(theAction);
 		if (response.ok)
@@ -121,18 +124,21 @@ async function showDefinitionHintWithPort(term, event, linkerPort) {
 				// TEST ONLY
 				//console.log("text is empty.");
 				}
+			removeWaitCursor();
 			}
 		else
 			{
 			// We reached our target server, but it returned an error
 			// TEST ONLY
 			////console.log("We reached our target server, but it returned an error");
+			removeWaitCursor();
 			return;
 			}
 	}
 	catch(error) {
 		// TEST ONLY
 		//console.log("Try failed.");
+		removeWaitCursor();
 
 		return;
 	}
@@ -157,3 +163,39 @@ function viewerOpenAnchor(href) {
 
 	window.open(url, "_blank");
 	}
+
+function setCursorToWait() {
+	showSpinner();
+	// if (typeof myCodeMirror !== "undefined")
+	// 	{
+	// 	//let editor = myCodeMirror;
+	// 	//let wrapper = editor.getWrapperElement();
+	// 	//document.body.style.cursor = 'wait';
+	// 	}
+	// else
+	// 	{
+	// 	let elem = document.getElementById(waitCursorDivName);
+	// 	if (elem !== null)
+	// 		{
+	// 		addClass(elem, waitClassName);
+	// 		}
+	// 	}
+}
+
+function removeWaitCursor() {
+	hideSpinner();
+	// if (typeof myCodeMirror !== "undefined")
+	// 	{
+	// 	//let editor = myCodeMirror;
+	// 	//let wrapper = editor.getWrapperElement();
+	// 	//document.body.style.cursor = 'auto';
+	// 	}
+	// else
+	// 	{
+	// 	let elem = document.getElementById(waitCursorDivName);
+	// 	if (elem !== null)
+	// 		{
+	// 		removeClass(elem, waitClassName);
+	// 		}
+	// 	}
+}

@@ -142,17 +142,27 @@ function reJump(delayMsec) {
 		return;
 		}
 	
+	// TEST ONLY
+	//console.log("reJump after jumpToMarkdownLineFromStorage.");
+
 	if (delayMsec === undefined)
 		{
 		delayMsec = 0;
 		}
 	
 	let h = location.hash;
+	// TEST ONLY
+	//console.log("h |" + h + "|");
+
 	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
 	let useStorage = false;
 	if (lineNumberStr !== null && !isNaN(lineNumberStr))
 		{
-		useStorage = true;
+		// Skip storage if we are coming from the Search page.
+		if (location.href.indexOf("searchItems=") < 0)
+			{
+			useStorage = true;
+			}
 		}
 
 	if (!useStorage && h.length > 1)
@@ -163,6 +173,14 @@ function reJump(delayMsec) {
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		h = decodeURIComponent(h);
+		if (h.indexOf('"') == 0)
+			{
+			h = h.substring(1);
+			h = h.substring(0, h.length - 1);
+			}
+
+		// TEST ONLY
+		//console.log("reJump hash: |" + h + "|");
 		
 		if (isNaN(h))
 			{
@@ -170,7 +188,11 @@ function reJump(delayMsec) {
 			if (el === null)
 				{
 				let simplerHCopy = h.toLowerCase();
-				simplerHCopy = simplerHCopy.replace(/\W/g, '');
+				simplerHCopy = simplerHCopy.replace(/\W/g, '_');
+
+				// TEST ONLY
+				//console.log("Looking for simpler |" + simplerHCopy + "|");
+
 				el = document.getElementById(simplerHCopy);
 				}		
 			
@@ -187,6 +209,11 @@ function reJump(delayMsec) {
 					scrollMobileIndicator(); // if mobile
 					}
 				}
+			// TEST ONLY
+			else
+				{
+				//console.log("el is null. h is |" + h + "|");
+				}
 			}
 		else
 			{
@@ -200,6 +227,8 @@ function reJump(delayMsec) {
 			{
 			if (!isNaN(lineNumberStr))
 				{
+				// TEST ONLY
+				//console.log("Calling reJumpToLineNumber for line " + lineNumberStr);
 				reJumpToLineNumber(lineNumberStr, delayMsec);
 				}
 			}
@@ -752,6 +781,7 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
 				doResize();
+				finishReload();
 				startReloadCheck();
 				//reportActivity();
 				}
@@ -770,6 +800,40 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 
 function prepForReload() {
 	stopReloadCheck();
+}
+
+function finishReload() {
+	markerMainElement = document.getElementById(cmTextHolderName);
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById("scrollText");
+		}
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById(specialTextHolderName);
+		}
+
+	if (markerMainElement !== null)
+		{
+		markerInstance = new Mark(markerMainElement);
+		}
+
+	tocMainElement = document.getElementById("scrollContentsList");
+
+	if (markerMainElement !== null)
+		{
+		markerMainElement.addEventListener("click", delayedUpdateMarkersAndTOC);
+		markerMainElement.addEventListener("dblclick", noteWasDoubleClick);
+		window.addEventListener("resize", updateScrollbarMarkers);
+
+		markerMainElement.addEventListener("mouseup", resetTopNavPosition);
+		if (tocMainElement !== null)
+			{
+			tocMainElement.addEventListener("mouseup", resetTopNavPosition);
+			}
+		}
+
+	addToggleScrollListener();
 }
 
 // Code block highlighting with lolight, used

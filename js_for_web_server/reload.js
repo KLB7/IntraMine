@@ -8,7 +8,7 @@ let watcherPort = 0;
 let fileChangedTimeRE = new RegExp("^(\\d+)$");
 let fileChangedTimeLineRE = new RegExp("^(\\d+)S(\\d+)$");
 let lastModTime = "0";
-if (typeof fileModTime !== "undefined") // defined for Viewer only
+if (typeof fileModTime !== "undefined") // defined for Viewer and Editor
 	{
 	lastModTime = fileModTime;
 	}

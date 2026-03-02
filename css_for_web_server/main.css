@@ -791,6 +791,11 @@ a.embedded_image {
 	background-color: rgb(200, 255, 200);
 }
 
+/* Change cursor to "wait" */
+.cursorWait {
+	cursor: wait;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 #theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
