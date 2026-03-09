@@ -27,16 +27,39 @@ async function showNonCMDiffDetails(elem) {
         return;
         }
 
-        try {
-            const port = await fetchPort(mainIP, theMainPort, linkerShortName, '');
-            if (port !== "")
-                {
-                showDiffsWithPort(lineNum, port);
-                }
+    // ++lineNum;
+
+    try {
+        const port = await fetchPort(mainIP, theMainPort, linkerShortName, '');
+        if (port !== "")
+            {
+            showDiffsWithPort(lineNum, port);
+            }
+    }
+    catch(error) {
+        return;
+    }
+}
+
+async function showNonCMDiffDetailsShrunkRow(elem) {
+    let lineNum = lineNumberForFirstTD(elem);
+    if (lineNum === 0)
+        {
+        return;
         }
-        catch(error) {
-            return;
-        }
+
+    ++lineNum; // marker is on line before diff for a shrunkrow
+
+    try {
+        const port = await fetchPort(mainIP, theMainPort, linkerShortName, '');
+        if (port !== "")
+            {
+            showDiffsWithPort(lineNum, port);
+            }
+    }
+    catch(error) {
+        return;
+    }
 }
 
 function lineNumberForFirstTD(elem) {
@@ -54,6 +77,10 @@ async function showDiffsWithPort(clickedLineNumber, port) {
 		if (response.ok)
 			{
 			let text = await response.text();
+
+            // TEST ONLY
+            //console.log("showDiffs text: |" + text + "|");
+
 			if (text !== '' && text !== ' ')
 				{
 				if (text !== 'nope')
@@ -71,6 +98,9 @@ async function showDiffsWithPort(clickedLineNumber, port) {
                             // TODO set top of popup.
                             diffPopupElement.style.display = 'flex';
                             setPopupDetails();
+								
+							// TEST ONLY
+							//console.log("text: |" + text + "|");
                             }
                         }
                     

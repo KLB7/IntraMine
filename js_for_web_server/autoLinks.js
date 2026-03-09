@@ -377,6 +377,11 @@ function diffMarkerClicked(event) {
 	showNonCMDiffDetails(tdElem); // showDiffDetails,js
 }
 
+function diffMarkerClickedShrunkRow(event) {
+	let tdElem = event.target;
+	showNonCMDiffDetailsShrunkRow(tdElem); // showDiffDetails,js
+}
+
 function overDiffMarker(event) {
 	//console.log("Mouse over diff marker.");
 	let tdElem = event.target;

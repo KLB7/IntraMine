@@ -112,6 +112,7 @@ let errorID = "runMessageDiv";
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
 <script src="lru.js"></script>
+<script src="reportActivity.js"></script>
 
 <script src="glosser.js"></script>
 </body></html>

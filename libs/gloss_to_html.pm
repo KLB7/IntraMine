@@ -1107,8 +1107,7 @@ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><spa
 	$$lineR =~
 		s!(FIXED|DONE)!<span class='textSymbolSmall' style='color: Green;'>\&#9745;</span>$1!;
 	$$lineR =~ s!(WTF)!<span class='textSymbol' style='color: Chocolate;'>\&#128169;</span>$1!;
-	$$lineR =~
-		s!\:\)!<span class='textSymbol' style='color: DarkGreen;'>\&#128578;</span>!;  # or \&#9786;
+	$$lineR =~ s!\:\)!😊!g;    # or \&#9786;
 		# Three or more @'s on a line by themselves produce a "flourish" section break.
 	if ($$lineR =~ m!^@@@@*$!)
 		{

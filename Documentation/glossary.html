@@ -800,6 +800,11 @@ a.embedded_image {
 	background-color: rgb(200, 255, 200);
 }
 
+/* Change cursor to "wait" */
+.cursorWait {
+	cursor: wait;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 #theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
@@ -1938,7 +1943,6 @@ span.ll-com { /* comments */
 <div id='scrollAdjustedHeight'>
 <div id='scrollContentsList'><ul>
 <li class='h2' im-text-ln='1'><a href='#top-of-document'>TOP</a></li>
-<li class='h2' im-text-ln='63'><a href='#<span_class=textsymbol_style=color'><span class='textSymbol' style='color</a></li>
 <li class='h2' im-text-ln='92'><a href='#autolinks,_automatic_links,_automatic_linking,_autolinking,_flash_link,_flash_links,_flash_linking'>Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking</a></li>
 <li class='h2' im-text-ln='31'><a href='#background_service,_background_server,_background_services,_background_servers'>Background service, background server, background services, background servers</a></li>
 <li class='h2' im-text-ln='102'><a href='#command_prompt'>Command prompt</a></li>
@@ -2155,7 +2159,7 @@ Vb1X9i79TmobMTNQ8M4r+owhCRYwTQ+rjGVJQ/yspO+SokONLpGJ2q08FddccTx7Rkp85sDKo1Xa
 XVH1gHp5ap18kLjjcqpNWnAF8gSBhFKJTEmXBuH/Vm+jsYQg7JYAAAAASUVORK5CYII=
 "  /></td></tr>
 <tr id='R62'><td n='62'></td><td></td></tr>
-<tr id='R63'><td n='63'></td><td><h2 id="<span_class=textsymbol_style=color"><strong><span class='textSymbol' style='color</strong>:</h2> DarkGreen;'>&#128578;</span></td></tr>
+<tr id='R63'><td n='63'></td><td>😊</td></tr>
 <tr id='R64'><td n='64'></td><td></td></tr>
 <tr id='R65'><td n='65'></td><td><h2 id="image_hover,_hover_image,_hover_images,_image_hovers"><strong>Image hover, hover image, hover images, image hovers</strong>:</h2> In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.</td></tr>
 <tr id='R66'><td n='66'></td><td></td></tr>
@@ -8362,17 +8366,27 @@ function reJump(delayMsec) {
 		return;
 		}
 	
+	// TEST ONLY
+	//console.log("reJump after jumpToMarkdownLineFromStorage.");
+
 	if (delayMsec === undefined)
 		{
 		delayMsec = 0;
 		}
 	
 	let h = location.hash;
+	// TEST ONLY
+	//console.log("h |" + h + "|");
+
 	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
 	let useStorage = false;
 	if (lineNumberStr !== null && !isNaN(lineNumberStr))
 		{
-		useStorage = true;
+		// Skip storage if we are coming from the Search page.
+		if (location.href.indexOf("searchItems=") < 0)
+			{
+			useStorage = true;
+			}
 		}
 
 	if (!useStorage && h.length > 1)
@@ -8383,6 +8397,14 @@ function reJump(delayMsec) {
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		h = decodeURIComponent(h);
+		if (h.indexOf('"') == 0)
+			{
+			h = h.substring(1);
+			h = h.substring(0, h.length - 1);
+			}
+
+		// TEST ONLY
+		//console.log("reJump hash: |" + h + "|");
 		
 		if (isNaN(h))
 			{
@@ -8390,7 +8412,11 @@ function reJump(delayMsec) {
 			if (el === null)
 				{
 				let simplerHCopy = h.toLowerCase();
-				simplerHCopy = simplerHCopy.replace(/\W/g, '');
+				simplerHCopy = simplerHCopy.replace(/\W/g, '_');
+
+				// TEST ONLY
+				//console.log("Looking for simpler |" + simplerHCopy + "|");
+
 				el = document.getElementById(simplerHCopy);
 				}		
 			
@@ -8407,6 +8433,11 @@ function reJump(delayMsec) {
 					scrollMobileIndicator(); // if mobile
 					}
 				}
+			// TEST ONLY
+			else
+				{
+				//console.log("el is null. h is |" + h + "|");
+				}
 			}
 		else
 			{
@@ -8420,6 +8451,8 @@ function reJump(delayMsec) {
 			{
 			if (!isNaN(lineNumberStr))
 				{
+				// TEST ONLY
+				//console.log("Calling reJumpToLineNumber for line " + lineNumberStr);
 				reJumpToLineNumber(lineNumberStr, delayMsec);
 				}
 			}
@@ -8972,7 +9005,9 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
 				doResize();
+				finishReload();
 				startReloadCheck();
+				//reportActivity();
 				}
 			}
 		else
@@ -8989,6 +9024,42 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 
 function prepForReload() {
 	stopReloadCheck();
+}
+
+function finishReload() {
+	markerMainElement = document.getElementById(cmTextHolderName);
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById("scrollText");
+		}
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById(specialTextHolderName);
+		}
+
+	if (markerMainElement !== null)
+		{
+		markerInstance = new Mark(markerMainElement);
+		}
+
+	tocMainElement = document.getElementById("scrollContentsList");
+
+	if (markerMainElement !== null)
+		{
+		markerMainElement.addEventListener("click", delayedUpdateMarkersAndTOC);
+		markerMainElement.addEventListener("dblclick", noteWasDoubleClick);
+		window.addEventListener("resize", updateScrollbarMarkers);
+
+		markerMainElement.addEventListener("mouseup", resetTopNavPosition);
+		if (tocMainElement !== null)
+			{
+			tocMainElement.addEventListener("mouseup", resetTopNavPosition);
+			}
+		}
+
+	addToggleScrollListener();
+
+	markDiffsInScrollbar(diffScrollMarkerClass);
 }
 
 // Code block highlighting with lolight, used
@@ -9559,7 +9630,7 @@ function markDiffsInScrollbar(scrollHitClassName) {
 		{
 		return;
 		}
-	// console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
+	//console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
 	removeElementsByClass(scrollHitClassName);
 
 	// Light themes want a slightly whiter thumb for diff markers to show up.

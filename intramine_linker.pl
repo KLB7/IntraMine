@@ -2607,9 +2607,10 @@ sub AddToDictionary {
 }
 
 # Currently $lastLineNum is ignored, and $$resultR is set to
-# changed lines for any "chunk" from git containing $firstLineNum.
+# changed lines for any "hunk" from git containing $firstLineNum.
 sub CmGetChangedLineListForText {
 	my ($path, $firstLineNum, $lastLineNum, $resultR) = @_;
+
 	$path =~ s!\\!/!g;
 	my $properPath = Win32::GetLongPathName($path);
 	if (defined($properPath) && $properPath ne '')
@@ -2631,6 +2632,9 @@ sub CmGetChangedLineListForText {
 	# TEST ONLY
 	#print("\$gitDir: |$gitDir|\n");
 	#print("\$relativePath: |$relativePath|\n");
+	#print("First line num: |$firstLineNum|, last line num |$lastLineNum|\n");
+
+	#my $gitCmd = "git diff HEAD --unified=0 -- \"$relativePath\" 2>NUL";
 	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
 
 	# Call git for a list of differences between current saved version
@@ -2641,6 +2645,10 @@ sub CmGetChangedLineListForText {
 	# if ($diffs eq '')
 	# 	{
 	# 	print("NO DIFFS.\n");
+	# 	}
+	# else
+	# 	{
+	# 	print("diffs: |$diffs|\n");
 	# 	}
 
 	if ($diffs ne '')
@@ -2696,22 +2704,49 @@ sub CmGetChangedLineListForText {
 				$lineClass = ' neg_line_class';
 				}
 
-			my $spacer = '';
-			if ($lineNumber < 10)
+			my $spacer = '   ';
+			# my $spacer = '';
+			# if ($lineNumber < 10)
+			# 	{
+			# 	$spacer = '   ';
+			# 	}
+			# elsif ($lineNumber < 100)
+			# 	{
+			# 	$spacer = '  ';
+			# 	}
+			# elsif ($lineNumber < 1000)
+			# 	{
+			# 	$spacer = ' ';
+			# 	}
+
+			# $lineNumber is nSNONE or NONESn or nSn where n is an integer. Eg NONES72, 72SNONE.
+			my $leftNum      = ' ';
+			my $rightNum     = ' ';
+			my $nonePosition = index($lineNumber, 'NONE');
+			if ($nonePosition >= 0)
 				{
-				$spacer = '   ';
+				if ($nonePosition == 0)
+					{
+					my $separatorPos = index($lineNumber, 'S');
+					$rightNum = substr($lineNumber, $separatorPos + 1);
+					}
+				else
+					{
+					my $separatorPos = index($lineNumber, 'S');
+					$leftNum = substr($lineNumber, 0, $separatorPos);
+					}
 				}
-			elsif ($lineNumber < 100)
+			else
 				{
-				$spacer = '  ';
-				}
-			elsif ($lineNumber < 1000)
-				{
-				$spacer = ' ';
+				my $separatorPos = index($lineNumber, 'S');
+				$leftNum  = substr($lineNumber, 0, $separatorPos);
+				$rightNum = substr($lineNumber, $separatorPos + 1);
 				}
 
 			my $finalLine =
-"<tr class='diffrow$lineClass'><td n='$lineNumber$spacer$plusMinusAtLineStart'></td><td class='diff_line_num'>$line</td></tr>\n";
+"<tr class='diffrow$lineClass'><td>$leftNum</td><td>$rightNum</td><td>$plusMinusAtLineStart</td><td>$line</td></tr>\n";
+			# 			my $finalLine =
+			# "<tr class='diffrow$lineClass'><td n='$lineNumber$spacer$plusMinusAtLineStart'></td><td class='diff_line_num'>$line</td></tr>\n";
 			if ($$resultR eq '')
 				{
 				$$resultR = "<div id='diffTableId'><table id='thisisthetablefordiffdetails'>\n";
@@ -2774,7 +2809,9 @@ sub CmGetSpecifChangesForText {
 
 	my $relativePath = substr($path, length($gitDir) + 1);
 	chdir($gitDir);
-	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
+
+	my $gitCmd = "git diff HEAD --unified=0 -- \"$relativePath\" 2>NUL";
+	#my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
 
 	# Call git for a list of differences between current saved version
 	# and last committed version. Note git might not even be installed.
@@ -2827,68 +2864,24 @@ sub GetGitDirectoryFromPath {
 	return ($result);
 }
 
-
-sub xGetLineNumbersForChangedLines {
-	my ($diffs, $changedLineNumsArr) = @_;
-	my @lines         = split(/\n/, $diffs);
-	my $atatLineStart = -1;
-	my $plusSeen      = 0;
-	my $negSeen       = 0;
-	my $negLine       = 0;
-	my $numLines      = @lines;
-	my $line          = '';
-
-	for (my $i = 0 ; $i < $numLines ; ++$i)
-		{
-		my $line = $lines[$i];
-		# Eg @@ -27,7 +27,7 @@...
-		# or @@ -665,8 +668,15
-		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
-			{
-			# Push any neg line if saw neg but no positive.
-			if ($negSeen && !$plusSeen)
-				{
-				push @$changedLineNumsArr, -$negLine;
-				}
-			$plusSeen      = 0;
-			$negSeen       = 0;
-			$negLine       = 0;
-			$atatLineStart = $1 - 1;
-			}
-		elsif ($atatLineStart > 0)
-			{
-			++$atatLineStart;
-			if (index($line, '+') == 0)
-				{
-				$plusSeen = 1;
-				push @$changedLineNumsArr, $atatLineStart;
-				}
-			elsif (index($line, '-') == 0)
-				{
-				$negSeen = 1;
-				$negLine = $atatLineStart;
-				--$atatLineStart;
-				}
-			}
-		}
-
-	if ($negSeen && !$plusSeen)
-		{
-		push @$changedLineNumsArr, -$negLine;
-		}
-
-
-	#print("Changed:\n");
-	#print("@$changedLineNumsArr\n");
-}
-
 # An extra character is added to the start of the line number:
 # N: new/changed
 # D: deleted
 # C: context
-sub GetLineNumbersForChangedLines {
+# Revised, context lines are not included in $diffs due to --unified=0 in the git call.
+sub xGetLineNumbersForChangedLines {
 	my ($diffs, $changedLineNumsArr) = @_;
-	my @lines               = split(/\n/, $diffs);
+	my @lines = split(/\n/, $diffs);
+
+	# TEST ONLY
+	WriteTextFileWide("C:/perlprogs/IntraMine/temp/diffs.txt", $diffs);
+	# print("--------------\n");
+	# for (my $i = 0 ; $i < @lines ; ++$i)
+	# 	{
+	# 	print("$lines[$i]\n");
+	# 	}
+	# print("--------------\n");
+
 	my $atatLineStart       = -1;
 	my $plusSeen            = 0;
 	my $negSeen             = 0;
@@ -2902,7 +2895,8 @@ sub GetLineNumbersForChangedLines {
 		my $line = $lines[$i];
 		# Eg @@ -27,7 +27,7 @@...
 		# or @@ -665,8 +668,15
-		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+		if (index($line, '@@') == 0
+			&& ($line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)! || $line =~ m!^@@\s+\-\d+\s+\+(\d+)!))
 			{
 			# Push any neg line if saw neg but no positive.
 			if ($negSeen && !$plusSeen)
@@ -2956,13 +2950,92 @@ sub GetLineNumbersForChangedLines {
 	#print("@$changedLineNumsArr\n");
 }
 
+# Fill $changedLineNumsArr with line numbers, 1 based.
+# These are used to place gutter markers down the left side of the text,
+# and put scroll bar markers over on the right.
+# An extra character is added to the start of the line number:
+# N: new/changed
+# D: deleted
+# C: context
+# Revised, context lines are not included in $diffs thanks to --unified=0 in the git call.
+sub GetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr) = @_;
+	my @lines    = split(/\n/, $diffs);
+	my $numLines = @lines;
+
+	# TEST ONLY
+	WriteTextFileWide("C:/perlprogs/IntraMine/temp/diffdump3.txt", $diffs);
+
+	my $atatLineStart         = -1;
+	my $previousAtatLineStart = -1;
+	#my $left = -1;
+	my $right                  = -1;
+	my $plusSeen               = 0;
+	my $negSeen                = 0;
+	my $lastDeleteNumberPushed = -1;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+
+		if (
+			index($line, '@@') == 0
+			&& (   $line =~ m!^@@\s+\-(\d+),\d+\s+\+(\d+),(\d+)!
+				|| $line =~ m!^@@\s+\-(\d+),\d+\s+\+(\d+)!
+				|| $line =~ m!^@@\s+\-(\d+)\s+\+(\d+)!)
+			)
+			{
+			#$left = $1;
+			$right = $2;
+			if ($right == 0)
+				{
+				$right = 1;
+				}
+			$atatLineStart = $right;
+			$plusSeen      = 0;
+			$negSeen       = 0;
+
+			# if ($negSeen && !$plusSeen && $previousAtatLineStart > 0)
+			# 	{
+			# 	push @$changedLineNumsArr, 'D' . $previousAtatLineStart;
+			# 	}
+			$previousAtatLineStart = $atatLineStart;
+			}
+		elsif ($atatLineStart >= 0)
+			{
+			if (index($line, '+') == 0)
+				{
+				push @$changedLineNumsArr, 'N' . $right;
+				$plusSeen = 1;
+				++$right;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				if ($lastDeleteNumberPushed != $right)
+					{
+					push @$changedLineNumsArr, 'D' . $right;
+					}
+				$lastDeleteNumberPushed = $right;
+				$negSeen                = 1;
+				#++$left;
+				}
+			# no else - there are no context lines here
+			}
+		}
+
+	# if ($negSeen && !$plusSeen && $previousAtatLineStart > 0)
+	# 	{
+	# 	push @$changedLineNumsArr, 'D' . $previousAtatLineStart;
+	# 	}
+}
+
 # firstLineNum is the line of interest: capture the chunk of changes
 # containing it.
 # An extra character is added to the start of the line number:
 # N: new/changed
 # D: deleted
 # C: context
-sub GetChangedLinesForRange {
+sub xGetChangedLinesForRange {
 	my ($diffs, $firstLineNum, $lastLineNum, $changedLinesArr, $lineNumbersArr) = @_;
 	my @lines               = split(/\n/, $diffs);
 	my $numLines            = @lines;
@@ -2977,10 +3050,25 @@ sub GetChangedLinesForRange {
 		my $line = $lines[$i];
 		# Eg @@ -27,7 +27,7 @@...
 		# or @@ -665,8 +668,15
-		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+		# or @@ -24 +23,0 @@
+		if (index($line, '@@') == 0
+			&& ($line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)! || $line =~ m!^@@\s+\-\d+\s+\+(\d+)!))
 			{
-			$atatLineStart      = $1 - 1;
-			$lastLineNumInChunk = $atatLineStart + $2;
+			$atatLineStart = $1 - 1;
+			if (defined($2))
+				{
+				$lastLineNumInChunk = $atatLineStart + $2;
+				}
+			else
+				{
+				$lastLineNumInChunk = $atatLineStart + 1;
+				}
+
+			# TEST ONLY
+			# 			print(
+			# "\$firstLineNum $firstLineNum, \$atatLineStart $atatLineStart, \$lastLineNumInChunk $lastLineNumInChunk\n"
+			# 			);
+
 			if ($firstLineNum >= $atatLineStart && $firstLineNum <= $lastLineNumInChunk)
 				{
 				$inTheRightChunk = 1;
@@ -3025,6 +3113,126 @@ sub GetChangedLinesForRange {
 					push @$changedLinesArr, $line;
 					push @$lineNumbersArr,  'C' . $atatLineStart;
 					$consecutiveNegCount = 0;
+					}
+				}
+			elsif ($wantedChunkSeen)
+				{
+				last;
+				}
+			}
+		}
+}
+
+sub GetChangedLinesForRange {
+	my ($diffs, $firstLineNum, $lastLineNum, $changedLinesArr, $lineNumbersArr) = @_;
+	my @lines    = split(/\n/, $diffs);
+	my $numLines = @lines;
+
+	# TEST ONLY
+	WriteTextFileWide("C:/perlprogs/IntraMine/temp/diffdump2.txt", $diffs);
+
+	my $atatLineStart           = -1;
+	my $firstDiffLineNumInChunk = -1;
+	my $lastDiffLineNumInChunk  = -1;
+	my $previousAtatLineStart   = -1;
+	my $left                    = -1;
+	my $right                   = -1;
+	my $plusSeen                = 0;
+	my $negSeen                 = 0;
+	my $inTheRightChunk         = 0;
+	my $wantedChunkSeen         = 0;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+
+		if (
+			index($line, '@@') == 0
+			&& (   $line =~ m!^@@\s+\-(\d+),\d+\s+\+(\d+),(\d+)!
+				|| $line =~ m!^@@\s+\-(\d+)\s+\+(\d+)!)
+			)
+			{
+			$left  = $1;
+			$right = $2;
+			if (defined($3))
+				{
+				if ($right >= 4)
+					{
+					$firstDiffLineNumInChunk = $right + 3 - 1;
+					$lastDiffLineNumInChunk  = $firstDiffLineNumInChunk + $3 - 6 + 1;
+					}
+				else
+					{
+					$firstDiffLineNumInChunk = $right;
+					$lastDiffLineNumInChunk  = $firstDiffLineNumInChunk + $3;
+					}
+				}
+			else
+				{
+				if ($right >= 4)
+					{
+					$firstDiffLineNumInChunk = $right + 3 - 1;
+					}
+				else
+					{
+					$firstDiffLineNumInChunk = $right;
+					}
+				$lastDiffLineNumInChunk = $firstDiffLineNumInChunk + 1 + 1;
+				}
+
+			if ($lastDiffLineNumInChunk < $firstDiffLineNumInChunk)
+				{
+				$lastDiffLineNumInChunk = $firstDiffLineNumInChunk;
+				}
+			if (   $firstLineNum >= $firstDiffLineNumInChunk
+				&& $firstLineNum <= $lastDiffLineNumInChunk)
+				{
+				$atatLineStart   = $right;
+				$plusSeen        = 0;
+				$negSeen         = 0;
+				$inTheRightChunk = 1;
+				$wantedChunkSeen = 1;
+				}
+			else
+				{
+				$inTheRightChunk = 0;
+				}
+
+			# TEST ONLY
+			# print("\@\@: |$line|\n");
+			# TEST ONLY
+			print(
+"\$firstDiffLineNumInChunk $firstDiffLineNumInChunk, \$atatLineStart $atatLineStart, \$lastDiffLineNumInChunk $lastDiffLineNumInChunk vs \$firstLineNum $firstLineNum\n"
+			);
+
+			}
+		else
+			{
+			if ($inTheRightChunk)
+				{
+				if (index($line, '+') == 0)
+					{
+					push @$changedLinesArr, $line;
+					my $lineNumEntry = 'N' . 'NONE' . 'S' . $right;
+					push @$lineNumbersArr, $lineNumEntry;
+					$plusSeen = 1;
+					++$right;
+					}
+				elsif (index($line, '-') == 0)
+					{
+					push @$changedLinesArr, $line;
+					my $lineNumEntry = 'D' . $left . 'S' . 'NONE';
+					push @$lineNumbersArr, $lineNumEntry;
+					$negSeen = 1;
+					++$left;
+					}
+				else    # context line
+					{
+					push @$changedLinesArr, $line;
+					my $lineNumEntry = 'C' . $left . 'S' . $right;
+					push @$lineNumbersArr, $lineNumEntry;
+					++$left;
+					++$right;
 					}
 				}
 			elsif ($wantedChunkSeen)

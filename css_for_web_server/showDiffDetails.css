@@ -48,15 +48,17 @@
 }
 */
 
+/*
 tr.diffrow td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
 	text-align: left;
-	min-width: 3.5em; /* enough for 99999 one hopes */
+	min-width: 3.5em;
 }
+*/
 
 tr.diffrow td:first-child:after {
-		content: attr(n);
+		content: none;
 }
 
 

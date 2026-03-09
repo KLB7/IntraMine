@@ -2220,6 +2220,8 @@ sub GetPrettyTextContents {
 	my @changedLines     = (0) x ($numLines + 1);
 	my @lineTypes        = (0) x ($numLines + 1);
 	my $haveChangedLines = GetChangedLinesArray($filePath, \@changedLines, \@lineTypes);
+	my $diffMouseHandlersShrunkRow =
+"onclick='diffMarkerClickedShrunkRow(event)' onmouseover='overDiffMarker(event)' onmouseout='outOfDiffMarker(event)'";
 	my $diffMouseHandlers =
 "onclick='diffMarkerClicked(event)' onmouseover='overDiffMarker(event)' onmouseout='outOfDiffMarker(event)'";
 
@@ -2260,8 +2262,22 @@ sub GetPrettyTextContents {
 						}
 					elsif ($lineType eq 'D')    # Deleted
 						{
-						$lines[$i] =~
-							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+						# Watch out for tr class="shrunkrow", can't put a marker in
+						# the line numbers for that, need to put it on the row before.
+						if (index($lines[$i], 'shrunkrow') > 0
+							&& $lines[$i] =~ m!<tr\s+class\=['"]shrunkrow['"]>!)
+							{
+							if ($i > 0)
+								{
+								$lines[$i - 1] =~
+s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlersShrunkRow!;
+								}
+							}
+						else
+							{
+							$lines[$i] =~
+								s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+							}
 						}
 					}
 				}
@@ -2499,7 +2515,9 @@ sub GetChangedLinesArray {
 
 	my $relativePath = substr($path, length($gitDir) + 1);
 	chdir($gitDir);
-	my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
+	# Adding --unified=0 to suppress context, we just want line numbers.
+	my $gitCmd = "git diff  --unified=0 -- \"$relativePath\" 2>NUL";
+	# my $gitCmd = "git diff HEAD -- \"$relativePath\" 2>NUL";
 
 	# Call git for a list of differences between current saved version
 	# and last committed version. Note git might not even be installed.
@@ -2561,7 +2579,7 @@ sub GetGitDirectoryFromPath {
 # N: new/changed
 # D: deleted
 # C: context
-sub GetLineNumbersForChangedLines {
+sub xGetLineNumbersForChangedLines {
 	my ($diffs, $changedLineNumsArr, $lineTypesArr) = @_;
 	my @lines               = split(/\n/, $diffs);
 	my $atatLineStart       = -1;
@@ -2577,7 +2595,9 @@ sub GetLineNumbersForChangedLines {
 		my $line = $lines[$i];
 		# Eg @@ -27,7 +27,7 @@...
 		# or @@ -665,8 +668,15
-		if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
+		if (index($line, '@@') == 0
+			&& ($line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)! || $line =~ m!^@@\s+\-\d+\s+\+(\d+)!))
+			#if (index($line, '@@') == 0 && $line =~ m!^@@\s+\-\d+,\d+\s+\+(\d+),(\d+)!)
 			{
 			# Push any neg line if saw neg but no positive.
 			if ($negSeen && !$plusSeen)
@@ -2629,6 +2649,83 @@ sub GetLineNumbersForChangedLines {
 		push @$changedLineNumsArr, $negLine;
 		push @$lineTypesArr,       'D';
 		}
+}
+
+# Fill $changedLineNumsArr with line numbers, 1 based.
+# These are used to place gutter markers down the left side of the text,
+# and put scroll bar markers over on the right.
+# A corresponding diff type is place in $lineTypesArr:
+# N: new/changed
+# D: deleted
+# C: context
+# Revised, context lines are not included in $diffs thanks to --unified=0 in the git call.
+sub GetLineNumbersForChangedLines {
+	my ($diffs, $changedLineNumsArr, $lineTypesArr) = @_;
+	my @lines    = split(/\n/, $diffs);
+	my $numLines = @lines;
+
+	my $atatLineStart         = -1;
+	my $previousAtatLineStart = -1;
+	#my $left = -1;
+	my $right                  = -1;
+	my $plusSeen               = 0;
+	my $negSeen                = 0;
+	my $lastDeleteNumberPushed = -1;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		my $line = $lines[$i];
+
+		if (
+			index($line, '@@') == 0
+			&& (   $line =~ m!^@@\s+\-(\d+),\d+\s+\+(\d+),(\d+)!
+				|| $line =~ m!^@@\s+\-(\d+),\d+\s+\+(\d+)!
+				|| $line =~ m!^@@\s+\-(\d+)\s+\+(\d+)!)
+			)
+			{
+			$right = $2;
+			if ($right == 0)
+				{
+				$right = 1;
+				}
+			$atatLineStart = $right;
+			$plusSeen      = 0;
+			$negSeen       = 0;
+
+			# if ($negSeen && !$plusSeen && $previousAtatLineStart > 0)
+			# 	{
+			# 	push @$changedLineNumsArr, $previousAtatLineStart;
+			# 	push @$lineTypesArr,       'D';
+			# 	}
+			$previousAtatLineStart = $atatLineStart;
+			}
+		elsif ($atatLineStart >= 0)
+			{
+			if (index($line, '+') == 0)
+				{
+				push @$changedLineNumsArr, $right;
+				push @$lineTypesArr,       'N';
+				$plusSeen = 1;
+				++$right;
+				}
+			elsif (index($line, '-') == 0)
+				{
+				if ($lastDeleteNumberPushed != $right)
+					{
+					push @$changedLineNumsArr, $right;
+					push @$lineTypesArr,       'D';
+					}
+				$lastDeleteNumberPushed = $right;
+				$negSeen                = 1;
+				}
+			}
+		}
+
+	# if ($negSeen && !$plusSeen && $previousAtatLineStart > 0)
+	# 	{
+	# 	push @$changedLineNumsArr, $previousAtatLineStart;
+	# 	push @$lineTypesArr,       'D';
+	# 	}
 }
 
 { ##### HTML hash and footnotes

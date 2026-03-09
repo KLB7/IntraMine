@@ -834,6 +834,8 @@ function finishReload() {
 		}
 
 	addToggleScrollListener();
+
+	markDiffsInScrollbar(diffScrollMarkerClass);
 }
 
 // Code block highlighting with lolight, used
@@ -1404,7 +1406,7 @@ function markDiffsInScrollbar(scrollHitClassName) {
 		{
 		return;
 		}
-	// console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
+	//console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
 	removeElementsByClass(scrollHitClassName);
 
 	// Light themes want a slightly whiter thumb for diff markers to show up.

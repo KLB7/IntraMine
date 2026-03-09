@@ -729,9 +729,79 @@ sub RangeOverlapsExistingAnchor {
 	my ($startPos, $endPos) = @_;
 	my $insideExistingAnchor = 0;
 
+	# TEST ONLY
+	my $logit       = (index($line, 'footnote') > 0);
+	my $testLogPath = "C:/perlprogs/IntraMine/temp/diffdump4.txt";
+	$logit = 0;    # Logging is OFF.
+
+	if ($logit)
+		{
+		DeleteFileWide($testLogPath);
+		AppendToTextFileWide($testLogPath, "ROEA checking footnote at position $startPos in\n");
+		AppendToTextFileWide($testLogPath, "|$line|\n");
+		}
+
+	# First, and annoyingly, check if we're in an anchor alread without <a being present.
+	# Look for |onclick="diffMarkerClicked| and if so $startPos between there and </a> or </td>
+	# counts as inside an anchor. Also if no start anchor <a is seen count start of line
+	# as beginning of an anchor
+	my $onclickPosition = index($line, 'onclick="diffMarkerClicked');
+	if ($onclickPosition >= 0 || index($line, '<a') < 0)
+		{
+		my $endAnchorPosition = index($line, '</a>',  $onclickPosition + 1);
+		my $endCellPosition   = index($line, '</td>', $onclickPosition + 1);
+		my $endPosition       = -1;
+		if ($endAnchorPosition >= 0)
+			{
+			if ($endCellPosition >= 0)
+				{
+				if ($endAnchorPosition < $endCellPosition)
+					{
+					$endPosition = $endAnchorPosition;
+					}
+				else
+					{
+					$endPosition = $endCellPosition;
+					}
+				}
+			else
+				{
+				$endPosition = $endAnchorPosition;
+				}
+			}
+		elsif ($endCellPosition >= 0)
+			{
+			$endPosition = $endCellPosition;
+			}
+
+		if ($onclickPosition < 0 && $endPosition > 0)
+			{
+			$onclickPosition = 0;
+			}
+
+		# TEST ONLY
+		#print("\$startPos $startPos, onclick $onclickPosition, end pos $endPosition\n");
+		if (   $endPosition > 0
+			&& $startPos >= $onclickPosition
+			&& $startPos <= $endPosition)
+			{
+			$insideExistingAnchor = 1;
+			if ($logit)
+				{
+				AppendToTextFileWide($testLogPath, "ON CLICK IN ANCHOR\n");
+				}
+
+			return ($insideExistingAnchor);    # EARLY RETURN, I am fed up with this problem
+			}
+		}
+
 	# Is there an anchor on the line?
 	if (index($line, '<a') > 0)
 		{
+		if ($logit)
+			{
+			AppendToTextFileWide($testLogPath, "line has <a\n");
+			}
 		# Does any anchor overlap?
 		my $pos     = 0;
 		my $nextPos = 0;
@@ -739,10 +809,17 @@ sub RangeOverlapsExistingAnchor {
 			{
 			my $aStart = $nextPos;
 			my $aEnd   = index($line, '</a>', $nextPos);
+			if ($logit)
+				{
+				AppendToTextFileWide($testLogPath,
+					"Checking <a $aStart through </a> $aEnd against startPos $startPos\n");
+				}
 			if ($aEnd > 0)
 				{
 				if (   ($startPos >= $aStart && $startPos <= $aEnd)
 					|| ($endPos >= $aStart && $endPos <= $aEnd))
+					# if (   ($startPos >= $aStart && $startPos <= $aEnd)
+					# 	|| ($endPos >= $aStart && $endPos <= $aEnd))
 					{
 					$insideExistingAnchor = 1;
 					last;
@@ -750,9 +827,32 @@ sub RangeOverlapsExistingAnchor {
 				}
 			else    # should not happen, like, ever.
 				{
+				$insideExistingAnchor = 1;
 				last;
 				}
+
 			$pos = $aEnd + 1;
+
+			# TEST ONLY
+			#my $linePart = substr($line, $aStart, $aEnd - $aStart);
+			# if (index($line, 'footnote') > 0)
+			# 	{
+			# 	print("A $startPos $endPos $insideExistingAnchor at $aStart to $aEnd |$line|\n");
+			# 	}
+			}
+		}
+	else
+		{
+		my $aEnd = index($line, '</a>');
+		if ($aEnd > $startPos)
+			{
+			$insideExistingAnchor = 1;
+			}
+
+		if ($logit)
+			{
+			AppendToTextFileWide($testLogPath,
+				"End anchor check aEnd $aEnd against startPos $startPos\n");
 			}
 		}
 
@@ -776,8 +876,10 @@ sub RangeOverlapsExistingAnchor {
 				}
 			else    # should not happen, like, ever.
 				{
+				$insideExistingAnchor = 1;
 				last;
 				}
+
 			$pos = $aEnd + 1;
 			}
 		}
@@ -790,6 +892,11 @@ sub RangeOverlapsExistingAnchor {
 			{
 			$insideExistingAnchor = 1;
 			}
+		}
+
+	if ($logit)
+		{
+		AppendToTextFileWide($testLogPath, "Inside at end: $insideExistingAnchor\n");
 		}
 
 	return ($insideExistingAnchor);
