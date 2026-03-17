@@ -330,6 +330,21 @@ p {
 	margin-bottom: 6px;
 }
 
+/*  Horizontal rule */
+tr._FOOTNOTE_ td .divhr {
+	border-top: 1px solid #ccc; /* Thickness, style, and color */
+	margin: 0;
+	height: 3px;
+	width: 600px;
+}
+
+tr._FOOTNOTE_ td .divhrThick {
+	border-top: 2px solid #ccc; /* Thickness, style, and color */
+	margin: 0;
+	height: 3px;
+	width: 600px;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}

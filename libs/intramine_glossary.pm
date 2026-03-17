@@ -9,8 +9,10 @@ use Exporter qw(import);
 
 use strict;
 use warnings;
+use Carp 'cluck';
 use utf8;
 use URI::Escape;
+use HTML::Entities;
 use Path::Tiny qw(path);
 use lib path($0)->absolute->parent->child('libs')->stringify;
 use common;
@@ -388,6 +390,15 @@ sub EvaluateGlossaryCandidates {
 	my ($definitionHashRef, $context, $host, $port, $VIEWERNAME, $linksA, $currentLineNumber) = @_;
 	my $haveLinksA = (defined($linksA)) ? 1 : 0;
 
+	my $inFootnoteBody = 0;
+	if ($haveRefToText == 1)
+		{
+		if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
+			{
+			$inFootnoteBody = 1;
+			}
+		}
+
 	my @startPosSeen;    # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen;      # Length of a matched term, also indexed by $startPos
 	my $posIndex = 0;
@@ -479,6 +490,12 @@ sub EvaluateGlossaryCandidates {
 								my $replacementHint =
 									GetReplacementHint($definitionHashRef, $term, $words,
 									$definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
+
+								if ($inFootnoteBody)
+									{
+									$replacementHint = uri_escape_utf8($replacementHint);
+									}
+
 								push @repStr,      $replacementHint;
 								push @repLen,      $repLength;
 								push @repStartPos, $repStartPosition;
@@ -730,13 +747,13 @@ sub RangeOverlapsExistingAnchor {
 	my $insideExistingAnchor = 0;
 
 	# TEST ONLY
-	my $logit       = (index($line, 'footnote') > 0);
+	my $logit       = (index($line, 'footnote') > 0 || index($line, 'glossary') > 0);
 	my $testLogPath = "C:/perlprogs/IntraMine/temp/diffdump4.txt";
 	$logit = 0;    # Logging is OFF.
 
 	if ($logit)
 		{
-		DeleteFileWide($testLogPath);
+		#DeleteFileWide($testLogPath);
 		AppendToTextFileWide($testLogPath, "ROEA checking footnote at position $startPos in\n");
 		AppendToTextFileWide($testLogPath, "|$line|\n");
 		}
@@ -786,12 +803,22 @@ sub RangeOverlapsExistingAnchor {
 			&& $startPos <= $endPosition)
 			{
 			$insideExistingAnchor = 1;
-			if ($logit)
-				{
-				AppendToTextFileWide($testLogPath, "ON CLICK IN ANCHOR\n");
-				}
 
-			return ($insideExistingAnchor);    # EARLY RETURN, I am fed up with this problem
+			# One last check: we want to allow glossary popups in footnote bodies
+			# There, the telltale for the first line at least is
+			# div id='fnN' where N is an integer 1..up or class _FOOTNOTE_ is present.
+			if ($line =~ m!div\s+id=['"]fn\d+['"]! || $line =~ m!class=['"]_FOOTNOTE_['"]!)
+				{
+				$insideExistingAnchor = 0;
+				}
+			else
+				{
+				if ($logit)
+					{
+					AppendToTextFileWide($testLogPath, "ON CLICK IN ANCHOR\n");
+					}
+				return ($insideExistingAnchor);    # EARLY RETURN, I am fed up with this problem
+				}
 			}
 		}
 

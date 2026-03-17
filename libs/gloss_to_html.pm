@@ -569,7 +569,7 @@ sub GetPrettyText {
 
 		# Replace raw HTML placeholders with original HTML. Add footnotes.
 		my $numLines = @lines;
-		ReplaceKeysWithHTMLAndFootnotes(\@lines, $numLines, $filePath);
+		ReplaceKeysWithHTMLAndFootnotes(\@lines, $numLines, $filePath, $context);
 
 		$textContents .=
 			  "<div id='scrollTextRightOfContents'>$topSpan<table class='imt'>"
@@ -667,7 +667,7 @@ qr/p|div|h[1-6]|blockquote|pre|table|dl|ol|ul|script|noscript|form|fieldset|ifra
 # Footnote keys are not in the text, for them we notice a
 # footnote reference such as [^27] and look for key fn27;
 sub ReplaceKeysWithHTMLAndFootnotes {
-	my ($linesA, $numLines, $filePath) = @_;
+	my ($linesA, $numLines, $filePath, $context) = @_;
 	my $previousLineForChunk = -1;
 	my $footIndex            = 1;
 	my $newIndex             = 1;
@@ -796,7 +796,7 @@ sub ReplaceKeysWithHTMLAndFootnotes {
 			if ($isReferenced)
 				{
 				my $footnote = $footnotes{$key};
-				$footnote = GlossedFootnote($footnote, $filePath);
+				$footnote = GlossedFootnote($footnote, $filePath, $context);
 				push(@{$linesA}, $footnote);
 				}
 			}
@@ -899,7 +899,7 @@ sub FootNoteIsDefined {
 }
 
 sub GlossedFootnote {
-	my ($footnote, $filePath) = @_;
+	my ($footnote, $filePath, $context) = @_;
 	my @footnoteLines = split(/\n/, $footnote);
 	my $oldIndex      = '';
 	my $newIndex      = '';
@@ -943,7 +943,7 @@ sub GlossedFootnote {
 	Gloss(
 		$footnote, $serverAddr, $mainServerPort,    \$glossedFootnote,
 		0,         $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir,
-		undef,     undef,       $doNotCacheImages
+		undef,     undef,       $doNotCacheImages,  1
 	);
 
 	#my $foot = $glossedFootnote;
@@ -964,6 +964,12 @@ sub GlossedFootnote {
 				s!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!!;
 			$footnoteLines[$numLines - 1] = $footnoteLines[$numLines - 1] . $backRef;
 			}
+		}
+
+	# Add glossary popups
+	for (my $i = 0 ; $i < @footnoteLines ; ++$i)
+		{
+		AddGlossaryHints(\${footnoteLines [$i]}, $context);
 		}
 
 	my $foot = join("\n", @footnoteLines);
@@ -3216,8 +3222,14 @@ sub AddGlossaryHints {
 sub EvaluateGlossaryCandidates {
 	my ($context) = @_;
 
-	my @startPosSeen;    # Track glosses to avoid doubling up - longest wins.
-	my @endPosSeen;      # Length of a matched term, also indexed by $startPos
+	my $inFootnoteBody = 0;    # Not used at the moment.
+	if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
+		{
+		$inFootnoteBody = 1;
+		}
+
+	my @startPosSeen;          # Track glosses to avoid doubling up - longest wins.
+	my @endPosSeen;            # Length of a matched term, also indexed by $startPos
 	my $posIndex = 0;
 	my %DefinitionSeenOnLine;
 
@@ -3261,6 +3273,12 @@ sub EvaluateGlossaryCandidates {
 							(defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
 						my $replacementHint =
 							GetReplacementHint($term, $words, $definitionAlreadySeen, $context);
+
+						if ($inFootnoteBody)
+							{
+							#$replacementHint = uri_escape_utf8($replacementHint);
+							}
+
 						my $repLength        = length($words);
 						my $repStartPosition = $startPos;
 						push @repStr,      $replacementHint;

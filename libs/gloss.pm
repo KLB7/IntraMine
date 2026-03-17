@@ -30,6 +30,10 @@ use win_wide_filepaths;
 use ext;
 use Image::Size;
 
+# A class to signal we are in a footnote body.
+# See intramine_glossary.pm#EvaluateGlossaryCandidates() near the top.
+my $FOOTNOTE_CLASS = ' class="_FOOTNOTE_"';
+
 # Popup definition image cache.
 my $ImageKeyBase;      # Typ '__img__cache__'
 my $ImageCounter;      # Int 1..up index for popup definition images.
@@ -56,15 +60,15 @@ BEGIN {
 # $callbackFullPath, $callbackFullDirectoryPath.
 sub Gloss {
 	my (
-		$text,                      $serverAddr, $mainServerPort,
-		$contentsR,                 $doEscaping, $imagesDir,
-		$commonImagesDir,           $contextDir, $callbackFullPath,
-		$callbackFullDirectoryPath, $doNotCacheImages
+		$text,                      $serverAddr,       $mainServerPort,
+		$contentsR,                 $doEscaping,       $imagesDir,
+		$commonImagesDir,           $contextDir,       $callbackFullPath,
+		$callbackFullDirectoryPath, $doNotCacheImages, $thisIsInAFootnoteBody
 	) = @_;
-	$doNotCacheImages = defined($doNotCacheImages) ? $doNotCacheImages : 0;
-	#$doNotCacheImages ||= 0; # This is only for images in standalone HTML footnotes proper.
-	$IMAGESDIR       = $imagesDir;
-	$COMMONIMAGESDIR = $commonImagesDir;
+	$doNotCacheImages      = defined($doNotCacheImages)      ? $doNotCacheImages      : 0;
+	$thisIsInAFootnoteBody = defined($thisIsInAFootnoteBody) ? $thisIsInAFootnoteBody : 0;
+	$IMAGESDIR             = $imagesDir;
+	$COMMONIMAGESDIR       = $commonImagesDir;
 
 	if (!defined($doEscaping))
 		{
@@ -90,6 +94,9 @@ sub Gloss {
 	# (which is the default).
 	$HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
+	# Put a special class for lines in a footnote body.
+	my $footnoteBodyClass = ($thisIsInAFootnoteBody) ? $FOOTNOTE_CLASS : '';
+
 	my @lines = split(/\n/, $text);
 
 	my @jumpList;
@@ -105,10 +112,11 @@ sub Gloss {
 	my $lineIsBlank       = 1;
 	my $lineBeforeIsBlank = 1;     # Initally there is no line before, so it's kinda blank:)
 
-
-	for (my $i = 0 ; $i < @lines ; ++$i)
+	my $numLines = @lines;
+	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
 		$lineBeforeIsBlank = $lineIsBlank;
+
 		if ($lines[$i] eq '')
 			{
 			$lineIsBlank = 1;
@@ -137,7 +145,14 @@ sub Gloss {
 			# ATX-style headings eg "## heading".
 			if ($lines[$i] =~ m!^#+\s+! && ($lineBeforeIsBlank || !$HashHeadingRequireBlankBefore))
 				{
-				Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
+				if ($i > 0)
+					{
+					Heading(\$lines[$i], \$lines[$i - 1], undef, \@jumpList, $i, \%sectionIdExists);
+					}
+				else    # first line
+					{
+					Heading(\$lines[$i], undef, undef, \@jumpList, $i, \%sectionIdExists);
+					}
 				$justDidHeadingOrHr = 1;
 				}
 			# Underlines -> hr or heading. Heading requires altering line before underline.
@@ -146,7 +161,7 @@ sub Gloss {
 				my $underline = $1;
 				if (length($underline) <= 2)    # ie three or four total
 					{
-					HorizontalRule(\$lines[$i], $lineNum);
+					HorizontalRule(\$lines[$i], $lineNum, $thisIsInAFootnoteBody);
 					}
 				elsif (
 					$justDidHeadingOrHr == 0)   # a heading - put in anchor and add to jump list too
@@ -192,6 +207,15 @@ sub Gloss {
 		AddLinks(\${lines [$i]},
 			$serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath,
 			$callbackFullDirectoryPath, $doNotCacheImages);
+		}
+
+	# Put $footnoteBodyClass on all <tr elements
+	if ($footnoteBodyClass ne '')
+		{
+		for (my $i = 0 ; $i < @lines ; ++$i)
+			{
+			$lines[$i] =~ s!<tr!<tr$footnoteBodyClass!;
+			}
 		}
 
 	# Try using &quot; - seems to work.
@@ -356,8 +380,14 @@ s!(BUGS?)!<span class='textSymbol' style='color: Crimson;'>\&#128029;</span><spa
 sub UnorderedList {
 	my ($lineR, $unorderedListDepthR) = @_;
 
-	if ($$lineR =~ m!^\s*([-+*][-+*]*)\s+([^-].+)$!)
+	# This is getting complicated. Avoid the last line in a footnote, the
+	# one with onclick.
+	if (   $$lineR =~ m!^\s*([-+*][-+*]*)\s+([^-].+)$!
+		&& $$lineR !~ m!onclick=['"]scrollBackToFootnoteRef\(!)
 		{
+		# TEST ONLY
+		#print("Unordered list: |$$lineR|\n");
+
 		my $listSignal = $1;
 		# One 'hyphen' is first level, two 'hyphens' is second level.
 		if (length($listSignal) == 1)
@@ -498,14 +528,25 @@ sub OrderedList {
 }
 
 sub HorizontalRule {
-	my ($lineR, $lineNum) = @_;
+	my ($lineR, $lineNum, $thisIsInAFootnoteBody) = @_;
+
+	if ($thisIsInAFootnoteBody)
+		{
+		# TEST ONLY use a "real" horizontal rule.
+		my $thick   = ($$lineR =~ m!^\=\=\=\=?!) ? 1            : 0;
+		my $hrclass = $thick                     ? 'divhrThick' : 'divhr';
+		$$lineR = "<tr><td><div class=&quot;$hrclass&quot;></div></td></tr>";
+		return;
+		}
 
 	# <hr> equivalent for three or four === or --- or ~~~
 	# If it's === or ====, use a slightly thicker rule.
 	my $imageName = ($$lineR =~ m!^\=\=\=\=?!)        ? 'mediumrule4.png' : 'slimrule4.png';
 	my $height    = ($imageName eq 'mediumrule4.png') ? 6                 : 3;
 	$$lineR =
-"<tr><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
+"<tr><td class=&quot;vam&quot;><img style=&quot;display: block;&quot; src=&quot;$imageName&quot; width=&quot;98%&quot; height=&quot;$height&quot; /></td></tr>";
+	# 	$$lineR =
+	# "<tr><td class='vam'><img style='display: block;' src='$imageName' width='98%' height='$height' /></td></tr>";
 }
 
 # Heading(\$lines[$i], \$lines[$i-1], $underline, \@jumpList, $i, \%sectionIdExists);
@@ -517,11 +558,17 @@ sub Heading {
 	my ($lineR, $lineBeforeR, $underline, $jumpListA, $i, $sectionIdExistsH) = @_;
 
 	# Use text of header for anchor id if possible.
-	my $isHashedHeader = 0;    #  ### header vs underlined header
-	my $beforeHeader   = '';
-	my $headerProper   = '';
-	my $afterHeader    = '';
-	my $headerLevel    = 0;
+	my $isHashedHeader    = 0;    #  ### header vs underlined header
+	my $beforeHeader      = '';
+	my $headerProper      = '';
+	my $afterHeader       = '';
+	my $headerLevel       = 0;
+	my $weHaveALineNumber = 1;
+	if (defined($lineBeforeR) && $$lineBeforeR !~ m!^<tr id='R\d+'>!)
+		{
+		$weHaveALineNumber = 0;
+		}
+
 	# ### style heading, heading is on $lineR.
 	if ($$lineR =~ m!^(#.+)$!)
 		{
@@ -540,11 +587,14 @@ sub Heading {
 		$headerProper = $rawHeader;
 		}
 	# Underlined heading, heading is on $lineBeforeR.
-	elsif ($$lineBeforeR =~ m!^(<tr id='R\d+'><td[^>]+></td><td>)(.*?)(</td></tr>)$!)
+	elsif ($$lineBeforeR =~ m!^(<tr id='R\d+'><td[^>]*></td><td>)(.*?)(</td></tr>)$!
+		|| $$lineBeforeR =~ m!^(<tr><td[^>]*></td><td>)(.*?)(</td></tr>)$!
+		|| $$lineBeforeR =~ m!^(<tr><td[^>]*>)(.*?)(</td></tr>)$!)
 		{
 		$beforeHeader = $1;
 		$headerProper = $2;
 		$afterHeader  = $3;
+
 		if (substr($underline, 0, 1) eq '=')
 			{
 			$headerLevel = 2;
@@ -581,12 +631,22 @@ sub Heading {
 	# Note $i is 0-based, but im-text-ln is 1-based, so $i refers to line $i-1.
 	if ($isHashedHeader)
 		{
-		++$i;    # $i is now a 1-based line number.
-		my $rowID = 'R' . $i;
-		$$lineR =
-			  "<tr id='$rowID'><td n='$i'></td><td>"
-			. "<$contentsClass id=\"$id\">$headerProper</$contentsClass>"
-			. '</td></tr>';
+		if ($weHaveALineNumber)
+			{
+			++$i;    # $i is now a 1-based line number.
+			my $rowID = 'R' . $i;
+			$$lineR =
+				  "<tr id='$rowID'><td n='$i'></td><td>"
+				. "<$contentsClass id=\"$id\">$headerProper</$contentsClass>"
+				. '</td></tr>';
+			}
+		else    # in a footnote body, no line number
+			{
+			$$lineR =
+				  "<tr><td n='$i'></td><td>"
+				. "<$contentsClass id=\"$id\">$headerProper</$contentsClass>"
+				. '</td></tr>';
+			}
 		}
 	else
 		{

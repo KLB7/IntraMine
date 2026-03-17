@@ -1462,7 +1462,7 @@ function handleMouseOver(e) {
 
 		let linkPath = linkOrLineNumForText.get(targetText);
 		if (typeof linkPath !== 'undefined')
-			{
+			{		
 			callShowHint(e, target, linkPath);
 			}
 		}
@@ -1487,6 +1487,22 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 				/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
 						.exec(linkPath);
 		}
+	
+	if (showHintMatch === null)
+		{
+		linkPath = decodeURIComponent(linkPath);
+
+		showHintMatch =
+			/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
+					.exec(linkPath);
+		if (showHintMatch === null)
+			{
+			showHintMatch =
+					/showhint\(\'([^\']+)\',\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^\)]+)\);\"\>/
+							.exec(linkPath);
+			}
+		}
+
 	if (showHintMatch !== null)
 		{
 		let hintContent = showHintMatch[1];
@@ -1513,10 +1529,6 @@ function callShowHintWithCorrectPort(e, target, linkPath) {
 		
 		showhint(hintContent, target, e, widthMatch, isImgMatch, shouldDecodeMatch); // tooltip.js#showhint()
 		}
-	// else
-	// 	{
-	// 	console.log("showHintMatch is null!");
-	// 	}
 }
 
 function testPortUpdate(port) {

@@ -3089,11 +3089,9 @@ sub GlossedFootnote {
 	my $contextDir    = lc($filePath);
 	$contextDir = DirectoryFromPathTS($contextDir);
 
-	Gloss(
-		$footnote, $serverAddr, $theServerPort,     \$glossedFootnote,
-		0,         $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir,
-		undef,     undef
-	);
+	# Last arg here signals we are in a footnote body.
+	Gloss($footnote, $serverAddr, $theServerPort, \$glossedFootnote, 0, $IMAGES_DIR,
+		$COMMON_IMAGES_DIR, $contextDir, undef, undef, 0, 1);
 
 	# Ask Linker for additional (FLASH) links.
 	AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
@@ -3106,8 +3104,6 @@ sub GlossedFootnote {
 	# Move backref outside of any table etc.
 	if ($numLines)
 		{
-		# TEST ONLY
-		#print("|$footnoteLines[$numLines - 1]|\n");
 		if ($footnoteLines[$numLines - 1] =~
 			m!(\s*(<|&#60;)a\s+href=["']#fnref[^"']+["']\s+onclick.+?(<|&#60;)/a>)!)
 			{

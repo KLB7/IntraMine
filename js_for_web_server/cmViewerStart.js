@@ -142,6 +142,7 @@ function onWindowResize() {
 	resizing = true;
 
 	location.hash = topLineForResize;
+	
 	restoreColumnWidths();
 	setTimeout(function() {
 		myCodeMirror.refresh();
@@ -161,6 +162,7 @@ function reJump() {
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
+		
 		let el = document.getElementById(h);
 		if (el !== null)
 			{

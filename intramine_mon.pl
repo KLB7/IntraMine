@@ -46,6 +46,8 @@ if ($monitorFileName eq '')
 	}
 InitCommandMonitoring($LogDir . $monitorFileName);
 
+my $MonIsShownAtStart = CVal('SHOWMONPAGEATSTARTUP');
+
 my %RequestAction;
 # Respond with the Mon page, where #theTextWithoutJumpList will show messages
 # generated in Main and all swarmserver.pm-based services with Monitor($msg).
@@ -107,6 +109,12 @@ FINIS
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
 	my $description = "<h2>IntraMine Monitor</h2>";
+
+	if ($MonIsShownAtStart)
+		{
+		$description .=
+"\n(To stop having a new Mon page appear on every startup, open data/intramine_config_8.txt and set SHOWMONPAGEATSTARTUP to 0.)";
+		}
 	$theBody =~ s!_DESCRIPTION_!$description!;
 
 	# $peeraddress eq '127.0.0.1' determines whether we are local.
