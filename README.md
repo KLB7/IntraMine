@@ -23,7 +23,7 @@ If you prefer to stick to regular MultiMarkdown for some documents instead of sw
 
 And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Searching.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
 
-Strictly speaking IntraMine is a tech demo, but some considerable effort over eight years has gone into making IntraMine an outstanding choice for editing and reading text documents, generating in-house documentation, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
+Strictly speaking IntraMine is a tech demo, but some considerable effort over nine years has gone into making IntraMine an outstanding choice for editing and reading text documents, generating in-house documentation, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
 
 ## Installation
 
@@ -48,7 +48,7 @@ _A simple glossary popup. The cursor is paused over "FLASH link". Links in the d
 _A glossary popup showing off. This is the popup for "Gloss", IntraMine's Markdown for intranet use._
 ![Fancy popup](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/gloss1.png)
 
-_A glimpse of a standalone HTML doc generated with IntraMine's Glosser service, about IntraMine's Editor. The cursor pauses in turn over a GIF and a glossary popup. There's an image on line 49._
+_A glimpse of a standalone HTML doc generated with IntraMine's Glosser service, about IntraMine's Editor. The cursor pauses in turn over a GIF and a glossary popup. There's an image on line 52._
 ![Standalone](https://github.com/KLB7/IntraMine/blob/master/Documentation/images/ed.gif)
 
 ## Free as in free

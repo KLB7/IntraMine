@@ -739,8 +739,9 @@ function finishStartup(reloading = false) {
 	if (!reloading)
 		{
 		loadCommonestEnglishWords(); // See commonEnglishWords.js.
-		setImagesButtonText();
 		}
+	
+	setImagesButtonText();
 	
 	reJump();
 
@@ -836,6 +837,9 @@ function finishReload() {
 	addToggleScrollListener();
 
 	markDiffsInScrollbar(diffScrollMarkerClass);
+
+	forgetLinesSeen();
+	addScrollListenerAndSetMarkdown();
 }
 
 // Code block highlighting with lolight, used

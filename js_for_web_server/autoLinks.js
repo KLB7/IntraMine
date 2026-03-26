@@ -203,7 +203,7 @@ async function requestLinkMarkupForMarkdown(visibleText, el) {
 		}
 }
 
-// Add link markup to view all lines. Remember the lines have been marked up.
+// Add link markup to view, all lines.
 async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el) {
 	let remoteValue = (weAreRemote)? '1': '0';
 	let allowEditValue = (allowEditing)? '1': '0';
@@ -235,6 +235,9 @@ async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el)
 					}
 
 				text = lines.join("\n");
+
+				text = decodeURIComponent(text);
+				
 				el.innerHTML = text;
 				}
 			}

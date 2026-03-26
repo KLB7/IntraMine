@@ -967,7 +967,6 @@ function handleFileLinkMouseUp(evt) {
 	let target = evt.target;
 	let typeClass = typeAndClass(target, false); // false == don't check for IMG
 	let linkType = typeClass.theType;
-	//let className = typeClass.theClass;
 	
 	if (!weAreEditing && linkType === "" && !goingToAnchor && !doubleClickDetected)
 		{
@@ -984,7 +983,7 @@ function handleFileLinkMouseUp(evt) {
 		showDefinitionHintForSelection(evt);
 		}
 	// Try the Editor too
-	else if (linkType === "" && !goingToAnchor)
+	else if ((linkType === "" || linkType === "spelling") && !goingToAnchor)
 		{
 		let startPos = myCodeMirror.doc.getCursor("anchor");
 		cmCursorStartPos = startPos;
