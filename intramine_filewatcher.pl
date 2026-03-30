@@ -128,6 +128,10 @@ my $CongestionMinimum = 200;    # Somewhat arbitrary, count of files receive all
 
 GetDirectoriesToIgnore();
 
+# TEST ONLY, looking at mod times.
+# See DebugLogModTimes();
+my $DebugModTimes = 0;
+
 # Note we call IndexChangedFiles() once a minute (30 two-second timeouts).
 MainLoop(\%RequestAction, $MainLoopTimeout, \&OnTimeoutIndexChangedFilesEtc);
 
@@ -516,7 +520,7 @@ sub IndexChangedFiles {
 
 	# Remember paths of changed files, for signalling a file has changed
 	# when polled by Viewer or Editor.
-	RememberAndNotifyFilesChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
+	FwwsRememberFilesChanged(\@PathsOfChangedFiles, \%PathsOfCreatedFiles, \%TimeStampForPath);
 
 	# File renames: not much needed, just find the old file name and remove the old
 	# entry from Elasticsearch.
@@ -642,7 +646,7 @@ sub ReportIfCongested {
 
 # Remember paths of changed files. Viewer/Editor web pages will use HTTP
 # to poll for changes.
-sub RememberAndNotifyFilesChanged {
+sub FwwsRememberFilesChanged {
 	my ($pathsOfChangedFilesA, $pathsOfCreatedFilesH, $timeStampForPathH) = @_;
 	my $CHANGED_BROADCAST_LIMIT = 10;    # or 5 or 3?
 	my @pathsOfChangedNotNewFiles;
@@ -670,7 +674,7 @@ sub RememberAndNotifyFilesChanged {
 				: '0';
 			if ($timeStamp ne '0')
 				{
-				RememberAndNotifyOneFileChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
+				FwwsRememberOneFileChanged($pathsOfChangedNotNewFiles[$i], $timeStamp);
 				}
 			}
 		}
@@ -940,6 +944,9 @@ sub GetLogChanges {
 							}
 						else    # regular file rename, not folder
 							{
+							# TEST ONLY
+							#print("RENAME for $pathProperCased\n");
+
 							push @RenamedFilePaths, $pathProperCased;
 							}
 						}
@@ -1838,6 +1845,11 @@ sub RememberFileHasChanged {
 		}
 
 
+	if ($fileModSeconds ne '0')
+		{
+		DebugLogModTimes("E", $filePath, $fileModSeconds);
+		}
+
 	return ($result);
 }
 
@@ -1857,87 +1869,25 @@ sub ModTimeAndLine {
 	if (defined($TimeForFileChange{$filePath}))
 		{
 		my $fileTime = $TimeForFileChange{$filePath};
-		$result = $fileTime;
 		if (defined($LineNumberForFileChange{$filePath}))
 			{
+			$result = $fileTime;
 			$result .= 'S';
 			$result .= "$LineNumberForFileChange{$filePath}";
 			}
+		else
+			{
+			$result = $fileTime;
+			}
+		}
+
+	if ($result ne 'no')
+		{
+		DebugLogModTimes("N", $filePath, $result);
 		}
 
 	my ($seconds, $microseconds) = gettimeofday();
 	my $ms = int(($seconds * 1000) + ($microseconds / 1000));
-
-	return ($result);
-
-	# my $caller   = "";
-	# my $callerID = "";
-	# if (defined($formH->{'caller'}) && defined($formH->{'id'}))
-	# 	{
-	# 	$caller   = $formH->{'caller'};
-	# 	$callerID = $formH->{'id'};
-	# 	}
-
-	# my ($seconds, $microseconds) = gettimeofday();
-	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));
-
-	# if (defined($TimeForFileChange{$filePath}))
-	# 	{
-	# 	# No change if request was from Editor and Editor has reported a change.
-	# 	if (   defined($formH->{'id'})
-	# 		&& defined($EditorIdForFileChange{$filePath})
-	# 		&& $formH->{'id'} eq $EditorIdForFileChange{$filePath})
-	# 		{
-	# 		;    # no change
-	# 		}
-	# 	else
-	# 		{
-	# 		# TEST ONLY
-	# 		#print("HFC, for |$filePath| from caller |$caller|.\n");
-	# 		my $fileTime = $TimeForFileChange{$filePath};
-	# 		if ($ms - $fileTime <= 8000)
-	# 			{
-	# 			if (defined($LineNumberForFileChange{$filePath}) && $ms - $fileTime <= 3000)
-	# 				{
-	# 				my $currentIdList =
-	# 					defined($ViewerNotifiedIdList{$filePath})
-	# 					? $ViewerNotifiedIdList{$filePath}
-	# 					: '';
-	# 				if ($caller eq 'Viewer' && $callerID ne "")
-	# 					{
-	# 					if (index($currentIdList, "|$callerID|") < 0)
-	# 						{
-	# 						$result = $fileTime;
-	# 						$result .= 'S';
-	# 						$result .= "$LineNumberForFileChange{$filePath}";
-
-	# 						# Remember Viewer was notified
-	# 						if ($currentIdList eq '')
-	# 							{
-	# 							$ViewerNotifiedIdList{$filePath} = "|$callerID|";
-	# 							}
-	# 						else
-	# 							{
-	# 							$ViewerNotifiedIdList{$filePath} .= "$callerID|";
-	# 							}
-	# 						}
-	# 					}
-	# 				}
-	# 			else    # skip if we just sent an Editor notice with line number
-	# 				{
-	# 				if ($ms - $fileTime >= 6000)
-	# 					{
-	# 					$result = $fileTime;
-	# 					}
-	# 				}
-	# 			}
-	# 		}
-	# 	}
-	# # TEST ONLY
-	# else
-	# 	{
-	# 	#print("No TS for |$filePath|\n");
-	# 	}
 
 	# Remove ("winnow") old change notices every few seconds.
 	if ($ms - $msecSinceLastWinnow >= 8000)
@@ -1977,7 +1927,7 @@ sub ModTimeAndLine {
 
 # $timeStamp is eg "2026-02-20 3:44:44 PM".
 # Converted to epoch seconds for storage.
-sub RememberAndNotifyOneFileChanged {
+sub FwwsRememberOneFileChanged {
 	my ($filePath, $timeStamp) = @_;
 	$filePath =~ s!\\!/!g;
 	$filePath = lc($filePath);
@@ -1989,17 +1939,22 @@ sub RememberAndNotifyOneFileChanged {
 	my $epochSeconds = $t->epoch;
 	$TimeForFileChange{$filePath} = $epochSeconds;
 
-	my $msg =
-		'PUBLISH__TS_CHANGEDETECTED_TE_changeDetected 0 ' . $filePath . '     ' . $epochSeconds;
-	WebSocketSend($msg);
-
-	# my ($seconds, $microseconds) = gettimeofday();
-	# my $ms = int(($seconds * 1000) + ($microseconds / 1000));
-	# $TimeForFileChange{$filePath} = $ms;
-	# Delete any line number, so we know latest notice was not from the Editor
-	# TEMP OUT delete $LineNumberForFileChange{$filePath};
+	DebugLogModTimes("F", $filePath, $epochSeconds);
 }
 
 }    ##### Polled file change reporting, for IntraMine Editor and Viewer
+
+sub DebugLogModTimes {
+	my ($type, $filePath, $modTime) = @_;
+
+	if (!$DebugModTimes || index($filePath, "debugmodtimelog.txt") > 0)
+		{
+		return;
+		}
+
+	my $logFilePath = "C:/perlprogs/IntraMine/test/debugmodtimelog.txt";
+	my $logLine     = "$type $filePath $modTime\n";
+	AppendToBinFileWide($logFilePath, $logLine);
+}
 
 1;

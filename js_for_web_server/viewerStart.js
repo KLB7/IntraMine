@@ -27,14 +27,14 @@ if (typeof window.ontouchstart !== 'undefined')
 
 let diffScrollMarkerClass = "diff-scroll"; // For markDiffsInScrollbar()
 
-window.addEventListener("load", reJumpAndHighlight);
+window.addEventListener("load", function() {reJumpAndHighlight(false);});
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
 // Hide messy redraw. See also showMainContent called in finishStartup() below.
 hideMainContent();
 
 // Adjust some element heights so scrolling works properly.
-function doResize() {
+function doResize(reloading = false) {
 	restoreColumnWidths();
 
 	let rule = document.getElementById("rule_above_editor");
@@ -65,7 +65,7 @@ function doResize() {
 		tocMainElement.style.height = newTocHeightPC + "%";
 		}
 
-	if (initialSearchHitsAreShowing)
+	if (!reloading && initialSearchHitsAreShowing)
 		{
 		removeInitialHighlights();
 		highlightInitialItems();
@@ -82,8 +82,6 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
-	// TEST ONLY
-	//console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -100,8 +98,10 @@ async function reJumpAndHighlight(reloading=false) {
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
-	highlightInitialItems();
-	//markDiffsInScrollbar(diffScrollMarkerClass);
+	if (!reloading)
+		{
+		highlightInitialItems();
+		}
 
 	setIsMarkdown();
 
@@ -779,10 +779,11 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				contentDiv.innerHTML = text;
 
 				let reloading = true;
+				finishReload();
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
-				doResize();
-				finishReload();
+				doResize(reloading);
+				//finishReload(); too late
 				startReloadCheck();
 				//reportActivity();
 				}

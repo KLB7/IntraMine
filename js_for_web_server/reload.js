@@ -10,7 +10,7 @@ let fileChangedTimeLineRE = new RegExp("^(\\d+)S(\\d+)$");
 let lastModTime = "0";
 if (typeof fileModTime !== "undefined") // defined for Viewer and Editor
 	{
-	lastModTime = fileModTime;
+	lastModTime = "" + fileModTime;
 	}
 
 // Moved to intramine_viewer.pl#617 or so.
@@ -65,6 +65,7 @@ async function pollForReload() {
 						}
 					else
 						{
+						let oldLastModTime = lastModTime;
 						lastModTime = currentModTime;
 						
 						if (typeof isMarkdown !== "undefined")
@@ -80,17 +81,21 @@ async function pollForReload() {
 								}
 							else
 								{
-								;//location.hash = lineNumberStr;
 								sessionStorage.setItem('lineNumberStr', lineNumberStr);
 								}
 							}
 						else
 							{
-							;//location.hash = lineNumberStr;
 							sessionStorage.setItem('lineNumberStr', lineNumberStr);
 							}
 						
-						reloadJustTheContents(thePath, shortServerName, true);
+						// After a file rename, win_wide_filepaths.pm#GetFileModTimeWide
+						// and the WATCHER can disagree on the mod time, so we shrug
+						// off small differences.
+						if (currentModTime - oldLastModTime > 1)
+							{
+							reloadJustTheContents(thePath, shortServerName, true);
+							}
 						}
 					}
 				}
@@ -105,8 +110,16 @@ async function pollForReload() {
 						}
 					else
 						{
+						let oldLastModTime = lastModTime;
 						lastModTime = currentModTime;
-						reloadJustTheContents(thePath, shortServerName, false);
+
+						// After a file rename, win_wide_filepaths.pm#GetFileModTimeWide
+						// and the WATCHER can disagree on the mod time, so we shrug
+						// off small differences.
+						if (currentModTime - oldLastModTime > 1)
+							{
+							reloadJustTheContents(thePath, shortServerName, false);
+							}
 						}
 					}
 				}
@@ -328,10 +341,6 @@ async function notifyWatcherThatFileHasChangedWithPort(lineNumber, modTimeStr, p
 // IntraMine's Editor - request cached contents from the Editor instead
 // of reloading from disk in the Viewer.
 async function reloadJustTheContents(thePath, shortServerName, useEditorCache) {
-
-	// TEST ONLY
-	await sleepABit(1000); // msec
-	//console.log("reloadJustTheContents top");
 
 	try {
 		const port = await fetchPort(mainIP, theMainPort, shortServerName, errorID);
