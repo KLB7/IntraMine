@@ -3201,9 +3201,9 @@ sub GetChangedLinesForRange {
 			# TEST ONLY
 			# print("\@\@: |$line|\n");
 			# TEST ONLY
-			print(
-"\$firstDiffLineNumInChunk $firstDiffLineNumInChunk, \$atatLineStart $atatLineStart, \$lastDiffLineNumInChunk $lastDiffLineNumInChunk vs \$firstLineNum $firstLineNum\n"
-			);
+			# 			print(
+			# "\$firstDiffLineNumInChunk $firstDiffLineNumInChunk, \$atatLineStart $atatLineStart, \$lastDiffLineNumInChunk $lastDiffLineNumInChunk vs \$firstLineNum $firstLineNum\n"
+			#			);
 
 			}
 		else

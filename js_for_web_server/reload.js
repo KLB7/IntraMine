@@ -386,9 +386,10 @@ async function reloadJustTheContentsWithPort(thePath, shortServerName, port, use
 		// Full reload. It is possible that there's a cached version of
 		// the newly saved file in another IntraMine Editor,
 		// but very unlikely.
-		const params = new URLSearchParams(window.location.search);
-		params.set('id', uniqueBrowserID);
-		window.location.href = `${window.location.pathname}?${params.toString()}`;
+		location.reload();
+		// const params = new URLSearchParams(window.location.search);
+		// params.set('id', uniqueBrowserID);
+		// window.location.href = `${window.location.pathname}?${params.toString()}`;
 		}
 }
 

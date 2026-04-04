@@ -71,7 +71,10 @@ function doResize(reloading = false) {
 		highlightInitialItems();
 		}
 
-	markDiffsInScrollbar(diffScrollMarkerClass);
+	if (!reloading)
+		{
+		markDiffsInScrollbar(diffScrollMarkerClass);
+		}
 
 	if (!onMobile)
 		{
@@ -142,17 +145,12 @@ function reJump(delayMsec) {
 		return;
 		}
 	
-	// TEST ONLY
-	//console.log("reJump after jumpToMarkdownLineFromStorage.");
-
 	if (delayMsec === undefined)
 		{
 		delayMsec = 0;
 		}
 	
 	let h = location.hash;
-	// TEST ONLY
-	//console.log("h |" + h + "|");
 
 	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
 	let useStorage = false;
@@ -167,9 +165,6 @@ function reJump(delayMsec) {
 
 	if (!useStorage && h.length > 1)
 		{
-		// TEST ONLY
-		//console.log("h " + h);
-
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		h = decodeURIComponent(h);
@@ -685,7 +680,7 @@ function hasTextExtension() {
 
 // Just for Markdown files, go straight to an id.
 function mdJump(tocid, lineNum) {
-	location.hash = '#' + tocid;
+	location.hash = tocid;
 }
 
 // Adust the top of "id" (the main text holder) so scrolling will work properly etc.
@@ -718,7 +713,9 @@ function positionViewItems() {
 			setTextViewPosition("rule_above_editor", specialTextHolderName);
 			}
 		}
+	
 	doResize();
+
 }
 
 function finishStartup(reloading = false) {
@@ -774,7 +771,7 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 			let text = await response.text();
 			if (text !== ' ')
 				{
-				prepForReload();
+				prepForReload(useEditorCache);
 
 				contentDiv.innerHTML = text;
 
@@ -782,7 +779,7 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				finishReload();
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
-				doResize(reloading);
+				//doResize(reloading);
 				//finishReload(); too late
 				startReloadCheck();
 				//reportActivity();
@@ -800,8 +797,26 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 	}
 }
 
-function prepForReload() {
+function prepForReload(useEditorCache) {
 	stopReloadCheck();
+	if (!useEditorCache)
+		{
+		// Get line number of first visible line, poke it in sessionStorage.
+		let lineNumberStr = getTopLineNumber();
+		sessionStorage.setItem('lineNumberStr', lineNumberStr);
+		}
+}
+
+function getTopLineNumber() {
+	let result = "1";
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		let lineNum = firstVisibleLineNumber(el);
+		result = lineNum.toString();
+		}
+	
+	return(result);
 }
 
 function finishReload() {
@@ -837,7 +852,7 @@ function finishReload() {
 
 	addToggleScrollListener();
 
-	markDiffsInScrollbar(diffScrollMarkerClass);
+	reloadDiffs(diffScrollMarkerClass);
 
 	forgetLinesSeen();
 	addScrollListenerAndSetMarkdown();
@@ -1406,13 +1421,15 @@ function markDiffsInScrollbar(scrollHitClassName) {
 	// TEST ONLY
 	//console.log("markDiffsInScrollbar called.");
 
+	// Remove any current scroll markers (for when we are reloading).
+	removeElementsByClass(scrollHitClassName);
+
 	let numDiffArrayEntries = textDiffChangedLines.length;
 	if (numDiffArrayEntries === 0)
 		{
 		return;
 		}
 	//console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
-	removeElementsByClass(scrollHitClassName);
 
 	// Light themes want a slightly whiter thumb for diff markers to show up.
 	// Revision, this is done unconditionally in non_cm_text.css.
@@ -1496,6 +1513,91 @@ function markDiffsInScrollbar(scrollHitClassName) {
 			markerMainElement.appendChild(mk);
 			}
 		}
+}
+
+async function reloadDiffs(scrollHitClassName) {
+	//console.log("reloadDiffs");
+	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=reloadDiffs' + '&FULLPATH=' + encodeURIComponent(thePath);
+
+	textDiffChangedLines.length = 0;
+
+	try {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== ' ')
+				{
+				const diffs = text.split(",");
+				const diffsLen = diffs.length;
+				for (let i = 0; i < diffsLen; ++i)
+					{
+					let type = diffs[i].substring(0, 1);
+					let lineNum = diffs[i].substring(1);
+					let rowID = 'R' + lineNum;
+					let rowElem = document.getElementById(rowID);
+					if (rowElem !== null && hasClass(rowElem, 'shrunkrow'))
+						{
+						let lnum = parseInt(lineNum, 10);
+						--lnum;
+						lineNum = lnum.toString();
+						rowID = 'R' + lineNum;
+						rowElem = document.getElementById(rowID);
+						}
+					if (rowElem !== null)
+						{
+						let firstTD = rowElem.firstChild;
+						if (firstTD !== null)
+							{
+							let lnum = parseInt(lineNum, 10);
+							let spacer = '';
+							if (lnum < 10)
+								{
+								spacer = '   ';
+								}
+							else if (lnum < 100)
+								{
+								spacer = '  ';
+								}
+							else if (lnum < 1000)
+								{
+								spacer = ' ';
+								}
+							if (type === 'N')
+								{
+								firstTD.setAttribute('n', lineNum + spacer + '|');
+								firstTD.addEventListener("click", diffMarkerClicked);
+								firstTD.addEventListener("mouseover", overDiffMarker);
+								firstTD.addEventListener("mouseout", outOfDiffMarker);
+								}
+							else if (type === 'D')
+								{
+								firstTD.setAttribute('n', lineNum + spacer + '▸');
+								firstTD.addEventListener("click", diffMarkerClicked);
+								firstTD.addEventListener("mouseover", overDiffMarker);
+								firstTD.addEventListener("mouseout", outOfDiffMarker);
+								}
+							}
+
+						textDiffChangedLines.push(diffs[i]);
+						// TEST ONLY
+						//console.log("PUSHED |" + diffs[i] + "|");
+						}
+					}
+
+				markDiffsInScrollbar(scrollHitClassName);
+				}
+			}
+		else
+			{
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>reloadDiffs bad response received!</p>';
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>reloadDiffs connection error :' + error + '!</p>';
+	}
 }
 
 function evtIsInScrollbar(evt) {

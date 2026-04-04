@@ -223,6 +223,18 @@ function scrollIndicator() {
 		return;
 		}
 
+	// Sometimes indicatorM is incorrectly set non-zero. I can't trace where
+	// that's happenining, but a recalc here which cures the problem
+	// and I say again this problem is completely untraceable after
+	// a day of looking. Fortunately this doesn't interfere with scrolling
+	// when the precision yellow indicator is wanted in a large file.
+	if (indicatorM !== 0)
+		{
+		//console.log("BEFORE indicatorM: |" + indicatorM + "|");
+		recalculateIndicatorM();
+		//console.log("AFTER indicatorM: |" + indicatorM + "|");
+		}
+
 	if (indicatorM > 0)
 		{
 		indicatorElem.style.display = 'block';

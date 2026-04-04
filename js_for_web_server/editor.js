@@ -504,6 +504,9 @@ async function loadFileIntoCodeMirror(cm, path, reloading) {
 				text = '';
 				}
 			setSavedText(text); // For comparison against edited text
+
+			hideMainContent();
+
 			cm.setValue(text);
 			addDragger && addDragger();
 			cm.markClean();
@@ -540,6 +543,7 @@ async function loadFileIntoCodeMirror(cm, path, reloading) {
 			setTimeout(function() {
 				cmEditorRejumpToAnchor();
 				addAutoLinks();
+				showMainContent();
 				}, 600);
 			lazyOnScroll = JD.debounce(onScroll, 1); // was 100
 			cm.on("scroll", lazyOnScroll);
@@ -551,7 +555,7 @@ async function loadFileIntoCodeMirror(cm, path, reloading) {
 
 			setUpIndicator();
 
-			showMainContent();
+			//showMainContent();
 
 			addDiffClickHandler(myCodeMirror);
 
@@ -1131,7 +1135,12 @@ function insertInCodeMirror(textToInsert) {
 
 function cmEditorRejumpToAnchor() {
 	let anchor = location.hash;
-	if (anchor.length > 1)
+	if (anchor === "")
+		{
+		anchor = sessionStorage.getItem('lineNumberStr');
+		}
+	
+	if (anchor !== null && anchor.length > 1)
 		{
 		anchor = anchor.replace(/^#/, '');
 		// Remove any trailing '&rddm=1234' type stuff.
@@ -1201,7 +1210,7 @@ function hideIt(id) {
 
 // Hide/show content during load to reduce flicker.
 function hideMainContent() {
-	return;
+	
 	let elem = document.getElementById("scrollContentsList");
 	if (elem !== null)
 		{

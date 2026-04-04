@@ -120,7 +120,7 @@ function jumpToLine(lineNum, adjustToShowComment) {
 	previousFirstLineNumber = currentFirstLineNumber;
 
 	myCodeMirror.setSelection({line: lineNum, ch: 0}, {line: lineNum, ch: 999});
-	
+
 	scrollMobileIndicator();
 
 	// Restore any highlighted text selection. Doing it on a time delay is the only
@@ -140,7 +140,7 @@ function jumpToLine(lineNum, adjustToShowComment) {
 		let el = document.getElementById(cmTextHolderName);
 		if (el === null)
 			{
-			console.log("cmTocSnchors.js#jumpToLine !willScroll cmTextHolderName element is missing!");
+			console.log("cmTocAnchors.js#jumpToLine !willScroll cmTextHolderName element is missing!");
 			}
 		let limitLineNum = lastVisibleLineNumber(el);
 		let tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum); // cmTocAnchors.

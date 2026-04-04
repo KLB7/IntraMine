@@ -310,8 +310,6 @@ async function loadFileIntoCodeMirror(cm, path, useEditorCache) {
 	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path + '&useEditor=' + useEditorCache + '&rddm=' + String(getRandInt(1, 65000));
 
 	try {
-
-
 		//let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=loadfile&file=' + path;
 		const response = await fetch(theAction);
 		if (response.ok)
@@ -393,15 +391,23 @@ async function reloadCM(shortServerName, port, uniqueBrowserID, useEditorCache)
 			let text = await response.text();
 			if (text !== ' ' && text !== 'NONE')
 				{
+				if (!useEditorCache)
+					{
+					rememberTopLineForResize();
+					sessionStorage.setItem('lineNumberStr', topLineForResize);
+					}
+					
+				hideMainContent();
 				let tocDiv = document.getElementById('scrollContentsList');
 				if (tocDiv !== null)
 					{
 					tocDiv.innerHTML = text;
 
+					// Remove git diff gutter and scroll bar markers.
+					clearDiffGutterEtc();
+				
 					// Now retrieve the actual contents.
 					loadFileIntoCodeMirror(myCodeMirror, thePath, useEditorCache);
-
-					//reportActivity();
 					}
 				}
 			// else no table of contents
@@ -429,7 +435,7 @@ function resetTopNavPosition() {
 
 // Hide/show content during load to reduce flicker.
 function hideMainContent() {
-	return;
+	//return;
 	let elem = document.getElementById("scrollContentsList");
 	if (elem !== null)
 		{

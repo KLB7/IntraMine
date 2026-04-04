@@ -146,6 +146,7 @@ $RequestAction{'/file/'} = \&FullFile; # RESTful alternative, /file/is followed 
 $RequestAction{'req|loadfile'}        = \&LoadTheFile;                  # req=loadfile
 $RequestAction{'req|reloadnoncmfile'} = \&ReloadTocAndContentsNonCM;    # req=reloadnoncmfile
 $RequestAction{'req|reloadCMTOC'}     = \&ReloadCMTOC;                  # req=reloadCMTOC
+$RequestAction{'req|reloadDiffs'}     = \&ReloadDiffs;                  # req=reloadDiffs
 $RequestAction{'req|openDirectory'}   = \&OpenDirectory;                # req=openDirectory
 # The following two callbacks are needed if any css/js files
 # are passed to GetStandardPageLoader() in the first argument. Not needed here.
@@ -375,21 +376,21 @@ sub FullFile {
 		if ($diffLineString ne "")
 			{
 			$theBody =~
-s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[$diffLineString\];\n</script>!;
+s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[$diffLineString\];\n</script>!;
 			}
 		else
 			{
-			$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
+			$theBody =~ s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[\];\n</script>!;
 			}
 		}
 	elsif ($filePath =~ m!\.(md|mkd|markdown)$!i)
 		{
 		$customJS .= OptionalCustomJSforMarkdown();
-		$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
+		$theBody =~ s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[\];\n</script>!;
 		}
 	else
 		{
-		$theBody =~ s!_CHANGEDARRAY_!<script>const textDiffChangedLines = \[\];\n</script>!;
+		$theBody =~ s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[\];\n</script>!;
 		}
 
 	$theBody =~ s!_JAVASCRIPT_!$customJS!;
@@ -2270,13 +2271,13 @@ sub GetPrettyTextContents {
 							if ($i > 0)
 								{
 								$lines[$i - 1] =~
-s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlersShrunkRow!;
+s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlersShrunkRow!;
 								}
 							}
 						else
 							{
 							$lines[$i] =~
-								s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+								s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlers!;
 							}
 						}
 					}
@@ -2317,7 +2318,7 @@ s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlersShrunkRow!;
 					elsif ($lineType eq 'D')    # Deleted
 						{
 						$lines[$i] =~
-							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▸' $diffMouseHandlers!;
+							s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlers!;
 						}
 					}
 				}
@@ -2547,6 +2548,8 @@ sub GetChangedLinesArray {
 				$changedLinesA->[$testNum]       = $changedLineNumbers[$i];
 				$lineTypesA->[$testNum]          = $lineTypes[$i];
 				$DiffChangedLinesForJS[$testNum] = $lineTypes[$i] . $changedLineNumbers[$i];
+				# TEST ONLY
+				#print("LOAD $lineTypes[$i]$changedLineNumbers[$i]\n");
 				}
 			}
 		}
@@ -2573,6 +2576,80 @@ sub GetGitDirectoryFromPath {
 		}
 
 	return ($result);
+}
+
+sub ReloadDiffs {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $result = ' ';
+
+	my $filePath = (defined($formH->{'FULLPATH'})) ? $formH->{'FULLPATH'} : '';
+	if ($filePath eq '')
+		{
+		return ($result);
+		}
+	my @diffChangedLinesForJS;
+	my $haveChangedLines = GetChangedLinesAndTypesForReload($filePath, \@diffChangedLinesForJS);
+
+	if ($haveChangedLines)
+		{
+		$result = join(',', @diffChangedLinesForJS);
+		}
+
+	return ($result);
+
+	# 	my $haveChangedLines = GetChangedLinesArray($filePath, \@changedLines, \@lineTypes);
+	# 	my $diffMouseHandlersShrunkRow =
+	# "onclick='diffMarkerClickedShrunkRow(event)' onmouseover='overDiffMarker(event)' onmouseout='outOfDiffMarker(event)'";
+	# 	my $diffMouseHandlers =
+	# "onclick='diffMarkerClicked(event)' onmouseover='overDiffMarker(event)' onmouseout='outOfDiffMarker(event)'";
+}
+
+# NOTE @$diffChangedLinesForJSA is sparse, contains only entries for changed lines.
+sub GetChangedLinesAndTypesForReload {
+	my ($path, $diffChangedLinesForJSA) = @_;
+	my $haveChanges = 0;
+	$path =~ s!\\!/!g;
+	# This is important, git relative path is cAsE sEnsITiVe (true).
+	my $properPath = Win32::GetLongPathName($path);
+	if (defined($properPath) && $properPath ne '')
+		{
+		$path = $properPath;
+		}
+	$path =~ s!\\!/!g;
+	my $gitDir = GetGitDirectoryFromPath($path);
+	if ($gitDir eq "")
+		{
+		return (0);
+		}
+
+	my $relativePath = substr($path, length($gitDir) + 1);
+	chdir($gitDir);
+	# Adding --unified=0 to suppress context, we just want line numbers.
+	my $gitCmd = "git diff  --unified=0 -- \"$relativePath\" 2>NUL";
+
+	# Call git for a list of differences between current saved version
+	# and last committed version. Note git might not even be installed.
+	my $diffs = `$gitCmd`;
+
+	if ($diffs ne '')
+		{
+		my @changedLineNumbers;
+		my @lineTypes;
+		GetLineNumbersForChangedLines($diffs, \@changedLineNumbers, \@lineTypes);
+		my $numLineNumbers = @changedLineNumbers;
+		if ($numLineNumbers)
+			{
+			$haveChanges = 1;
+			for (my $i = 0 ; $i < $numLineNumbers ; ++$i)
+				{
+				push @{$diffChangedLinesForJSA}, $lineTypes[$i] . $changedLineNumbers[$i];
+				# TEST ONLY
+				#print("$lineTypes[$i]$changedLineNumbers[$i]\n");
+				}
+			}
+		}
+
+	return ($haveChanges);
 }
 
 # An extra character is added to the start of the line number:
@@ -2668,6 +2745,7 @@ sub GetLineNumbersForChangedLines {
 	my $previousAtatLineStart = -1;
 	#my $left = -1;
 	my $right                  = -1;
+	my $deletedRight           = -2;
 	my $plusSeen               = 0;
 	my $negSeen                = 0;
 	my $lastDeleteNumberPushed = -1;
@@ -2703,6 +2781,13 @@ sub GetLineNumbersForChangedLines {
 			{
 			if (index($line, '+') == 0)
 				{
+				# If we just pushed a Delete for the same line number then
+				# it's a Changed line: pop the Delete.
+				if ($right eq $deletedRight)
+					{
+					pop(@$changedLineNumsArr);
+					pop(@$lineTypesArr);
+					}
 				push @$changedLineNumsArr, $right;
 				push @$lineTypesArr,       'N';
 				$plusSeen = 1;
@@ -2714,6 +2799,7 @@ sub GetLineNumbersForChangedLines {
 					{
 					push @$changedLineNumsArr, $right;
 					push @$lineTypesArr,       'D';
+					$deletedRight = $right;
 					}
 				$lastDeleteNumberPushed = $right;
 				$negSeen                = 1;

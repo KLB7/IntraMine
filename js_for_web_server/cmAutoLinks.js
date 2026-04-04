@@ -245,7 +245,6 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 
 async function addGitDiffMarkers(cm, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {
 
-
 	if (!diffMarkersLoaded)
 		{
 		//.log("INITIAL DIFF");
@@ -320,6 +319,9 @@ async function addDiffScrollMarkers() {
 		return;
 		}
 
+	// For reload, remove all existing mark elements first.
+	markerMainElement.querySelectorAll('mark').forEach(el => el.remove());
+	
 	let rect = markerMainElement.getBoundingClientRect();
 	let yTop = rect.top;
 	let yBottom = rect.bottom;
@@ -612,7 +614,7 @@ function makeDiffMarker(lineType) {
 		{
 		marker.style.color = "red";
 		marker.style.marginTop = "-6px";
-		marker.innerHTML = "▸";
+		marker.innerHTML = "▶";
 		}
 	else if (lineType === 'N') // New/Changed
 		{
@@ -625,6 +627,15 @@ function makeDiffMarker(lineType) {
 		; // no marker
 		}
 	return marker;
+}
+
+function clearDiffGutterEtc() {
+	diffMarkersLoaded = false;
+
+	clearMarks();
+
+	let cm = myCodeMirror;
+	cm.clearGutter("cmGitDiffGutter");
 }
 
 // Add <a> links for local files, images, and web pages.
@@ -1020,6 +1031,10 @@ function showDefinitionHintForSelection(evt) {
 		{
 		let word = myCodeMirror.findWordAt(myCodeMirror.doc.getCursor());
 		text = myCodeMirror.doc.getRange(word.anchor, word.head);
+		if (text.indexOf("()") >= 0)
+			{
+			return;
+			}
 		}
 
 	showDefinitionHint(text, evt);
