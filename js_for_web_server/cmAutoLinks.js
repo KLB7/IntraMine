@@ -1026,6 +1026,18 @@ function handleDoubleClick(e) {
 }
 
 function showDefinitionHintForSelection(evt) {
+	var cur = myCodeMirror.getCursor(), line = myCodeMirror.getLine(cur.line), start = cur.ch;
+	// No Go2 if cursor is at the end of the line.
+	if (start === line.length)
+		{
+		let startCur = myCodeMirror.getCursor("start");
+		let startPos = startCur.ch;
+		if (startPos === line.length)
+			{
+			return;
+			}
+		}
+
 	let text = myCodeMirror.doc.getSelection(); 
 	if (text === "")
 		{

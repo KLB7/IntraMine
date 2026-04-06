@@ -267,6 +267,7 @@ else
 	}
 
 highlightSelectionMatches.annotateScrollbar = true;
+highlightSelectionMatches.minChars = 3; // ? This doesn't work ?
 cfg.highlightSelectionMatches = highlightSelectionMatches;
 // For the viewer, no editing.
 cfg.readOnly = true;

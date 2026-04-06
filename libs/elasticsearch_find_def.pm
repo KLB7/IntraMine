@@ -63,6 +63,15 @@ $DefinitionKeyForExtension{'bzl'}   = 'def';
 $DefinitionKeyForExtension{'py'}    = 'def';
 $DefinitionKeyForExtension{'pyw'}   = 'def';
 
+# Sometimes a selection might start with a definition keyword.
+my %IsADefinitionKeyword;
+$IsADefinitionKeyword{'sub'}        = 1;
+$IsADefinitionKeyword{'function'}   = 1;
+$IsADefinitionKeyword{'func'}       = 1;
+$IsADefinitionKeyword{'subroutine'} = 1;
+$IsADefinitionKeyword{'def'}        = 1;
+
+
 # Some languages such as C / C++ have header and implementation extensions.
 # Search implementation first, then headers if nothing found.
 # Actually C and C++ are the only ones I could find.
@@ -152,20 +161,71 @@ sub Instances {
 	# that works, after spending too long on the problem.
 	$rawquery =~ s!____PC____!%!;
 
+	$rawquery =~ s!^\s+!!;
+	$rawquery =~ s!\s+$!!;
+
+	my $originalquery = $rawquery;    # well, mostly original:)
+
+	my $hasSpaces = 0;
+	if (index($rawquery, " ") > 0 || index($rawquery, "\t") > 0)
+		{
+		$hasSpaces = 1;
+		}
+	my $moreThanTwoWords = 0;
+	if ($hasSpaces && $rawquery =~ m!\S+\s+\S+\s+\S+!)
+		{
+		$moreThanTwoWords = 1;
+		}
+	my $startsWithDefinitionKeyword = 0;
+	if ($hasSpaces && !$moreThanTwoWords && $rawquery =~ m!^(\S+)!)
+		{
+		my $firstWord = $1;
+		if (defined($IsADefinitionKeyword{$firstWord}))
+			{
+			$startsWithDefinitionKeyword = 1;
+			}
+		}
+	my $lastHopeOnly = 0;
+	if (!$startsWithDefinitionKeyword && $hasSpaces)
+		{
+		$lastHopeOnly = 1;
+		}
+
+
 	@{$self->{FULLPATHS}} = ();
 	@{$self->{PATHQUERY}} = ();
 	%{$self->{PATHSEEN}}  = ();
 
+	my $usingSuppliedKeyword = 0;
+	my $definitionKeyword    = '';
+	if ($startsWithDefinitionKeyword && $rawquery =~ m!^(\S+)\s+(\S+)!)
+		{
+		$definitionKeyword    = $1;
+		$rawquery             = $2;
+		$usingSuppliedKeyword = 1;
+		}
+	else
+		{
+		$definitionKeyword = DefKeyForPath($fullPath);
+		}
+
 	my @wantedExt;
-	GetExtensionsForDefinition($fullPath, \@wantedExt);
+	if ($usingSuppliedKeyword)
+		{
+		GetExensionsFromKeyword($definitionKeyword, \@wantedExt);
+		}
+	else
+		{
+		GetExtensionsForDefinition($fullPath, \@wantedExt);
+		}
 	my $numExtensions = @wantedExt;
 	if ($numExtensions == 0)
 		{
 		return ('<p>nope</p>');
 		}
 
-	my $definitionKeyword = DefKeyForPath($fullPath);
-	if ($definitionKeyword eq '')
+
+	if ($definitionKeyword eq '' && !$lastHopeOnly && !$hasSpaces)
 		{
 		# If extension is supported by universal ctags we can continue
 		# the hard way (use ctags to find files with definitions).
@@ -175,16 +235,11 @@ sub Instances {
 			}
 		}
 
-	# if ($result ne '' && $result ne '<p>nope</p>')
-	# 	{
-	# 	return ($result);
-	# 	}
-
 	my @keywords;
 	my $numHits;
 	my $numFiles;
 
-	if ($definitionKeyword ne '')
+	if ($definitionKeyword ne '' && !$lastHopeOnly)
 		{
 		if (index($definitionKeyword, '|') > 0)
 			{
@@ -212,7 +267,7 @@ sub Instances {
 
 	# Faint hope: perhaps the selected term is defined in some other
 	# language? We'll try .js and .css. Maybe .pl, .pm.
-	if (NumHitsSoFar($self) == 0)
+	if (NumHitsSoFar($self) == 0 && !$lastHopeOnly && !$hasSpaces)
 		{
 		$numHits  = 0;
 		$numFiles = 0;
@@ -221,7 +276,7 @@ sub Instances {
 			\$numFiles);
 		}
 
-	# Last hope: accept any hits anywhere.
+	# Last hope: accept any hits anywhere. Omit keyword if supplied.
 	my $putDividerBefore = -1;
 	if (!HitLimitReached($self))
 		{
@@ -232,7 +287,12 @@ sub Instances {
 			$dividerWanted = 1;
 			}
 		my $numDefinitionsAdded = 0;
-		$result = GetAnyLinks($self, $rawquery, $fullPath, 1, \$numDefinitionsAdded);
+		# If a definition keyword was supplied and there's room for more,
+		# search for just the term after the keyword to pick up usage
+		# instances in addition to definitions. Eg if searching for
+		# "sub goToAnchor" we search here for just "goToAnchor".
+		my $query = ($startsWithDefinitionKeyword) ? $rawquery : $originalquery;
+		$result = GetAnyLinks($self, $query, $fullPath, 1, \$numDefinitionsAdded);
 		if ($dividerWanted)
 			{
 			my $numAfterGetAny   = NumHitsSoFar($self);
@@ -242,6 +302,10 @@ sub Instances {
 				$putDividerBefore = $numSoFar + $numDefinitionsAdded;
 				}
 			}
+		}
+	else
+		{
+		$putDividerBefore = $self->{SHOWNHITS};    # ie show all hits as definitions
 		}
 
 	FormatFullPathsResults($self, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME},
@@ -253,6 +317,19 @@ sub Instances {
 		}
 
 	return ($result);
+}
+
+sub GetExensionsFromKeyword {
+	my ($definitionKeyword, $wantedExtA) = @_;
+	# eg $DefinitionKeyForExtension{'pl'}  = 'sub';
+	foreach my $ext (sort keys %DefinitionKeyForExtension)
+		{
+		my $defList = $DefinitionKeyForExtension{$ext};
+		if (index($defList, $definitionKeyword) >= 0)
+			{
+			push @{$wantedExtA}, $ext;
+			}
+		}
 }
 
 # Determine language based on $fullPath extension, then
@@ -407,7 +484,7 @@ sub GetDefinitionLinksInOtherLanguages {
 	return ($result);
 }
 
-# Called by intramine_linker.pl#Definitions() as a last resort,
+# Called by Instances() above as a last resort,
 # look for any file containing the $rawquery, return links if found.
 sub GetAnyLinks {
 	my ($self, $rawquery, $fullPath, $doDefinitions, $numDefinitionsAddedR) = @_;
@@ -1072,6 +1149,19 @@ sub FormatFullPathsResults {
 		my $query = $self->{PATHQUERY}->[$i];
 		$query =~ s!%!%25!g;
 		$query =~ s!^\s+!!;
+
+		# Strip keyword from beginning of $query if $query consists of
+		# two words and the first word is a keyword.
+		if ($query =~ m!^(\S+)\s+(\S+)$!)
+			{
+			my $firstWord  = $1;
+			my $secondWord = $2;
+			if (defined($IsADefinitionKeyword{$firstWord}))
+				{
+				$query = $secondWord;
+				}
+			}
+
 		my $displayedPath  = $path . '#' . $query;
 		my $definitionName = '#' . $query;
 		# Replace / with \ in path, some apps still want that.
@@ -1106,7 +1196,7 @@ sub FormatFullPathsResults {
 
 		# Add color to defining links.
 		my $entry = '';
-		if ($putDividerBefore > 0 && $putDividerBefore > $i)
+		if ($putDividerBefore >= 0 && $putDividerBefore > $i)
 			{
 			# $defColorClassName
 			$entry = "<p $defColorClassName>$anchor</p>\n";

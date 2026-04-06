@@ -117,6 +117,16 @@
       if (!cm.somethingSelected() && state.options.showToken) {
         var re = state.options.showToken === true ? /[\w$]/ : state.options.showToken;
         var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
+		// MODIFICATION, no selecting if cursor is at the end of the line.
+		if (start === line.length)
+			{
+			let startCur = cm.getCursor("start");
+			let startPos = startCur.ch;
+			if (startPos === line.length)
+				{
+				return;
+				}
+			}
         while (start && re.test(line.charAt(start - 1))) --start;
         while (end < line.length && re.test(line.charAt(end))) ++end;
         if (start < end)

@@ -61,10 +61,11 @@ if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
 let data = textNode.textContent;
 
 // Sometimes the offset can be at the 'length' of the data.
-// It might be a bug with this 'experimental' feature - 
-// compensate for this below
+// If so, drop out. This allows clicking past the end of text
+// to avoid selecting anything.
 if (offset >= data.length) {
-  offset = data.length - 1;
+	return(document.createRange());
+	//offset = data.length - 1;
 }
 
 // Scan behind the current character until whitespace or punct is found, or beginning

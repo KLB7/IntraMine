@@ -41,8 +41,11 @@ function highlightInitialItems() {
 
 		// Draw all the changes at once.
 		myCodeMirror.endOperation();
-		
-		addInitialCmScrollMarkers(scrollMarkerClass);
+				
+		setTimeout(function() {
+			addInitialCmScrollMarkers(scrollMarkerClass);
+		}, 500);
+		//addInitialCmScrollMarkers(scrollMarkerClass);
 		initialSearchHitsAreShowing = true;
 		let toggleButton = document.getElementById(toggleHitsButtonID);
 		if (toggleButton !== null)
