@@ -181,17 +181,7 @@ function jumpToLine(lineNum, adjustToShowComment) {
 function cmRejumpToAnchor() {	
 	let anchor = location.hash;
 
-	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
-	if (lineNumberStr !== null && !isNaN(lineNumberStr) && location.href.indexOf("searchItems=") < 0)
-		{
-		// Skip storage if we are coming from the Search page.
-		if (location.href.indexOf("searchItems=") < 0)
-			{
-			let lineNum = parseInt(lineNumberStr, 10);
-			jumpToLine(lineNum, true);
-			}
-		}
-	else if (anchor.length > 1)
+	if (anchor.length > 1)
 		{
 		anchor = decodeURIComponent(anchor);
 		anchor = anchor.replace(/^#/, '');
@@ -226,6 +216,29 @@ function cmRejumpToAnchor() {
 				}
 			}
 		}
+	else
+		{
+		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+		if (lineNumberStr !== null)
+			{
+			setTimeout(function() {
+				clearSessionLineNumber();
+				}, 4000);
+			}
+		if (lineNumberStr !== null && !isNaN(lineNumberStr) && location.href.indexOf("searchItems=") < 0)
+			{
+			// Skip storage if we are coming from the Search page.
+			if (location.href.indexOf("searchItems=") < 0)
+				{
+				let lineNum = parseInt(lineNumberStr, 10);
+
+				// TEST ONLY
+				//console.log("cmRejumpToAnchor top, calling jumpToLine with |" + lineNumberStr + "|");
+
+				jumpToLine(lineNum, true);
+				}
+			}
+		}
 }
 
 // Restore first line of text shown. This is like above jumpToLine
@@ -243,6 +256,10 @@ function cmQuickRejumpToLine() {
 				{
 				let lineNum = parseInt(lineNumberStr, 10);
 				quickJumpToLine(lineNum);
+
+				setTimeout(function() {
+					clearSessionLineNumber();
+					}, 4000);
 				}
 			}
 		else
@@ -254,6 +271,10 @@ function cmQuickRejumpToLine() {
 				}
 			}
 		}
+}
+
+function clearSessionLineNumber() {
+	sessionStorage.setItem('lineNumberStr', "");
 }
 
 function quickJumpToLine(lineNum) {
@@ -472,7 +493,17 @@ function onScroll() {
 			}
 		else
 			{
-			lineNumber = 1;
+			// Could be a reload, try using the location.hash.
+			let h = location.hash;
+			h = h.replace(/^#/, '');
+			if (!isNaN(h))
+				{
+				lineNumber = h;
+				}
+			else
+				{
+				lineNumber = 1;
+				}
 			}
 		
 		// Note this can cause throttling - but seems harmless.

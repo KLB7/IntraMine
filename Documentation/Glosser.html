@@ -738,7 +738,6 @@ a.embedded_image {
 
 /*
 .slightShadow  {
-	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
 	text-shadow: 2px 2px 1px #C0C0C0;
 }
 */
@@ -3756,10 +3755,11 @@ if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
 let data = textNode.textContent;
 
 // Sometimes the offset can be at the 'length' of the data.
-// It might be a bug with this 'experimental' feature - 
-// compensate for this below
+// If so, drop out. This allows clicking past the end of text
+// to avoid selecting anything.
 if (offset >= data.length) {
-  offset = data.length - 1;
+	return(document.createRange());
+	//offset = data.length - 1;
 }
 
 // Scan behind the current character until whitespace or punct is found, or beginning
@@ -4237,6 +4237,11 @@ function setIsMarkdown() {
 async function showDefinitionHint(term, event) {
 }
 
+function maintainShowHideDiffs() {
+}
+
+function disableDiffsButton() {
+}
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element
@@ -5024,10 +5029,7 @@ function doResize(reloading = false) {
 		highlightInitialItems();
 		}
 
-	if (!reloading)
-		{
-		markDiffsInScrollbar(diffScrollMarkerClass);
-		}
+	markDiffsInScrollbar(diffScrollMarkerClass);
 
 	if (!onMobile)
 		{
@@ -5075,6 +5077,7 @@ async function reJumpAndHighlight(reloading=false) {
 	else
 		{
 		addAutoLinks();
+		maintainShowHideDiffs();
 		}
 }
 
@@ -5093,7 +5096,7 @@ function reJump(delayMsec) {
 	// We look at localStorage for a line number, if found
 	// attempt to count through the elements in the contents
 	// and jump. False if no jump.
-	if (jumpToMarkdownLineFromStorage())
+	if (markdownJump())
 		{
 		return;
 		}
@@ -5102,19 +5105,33 @@ function reJump(delayMsec) {
 		{
 		delayMsec = 0;
 		}
-	
+
+	let useStorage = false;
+
 	let h = location.hash;
 
-	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
-	let useStorage = false;
-	if (lineNumberStr !== null && !isNaN(lineNumberStr))
+	if (h.length <= 1)
 		{
-		// Skip storage if we are coming from the Search page.
-		if (location.href.indexOf("searchItems=") < 0)
+		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+		if (lineNumberStr !== null && lineNumberStr !== "")
 			{
-			useStorage = true;
+			// TEST ONLY
+			//console.log("Session line number is there, |" + lineNumberStr + "|");
+	
+			setTimeout(function() {
+				clearSessionLineNumber();
+				}, 4000);
+			}
+		if (lineNumberStr !== null && lineNumberStr !== "" && !isNaN(lineNumberStr))
+			{
+			// Skip storage if we are coming from the Search page.
+			if (location.href.indexOf("searchItems=") < 0)
+				{
+				useStorage = true;
+				}
 			}
 		}
+
 
 	if (!useStorage && h.length > 1)
 		{
@@ -5171,7 +5188,7 @@ function reJump(delayMsec) {
 	else if (useStorage)
 		{
 		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
-		if (lineNumberStr !== null)
+		if (lineNumberStr !== null && lineNumberStr !== "")
 			{
 			if (!isNaN(lineNumberStr))
 				{
@@ -5183,15 +5200,32 @@ function reJump(delayMsec) {
 		}
 }
 
+function clearSessionLineNumber() {
+	sessionStorage.setItem('lineNumberStr', "");
+	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+	if (lineNumberStr === null && lineNumberStr !== "")
+		{
+		lineNumberStr = "NULL";
+		}
+}
+
+// FIRST check location.hash
 // Retrieve line number to scroll to from localStorage.
 // Count up through the elements in the HTML until line number is reached,
 // scroll to that element.
 // Each P, H1..H6, HR counts as two lines.
 //
-function jumpToMarkdownLineFromStorage() {
+function markdownJump() {
+	// We're (probably) going to a header if location.hash is set
+	// if so, return true.
+	// let h = location.hash;
+	// if (h.length > 1)
+	// 	{
+	// 	return(true);
+	// 	}
 	let markdownLineNumberKey = thePath + '?' + "markdownline";
 	let markdownLineNumberStr = localStorage.getItem(markdownLineNumberKey);
-	if (markdownLineNumberStr === null)
+	if (markdownLineNumberStr === null || markdownLineNumberStr === "")
 		{
 		return(false);
 		}
@@ -5199,7 +5233,7 @@ function jumpToMarkdownLineFromStorage() {
 	++markdownLineNumber;
 
 	// TEST ONLY
-	//console.log("jumpToMarkdownLineFromStorage looking for " + markdownLineNumberStr);
+	//console.log("markdownJump looking for " + markdownLineNumberStr);
 
 	// Note sure why I was deleting the remembered line number,
 	// leaving it in for now.
@@ -5300,6 +5334,9 @@ function jumpToMarkdownLineFromStorage() {
 			}
 		else if (kidsName === 'UL' || kidsName === 'OL')
 			{
+			// TEST ONLY
+			//console.log("IN LIST");
+
 			const listItems = kids[i].children;
 			if (listItems.length === 0)
 				{
@@ -5322,6 +5359,40 @@ function jumpToMarkdownLineFromStorage() {
 					elementOffset = j * el.offsetHeight; // odd hack, but it works
 					//el = kids[i];
 					done = true;
+					break;
+					}
+				else
+					{
+					let subkids = listItems[j].children;
+					for (let k = 0; k < subkids.length; ++k)
+						{
+						let subkidsName = subkids[k].nodeName;
+						if (subkidsName === 'UL' || subkidsName === 'OL')
+							{
+							// TEST ONLY
+							//console.log("In sublist");
+							const sublistItems = subkids[k].children;
+							for (let n = 0; n < sublistItems.length; ++n)
+								{
+								++lineNumber;
+								// TEST ONLY
+								//console.log("Checking " + subkidsName + " item " + n + ", line " + lineNumber);
+								if (lineNumber >= markdownLineNumber)
+									{
+									el = listItems[j];
+									isSubElement = true;
+									parentElementOffset = kids[i].offsetTop - textDivOffset;				
+									elementOffset = j * el.offsetHeight; // odd hack, but it works
+									//el = kids[i];
+									done = true;
+									break;
+									}
+								}
+							}
+						}
+					}
+				if (done)
+					{
 					break;
 					}
 				}
@@ -5364,7 +5435,7 @@ function jumpToMarkdownLineFromStorage() {
 	if (el !== null)
 		{
 		// TEST ONLY
-		//const elemName = el.nodeName;
+		const elemName = el.nodeName;
 		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
 		//console.log("|" + el.innerHTML + "|");
 
@@ -5695,6 +5766,8 @@ function finishStartup(reloading = false) {
 	
 	reJump();
 
+	disableDiffsButton(); //showHideDiffs.js
+
 	// Show content after drawing is done.
 	// This is work in progress, not perfect.
 	setTimeout(function() {
@@ -5809,6 +5882,8 @@ function finishReload() {
 
 	forgetLinesSeen();
 	addScrollListenerAndSetMarkdown();
+
+	addTocScrollListener();
 }
 
 // Code block highlighting with lolight, used
@@ -6380,6 +6455,7 @@ function markDiffsInScrollbar(scrollHitClassName) {
 	let numDiffArrayEntries = textDiffChangedLines.length;
 	if (numDiffArrayEntries === 0)
 		{
+		maintainShowHideDiffs();
 		return;
 		}
 	//console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
@@ -6466,6 +6542,8 @@ function markDiffsInScrollbar(scrollHitClassName) {
 			markerMainElement.appendChild(mk);
 			}
 		}
+
+	maintainShowHideDiffs();
 }
 
 async function reloadDiffs(scrollHitClassName) {
@@ -7851,7 +7929,7 @@ function addTocScrollListener(evt) {
 				// Trying to stabilize nav bar, sometimes it randomly
 				// jumps off the top of the window.
 				resetTopNavPosition();
-			}, 66);
+			}, 500); // was 66
 			});
 		}
 }

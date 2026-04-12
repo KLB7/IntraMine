@@ -74,19 +74,21 @@ async function pollForReload() {
 								{
 								// Put line number in local storage so it
 								// survives as reload. See 
-								// viewerStart.js#jumpToMarkdownLineFromStorage().
+								// viewerStart.js#markdownJump().
 								let markdownLineNumberKey = thePath + '?' + "markdownline";
 								localStorage.setItem(markdownLineNumberKey, lineNumberStr);
-								location.hash = ''; // otherwise hash takes precedence
+								location.hash = lineNumberStr; 
 								}
 							else
 								{
 								sessionStorage.setItem('lineNumberStr', lineNumberStr);
+								location.hash = lineNumberStr;
 								}
 							}
 						else
 							{
 							sessionStorage.setItem('lineNumberStr', lineNumberStr);
+							location.hash = lineNumberStr;
 							}
 						
 						// After a file rename, win_wide_filepaths.pm#GetFileModTimeWide
@@ -176,7 +178,7 @@ async function xpollForReload() {
 						{
 						// Put line number in local storage so it
 						// survives as reload. See 
-						// viewerStart.js#jumpToMarkdownLineFromStorage().
+						// viewerStart.js#markdownJump().
 						let markdownLineNumberKey = thePath + '?' + "markdownline";
 						localStorage.setItem(markdownLineNumberKey, lineNumberStr);
 						location.hash = ''; // otherwise hash takes precedence

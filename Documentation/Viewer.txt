@@ -129,6 +129,8 @@ git diff markers
 -----------------
 IntraMine's Viewer and Editor will both display markers in the line number gutter and in the scrollbar if a file is in a git repository. The gutter markers will show new/changed lines with blue or gray pipes '|',  and deleted lines with red or gray triangles '▸'. Click on a gutter marker to view details of the changes.
 
+A "Hide diffs" button at top right allows you to hide diff markers in the scroll bar, which can be handy if you want to reduce clutter there temporarily in order to better see selection or initial hit highlights. It changes to read "Show diffs" after you click it.
+
 Under the hood
 ==============
 

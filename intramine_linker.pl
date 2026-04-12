@@ -877,6 +877,12 @@ m!((\[([^\]]+)]\((https?://[^)]+)\))|(_LB_.+?_RB__LP_.+?_RP_)|(\"([^"]+)\.\w+([#
 						{
 						$anchorWithNum = '';
 						}
+					# If we're looking at something like file.js#fun: trim the ':'.
+					elsif ($anchorWithNum ne ''
+						&& index($anchorWithNum, ':') == length($anchorWithNum) - 1)
+						{
+						$anchorWithNum = substr($anchorWithNum, 0, length($anchorWithNum) - 1);
+						}
 					$haveGoodMatch = RememberTextOrImageOrVideoFileMention(
 						$startPos,           $previousRevEndPos,  $captured,
 						$extProper,          $haveQuotation,      $haveTextExtension,

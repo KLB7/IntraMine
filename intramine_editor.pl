@@ -249,7 +249,7 @@ _TOPNAV_
 _TITLEHEADER_
 </div>
 <div id="button-block">
-_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON__SAVE_AS_ACTION_<span id="editor_error">&nbsp;</span>
+_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON_ _TOGGLE_DIFFS_ _SAVE_AS_ACTION_<span id="editor_error">&nbsp;</span>
 </div>
 _SAVEASFILEPICKER_
 <hr id="rule_above_editor" />
@@ -307,6 +307,7 @@ _DIFF_SPECIFICS_POPUP_
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
 <script src="reportActivity.js" ></script>
+<script src="showHideDiffs.js" ></script>
 <script>
 window.addEventListener("load", reportActivity);
 </script>
@@ -388,6 +389,9 @@ FINIS
 "<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
 		}
 	$theBody =~ s!_CHECKSPELLING_!$checkSpelling!;
+
+	my $diffsButton = ShowHideDiffsButton();
+	$theBody =~ s!_TOGGLE_DIFFS_!$diffsButton!;
 
 	my $viewerShortName = CVal('VIEWERSHORTNAME');
 	my $viewButton      = ViewButton($filePath);
@@ -919,6 +923,14 @@ FINIS
 
 	my $encFilePath = &HTML::Entities::encode($filePath);
 	$result =~ s!_FILEPATH_!$encFilePath!;
+
+	return ($result);
+}
+
+sub ShowHideDiffsButton {
+	my $result = <<'FINIS';
+<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" /></a>
+FINIS
 
 	return ($result);
 }

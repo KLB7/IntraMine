@@ -224,6 +224,8 @@ sub Instances {
 		return ('<p>nope</p>');
 		}
 
+	# Track path that have been run through ctags, avoid doing twice.
+	my %didCtagsForPath;    # $didCtagsForPath{full path} = 1; if ctags has been run for path
 
 	if ($definitionKeyword eq '' && !$lastHopeOnly && !$hasSpaces)
 		{
@@ -231,7 +233,8 @@ sub Instances {
 		# the hard way (use ctags to find files with definitions).
 		if (HasCtagsSupport($self, $fullPath))
 			{
-			$result = GetCtagsDefinitionLinks($self, $rawquery, \@wantedExt, $fullPath);
+			$result = GetCtagsDefinitionLinks($self, $rawquery, \@wantedExt, \%didCtagsForPath,
+				$fullPath);
 			}
 		}
 
@@ -272,8 +275,8 @@ sub Instances {
 		$numHits  = 0;
 		$numFiles = 0;
 		$result =
-			GetDefinitionLinksInOtherLanguages($self, $rawquery, \@wantedExt, \$numHits,
-			\$numFiles);
+			GetDefinitionLinksInOtherLanguages($self, $rawquery, \@wantedExt, \%didCtagsForPath,
+			\$numHits, \$numFiles);
 		}
 
 	# Last hope: accept any hits anywhere. Omit keyword if supplied.
@@ -292,7 +295,8 @@ sub Instances {
 		# instances in addition to definitions. Eg if searching for
 		# "sub goToAnchor" we search here for just "goToAnchor".
 		my $query = ($startsWithDefinitionKeyword) ? $rawquery : $originalquery;
-		$result = GetAnyLinks($self, $query, $fullPath, 1, \$numDefinitionsAdded);
+		$result =
+			GetAnyLinks($self, $query, $fullPath, 1, \%didCtagsForPath, \$numDefinitionsAdded);
 		if ($dividerWanted)
 			{
 			my $numAfterGetAny   = NumHitsSoFar($self);
@@ -417,7 +421,7 @@ sub GetDefinitionLinks {
 # or CSS definitions etc, we might get lucky. Especially if
 # the query is in a .txt file.
 sub GetDefinitionLinksInOtherLanguages {
-	my ($self, $rawquery, $extA, $numHitsR, $numFilesR) = @_;
+	my ($self, $rawquery, $extA, $didCtagsForPathH, $numHitsR, $numFilesR) = @_;
 	my $result = '';
 	my $e      = $self->{SEARCHER};
 	my @otherExtensions;
@@ -474,7 +478,8 @@ sub GetDefinitionLinksInOtherLanguages {
 		}
 
 
-	$result = GetCtagsResultsForExtensions($self, $rawquery, \@otherExtensions, $e, \$numFound, '');
+	$result = GetCtagsResultsForExtensions($self, $rawquery, \@otherExtensions, $e, \$numFound,
+		$didCtagsForPathH, '');
 
 	if ($numFound == 0)
 		{
@@ -487,7 +492,7 @@ sub GetDefinitionLinksInOtherLanguages {
 # Called by Instances() above as a last resort,
 # look for any file containing the $rawquery, return links if found.
 sub GetAnyLinks {
-	my ($self, $rawquery, $fullPath, $doDefinitions, $numDefinitionsAddedR) = @_;
+	my ($self, $rawquery, $fullPath, $doDefinitions, $didCtagsForPathH, $numDefinitionsAddedR) = @_;
 	$$numDefinitionsAddedR = 0;
 	$fullPath              = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
@@ -531,9 +536,11 @@ sub GetAnyLinks {
 
 			my @winnowedFullPaths;
 			my @notWinnowedFullPaths;
+			# TEST ONLY
+			#print("ANYPREF ");
 			my $numRemaining =
 				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
-				\@notWinnowedFullPaths);
+				$didCtagsForPathH, \@notWinnowedFullPaths);
 
 			if ($numRemaining)
 				{
@@ -588,9 +595,11 @@ sub GetAnyLinks {
 
 			my @winnowedFullPaths;
 			my @notWinnowedFullPaths;
+			# TEST ONLY
+			#print("ANY ");
 			my $numRemaining =
 				WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
-				\@notWinnowedFullPaths);
+				$didCtagsForPathH, \@notWinnowedFullPaths);
 
 			if ($numRemaining)
 				{
@@ -826,7 +835,7 @@ sub FormatDefinitionResults {
 # exclude those that don't have a definition in the ctags output.
 # return links as per FormatDefinitionResults just above.
 sub GetCtagsDefinitionLinks {
-	my ($self, $rawquery, $extA, $fullPath) = @_;
+	my ($self, $rawquery, $extA, $didCtagsForPathH, $fullPath) = @_;
 	my $result        = '<p>nope</p>';
 	my $numExtensions = @$extA;
 	if (!$numExtensions)
@@ -850,7 +859,8 @@ sub GetCtagsDefinitionLinks {
 		@impExt    = split(/,/, $ImpExtForLanguage{$language});
 		#print("Imp: |@impExt|\n");
 		$result =
-			GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound, $fullPath);
+			GetCtagsResultsForExtensions($self, $rawquery, \@impExt, $e, \$numFound,
+			$didCtagsForPathH, $fullPath);
 		if ($result eq '' || $result eq '<p>nope</p>' || $numFound < $self->{SHOWNHITS})
 			{
 			if ($result eq '' || $result eq '<p>nope</p>')
@@ -859,7 +869,7 @@ sub GetCtagsDefinitionLinks {
 				}
 			my $headerResult =
 				GetCtagsResultsForExtensions($self, $rawquery, \@headerExt, $e, \$numFound,
-				$fullPath);
+				$didCtagsForPathH, $fullPath);
 			if ($headerResult ne '' && $headerResult ne '<p>nope</p>')
 				{
 				$result .= $headerResult;
@@ -868,14 +878,15 @@ sub GetCtagsDefinitionLinks {
 		}
 	else
 		{
-		$result = GetCtagsResultsForExtensions($self, $rawquery, $extA, $e, \$numFound, $fullPath);
+		$result = GetCtagsResultsForExtensions($self, $rawquery, $extA, $e, \$numFound,
+			$didCtagsForPathH, $fullPath);
 		}
 
 	return ($result);
 }
 
 sub GetCtagsResultsForExtensions {
-	my ($self, $rawquery, $extA, $e, $numFoundR, $fullPath) = @_;
+	my ($self, $rawquery, $extA, $e, $numFoundR, $didCtagsForPathH, $fullPath) = @_;
 	$fullPath = lc($fullPath);
 	$fullPath =~ s!\\!/!g;
 	my $rawResults   = '';
@@ -899,8 +910,11 @@ sub GetCtagsResultsForExtensions {
 			}
 
 		my @winnowedFullPaths;
+		# TEST ONLY
+		#print("GETC ");
 		$numRemaining =
-			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths, undef);
+			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
+			$didCtagsForPathH, undef);
 
 		if (!$numRemaining)
 			{
@@ -1016,53 +1030,48 @@ sub FolderComp {
 	return ($result);
 }
 
-# sub LeftOverlapLength {
-#     my ($str1, $str2) = @_;
-
-#     # Equalize Lengths
-#     if (length $str1 < length $str2) {
-#         $str2 = substr $str2, 0, length($str1);
-#     } elsif (length $str1 > length $str2) {
-#         $str1 = substr $str1, 0, length($str2);
-#     }
-#     # Reduce on right until match found
-#     while ($str1 ne $str2) {
-#         chop $str1;
-#         chop $str2;
-#     	}
-# 	}
-
 sub WinnowFullPathsUsingCtags {
-	my ($rawquery, $rawFullPathsA, $winnowedFullPathsA, $notWinnowedFullPathsA) = @_;
+	my ($rawquery, $rawFullPathsA, $winnowedFullPathsA, $didCtagsForPathH, $notWinnowedFullPathsA)
+		= @_;
 	my $numRemaining = 0;
 	# Generate ctags summary file for each full path.
 	my $numRawPaths = @$rawFullPathsA;
+
+	# TEST ONLY
+	#print("\$numRawPaths: |$numRawPaths|\n");
+
 	for (my $i = 0 ; $i < $numRawPaths ; ++$i)
 		{
 		my $filePath = $rawFullPathsA->[$i];
 
-		# Get ctags as a string.
-		my $tagString = '';
-		GetCtagsString($filePath, \$tagString);
-
-		my @lines = split(/\n/, $tagString);
-
-		my $numLines = @lines;
-		my $gottaHit = 0;
-		for (my $j = 0 ; $j < $numLines ; ++$j)
+		if (!defined($didCtagsForPathH->{$filePath}))
 			{
-			if (index($lines[$j], $rawquery) >= 0 && $lines[$j] =~ m!(^|\W)$rawquery(\W|$)!)
+			# Get ctags as a string.
+			my $tagString = '';
+			GetCtagsString($filePath, \$tagString);
+
+			my @lines = split(/\n/, $tagString);
+
+			my $numLines = @lines;
+			my $gottaHit = 0;
+			for (my $j = 0 ; $j < $numLines ; ++$j)
 				{
-				++$numRemaining;
-				push @$winnowedFullPathsA, $filePath;
-				$gottaHit = 1;
-				last;
+				if (index($lines[$j], $rawquery) >= 0 && $lines[$j] =~ m!(^|\W)$rawquery(\W|$)!)
+					{
+					++$numRemaining;
+					push @$winnowedFullPathsA, $filePath;
+					$gottaHit = 1;
+					last;
+					}
+				}
+			if (!$gottaHit && defined($notWinnowedFullPathsA))
+				{
+				push @$notWinnowedFullPathsA, $filePath;
 				}
 			}
-		if (!$gottaHit && defined($notWinnowedFullPathsA))
-			{
-			push @$notWinnowedFullPathsA, $filePath;
-			}
+
+		# Remember we've done this file path.
+		$didCtagsForPathH->{$filePath} = 1;
 		}
 
 	return ($numRemaining);

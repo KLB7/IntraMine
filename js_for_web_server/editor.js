@@ -18,6 +18,8 @@ if (markerMainElement === null)
 	markerMainElement = document.getElementById("scrollText");
 	}
 
+let diffScrollMarkerClass = "diff-scroll";
+
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
@@ -275,6 +277,8 @@ function onWindowResize() {
 	
 	resizing = true;
 
+	positionViewItems();
+
 	location.hash = topLineForResize;
 	restoreColumnWidths();
 	lazyMouseUp();
@@ -319,6 +323,8 @@ function doResize() {
 		}
 
 	updateToggleBigMoveLimit();
+
+	addDiffScrollMarkers();
 }
 
 function setTextViewPosition(rule_id, id) {
@@ -1138,6 +1144,12 @@ function cmEditorRejumpToAnchor() {
 	if (anchor === "")
 		{
 		anchor = sessionStorage.getItem('lineNumberStr');
+		if (anchor !== null)
+			{
+			setTimeout(function() {
+				clearSessionLineNumber();
+				}, 4000);
+			}
 		}
 	
 	if (anchor !== null && anchor.length > 1)
@@ -1157,6 +1169,10 @@ function cmEditorRejumpToAnchor() {
 			cmEditorRejumpToLine(lineNum);
 			}
 		}
+}
+
+function clearSessionLineNumber() {
+	sessionStorage.setItem('lineNumberStr', "");
 }
 
 function cmEditorRejumpToHeading(h) {

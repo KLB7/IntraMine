@@ -481,6 +481,9 @@ s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[$diffLineString\];\n</scri
 	# Rev, Find isn't that useful and the browser has a built-in Find.
 	$theBody =~ s!_SEARCH_!!;
 
+	my $diffsButton = ShowHideDiffsButton();
+	$theBody =~ s!_TOGGLE_DIFFS_!$diffsButton!;
+
 	# Detect any searchItems passed along for hilighting. If there are any, add a
 	# "Hide/Show Initial Hits" button at top of page.
 	my $searchItems = defined($formH->{'searchItems'}) ? $formH->{'searchItems'} : '';
@@ -582,7 +585,7 @@ _TOPNAV_
 <span id="viewEditTitle">_TITLEHEADER_</span><br /><span id="viewEditDateSize">_DATEANDSIZE_</span>
 </div>
 <div id="button-block">
-_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ _HOVERINLINE_<span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span>
+_EDITACTION_ _INITIALHITSACTION_ _TOGGLEPOSACTION_ _SEARCH_ _TOGGLE_DIFFS_ _HOVERINLINE_<span id="editor_error">&nbsp;</span> <span id='small-tip'>_MESSAGE__</span>
 </div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
@@ -1000,6 +1003,14 @@ FINIS
 	return ($result);
 }
 
+sub ShowHideDiffsButton {
+	my $result = <<'FINIS';
+<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" /></a>
+FINIS
+
+	return ($result);
+}
+
 # If we arrived at this View from Search results, get highlight information for inserting
 # into the returned page: see _HIGHLIGHTITEMS_ in FullFileTemplate().
 # For non-CodeMirror files, just poke the individual search words into an array.
@@ -1259,6 +1270,7 @@ sub CodeMirrorJS {
 <!-- <script src="viewer_auto_refresh.js" ></script> -->
 <script src="reload.js" ></script>
 <script src="cmHandlers.js" ></script>
+<script src="showHideDiffs.js" ></script>
 FINIS
 
 	return ($jsFiles);
@@ -1291,6 +1303,7 @@ sub NonCodeMirrorJS {
 <script src="dragTOC.js" ></script>
 <script src="go2def.js" ></script>
 <script src="viewer_hover_inline_images.js" ></script>
+<script src="showHideDiffs.js" ></script>
 <script>
 hideSpinner();
 </script>

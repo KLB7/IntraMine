@@ -316,6 +316,7 @@ async function addGitDiffMarkers(cm, firstVisibleLineNum, lastVisibleLineNum, li
 async function addDiffScrollMarkers() {
 	if (diffLineNumbers.length == 0)
 		{
+		maintainShowHideDiffs();
 		return;
 		}
 
@@ -384,6 +385,8 @@ async function addDiffScrollMarkers() {
 			markerMainElement.appendChild(mk);
 			}
 		}
+
+	maintainShowHideDiffs();
 }
 
 // iPad, add poke-a-link handlers. NOT USED.

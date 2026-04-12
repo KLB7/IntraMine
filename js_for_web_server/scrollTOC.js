@@ -330,7 +330,7 @@ function addTocScrollListener(evt) {
 				// Trying to stabilize nav bar, sometimes it randomly
 				// jumps off the top of the window.
 				resetTopNavPosition();
-			}, 66);
+			}, 500); // was 66
 			});
 		}
 }

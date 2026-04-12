@@ -1,16 +1,18 @@
 // cmViewerStart.js: CodeMirror handling. Used in: intramine_viewer.pl for read-only
 // CodeMirror views.
 
-function getRandInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 // Remember top line, restore it during and after resize.
 let topLineForResize = -999;
 // Delay scrolling a little, to help resize preserve first text line number.
 let lazyOnScroll;
 
 let isMarkdown = false;
+
+let diffScrollMarkerClass = "diff-scroll";
+
+function getRandInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 // Load contents, handle resize, maintain buttons.
 
@@ -130,6 +132,8 @@ function doResize() {
 		}
 
 	updateToggleBigMoveLimit();
+
+	addDiffScrollMarkers();
 }
 
 // Try to preserve first displayed line of text while resizing.
@@ -140,6 +144,8 @@ function onWindowResize() {
 		}
 	
 	resizing = true;
+
+	positionViewItems();
 
 	location.hash = topLineForResize;
 	
@@ -345,6 +351,7 @@ async function loadFileIntoCodeMirror(cm, path, useEditorCache) {
 			// Complete startup by adding links and jumping to any requested location.
 			getLineNumberForTocEntries();
 			addAutoLinks();
+			//maintainShowHideDiffs();
 			highlightInitialItems();
 			updateToggleBigMoveLimit();
 			updateTogglePositions();

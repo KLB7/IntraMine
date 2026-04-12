@@ -10,3 +10,9 @@ function setIsMarkdown() {
 
 async function showDefinitionHint(term, event) {
 }
+
+function maintainShowHideDiffs() {
+}
+
+function disableDiffsButton() {
+}
