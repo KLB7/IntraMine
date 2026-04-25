@@ -152,7 +152,6 @@ sub Monitor {
 # See intramine_linker.pl#Go2.
 sub Instances {
 	my ($self, $rawquery, $fullPath) = @_;
-	my $result = '';
 
 	# Having real trouble with a '%' in the search query, but searching
 	# for Perl hash names such as %hashName is wanted.
@@ -212,7 +211,7 @@ sub Instances {
 	my @wantedExt;
 	if ($usingSuppliedKeyword)
 		{
-		GetExensionsFromKeyword($definitionKeyword, \@wantedExt);
+		GetExtensionsFromKeyword($definitionKeyword, \@wantedExt);
 		}
 	else
 		{
@@ -224,8 +223,15 @@ sub Instances {
 		return ('<p>nope</p>');
 		}
 
-	# Track path that have been run through ctags, avoid doing twice.
+	# Track paths that have been run through ctags, avoid doing twice.
 	my %didCtagsForPath;    # $didCtagsForPath{full path} = 1; if ctags has been run for path
+
+	# Experimental, trying for a faster approach with just one word.
+	# After testing: no clear advantage, removed.
+	# if (!$hasSpaces)
+	# 	{
+	# 	return (Instances2($self, $rawquery, \%didCtagsForPath, $fullPath));
+	# 	}
 
 	if ($definitionKeyword eq '' && !$lastHopeOnly && !$hasSpaces)
 		{
@@ -233,8 +239,7 @@ sub Instances {
 		# the hard way (use ctags to find files with definitions).
 		if (HasCtagsSupport($self, $fullPath))
 			{
-			$result = GetCtagsDefinitionLinks($self, $rawquery, \@wantedExt, \%didCtagsForPath,
-				$fullPath);
+			GetCtagsDefinitionLinks($self, $rawquery, \@wantedExt, \%didCtagsForPath, $fullPath);
 			}
 		}
 
@@ -258,8 +263,7 @@ sub Instances {
 			my $query = $keywords[$i] . ' ' . $rawquery;
 			$numHits  = 0;
 			$numFiles = 0;
-			$result =
-				GetDefinitionLinks($self, $query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
+			GetDefinitionLinks($self, $query, \@wantedExt, \$numHits, \$numFiles, $fullPath);
 			if (NumHitsSoFar($self) > 0)
 				{
 				last;
@@ -274,8 +278,7 @@ sub Instances {
 		{
 		$numHits  = 0;
 		$numFiles = 0;
-		$result =
-			GetDefinitionLinksInOtherLanguages($self, $rawquery, \@wantedExt, \%didCtagsForPath,
+		GetDefinitionLinksInOtherLanguages($self, $rawquery, \@wantedExt, \%didCtagsForPath,
 			\$numHits, \$numFiles);
 		}
 
@@ -295,8 +298,7 @@ sub Instances {
 		# instances in addition to definitions. Eg if searching for
 		# "sub goToAnchor" we search here for just "goToAnchor".
 		my $query = ($startsWithDefinitionKeyword) ? $rawquery : $originalquery;
-		$result =
-			GetAnyLinks($self, $query, $fullPath, 1, \%didCtagsForPath, \$numDefinitionsAdded);
+		GetAnyLinks($self, $query, $fullPath, 1, \%didCtagsForPath, \$numDefinitionsAdded);
 		if ($dividerWanted)
 			{
 			my $numAfterGetAny   = NumHitsSoFar($self);
@@ -312,6 +314,8 @@ sub Instances {
 		$putDividerBefore = $self->{SHOWNHITS};    # ie show all hits as definitions
 		}
 
+	my $result = '';
+
 	FormatFullPathsResults($self, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME},
 		$putDividerBefore, \$result);
 
@@ -323,7 +327,80 @@ sub Instances {
 	return ($result);
 }
 
-sub GetExensionsFromKeyword {
+# A variant approach. Called by Instances() above only for single words.
+#  - one big search to start off
+#  - sort results by proximity to context
+#  - one ctags run (only for extensions that might hold definitions)
+#  - if room for more, add them in from the big search
+#  - use same formatter as above.
+sub Instances2 {
+	my ($self, $rawquery, $didCtagsForPathH, $fullPath) = @_;
+	my $chattyHere = 0;
+	my $e          = $self->{SEARCHER};
+	my $rawResults = '';
+
+	my $numHits          = GetAnyHits($self, $rawquery, $e, \$rawResults);
+	my $putDividerBefore = -1;
+	if ($numHits)
+		{
+		my @rawFullPaths;
+		my $sortByProxmity = 1;
+		GetHitFullPaths($rawResults, \@rawFullPaths, $fullPath, $self->{SHOWNHITS},
+			$sortByProxmity);
+		my @otherRawFullPaths;
+
+		for (my $i = 0 ; $i < @rawFullPaths ; ++$i)
+			{
+			my $fixedFullPath = lc(&HTML::Entities::encode($rawFullPaths[$i]));
+			if ($fixedFullPath ne $fullPath)
+				{
+				push @otherRawFullPaths, $rawFullPaths[$i];
+				}
+			}
+
+
+		my @winnowedFullPaths;
+		my @notWinnowedFullPaths;
+		# TEST ONLY
+		#print("ANY ");
+		my $numFilesWithDefinitions =
+			WinnowFullPathsUsingCtags($rawquery, \@otherRawFullPaths, \@winnowedFullPaths,
+			$didCtagsForPathH, \@notWinnowedFullPaths);
+
+		if ($numFilesWithDefinitions)
+			{
+			if ($chattyHere)
+				{
+				my $numdefs  = @winnowedFullPaths;
+				my $numOther = @notWinnowedFullPaths;
+				Monitor("GetAnyHits picked up $numdefs defs and $numOther nondefs.\n");
+				}
+			my $numBeforeAdding = NumHitsSoFar($self);
+			RememberPaths($self, \@winnowedFullPaths, $rawquery);
+			my $numAfterAdding = NumHitsSoFar($self);
+			#$$numDefinitionsAddedR += $numAfterAdding - $numBeforeAdding;
+			RememberPaths($self, \@notWinnowedFullPaths, $rawquery);
+			$putDividerBefore = $numFilesWithDefinitions;
+			}
+		else
+			{
+			RememberPaths($self, \@otherRawFullPaths, $rawquery);
+			}
+		}
+
+	my $result = '';
+	FormatFullPathsResults($self, $self->{HOST}, $self->{PORT}, $self->{VIEWERNAME},
+		$putDividerBefore, \$result);
+
+	if ($result eq '')
+		{
+		$result = '<p>nope</p>';
+		}
+
+	return ($result);
+}
+
+sub GetExtensionsFromKeyword {
 	my ($definitionKeyword, $wantedExtA) = @_;
 	# eg $DefinitionKeyForExtension{'pl'}  = 'sub';
 	foreach my $ext (sort keys %DefinitionKeyForExtension)
@@ -413,7 +490,7 @@ sub GetDefinitionLinks {
 	$$numHitsR  = $numHits;
 	$$numFilesR = $numFiles;
 
-	return $result;
+	#return $result;
 }
 
 # If a definition search turns up nothing, maybe the term selected
@@ -486,7 +563,7 @@ sub GetDefinitionLinksInOtherLanguages {
 		$result = '<p>nope</p>';
 		}
 
-	return ($result);
+	#return ($result);
 }
 
 # Called by Instances() above as a last resort,
@@ -630,7 +707,7 @@ sub GetAnyLinks {
 			}
 		}
 
-	return ($result);
+	#return ($result);
 }
 
 # Call Elasticsearch to match words in $query as an exact match.
@@ -882,7 +959,7 @@ sub GetCtagsDefinitionLinks {
 			$didCtagsForPathH, $fullPath);
 		}
 
-	return ($result);
+	#return ($result);
 }
 
 sub GetCtagsResultsForExtensions {
@@ -939,8 +1016,8 @@ sub GetCtagsResultsForExtensions {
 }
 
 sub GetHitFullPaths {
-	my ($rawResults, $rawFullPathsA, $fullPath, $shownHits) = @_;
-
+	my ($rawResults, $rawFullPathsA, $fullPath, $shownHits, $sortByProxmity) = @_;
+	$sortByProxmity ||= 0;
 	for my $hit (@{$rawResults->{'hits'}->{'hits'}})
 		{
 		my $path = $hit->{'_source'}->{'displaypath'};
@@ -951,7 +1028,6 @@ sub GetHitFullPaths {
 	# where the query was selected). I'm leaving the code
 	# in, but the sort is turned off at the moment,
 	# I can't find a good use for it.
-	my $sortByProxmity = 0;
 	if ($sortByProxmity)
 		{
 		SortThePaths($rawFullPathsA, $fullPath, $shownHits);
@@ -1037,14 +1113,18 @@ sub WinnowFullPathsUsingCtags {
 	# Generate ctags summary file for each full path.
 	my $numRawPaths = @$rawFullPathsA;
 
-	# TEST ONLY
-	#print("\$numRawPaths: |$numRawPaths|\n");
-
 	for (my $i = 0 ; $i < $numRawPaths ; ++$i)
 		{
 		my $filePath = $rawFullPathsA->[$i];
 
-		if (!defined($didCtagsForPathH->{$filePath}))
+		if (!CanContainDefinitions($filePath))
+			{
+			if (defined($notWinnowedFullPathsA))
+				{
+				push @$notWinnowedFullPathsA, $filePath;
+				}
+			}
+		elsif (!defined($didCtagsForPathH->{$filePath}))
 			{
 			# Get ctags as a string.
 			my $tagString = '';

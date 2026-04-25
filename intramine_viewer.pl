@@ -4642,24 +4642,33 @@ sub EvaluateInternalLinkCandidates {
 		$potentialID =~ s!\&#\d+;!!g;    # eg &#9755;
 
 		# Have we matched a known header with our (potential) ID?
-		my $haveGoodMatch = 0;
-		if (defined($sectionIdExistsH->{$potentialID}))
+		my $haveGoodMatch  = 0;
+		my $haveLineNumber = 0;
+		if (defined($sectionIdExistsH->{$potentialID})
+			|| ($haveLineNumber = $potentialID =~ m!^\d+$!))
 			{
-			# No match if '#' was inside a pre-existing file anchor.
-			if (!InsideExistingAnchor('"', $currentMatchEndPos))
-				{
-				$haveGoodMatch = 1;
-				my $repStartPosition = $currentMatchStartPos;
-				my $repLength        = $currentMatchEndPos - $currentMatchStartPos + 1;
+			$haveGoodMatch = 1;
+			my $repStartPosition = $currentMatchStartPos;
+			my $repLength        = $currentMatchEndPos - $currentMatchStartPos + 1;
 
-				# <a href="#Header_within_doc">Header within doc</a>
-				# At this point, $repString is just the anchor $potentialID.
-				my $srcHeader         = substr($line, $repStartPosition, $repLength);
-				my $replacementAnchor = "<a href=\"#$potentialID\">$srcHeader</a>";
-				push @repStr,      $replacementAnchor;
-				push @repLen,      $repLength;
-				push @repStartPos, $repStartPosition;
+			# <a href="#Header_within_doc">Header within doc</a>
+			# At this point, $repString is just the anchor $potentialID.
+			my $srcHeader = substr($line, $repStartPosition, $repLength);
+
+			my $replacementAnchor = '';
+			if ($haveLineNumber)
+				{
+				$replacementAnchor =
+"<a href=\"#$potentialID\" onclick='reJumpToLineNumber($potentialID, 0);'>$srcHeader</a>";
 				}
+			else
+				{
+				$replacementAnchor = "<a href=\"#$potentialID\">$srcHeader</a>";
+				}
+
+			push @repStr,      $replacementAnchor;
+			push @repLen,      $repLength;
+			push @repStartPos, $repStartPosition;
 			}
 
 		# On to the next match, if any. For a good match, skip past the current matching text.
@@ -4685,6 +4694,7 @@ sub EvaluateInternalLinkCandidates {
 		}    # while ($currentMatchStartPos > 0)
 }
 
+# NO LONGER USED.
 sub InsideExistingAnchor {
 	my ($delimiter, $currentPos) = @_;
 	my $insideExistingAnchor = 0;

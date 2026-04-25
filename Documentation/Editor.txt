@@ -49,6 +49,14 @@ Outdent			Ctrl+[ (remove a tab from selected lines)
 Outdent			Shift+Tab (same as above)
 Comment/uncomment	Ctrl+/ or Cmd+/
 
+Go2
+-----------
+Select a word or short phrase, and keep your cursor still: a popup will appear listing instances in other files, taken from files in the folders listed in \IntraMine\data\search_directories.txt (you set that up when installing IntraMine). Defining instances will be listed first, in green. Under the hood, Elasticsearch is called first to come up with a list of files where the word or phrase occurs, and then ctags is called to find defining instances if any. The definition finding works best for languages that use a keyword to introduce functions, such as "function" or "def" or "sub". The less common a word or phrase is, the more useful the results will be.
+
+The default number of maximum file hits is currently 10 (in an older version it was 8), but you can change that by editing "GO2LINKSMAX" in your \data\intramine_config_8.txt file.
+
+Go2 also works in IntraMine's Viewer.
+
 Date stamps
 ---------------
 A date-time stamp can be inserted by pressing either F4 or Ctrl-Space.

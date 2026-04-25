@@ -249,7 +249,7 @@ sub HandleBroadcastRequest {
 
 # Load list of all files and directories, and create a hash holding lists of all
 # corresponding known full paths for partial paths, for autolinks.
-# Also load all glossary entries.
+# Also load all glossary entries. And fire up an ElasticSearcher.
 sub callbackInitPathsAndGlossary {
 	my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
 	my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
@@ -279,7 +279,7 @@ sub callbackInitPathsAndGlossary {
 		$VIEWERNAME,           $LogDir, $ctags_dir, $HashHeadingRequireBlankBefore,
 		\@preferredExtensions, \&Monitor);
 
-	# Test, sometimes we stall going back to the main loop, searching for a fix:
+	# A brief delay, sometimes we stall going back to the main loop.
 	sleep(1);
 
 	# TEST ONLY

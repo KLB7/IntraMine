@@ -302,6 +302,22 @@ input#search-button:hover:after {
 	pointer-events: none;
 }
 
+#insertion-scroll-id {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 1px;
+	/*right: 8px;*/
+	right: 0.6%;
+	opacity: 1.0;
+	background-color: black;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
+
 div#indicator {
     position: absolute;
     z-index: 99;

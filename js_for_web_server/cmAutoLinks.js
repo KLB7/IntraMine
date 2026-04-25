@@ -352,7 +352,7 @@ async function addDiffScrollMarkers() {
 			{
 			if (widthDifference > 6.0 && widthDifference < 30.0)
 				{
-				arrowHeight = Math.round(widthDifference) + 2;
+				arrowHeight = widthDifference; //Math.round(widthDifference) + 2;
 				}
 			if (haveHorizontalScroll)
 				{

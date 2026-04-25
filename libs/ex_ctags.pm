@@ -24,7 +24,8 @@ my $CtagsOutputFilePathBase;
 my $CtagsOutputFilePath;
 my $CTAGS_DIR;
 my $CTAGS_EXE;
-my %SupportedExtension;    # eg $SupportedExtension{'cpp'} = 'C++';
+my %SupportedExtension;              # eg $SupportedExtension{'cpp'} = 'C++';
+my %ExtDoesNotSupportDefinitions;    # At least not when ctags is called on it, eg .html
 
 sub InitExCtags {
 	my ($firstPartOfPath, $portListen, $logDir, $ctags_dir) = @_;
@@ -45,6 +46,7 @@ sub InitExCtags {
 		);
 		}
 	GetCTagSupportedTypes();
+	GetExtensionsThatDoNotSupportDefinitions();
 }
 
 # eg $SupportedExtension{'cpp'} = 'C++';
@@ -165,6 +167,14 @@ FINIS
 		}
 }
 
+sub GetExtensionsThatDoNotSupportDefinitions {
+	$ExtDoesNotSupportDefinitions{'html'}     = 1;
+	$ExtDoesNotSupportDefinitions{'htm'}      = 1;
+	$ExtDoesNotSupportDefinitions{'pod'}      = 1;
+	$ExtDoesNotSupportDefinitions{'md'}       = 1;
+	$ExtDoesNotSupportDefinitions{'markdown'} = 1;
+}
+
 sub IsSupportedByCTags {
 	my ($filePath) = @_;
 	my $result = 0;
@@ -172,6 +182,22 @@ sub IsSupportedByCTags {
 		{
 		my $fileExt = lc($1);
 		if (defined($SupportedExtension{$fileExt}))
+			{
+			$result = 1;
+			}
+		}
+
+	return ($result);
+}
+
+sub CanContainDefinitions {
+	my ($filePath) = @_;
+	my $result = 0;
+	if ($filePath =~ m!\.(\w+)$!)
+		{
+		my $fileExt = lc($1);
+		if (defined($SupportedExtension{$fileExt})
+			&& !defined($ExtDoesNotSupportDefinitions{$fileExt}))
 			{
 			$result = 1;
 			}

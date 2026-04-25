@@ -283,11 +283,15 @@ function onWindowResize() {
 	restoreColumnWidths();
 	lazyMouseUp();
 	repositionTocToggle();
+
+	positionScrollInsertMarker();
 }
 
 window.addEventListener("resize", onWindowResize);
 
 window.addEventListener("load", makeDebouncedClearAddLinks);
+
+window.addEventListener("load", createInsertionScrollMarker);
 
 function doResize() {
 	restoreColumnWidths();
@@ -406,6 +410,8 @@ if (info)
 	}
 	
 window.addEventListener("load", function() {loadFileIntoCodeMirror(myCodeMirror, theEncodedPath, false);});
+
+
 
 // let gutterElement = myCodeMirror.getGutterElement();
 // if (gutterElement)
@@ -754,6 +760,8 @@ function onCodeMirrorChange() {
 			debouncedAddLinks();
 			}
 		}
+
+	positionScrollInsertMarker();
 }
 
 //Call back to intramine_editor.pl#Save() with a req=save POST request.
@@ -1271,6 +1279,86 @@ function showMainContent() {
 		elem.style.visibility = "visible";
 		}
 }
+
+function createInsertionScrollMarker() {
+	let mk = document.createElement("mark");
+	mk.id = "insertion-scroll-id";
+	//mk.style.top = absMarkerPos + "px";
+	markerMainElement.appendChild(mk);
+}
+
+function positionScrollInsertMarker() {
+	let cursor = myCodeMirror.getCursor();
+	let lineNum = cursor.line + 1;
+	let markerPx = scrollbarPxForLine(lineNum);
+	let marker = document.getElementById("insertion-scroll-id");
+	if (marker !== null)
+		{
+		marker.style.top = markerPx + "px";
+		}
+}
+
+function scrollbarPxForLine(lineNumber) {
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let cmScrollInfo = myCodeMirror.getScrollInfo();
+	let clientHeight = cmScrollInfo.clientHeight;
+	let clientWidth = cmScrollInfo.clientWidth;
+	let mainScrollY = cmScrollInfo.top;
+	let mainScrolllHeight = cmScrollInfo.height;
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - clientWidth;
+	let heightDifference = textViewableHeight - clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				arrowHeight = widthDifference; //Math.round(widthDifference) + 2;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+
+	// TEST ONLY
+	console.log("Arrow height: |" + arrowHeight + "|");
+
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+	
+	let textHitY = myCodeMirror.heightAtLine(lineNumber);
+	let positionInDoc = mainScrollY + textHitY - yTop;
+	let positionRatio = positionInDoc / mainScrolllHeight;
+	let relativeMarkerPos = positionRatio * usableTextHeight;
+	let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+
+	return(absMarkerPos);
+}
+
+// Put a small marker for the line with current insertion caret in the scroll bar.
+myCodeMirror.on("cursorActivity", function(instance) {
+	positionScrollInsertMarker();
+  });
 
 // Dummy functions: these things are done elsewhere
 // in the Editor (I hope to come back eventually and say where).

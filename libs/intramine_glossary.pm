@@ -390,14 +390,15 @@ sub EvaluateGlossaryCandidates {
 	my ($definitionHashRef, $context, $host, $port, $VIEWERNAME, $linksA, $currentLineNumber) = @_;
 	my $haveLinksA = (defined($linksA)) ? 1 : 0;
 
-	my $inFootnoteBody = 0;
-	if ($haveRefToText == 1)
-		{
-		if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
-			{
-			$inFootnoteBody = 1;
-			}
-		}
+	# No longer needed.
+	# my $inFootnoteBody = 0;
+	# if ($haveRefToText == 1)
+	# 	{
+	# 	if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
+	# 		{
+	# 		$inFootnoteBody = 1;
+	# 		}
+	# 	}
 
 	my @startPosSeen;    # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen;      # Length of a matched term, also indexed by $startPos
@@ -491,10 +492,11 @@ sub EvaluateGlossaryCandidates {
 									GetReplacementHint($definitionHashRef, $term, $words,
 									$definitionAlreadySeen, $context, $host, $port, $VIEWERNAME);
 
-								if ($inFootnoteBody)
-									{
-									$replacementHint = uri_escape_utf8($replacementHint);
-									}
+								# This was once thought useful, no longer needed.
+								# if ($inFootnoteBody)
+								# 	{
+								# 	$replacementHint = uri_escape_utf8($replacementHint);
+								# 	}
 
 								push @repStr,      $replacementHint;
 								push @repLen,      $repLength;

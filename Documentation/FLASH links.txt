@@ -73,6 +73,10 @@ Linking to a line number in a file
 ===========================
 You can also link to a specific line number in a file, eg autolinking_demo.pl#102 or viewer.js:431. As with headings, use a '#' or ':' to separate the file name from the number. However, no quotes are needed. Of course, line number links are fragile, but they can be handy for log file notes when tackling something difficult, and for error messages that contain line numbers such as those from Chrome.
 
+Linking to a line number in the same file
+----------------------------------------
+To do that, put the line number in double quotes, such as ...see line "1000" above. This works only in IntraMine's Viewer for .txt files, and in particular doesn't work in standalone HTML files as generated from .txt by IntraMine. Intended use is for development logs, where you might want to refer to a specfic line rather than just a general heading.
+
 Linking to directories
 =========================
 You might have directories that you want to check in on now and then, or provide a link to the whole directory for others to use. Perhaps a directory called "Changes" or "Notes" or "Docs" or "Latest Updates" or "To Do". With IntraMine, you can have FLASH links to local directories too. (By "local" is meant storage attached directly to your computer or available on a mapped drive on your Local Area Network.)
