@@ -1,3 +1,4 @@
+# Deprecated. This needs Tk and Tk::BrowseEntry installed if you want to try it anyway.
 # ArgYouMeant.pm: a quick way to set many options on the fly in a dialog.
 # A bit plain looking, but the getting and setting of variables and the
 # layout are taken care of for you. This is especially handy for

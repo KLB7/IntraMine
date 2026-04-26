@@ -236,7 +236,8 @@ async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el)
 
 				text = lines.join("\n");
 
-				text = decodeURIComponent(text);
+				// Lord only knows why I put this in and thought it worked.
+				//text = decodeURIComponent(text);
 				
 				el.innerHTML = text;
 				}
