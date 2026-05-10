@@ -95,6 +95,13 @@ async function runConversion() {
 	let valHoverGIFs = (hoverGIFs === null) ? "no" : hoverGIFs.value;
 	args += '&hover_gifs=' + valHoverGIFs;
 
+	//let useMathjax = document.querySelector('input[name="math"]:checked');
+	//let valUseMathjax = (useMathjax === null) ? "no" : useMathjax.value;
+	// Use of MathJax is now dynamically determined, used if any MathJax
+	// blocks are detected in the source. See gloss_to_html.pm#ConvertGlossToHTML().
+	let valUseMathjax = "1";
+	args += '&mathjax=' + valUseMathjax;
+
 	try {
 		let theAction = baseAction + args;
 		const response = await fetch(theAction);
@@ -107,6 +114,7 @@ async function runConversion() {
 				e1.innerHTML = '<p>STARTING</p>';
 				e1.innerHTML += '<p>Inline images: ' + valInline + '</p>';
 				e1.innerHTML += '<p>Always hover GIFs: ' + valHoverGIFs + '</p>';
+				//e1.innerHTML += '<p>Use MathJax: ' + valUseMathjax + '</p>';
 				directoryCache.set(dirValue, dirValue);
 				rebuildDirList();
 				saveDirCache();
@@ -392,8 +400,11 @@ function rememberCheckBoxes() {
 	let valInline = (inline === null) ? "no" : "yes";
 	let hoverGIFs = document.querySelector('input[name="hoverGIFs"]:checked');
 	let valHoverGIFs = (hoverGIFs === null) ? "no" : "yes";
+	//let useMathjax = document.querySelector('input[name="math"]:checked');
+	//let valUseMathjax = (useMathjax === null) ? "no" : "yes";
 	localStorage.setItem("inlineImagesGlosser", valInline);
 	localStorage.setItem("hoverGIFsGlosser", valHoverGIFs);
+	//localStorage.setItem("mathJaxGlosser", valUseMathjax);
 }
 
 // Set Inline images and Always hover GIFs checkboxes.
@@ -416,6 +427,7 @@ function restoreCheckBoxes() {
 		{
 			document.getElementById("inlineCheck").checked = false;
 		}
+	
 	let valHoverGIFs = localStorage.getItem("hoverGIFsGlosser");
 	if (valHoverGIFs === "yes")
 		{
@@ -425,6 +437,21 @@ function restoreCheckBoxes() {
 		{
 		document.getElementById("hoverGIFsCheck").checked = false;
 		}
+
+	// if (!localStorage.getItem("mathJaxGlosser"))
+	// 	{
+	// 	return;
+	// 	}
+	// let valUseMathjax =  localStorage.getItem("mathJaxGlosser");
+	// if (valUseMathjax === "yes")
+	// 	{
+	// 	document.getElementById("mathCheck").checked = true;
+	// 	}
+	// else
+	// 	{
+	// 	document.getElementById("mathCheck").checked = false;
+	// 	}
+
 }
 
 // Progress bar, and clamp().

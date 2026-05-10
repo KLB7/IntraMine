@@ -5041,6 +5041,14 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				finishReload();
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
+
+				// Redo MathJax since content has changed.
+				if (typeof MathJax !== 'undefined')
+					{
+					MathJax.typesetPromise([contentDiv]).then(() => {
+						;//console.log('Typesetting complete');
+					}).catch((err) => console.log(err.message));
+					}
 				//doResize(reloading);
 				//finishReload(); too late
 				startReloadCheck();

@@ -34,6 +34,7 @@ use gloss;
 my $fileOrDir;
 my $inlineImages;
 my $hoverGIFS;
+my $useMathJax;
 my $context;
 my $numFilesToConvert;
 my $IMAGES_DIR;
@@ -51,10 +52,13 @@ my $USECALLBACK;
 # then print() is used for feedback. Otherwise it should be a callback
 # to a sub that sends a WebSockets message. See intramine_glosser.pl for an example.
 sub ConvertGlossToHTML {
-	my ($fileOrDir_IN, $inlineImages_IN, $hoverGIFS_IN, $callbackForMessageNotification) = @_;
+	my ($fileOrDir_IN, $inlineImages_IN, $hoverGIFS_IN, $useMathJax_IN,
+		$callbackForMessageNotification)
+		= @_;
 	$fileOrDir      = $fileOrDir_IN;
 	$inlineImages   = $inlineImages_IN;
 	$hoverGIFS      = $hoverGIFS_IN;
+	$useMathJax     = $useMathJax_IN;
 	$CallbackNotify = $callbackForMessageNotification;
 	$USECALLBACK    = (defined($CallbackNotify)) ? 1 : 0;
 
@@ -186,9 +190,9 @@ sub ConvertTextToHTML {
 	InitImageCache();    #gloss.pm#InitImageCache()
 
 	my $contents = "";
-	StartHtmlFile($filePath, $context, \$contents);    # Start HTML, inline CSS
-	GetPrettyText($context, $filePath, \$contents);    # The text, in tables
-	EndHtmlFile($filePath, \$contents);                # inline JavaScript, finish HTML
+	StartHtmlFile($filePath, $context, \$contents);               # Start HTML, inline CSS
+	my $shouldIncludeMathHax = GetPrettyText($context, $filePath, \$contents); # The text, in tables
+	EndHtmlFile($filePath, \$contents, $shouldIncludeMathHax);    # inline JavaScript, finish HTML
 	my $outPath = $filePath;
 	$outPath =~ s!txt$!html!i;
 
@@ -305,7 +309,7 @@ sub GetPrettyText {
 	if (!LoadTextFileContents($filePath, \$octets))
 		{
 		Output("Error, could not load |$filePath|!\n");
-		return;
+		return (0);
 		}
 
 	# Pull raw (inline) HTML and footnotes.
@@ -329,6 +333,10 @@ sub GetPrettyText {
 	my $lineIsBlank       = 1;
 	my $lineBeforeIsBlank = 1;    # Initally there is no line before, so it's kinda blank:)
 	my $inlineIndex       = 1;    # Key numbers start at 1.
+
+	# The return value, means include MathJax JavaScript if 1.
+	my $mathJaxFound = 0;
+	my $numLines     = @lines;
 
 	# Gloss, aka minimal memorable Markdown for your intranet.
 	for (my $i = 0 ; $i < @lines ; ++$i)
@@ -461,6 +469,83 @@ sub GetPrettyText {
 				}
 			else
 				{
+				my $justDidSomeMathJax = 0;
+				if (   (index($lines[$i], '$$') == 0 && $lines[$i] !~ m!^\$\$\w!)
+					|| index($lines[$i], '\[') == 0
+					|| index($lines[$i], '\begin') == 0)
+					{
+					if ($useMathJax)
+						{
+						# Set return value to 1, meaning include MathJax JavaScript.
+						$mathJaxFound       = 1;
+						$justDidSomeMathJax = 1;
+						# Woof, the goal is to collect all consecutive "math" lines
+						# in a single cell.
+						my $endDelimiter = '';
+						if (index($lines[$i], '$$') == 0)
+							{
+							$endDelimiter = '$$';
+							}
+						elsif (index($lines[$i], '\[') == 0)
+							{
+							$endDelimiter = '\]';
+							}
+						elsif (index($lines[$i], '\begin') == 0)
+							{
+							$endDelimiter = '\end';
+							}
+						# else maintenance error
+						else
+							{
+							print("MAINTENANCE ERROR at intramine_viewer.pl, unknown delimiter!\n");
+							}
+
+						if ($endDelimiter ne '')
+							{
+							my $rowID = 'R' . $lineNum;
+							if (index($lines[$i], $endDelimiter, 2) > 0)
+								{
+								$lines[$i] =
+									"<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i];
+								$lines[$i] .= '</td></tr>';
+								}
+							else
+								{
+								$lines[$i] = "</tbody></table><table><tbody>\n" . $lines[$i];
+								my $iInitial = $i;
+								++$i;
+								while ($i < $numLines && index($lines[$i], $endDelimiter) < 0)
+									{
+									$lines[$iInitial] .= "\n" . $lines[$i];
+									# Don't forget to empty out the original line. I mention
+									# this because I did.
+									$lines[$i] = '';
+									++$i;    # NOTE we are skipping along to the next line.
+									}
+								# Do the last line and finish the table row.
+								#$lines[$iInitial] .= "\n" . $lines[$i] . "\n" . '</td></tr>';
+								if ($i < $numLines)
+									{
+									$lines[$iInitial] .= "\n"
+										. $lines[$i] . "\n"
+										. "</tbody></table><table class='imt'><tbody>";
+									$lines[$i] = '';
+									}
+								else
+									{
+									$lines[$iInitial] .= "\n"
+										. $lines[$i - 1] . "\n"
+										. "</tbody></table><table class='imt'><tbody>";
+									$lines[$i - 1] = '';
+									}
+
+								$lineNum += $i - $iInitial;
+								}
+							}
+						}
+					}
+
+
 				if ($isGlossaryFile)
 					{
 					if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
@@ -485,10 +570,13 @@ sub GetPrettyText {
 					##   $port_listen, $clientIsRemote);
 					}
 
-				# Put contents in table, use separate cells for line number and line proper.
-				my $rowID = 'R' . $lineNum;
-				$lines[$i] =
-					"<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+				if (!$justDidSomeMathJax)
+					{
+					# Put contents in table, use separate cells for line number and line proper.
+					my $rowID = 'R' . $lineNum;
+					$lines[$i] =
+						"<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i] . '</td></tr>';
+					}
 				$justDidHeadingOrHr = 0;
 				}
 			}
@@ -578,6 +666,7 @@ sub GetPrettyText {
 		}
 
 	$$contents_R .= encode_utf8($textContents);
+	return ($mathJaxFound);
 }
 
 { ##### HTML hash and footnotes
@@ -2848,7 +2937,7 @@ sub InsideExistingAnchor {
 
 # Inline the needed JavaScript, and finish off the HTML.
 sub EndHtmlFile {
-	my ($filePath, $contents_R) = @_;
+	my ($filePath, $contents_R, $shouldIncludeMathHax) = @_;
 	$$contents_R .= "</div>\n";    # This closes <div id='scrollAdjustedHeight'>
 
 
@@ -2940,6 +3029,16 @@ DONEIT
 	if (OptionalCustomJSforGlossExists($optionalJavaScriptFileName))
 		{
 		$$contents_R .= InlineJavaScriptForFile($optionalJavaScriptFileName);
+		}
+
+	# MathJax, optional. NOTE web access is required, making the HTML
+	# no longer standalone, if MathJax is included. For the config, see
+	# data/intramine_config_9.txt.
+	if ($shouldIncludeMathHax)
+		{
+		$$contents_R .= "\n"
+			. '<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>'
+			. "\n";
 		}
 
 	# Add the JS image cache.

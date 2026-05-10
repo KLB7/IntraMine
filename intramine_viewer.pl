@@ -126,6 +126,12 @@ my $HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
 #InitPerlSyntaxHighlighter(); - Not needed, CodeMirror is now used for Perl display.
 
+# MathJax: optional use in .txt or .md/.markdown.
+my $UseMathJaxInTxt = CVal('USE_MATHJAX_IN_TXT');
+$UseMathJaxInTxt = ($UseMathJaxInTxt eq '1') ? 1 : 0;
+my $UseMathJaxInMarkdown = CVal('USE_MATHJAX_IN_MARKDOWN');
+$UseMathJaxInMarkdown = ($UseMathJaxInMarkdown eq '1') ? 1 : 0;
+
 my $LogDir    = FullDirectoryPath('LogDir');
 my $ctags_dir = CVal('CTAGS_DIR');
 InitTocLocal($LogDir . 'temp/tempctags',
@@ -283,6 +289,9 @@ sub FullFile {
 	my $topNav = TopNav($PAGENAME);
 	$theBody =~ s!_TOPNAV_!$topNav!;
 
+	# .txt only, pick up whether MathJax is present and MathJax JS should be included.
+	my $shouldUseMathJax = 0;
+
 	my $exists = FileOrDirExistsWide($filePath);
 	if ($exists == 1)
 		{
@@ -337,7 +346,8 @@ sub FullFile {
 			GetContentBasedOnExtension(
 				$formH,         $peeraddress,   $filePath,        $clientIsRemote,
 				$allowEditing,  \$fileContents, \$usingCM,        \$meta,
-				\$textTableCSS, \$customCSS,    \$textHolderName, $theme
+				\$textTableCSS, \$customCSS,    \$textHolderName, $theme,
+				\$shouldUseMathJax
 			);
 			}
 		}
@@ -361,10 +371,32 @@ sub FullFile {
 	$theBody =~ s!_CSS_!$customCSS!;
 	$theBody =~ s!_TEXTTABLECSS_!$textTableCSS!;
 	my $customJS = ($usingCM eq 'true') ? CodeMirrorJS() : NonCodeMirrorJS();
-	# Add lolight JS for .txt files only.
-	if ($filePath =~ m!\.txt$!)
+
+	# Add lolight JS for .txt files only. MathJax for txt and md.
+	if ($filePath =~ m!\.txt$! || $filePath =~ m!\.(md|markdown)!)
 		{
-		$customJS .= "\n" . '<script src="lolight-1.4.0.min.js"></script>';
+		if ($filePath =~ m!\.txt$!)
+			{
+			$customJS .= "\n" . '<script src="lolight-1.4.0.min.js"></script>';
+			if ($shouldUseMathJax)
+				{
+				# $customJS .=
+				# 	"\n<script>MathJax = {tex: {inlineMath: {'[+]': [['$', '$']]}}};</script>\n";
+				# $customJS .= "\n"
+				# 	. '<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>'
+				# 	. "\n";
+				$customJS .= "\n"
+					. '<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>'
+					. "\n";
+				}
+			}
+
+		if ($UseMathJaxInMarkdown && $filePath =~ m!\.(md|markdown)!)
+			{
+			$customJS .= "\n"
+				. '<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>'
+				. "\n";
+			}
 		}
 
 	# User custom JS, for .txt and Markdown files.
@@ -696,7 +728,8 @@ sub GetContentBasedOnExtension {
 	my (
 		$formH,          $peeraddress,    $filePath,         $clientIsRemote,
 		$allowEditing,   $fileContents_R, $usingCM_R,        $meta_R,
-		$textTableCSS_R, $customCSS_R,    $textHolderName_R, $theme
+		$textTableCSS_R, $customCSS_R,    $textHolderName_R, $theme,
+		$shouldUseMathJaxR
 	) = @_;
 
 	# CSS varies: CodeMirror, Markdown, (other) non-CodeMirror.
@@ -770,7 +803,8 @@ sub GetContentBasedOnExtension {
 		# By default this runs the text through a Gloss processor.
 		# So all your .txt files are belong to Gloss.
 		my $loadFromEditor = 0;
-		GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing,
+		$$shouldUseMathJaxR =
+			GetPrettyTextContents($formH, $peeraddress, $clientIsRemote, $allowEditing,
 			$fileContents_R, $loadFromEditor, undef);
 
 		$$usingCM_R        = 'false';
@@ -1825,7 +1859,9 @@ sub GetPrettyPod {
 sub GetPrettyTextContents {
 	my ($formH, $peeraddress, $clientIsRemote, $allowEditing, $contentsR, $loadFromEditor, $sourceR)
 		= @_;
-	my $serverAddr = ServerAddress();
+	# Return value, whether to include MathJax JavaScript.
+	my $includeMathJax = 0;
+	my $serverAddr     = ServerAddress();
 
 	my $filePath = $formH->{'FULLPATH'};
 	my $dir      = lc(DirectoryFromPathTS($filePath));
@@ -1861,13 +1897,13 @@ sub GetPrettyTextContents {
 				{
 				if (!LoadTextFileContents($filePath, $contentsR, \$octets))
 					{
-					return;
+					return (0);
 					}
 				}
 			}
 		elsif (!LoadTextFileContents($filePath, $contentsR, \$octets))
 			{
-			return;
+			return (0);
 			}
 		}
 
@@ -1879,6 +1915,17 @@ sub GetPrettyTextContents {
 	my @lines = split(/\n/, $octets);
 	pop @lines;
 
+	my $numLines = @lines;
+
+	# If we are using MathJax, each math line needs to start and
+	# end with a delimiter, so we force that here.
+	# Well, delimiting each math line didn't work. The alternative, below,
+	# is to gather all consecutive math lines into a single table cell.
+	# if ($UseMathJaxInTxt)
+	# 	{
+	# 	DelimitMathJaxLines(\@lines, $numLines);
+	# 	}
+
 	my @jumpList;
 	my $lineNum = 1;
 	my %sectionIdExists;           # used to avoid duplicated anchor id's for sections.
@@ -1889,9 +1936,8 @@ sub GetPrettyTextContents {
 	# Rev May 14 2021, track whether within TABLE, and skip lists, hr, and heading if so.
 	# We are in a table from a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
 	my $inATable     = 0;
-	my $inACodeBlock = 0;        # Set if see CODE on a line by itself,
-								 # continue until ENDCODE on a line by itself.
-	my $numLines     = @lines;
+	my $inACodeBlock = 0;    # Set if see CODE on a line by itself,
+							 # continue until ENDCODE on a line by itself.
 
 	# Well I've put myself in a pickle by supporting ^#+ to signal headings.
 	# IntraMine's own intramine_config.txt starts lines with # to indicate comments.
@@ -2180,8 +2226,98 @@ sub GetPrettyTextContents {
 						. '</td></tr>';
 					$justDidHeadingOrHr = 0;
 					}
-				else    # Pick up glossary TOC entries, treat like any ordinary line
+				else    # Pick up MathJax  and glossary TOC entries, or treat like any ordinary line
 					{
+					# Detect equations. Math block start delimiter must be flush left
+					# (note inline math is not detected separately here).
+					# Math block delimiters:
+					# $$...$$
+					# \[...\]
+					# \begin...\end
+					my $justDidSomeMathJax = 0;
+					if (   (index($lines[$i], '$$') == 0 && $lines[$i] !~ m!^\$\$\w!)
+						|| index($lines[$i], '\[') == 0
+						|| index($lines[$i], '\begin') == 0)
+						{
+						if ($UseMathJaxInTxt)
+							{
+							# Set return value to 1, meaning include JavaScript for MathJax.
+							# MathJax uses a lot of memory, so we only include it if math
+							# is actually present.
+							$includeMathJax     = 1;
+							$justDidSomeMathJax = 1;
+
+							# The goal is to collect all consecutive "math" lines
+							# in a single cell, wrapped in a separate <table>. That because
+							# MathJax has starting XML for each chunk that says "hello I am
+							# pretending to be a table row".
+							my $endDelimiter = '';
+							if (index($lines[$i], '$$') == 0)
+								{
+								$endDelimiter = '$$';
+								}
+							elsif (index($lines[$i], '\[') == 0)
+								{
+								$endDelimiter = '\]';
+								}
+							elsif (index($lines[$i], '\begin') == 0)
+								{
+								$endDelimiter = '\end';
+								}
+							# else maintenance error
+							else
+								{
+								print(
+									"MAINTENANCE ERROR at intramine_viewer.pl, unknown delimiter!\n"
+								);
+								}
+
+							if ($endDelimiter ne '')
+								{
+								my $rowID = 'R' . $lineNum;
+								# Now find the line with the end delimiter.
+								if (index($lines[$i], $endDelimiter, 2) > 0)
+									{
+									$lines[$i] =
+										"<tr id='$rowID'><td n='$lineNum'></td><td>" . $lines[$i];
+									$lines[$i] .= '</td></tr>';
+									}
+								else
+									{
+									$lines[$i] = "</tbody></table><table><tbody>\n" . $lines[$i];
+									my $iInitial = $i;
+									++$i;
+									while ($i < $numLines && index($lines[$i], $endDelimiter) < 0)
+										{
+										$lines[$iInitial] .= "\n" . $lines[$i];
+										# Don't forget to empty out the original line. I mention
+										# this because I did.
+										$lines[$i] = '';
+										++$i;    # NOTE we are skipping along to the next line.
+										}
+									# Do the last line and finish the table row.
+									#$lines[$iInitial] .= "\n" . $lines[$i] . "\n" . '</td></tr>';
+									if ($i < $numLines)
+										{
+										$lines[$iInitial] .= "\n"
+											. $lines[$i] . "\n"
+											. "</tbody></table><table class='imt'><tbody>";
+										$lines[$i] = '';
+										}
+									else
+										{
+										$lines[$iInitial] .= "\n"
+											. $lines[$i - 1] . "\n"
+											. "</tbody></table><table class='imt'><tbody>";
+										$lines[$i - 1] = '';
+										}
+
+									$lineNum += $i - $iInitial;
+									}
+								}
+							}
+						}
+
 					if ($isGlossaryFile)
 						{
 						if ($lines[$i] =~ m!^\s*(.+?[^\\]):!)
@@ -2200,12 +2336,15 @@ sub GetPrettyTextContents {
 						#$lines[$i] =~ s!\\:!:!g;
 						}
 
-					my $rowID     = 'R' . $lineNum;
-					my $classAttr = ClassAttribute('', $indentClass);
-					$lines[$i] =
-						  "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>"
-						. $lines[$i]
-						. '</td></tr>';
+					if (!$justDidSomeMathJax)
+						{
+						my $rowID     = 'R' . $lineNum;
+						my $classAttr = ClassAttribute('', $indentClass);
+						$lines[$i] =
+							  "<tr id='$rowID'><td n='$lineNum'></td><td$classAttr>"
+							. $lines[$i]
+							. '</td></tr>';
+						}
 					$justDidHeadingOrHr = 0;
 					}
 				}
@@ -2382,7 +2521,14 @@ s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlersShrunkRow!;
 	if (!defined($sourceR))
 		{
 		$$contentsR = encode_utf8($$contentsR);
+		# TEST ONLY
+		# if ($UseMathJaxInTxt)
+		# 	{
+		# 	AppendToTextFileWide("C:/perlprogs/IntraMine/test/math1.txt", "$$contentsR");
+		# 	}
 		}
+
+	return ($includeMathJax);
 }
 
 sub LoadFromEditor {
@@ -2486,6 +2632,103 @@ sub GetContentFromOneEditorInstance {
 	$result   = 1;
 
 	return ($result);
+}
+
+# If using MathJax, we have to add start and end delimiters on each line
+# because MathJax is confused by IntraMine's table approach to line display.
+# (This version is a bust because I have things like $$linesA all over
+# my log file. So we require start delimiter to be on a line by itself.)
+sub xDelimitMathJaxLines {
+	my ($lines_A, $numLines) = @_;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		if (index($lines_A->[$i], '$$') >= 0 || index($lines_A->[$i], '\[') >= 0)
+			{
+			# Check if there's an end delimiter on the same line.
+			my $startPos   = index($lines_A->[$i], '$$');
+			my $endPos     = -1;
+			my $startDelim = '';
+			my $endDelim   = '';
+			if ($startPos < 0)
+				{
+				$startPos   = index($lines_A->[$i], '\[');
+				$endPos     = index($lines_A->[$i], '\]', $startPos + 1);
+				$startDelim = '\[';
+				$endDelim   = '\]';
+				}
+			else
+				{
+				$endPos     = index($lines_A->[$i], '$$', $startPos + 1);
+				$startDelim = '$$';
+				$endDelim   = '$$';
+				}
+
+			# Done current line if there's an end delimiter on the same line.
+			if ($endPos > 0)
+				{
+				next;
+				}
+
+			# Put a delimiter at end of current line, and keep looking through
+			# following lines, putting start and end delimiters on each line,
+			# until an end delimiter is seen (put a start delim but not
+			# an end delim on that line).
+			$lines_A->[$i] .= $endDelim;
+			++$i;
+			while ($i < $numLines && index($lines_A->[$i], $endDelim) < 0)
+				{
+				$lines_A->[$i] = $startDelim . $lines_A->[$i] . $endDelim;
+				++$i;
+				}
+			# We're on the last line of the math, add a start delimiter.
+			if ($i < $numLines)
+				{
+				$lines_A->[$i] = $startDelim . $lines_A->[$i];
+				}
+			}
+		}
+}
+
+sub DelimitMathJaxLines {
+	my ($lines_A, $numLines) = @_;
+
+	for (my $i = 0 ; $i < $numLines ; ++$i)
+		{
+		if ($lines_A->[$i] eq '$$' || $lines_A->[$i] eq '\[')
+			{
+			my $startDelim = '';
+			my $endDelim   = '';
+			if ($lines_A->[$i] eq '$$')
+				{
+				$startDelim = '$$';
+				$endDelim   = '$$';
+				}
+			else
+				{
+				$startDelim = '\[';
+				$endDelim   = '\]';
+				}
+
+			# Put a delimiter at end of current line, and keep looking through
+			# following lines, putting start and end delimiters on each line,
+			# until an end delimiter is seen (put a start delim but not
+			# an end delim on that line).
+			$lines_A->[$i] .= $endDelim;
+			++$i;
+
+			while ($i < $numLines && index($lines_A->[$i], $endDelim) < 0)
+				{
+				$lines_A->[$i] = $startDelim . $lines_A->[$i] . $endDelim;
+				++$i;
+				}
+			# We're on the last line of the math, add a start delimiter.
+			if ($i < $numLines)
+				{
+				$lines_A->[$i] = $startDelim . $lines_A->[$i];
+				}
+			}
+		}
 }
 
 { ##### git diff HEAD changed lines for .txt Views, array for JavaScript

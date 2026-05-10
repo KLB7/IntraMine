@@ -56,7 +56,8 @@ my $StartRun        = 0;     # 1 when running
 my $RunIsUnderWeigh = 0;     # not used really
 my $FileOrDir       = '';    # The file or directory to work with
 my $InlineImages    = 0;     # 0 == hover images, 1 == inline images
-my $HoverGIFS       = 0;     # 0 == follow #InlinImages for GIFs, 1 == always hover
+my $HoverGIFS       = 0;     # 0 == follow #InlineImages for GIFs, 1 == always hover
+my $UseMathJax      = CVal('USE_MATHJAX_IN_STANDALONE_HTML');    # data/intramine_config9.txt
 
 # Time out frequently to pick up a run request.
 MainLoop(\%RequestAction, $MainLoopTimeout, \&ActualRunGlossToHTML);
@@ -162,7 +163,7 @@ FINIS
 sub GlosserControls {
 	my $formContents = '';
 
-	# The dir/file picker, inline images yes/no, hover GIFs yer/no:
+	# The dir/file picker, inline images yes/no, hover GIFs yes/no:
 	my $theFilePickerAndChecks = <<"FINIS";
 <div id="form_1_1"><h2>Directory or File&nbsp;</h2></div>
 <input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path to a file or directory, or hit the dots' list="dirlist" />
@@ -492,8 +493,9 @@ sub ActualRunGlossToHTML {
 		return;
 		}
 
+	#my $UseMathJax = 1;
 	$StartRun = 0;
-	ConvertGlossToHTML($FileOrDir, $InlineImages, $HoverGIFS, \&ShowFeedback);
+	ConvertGlossToHTML($FileOrDir, $InlineImages, $HoverGIFS, $UseMathJax, \&ShowFeedback);
 	$RunIsUnderWeigh = 0;
 	WebSocketSend('ENABLEGLOSSERGENERATE');
 }

@@ -1,0 +1,31 @@
+# Optionally include/use MathJax in .txt or .md / .markdown or standalone HTML files.
+# MathJax usage in IntraMine details are in /Documentation/Math.html.
+# See https://docs.mathjax.org/en/latest/ for more on MathJax.
+# It looks like 
+# \\[ {e}^{i\pi }+1=0 \\]   (in Markdown)
+# \[ {e}^{i\pi }+1=0 \]     (in .txt)
+
+###################
+# NOTE using MathJax can make displayed files use considerably more memory!
+We're talking 100 MB more per browser tab in some cases.
+###################
+
+# Set to 1 to include MathJax in .txt file display, IntraMine's Viewer only.
+# Note MathJax will be included only if "block" level delimiters are present.
+# Blocks start with \[ or $$ or \begin, flush left on a line.
+# To force MathJax if only inline math is present, put
+# \[\] flush left on a line by itself somewhere in your document.
+# Set to 0 to never include MathJax.
+USE_MATHJAX_IN_TXT				1
+
+# Set to 1 to use MathJax in the display of .md and .markdown files, IntraMine's Viewer only.
+# MathJax will be included in all displayed Markdown files.
+# Set to 0 to never use MathJax in Markdown files.
+USE_MATHJAX_IN_MARKDOWN			1
+
+# MathJax in standalone HTML (Glosser service only):
+# Set to 1 to include MathJax if "block" level delimiters are present.
+# Set to 0 to never use MathJax.
+# (Note for the Perl program gloss2html.pl you can supply an argument for each run
+# to determine if MathJax is used: pass -m to use Mathjax, otherwise it won't be used.)
+USE_MATHJAX_IN_STANDALONE_HTML	1

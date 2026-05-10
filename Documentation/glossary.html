@@ -1992,6 +1992,7 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='100'><a href='#server_sent_events'>Server-Sent Events</a></li>
 <li class='h2' im-text-ln='15'><a href='#short_name'>Short name</a></li>
 <li class='h2' im-text-ln='143'><a href='#shortcut_on_your_desktop'>Shortcut on your desktop</a></li>
+<li class='h2' im-text-ln='167'><a href='#standalone_html'>Standalone HTML</a></li>
 <li class='h2' im-text-ln='114'><a href='#status_page'>Status page</a></li>
 <li class='h2' im-text-ln='37'><a href='#strawberry_perl'>Strawberry Perl</a></li>
 <li class='h2' im-text-ln='80'><a href='#sufficient_path'>Sufficient path</a></li>
@@ -6056,7 +6057,9 @@ hm9xHNBqrW1+Zq0dX4DjUFZmBmjf+O7iOJS1f/S3EVF0VjSOUuv9qXWa1DpNap2mOVnNd1VVlb8V
 0XvLGNO1RdcWn+/55fUJTlmWEf0fGKxdW3y8PYO1rusBGti6PW+zfbY7rYazOab5IVm/LPNDsjmm
 2T6L1wonIiv8Bm6PMUat/2pmVrmIrGPKn+FYrd6QI4ZjtXpDjhiO1eoNOWI4Vqs35IjhWK3ekCOG
 Y7V6Q44Yjp27AmkA1E6c/TDFAAAAAElFTkSuQmCC
-"  /></td></tr></table><p id='bottomShim'></p></div></div>
+"  /></td></tr>
+<tr id='R166'><td n='166'></td><td></td></tr>
+<tr id='R167'><td n='167'></td><td><h2 id="standalone_html"><strong>Standalone HTML</strong>:</h2> these are .html files as generated from .txt by IntraMine's Glosser service, or (if you prefer a Cmd line approach) by the gloss2html.pl program. For nicest results the .txt file should be marked up using Gloss, IntraMine's minimal Markdown variant aimed at intranet use. See also <a href="./Gloss.html" target="_blank">"Gloss.txt"</a> and <a href="./Glosser.html" target="_blank">"Glosser.txt"</a>. The resulting HTML files are single and self-contained, except if LaTeX is used for math, in which case an Internet connection will be needed (see <a href="./Math.html" target="_blank">"Math.txt"</a> for details on typesetting math).</td></tr></table><p id='bottomShim'></p></div></div>
 <script>
 let thePath = 'C:/perlprogs/IntraMine/Documentation/glossary.txt';
 let theEncodedPath = 'C:/perlprogs/IntraMine/Documentation/glossary.txt';
@@ -9091,6 +9094,14 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 				finishReload();
 				finishStartup(reloading);
 				reJumpAndHighlight(reloading);
+
+				// Redo MathJax since content has changed.
+				if (typeof MathJax !== 'undefined')
+					{
+					MathJax.typesetPromise([contentDiv]).then(() => {
+						;//console.log('Typesetting complete');
+					}).catch((err) => console.log(err.message));
+					}
 				//doResize(reloading);
 				//finishReload(); too late
 				startReloadCheck();

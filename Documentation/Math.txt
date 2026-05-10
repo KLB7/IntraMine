@@ -1,0 +1,149 @@
+Math
+=====
+
+IntraMine uses MathJax for math typesetting
+============
+IntraMine can (and by default will) use a JavaScript package called MathJax to typeset any equations or math symbols in documents that have been marked up using LaTeX notation.
+
+MathJax documentation: https://docs.mathjax.org/en/latest/index.html
+Examples: https://docs.mathjax.org/en/latest/web/examples.html
+A sampler: https://www.mathjax.org/#samples
+
+MathJax typesetting will happen in:
+ - IntraMine's Viewer display of .txt documents
+ - standalone HTML documents created by IntraMine's Glosser service or gloss2html.pl
+ - IntraMine's Viewer display of Markdown (.md, .markdown) documents.
+
+In the Viewer display of .txt and when generating standalone HTML, MathJax will only be included if there is at least one "block level" chunk of LateX math in the document. Block level chunks start (and end) with:
+TABLE Block level math delimiters
+Start delimiter			End delimiter
+\[						\]
+$$						$$
+\begin					\end
+Start delimiters **must be FLUSH LEFT at the start of a line** to count. If no block level chunks are present, the JavaScript for MathJax will not be included when displaying the document.
+
+Inline math
+----------------
+MathJax also supports inline math, which goes between \\( and \\). For example, \\({x}^{2}+{y}^{2}=1\\) which becomes \({x}^{2}+{y}^{2}=1\) after MathJax sees it.
+
+If your document contains *only* inline math that's not enough to trigger using MathJax, you'll need at least one block level chunk somewhere in the source text. The simplest solution is to include an empty chunk somewhere. It can look like this:
+\\[\]
+and will be displayed as a blank line. Put it at the end of your document and no one will notice it. (It's visible here due to putting an extra backslash at the beginning of the line, as you'll see if you open the .txt version of this document in an editor.)
+
+Not quite standalone HTML
+------------------------
+If MathJax is included in the HTML version of a file created with the Glosser service or the gloss2html.pl Perl program, the resulting .html document won't be quite "standalone" because web access will be needed to load the MathJax library. I dare to speculate that in most circumstances these days your audience will have a web connection.
+
+Turning MathJax off or on
+============================
+MathJax can be completely turned off if you don't want it. To do that, in your IntraMine folder open /data/intramine_config_9.txt and you'll see three configuration keys, one for MathJax in .txt as displayed by the Viewer, one for standalone HTML, and one for MathJax in regular Markdown displays. Setting them to 0 means don't use MathJax no matter what: setting them to 1 (the default) has separate meanings: for .txt views and for standalone HTML, 1 means use MathJax if any math "chunks" are present in the document; and for regular Markdown, 1 means always include MathJax (even if there is no math present).
+
+Note for the Perl program gloss2html.pl, which converts .txt to standalone HTML in the same way as the Glosser service, you can supply an argument for each run to determine if MathJax is used: pass -m to use Mathjax if any "block level" LaTeX math chunks are present, otherwise without the -m it won't be used. The gloss2html.pl program is not affected by the value of USE_MATHJAX_IN_STANDALONE_HTML.
+
+Here are the configuration keys that you'll see in intramine_config_9.txt:
+---
+	# Set to 1 to use MathJax in .txt file display, IntraMine's Viewer only.
+	USE_MATHJAX_IN_TXT				1
+
+	# Set to 1 to use MathJax in the display of .md and .markdown files, IntraMine's Viewer only.
+	USE_MATHJAX_IN_MARKDOWN			1
+	
+	# MathJax in standalone HTML (Glosser service only):
+	USE_MATHJAX_IN_STANDALONE_HTML	1
+---
+
+MathJax is a memory pig, be warned
+======================
+If MathJax is included when displaying a file it can add 100 MB to the memory used in the browser. That's why IntraMine checks for the actual presence of math before actually including MathJax (except for regular Markdown).
+
+Some math examples
+====================
+Source first, then typeset.
+---
+\\begin{align}
+    \nabla \times \vec{\mathbf{B}}\, - \frac{1}{c}\, \frac{\partial\vec{\mathbf{E}}}{\partial t}
+       & = \frac{4\pi}{c}\vec{\mathbf{j}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\[3pt]
+    \nabla \times \vec{\mathbf{E}}\, + \frac{1}{c}\, \frac{\partial\vec{\mathbf{B}}}{\partial t}
+        & = \vec{\mathbf{0}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{B}} & = 0
+  \end{align}
+\begin{align}
+    \nabla \times \vec{\mathbf{B}}\, - \frac{1}{c}\, \frac{\partial\vec{\mathbf{E}}}{\partial t}
+       & = \frac{4\pi}{c}\vec{\mathbf{j}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\[3pt]
+    \nabla \times \vec{\mathbf{E}}\, + \frac{1}{c}\, \frac{\partial\vec{\mathbf{B}}}{\partial t}
+        & = \vec{\mathbf{0}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{B}} & = 0
+  \end{align}
+
+---
+(Some spaces are snuck in on the following three lines to fool MathJax.)
+ $$
+ \forall x \in X, \quad \exists y \leq \epsilon
+ $$
+$$
+\forall x \in X, \quad \exists y \leq \epsilon
+$$
+---
+\\[
+\lim\limits_{x \to \infty} \exp(-x) = 0
+\]
+\[
+\lim\limits_{x \to \infty} \exp(-x) = 0
+\]
+---
+\\begin{equation}
+  x = a_0 + \cfrac{1}{a_1 
+          + \cfrac{1}{a_2 
+          + \cfrac{1}{a_3 + \cfrac{1}{a_4} } } }
+\end{equation}
+\begin{equation}
+  x = a_0 + \cfrac{1}{a_1 
+          + \cfrac{1}{a_2 
+          + \cfrac{1}{a_3 + \cfrac{1}{a_4} } } }
+\end{equation}
+---
+\\[
+ \begin{matrix}
+  a & b & c \\
+  d & e & f \\
+  g & h & i
+ \end{matrix}
+\]
+\[
+ \begin{matrix}
+  a & b & c \\
+  d & e & f \\
+  g & h & i
+ \end{matrix}
+\]
+---
+\\[
+A_{m,n} = 
+ \begin{pmatrix}
+  a_{1,1} & a_{1,2} & \cdots & a_{1,n} \\
+  a_{2,1} & a_{2,2} & \cdots & a_{2,n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{m,1} & a_{m,2} & \cdots & a_{m,n} 
+ \end{pmatrix}
+\]
+
+\[
+A_{m,n} = 
+ \begin{pmatrix}
+  a_{1,1} & a_{1,2} & \cdots & a_{1,n} \\
+  a_{2,1} & a_{2,2} & \cdots & a_{2,n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{m,1} & a_{m,2} & \cdots & a_{m,n} 
+ \end{pmatrix}
+\]
+---
+\\[\frac{\mathrm{d}}{\mathrm{d}x}\int^{\beta(x)}_{\alpha(x)}f(x,y)\,\mathrm{d}y={%
+f(x,\beta(x))\beta^{\prime}(x)-f(x,\alpha(x))\alpha^{\prime}(x)}+\int^{\beta(x%
+)}_{\alpha(x)}\frac{\partial f}{\partial x}\,\mathrm{d}y.\]
+\[\]
+\[\frac{\mathrm{d}}{\mathrm{d}x}\int^{\beta(x)}_{\alpha(x)}f(x,y)\,\mathrm{d}y={%
+f(x,\beta(x))\beta^{\prime}(x)-f(x,\alpha(x))\alpha^{\prime}(x)}+\int^{\beta(x%
+)}_{\alpha(x)}\frac{\partial f}{\partial x}\,\mathrm{d}y.\]
+\[\]

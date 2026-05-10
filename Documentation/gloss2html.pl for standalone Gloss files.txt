@@ -13,11 +13,12 @@ Automatic linking to .txt or HTML files in the same folder is supported, but oth
 
 Running gloss2html.pl
 =======================
-There are three command line arguments you can supply to gloss2html.pl
+There are four command line arguments you can supply to gloss2html.pl
 
  - the path to a file or folder (required). The path can be to a single text file, or to a folder holding several text files and optionally images. More below.
- - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. The default is to have the images pop up when the cursor stops over an image link.
+ - "-inline" or "-i" (optional) will "inline" all images, ie display them fully in the text. If not provided, images will pop up (or "hover") when the cursor stops over an image link.
  - "-hoverGIFs" or "-h" (optional) will force all GIFs to pop up when the cursor stops over them: if not provided, GIFs will follow the image rule just above
+ - "-math" or "-m" (optional) if supplied will allow the use of MathJax to typeset any equations done using LaTeX notation. If not supplied, MathJax will not be included. If it *is* supplied, MathJax will be included only if the document contains at least one "block level" equation - see Math.txt for details.
  
 Examples (as always, adjust the path to gloss2html.pl, and substitute your own document paths):
 CODE
@@ -36,6 +37,11 @@ or
 perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -inline -hoverGIFs
 ENDCODE
 Including "-i" or "-inline" on the command line will result in all images being fully shown in the text, rather than having a link to the image with a popup view of it when the cursor stops over the link. GIFs will not be shown until the cursor stops over the link.
+
+CODE
+perl C:\perlprogs\mine\gloss2html.pl "C:\perlprogs\mine\Documentation" -i -h -m
+ENDCODE
+Including "-m" will enable the conditional inclusion of MathJax JavaScript to typeset any math present, conditional on any "block level" LatTex notation being present (see Math.txt). This is effectively the command used to create IntraMine's HTML documentation, though it's actually done using the Glosser service where the -m is implicit.
 
 Full image display versus image hovers
 ======================================

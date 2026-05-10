@@ -23,7 +23,7 @@ If you prefer to stick to regular MultiMarkdown for some documents instead of sw
 
 And you'll have [**sub-second search**](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Searching.html) over up to half a million source and text files, even without specifying a directory or language or extension (but you can).
 
-Strictly speaking IntraMine is a tech demo, but some considerable effort over nine years has gone into making IntraMine an outstanding choice for editing and reading text documents, generating in-house documentation, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
+Strictly speaking IntraMine is a tech demo, but some considerable effort over ten years has gone into making IntraMine an outstanding choice for editing and reading text documents, generating in-house documentation, searching, and understanding source code. If you like IntraMine, pester the developers of your favorite IDE and they might add enough of IntraMine's features that you won't need it any more.
 
 ## Installation
 
@@ -70,7 +70,7 @@ If you see a use for IntraMine's FLASH link algorithms etc in your own work, go 
 | [Main&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/IntraMine%20Main.html) | A round-robin redirect service, can handle high load |
 | [Search&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Search.html) | Sub-second search across your whole intranet |
 | [Editor&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Editor.html) | IntraMine's editor, supports FLASH links, glossary popups etc |
-| [Viewer&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Viewer.html) | File viewer, supports FLASH links, glossary popups etc |
+| [Viewer&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Viewer.html) | text to HTML with FLASH Links, glossary pops etc |
 | [Files&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Files.html) | A simple two-pane file explorer, has image hover previews |
 | [Linker&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Linker.html) | Generates FLASH links, Go2 etc |
 | [Opener&nbsp;&nbsp;&nbsp;](https://htmlpreview.github.io/?https://github.com/KLB7/IntraMine/blob/master/Documentation/Opener.html) | Open file using selected editor |

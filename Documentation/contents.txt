@@ -29,6 +29,7 @@ Go2.txt
 Gloss.txt
 Glossary popups.txt
 gloss2html.pl for standalone Gloss files.txt
+Math.txt
 Markdown enhancements.txt
 Themes.txt
 Indexing additional files.txt

@@ -21,6 +21,8 @@
 #  will pop up when you hover over a link;
 # -h or -hoverGIFs: if supplied, all "gif" images will be "hover" style even if you specify -inline.
 # (only .gif is affected)
+# -m or -mathjax: if supplied, MathJax JavaScript will be included to display LaTex equations
+# very nicely (at the expense of using more memory);\
 # Example runline, convert all of IntraMine's text documentation:
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\Documentation" -i -h
 #  (note your paths will likely be different)
@@ -66,6 +68,8 @@
 # only form that IntraMine's Viewer supports. It used to support #hash mentions, but that proved
 # too slow. Here, speed doesn't matter as much.
 # All of Gloss's other markup will work: headings, lists, tables etc.
+# And you can display nicely typeset equations using MathJax if you include -m on
+# the command line (See https://docs.mathjax.org/en/latest/ for how to use MathJax).
 #
 # Gloss features that won't work in self-contained HTML files
 ############################################################
@@ -88,6 +92,8 @@
 # The original .txt files aren't needed either, of course.
 # If you keep your copy of converted HTML files in one folder, then all of their
 # links will still work, no matter where you put the folder.
+# Note if you use -m to include MathJax then an Internet connection will be required
+# in order to view any equations in their typeset form, otherwise they'll look a bit raw.
 
 # A suggestion, use the ".txt" versions of file names when referring to other Gloss files in
 # your context folder. This program will convert them to the ".html" version. But
@@ -127,6 +133,9 @@
 #
 # For txt docs in the _INSTALLER folder:
 # perl C:\perlprogs\IntraMine\gloss2html.pl "C:\perlprogs\IntraMine\__START_HERE_INTRAMINE_INSTALLER\1 READ ME FIRST how to install IntraMine.txt" -i -h
+#
+# Including MathJax to typeset equations:
+# perl C:\perlprogs\IntraMine\gloss2html.pl "C:\folder\equations.txt" -m
 
 # Syntax check:
 # perl -c C:\perlprogs\mine\gloss2html.pl
@@ -143,6 +152,8 @@ my $secondArg = shift @ARGV;
 $secondArg ||= '';
 my $thirdArg = shift @ARGV;
 $thirdArg ||= '';
+my $fourthArg = shift @ARGV;
+$fourthArg ||= '';
 die "Please supply a folder or file path!\n" if (not defined $firstArg);
 
 my @args;
@@ -153,6 +164,7 @@ push @args, $thirdArg;
 my $fileOrDir    = '';
 my $inlineImages = 0;
 my $hoverGIFS    = 0;
+my $useMathJax   = 0;
 
 for (my $i = 0 ; $i < @args ; ++$i)
 	{
@@ -163,6 +175,10 @@ for (my $i = 0 ; $i < @args ; ++$i)
 	elsif ($args[$i] =~ m!^\-h!)
 		{
 		$hoverGIFS = 1;
+		}
+	elsif ($args[$i] =~ m!^\-m!)
+		{
+		$useMathJax = 1;
 		}
 	elsif ($args[$i] ne '')
 		{
@@ -178,4 +194,4 @@ print("     Hover gifs: |$hoverGIFS|\n");
 # "undef" as the last argument basically means use print()
 # for feedback. If defined, it should send a WebSockets message.
 # See intramine_glosser.pl for an example.
-ConvertGlossToHTML($fileOrDir, $inlineImages, $hoverGIFS, undef);
+ConvertGlossToHTML($fileOrDir, $inlineImages, $hoverGIFS, $useMathJax, undef);
