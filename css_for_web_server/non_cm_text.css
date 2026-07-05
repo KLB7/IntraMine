@@ -44,7 +44,7 @@
 /* footnote tables proper: */
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	text-indent: -26px;
+	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -52,11 +52,15 @@
 	padding-left: 26px !important;
 }
 
+.gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
 .gloss_div table tbody tr:not(first-child) {
 	display: block;
 	margin: 0;
-	padding-left: 26px;
-	padding-top: 6px;
+	/*padding-left: 26px;*/
+	padding-top: 3px;
 }
 
 /* Footnote actual tables, to be shown as proper tables. */
@@ -83,6 +87,11 @@
     -moz-transition: all 0.1s ease-in-out;
     -ms-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;     
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tbody tr:hover {
+	background: #fbf8e9 !important; /* This doesn't work, don't know why. */
+	color: #888 !important;
 }
 
 .allfootnotes {
@@ -332,18 +341,49 @@ p {
 
 /*  Horizontal rule */
 tr._FOOTNOTE_ td .divhr {
-	border-top: 1px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 1px solid #ccc; */
+	border: none;
 	margin: 0;
-	height: 3px;
-	width: 600px;
+	height: 2px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
 
 tr._FOOTNOTE_ td .divhrThick {
-	border-top: 2px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 2px solid #ccc; */
+	border: none;
 	margin: 0;
 	height: 3px;
-	width: 600px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
+
+.divhr, .divhrThick {
+	border: none;
+	width: 100% !important;
+}
+
+
+.divhr, .divhr {
+	border: none;
+	height: 2px;
+	background-color: #333333;
+}
+
+.divhrThick, .divhrThick {
+	border: none;
+	height: 3px;
+	background-color: #333333;
+}
+
+
+hr {
+	margin-block-start: 1px;
+	margin-block-end: 1px;
+	margin: 0;
+	padding: 0;
+}
+
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {

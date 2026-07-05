@@ -47,7 +47,7 @@ use ext;                              # for ext.pm#IsTextExtensionNoPeriod() etc
 use html2gloss;
 use toc_local;
 use gloss;                            # Just for footnotes
-
+use reverse_filepaths_lite;           # Also just for footnotes
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
 binmode(STDOUT, ":encoding(UTF-8)");
@@ -86,7 +86,7 @@ $VideMimeTypeForExtension{'ts'}   = 'video/mp2t';
 $VideMimeTypeForExtension{'3g2'}  = 'video/3gpp2';
 $VideMimeTypeForExtension{'ogg'}  = 'application/ogg';
 
-#LoadCobolKeywords();
+my $MaxBlockQuoteNumber = 5;    # max block quote indent level: see non_cm_text.css#br
 
 my $PAGENAME    = '';
 my $SHORTNAME   = '';
@@ -147,7 +147,8 @@ InitThemeIsDark();
 # or the more RESTful '.../file/path' can be used. See eg intramine_search.js#viewerOpenAnchor()
 # (a call to that is inserted by elasticsearcher.pm#FormatHitResults() among others).
 my %RequestAction;
-$RequestAction{'href'}   = \&FullFile; # Open file, href = anything
+$RequestAction{'signal'} = \&HandleBroadcastRequest;    # signal=reindex...
+$RequestAction{'href'}   = \&FullFile;                  # Open file, href = anything
 $RequestAction{'/file/'} = \&FullFile; # RESTful alternative, /file/is followed by file path in $obj
 $RequestAction{'req|loadfile'}        = \&LoadTheFile;                  # req=loadfile
 $RequestAction{'req|reloadnoncmfile'} = \&ReloadTocAndContentsNonCM;    # req=reloadnoncmfile
@@ -170,6 +171,12 @@ $LinkerArguments{'FIRST_LINE_NUM'} = "1";
 $LinkerArguments{'LAST_LINE_NUM'}  = "1";
 $LinkerArguments{'SHOULD_INLINE'}  = "1";
 
+# FLASH link handling for footnotes and footnote popups (see GlossedFootnote
+# and GlossedPopupForFootnote below). reverse_filepaths_lite.pm provides
+# minimal full path handling.
+my $FileWatcherDir       = CVal('FILEWATCHERDIRECTORY');
+my $fullFilePathListPath = $FileWatcherDir . CVal('FULL_PATH_LIST_NAME');    # .../fullpaths.out
+my $filePathCount        = InitLiteFullPathList($fullFilePathListPath);
 
 MainLoop(\%RequestAction);
 
@@ -372,6 +379,7 @@ sub FullFile {
 	$theBody =~ s!_TEXTTABLECSS_!$textTableCSS!;
 	my $customJS = ($usingCM eq 'true') ? CodeMirrorJS() : NonCodeMirrorJS();
 
+	my $useMathJaxValue = 'false';
 	# Add lolight JS for .txt files only. MathJax for txt and md.
 	if ($filePath =~ m!\.txt$! || $filePath =~ m!\.(md|markdown)!)
 		{
@@ -380,6 +388,7 @@ sub FullFile {
 			$customJS .= "\n" . '<script src="lolight-1.4.0.min.js"></script>';
 			if ($shouldUseMathJax)
 				{
+				$useMathJaxValue = 'true';
 				# $customJS .=
 				# 	"\n<script>MathJax = {tex: {inlineMath: {'[+]': [['$', '$']]}}};</script>\n";
 				# $customJS .= "\n"
@@ -398,6 +407,8 @@ sub FullFile {
 				. "\n";
 			}
 		}
+
+	$theBody =~ s!_USINGMATHJAX_!$useMathJaxValue!;
 
 	# User custom JS, for .txt and Markdown files.
 	if ($filePath =~ m!\.(txt|log|bat)$!i)
@@ -654,6 +665,7 @@ let themeIsDark = _THEME_IS_DARK;
 let weAreEditing = false; // Don't adjust user selection if editing - we are not editing here.
 let arrowHeight = 18;
 let uniqueBrowserID = '_UNIQUE_BROWSER_ID_';
+let usingMathJax = _USINGMATHJAX_;
 </script>
 <script>
 	// Call fn when ready.
@@ -755,7 +767,8 @@ sub GetContentBasedOnExtension {
 	my $cssForMD = '<link rel="stylesheet" type="text/css" href="cm_md.css" />';
 	#$cssForMD .= $nonCmThemeCssFile;
 	# Non CodeMirror CSS:
-	my $cssForNonCm = '<link rel="stylesheet" type="text/css" href="non_cm_text.css" />';
+	my $cssForNonCm = '<link rel="stylesheet" type="text/css" href="non_cm_text.css" />' . "\n"
+		. '<link rel="stylesheet" type="text/css" href="blockquotes.css" />';
 	#$cssForNonCm .= $nonCmThemeCssFile;
 	# For $textTableCSS variations, some table formatting.
 	my $cssForNonCmTables = '<link rel="stylesheet" type="text/css" href="non_cm_tables.css" />';
@@ -1289,6 +1302,7 @@ sub CodeMirrorJS {
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
 <script src="isW.js" ></script>
+<script src="horrible.js" ></script>
 <script src="cmViewerStart.js" ></script>
 <script src="viewerLinks.js" ></script>
 <script src="cmAutoLinks.js" ></script>
@@ -1325,6 +1339,7 @@ sub NonCodeMirrorJS {
 <script src="wordAtInsertionPt.js" ></script>
 <script src="LightRange.min.js" ></script>
 <script src="commonEnglishWords.js" ></script>
+<script src="horrible.js" ></script>
 <script src="viewerStart.js" ></script>
 <script src="autoLinks.js" ></script>
 <script src="showHideTOC.js" ></script>
@@ -1633,6 +1648,7 @@ sub ErrorOnRedirect {
 	return ('');
 }
 
+# Not used.
 sub RunPandocViaBat {
 	my ($filePath, $outputFilePath) = @_;
 	my $outputFileBase = $LogDir . 'temp/cmark';
@@ -1988,8 +2004,63 @@ sub GetPrettyTextContents {
 	# Gloss, aka minimal Markdown.
 	my $inlineIndex = 1;    # Key numbers start at 1.
 
+	# Block quote tracking.
+	my @bqLineNumber;
+	my @bqLevelClass;       # bq, bq1, bq2...
+	my $bqBaseClass = 'bq';
+	# Block quote tracking, just for equations.
+	# Strictly speaking a hash isn't needed, but there won't be many entries.
+	my %equationBqLevelForI;    # $equationBqLevelForI{$i} = 0..max indent level
+
 	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
+		# Pick up on block quote lines, starting with '>'. Remove the
+		# block quote marker(s), remember nesting level for down below at the end.
+		if (index($lines[$i], ">") >= 0 && $i > 1 && $lines[$i] =~ m!^\s*>!)
+			{
+			# First dump any opening whitespace, it's not used.
+			$lines[$i] =~ s!^\s+!!;
+			# Remove the '>'(s) and any following spaces or tabs.
+			# Revision, do not remove trailing whitespace. It's wanted in
+			# CODE blocks as the initial code indent.
+			my $count = 0;
+			while (index($lines[$i], '>') == 0)
+				{
+				++$count;
+				$lines[$i] =~ s!^>!!;
+				if ($lines[$i] =~ m!^\s+>!)
+					{
+					$lines[$i] =~ s!^\s+!!;
+					}
+				}
+
+			my $bqNestNumber = $count - 1;
+			my $bqClass      = $bqBaseClass;
+			if ($bqNestNumber > 0)    # Nested block quotes, class bq1, bq2...
+				{
+				if ($bqNestNumber > $MaxBlockQuoteNumber)
+					{
+					$bqNestNumber = $MaxBlockQuoteNumber;
+					}
+				$bqClass .= $bqNestNumber;
+				}
+
+			# Are we at the start of an equation?
+			# Note below around #2400 if we hit an equation start we skip $i ahead
+			# to the end of the equation, so only the start will be seen here.
+			if (   (index($lines[$i], '$$') == 0 && $lines[$i] !~ m!^\$\$\w!)
+				|| index($lines[$i], '\[') == 0
+				|| index($lines[$i], '\begin') == 0)
+				{
+				$equationBqLevelForI{$i} = $bqNestNumber;
+				}
+			else    # just a regular blockquote, not for an equation
+				{
+				push @bqLineNumber, $i;
+				push @bqLevelClass, $bqClass;
+				}
+			}
+
 		# Turn GitHub-sourced images of the form
 		# ![..](...)
 		# into
@@ -2052,6 +2123,17 @@ sub GetPrettyTextContents {
 			$lineIsBlank = 0;
 			}
 
+		# A fairly early check to see if we're in a TABLE.
+		# Some things just below depend on it.
+		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
+			{
+			$inATable = 1;
+			}
+		elsif ($inATable && $lines[$i] !~ m!\t!)
+			{
+			$inATable = 0;
+			}
+
 		# See if we're entering or leaving a code block.
 		# A code block starts with 'CODE' on a line by itself,
 		# and ends with 'ENDCODE' on a line by itself.
@@ -2082,11 +2164,11 @@ sub GetPrettyTextContents {
 				{
 				if ($lines[$i] eq '')
 					{
-					$lines[$i] = '_STARTCB_ ' . $lines[$i];
+					$lines[$i] = '_STARTCB_ ' . $lines[$i] . '_ENDCB_';
 					}
 				else
 					{
-					$lines[$i] = '_STARTCB_' . $lines[$i];
+					$lines[$i] = '_STARTCB_' . $lines[$i] . '_ENDCB_';
 					}
 				}
 			}
@@ -2127,15 +2209,6 @@ sub GetPrettyTextContents {
 		if ($doingPOD)
 			{
 			$lines[$i] =~ s!_NBS_! !g;
-			}
-
-		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
-			{
-			$inATable = 1;
-			}
-		elsif ($inATable && $lines[$i] !~ m!\t!)
-			{
-			$inATable = 0;
 			}
 
 		if (!$inATable)
@@ -2284,11 +2357,45 @@ sub GetPrettyTextContents {
 									}
 								else
 									{
-									$lines[$i] = "</tbody></table><table><tbody>\n" . $lines[$i];
+									# Block quoted with '>'? If so, the first line has been stripped
+									# of those, we need to also strip any additional lines
+									# while picking up on the end delimiter. Fun.
+									my $weAreIndented = defined($equationBqLevelForI{$i}) ? 1 : 0;
+									my $indentDivStartWithClass = '';
+									my $indentDivEndWithClass   = '';
+									if ($weAreIndented)
+										{
+										my $indentLevel =
+											($equationBqLevelForI{$i} > 0)
+											? $equationBqLevelForI{$i}
+											: '';
+										my $eqIndentClassName = $bqBaseClass . '_eq' . $indentLevel;
+										$indentDivStartWithClass =
+											"<div class='$eqIndentClassName'>";
+										$indentDivEndWithClass = "</div>";
+										}
+
+									$lines[$i] =
+										"</tbody></table>$indentDivStartWithClass<table><tbody>\n"
+										. $lines[$i];
+
 									my $iInitial = $i;
 									++$i;
 									while ($i < $numLines && index($lines[$i], $endDelimiter) < 0)
 										{
+										# Indented? Strip '>'.
+										if ($weAreIndented)
+											{
+											$lines[$i] =~ s!^\s+!!;
+											while (index($lines[$i], '>') == 0)
+												{
+												$lines[$i] =~ s!^>!!;
+												if ($lines[$i] =~ m!^\s+>!)
+													{
+													$lines[$i] =~ s!^\s+!!;
+													}
+												}
+											}
 										$lines[$iInitial] .= "\n" . $lines[$i];
 										# Don't forget to empty out the original line. I mention
 										# this because I did.
@@ -2296,19 +2403,45 @@ sub GetPrettyTextContents {
 										++$i;    # NOTE we are skipping along to the next line.
 										}
 									# Do the last line and finish the table row.
-									#$lines[$iInitial] .= "\n" . $lines[$i] . "\n" . '</td></tr>';
+									# Strip any leading '>' too.
 									if ($i < $numLines)
 										{
+										if ($weAreIndented)
+											{
+											$lines[$i] =~ s!^\s+!!;
+											while (index($lines[$i], '>') == 0)
+												{
+												$lines[$i] =~ s!^>!!;
+												if ($lines[$i] =~ m!^\s+>!)
+													{
+													$lines[$i] =~ s!^\s+!!;
+													}
+												}
+											}
+
 										$lines[$iInitial] .= "\n"
 											. $lines[$i] . "\n"
-											. "</tbody></table><table class='imt'><tbody>";
+											. "</tbody></table>$indentDivEndWithClass<table class='imt'><tbody>";
 										$lines[$i] = '';
 										}
 									else
 										{
+										if ($weAreIndented)
+											{
+											$lines[$i - 1] =~ s!^\s+!!;
+											while (index($lines[$i - 1], '>') == 0)
+												{
+												$lines[$i - 1] =~ s!^>!!;
+												if ($lines[$i - 1] =~ m!^\s+>!)
+													{
+													$lines[$i - 1] =~ s!^\s+!!;
+													}
+												}
+											}
+
 										$lines[$iInitial] .= "\n"
 											. $lines[$i - 1] . "\n"
-											. "</tbody></table><table class='imt'><tbody>";
+											. "</tbody></table>$indentDivEndWithClass<table class='imt'><tbody>";
 										$lines[$i - 1] = '';
 										}
 
@@ -2491,6 +2624,17 @@ s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlersShrunkRow!;
 		}
 	else
 		{
+		# Block quotes: add class reflecting block quote level.
+		# TABLE rows can have more than two cells, either td or th.
+		my $numBlockQuoteLines = @bqLineNumber;
+		my $inATable           = 0;
+		for (my $i = 0 ; $i < $numBlockQuoteLines ; ++$i)
+			{
+			my $lineI   = $bqLineNumber[$i];
+			my $bqClass = $bqLevelClass[$i];
+			BlockQuote(\${lines [$lineI]}, $bqClass, \$inATable);
+			}
+
 		# As a special exception, glossary TOC entries are sorted alphabetically
 		# rather than in order of occurrence.
 		if ($isGlossaryFile)
@@ -2521,14 +2665,195 @@ s!<td\s+n=['"](\d+)['"]!<td n='$1$spacer▶' $diffMouseHandlersShrunkRow!;
 	if (!defined($sourceR))
 		{
 		$$contentsR = encode_utf8($$contentsR);
-		# TEST ONLY
-		# if ($UseMathJaxInTxt)
-		# 	{
-		# 	AppendToTextFileWide("C:/perlprogs/IntraMine/test/math1.txt", "$$contentsR");
-		# 	}
 		}
 
 	return ($includeMathJax);
+}
+
+# Block quotes: indent, vertical stripe, a bit of background color.
+sub BlockQuote {
+	my ($txtR, $bqClass, $inATableR) = @_;
+	my $line                 = $$txtR;
+	my $doLastQuotedTableRow = 0;
+	my $tdPos                = -1;
+
+	# Block quoted tables are "special" (arg).
+	if (($tdPos = index($line, "<table")) > 0)
+		{
+		$$inATableR = ($$inATableR) ? 0 : 1;
+		if (!$$inATableR)
+			{
+			$doLastQuotedTableRow = 1;
+			}
+		else
+			{
+			$doLastQuotedTableRow = 0;
+			}
+
+		my $bqClassApplied = $bqClass;
+
+		# If we have just entered a "real" table, it needs a class to indicate that
+		# the first column should be wider. Classes are non_cm_text.css .bt, bt1 etc.
+		if ($$inATableR)
+			{
+			my $tableClass = substr($bqClass, 0, 1) . 't' . substr($bqClass, 2);
+			if (index($line, "<table class=", $tdPos) > 0)
+				{
+				my $beforeT = substr($line, 0, $tdPos + 14);
+				my $afterT  = substr($line, $tdPos + 14);
+				$line = $beforeT . "$tableClass " . $afterT;
+				}
+			else    # no class yet
+				{
+				my $beforeT = substr($line, 0, $tdPos + 6);
+				my $afterT  = substr($line, $tdPos + 6);
+				$line = $beforeT . " class='$tableClass'" . $afterT;
+				}
+			}
+
+		# Do caption.
+		my $captionPos = -1;
+		if (($captionPos = index($line, "<caption")) > 0)
+			{
+			# 	# +8 for the length of "<caption".
+			my $bqClassApplied = $bqClass . '_as';
+			my $beforeCaption  = substr($line, 0, $captionPos + 8);
+			my $afterCaption   = substr($line, $captionPos + 8);
+			$line = $beforeCaption . " class='$bqClassApplied'" . $afterCaption;
+			}
+
+
+		# Do row if $doLastQuotedTableRow
+		if ($doLastQuotedTableRow)
+			{
+			# Apply background color to the row.
+			$tdPos = index($line, "<tr");
+			if ($tdPos >= 0)
+				{
+				my $appliedClass = substr($bqClass, 0, 2);
+				$appliedClass .= '_tr';    # Typ bq_tr
+				if (index($line, "<tr class=") == $tdPos)
+					{
+					my $beforeTr = substr($line, 0, $tdPos + 11);
+					my $afterTr  = substr($line, $tdPos + 11);
+					$line = $beforeTr . "$appliedClass " . $afterTr;
+					}
+				else
+					{
+					my $beforeTr = substr($line, 0, $tdPos + 3);
+					my $afterTr  = substr($line, $tdPos + 3);
+					$line = $beforeTr . " class='$appliedClass'" . $afterTr;
+					}
+				}
+
+			$line =~ s!</table>!</table></div>!;
+			}
+		elsif ($$inATableR)
+			{
+			$line =~ s!<table!<div style='background-color: #F2F8F2; width: 100%'><table!;
+			}
+		}
+
+	elsif (!$$inATableR)
+		{
+		# Find first and second td/th on line. We need both. Else look for table.
+		my $firstTdPos = index($line, "<td");
+
+		if ($firstTdPos > 0)
+			{
+			$tdPos = $firstTdPos;
+			my $bFClass = $bqClass;
+			# bf (blockquote first td/th) class is named same as bq, bq 1 etc
+			# except the'q' becomes an 'f'.
+			$bFClass = substr($bqClass, 0, 1) . 'f' . substr($bqClass, 2);
+
+			# Put padding on the first td with .bfN
+			# and put italics on the second td with bqN.
+			# Then wrap the line in a new table.
+			# Typical lines incoming:
+			# <tr id='R4'><td n='4'></td><td>This is a test.</td></tr>
+			# <tr id='R6'><td n='6'></td><td><p class='outdent-unordered'>&nbsp;&bull; first item</p></td></tr>
+			if (index($line, "<td class=") > 0)
+				{
+				# Aso pick up the 11 chars "<td class=['"]]"
+				my $beforeTD = substr($line, 0, $firstTdPos + 11);
+				my $afterTD  = substr($line, $firstTdPos + 11);
+				$line = $beforeTD . "$bFClass " . $afterTD;
+				}
+			else    # no class on the first td/th
+				{
+				# Insert " class='bq'"
+				my $beforeTD = substr($line, 0, $tdPos + 3);
+				my $afterTD  = substr($line, $tdPos + 3);
+				$line = $beforeTD . " class='$bFClass'" . $afterTD;
+				}
+
+			if ($tdPos >= 0)
+				{
+				++$tdPos;
+				$tdPos = index($line, "<td", $tdPos);
+				if ($tdPos > 0)
+					{
+					if (index($line, "<td class=", $tdPos) >= 0)
+						{
+						# Aso pick up the 11 chars "<td class=['"]]"
+						my $beforeTD = substr($line, 0, $tdPos + 11);
+						my $afterTD  = substr($line, $tdPos + 11);
+						$line = $beforeTD . "$bqClass " . $afterTD;
+						}
+					else
+						{
+						my $beforeTD = substr($line, 0, $tdPos + 3);
+						my $afterTD  = substr($line, $tdPos + 3);
+						$line = $beforeTD . " class='$bqClass'" . $afterTD;
+						}
+					}
+				}
+
+			# Wrap the line in its own table, with a div to extend background color to the right.
+			# Light green, but gray for CODE blocks (at this point signalled by
+			# _STARTCB at the start of actual text).
+			my $codeStart = index($line, '_STARTCB', $tdPos + 13) - $tdPos - 13;
+			if ($codeStart >= 0 && $codeStart <= 5)
+				{
+				$line =
+"</tbody></table><div style='background-color: rgb(243, 243, 243); width: 100%'><table class='imt'><tbody>"
+					. $line
+					. "</tbody></table></div><table class='imt'><tbody>";
+				}
+			else
+				{
+				$line =
+"</tbody></table><div style='background-color: #F2F8F2; width: 100%'><table class='imt'><tbody>"
+					. $line
+					. "</tbody></table></div><table class='imt'><tbody>";
+				}
+			}
+		}
+
+	elsif ($$inATableR)
+		{
+		# Apply background color to the row.
+		$tdPos = index($line, "<tr");
+		if ($tdPos >= 0)
+			{
+			my $appliedClass = substr($bqClass, 0, 2);
+			$appliedClass .= '_tr';    # Typ bq_tr
+			if (index($line, "<tr class=") == $tdPos)
+				{
+				my $beforeTr = substr($line, 0, $tdPos + 11);
+				my $afterTr  = substr($line, $tdPos + 11);
+				$line = $beforeTr . "$appliedClass " . $afterTr;
+				}
+			else
+				{
+				my $beforeTr = substr($line, 0, $tdPos + 3);
+				my $afterTr  = substr($line, $tdPos + 3);
+				$line = $beforeTr . " class='$appliedClass'" . $afterTr;
+				}
+			}
+		}
+	$$txtR = $line;
 }
 
 sub LoadFromEditor {
@@ -2739,12 +3064,17 @@ sub InitDiffChangedLinesForJS {
 }
 
 sub JsDiffChangedLinesEntry {
-	my $result     = "";
+	my $result = "";
+
 	my $numEntries = @DiffChangedLinesForJS;
 	if ($numEntries)
 		{
 		for (my $i = 0 ; $i < $numEntries ; ++$i)
 			{
+			if (!defined($DiffChangedLinesForJS[$i]))
+				{
+				$DiffChangedLinesForJS[$i] = '';
+				}
 			$DiffChangedLinesForJS[$i] = "'$DiffChangedLinesForJS[$i]'";
 			}
 		$result = join(",", @DiffChangedLinesForJS);
@@ -3431,9 +3761,8 @@ sub GlossedFootnote {
 	my $contextDir    = lc($filePath);
 	$contextDir = DirectoryFromPathTS($contextDir);
 
-	# Last arg here signals we are in a footnote body.
 	Gloss($footnote, $serverAddr, $theServerPort, \$glossedFootnote, 0, $IMAGES_DIR,
-		$COMMON_IMAGES_DIR, $contextDir, undef, undef, 0, 1);
+		$COMMON_IMAGES_DIR, $contextDir, \&FullPathInContext, \&FullDirectoryPathLite, 0, 1, 0);
 
 	# Ask Linker for additional (FLASH) links.
 	AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
@@ -3481,11 +3810,9 @@ sub GlossedPopupForFootnote {
 		my $contextDir    = lc($filePath);
 		$contextDir = DirectoryFromPathTS($contextDir);
 
-		Gloss(
-			$footnote, $serverAddr, $theServerPort,     \$glossedFootnote,
-			0,         $IMAGES_DIR, $COMMON_IMAGES_DIR, $contextDir,
-			undef,     undef
-		);
+		# Last argument "2" signals we are in a footnote popup, needed for MathJax.
+		Gloss($footnote, $serverAddr, $theServerPort, \$glossedFootnote, 1, $IMAGES_DIR,
+			$COMMON_IMAGES_DIR, $contextDir, \&FullPathInContext, \&FullDirectoryPathLite, 1, 2, 0);
 
 		# Ask Linker for additional (FLASH) links.
 		AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
@@ -4964,6 +5291,24 @@ sub InsideExistingAnchor {
 	return ($insideExistingAnchor);
 }
 }    ##### Internal Links
+
+# Handle 'signal=reindex' or 'filepathsconsolidated' from intramine_filewatcher.pl, call
+# reverse_filepaths_lite.pm#InitLiteFullPathList() in response.
+sub HandleBroadcastRequest {
+	my ($obj, $formH, $peeraddress) = @_;
+	if (defined($formH->{'signal'}))
+		{
+		#if ($formH->{'signal'} eq 'reindex')
+		if ($formH->{'signal'} eq 'reindex' || $formH->{'signal'} eq 'filepathsconsolidated')
+			{
+			sleep(1);
+			InitLiteFullPathList($fullFilePathListPath);
+			}
+		}
+
+	return ('OK');
+}
+
 
 # Date time stamp in millisecons.
 # See also common.pm#DateSizeString().

@@ -174,10 +174,17 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 				for (let ind = 0; ind < jsonResult.arr.length; ++ind)
 					{
 					let markupArrEntry = jsonResult.arr[ind];
-					let len = markupArrEntry["textToMarkUp"].length;
 
 					if (!(markupArrEntry["lineNumInText"] in lineSeen))
 						{
+						// let text = markupArrEntry["textToMarkUp"];
+						// text = putInLolightForGlossaryPopups(text);
+						// markupArrEntry["textToMarkUp"] = text;
+						let text = markupArrEntry["linkPath"];
+						text = putInLolightForGlossaryPopups(text);
+						markupArrEntry["linkPath"] = text;
+						let len = markupArrEntry["textToMarkUp"].length;
+
 						addLinkMarkup(cm, markupArrEntry["lineNumInText"],
 								markupArrEntry["columnInText"], len,
 								markupArrEntry["linkPath"], markupArrEntry["linkType"],
@@ -241,6 +248,48 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 		// There was a connection error of some sort. Double bummer, no links.
 		console.log('requestLinkMarkupWithPort connection error!');
 	}
+}
+
+function putInLolightForGlossaryPopups(text) {
+	//console.log(text);
+	if (typeof lolight !== 'undefined')
+		{
+		let onMousePosition = text.indexOf("onmouseover");
+		if (onMousePosition > 0 && text.indexOf("showhint") > onMousePosition)
+			{
+			text = text.replaceAll("_STARTCB_FL_", "");
+			text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+			}
+		}
+	
+	return(text);
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	text = decodeURIComponent(text);
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	//console.log(highlightedHtml);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		}
+	return(newText);
 }
 
 async function addGitDiffMarkers(cm, firstVisibleLineNum, lastVisibleLineNum, linkerPort) {

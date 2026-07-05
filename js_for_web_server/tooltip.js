@@ -406,6 +406,12 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 			}
 		}
 	
+	// hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+	// etc elements that won't display properly as-is. So they are "de-natured" in
+	// gloss.pm#Gloss() at the end, replacing eg " with__DQUOTE_REP__and restored here
+	// by doing the opposite. See horrible.js.
+	////hintContents = horribleUnescape(hintContents);
+
 	if (shouldDecode)
 		{
 		setTimeout(function() {
@@ -415,14 +421,15 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 	else
 		{
 		setTimeout(function() {
-			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			showWithFreshPort(horribleUnescape(hintContents), obj, e, tipwidth, isAnImage);
 			}, 350);
 		}
 	}
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
-	
+	text = horribleUnescape(text);
+
 	return(text);
 }
 

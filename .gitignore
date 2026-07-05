@@ -6,6 +6,8 @@ logs/
 notes/
 obsolete/
 older_versions/
+older/
+older_file_versions/
 programs_do_not_ship/
 temp/
 test/

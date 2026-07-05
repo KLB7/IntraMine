@@ -861,7 +861,7 @@ a.embedded_image {
 /* footnote tables proper: */
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	text-indent: -26px;
+	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -869,11 +869,15 @@ a.embedded_image {
 	padding-left: 26px !important;
 }
 
+.gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
 .gloss_div table tbody tr:not(first-child) {
 	display: block;
 	margin: 0;
-	padding-left: 26px;
-	padding-top: 6px;
+	/*padding-left: 26px;*/
+	padding-top: 3px;
 }
 
 /* Footnote actual tables, to be shown as proper tables. */
@@ -900,6 +904,11 @@ a.embedded_image {
     -moz-transition: all 0.1s ease-in-out;
     -ms-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;     
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tbody tr:hover {
+	background: #fbf8e9 !important; /* This doesn't work, don't know why. */
+	color: #888 !important;
 }
 
 .allfootnotes {
@@ -1149,23 +1158,604 @@ p {
 
 /*  Horizontal rule */
 tr._FOOTNOTE_ td .divhr {
-	border-top: 1px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 1px solid #ccc; */
+	border: none;
 	margin: 0;
-	height: 3px;
-	width: 600px;
+	height: 2px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
 
 tr._FOOTNOTE_ td .divhrThick {
-	border-top: 2px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 2px solid #ccc; */
+	border: none;
 	margin: 0;
 	height: 3px;
-	width: 600px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
+
+.divhr, .divhrThick {
+	border: none;
+	width: 100% !important;
+}
+
+
+.divhr, .divhr {
+	border: none;
+	height: 2px;
+	background-color: #333333;
+}
+
+.divhrThick, .divhrThick {
+	border: none;
+	height: 3px;
+	background-color: #333333;
+}
+
+
+hr {
+	margin-block-start: 1px;
+	margin-block-end: 1px;
+	margin: 0;
+	padding: 0;
+}
+
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
 	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}
+
+</style>
+<style>
+/* editor_blockquotes.css: CSS for block quotes in IntraMine's Editor. */
+
+/* Block quotes */
+/*
+.gloss_div table:not(:first-child) tbody tr:first-child.FOOTNOTE_, .gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_, .gloss_div table tbody tr:not(first-child)._FOOTNOTE_ {
+	padding: 6px 0 0 4px !important;
+}
+
+
+.gloss_div table tbody tr:not(first-child) td {
+	padding: 0 !important;
+}
+*/
+
+table.imt tbody tr._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
+.bq, td.bq {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 20px;*/
+}
+
+.bq1, td.bq1 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 40px;*/
+}
+
+.bq2, td.bq2 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 60px;*/
+}
+
+.bq3, td.bq3 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 80px;*/
+}
+
+.bq4, td.bq4 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 100px;*/
+}
+
+.bq5, td.bq5 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 120px;*/
+}
+
+.bf {
+	border-right: 1px solid #bbb; /* Adds a colored vertical bar */
+	padding-right: 20px;
+}
+
+.bf1 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 40px;
+}
+
+.bf2 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 60px;
+}
+
+.bf3 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 80px;
+}
+
+.bf4 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 100px;
+}
+
+.bf5 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 120px;
+}
+
+/* Blockquoted ordinary footnote rows. */
+.bq_fn_div table.imt tr._FOOTNOTE_, .bq_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq1_fn_div table.imt tr._FOOTNOTE_, .bq1_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq2_fn_div table.imt tr._FOOTNOTE_, .bq2_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq3_fn_div table.imt tr._FOOTNOTE_, .bq3_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq4_fn_div table.imt tr._FOOTNOTE_, .bq4_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq5_fn_div table.imt tr._FOOTNOTE_, .bq5_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq_icb table.imt td.bq_fn, .bq1_icb table.imt td.bq1_fn, .bq2_icb table.imt td.bq2_fn, .bq3_icb table.imt td.bq3_fn, .bq4_icb table.imt td.bq4_fn, .bq5_icb table.imt td.bq5_fn {
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+}
+
+table.imt tr._FOOTNOTE_ td h1, table.imt tr._FOOTNOTE_ td h2, table.imt tr._FOOTNOTE_ td h3, table.imt tr._FOOTNOTE_ td h4 {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+
+tr._FOOTNOTE_ td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+tr._FOOTNOTE_ td.bq_fn, table.imt tr td.bq_fn, .gloss_div table :nth-child(1) td.bq_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 40px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq1_fn, table.imt tr td.bq1_fn, .gloss_div table :nth-child(1) td.bq1_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 60px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq2_fn, table.imt tr td.bq2_fn, .gloss_div table :nth-child(1) td.bq2_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 80px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq3_fn, table.imt tr td.bq3_fn, .gloss_div table :nth-child(1) td.bq3_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 100px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq4_fn, table.imt tr td.bq4_fn, .gloss_div table :nth-child(1) td.bq4_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 120px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq5_fn, table.imt tr td.bq5_fn, .gloss_div table :nth-child(1) td.bq5_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 140px;
+	border-left: 1px solid #bbb;*/
+}
+
+/* For the leftmost empty div in a footnote line, to set a border and indent.*/
+.bq_fn_div, .bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+tr._FOOTNOTE_ td::before {
+    content: none !important;
+}
+
+.bq1_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq2_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq3_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq4_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq5_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 76px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 96px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 116px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 136px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 156px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 176px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn {
+	background-color: #F2F8F2;
+	width: calc(100% - 40px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 60px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq_fn2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 80px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 100px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 120px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 140px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+/* For background-color in indented footnote body and ref popup equations. */
+.gloss_div .bq_eq_fn table :nth-child(1), #hintbox .bq_eq_fn td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn1 table :nth-child(1), #hintbox .bq_eq_fn1 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn2 table :nth-child(1), #hintbox .bq_eq_fn2 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn3 table :nth-child(1), #hintbox .bq_eq_fn3 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn4 table :nth-child(1), #hintbox .bq_eq_fn4 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn5 table :nth-child(1), #hintbox .bq_eq_fn5 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+/* Just indented TABLE captions */
+.gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq1, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq2, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq3, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq4, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq5 {
+	background-color: #F2F8F2 !important;
+}
+
+/* Blockquoted tables, set width of first column by setting th first child width. */
+table.bt.bordered.imt th:first-child {
+	width: 69px;
+}
+
+table.bt1.bordered.imt th:first-child {
+	width: 89px;
+}
+
+table.bt2.bordered.imt th:first-child {
+	width: 109px;
+}
+
+table.bt3.bordered.imt th:first-child {
+	width: 129px;
+}
+
+table.bt4.bordered.imt th:first-child {
+	width: 149px;
+}
+
+table.bt5.bordered.imt th:first-child {
+	width: 169px;
+}
+
+table.bt.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt1.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt2.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt3.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt4.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt5.bordered.imt {
+	margin-bottom: 0;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-bottom: 0;
+}
+
+
+/* Just for tables, some colour for any additional blockquote cells.
+as == after second (cell). */
+.bq_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 60px;
+}
+
+.bq1_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 80px;
+}
+
+.bq2_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 100px;
+}
+
+.bq3_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 120px;
+}
+
+.bq4_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 140px;
+}
+
+.bq5_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 160px;
+}
+
+/* Background color for table rows in block-quoted tables. */
+/*
+table.bt.bordered.imt tr th:first-child {
+	border-top-width: 0;
+}
+*/
+
+table.bordered.imt tr th:first-child {
+	font-weight: normal;
+	color: #808080;
+	padding-left: 4px;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_, .INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ :nth-child(1) {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ th:first-child {
+	background-color: #dce9f9 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr.bq_tr td {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+tr.bq_tr {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+.footnote_indented_table {
+	background-color: #F2F8F2 !important;      /* Light green */
+	width: 100%;
+	margin-left: 100px;
+}
+
+.fakeCaptionIndented {
+	display: inline-block;
+	margin-left: 20px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented1 {
+	display: inline-block;
+	margin-left: 40px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented2 {
+	display: inline-block;
+	margin-left: 60px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented3 {
+	display: inline-block;
+	margin-left: 80px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented4 {
+	display: inline-block;
+	margin-left: 100px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented5 {
+	display: inline-block;
+	margin-left: 120px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+/* Block quoted indented code block, set the left margin. */
+.bq_icb {
+	margin-left: 40px;
+}
+
+.bq1_icb {
+	margin-left: 60px;
+}
+
+.bq2_icb {
+	margin-left: 80px;
+}
+
+.bq3_icb {
+	margin-left: 100px;
+}
+
+.bq4_icb {
+	margin-left: 120px;
+}
+
+.bq5_icb {
+	margin-left: 140px;
 }
 
 </style>
@@ -1215,12 +1805,12 @@ th {
 /* Avoid copy of line numbers in the first column.
 <td n='$lineNum'></td>
 */
-td:first-child:after, th:first-child:after {
+td:first-child:before, th:first-child:before {
     content: attr(n);
 }
 
 
-td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
+td:first-child.brace-line-highlight:before, th:first-child.brace-line-highlight:before {
     background-color: rgb(200, 255, 200);
 }
 
@@ -1233,7 +1823,7 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 	min-width: auto; 
 }
 
-.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+.rawHTML table td:first-child:before, .rawHTML table th:first-child:before {
     content: none;
 }
 
@@ -1380,7 +1970,7 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered tr:hover {
-    background: #fbf8e9;
+    background: #fbf8e9 !important;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;
     -moz-transition: all 0.1s ease-in-out;
@@ -1397,6 +1987,10 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered th {
+	border-top: none;
+}
+
+.bordered th:not(:first-child) {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
     background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
@@ -1407,8 +2001,7 @@ paragraph (ie not the first paragraph in the item).
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
-    border-top: none;
-    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+     text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
 .bordered td:first-child, .bordered th:first-child {
@@ -1475,6 +2068,7 @@ paragraph (ie not the first paragraph in the item).
 	background: #888;
 }
 
+
 .reallyshrunkrow td {
 	height: 1px;
 	border: none;
@@ -1483,10 +2077,11 @@ paragraph (ie not the first paragraph in the item).
 
 /* Override td :nth-child(1) for footnotes at end of Viewer display. */
 
-/* TEST ONLY */
+/* TEST ONLY 
 .gloss_div table.bordered {
 	margin-left: 26px;
 }
+*/
 
 .gloss_div table.bordered th {
 	background: #dce9f9 !important;
@@ -1504,7 +2099,7 @@ paragraph (ie not the first paragraph in the item).
 .gloss_div table.bordered td {
 	text-align: left !important;
 	text-indent: 0 !important;
-	padding-left: 0 !important;
+	padding-left: 4px !important;
 }
 /*
 .gloss_div table:not(first-child) tbody tr:first-child {
@@ -1902,20 +2497,27 @@ Table of Contents to be changed by dragging. */
 
 </style>
 <style>
-/* Custom CSS for lolight syntax highlighting of code blocks.
+/* lolight_custom.css: ustom CSS for lolight syntax highlighting of code blocks.
 Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
 Some attempt has been made to coordinate the colors with
 highlightjs default.min.css.
 */
 
 pre {
+    margin-block-start: 1px;
+    margin-block-end: 1px;
+}
+
+pre.lolight {
     overflow: visible;
     word-wrap: anywhere;
     white-space: pre-wrap;
     padding-left: 0.5em;
 	margin: 0;
-	background: #f3f3f3;
-  }
+    padding: 0;
+	background: #f3f3f3 !important;
+    /* Just fooling around. This makes a horizontal scroll bar. width: 1200px; */
+    }
 
 .ll-nam { /* words */
     color: black;
@@ -1976,11 +2578,11 @@ span.ll-com { /* comments */
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><h2 id="YOU_PROBABLY_DONT_WANT_TO_BE_HERE">YOU PROBABLY DON'T WANT TO BE HERE</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>This document starts off the slow and very hands-on but flexible approach to installing IntraMine. The mostly automated alternative is described in <a href="../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html" target="_blank">"../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html"</a>. There you'll find a quicker way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a>, you should be able to use that "Quick Install" approach instead of this one.</td></tr>
+<tr id='R6'><td n='6'></td><td>This document starts off the slow and very hands-on but flexible approach to installing IntraMine. The mostly automated alternative is described in <a href="../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html" target="_blank">"../__START_HERE_INTRAMINE_INSTALLER/1 READ ME FIRST how to install IntraMine.html"</a>. There you'll find a quicker way. The only drawback is that specific versions of various needed services and apps will be installed. Unless you're already using <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a>, you should be able to use that "Quick Install" approach instead of this one.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td>Still here? Ok let's go.</td></tr>
 <tr id='R9'><td n='9'></td><td></td></tr>
-<tr id='R10'><td n='10'></td><td>There are a few steps to getting IntraMine up and running, but the first step consists of putting your IntraMine folder somewhere appropriate, making your own data/ folder, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs. Each step has a link at the bottom to the next step.</td></tr>
+<tr id='R10'><td n='10'></td><td>There are a few steps to getting IntraMine up and running, but the first step consists of putting your IntraMine folder somewhere appropriate, making your own data/ folder, installing <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>, and installing some modules for Strawberry Perl that IntraMine needs. Each step has a link at the bottom to the next step.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
 <tr id='R12'><td n='12'></td><td>IntraMine is available at</td></tr>
 <tr id='R13'><td n='13'></td><td><a href='https://github.com/KLB7/IntraMine' target='_blank'>https://github.com/KLB7/IntraMine</a></td></tr>
@@ -1989,13 +2591,13 @@ span.ll-com { /* comments */
 <tr id='R16'><td n='16'></td><td></td></tr>
 <tr id='R17'><td n='17'></td><td><h2 id="IPv4_must_be_enabled">IPv4 must be enabled</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R19'><td n='19'></td><td>You can enable or disable IPv6 as you please and IntraMine will work. However, IPv4 must be enabled. This is overwhelming the default for new Windows installs (unless your company is very very concerned about security). If you're not sure, run "ipconfig /all" at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an NNN.NNN.NNN.NN address such as 192.168.40.8 listed, you have IPv4 enabled.</td></tr>
+<tr id='R19'><td n='19'></td><td>You can enable or disable IPv6 as you please and IntraMine will work. However, IPv4 must be enabled. This is overwhelming the default for new Windows installs (unless your company is very very concerned about security). If you're not sure, run "ipconfig /all" at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and look for "IPv4 Address" under the adapter you're using (either Ethernet of Wireless): if you see an NNN.NNN.NNN.NN address such as 192.168.40.8 listed, you have IPv4 enabled.</td></tr>
 <tr id='R20'><td n='20'></td><td></td></tr>
 <tr id='R21'><td n='21'></td><td>To enable or disable IPv6 or IPv4: search on your PC for "Network connections", right-click on your network adapter and pick "Properties", and select or de-select IPv4 or IPv6. For pictures and more words, see "<a href='https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11' target='_blank'>https://www.windowscentral.com/software-apps/windows-11/how-to-disable-tcpipv6-ipv6-on-windows-11</a>".</td></tr>
 <tr id='R22'><td n='22'></td><td></td></tr>
 <tr id='R23'><td n='23'></td><td><h2 id="Moving_and_renaming_your_IntraMine_folder">Moving and renaming your IntraMine folder</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R25'><td n='25'></td><td>If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you%27re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything, but life is probably simpler if you don't.</td></tr>
+<tr id='R25'><td n='25'></td><td>If you've downloaded a zip file for IntraMine rather than cloning it, and unzipped it somewhere, take a look inside the unzipped folder and you'll see a subfolder called "IntraMine". Copy or move that "IntraMine" subfolder to anywhere you want on your local storage (C: drive is fine, just not a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ENAS%3C%2Fstrong%3E%3A%20Network%20Attached%20Storage.%20These%20are%20drives%20accessed%20over%20Ethernet%2C%20as%20opposed%20to%20locally%20attached%20storage%20which%20is%20connected%20directly%20to%20your%20PC%20via%20USB%20or%20SATA.%20IntraMine%20can%20index%20files%20on%20NAS%2C%20but%20cannot%20monitor%20them%20for%20changes%2C%20so%20static%20source%20files%20in%20a%20library%20are%20fine%2C%20but%20constantly%20changing%20source%20files%20in%20a%20project%20you__ONEQUOTE_REP__re%20working%20on%20would%20require%20regular%20manual%20re-indexing%20in%20order%20for%20IntraMine%20to%20show%20up-to-date%20search%20results.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">NAS</a> drive), preferably near or at the top of a drive, so paths to files within your IntraMine folder don't become excessively long. You can rename your new main "IntraMine" folder if you like, that won't bother anything, but life is probably simpler if you don't.</td></tr>
 <tr id='R26'><td n='26'></td><td></td></tr>
 <tr id='R27'><td n='27'></td><td>If you cloned IntraMine, wherever it ended up is ok, no need to move or rename it.</td></tr>
 <tr id='R28'><td n='28'></td><td></td></tr>
@@ -2038,13 +2640,13 @@ AABJRU5ErkJggg==
 <tr id='R49'><td n='49'></td><td><em>End digression</em></td></tr>
 <tr id='R50'><td n='50'></td><td>]</td></tr>
 <tr id='R51'><td n='51'></td><td></td></tr>
-<tr id='R52'><td n='52'></td><td><h2 id="Installing_Strawberry_Perl">Installing <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a></h2></td></tr>
+<tr id='R52'><td n='52'></td><td><h2 id="Installing_Strawberry_Perl">Installing <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R54'><td n='54'></td><td>If you already have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> installed, whatever you have should be fine. However, I'm sorry that I can't predict how far back you can go. Anything before version 5.8 is not recommended, but that was released in 2002 and if your Perl is that old then something has gone wrong and it's time to upgrade.</td></tr>
+<tr id='R54'><td n='54'></td><td>If you already have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> installed, whatever you have should be fine. However, I'm sorry that I can't predict how far back you can go. Anything before version 5.8 is not recommended, but that was released in 2002 and if your Perl is that old then something has gone wrong and it's time to upgrade.</td></tr>
 <tr id='R55'><td n='55'></td><td></td></tr>
-<tr id='R56'><td n='56'></td><td>You can skip ahead slightly to <a href="#Installing_additional_Strawberry_Perl_modules">"Installing additional Strawberry Perl modules</a>" if you have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry perl</a> installed.</td></tr>
+<tr id='R56'><td n='56'></td><td>You can skip ahead slightly to <a href="#Installing_additional_Strawberry_Perl_modules">"Installing additional Strawberry Perl modules</a>" if you have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry perl</a> installed.</td></tr>
 <tr id='R57'><td n='57'></td><td></td></tr>
-<tr id='R58'><td n='58'></td><td>If you don't have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> yet:</td></tr>
+<tr id='R58'><td n='58'></td><td>If you don't have <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> yet:</td></tr>
 <tr id='R59'><td n='59'></td><td></td></tr>
 <tr id='R60'><td n='60'></td><td>Head off to</td></tr>
 <tr id='R61'><td n='61'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
@@ -2058,7 +2660,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R64'><td n='64'></td><td>Download the "Recommended version" or "System installer version" from the pink box on the right. IntraMine has been tested with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.</td></tr>
+<tr id='R64'><td n='64'></td><td>Download the "Recommended version" or "System installer version" from the pink box on the right. IntraMine has been tested with <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> 5.30.1 and 5.32.1.1 64bit, but a later version should work fine.</td></tr>
 <tr id='R65'><td n='65'></td><td><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAABiCAIAAADcLv/CAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hvdF5VCAUA
 AA7dSURBVHhe7Z0/blw5EsZ9BV9JUGoYewFjo4GgyNAZpMRjGJtuYgEewNiFgwka8MCOFc062kRn
@@ -2132,11 +2734,11 @@ AElFTkSuQmCC
 "  /></td></tr>
 <tr id='R66'><td n='66'></td><td>(<em>the pink box is for an earlier version of Perl, 5.40 64bit is the latest version that's been tested</em>)</td></tr>
 <tr id='R67'><td n='67'></td><td></td></tr>
-<tr id='R68'><td n='68'></td><td>After downloading, run the msi file to install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>.</td></tr>
+<tr id='R68'><td n='68'></td><td>After downloading, run the msi file to install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>.</td></tr>
 <tr id='R69'><td n='69'></td><td></td></tr>
-<tr id='R70'><td n='70'></td><td><h2 id="Verifying_Strawberry_Perl_is_installed">Verifying <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> is installed</h2></td></tr>
+<tr id='R70'><td n='70'></td><td><h2 id="Verifying_Strawberry_Perl_is_installed">Verifying <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> is installed</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R72'><td n='72'></td><td>Open a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>, and type the usual</td></tr>
+<tr id='R72'><td n='72'></td><td>Open a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00002__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>, and type the usual</td></tr>
 <tr id='R73'><td n='73'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2148,11 +2750,11 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R76'><td n='76'></td><td>If <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> has been installed, you'll see some version info. If not, well I don't know what to tell you, it should have worked. Talk to a friend, try again!</td></tr>
+<tr id='R76'><td n='76'></td><td>If <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> has been installed, you'll see some version info. If not, well I don't know what to tell you, it should have worked. Talk to a friend, try again!</td></tr>
 <tr id='R77'><td n='77'></td><td></td></tr>
 <tr id='R78'><td n='78'></td><td><h2 id="Tell_Windows_what_a_Perl_file_is_for">Tell Windows what a Perl file is for</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R80'><td n='80'></td><td>If you haven't used Perl before on the PC where you just installed <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>:</td></tr>
+<tr id='R80'><td n='80'></td><td>If you haven't used Perl before on the PC where you just installed <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a>:</td></tr>
 <tr id='R81'><td n='81'></td><td><p class="outdent-unordered">&nbsp;&bull; right-click on any of the .pl files at the top of your IntraMine folder (eg "codemirror_extensions.pl")</p></td></tr>
 <tr id='R82'><td n='82'></td><td><p class="outdent-unordered">&nbsp;&bull; pick Properties</p></td></tr>
 <tr id='R83'><td n='83'></td><td><p class="outdent-unordered">&nbsp;&bull; if needed, change "Opens with:" to "Perl interpreter".</p></td></tr>
@@ -2169,14 +2771,14 @@ AABJRU5ErkJggg==
 <tr id='R94'><td n='94'></td><td></td></tr>
 <tr id='R95'><td n='95'></td><td>Now you'll want to grab a few modules.</td></tr>
 <tr id='R96'><td n='96'></td><td></td></tr>
-<tr id='R97'><td n='97'></td><td><h2 id="Installing_additional_Strawberry_Perl_modules">Installing additional <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> modules</h2></td></tr>
+<tr id='R97'><td n='97'></td><td><h2 id="Installing_additional_Strawberry_Perl_modules">Installing additional <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> modules</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R99'><td n='99'></td><td></td></tr>
 <tr id='R100'><td n='100'></td><td><h3 id="All_at_once">All at once</h3></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R102'><td n='102'></td><td>Find /bats/INSTALL_MODULES.bat in your new IntraMine folder, and run it at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. If you don't have a habitual way of bring up a command window, here's one: in the Search box at the left end of your Task Bar, type "cmd" and then select "Command Prompt" from the list that pops up.</td></tr>
+<tr id='R102'><td n='102'></td><td>Find /bats/INSTALL_MODULES.bat in your new IntraMine folder, and run it at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00003__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. If you don't have a habitual way of bring up a command window, here's one: in the Search box at the left end of your Task Bar, type "cmd" and then select "Command Prompt" from the list that pops up.</td></tr>
 <tr id='R103'><td n='103'></td><td></td></tr>
-<tr id='R104'><td n='104'></td><td>And the quickest way to run that .bat file is to find it with File Explorer and then drag it into your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00004%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Command Prompt</a> window. Press Enter and off it goes.</td></tr>
+<tr id='R104'><td n='104'></td><td>And the quickest way to run that .bat file is to find it with File Explorer and then drag it into your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00004__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Command Prompt</a> window. Press Enter and off it goes.</td></tr>
 <tr id='R105'><td n='105'></td><td></td></tr>
 <tr id='R106'><td n='106'></td><td>You can also run it by entering its full path and pressing Enter.</td></tr>
 <tr id='R107'><td n='107'></td><td></td></tr>
@@ -2189,18 +2791,18 @@ AABJRU5ErkJggg==
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R115'><td n='115'></td><td>If for some reason you don't want to install the needed Perl modules all at once, you can do them one by one.</td></tr>
 <tr id='R116'><td n='116'></td><td></td></tr>
-<tr id='R117'><td n='117'></td><td>Installing modules for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href%3D%27https%3A%2F%2Fstrawberryperl.com%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3E%22%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> one at a time is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. (cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompt; I had no luck with it.)</td></tr>
+<tr id='R117'><td n='117'></td><td>Installing modules for <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EStrawberry%20Perl%3C%2Fstrong%3E%3A%20An%20open%20source%20version%20of%20Perl%20for%20Windows.%20See%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fstrawberryperl.com%2F%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3E__DQUOTE_REP__%3C%2Fa%3E%20for%20details.%20IntraMine%20uses%20Strawberry%20Perl.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Strawberry Perl</a> one at a time is nicely straightforward: if you want "X::Y" installed, type "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00005__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. (cpanm is not recommended since it doesn't always stumble past "do you accept the license?" prompt; I had no luck with it.)</td></tr>
 <tr id='R118'><td n='118'></td><td></td></tr>
 <tr id='R119'><td n='119'></td><td>cpan can be a bit laconic, so remember patience is a virtue. It's not dead, just thinking hard.</td></tr>
 <tr id='R120'><td n='120'></td><td></td></tr>
-<tr id='R121'><td n='121'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00006%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and press Enter:</td></tr>
+<tr id='R121'><td n='121'></td><td>Here's the list of modules to install for IntraMine. To install the modules, copy each line below to a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00006__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> and press Enter:</td></tr>
 <tr id='R122'><td n='122'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
 <tr id='R123'><td n='123'></td><td>cpan PREACTION/Log-Any-1.716.tar.gz</td></tr>
-<tr id='R124'><td n='124'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It%27s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href%3D%27https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F%27%20target%3D%27_blank%27%3E%22https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class%3D%22noshow%22%3E%3C%2Fspan%3Eticsearch%2F%22%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr>
+<tr id='R124'><td n='124'></td><td>cpan Search::<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></td></tr>
 <tr id='R125'><td n='125'></td><td>cpan ExportAbove</td></tr>
 <tr id='R126'><td n='126'></td><td>cpan Math::SimpleHisto::XS</td></tr>
 <tr id='R127'><td n='127'></td><td>cpan File::ReadBackwards</td></tr>
@@ -2228,7 +2830,7 @@ AABJRU5ErkJggg==
 <tr id='R145'><td n='145'></td><td></td></tr>
 <tr id='R146'><td n='146'></td><td>IntraMine includes extract_method.pl, which can be used to extract a chunk of Perl code into a new sub. It can be called from Eclipse and other editors: you copy the code for the new sub, run extract_method.pl, choose whether undeclared variables should be passed in by value or reference or ignored, and then the resulting sub is on your clipboard. See <a href="./Other Perl programs.html#extract_method.pl" target="_blank">"Other Perl programs.txt#extract_method.pl"</a> for more.</td></tr>
 <tr id='R147'><td n='147'></td><td></td></tr>
-<tr id='R148'><td n='148'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
+<tr id='R148'><td n='148'></td><td>If you want to try it you'll need to install Tk, which is a bit large. To install the Tk modules needed by extract_method.pl, use the line below at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00007__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>:</td></tr>
 <tr id='R149'><td n='149'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2250,7 +2852,7 @@ AABJRU5ErkJggg==
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R160'><td n='160'></td><td>When it's time to start up IntraMine not long from now at the end of installation, you'll see complaints if there are any missing modules.</td></tr>
 <tr id='R161'><td n='161'></td><td></td></tr>
-<tr id='R162'><td n='162'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
+<tr id='R162'><td n='162'></td><td>The fix for a missing module is as simple as you might guess: if "X::Y" is missing then run "cpan X::Y" at a <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00008__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a>. However, this falls in the "shouldn't happen" category if you've managed to heroically stay the course.</td></tr>
 <tr id='R163'><td n='163'></td><td></td></tr>
 <tr id='R164'><td n='164'></td><td>Next: <a href="./Installing Elasticsearch.html" target="_blank">Installing Elasticsearch.txt</a></td></tr>
 <tr id='R165'><td n='165'></td><td></td></tr>
@@ -2284,6 +2886,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 let weAreStandalone = true;
 const textDiffChangedLines = [];
+let usingMathJax = false;
 </script>
 <script>
 	// Call fn when ready.
@@ -2743,6 +3346,12 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 			}
 		}
 	
+	// hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+	// etc elements that won't display properly as-is. So they are "de-natured" in
+	// gloss.pm#Gloss() at the end, replacing eg " with__DQUOTE_REP__and restored here
+	// by doing the opposite. See horrible.js.
+	////hintContents = horribleUnescape(hintContents);
+
 	if (shouldDecode)
 		{
 		setTimeout(function() {
@@ -2752,14 +3361,15 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 	else
 		{
 		setTimeout(function() {
-			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			showWithFreshPort(horribleUnescape(hintContents), obj, e, tipwidth, isAnImage);
 			}, 350);
 		}
 	}
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
-	
+	text = horribleUnescape(text);
+
 	return(text);
 }
 
@@ -4450,6 +5060,49 @@ window.addEventListener("load", function() {
 
 </script>
 <script type="text/javascript">
+// horrible.js: horribleEscape() and horribleUnescape().
+// Mainly for use with "tool tips" displayed by tooltip.js#showhint().
+// There, hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+// etc elements that won't display properly as-is. So they are "de-natured" or "escaped" in
+// gloss.pm#Gloss() at the end with a call to horribleEscape(), replacing eg " with__DQUOTE_REP__
+// and restored in tooltip.js#showhint()  by doing the opposite (horribleUnescape())
+// just before display.
+
+
+// Interim hack, replace troublesome characters (in description)
+// with placeholders. These are undone when presenting description for
+// editing, and also in gloss.pm#Gloss() when applying Gloss to the
+// description.
+function horribleEscape(text) {
+	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
+	text = text.replace(/\"/g, '__DQUOTE_REP__');
+	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
+	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
+	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
+	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
+	text = text.replace(/\\t/g, '__TABERINO__');
+	text = text.replace(/\\/g, '__BSINO__');
+
+	return(text);        
+}
+
+// Reverse of horribleEscape just above.
+function horribleUnescape(text) {
+	text = text.replace(/__EQUALSIGN_REP__/g, '=');
+	text = text.replace(/__DQUOTE_REP__/g, '\"');
+	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
+	text = text.replace(/__PLUSSIGN_REP__/g, '+');
+	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
+	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
+	text = text.replace(/__TABERINO__/g, '\\t');
+	text = text.replace(/__BSINO__/g, '\\');
+
+
+	return(text);
+}
+
+</script>
+<script type="text/javascript">
 // viewerStart.js: used for non-CodeMirror views in intramine_viewer.pl.
 // Manage layout changes on resize, jump to an anchor
 // Put highlight hits in text and on scrollbar.
@@ -4778,7 +5431,7 @@ function markdownJump() {
 				}
 
 			const paraKids = kids[i].children;
-			for (j = 0; j < paraKids.length; ++j)
+			for (let j = 0; j < paraKids.length; ++j)
 				{
 				let paraKidsName = paraKids[j].nodeName;
 				if (paraKidsName === 'IMG')
@@ -4928,28 +5581,14 @@ function markdownJump() {
 	
 	if (el !== null)
 		{
-		// TEST ONLY
-		const elemName = el.nodeName;
-		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
-		//console.log("|" + el.innerHTML + "|");
-
 		if (isSubElement)
 			{
-			// TEST ONLY
-			//console.log("Scrolling to subelement.");
-			//el.style.backgroundColor = "yellow";
-
-			// TEST ONLY
-			//const elemName = el.nodeName;
-			//console.log(elemName + " " + parentElementOffset + " " + elementOffset);
-
 			textDiv.scrollTo({
 				top: parentElementOffset + elementOffset
 				});
 			}
 		else
 			{
-			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView();
 			}
 		
@@ -5240,7 +5879,7 @@ function finishStartup(reloading = false) {
 
 	if (thePath.match(/\.(txt|log|bat)$/))
 		{
-		// use lolight highlighting
+		// use lolight highlighting, and process footnote popup math
 		putInLolightElements();
 		}
 
@@ -5306,11 +5945,14 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 					MathJax.typesetPromise([contentDiv]).then(() => {
 						;//console.log('Typesetting complete');
 					}).catch((err) => console.log(err.message));
+
+					setTimeout(doPopupMath, 100);
 					}
-				//doResize(reloading);
+
+				lolight();// Needed for reload, but not for initial load. Arg.
+
 				//finishReload(); too late
 				startReloadCheck();
-				//reportActivity();
 				}
 			}
 		else
@@ -5394,32 +6036,256 @@ function putInLolightElements() {
 	document.querySelectorAll('td').forEach((el) => {
 		putInLolightPreAndClass(el);
 	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+			});
+	
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefs(el);
+			});
+		}	
 }
 
 function putInLolightPreAndClass(el) {
 	let text = el.innerHTML;
+
 	let codeMarkerPosition = text.indexOf('_STARTCB_');
-	if (codeMarkerPosition == 0)
+	if (codeMarkerPosition >= 0)
 		{
 		// FL = First/Last line of a code block. These are
 		// shrunk down, emptied out, and colored gray.
 		// Other rows starting with 'STARTCB_' are given
 		// a class of 'lolight', and lolight JS styles
 		// them up when the document is ready.
-		if (text.indexOf('_STARTCB_FL_') == 0)
+
+		let it = el.textContent;
+		if (it.indexOf('_STARTCB_FL_') == 0)
 			{
 			el.innerHTML = '';
-			el.parentNode.classList.add("reallyshrunkrow");
+
+			// Switched from  reallyshrunkrow, the color was too intrusive.
+			el.parentNode.classList.add("shrunkrow");
+
 			el.parentNode.firstElementChild.removeAttribute("n");
-			el.style.backgroundColor = "#d0d0d0";
 			}
-		else
+		else if (it.indexOf('_STARTCB_') == 0)
 			{
-			text = text.substring(9);
+			//text = text.substring(9);
+			text = text.replace("_STARTCB_", "");
+			if (it.indexOf('_STARTCB_ENDCODE') == 0)
+				{
+				text = text.replace("ENDCODE", "");
+				}
+
+			text = text.replace("_ENDCB_", "");
+			
 			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
 			el.style.backgroundColor = "#f3f3f3";
 			}
 		}
+}
+
+// Not used.
+function putInLolightPreAndClassForFootnoteRefsSIMPLE(el) {
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+	text = text.replaceAll("_STARTCB_", "<pre class=&quot;lolight&quot; style=&quot;color: DarkRed; background-color: #f3f3f3;&quot;>");
+	text = text.replaceAll("_ENDCB_", "</pre>");
+	el.innerHTML = text;
+}
+
+function putInLolightPreAndClassForFootnoteRefsSTARTEND(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+
+	el.innerHTML = text;	
+}
+
+// repeatedly extract _STARTCB_..._ENDCB_ chunks,
+// "decode",
+// tokenize with lolight.tok(), get the innerHTML,
+// "encode",
+// and replace what was extracted with that result.
+function putInLolightPreAndClassForFootnoteRefs(el) {
+	
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+
+	let text = el.innerHTML;
+
+	// Fancy approach: decodeURIComponent, apply lolight, encodeURIComponent
+	text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+
+	el.innerHTML = text;
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	
+	text = decodeURIComponent(text);
+	text = horribleUnescape(text);
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		console.log("Lolight called");
+		}
+
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	
+	text = horribleEscape(text);
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		//newText += "<span class=&quot;" + spanClass + "&quot;>" + v + "</span>";
+		//newText += "<span class='" + spanClass + "'>" + v + "</span>";//
+		}
+	return(newText);
+}
+
+let mathJaxPollingTimer = 0;
+function checkAndRunMathJaxForPopups() {
+	mathJaxPollingTimer = setInterval(waitAndRunMathJaxForPopups, 200);
+}
+
+function waitAndRunMathJaxForPopups() {
+	if (typeof MathJax !== 'undefined')
+		{
+		clearInterval(mathJaxPollingTimer);
+		setTimeout(doPopupMath, 100);
+		}
+}
+
+function doPopupMath() {
+	if (thePath.match(/\.(txt|log|bat)$/))
+		{
+		if (typeof MathJax !== 'undefined')
+			{
+			document.querySelectorAll('.footenoteref').forEach((el) => {
+				putInMathForPopups(el);
+			});
+
+			// Do glossary popups too.
+			if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+				{
+				document.querySelectorAll('.glossary').forEach((el) => {
+						putInMathForPopups(el);
+					});
+				}
+			}
+		}
+}
+
+function putInMathForPopups(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	// Now MathJax.
+	if (text.indexOf('_START_MATH_') >= 0)
+		{
+		//console.log("INITIAL Math start seen.");
+		// if (typeof MathJax === 'undefined')
+		// 	{
+		// 	console.log("BUT MathJax is NOT DEFINED!");
+		// 	}
+		}
+	if (typeof MathJax !== 'undefined')
+		{
+		text = text.replace(/_START_MATH_(.*?)_END_MATH_/g, (match) => {return mathit(match)});
+		}
+	el.innerHTML = text;
+}
+function mathit(text) {
+	// if (text.indexOf('_START_MATH_') >= 0)
+	// 	{
+	// 	console.log("Math start seen.");
+	// 	}
+	text = text.replace("_START_MATH_", "");
+	text = text.replace("_END_MATH_", "");
+	text = decodeURIComponent(text);
+	if (typeof text !== 'undefined' && text !== null)
+		{
+		text = horribleUnescape(text);
+
+		let rawText = String.raw({ raw: [text] });
+		const mathNode = MathJax.tex2chtml(rawText);
+		const htmlString = mathNode.outerHTML;
+
+		//text = horribleEscape(text);
+
+		text = htmlString;
+		}
+	text = encodeURIComponent(text);
+
+	return(text);
 }
 
 function createElementFromHTML(htmlString) {
@@ -6689,6 +7555,13 @@ if (thePath.match(/\.(pl|pm|cgi|t)$/i))
 	}
 
 ready(finishStartup);
+if (typeof usingMathJax !== 'undefined')
+	{
+	if (usingMathJax)
+		{
+		ready(checkAndRunMathJaxForPopups);
+		}
+	}
 
 </script>
 <script type="text/javascript">

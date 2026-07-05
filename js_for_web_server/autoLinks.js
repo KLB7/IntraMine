@@ -12,7 +12,7 @@ function sleepABit(ms) {
 }
 
 // Called by addScrollListenerAndSetMarkdown() below, and viewerStart.js#reJumpAndHighlight() on "load".
-function addAutoLinks() {	
+function addAutoLinks() {
 	let el = document.getElementById(cmTextHolderName);
 	if (el === null)
 		{
@@ -129,6 +129,12 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 							let repStr = lines[ind];
 							let regex2 = /:81\//g;
 							repStr = repStr.replace(regex2, ":" + ourSSListeningPort + "/");
+							repStr = putInLolightForGlossaryPopups(repStr);
+
+							if (typeof MathJax !== 'undefined')
+								{
+								repStr = repStr.replace(/_START_MATH_(.*?)_END_MATH_/g, (match) => {return mathit(match)});
+								}
 							rowElem.innerHTML = repStr;
 							}
 						}
@@ -147,6 +153,22 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 	// There was a connection error of some sort. Double bummer, no links.
 	console.log('requestLinkMarkupWithPort connection error!');
 	}
+}
+
+function putInLolightForGlossaryPopups(text) {
+	if (typeof lolight !== 'undefined')
+		{
+		let onMousePosition = text.indexOf("onmouseover");
+		if (onMousePosition > 0 && text.indexOf("showhint") > onMousePosition)
+			{
+			text = text.replaceAll("_STARTCB_FL_", "");
+			// Fancy approach: decodeURIComponent, apply lolight, encodeURIComponent
+			// See viewerStart.js#lolightit().
+			text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+			}
+		}
+	
+	return(text);
 }
 
 function addAutoLinksForMarkdown() {

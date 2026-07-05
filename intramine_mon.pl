@@ -162,9 +162,11 @@ sub LatestMessages {
 	my ($obj, $formH, $peeraddress) = @_;
 	my $result = '';    # NOTE there must be some result, else an error 404 is triggered.
 
+	my $doCompleteReload = (defined($formH->{'doCompleteReload'})) ? 1 : 0;
+
 	my $cmdFilePath      = CommandFilePath();
 	my $lastFilePosition = 0;
-	if (defined($formH->{'filepos'}))
+	if (!$doCompleteReload && defined($formH->{'filepos'}))
 		{
 		$lastFilePosition = $formH->{'filepos'};
 		}
@@ -189,7 +191,7 @@ sub LatestMessages {
 		my $numLines = @lines;
 		if ($numLines > 0)
 			{
-			$lastFilePosition = $newFilePosition;
+			$lastFilePosition = $currentFilePosition;    # oops was $newFilePosition.
 			my $breaker = "<br>";
 			for (my $i = 0 ; $i < @lines ; ++$i)
 				{

@@ -141,8 +141,6 @@ _IconifyCmdPrompt();
 
 SetCommonOutput(\&Output);    # common.pm
 
-# Tell where the feedback can be found.
-print("\n\nStarting up. See Mon browser window for startup details.\n");
 
 # Copy any new config files from /_copy_and_rename_to_data to /data.
 CopyNewConfigFiles();
@@ -153,6 +151,8 @@ LoadConfigValues();
 my $port_listen = CVal('INTRAMINE_MAIN_PORT');    # default 81
 # Note first port number is reserved for use by Opener's PowerShell server.
 my $kSwarmServerStartingPort = CVal('INTRAMINE_FIRST_SWARM_SERVER_PORT') + 1;    # default 43124 + 1
+
+#print("\n\nStarting up. See Mon browser window for startup details.\n");
 
 my $IGNOREEXITREQUEST = 0;    # This should be 0 for main, to allow a clean stop.
 my $kLOGMESSAGES      = 0;    # Log Output() messages
@@ -2706,6 +2706,11 @@ sub MainLoop {
 		print("ERROR, the WEBSOCKET server intramine_websockets.pl is not running!\n");
 		print("No likely cause for that, sorry.\n");
 		}
+
+	# Tell where the feedback can be found.
+	my $ipaddr = ServerAddress();
+	my $monURL = "http://$ipaddr:$port_listen/" . "Mon";
+	print("\n\nStarting up. See $monURL for startup details.\n");
 
 	my %InputLines;   # $InputLines->{$s}[$i] = an input line for $s, first line is incoming address
 

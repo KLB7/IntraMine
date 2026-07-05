@@ -117,6 +117,7 @@ _TOPNAV_
 <script src="boilerplateDemo.js"></script>
 <script src="tooltip.js"></script>
 <script src="reportActivity.js" ></script>
+<script src="horrible.js" ></script>
 <script>
 window.addEventListener("load", reportActivity);
 </script>
@@ -161,4 +162,20 @@ sub GetHTMLforFormH {
 		}
 	$formHContents .= '</table>' . "\n";
 	return ($formHContents);
+}
+
+# Needed for the contents of showhint() tooltips.
+sub horribleEscape {
+	my ($text) = @_;
+
+	$text =~ s!\=!__EQUALSIGN_REP__!g;
+	$text =~ s!\"!__DQUOTE_REP__!g;
+	$text =~ s!\'!__ONEQUOTE_REP__!g;
+	$text =~ s!\+!__PLUSSIGN_REP__!g;
+	$text =~ s!\%!__PERCENTSIGN_REP__!g;
+	$text =~ s!\&!__AMPERSANDSIGN_REP__!g;
+	$text =~ s!\t!__TABERINO__!g;            # true tab replaced by placeholder
+	$text =~ s!\\!__BSINO__!g;
+
+	return ($text);
 }

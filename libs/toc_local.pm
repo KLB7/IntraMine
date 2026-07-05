@@ -168,6 +168,7 @@ sub GetCMToc {
 sub LoadTextFileContents {
 	my ($filePath, $contentsR, $octetsR) = @_;
 
+	# Using a deprecated sub here, should switch to ReadTextFileWide().
 	$$octetsR = ReadTextFileWide($filePath);
 
 	if (!defined($$octetsR))

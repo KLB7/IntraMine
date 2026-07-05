@@ -43,12 +43,12 @@ th {
 /* Avoid copy of line numbers in the first column.
 <td n='$lineNum'></td>
 */
-td:first-child:after, th:first-child:after {
+td:first-child:before, th:first-child:before {
     content: attr(n);
 }
 
 
-td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
+td:first-child.brace-line-highlight:before, th:first-child.brace-line-highlight:before {
     background-color: rgb(200, 255, 200);
 }
 
@@ -61,7 +61,7 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 	min-width: auto; 
 }
 
-.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+.rawHTML table td:first-child:before, .rawHTML table th:first-child:before {
     content: none;
 }
 
@@ -208,7 +208,7 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered tr:hover {
-    background: #fbf8e9;
+    background: #fbf8e9 !important;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;
     -moz-transition: all 0.1s ease-in-out;
@@ -225,6 +225,10 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered th {
+	border-top: none;
+}
+
+.bordered th:not(:first-child) {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
     background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
@@ -235,8 +239,7 @@ paragraph (ie not the first paragraph in the item).
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
-    border-top: none;
-    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+     text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
 .bordered td:first-child, .bordered th:first-child {
@@ -303,6 +306,7 @@ paragraph (ie not the first paragraph in the item).
 	background: #888;
 }
 
+
 .reallyshrunkrow td {
 	height: 1px;
 	border: none;
@@ -311,10 +315,11 @@ paragraph (ie not the first paragraph in the item).
 
 /* Override td :nth-child(1) for footnotes at end of Viewer display. */
 
-/* TEST ONLY */
+/* TEST ONLY 
 .gloss_div table.bordered {
 	margin-left: 26px;
 }
+*/
 
 .gloss_div table.bordered th {
 	background: #dce9f9 !important;
@@ -332,7 +337,7 @@ paragraph (ie not the first paragraph in the item).
 .gloss_div table.bordered td {
 	text-align: left !important;
 	text-indent: 0 !important;
-	padding-left: 0 !important;
+	padding-left: 4px !important;
 }
 /*
 .gloss_div table:not(first-child) tbody tr:first-child {

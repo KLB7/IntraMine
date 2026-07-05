@@ -115,9 +115,9 @@ sub Monitor {
 	if ($OkToSend && defined($CallbackNotify) && $goodSave)
 		{
 		# Send only to "MON" subscribers, ie "Mon" web pages.
-		my $msg = "PUBLISH__TS_MONITOR_TE_" . $WebsocketsMessage;
+		my $msgWS = "PUBLISH__TS_MONITOR_TE_" . $WebsocketsMessage;
 		# Ooops $WebsocketsMessage = "PUBLISH__TS_MONITOR_TE_" . $WebsocketsMessage;
-		$CallbackNotify->($msg);
+		$CallbackNotify->($msgWS);
 		}
 }
 

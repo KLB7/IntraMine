@@ -137,6 +137,10 @@ sub FullFile {
 
 <link rel="stylesheet" type="text/css" href="showDiffDetails.css" />
 
+<link rel="stylesheet" type="text/css" href="blockquotes.css" />
+
+<link rel="stylesheet" type="text/css" href="non_cm_text.css" />
+
 <link rel="stylesheet" type="text/css"  href="/theme/3024-day.css">
 <link rel="stylesheet" type="text/css"  href="/theme/3024-night.css">
 <link rel="stylesheet" type="text/css"  href="/theme/abbott.css">
@@ -286,6 +290,8 @@ _DIFF_SPECIFICS_POPUP_
 <script type="text/javascript" src="editor.js" ></script>
 
 <script src="isW.js" ></script>
+<script src="horrible.js" ></script>
+<script src="lolight-1.4.0.min.js"></script>
 <script src="viewerLinks.js" ></script>
 <script src="cmTocAnchors.js" ></script>
 <script src="cmAutoLinks.js" ></script>
@@ -670,6 +676,7 @@ sub LoadTheFile {
 		$filepath = &HTML::Entities::decode($filepath);
 
 		$result = uri_escape_utf8(ReadTextFileDecodedWide($filepath));
+		my $loadSize = length($result);
 
 		if ($result eq '')
 			{

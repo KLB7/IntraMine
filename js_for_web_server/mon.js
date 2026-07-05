@@ -17,12 +17,20 @@ function ready(fn) {
 		}
 }
 
-function registerMonCallback() {
+function registerMonCallback(doCompleteReload = 0) {
 	addCallback("NEWRUNMESSAGE", refreshMonDisplay);
 	// New, subscribe to "MON" messages, matching mon.pm
 	wsSendMessage('SUBSCRIBE__TS_MONITOR_TE_');
+
+	let e1 = document.getElementById('theTextWithoutJumpList');
+	e1.innerHTML = '';
+
 	// Also refresh the display as we come up.
-	refreshMonDisplay("NEWRUNMESSAGE");
+	//refreshMonDisplay("NEWRUNMESSAGE", doCompleteReload);
+	setTimeout(refreshMonDisplay, 2000, "NEWRUNMESSAGE", doCompleteReload);
+
+	// TEST ONLY
+	//console.log("registerMonCallback");
 }
 
 // Adjust the command output container to fill the bottom of the window.
@@ -43,12 +51,17 @@ function doResize() {
 // as sent by (Perl) Monitor() calls.
 // See intramine_mon.pl#LatestMessages() for the response.
 // filePosition is remembered between calls.
-async function refreshMonDisplay(message) {
+async function refreshMonDisplay(message, doCompleteReload = 0) {
 	let newText = '';
 	let baseAction = 'http://' + theHost + ':' + thePort + '/?req=monitor';
 
 	try {
 		let theAction = baseAction + '&filepos=' + filePosition;
+		if (doCompleteReload)
+			{
+			theAction += '&doCompleteReload=1';
+			}
+	
 		const response = await fetch(theAction);
 		if (response.ok)
 			{

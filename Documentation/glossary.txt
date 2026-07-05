@@ -44,8 +44,8 @@ A sample table (see "Gloss.html#Tables" for details)
 TABLE Gloss support in various contexts
 Feature					IntraMine Viewer, text	Viewer, source		Glossary popups		ToDo
 Bold, italic, code		Yes						No					Yes					Yes
-FLASH links			Yes (full support)		Yes					"Quotes needed"		"Quotes" and full path needed
-Image hovers			Yes						Yes					No (inlined)		"Quotes" and full path needed
+FLASH links			Yes (full support)		Yes					"Quotes needed"		"Quotes needed"
+Image hovers			Yes						Yes					No (inlined)		"Quotes needed"
 Tables					Yes						No					Yes					Yes (use tab or \t to separate cells)
 Lists					Yes						No					Yes					Yes
 CODE blocks				Yes						No					No					No
@@ -165,3 +165,5 @@ Precision thumb: Viewer and Editor displays of large documents have a yellow "pr
 "dornt.png"
 
 Standalone HTML: these are .html files as generated from .txt by IntraMine's Glosser service, or (if you prefer a Cmd line approach) by the gloss2html.pl program. For nicest results the .txt file should be marked up using Gloss, IntraMine's minimal Markdown variant aimed at intranet use. See also "Gloss.txt" and "Glosser.txt". The resulting HTML files are single and self-contained, except if LaTeX is used for math, in which case an Internet connection will be needed (see "Math.txt" for details on typesetting math).
+
+Adjacent folder, sibling folder: a sibling or adjacent folder is one at the same level as the folder holding your .txt file. For example, if you're typing in /docs/api/basics.txt you can link to /docs/internals/comm.txt by using the link "../internals/comm.txt". When linking to local files in .txt intended for conversion to standalone HTML, you can link to files in the same folder or an adjacent folder.

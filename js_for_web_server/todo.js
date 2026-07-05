@@ -451,8 +451,51 @@ function generateElement(params) {
 	newElement = document.createElement("div");
 	newElement = parent.appendChild(newElement);
 	addClass(newElement, o.todoDescription);
+	params.html = putInLolightForItem(params.html);
 	newElement.innerHTML = horribleUnescape(decodeURIComponent(params.html));
 }
+
+// Apply lolight to CODE/ENDCODE chunks. Along the way, CODE and ENDCODE
+// have been changed to _STARTCB_FL_ and intervening actual code lines
+// have been wrapped in _STARTCB_ / _ENDCB_ (see gloss.pm#Gloss()).
+function putInLolightForItem(text) {
+	if (typeof lolight !== 'undefined')
+		{
+		text = text.replaceAll("_STARTCB_FL_", "");
+		text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+		}
+	return(text);
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	text = decodeURIComponent(text);
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	//console.log(highlightedHtml);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		//newText += "<span class=&quot;" + spanClass + "&quot;>" + v + "</span>";
+		//newText += "<span class='" + spanClass + "'>" + v + "</span>";//
+		}
+	return(newText);
+}
+
 
 function cleanAndSort(objArray, prop, direction){
 	if (arguments.length<2) throw new Error("ARRAY, AND OBJECT PROPERTY MINIMUM ARGUMENTS, OPTIONAL DIRECTION");
@@ -499,35 +542,3 @@ function removeAllChildrenOfTaskHolders() {
 			}
 		}
 	 }
-
-// Interim hack, replace troublesome characters (in description)
-// with placeholders. These are undone when presenting description for
-// editing, and also in gloss.pm#Gloss() when applying Gloss to the
-// description.
-function horribleEscape(text) {
-	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-	text = text.replace(/\"/g, '__DQUOTE_REP__');
-	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-	text = text.replace(/\\t/g, '__TABERINO__');
-	text = text.replace(/\\/g, '__BSINO__');
-
-	return(text);        
-}
-
-// Reverse of horribleEscape just above.
-function horribleUnescape(text) {
-	text = text.replace(/__EQUALSIGN_REP__/g, '=');
-	text = text.replace(/__DQUOTE_REP__/g, '\"');
-	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-	text = text.replace(/__PLUSSIGN_REP__/g, '+');
-	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-	text = text.replace(/__TABERINO__/g, '\\t');
-	text = text.replace(/__BSINO__/g, '\\');
-
-
-	return(text);
-}

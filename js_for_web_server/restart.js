@@ -151,14 +151,23 @@ async function doTheRestart(port) {
 	// Clear any error message if possible.
 	if (typeof errorID !== "undefined")
 		{
-		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>&nbsp;</p>';
+		let el = document.getElementById(errorID);
+		if (el !== null)
+			{
+			el.innerHTML = '<p>&nbsp;</p>';
+			}
 		}
 	
 	// Re-establish WebSockets.
 	initializing = true;
 	wsIsConnected = 0;
 	wsInit();
+
+	// Experiment, try to refresh the Mon page
+	if (typeof registerMonCallback != 'undefined')
+		{
+		registerMonCallback(1);
+		}
 
 	// And do a "hard" reload? No, it tends to lock things up, alas.
 	//window.location.reload(true);

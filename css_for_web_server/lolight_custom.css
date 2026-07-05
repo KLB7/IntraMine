@@ -1,17 +1,24 @@
-/* Custom CSS for lolight syntax highlighting of code blocks.
+/* lolight_custom.css: ustom CSS for lolight syntax highlighting of code blocks.
 Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
 Some attempt has been made to coordinate the colors with
 highlightjs default.min.css.
 */
 
 pre {
+    margin-block-start: 1px;
+    margin-block-end: 1px;
+}
+
+pre.lolight {
     overflow: visible;
     word-wrap: anywhere;
     white-space: pre-wrap;
     padding-left: 0.5em;
 	margin: 0;
-	background: #f3f3f3;
-  }
+    padding: 0;
+	background: #f3f3f3 !important;
+    /* Just fooling around. This makes a horizontal scroll bar. width: 1200px; */
+    }
 
 .ll-nam { /* words */
     color: black;

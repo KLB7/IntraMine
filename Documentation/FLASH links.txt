@@ -40,6 +40,28 @@ IntraMine's context-aware file selection isn't quite artificially intelligent ho
 
 One rare problem: if a file name contains another file name, you'll need to put the whole reference in quotes. An example from IntraMine itself is "gloss2html.pl for standalone Gloss files.txt": without the quotes there will be two separate links to gloss2html.pl and files.txt.
 
+Limited links in standalone HTML, glossary popups, footnotes, and ToDo items
+=========================================================
+Standalone HTML
+---------------
+In standalone HTML (created from .txt using the Glosser service or gloss2html.pl) links to local files must also be in quotes, and links are limited to files in the same folder as the file being converted, or files in "sibling" folders. A sibling folder is one at the same level as the folder holding your .txt file. For example, if you're typing in /docs/api/basics.txt you can link to /docs/internals/comm.txt by using the link "../internals/comm.txt". You can also link an image in any "images" subfolder just by quoting its name, the images subfolder will be checked when linking. Linking for standalone HTML files is restricted because the intent is to allow one or more HTML files to be placed on a web site or emailed, so the reader won't have access to all of your files. For that reason it's best to allow people access to your running IntraMine instance if you can, in which case you'll have full FLASH link capabilities.
+
+
+Glossary popups and footnotes
+---------------
+In a .txt file displayed by IntraMine's Viewer, links in glossaries and footnotes to local files must be in 'single' or "double" quotes, but full FLASH linking is otherwise supported.
+
+In standalone HTML (which uses a glossary.txt file in the same folder) linking for local files in glossary entries and footnotes is limited in the same way as for standalone HTML (quoted, same or sibling folder).
+
+ToDo items
+--------------
+ToDo items are constrained in the same way as for links in standalone HTML.
+
+Escaping the folder limitations
+-------------------
+If you do need a link to a file that's beyond the containing folder or sibling folders, put a full path in quotes.
+
+
 Video links are special
 =====================
 Gloss supports links to video files, but they are quite limited. Basically, no remote viewing is supported.

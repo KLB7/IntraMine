@@ -1341,9 +1341,6 @@ function scrollbarPxForLine(lineNumber) {
 			}
 		}
 
-	// TEST ONLY
-	console.log("Arrow height: |" + arrowHeight + "|");
-
 	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
 	
 	let textHitY = myCodeMirror.heightAtLine(lineNumber);

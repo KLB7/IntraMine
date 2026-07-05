@@ -11,7 +11,7 @@ A sampler: https://www.mathjax.org/#samples
 
 MathJax typesetting will happen in:
  - IntraMine's Viewer display of .txt documents
- - standalone HTML documents created by IntraMine's Glosser service or gloss2html.pl
+ - standalone HTML documents created by IntraMine's Glosser service or gloss2html.pl (except for glossary entry popups)
  - IntraMine's Viewer display of Markdown (.md, .markdown) documents.
 
 In the Viewer display of .txt and when generating standalone HTML, MathJax will only be included if there is at least one "block level" chunk of LateX math in the document. Block level chunks start (and end) with:
@@ -58,7 +58,7 @@ If MathJax is included when displaying a file it can add 100 MB to the memory us
 
 Some math examples
 ====================
-Source first, then typeset.
+Source first, then typeset. And here are some examples in a footnote[^1].
 ---
 \\begin{align}
     \nabla \times \vec{\mathbf{B}}\, - \frac{1}{c}\, \frac{\partial\vec{\mathbf{E}}}{\partial t}
@@ -147,3 +147,22 @@ f(x,\beta(x))\beta^{\prime}(x)-f(x,\alpha(x))\alpha^{\prime}(x)}+\int^{\beta(x%
 f(x,\beta(x))\beta^{\prime}(x)-f(x,\alpha(x))\alpha^{\prime}(x)}+\int^{\beta(x%
 )}_{\alpha(x)}\frac{\partial f}{\partial x}\,\mathrm{d}y.\]
 \[\]
+
+[^1]:
+\begin{align}
+    \nabla \times \vec{\mathbf{B}}\, - \frac{1}{c}\, \frac{\partial\vec{\mathbf{E}}}{\partial t}
+       & = \frac{4\pi}{c}\vec{\mathbf{j}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\[3pt]
+    \nabla \times \vec{\mathbf{E}}\, + \frac{1}{c}\, \frac{\partial\vec{\mathbf{B}}}{\partial t}
+        & = \vec{\mathbf{0}} \\[3pt]
+    \nabla \cdot \vec{\mathbf{B}} & = 0
+  \end{align}
+ and the same but indented with a double indent '>>' on each line:
+>>\begin{align}
+>>    \nabla \times \vec{\mathbf{B}}\, - \frac{1}{c}\, \frac{\partial\vec{\mathbf{E}}}{\partial t}
+>>       & = \frac{4\pi}{c}\vec{\mathbf{j}} \\[3pt]
+>>    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\[3pt]
+>>    \nabla \times \vec{\mathbf{E}}\, + \frac{1}{c}\, \frac{\partial\vec{\mathbf{B}}}{\partial t}
+>>        & = \vec{\mathbf{0}} \\[3pt]
+>>    \nabla \cdot \vec{\mathbf{B}} & = 0
+>>  \end{align}

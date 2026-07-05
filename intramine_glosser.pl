@@ -166,7 +166,7 @@ sub GlosserControls {
 	# The dir/file picker, inline images yes/no, hover GIFs yes/no:
 	my $theFilePickerAndChecks = <<"FINIS";
 <div id="form_1_1"><h2>Directory or File&nbsp;</h2></div>
-<input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path to a file or directory, or hit the dots' list="dirlist" />
+<input type="search" id="searchdirectory" class="form-field" name="searchdirectory" placeholder='type a path to a file or directory, or hit the dots' list="dirlist" style="width: 500px;" />
 <span id="form_2_1"><span id="annoyingdotcontainer"><img id="dotdotdot" src="dotdotdot24x48.png" onclick="showDirectoryPicker();" /></span></span>
 <datalist id="dirlist">
 </datalist>

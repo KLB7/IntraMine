@@ -326,7 +326,7 @@ function markdownJump() {
 				}
 
 			const paraKids = kids[i].children;
-			for (j = 0; j < paraKids.length; ++j)
+			for (let j = 0; j < paraKids.length; ++j)
 				{
 				let paraKidsName = paraKids[j].nodeName;
 				if (paraKidsName === 'IMG')
@@ -476,28 +476,14 @@ function markdownJump() {
 	
 	if (el !== null)
 		{
-		// TEST ONLY
-		const elemName = el.nodeName;
-		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
-		//console.log("|" + el.innerHTML + "|");
-
 		if (isSubElement)
 			{
-			// TEST ONLY
-			//console.log("Scrolling to subelement.");
-			//el.style.backgroundColor = "yellow";
-
-			// TEST ONLY
-			//const elemName = el.nodeName;
-			//console.log(elemName + " " + parentElementOffset + " " + elementOffset);
-
 			textDiv.scrollTo({
 				top: parentElementOffset + elementOffset
 				});
 			}
 		else
 			{
-			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView();
 			}
 		
@@ -788,7 +774,7 @@ function finishStartup(reloading = false) {
 
 	if (thePath.match(/\.(txt|log|bat)$/))
 		{
-		// use lolight highlighting
+		// use lolight highlighting, and process footnote popup math
 		putInLolightElements();
 		}
 
@@ -854,11 +840,14 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 					MathJax.typesetPromise([contentDiv]).then(() => {
 						;//console.log('Typesetting complete');
 					}).catch((err) => console.log(err.message));
+
+					setTimeout(doPopupMath, 100);
 					}
-				//doResize(reloading);
+
+				lolight();// Needed for reload, but not for initial load. Arg.
+
 				//finishReload(); too late
 				startReloadCheck();
-				//reportActivity();
 				}
 			}
 		else
@@ -942,32 +931,256 @@ function putInLolightElements() {
 	document.querySelectorAll('td').forEach((el) => {
 		putInLolightPreAndClass(el);
 	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+			});
+	
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefs(el);
+			});
+		}	
 }
 
 function putInLolightPreAndClass(el) {
 	let text = el.innerHTML;
+
 	let codeMarkerPosition = text.indexOf('_STARTCB_');
-	if (codeMarkerPosition == 0)
+	if (codeMarkerPosition >= 0)
 		{
 		// FL = First/Last line of a code block. These are
 		// shrunk down, emptied out, and colored gray.
 		// Other rows starting with 'STARTCB_' are given
 		// a class of 'lolight', and lolight JS styles
 		// them up when the document is ready.
-		if (text.indexOf('_STARTCB_FL_') == 0)
+
+		let it = el.textContent;
+		if (it.indexOf('_STARTCB_FL_') == 0)
 			{
 			el.innerHTML = '';
-			el.parentNode.classList.add("reallyshrunkrow");
+
+			// Switched from  reallyshrunkrow, the color was too intrusive.
+			el.parentNode.classList.add("shrunkrow");
+
 			el.parentNode.firstElementChild.removeAttribute("n");
-			el.style.backgroundColor = "#d0d0d0";
 			}
-		else
+		else if (it.indexOf('_STARTCB_') == 0)
 			{
-			text = text.substring(9);
+			//text = text.substring(9);
+			text = text.replace("_STARTCB_", "");
+			if (it.indexOf('_STARTCB_ENDCODE') == 0)
+				{
+				text = text.replace("ENDCODE", "");
+				}
+
+			text = text.replace("_ENDCB_", "");
+			
 			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
 			el.style.backgroundColor = "#f3f3f3";
 			}
 		}
+}
+
+// Not used.
+function putInLolightPreAndClassForFootnoteRefsSIMPLE(el) {
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+	text = text.replaceAll("_STARTCB_", "<pre class=&quot;lolight&quot; style=&quot;color: DarkRed; background-color: #f3f3f3;&quot;>");
+	text = text.replaceAll("_ENDCB_", "</pre>");
+	el.innerHTML = text;
+}
+
+function putInLolightPreAndClassForFootnoteRefsSTARTEND(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+
+	el.innerHTML = text;	
+}
+
+// repeatedly extract _STARTCB_..._ENDCB_ chunks,
+// "decode",
+// tokenize with lolight.tok(), get the innerHTML,
+// "encode",
+// and replace what was extracted with that result.
+function putInLolightPreAndClassForFootnoteRefs(el) {
+	
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+
+	let text = el.innerHTML;
+
+	// Fancy approach: decodeURIComponent, apply lolight, encodeURIComponent
+	text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+
+	el.innerHTML = text;
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	
+	text = decodeURIComponent(text);
+	text = horribleUnescape(text);
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		console.log("Lolight called");
+		}
+
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	
+	text = horribleEscape(text);
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		//newText += "<span class=&quot;" + spanClass + "&quot;>" + v + "</span>";
+		//newText += "<span class='" + spanClass + "'>" + v + "</span>";//
+		}
+	return(newText);
+}
+
+let mathJaxPollingTimer = 0;
+function checkAndRunMathJaxForPopups() {
+	mathJaxPollingTimer = setInterval(waitAndRunMathJaxForPopups, 200);
+}
+
+function waitAndRunMathJaxForPopups() {
+	if (typeof MathJax !== 'undefined')
+		{
+		clearInterval(mathJaxPollingTimer);
+		setTimeout(doPopupMath, 100);
+		}
+}
+
+function doPopupMath() {
+	if (thePath.match(/\.(txt|log|bat)$/))
+		{
+		if (typeof MathJax !== 'undefined')
+			{
+			document.querySelectorAll('.footenoteref').forEach((el) => {
+				putInMathForPopups(el);
+			});
+
+			// Do glossary popups too.
+			if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+				{
+				document.querySelectorAll('.glossary').forEach((el) => {
+						putInMathForPopups(el);
+					});
+				}
+			}
+		}
+}
+
+function putInMathForPopups(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	// Now MathJax.
+	if (text.indexOf('_START_MATH_') >= 0)
+		{
+		//console.log("INITIAL Math start seen.");
+		// if (typeof MathJax === 'undefined')
+		// 	{
+		// 	console.log("BUT MathJax is NOT DEFINED!");
+		// 	}
+		}
+	if (typeof MathJax !== 'undefined')
+		{
+		text = text.replace(/_START_MATH_(.*?)_END_MATH_/g, (match) => {return mathit(match)});
+		}
+	el.innerHTML = text;
+}
+function mathit(text) {
+	// if (text.indexOf('_START_MATH_') >= 0)
+	// 	{
+	// 	console.log("Math start seen.");
+	// 	}
+	text = text.replace("_START_MATH_", "");
+	text = text.replace("_END_MATH_", "");
+	text = decodeURIComponent(text);
+	if (typeof text !== 'undefined' && text !== null)
+		{
+		text = horribleUnescape(text);
+
+		let rawText = String.raw({ raw: [text] });
+		const mathNode = MathJax.tex2chtml(rawText);
+		const htmlString = mathNode.outerHTML;
+
+		//text = horribleEscape(text);
+
+		text = htmlString;
+		}
+	text = encodeURIComponent(text);
+
+	return(text);
 }
 
 function createElementFromHTML(htmlString) {
@@ -2237,3 +2450,10 @@ if (thePath.match(/\.(pl|pm|cgi|t)$/i))
 	}
 
 ready(finishStartup);
+if (typeof usingMathJax !== 'undefined')
+	{
+	if (usingMathJax)
+		{
+		ready(checkAndRunMathJaxForPopups);
+		}
+	}

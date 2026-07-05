@@ -861,7 +861,7 @@ a.embedded_image {
 /* footnote tables proper: */
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	text-indent: -26px;
+	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -869,11 +869,15 @@ a.embedded_image {
 	padding-left: 26px !important;
 }
 
+.gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
 .gloss_div table tbody tr:not(first-child) {
 	display: block;
 	margin: 0;
-	padding-left: 26px;
-	padding-top: 6px;
+	/*padding-left: 26px;*/
+	padding-top: 3px;
 }
 
 /* Footnote actual tables, to be shown as proper tables. */
@@ -900,6 +904,11 @@ a.embedded_image {
     -moz-transition: all 0.1s ease-in-out;
     -ms-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;     
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tbody tr:hover {
+	background: #fbf8e9 !important; /* This doesn't work, don't know why. */
+	color: #888 !important;
 }
 
 .allfootnotes {
@@ -1149,23 +1158,604 @@ p {
 
 /*  Horizontal rule */
 tr._FOOTNOTE_ td .divhr {
-	border-top: 1px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 1px solid #ccc; */
+	border: none;
 	margin: 0;
-	height: 3px;
-	width: 600px;
+	height: 2px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
 
 tr._FOOTNOTE_ td .divhrThick {
-	border-top: 2px solid #ccc; /* Thickness, style, and color */
+	/*border-top: 2px solid #ccc; */
+	border: none;
 	margin: 0;
 	height: 3px;
-	width: 600px;
+	background-color: #333333;
+	/*width: 600px;*/
 }
+
+.divhr, .divhrThick {
+	border: none;
+	width: 100% !important;
+}
+
+
+.divhr, .divhr {
+	border: none;
+	height: 2px;
+	background-color: #333333;
+}
+
+.divhrThick, .divhrThick {
+	border: none;
+	height: 3px;
+	background-color: #333333;
+}
+
+
+hr {
+	margin-block-start: 1px;
+	margin-block-end: 1px;
+	margin: 0;
+	padding: 0;
+}
+
 
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
 	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}
+
+</style>
+<style>
+/* editor_blockquotes.css: CSS for block quotes in IntraMine's Editor. */
+
+/* Block quotes */
+/*
+.gloss_div table:not(:first-child) tbody tr:first-child.FOOTNOTE_, .gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_, .gloss_div table tbody tr:not(first-child)._FOOTNOTE_ {
+	padding: 6px 0 0 4px !important;
+}
+
+
+.gloss_div table tbody tr:not(first-child) td {
+	padding: 0 !important;
+}
+*/
+
+table.imt tbody tr._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
+.bq, td.bq {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 20px;*/
+}
+
+.bq1, td.bq1 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 40px;*/
+}
+
+.bq2, td.bq2 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 60px;*/
+}
+
+.bq3, td.bq3 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 80px;*/
+}
+
+.bq4, td.bq4 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 100px;*/
+}
+
+.bq5, td.bq5 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 120px;*/
+}
+
+.bf {
+	border-right: 1px solid #bbb; /* Adds a colored vertical bar */
+	padding-right: 20px;
+}
+
+.bf1 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 40px;
+}
+
+.bf2 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 60px;
+}
+
+.bf3 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 80px;
+}
+
+.bf4 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 100px;
+}
+
+.bf5 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 120px;
+}
+
+/* Blockquoted ordinary footnote rows. */
+.bq_fn_div table.imt tr._FOOTNOTE_, .bq_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq1_fn_div table.imt tr._FOOTNOTE_, .bq1_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq2_fn_div table.imt tr._FOOTNOTE_, .bq2_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq3_fn_div table.imt tr._FOOTNOTE_, .bq3_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq4_fn_div table.imt tr._FOOTNOTE_, .bq4_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq5_fn_div table.imt tr._FOOTNOTE_, .bq5_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq_icb table.imt td.bq_fn, .bq1_icb table.imt td.bq1_fn, .bq2_icb table.imt td.bq2_fn, .bq3_icb table.imt td.bq3_fn, .bq4_icb table.imt td.bq4_fn, .bq5_icb table.imt td.bq5_fn {
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+}
+
+table.imt tr._FOOTNOTE_ td h1, table.imt tr._FOOTNOTE_ td h2, table.imt tr._FOOTNOTE_ td h3, table.imt tr._FOOTNOTE_ td h4 {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+
+tr._FOOTNOTE_ td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+tr._FOOTNOTE_ td.bq_fn, table.imt tr td.bq_fn, .gloss_div table :nth-child(1) td.bq_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 40px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq1_fn, table.imt tr td.bq1_fn, .gloss_div table :nth-child(1) td.bq1_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 60px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq2_fn, table.imt tr td.bq2_fn, .gloss_div table :nth-child(1) td.bq2_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 80px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq3_fn, table.imt tr td.bq3_fn, .gloss_div table :nth-child(1) td.bq3_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 100px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq4_fn, table.imt tr td.bq4_fn, .gloss_div table :nth-child(1) td.bq4_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 120px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq5_fn, table.imt tr td.bq5_fn, .gloss_div table :nth-child(1) td.bq5_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 140px;
+	border-left: 1px solid #bbb;*/
+}
+
+/* For the leftmost empty div in a footnote line, to set a border and indent.*/
+.bq_fn_div, .bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+tr._FOOTNOTE_ td::before {
+    content: none !important;
+}
+
+.bq1_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq2_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq3_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq4_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq5_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 76px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 96px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 116px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 136px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 156px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 176px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn {
+	background-color: #F2F8F2;
+	width: calc(100% - 40px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 60px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq_fn2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 80px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 100px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 120px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 140px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+/* For background-color in indented footnote body and ref popup equations. */
+.gloss_div .bq_eq_fn table :nth-child(1), #hintbox .bq_eq_fn td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn1 table :nth-child(1), #hintbox .bq_eq_fn1 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn2 table :nth-child(1), #hintbox .bq_eq_fn2 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn3 table :nth-child(1), #hintbox .bq_eq_fn3 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn4 table :nth-child(1), #hintbox .bq_eq_fn4 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn5 table :nth-child(1), #hintbox .bq_eq_fn5 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+/* Just indented TABLE captions */
+.gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq1, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq2, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq3, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq4, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq5 {
+	background-color: #F2F8F2 !important;
+}
+
+/* Blockquoted tables, set width of first column by setting th first child width. */
+table.bt.bordered.imt th:first-child {
+	width: 69px;
+}
+
+table.bt1.bordered.imt th:first-child {
+	width: 89px;
+}
+
+table.bt2.bordered.imt th:first-child {
+	width: 109px;
+}
+
+table.bt3.bordered.imt th:first-child {
+	width: 129px;
+}
+
+table.bt4.bordered.imt th:first-child {
+	width: 149px;
+}
+
+table.bt5.bordered.imt th:first-child {
+	width: 169px;
+}
+
+table.bt.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt1.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt2.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt3.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt4.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt5.bordered.imt {
+	margin-bottom: 0;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-bottom: 0;
+}
+
+
+/* Just for tables, some colour for any additional blockquote cells.
+as == after second (cell). */
+.bq_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 60px;
+}
+
+.bq1_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 80px;
+}
+
+.bq2_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 100px;
+}
+
+.bq3_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 120px;
+}
+
+.bq4_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 140px;
+}
+
+.bq5_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 160px;
+}
+
+/* Background color for table rows in block-quoted tables. */
+/*
+table.bt.bordered.imt tr th:first-child {
+	border-top-width: 0;
+}
+*/
+
+table.bordered.imt tr th:first-child {
+	font-weight: normal;
+	color: #808080;
+	padding-left: 4px;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_, .INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ :nth-child(1) {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ th:first-child {
+	background-color: #dce9f9 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr.bq_tr td {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+tr.bq_tr {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+.footnote_indented_table {
+	background-color: #F2F8F2 !important;      /* Light green */
+	width: 100%;
+	margin-left: 100px;
+}
+
+.fakeCaptionIndented {
+	display: inline-block;
+	margin-left: 20px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented1 {
+	display: inline-block;
+	margin-left: 40px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented2 {
+	display: inline-block;
+	margin-left: 60px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented3 {
+	display: inline-block;
+	margin-left: 80px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented4 {
+	display: inline-block;
+	margin-left: 100px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented5 {
+	display: inline-block;
+	margin-left: 120px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+/* Block quoted indented code block, set the left margin. */
+.bq_icb {
+	margin-left: 40px;
+}
+
+.bq1_icb {
+	margin-left: 60px;
+}
+
+.bq2_icb {
+	margin-left: 80px;
+}
+
+.bq3_icb {
+	margin-left: 100px;
+}
+
+.bq4_icb {
+	margin-left: 120px;
+}
+
+.bq5_icb {
+	margin-left: 140px;
 }
 
 </style>
@@ -1215,12 +1805,12 @@ th {
 /* Avoid copy of line numbers in the first column.
 <td n='$lineNum'></td>
 */
-td:first-child:after, th:first-child:after {
+td:first-child:before, th:first-child:before {
     content: attr(n);
 }
 
 
-td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
+td:first-child.brace-line-highlight:before, th:first-child.brace-line-highlight:before {
     background-color: rgb(200, 255, 200);
 }
 
@@ -1233,7 +1823,7 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 	min-width: auto; 
 }
 
-.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+.rawHTML table td:first-child:before, .rawHTML table th:first-child:before {
     content: none;
 }
 
@@ -1380,7 +1970,7 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered tr:hover {
-    background: #fbf8e9;
+    background: #fbf8e9 !important;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;
     -moz-transition: all 0.1s ease-in-out;
@@ -1397,6 +1987,10 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered th {
+	border-top: none;
+}
+
+.bordered th:not(:first-child) {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
     background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
@@ -1407,8 +2001,7 @@ paragraph (ie not the first paragraph in the item).
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
-    border-top: none;
-    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+     text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
 .bordered td:first-child, .bordered th:first-child {
@@ -1475,6 +2068,7 @@ paragraph (ie not the first paragraph in the item).
 	background: #888;
 }
 
+
 .reallyshrunkrow td {
 	height: 1px;
 	border: none;
@@ -1483,10 +2077,11 @@ paragraph (ie not the first paragraph in the item).
 
 /* Override td :nth-child(1) for footnotes at end of Viewer display. */
 
-/* TEST ONLY */
+/* TEST ONLY 
 .gloss_div table.bordered {
 	margin-left: 26px;
 }
+*/
 
 .gloss_div table.bordered th {
 	background: #dce9f9 !important;
@@ -1504,7 +2099,7 @@ paragraph (ie not the first paragraph in the item).
 .gloss_div table.bordered td {
 	text-align: left !important;
 	text-indent: 0 !important;
-	padding-left: 0 !important;
+	padding-left: 4px !important;
 }
 /*
 .gloss_div table:not(first-child) tbody tr:first-child {
@@ -1902,20 +2497,27 @@ Table of Contents to be changed by dragging. */
 
 </style>
 <style>
-/* Custom CSS for lolight syntax highlighting of code blocks.
+/* lolight_custom.css: ustom CSS for lolight syntax highlighting of code blocks.
 Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
 Some attempt has been made to coordinate the colors with
 highlightjs default.min.css.
 */
 
 pre {
+    margin-block-start: 1px;
+    margin-block-end: 1px;
+}
+
+pre.lolight {
     overflow: visible;
     word-wrap: anywhere;
     white-space: pre-wrap;
     padding-left: 0.5em;
 	margin: 0;
-	background: #f3f3f3;
-  }
+    padding: 0;
+	background: #f3f3f3 !important;
+    /* Just fooling around. This makes a horizontal scroll bar. width: 1200px; */
+    }
 
 .ll-nam { /* words */
     color: black;
@@ -1978,7 +2580,7 @@ AABJRU5ErkJggg==
 <tr id='R10'><td n='10'></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td>'INTRAMINE_FIRST_SWARM_SERVER_PORT' is the first of a range of 48 consecutive port numbers that IntraMine will use for its (non-Main) services. As best I can tell those ports are not used by any other app or service.</td></tr>
 <tr id='R12'><td n='12'></td><td></td></tr>
-<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3E%3Cimg%20src%3D%22data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001%22%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> run</td></tr>
+<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> run</td></tr>
 <tr id='R14'><td n='14'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2001,7 +2603,7 @@ AABJRU5ErkJggg==
 <tr id='R25'><td n='25'></td><td></td></tr>
 <tr id='R26'><td n='26'></td><td><h2 id="Worth_reading_if_youre_bored">Worth reading if you're bored</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class%3D%26quot%3Bgloss_div%26quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine%27s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can%27t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> listens to currently unused ports.</td></tr>
+<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine__ONEQUOTE_REP__s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can__ONEQUOTE_REP__t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> listens to currently unused ports.</td></tr>
 <tr id='R29'><td n='29'></td><td></td></tr>
 <tr id='R30'><td n='30'></td><td>If you're a glutton for details, see near the top of intramine_main.pl#MainLoop(), where 'TOTAL_SWARM_PORTS_TO_MONITOR' is used.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
@@ -2035,6 +2637,7 @@ let doubleClickTime = 500;
 let useLolight = true;
 let weAreStandalone = true;
 const textDiffChangedLines = [];
+let usingMathJax = false;
 </script>
 <script>
 	// Call fn when ready.
@@ -2494,6 +3097,12 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 			}
 		}
 	
+	// hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+	// etc elements that won't display properly as-is. So they are "de-natured" in
+	// gloss.pm#Gloss() at the end, replacing eg " with__DQUOTE_REP__and restored here
+	// by doing the opposite. See horrible.js.
+	////hintContents = horribleUnescape(hintContents);
+
 	if (shouldDecode)
 		{
 		setTimeout(function() {
@@ -2503,14 +3112,15 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 	else
 		{
 		setTimeout(function() {
-			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			showWithFreshPort(horribleUnescape(hintContents), obj, e, tipwidth, isAnImage);
 			}, 350);
 		}
 	}
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
-	
+	text = horribleUnescape(text);
+
 	return(text);
 }
 
@@ -4201,6 +4811,49 @@ window.addEventListener("load", function() {
 
 </script>
 <script type="text/javascript">
+// horrible.js: horribleEscape() and horribleUnescape().
+// Mainly for use with "tool tips" displayed by tooltip.js#showhint().
+// There, hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+// etc elements that won't display properly as-is. So they are "de-natured" or "escaped" in
+// gloss.pm#Gloss() at the end with a call to horribleEscape(), replacing eg " with__DQUOTE_REP__
+// and restored in tooltip.js#showhint()  by doing the opposite (horribleUnescape())
+// just before display.
+
+
+// Interim hack, replace troublesome characters (in description)
+// with placeholders. These are undone when presenting description for
+// editing, and also in gloss.pm#Gloss() when applying Gloss to the
+// description.
+function horribleEscape(text) {
+	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
+	text = text.replace(/\"/g, '__DQUOTE_REP__');
+	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
+	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
+	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
+	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
+	text = text.replace(/\\t/g, '__TABERINO__');
+	text = text.replace(/\\/g, '__BSINO__');
+
+	return(text);        
+}
+
+// Reverse of horribleEscape just above.
+function horribleUnescape(text) {
+	text = text.replace(/__EQUALSIGN_REP__/g, '=');
+	text = text.replace(/__DQUOTE_REP__/g, '\"');
+	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
+	text = text.replace(/__PLUSSIGN_REP__/g, '+');
+	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
+	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
+	text = text.replace(/__TABERINO__/g, '\\t');
+	text = text.replace(/__BSINO__/g, '\\');
+
+
+	return(text);
+}
+
+</script>
+<script type="text/javascript">
 // viewerStart.js: used for non-CodeMirror views in intramine_viewer.pl.
 // Manage layout changes on resize, jump to an anchor
 // Put highlight hits in text and on scrollbar.
@@ -4529,7 +5182,7 @@ function markdownJump() {
 				}
 
 			const paraKids = kids[i].children;
-			for (j = 0; j < paraKids.length; ++j)
+			for (let j = 0; j < paraKids.length; ++j)
 				{
 				let paraKidsName = paraKids[j].nodeName;
 				if (paraKidsName === 'IMG')
@@ -4679,28 +5332,14 @@ function markdownJump() {
 	
 	if (el !== null)
 		{
-		// TEST ONLY
-		const elemName = el.nodeName;
-		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
-		//console.log("|" + el.innerHTML + "|");
-
 		if (isSubElement)
 			{
-			// TEST ONLY
-			//console.log("Scrolling to subelement.");
-			//el.style.backgroundColor = "yellow";
-
-			// TEST ONLY
-			//const elemName = el.nodeName;
-			//console.log(elemName + " " + parentElementOffset + " " + elementOffset);
-
 			textDiv.scrollTo({
 				top: parentElementOffset + elementOffset
 				});
 			}
 		else
 			{
-			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView();
 			}
 		
@@ -4991,7 +5630,7 @@ function finishStartup(reloading = false) {
 
 	if (thePath.match(/\.(txt|log|bat)$/))
 		{
-		// use lolight highlighting
+		// use lolight highlighting, and process footnote popup math
 		putInLolightElements();
 		}
 
@@ -5057,11 +5696,14 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 					MathJax.typesetPromise([contentDiv]).then(() => {
 						;//console.log('Typesetting complete');
 					}).catch((err) => console.log(err.message));
+
+					setTimeout(doPopupMath, 100);
 					}
-				//doResize(reloading);
+
+				lolight();// Needed for reload, but not for initial load. Arg.
+
 				//finishReload(); too late
 				startReloadCheck();
-				//reportActivity();
 				}
 			}
 		else
@@ -5145,32 +5787,256 @@ function putInLolightElements() {
 	document.querySelectorAll('td').forEach((el) => {
 		putInLolightPreAndClass(el);
 	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+			});
+	
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefs(el);
+			});
+		}	
 }
 
 function putInLolightPreAndClass(el) {
 	let text = el.innerHTML;
+
 	let codeMarkerPosition = text.indexOf('_STARTCB_');
-	if (codeMarkerPosition == 0)
+	if (codeMarkerPosition >= 0)
 		{
 		// FL = First/Last line of a code block. These are
 		// shrunk down, emptied out, and colored gray.
 		// Other rows starting with 'STARTCB_' are given
 		// a class of 'lolight', and lolight JS styles
 		// them up when the document is ready.
-		if (text.indexOf('_STARTCB_FL_') == 0)
+
+		let it = el.textContent;
+		if (it.indexOf('_STARTCB_FL_') == 0)
 			{
 			el.innerHTML = '';
-			el.parentNode.classList.add("reallyshrunkrow");
+
+			// Switched from  reallyshrunkrow, the color was too intrusive.
+			el.parentNode.classList.add("shrunkrow");
+
 			el.parentNode.firstElementChild.removeAttribute("n");
-			el.style.backgroundColor = "#d0d0d0";
 			}
-		else
+		else if (it.indexOf('_STARTCB_') == 0)
 			{
-			text = text.substring(9);
+			//text = text.substring(9);
+			text = text.replace("_STARTCB_", "");
+			if (it.indexOf('_STARTCB_ENDCODE') == 0)
+				{
+				text = text.replace("ENDCODE", "");
+				}
+
+			text = text.replace("_ENDCB_", "");
+			
 			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
 			el.style.backgroundColor = "#f3f3f3";
 			}
 		}
+}
+
+// Not used.
+function putInLolightPreAndClassForFootnoteRefsSIMPLE(el) {
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+	text = text.replaceAll("_STARTCB_", "<pre class=&quot;lolight&quot; style=&quot;color: DarkRed; background-color: #f3f3f3;&quot;>");
+	text = text.replaceAll("_ENDCB_", "</pre>");
+	el.innerHTML = text;
+}
+
+function putInLolightPreAndClassForFootnoteRefsSTARTEND(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+
+	el.innerHTML = text;	
+}
+
+// repeatedly extract _STARTCB_..._ENDCB_ chunks,
+// "decode",
+// tokenize with lolight.tok(), get the innerHTML,
+// "encode",
+// and replace what was extracted with that result.
+function putInLolightPreAndClassForFootnoteRefs(el) {
+	
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+
+	let text = el.innerHTML;
+
+	// Fancy approach: decodeURIComponent, apply lolight, encodeURIComponent
+	text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+
+	el.innerHTML = text;
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	
+	text = decodeURIComponent(text);
+	text = horribleUnescape(text);
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		console.log("Lolight called");
+		}
+
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	
+	text = horribleEscape(text);
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		//newText += "<span class=&quot;" + spanClass + "&quot;>" + v + "</span>";
+		//newText += "<span class='" + spanClass + "'>" + v + "</span>";//
+		}
+	return(newText);
+}
+
+let mathJaxPollingTimer = 0;
+function checkAndRunMathJaxForPopups() {
+	mathJaxPollingTimer = setInterval(waitAndRunMathJaxForPopups, 200);
+}
+
+function waitAndRunMathJaxForPopups() {
+	if (typeof MathJax !== 'undefined')
+		{
+		clearInterval(mathJaxPollingTimer);
+		setTimeout(doPopupMath, 100);
+		}
+}
+
+function doPopupMath() {
+	if (thePath.match(/\.(txt|log|bat)$/))
+		{
+		if (typeof MathJax !== 'undefined')
+			{
+			document.querySelectorAll('.footenoteref').forEach((el) => {
+				putInMathForPopups(el);
+			});
+
+			// Do glossary popups too.
+			if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+				{
+				document.querySelectorAll('.glossary').forEach((el) => {
+						putInMathForPopups(el);
+					});
+				}
+			}
+		}
+}
+
+function putInMathForPopups(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	// Now MathJax.
+	if (text.indexOf('_START_MATH_') >= 0)
+		{
+		//console.log("INITIAL Math start seen.");
+		// if (typeof MathJax === 'undefined')
+		// 	{
+		// 	console.log("BUT MathJax is NOT DEFINED!");
+		// 	}
+		}
+	if (typeof MathJax !== 'undefined')
+		{
+		text = text.replace(/_START_MATH_(.*?)_END_MATH_/g, (match) => {return mathit(match)});
+		}
+	el.innerHTML = text;
+}
+function mathit(text) {
+	// if (text.indexOf('_START_MATH_') >= 0)
+	// 	{
+	// 	console.log("Math start seen.");
+	// 	}
+	text = text.replace("_START_MATH_", "");
+	text = text.replace("_END_MATH_", "");
+	text = decodeURIComponent(text);
+	if (typeof text !== 'undefined' && text !== null)
+		{
+		text = horribleUnescape(text);
+
+		let rawText = String.raw({ raw: [text] });
+		const mathNode = MathJax.tex2chtml(rawText);
+		const htmlString = mathNode.outerHTML;
+
+		//text = horribleEscape(text);
+
+		text = htmlString;
+		}
+	text = encodeURIComponent(text);
+
+	return(text);
 }
 
 function createElementFromHTML(htmlString) {
@@ -6440,6 +7306,13 @@ if (thePath.match(/\.(pl|pm|cgi|t)$/i))
 	}
 
 ready(finishStartup);
+if (typeof usingMathJax !== 'undefined')
+	{
+	if (usingMathJax)
+		{
+		ready(checkAndRunMathJaxForPopups);
+		}
+	}
 
 </script>
 <script type="text/javascript">

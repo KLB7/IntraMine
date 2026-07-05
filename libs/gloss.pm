@@ -63,12 +63,16 @@ sub Gloss {
 		$text,                      $serverAddr,       $mainServerPort,
 		$contentsR,                 $doEscaping,       $imagesDir,
 		$commonImagesDir,           $contextDir,       $callbackFullPath,
-		$callbackFullDirectoryPath, $doNotCacheImages, $thisIsInAFootnoteBody
+		$callbackFullDirectoryPath, $doNotCacheImages, $thisIsInAFootnoteRaw,
+		$crampedDisplay
 	) = @_;
-	$doNotCacheImages      = defined($doNotCacheImages)      ? $doNotCacheImages      : 0;
-	$thisIsInAFootnoteBody = defined($thisIsInAFootnoteBody) ? $thisIsInAFootnoteBody : 0;
-	$IMAGESDIR             = $imagesDir;
-	$COMMONIMAGESDIR       = $commonImagesDir;
+	$doNotCacheImages = defined($doNotCacheImages) ? $doNotCacheImages : 0;
+	my $thisIsInAFootnote = defined($thisIsInAFootnoteRaw) ? $thisIsInAFootnoteRaw : 0;
+	$crampedDisplay  = defined($crampedDisplay) ? $crampedDisplay : 0;
+	$IMAGESDIR       = $imagesDir;
+	$COMMONIMAGESDIR = $commonImagesDir;
+
+	my $MaxBlockQuoteNumber = 5;    # max block quote indent level: see non_cm_text.css#br
 
 	if (!defined($doEscaping))
 		{
@@ -80,9 +84,9 @@ sub Gloss {
 		$text = horribleUnescape($text);
 		}
 
-	# If the gloss is going in a tooltip, inline the images.
-	# We are doing a tooltip if $doEscaping is 0;
-	my $inlineImages = ($doEscaping) ? 0 : 1;
+	# Hover images instead of inlining them if "cramped display" (eg ToDo).
+	my $inlineImages              = ($crampedDisplay) ? 0 : 1;
+	my $shortenDisplayedLinkNames = ($crampedDisplay) ? 1 : 0;
 
 	if (!$CONFIGLOADED)
 		{
@@ -95,7 +99,7 @@ sub Gloss {
 	$HashHeadingRequireBlankBefore = CVal("HASH_HEADING_NEEDS_BLANK_BEFORE");
 
 	# Put a special class for lines in a footnote body.
-	my $footnoteBodyClass = ($thisIsInAFootnoteBody) ? $FOOTNOTE_CLASS : '';
+	my $footnoteBodyClass = ($thisIsInAFootnote) ? $FOOTNOTE_CLASS : '';
 
 	my @lines = split(/\n/, $text);
 
@@ -107,14 +111,73 @@ sub Gloss {
 	my $unorderedListDepth = 0;    # 0 1 2 for no list, top level, second level.
 	my $justDidHeadingOrHr = 0;
 	# We're in a table from a line that starts with TABLE|[_ \t:.-]? until a line with no tabs.
-	my $inATable = 0;
-	# For ATX-style headings  eg "## heading", require a blank line before the heading line.
+	my $inATable     = 0;
+	my $inACodeBlock = 0;          # Set if see CODE on a line by itself,
+								   # continue until ENDCODE on a line by itself.
+		# For ATX-style headings  eg "## heading", require a blank line before the heading line.
 	my $lineIsBlank       = 1;
-	my $lineBeforeIsBlank = 1;     # Initally there is no line before, so it's kinda blank:)
+	my $lineBeforeIsBlank = 1;    # Initally there is no line before, so it's kinda blank:)
 
 	my $numLines = @lines;
+
+	# Block quote tracking.
+	my @bqLineNumber;
+	my @bqLevelClass;             # bq, bq1, bq2...
+	my %bqLineIIsIndented;        # $bqLineIIsIndented{$i} with $i in the loop just below
+	my $bqBaseClass = 'bq';
+	# Block quote tracking, just for equations.
+	# Strictly speaking a hash isn't needed, but there won't be many entries.
+	my %equationBqLevelForI;    # $equationBqLevelForI{$i} = 0..max indent level
+
 	for (my $i = 0 ; $i < $numLines ; ++$i)
 		{
+		# Pick up on block quote lines, starting with '>'. Remove the
+		# block quote marker(s), remember nesting level for down below at the end.
+		if (index($lines[$i], ">") >= 0 && $lines[$i] =~ m!^\s*>!)
+			{
+			# First dump any opening whitespace, it's not used.
+			$lines[$i] =~ s!^\s+!!;
+			# Remove the '>'(s) and any following spaces or tabs.
+			# Revision, do not remove trailing whitespace. It's wanted in
+			# CODE blocks as the initial code indent.
+			my $count = 0;
+			while (index($lines[$i], '>') == 0)
+				{
+				++$count;
+				$lines[$i] =~ s!^>!!;
+				if ($lines[$i] =~ m!^\s+>!)
+					{
+					$lines[$i] =~ s!^\s+!!;
+					}
+				}
+			my $bqNestNumber = $count - 1;
+			my $bqClass      = $bqBaseClass;
+			if ($bqNestNumber > 0)    # Nested block quotes, class bq1, bq2...
+				{
+				if ($bqNestNumber > $MaxBlockQuoteNumber)
+					{
+					$bqNestNumber = $MaxBlockQuoteNumber;
+					}
+				$bqClass .= $bqNestNumber;
+				}
+
+			# Are we at the start of an equation?
+			# Note below if we hit an equation start we skip $i ahead
+			# to the end of the equation, so only the start will be seen here.
+			if (   (index($lines[$i], '$$') == 0 && $lines[$i] !~ m!^\$\$\w!)
+				|| index($lines[$i], '\[') == 0
+				|| index($lines[$i], '\begin') == 0)
+				{
+				$equationBqLevelForI{$i} = $bqNestNumber;
+				}
+			else    # just a regular blockquote, not for an equation
+				{
+				push @bqLineNumber, $i;
+				push @bqLevelClass, $bqClass;
+				$bqLineIIsIndented{$i} = 1;
+				}
+			}
+
 		$lineBeforeIsBlank = $lineIsBlank;
 
 		if ($lines[$i] eq '')
@@ -126,8 +189,6 @@ sub Gloss {
 			$lineIsBlank = 0;
 			}
 
-		AddEmphasis(\$lines[$i]);
-
 		if ($lines[$i] =~ m!^TABLE($|[_ \t:.-])!)
 			{
 			$inATable = 1;
@@ -136,6 +197,47 @@ sub Gloss {
 			{
 			$inATable = 0;
 			}
+
+		# See if we're entering or leaving a code block.
+		# A code block starts with 'CODE' on a line by itself,
+		# and ends with 'ENDCODE' on a line by itself.
+		# CODE/ENDCODE is replaced by '_STARTCB_FL_',
+		# and intervening lines have '_STARTCB_' added
+		# at the beginning. Later, viewerStart.js#finishStartup()
+		# will delete the markers and wrap lines in <pre> elements,
+		# and lolight will style them when the page is ready.
+		if (!$inATable)
+			{
+			if ($lines[$i] eq 'CODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 1;
+				}
+			elsif ($lines[$i] eq 'ENDCODE')
+				{
+				$lines[$i] = '_STARTCB_FL_';
+				$inACodeBlock = 0;
+				}
+			}
+
+		# Highlight code blocks. Actual highlighting is done by
+		# viewerStart.js#finishStartup().
+		if ($inACodeBlock)
+			{
+			if ($lines[$i] ne '_STARTCB_FL_')
+				{
+				if ($lines[$i] eq '')
+					{
+					$lines[$i] = '_STARTCB_ ' . $lines[$i] . '_ENDCB_';
+					}
+				else
+					{
+					$lines[$i] = '_STARTCB_' . $lines[$i] . '_ENDCB_';
+					}
+				}
+			}
+
+		AddEmphasis(\$lines[$i]);
 
 		if (!$inATable)
 			{
@@ -161,7 +263,18 @@ sub Gloss {
 				my $underline = $1;
 				if (length($underline) <= 2)    # ie three or four total
 					{
-					HorizontalRule(\$lines[$i], $lineNum, $thisIsInAFootnoteBody);
+					# Pass 0 if $thisIsInAFootnote == 0 OR 2
+					# (2 means in a footnote reference showhint popup)
+					my $trueFootnote = 0;
+					if (defined($thisIsInAFootnoteRaw))
+						{
+						$trueFootnote = $thisIsInAFootnoteRaw;
+						if ($trueFootnote == 2)
+							{
+							$trueFootnote = 0;
+							}
+						}
+					HorizontalRule(\$lines[$i], $lineNum, $trueFootnote);
 					}
 				elsif (
 					$justDidHeadingOrHr == 0)   # a heading - put in anchor and add to jump list too
@@ -175,17 +288,183 @@ sub Gloss {
 					}
 				$justDidHeadingOrHr = 1;
 				}
-			else                                # treat like any ordinary line
+			else
 				{
-				if ($lines[$i] eq '')
+				# MathJax: see intramine_viewer.pl#2270 as well.
+				my $justDidSomeMathJax = 0;
+				if (   (index($lines[$i], '$$') == 0 && $lines[$i] !~ m!^\$\$\w!)
+					|| index($lines[$i], '\[') == 0
+					|| index($lines[$i], '\begin') == 0)
 					{
-					$lines[$i] = "<tr><td>" . '&nbsp;' . '</td></tr>';
-					$justDidHeadingOrHr = 0;
+					# The goal is to collect all consecutive "math" lines
+					# in a single cell, wrapped in a separate <table>. That because
+					# MathJax has starting XML for each chunk that says "hello I am
+					# pretending to be a table row".
+					my $startDelimiter = '';
+					my $endDelimiter   = '';
+					my $remStart       = '';
+					my $remEnd         = '';
+					if (index($lines[$i], '$$') == 0)
+						{
+						$startDelimiter = '$$';
+						$remStart       = qr!^\s*\$\$!;
+						$endDelimiter   = '$$';
+						$remEnd         = qr!\s*\$\$\s*$!;
+						}
+					elsif (index($lines[$i], '\[') == 0)
+						{
+						$startDelimiter = '\[';
+						$remStart       = qr!^\s*\\\[!;
+						$endDelimiter   = '\]';
+						$remEnd         = qr!\s*\\\]\s*$!;
+						}
+					elsif (index($lines[$i], '\begin') == 0)
+						{
+						# Leave these in, they are needed.
+						$startDelimiter = '\begin';
+						$remStart       = '';         #qr!^\\\begin(\{\w+})?!;
+						$endDelimiter   = '\end';
+						$remEnd         = '';         #qr!\s*\\end(\{\w+})?\s*$!;
+						}
+
+					if ($endDelimiter ne '')
+						{
+						# Block quoted with '>'? If so, the first line has been stripped
+						# of those, we need to also strip any additional lines
+						# while picking up on the end delimiter. Fun.
+						my $weAreIndented           = defined($equationBqLevelForI{$i}) ? 1 : 0;
+						my $indentDivStartWithClass = '';
+						my $indentDivEndWithClass   = '';
+						if ($weAreIndented)
+							{
+							my $indentLevel =
+								($equationBqLevelForI{$i} > 0)
+								? $equationBqLevelForI{$i}
+								: '';
+							my $eqIndentClassName = $bqBaseClass . '_eq_fn' . $indentLevel;
+							$indentDivStartWithClass = "<div class='$eqIndentClassName'>";
+							$indentDivEndWithClass   = "</div>";
+							}
+
+						# Now find the line with the end delimiter.
+						my $iInitial = $i;
+						if (index($lines[$i], $endDelimiter, 2) > 0)
+							{
+							#$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
+							}
+						else
+							{
+
+							++$i;
+							while ($i < $numLines && index($lines[$i], $endDelimiter) < 0)
+								{
+								# Indented? Strip '>'.
+								if ($weAreIndented)
+									{
+									$lines[$i] =~ s!^\s+!!;
+									while (index($lines[$i], '>') == 0)
+										{
+										$lines[$i] =~ s!^>!!;
+										if ($lines[$i] =~ m!^\s+>!)
+											{
+											$lines[$i] =~ s!^\s+!!;
+											}
+										}
+									}
+								$lines[$iInitial] .= "\n" . $lines[$i];
+								# Don't forget to empty out the original line. I mention
+								# this because I did.
+								$lines[$i] = '';
+								++$i;    # NOTE we are skipping along to the next line.
+								}
+
+							# Do the last line.
+							#$lines[$iInitial] .= "\n" . $lines[$i] . "\n" . '</td></tr>';
+							if ($i < $numLines)
+								{
+								if ($weAreIndented)
+									{
+									$lines[$i] =~ s!^\s+!!;
+									while (index($lines[$i], '>') == 0)
+										{
+										$lines[$i] =~ s!^>!!;
+										if ($lines[$i] =~ m!^\s+>!)
+											{
+											$lines[$i] =~ s!^\s+!!;
+											}
+										}
+									}
+
+								$lines[$iInitial] .= "\n" . $lines[$i] . "\n";
+								$lines[$i] = '';
+								}
+							else
+								{
+								if ($weAreIndented)
+									{
+									$lines[$i - 1] =~ s!^\s+!!;
+									while (index($lines[$i - 1], '>') == 0)
+										{
+										$lines[$i - 1] =~ s!^>!!;
+										if ($lines[$i - 1] =~ m!^\s+>!)
+											{
+											$lines[$i - 1] =~ s!^\s+!!;
+											}
+										}
+									}
+
+								$lines[$iInitial] .= "\n" . $lines[$i - 1] . "\n";
+								$lines[$i - 1] = '';
+								}
+							}
+						# Wrap it in a table.
+						my $startMath = '';
+						my $endMath   = '';
+						if ($thisIsInAFootnote == 2)    # In a footnote popup
+							{
+							# Strip the start/end delimiters, put in "custom" delimiters.
+							# TEST ONLY
+							#my $starter = substr($lines[$iInitial], 0, 20);
+							#my $ender   = substr($lines[$iInitial], length($lines[$iInitial]) - 20);
+							#print("|$starter|, |$ender|\n");
+							# if ($lines[$iInitial] =~ m!^$remStart!)
+							# 	{
+							# 	print("Matched S|$startDelimiter|\n");
+							# 	}
+							# if ($lines[$iInitial] =~ m!$remEnd\s*$!)
+							# 	{
+							# 	print("Matched E|$endDelimiter|\n");
+							# 	}
+
+							# if (index($lines[$iInitial], '\begin{align}') == 0)
+							# 	{
+							# 	print("BEGIN ALIGN SEEN.\n");
+							# 	}
+
+							$lines[$iInitial] =~ s!$remStart!!;
+							$lines[$iInitial] =~ s!$remEnd!!;
+							$startMath = '_START_MATH_';
+							$endMath   = '_END_MATH_';
+							}
+
+						$lines[$iInitial] =
+"</tbody></table>$indentDivStartWithClass<table><tbody><tr><td>\n$startMath"
+							. $lines[$iInitial]
+							. "$endMath</td></tr></tbody></table>$indentDivEndWithClass<table class='imt'><tbody>";
+						}
 					}
 				else
 					{
-					$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
-					$justDidHeadingOrHr = 0;
+					if ($lines[$i] eq '')
+						{
+						$lines[$i] = "<tr><td>" . '&nbsp;' . '</td></tr>';
+						$justDidHeadingOrHr = 0;
+						}
+					else
+						{
+						$lines[$i] = "<tr><td>" . $lines[$i] . '</td></tr>';
+						$justDidHeadingOrHr = 0;
+						}
 					}
 				}
 			}
@@ -199,14 +478,16 @@ sub Gloss {
 		}
 
 	# Tables, see below.
-	PutTablesInText(\@lines);
+	PutTablesInText(\@lines, \%bqLineIIsIndented);
 
 	# Put in web links and double-quoted full path links.
 	for (my $i = 0 ; $i < @lines ; ++$i)
 		{
-		AddLinks(\${lines [$i]},
-			$serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath,
-			$callbackFullDirectoryPath, $doNotCacheImages);
+		AddLinks(
+			\${lines [$i]},             $serverAddr,       $mainServerPort,
+			$inlineImages,              $contextDir,       $callbackFullPath,
+			$callbackFullDirectoryPath, $doNotCacheImages, $shortenDisplayedLinkNames
+		);
 		}
 
 	# Put $footnoteBodyClass on all <tr elements
@@ -218,6 +499,35 @@ sub Gloss {
 			}
 		}
 
+	# Block quotes: add class reflecting block quote level.
+	# TABLE rows can have more than two cells, either td or th.
+	my $numBlockQuoteLines = @bqLineNumber;
+	my $weAreInATable      = 0;
+	for (my $i = 0 ; $i < $numBlockQuoteLines ; ++$i)
+		{
+		my $lineI   = $bqLineNumber[$i];
+		my $bqClass = $bqLevelClass[$i];
+		BlockQuoteFootnote(\${lines [$lineI]}, $bqClass, \$weAreInATable);
+		}
+	# Remove empty tables.
+	for (my $i = 1 ; $i < $numBlockQuoteLines ; ++$i)
+		{
+		my $lineI = $bqLineNumber[$i];
+		if (   $lines[$lineI] =~ m!^</tbody></table>!
+			&& $lines[$lineI - 1] =~ m!<table class='imt'><tbody>$!)
+			{
+			$lines[$lineI] =~ s!^</tbody></table>!!;
+			$lines[$lineI - 1] =~ s!<table class='imt'><tbody>$!!;
+			}
+		elsif ($lines[$lineI] =~ m!^</tbody></table>!
+			&& $lines[$lineI - 1] =~ m!<table><tbody>$!)
+			{
+			$lines[$lineI] =~ s!^</tbody></table>!!;
+			$lines[$lineI - 1] =~ s!<table><tbody>$!!;
+			}
+		}
+
+
 	# Try using &quot; - seems to work.
 	$$contentsR .=
 		  "<div class=&quot;gloss_div&quot;><table><tbody>"
@@ -228,6 +538,261 @@ sub Gloss {
 		{
 		$$contentsR = horribleEscape($$contentsR);
 		}
+}
+
+# Block quotes: indent, vertical stripe, a bit of background color.
+sub BlockQuoteFootnote {
+	my ($txtR, $bqClass, $inATableR) = @_;
+	my $line                 = $$txtR;
+	my $doLastQuotedTableRow = 0;
+	my $tdPos                = -1;
+
+	# Block quoted tables are "special" (arg).
+	if (($tdPos = index($line, "<table")) > 0)
+		{
+		$$inATableR = ($$inATableR) ? 0 : 1;
+		if (!$$inATableR)
+			{
+			$doLastQuotedTableRow = 1;
+			}
+		else
+			{
+			$doLastQuotedTableRow = 0;
+			}
+
+		my $bqClassApplied = $bqClass;
+
+		# If we have just entered a "real" table, it needs a class to indicate that
+		# the first column should be wider. Classes are non_cm_text.css .bt, bt1 etc.
+		if ($$inATableR)
+			{
+			# my $tableClass = substr($bqClass, 0, 1) . 't' . substr($bqClass, 2);
+			# if (index($line, "<table class=", $tdPos) > 0)
+			# 	{
+			# 	my $beforeT = substr($line, 0, $tdPos + 14);
+			# 	my $afterT  = substr($line, $tdPos + 14);
+			# 	$line = $beforeT . "$tableClass " . $afterT;
+			# 	}
+			# else    # no class yet
+			# 	{
+			# 	my $beforeT = substr($line, 0, $tdPos + 6);
+			# 	my $afterT  = substr($line, $tdPos + 6);
+			# 	$line = $beforeT . " class='$tableClass'" . $afterT;
+			# 	}
+			}
+
+		# Do caption. Just background-color.
+		my $captionPos = -1;
+		if (($captionPos = index($line, "<caption")) > 0)
+			{
+			# 	# +8 for the length of "<caption".
+			my $bqClassApplied = $bqClass;    # . '_as';
+			my $beforeCaption  = substr($line, 0, $captionPos + 8);
+			my $afterCaption   = substr($line, $captionPos + 8);
+			$line = $beforeCaption . " class='$bqClassApplied'" . $afterCaption;
+			}
+
+
+		# Do row if $doLastQuotedTableRow
+		if ($doLastQuotedTableRow)
+			{
+			# Apply background color to the row.
+			$tdPos = index($line, "<tr");
+			if ($tdPos >= 0)
+				{
+				my $appliedClass = substr($bqClass, 0, 2);
+				$appliedClass .= '_tr';    # Typ bq_tr
+				if (index($line, "<tr class=") == $tdPos)
+					{
+					my $beforeTr = substr($line, 0, $tdPos + 11);
+					my $afterTr  = substr($line, $tdPos + 11);
+					$line = $beforeTr . "$appliedClass " . $afterTr;
+					}
+				else
+					{
+					my $beforeTr = substr($line, 0, $tdPos + 3);
+					my $afterTr  = substr($line, $tdPos + 3);
+					$line = $beforeTr . " class='$appliedClass'" . $afterTr;
+					}
+				}
+
+			$line =~ s!</table>!</table></div>!;
+			}
+		elsif ($$inATableR)
+			{
+			# Adjust the 'fakeCaption' class name to produce a larger indent
+			# with fakeCaptionIndented, fakeCaptionIndented1 etc. And extend the
+			# background-color with a 100% div.
+			if (index($line, 'fakeCaption') >= 0)
+				{
+				# Eg |<tr><td>&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>A footnote table, indented 3</span></td></tr></tbody></table><table class='bordered'><thead>|
+				my $indentNum = '';
+				if ($bqClass =~ m!(\d)!)
+					{
+					$indentNum .= $1;
+					}
+				$line =~ s!fakeCaption!fakeCaptionIndented$indentNum!;
+				}
+
+			# Add some background-color and indent (margin-left).
+			my $indent = 40;
+			if ($bqClass =~ m!(\d)!)
+				{
+				my $indentLevel = $1;
+				$indent += $indentLevel * 20;
+				}
+			my $marginLeft = $indent . 'px';
+			$line =~
+s!<table!<div style='background-color: #F2F8F2; width: calc(100% - $marginLeft); margin-left: $marginLeft;'><table!;
+			}
+
+		# if ($line =~ m!<div\s+class=['"]INDENTED_TABLE_PLACEHOLDER['"]!)
+		# 	{
+		# 	$line =~
+		# 		s!(<div\s+class=['"])INDENTED_TABLE_PLACEHOLDER(['"])!$1footnote_indented_table$2!;
+		# 	}
+		}
+
+	elsif (!$$inATableR)
+		{
+		# Find first and second td/th on line. We need both. Else look for table.
+		# OOPS we are in a footnoe, there is no first td/th holding line number.
+		my $firstTdPos = index($line, "<td");
+
+		if ($firstTdPos > 0)
+			{
+			$tdPos = $firstTdPos;
+
+			# Then wrap the line in a new table.
+			# Typical line incoming:
+			# <tr class='_FOOTNOTE_'><td>This is a test.</td></tr>
+			# Put bq_fn, bq1_fn (block quote footnote) class on td,
+			# to add background-color.
+			# Add a div class bq_fn_div, 1 2 3 etc to indent and add a border.
+			my $bFnClass    = $bqClass . '_fn';
+			my $bFnDivClass = $bqClass . '_fn_div';
+
+			# TEST ONLY OUT
+			if (index($line, "<td class=") > 0)
+				{
+				# Aso pick up the 11 chars "<td class=['"]]".
+				# For unordered lists, the text is wrapped in a <p>:
+				# For them, put the div around the whole <p>...</p>
+				my $endPPos = index($line, "</p>");
+				if ($endPPos > 0)
+					{
+					# my $beforeP = substr($line, 0, $endPPos + 4);
+					# my $afterP  = substr($line, $endPPos + 4);
+					# $line = $beforeP . "</div>" . $afterP;
+					# # Insert new div after <td>
+					# my $tdEndPos = index($line, '>', $tdPos);
+					# my $beforeTD = substr($line, 0, $tdEndPos + 1);    # Skip '>'
+					# my $afterTD  = substr($line, $tdEndPos + 1);
+					# $line     = $beforeTD . "<div class='$bFnDivClass'>" . $afterTD;
+					my $beforeTD = substr($line, 0, $firstTdPos + 11);
+					my $afterTD  = substr($line, $firstTdPos + 11);
+					$line = $beforeTD . "$bFnClass " . $afterTD;
+					}
+				else
+					{
+					# Insert new div after <td>
+					# my $tdEndPos = index($line, '>', $tdPos);
+					# my $beforeTD = substr($line, 0, $tdEndPos + 1);    # Skip '>'
+					# my $afterTD  = substr($line, $tdEndPos + 1);
+					# $line     = $beforeTD . "<div class='$bFnDivClass'></div>" . $afterTD;
+					my $beforeTD = substr($line, 0, $firstTdPos + 11);
+					my $afterTD  = substr($line, $firstTdPos + 11);
+					$line = $beforeTD . "$bFnClass " . $afterTD;
+					}
+				}
+			else    # no class yet on the first td
+				{
+				# TEST ONLY OUT
+				my $endPPos = index($line, "</p>");
+				if ($endPPos > 0)
+					{
+					# 	# my $beforeP = substr($line, 0, $endPPos + 4);
+					# 	# my $afterP  = substr($line, $endPPos + 4);
+					# 	# $line = $beforeP . "</div>" . $afterP;
+					# 	# # Insert new div after <td>
+					# 	# my $tdEndPos = index($line, '>', $tdPos);
+					# 	# my $beforeTD = substr($line, 0, $tdEndPos + 1);    # Skip '>'
+					# 	# my $afterTD  = substr($line, $tdEndPos + 1);
+					# 	# $line = $beforeTD . "<div class='$bFnDivClass'>" . $afterTD;
+					# 	# Insert " class='bq'" for the <td
+					my $beforeTD = substr($line, 0, $tdPos + 3);
+					my $afterTD  = substr($line, $tdPos + 3);
+					$line = $beforeTD . " class='$bFnClass'" . $afterTD;
+					}
+				else
+					{
+					# 	# Insert new div after <td>
+					# 	# my $tdEndPos = index($line, '>', $tdPos);
+					# 	# my $beforeTD = substr($line, 0, $tdEndPos + 1);    # Skip '>'
+					# 	# my $afterTD  = substr($line, $tdEndPos + 1);
+					# 	# $line = $beforeTD . "<div class='$bFnDivClass'></div>" . $afterTD;
+					# 	# Insert " class='bq'" for the <td
+					my $beforeTD = substr($line, 0, $tdPos + 3);
+					my $afterTD  = substr($line, $tdPos + 3);
+					$line = $beforeTD . " class='$bFnClass'" . $afterTD;
+					}
+				}
+
+			# Wrap the line in its own table, with a div to extend background color to the right.
+			# Light green, but gray for CODE blocks (at this point signalled by
+			# _STARTCB at the start of actual text).
+			my $codeStart = index($line, '_STARTCB');
+			if ($codeStart >= 0 && $codeStart <= 100)
+				# my $codeStart = index($line, '_STARTCB', $tdPos + 13) - $tdPos - 13;
+				# if ($codeStart >= 0 && $codeStart <= 20)
+				{
+				my $indent = 40;
+				if ($bqClass =~ m!(\d)!)
+					{
+					my $indentLevel = $1;
+					$indent += $indentLevel * 20;
+					}
+				my $marginLeft                  = $indent . 'px';
+				my $blockQuoteIndentedCodeClass = $bqClass . '_icb';
+				$line =
+"</tbody></table><div class='$blockQuoteIndentedCodeClass' style='background-color: rgb(243, 243, 243); width: calc(100% - $marginLeft);'><table class='imt'><tbody>"
+					. $line
+					. "</tbody></table></div><table class='imt'><tbody>";
+				}
+			else
+				{
+				$line =
+					  "</tbody></table><div class='$bFnDivClass'><table class='imt'><tbody>"
+					. $line
+					. "</tbody></table></div><table class='imt'><tbody>";
+				}
+			}
+		}
+
+	elsif ($$inATableR)
+		{
+		# Apply background color to the row.
+		$tdPos = index($line, "<tr");
+		if ($tdPos >= 0)
+			{
+			my $appliedClass = substr($bqClass, 0, 2);
+			$appliedClass .= '_tr';    # Typ bq_tr
+			if (index($line, "<tr class=") == $tdPos)
+				{
+				my $beforeTr = substr($line, 0, $tdPos + 11);
+				my $afterTr  = substr($line, $tdPos + 11);
+				$line = $beforeTr . "$appliedClass " . $afterTr;
+				}
+			else
+				{
+				my $beforeTr = substr($line, 0, $tdPos + 3);
+				my $afterTr  = substr($line, $tdPos + 3);
+				$line = $beforeTr . " class='$appliedClass'" . $afterTr;
+				}
+			}
+		}
+
+	$$txtR = $line;
 }
 
 # $ImageCache is used only by gloss2html.pl.
@@ -528,16 +1093,44 @@ sub OrderedList {
 }
 
 sub HorizontalRule {
-	my ($lineR, $lineNum, $thisIsInAFootnoteBody) = @_;
+	my ($lineR, $lineNum, $thisIsInAFootnote) = @_;
 
-	if ($thisIsInAFootnoteBody)
+	my $thick = ($$lineR =~ m!^\=\=\=\=?!) ? 1 : 0;
+
+	if ($thisIsInAFootnote)
 		{
-		# TEST ONLY use a "real" horizontal rule.
-		my $thick   = ($$lineR =~ m!^\=\=\=\=?!) ? 1            : 0;
-		my $hrclass = $thick                     ? 'divhrThick' : 'divhr';
-		$$lineR = "<tr><td><div class=&quot;$hrclass&quot;></div></td></tr>";
-		return;
+		my $link       = '';
+		my $contextDir = $COMMONIMAGESDIR;
+		my $width      = '98%';
+
+		if ($thick)
+			{
+			my $fileName = 'mediumrule4.png';
+			my $height   = 6;
+			ImageLinkQuoted($fileName, $contextDir, \$link, $width, $height);
+			}
+		else
+			{
+			my $fileName = 'slimrule4.png';
+			my $height   = 3;
+			ImageLinkQuoted($fileName, $contextDir, \$link, $width, $height);
+			}
+
+		$$lineR = "<tr><td>$link</td></tr>";
 		}
+	else
+		{
+		if ($thick)
+			{
+			$$lineR = "<tr><td><div class='divhrThick'></div></td></tr>";
+			}
+		else
+			{
+			$$lineR = "<tr><td><hr></td></tr>";
+			}
+		}
+
+	return;
 
 	# <hr> equivalent for three or four === or --- or ~~~
 	# If it's === or ====, use a slightly thicker rule.
@@ -742,7 +1335,7 @@ sub GetJumperHeaderAndId {
 # Colspan and alignment can be combined, eg <C3>.
 # See Gloss.txt for examples.
 sub PutTablesInText {
-	my ($lines_A) = @_;
+	my ($lines_A, $bqLineIsIndentedH) = @_;
 	my $numLines = @$lines_A;
 	my %alignmentString;
 	$alignmentString{'L'} = " class='left_cell'";
@@ -774,14 +1367,15 @@ sub PutTablesInText {
 			GetMaxColumns($idx, $numLines, $lines_A, \$numColumns, \@cellMaximumChars);
 
 			# Start the table, with optional title.
-			StartNewTable($lines_A, $tableStartIdx, \@cellMaximumChars, $numColumns);
+			StartNewTable($lines_A, $tableStartIdx, \@cellMaximumChars, $numColumns,
+				$bqLineIsIndentedH);
 
 			# Main pass, make the table rows.
 			$idx = $startIdx;
 			$idx = DoTableRows($idx, $numLines, $lines_A, $numColumns, \%alignmentString);
 
 			# Stop/start table on the last line matched.
-			$lines_A->[$idx - 1] = $lines_A->[$idx - 1] . '</tbody></table><table><tbody>';
+			$lines_A->[$idx - 1] = $lines_A->[$idx - 1] . '</tbody></table></div><table><tbody>';
 			}    # if TABLE
 		}    # for (my $i = 0; $i <$numLines; ++$i)
 }
@@ -815,10 +1409,12 @@ sub GetMaxColumns {
 }
 
 sub StartNewTable {
-	my ($lines_A, $tableStartIdx, $cellMaximumChars_A, $numColumns) = @_;
+	my ($lines_A, $tableStartIdx, $cellMaximumChars_A, $numColumns, $bqLineIsIndentedH) = @_;
 
 	if ($lines_A->[$tableStartIdx] =~ m!TABLE[_ \t:.-]+\S!)
 		{
+		my $isIndented       = (defined($bqLineIsIndentedH->{$tableStartIdx})) ? 1   : 0;
+		my $placeHolderClass = ($isIndented) ? " class='INDENTED_TABLE_PLACEHOLDER'" : "";
 		# Use supplied text after TABLE as table "caption".
 		if ($lines_A->[$tableStartIdx] =~ m!^(<tr><td>)TABLE[_ \t:.-]+(.+?)(</td></tr>)!)
 			{
@@ -844,19 +1440,19 @@ sub StartNewTable {
 			if ($captionChars < $longestLineChars)
 				{
 				$lines_A->[$tableStartIdx] =
-"$pre$post</tbody></table><table class='bordered'><caption>$caption</caption><thead>";
+"$pre$post</tbody></table><div$placeHolderClass><table class='bordered'><caption>$caption</caption><thead>";
 				}
 			else
 				{
 				$lines_A->[$tableStartIdx] =
-"$pre&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>$caption</span>$post</tbody></table><table class='bordered'><thead>";
+"$pre&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<span class='fakeCaption'>$caption</span>$post</tbody></table><div$placeHolderClass><table class='bordered'><thead>";
 				}
 			}
 		else
 			{
 			# Probably a maintenance failure. Struggle on.
 			$lines_A->[$tableStartIdx] =
-"<tr class='shrunkrow'><td></td></tr></tbody></table><table class='bordered'><thead>";
+"<tr class='shrunkrow'><td></td></tr></tbody></table><div$placeHolderClass><table class='bordered'><thead>";
 			}
 		}
 	else    # no caption
@@ -1042,9 +1638,11 @@ sub DoTableRows {
 # For the call from gloss2html.pl, these are undef:
 #  $serverAddr, $mainServerPort, $callbackFullPath, $callbackFullDirectoryPath.
 sub AddLinks {
-	my ($txtR, $serverAddr, $mainServerPort, $inlineImages, $contextDir, $callbackFullPath,
-		$callbackFullDirectoryPath, $doNotCacheImages)
-		= @_;
+	my (
+		$txtR,                      $serverAddr,       $mainServerPort,
+		$inlineImages,              $contextDir,       $callbackFullPath,
+		$callbackFullDirectoryPath, $doNotCacheImages, $shortenDisplayedLinkNames
+	) = @_;
 	my $line = $$txtR;
 	my @repStr;
 	my @repLen;
@@ -1126,10 +1724,15 @@ m!((\"([^"]+)(#[^"]+)?\")|(\'([^']+)(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(
 				$fileExtension = $1;
 				}
 
-			my $isFullKnownPath = (FileOrDirExistsWide($pathToCheck) == 1);
+			my $isFullKnownPath = 0;    #(FileOrDirExistsWide($pathToCheck) == 1);
+			if (($pathToCheck =~ m!^[a-zA-Z:]! || index($pathToCheck, "//") == 0)
+				&& FileOrDirExistsWide($pathToCheck) == 1)
+				{
+				$isFullKnownPath = 1;
+				}
 
 			my $fullFilePath = $pathToCheck;
-			if (!$isFullKnownPath && defined($callbackFullPath))
+			if (defined($callbackFullPath))
 				{
 				my $fullPath = $callbackFullPath->($fullFilePath, $contextDir);
 				if ($fullPath ne '')
@@ -1169,10 +1772,11 @@ m!((\"([^"]+)(#[^"]+)?\")|(\'([^']+)(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(
 			if ($isFullKnownPath && $fileExtension ne '')
 				{
 				RememberTextOrImageFileMentionGloss(
-					$extOriginal,   $fullFilePath, $serverAddr,   $mainServerPort,
-					$haveQuotation, $quoteChar,    $startPos,     \@repStr,
-					\@repLen,       \@repStartPos, $inlineImages, $contextDir,
-					$doNotCacheImages
+					$extOriginal,      $fullFilePath,  $serverAddr,
+					$mainServerPort,   $haveQuotation, $quoteChar,
+					$startPos,         \@repStr,       \@repLen,
+					\@repStartPos,     $inlineImages,  $contextDir,
+					$doNotCacheImages, $shortenDisplayedLinkNames
 				);
 				$haveGoodMatch = 1;
 				}
@@ -1202,9 +1806,10 @@ m!((\"([^"]+)(#[^"]+)?\")|(\'([^']+)(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(
 				if ($dirFullPath ne '')
 					{
 					RememberDirMentionGloss(
-						$extOriginal,   $dirFullPath, $serverAddr, $mainServerPort,
-						$haveQuotation, $quoteChar,   $startPos,   \@repStr,
-						\@repLen,       \@repStartPos
+						$extOriginal,    $dirFullPath,   $serverAddr,
+						$mainServerPort, $haveQuotation, $quoteChar,
+						$startPos,       \@repStr,       \@repLen,
+						\@repStartPos,   $shortenDisplayedLinkNames
 					);
 					$haveGoodMatch = 1;
 					}
@@ -1442,9 +2047,11 @@ sub TextWithSpanBreaks {
 # $repLenA: length of text being replaced.
 sub RememberTextOrImageFileMentionGloss {
 	my (
-		$extOriginal,  $fullFilePath, $serverAddr, $mainServerPort, $haveQuotation,
-		$quoteChar,    $startPos,     $repStrA,    $repLenA,        $repStartPosA,
-		$inlineImages, $contextDir,   $doNotCacheImages
+		$extOriginal,      $fullFilePath,  $serverAddr,
+		$mainServerPort,   $haveQuotation, $quoteChar,
+		$startPos,         $repStrA,       $repLenA,
+		$repStartPosA,     $inlineImages,  $contextDir,
+		$doNotCacheImages, $shortenDisplayedLinkNames
 	) = @_;
 
 	my $ext = $extOriginal;    # $ext for href, $extOriginal when caculating $repLength
@@ -1484,24 +2091,28 @@ sub RememberTextOrImageFileMentionGloss {
 	if ($haveTextExtension)
 		{
 		GetTextFileRepGloss(
-			$serverAddr,   $mainServerPort, $haveQuotation, $quoteChar,  $fileExtension,
-			$fullFilePath, $pathToCheck,    $anchorWithNum, \$repString, $inlineImages
+			$serverAddr,  $mainServerPort, $haveQuotation,
+			$quoteChar,   $fileExtension,  $fullFilePath,
+			$pathToCheck, $anchorWithNum,  \$repString,
+			$shortenDisplayedLinkNames
 		);
 
 		}
 	elsif ($haveImageExtension)
 		{
 		GetImageFileRepGloss(
-			$serverAddr,   $mainServerPort, $haveQuotation, $quoteChar,
-			0,             $fullFilePath,   $pathToCheck,   \$repString,
-			$inlineImages, $doNotCacheImages
+			$serverAddr,       $mainServerPort, $haveQuotation,
+			$quoteChar,        0,               $fullFilePath,
+			$pathToCheck,      \$repString,     $inlineImages,
+			$doNotCacheImages, $shortenDisplayedLinkNames
 		);
 		}
 	elsif ($haveVideoExtension && LocationIsImageSubdirectory($fullFilePath, $contextDir))
 		{
 		GetVideoRepGloss(
-			$serverAddr,   $mainServerPort, $haveQuotation, $quoteChar, 0,
-			$fullFilePath, $pathToCheck,    \$repString,    $inlineImages
+			$serverAddr,  $mainServerPort, $haveQuotation,
+			$quoteChar,   0,               $fullFilePath,
+			$pathToCheck, \$repString,     $shortenDisplayedLinkNames
 		);
 		}
 	else
@@ -1523,11 +2134,15 @@ sub RememberTextOrImageFileMentionGloss {
 
 sub RememberDirMentionGloss {
 	my (
-		$extOriginal, $dirFullPath, $serverAddr, $mainServerPort, $haveQuotation,
-		$quoteChar,   $startPos,    $repStrA,    $repLenA,        $repStartPosA
+		$extOriginal,   $dirFullPath,  $serverAddr, $mainServerPort,
+		$haveQuotation, $quoteChar,    $startPos,   $repStrA,
+		$repLenA,       $repStartPosA, $shortenDisplayedLinkNames
 	) = @_;
 
-	my $displayedLinkName = $quoteChar . $extOriginal . $quoteChar;
+	my $maxDisplayedLinkNameLength = ($shortenDisplayedLinkNames) ? 42 : 78;
+	my $shortenedName = ShortenedLinkText($extOriginal, $quoteChar, $maxDisplayedLinkNameLength);
+
+	my $displayedLinkName = $quoteChar . $shortenedName . $quoteChar;
 
 	my $repString =
 "<a href=\"\" onclick='openDirectory(&quot;$dirFullPath&quot;); return false;'>$displayedLinkName</a>";
@@ -1542,9 +2157,10 @@ sub RememberDirMentionGloss {
 # Get link for full file path $longestSourcePath.
 sub GetTextFileRepGloss {
 	my (
-		$serverAddr,    $mainServerPort,    $haveQuotation,   $quoteChar,
-		$fileExtension, $longestSourcePath, $properCasedPath, $anchorWithNum,
-		$repStringR,    $inlineImages
+		$serverAddr,      $mainServerPort, $haveQuotation,
+		$quoteChar,       $fileExtension,  $longestSourcePath,
+		$properCasedPath, $anchorWithNum,  $repStringR,
+		$shortenDisplayedLinkNames
 	) = @_;
 
 	my $editLink   = '';
@@ -1563,10 +2179,9 @@ sub GetTextFileRepGloss {
 	# In a ToDo item a full link can be too wide too often.
 	# So shorten the displayed link name to just the file name with anchor.
 
-	# $inlineImages true means we're doing eg glossary definitions, where
-	# we have lots of room. If it's false, we're doing Gloss in a ToDo
-	# item, which is narrow.
-	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+	# $shortenDisplayedLinkNames 1 means we're in a small cramped space
+	# (such as a ToDo item) and should shorten the displayed link name a lot.
+	my $maxDisplayedLinkNameLength = ($shortenDisplayedLinkNames) ? 42 : 78;
 	$displayedLinkName =
 		ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
 
@@ -1624,13 +2239,13 @@ sub GetTextFileRepForStandaloneGloss {
 # images are loaded fully into the HTML and displayed in place.
 sub GetImageFileRepGloss {
 	my (
-		$serverAddr,      $mainServerPort,           $haveQuotation,
-		$quoteChar,       $usingCommonImageLocation, $longestSourcePath,
-		$properCasedPath, $repStringR,               $inlineImages,
-		$doNotCacheImages
+		$serverAddr,       $mainServerPort,           $haveQuotation,
+		$quoteChar,        $usingCommonImageLocation, $longestSourcePath,
+		$properCasedPath,  $repStringR,               $inlineImages,
+		$doNotCacheImages, $shortenDisplayedLinkNames
 	) = @_;
 
-	if (!defined($mainServerPort))
+	if (!defined($mainServerPort) || $doNotCacheImages)
 		{
 		GetLoadedImageFileRep($longestSourcePath, $repStringR, $doNotCacheImages);
 		return;
@@ -1651,7 +2266,7 @@ sub GetImageFileRepGloss {
 	# $inlineImages true means we're doing eg glossary definitions, where
 	# we have lots of room. If it's false, we're doing Gloss in a ToDo
 	# item, which is narrow.
-	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+	my $maxDisplayedLinkNameLength = ($shortenDisplayedLinkNames) ? 42 : 78;
 	$displayedLinkName =
 		ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
 
@@ -1694,7 +2309,7 @@ sub GetVideoRepGloss {
 	my (
 		$serverAddr,      $mainServerPort,           $haveQuotation,
 		$quoteChar,       $usingCommonImageLocation, $longestSourcePath,
-		$properCasedPath, $repStringR,               $inlineImages
+		$properCasedPath, $repStringR,               $shortenDisplayedLinkNames
 	) = @_;
 
 	my $fullPath = $longestSourcePath;
@@ -1707,11 +2322,7 @@ sub GetVideoRepGloss {
 
 	my $displayedLinkName = $properCasedPath;
 	# In a ToDo item a full link can be too wide too often.
-	# So shorten the displayed link name to just the file name with anchor.
-	# $inlineImages true means we're doing eg glossary definitions, where
-	# we have lots of room. If it's false, we're doing Gloss in a ToDo
-	# item, which is narrow.
-	my $maxDisplayedLinkNameLength = ($inlineImages) ? 72 : 28;
+	my $maxDisplayedLinkNameLength = ($shortenDisplayedLinkNames) ? 42 : 78;
 	$displayedLinkName =
 		ShortenedLinkText($displayedLinkName, $quoteChar, $maxDisplayedLinkNameLength);
 
@@ -1746,7 +2357,7 @@ sub DoTextRepsGloss {
 }
 
 # Truncate displayed link text.
-# Set $truncLimit to about 28 for ToDo item links.
+# Set $truncLimit to about 42 for ToDo item links, 78 for other links.
 sub ShortenedLinkText {
 	my ($text, $quoteChar, $truncLimit) = @_;
 	my $quoteLen = length($quoteChar);
@@ -1756,17 +2367,191 @@ sub ShortenedLinkText {
 		$truncLimit -= 2;
 		}
 
-	my $filename = FileNameFromPath($text);
-
-	my $len = length($filename);
-
-	if ($len > $truncLimit)
+	my $totalLen = length($text);
+	if ($totalLen <= $truncLimit)
 		{
-		my $offset = $len - $truncLimit;
-		$filename = substr($filename, $offset);
+		return ($text);
 		}
 
-	return ($filename);
+	my $result = '';
+
+	my $filename      = FileNameFromPath($text);
+	my $namelen       = length($filename);
+	my $directoryPart = substr($text, 0, $totalLen - $namelen);
+
+	# Truncate directory part first.
+	# Remove entire directory names.
+	$directoryPart =~ s!\\!/!g;
+	my @dirList = split(/\//, $directoryPart);
+	my $numDirs = @dirList;
+	my $dirlen  = length($directoryPart) + $numDirs;
+	my $dirNum  = 0;
+	while ($namelen + $dirlen > $truncLimit && ++$dirNum < $numDirs)
+		{
+		my $dirRemoved = $dirList[$dirNum];
+		my $oneDirLen  = length($dirList[$dirNum]) + 3;
+		$dirList[$dirNum] = '.';
+		$dirlen -= $oneDirLen;    # deduct one for the '.'
+		}
+
+	# If still too long, remove all dirs before continuing.
+	if ($namelen + $dirlen > $truncLimit)
+		{
+		@dirList = ();
+		$dirlen  = 0;
+		if ($namelen > $truncLimit)
+			{
+			my $offset = $namelen - $truncLimit;
+			$result = substr($filename, $offset);
+			}
+		else
+			{
+			$result = $filename;
+			}
+
+		}
+	else
+		{
+		if ($numDirs)
+			{
+			my $shortenedDirList = '';
+			my $ellpsisInserted  = 0;
+			for (my $i = 0 ; $i < $numDirs ; ++$i)
+				{
+				if ($dirList[$i] eq '.')
+					{
+					if ($ellpsisInserted)
+						{
+						;
+						}
+					else
+						{
+						$shortenedDirList .= '…/';
+						$ellpsisInserted = 1;
+						}
+					}
+				else
+					{
+					$shortenedDirList .= "$dirList[$i]/";
+					}
+				}
+			if ($shortenedDirList ne '')
+				{
+				# Perhaps still too long?
+				my $newDirPathLen  = length($shortenedDirList);
+				my $newFilenameLen = length($filename);
+				my $excess         = ($newDirPathLen + $newFilenameLen) - $truncLimit;
+				if ($excess > 0)
+					{
+					if ($newDirPathLen > $excess + 4)
+						{
+						++$excess;    # To compensate for the '/' added back.
+						$shortenedDirList = substr($shortenedDirList, 0, $newDirPathLen - $excess);
+						$shortenedDirList .= '/';
+						}
+					else
+						{
+						$shortenedDirList = '';
+						$excess           = $newFilenameLen - $truncLimit;
+						if ($excess > 0)
+							{
+							$filename = substr($filename, $excess);
+							}
+						}
+					}
+
+				$result = $shortenedDirList . $filename;
+				}
+			else
+				{
+				$result = $filename;
+				}
+			}
+		else
+			{
+			$result = $filename;
+			}
+		}
+
+	return ($result);
+}
+
+# Older version, not used.
+# Truncate displayed link text.
+# Set $truncLimit to about 28 for ToDo item links.
+sub xShortenedLinkText {
+	my ($text, $quoteChar, $truncLimit) = @_;
+	my $quoteLen = length($quoteChar);
+	if ($quoteLen > 0)
+		{
+		$truncLimit += 2 * length($quoteChar);
+		$truncLimit -= 2;
+		}
+
+	my $totalLen = length($text);
+	if ($totalLen <= $truncLimit)
+		{
+		return ($text);
+		}
+
+	my $result = '';
+
+	my $filename      = FileNameFromPath($text);
+	my $namelen       = length($filename);
+	my $directoryPart = substr($text, 0, $namelen);
+	my $dirlen        = length($filename);
+
+	# Truncate directory part first.
+	# Remove entire directory names.
+	$directoryPart =~ s!\\!/!g;
+	my @dirList = split(/\//, $directoryPart);
+	print("original dir list: @dirList\n");
+	my $numDirs = @dirList;
+	my $dirNum  = 1;
+	while ($namelen + $dirlen > $truncLimit && ++$dirNum < $numDirs)
+		{
+		my $oneDirLen = length($dirList[$dirNum]);
+		$dirList[$dirNum] = '…';
+		$dirlen -= $oneDirLen + 1;
+		}
+
+	# If still too long, remove all dirs before continuing.
+	if ($namelen + $dirlen > $truncLimit)
+		{
+		@dirList = ();
+		$dirlen  = 0;
+		if ($namelen > $truncLimit)
+			{
+			my $offset = $namelen - $truncLimit;
+			$result = substr($filename, $offset);
+			}
+		else
+			{
+			$result = $filename;
+			}
+
+		}
+	else
+		{
+		if ($numDirs)
+			{
+			$result = join("/", @dirList) . '/' . $filename;
+			}
+		else
+			{
+			$result = $filename;
+			}
+		}
+
+	return ($result);
+
+	# Older simple approach, just chop off the left of the file name.
+	# if ($namelen > $truncLimit)
+	# 	{
+	# 	my $offset = $namelen - $truncLimit;
+	# 	$filename = substr($filename, $offset);
+	# 	}
+	# return ($filename);
 }
 
 # "<img src=\"data:image/png;base64,$enc64\" (optional width height) />";

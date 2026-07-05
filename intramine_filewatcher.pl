@@ -419,10 +419,9 @@ sub ShouldIgnoreFile {
 							#$fullPath =~ s!\\!/!g;
 	my $result     = 0;
 
-	# Nuisance files: no period in path, or in temp or junk
+	# Nuisance files: in temp or junk or /. at start of a dir or file name
 	# or "ini" extension.
-	if (   index($fullPath, '.') < 0
-		|| $fullPath =~ m!/(temp|junk)/!
+	if (   $fullPath =~ m!/(temp|junk)/!
 		|| index($fullPath, '/.') > 0
 		|| index($fullPath, '.ini') > 0)
 		{
@@ -944,9 +943,6 @@ sub GetLogChanges {
 							}
 						else    # regular file rename, not folder
 							{
-							# TEST ONLY
-							#print("RENAME for $pathProperCased\n");
-
 							push @RenamedFilePaths, $pathProperCased;
 							}
 						}
@@ -1493,6 +1489,9 @@ sub PeriodicallyConsolidate {
 		# Clean out stale FileWatcher logs, as a nicety. It takes a while for them to pile up,
 		# but at 10 MB each might as well get rid of them now and then.
 		CleanOutOldFileWatcherLogs();
+
+		# Notify intramine_viewer.pl that full paths have been updated.
+		RequestBroadcast('signal=filepathsconsolidated');
 		}
 }
 

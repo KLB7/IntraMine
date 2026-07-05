@@ -103,6 +103,7 @@ sub ToDoPage {
 <title>To Do</title>
 <link rel="stylesheet" type="text/css" href="main.css" />
 <link rel="stylesheet" type="text/css" href="non_cm_text.css" />
+<link rel="stylesheet" type="text/css" href="blockquotes.css" />
 <link rel="stylesheet" type="text/css" href="todo_gloss_tables.css" />
 <link rel="stylesheet" type="text/css" href="tooltip.css" />
 <!-- <link rel="stylesheet" type="text/css" href="jquery-ui.min.css" /> -->
@@ -197,10 +198,12 @@ if (typeof window.ontouchstart !== 'undefined')
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
+<script src="horrible.js"></script>
 <script src="todo.js"></script>
 <script src="todoGetPutData.js"></script>
 <script src="viewerLinks.js" ></script>
 <script src="reportActivity.js" ></script>
+<script src="lolight-1.4.0.min.js"></script>
 </body></html>
 FINIS
 
@@ -318,11 +321,8 @@ sub GetData {
 			my $gloss;
 			# Context directory, does not apply and so is''.
 			# Also, we have no callback for reverse_filepaths.pm#FullPathInContextNS().
-			Gloss(
-				$desc, $serverAddr, $mainServerPort,    \$gloss,
-				1,     $IMAGES_DIR, $COMMON_IMAGES_DIR, '',
-				undef, undef
-			);
+			Gloss($desc, $serverAddr, $mainServerPort, \$gloss, 1, $IMAGES_DIR, $COMMON_IMAGES_DIR,
+				'', undef, undef, 0, 0, 1);
 			#$gloss = uri_escape_utf8($gloss);
 
 			# Spurious LF's, stomp them with malice.

@@ -642,9 +642,15 @@ sub GetReplacementHint {
 				}
 
 			# Apply Gloss to the glossary entry (sorry about that);
-			Gloss("**$termShown**: " . $gloss . $altList,
-				$host,             $port, \$glossed, 0, $IMAGES_DIR, $COMMON_IMAGES_DIR, $context,
-				$callbackFullPath, $callbackFullDirectoryPath);
+			Gloss(
+				"**$termShown**: " . $gloss . $altList, $host,
+				$port,                                  \$glossed,
+				1,                                      $IMAGES_DIR,
+				$COMMON_IMAGES_DIR,                     $context,
+				$callbackFullPath,                      $callbackFullDirectoryPath,
+				1,                                      2,
+				0
+			);
 			$glossed = uri_escape_utf8($glossed);
 
 			# Spurious LF's, stomp them with malice.

@@ -281,6 +281,51 @@ sub GetWin32ReadFileHandle {
 # 1 == OK
 # 0 == failure
 # See eg gloss2html.pl#ConvertTextToHTML().
+# NOTE "use utf8;" is REQUIRED in your program.
+sub WriteTextFileWideUTF8 {
+	my ($filePath, $contents) = @_;
+	my $filePathWin = encode("UTF-16LE", "$filePath\0");
+
+	my $F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [],
+		Win32API::File::CREATE_ALWAYS, 0, 0);
+	if (!$F)
+		{
+		# Retry before failing
+		my $maxRetries = 10;
+		my $retryCount = 0;
+		while (!$F && ++$retryCount <= $maxRetries)
+			{
+			select(undef, undef, undef, 0.1);    # sleep for a tenth of a second
+			$F = Win32API::File::CreateFileW($filePathWin, Win32API::File::GENERIC_WRITE, 0, [],
+				Win32API::File::CREATE_ALWAYS, 0, 0);
+			}
+
+		if (!$F)
+			{
+			# TEST ONLY
+			#print("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			#carp("CreateFileW for write FAILED TO OPEN |$filePathWin|! error: |$^E|\n");
+			return (0);
+			}
+		}
+
+	my $fileH;
+	if (!Win32API::File::OsFHandleOpen($fileH = IO::Handle->new(), $F, "w"))
+		{
+		#carp("OsFHandleOpen for writing FAILED for |$filePathWin|!\n");
+		return (0);
+		}
+
+	binmode($fileH, ':encoding(UTF-8)');
+
+	print $fileH "$contents";
+	close($fileH);
+
+	return (1);
+}
+
+# Legacy, intended for use by IntraMine (eg gloss_to_html.pm#ConvertTextToHTML).
+# binmode($fileH, ':encoding(UTF-8)'); is commented out.
 sub WriteTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -315,12 +360,16 @@ sub WriteTextFileWide {
 		return (0);
 		}
 
+	#binmode($fileH, ':encoding(UTF-8)');
+
 	print $fileH "$contents";
 	close($fileH);
 
 	return (1);
 }
 
+
+# NOTE "use utf8;" should be used in your program.
 sub WriteUTF8FileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -369,6 +418,7 @@ sub WriteUTF8FileWide {
 # 1 == OK
 # 0 == failure
 # See eg intramine_todolist.pl#PutData().
+# NOTE "use utf8;" should NOT be used in your program.
 sub WriteBinFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -417,6 +467,7 @@ sub WriteBinFileWide {
 # Returns
 # 1 == OK
 # 0 == failure
+# NOTE "use utf8;" is needed in your program.
 sub AppendToTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -451,6 +502,8 @@ sub AppendToTextFileWide {
 		return (0);
 		}
 
+	#binmode($fileH, ':encoding(UTF-8)');
+
 	print $fileH "$contents";
 	close($fileH);
 
@@ -463,6 +516,7 @@ sub AppendToTextFileWide {
 # 1 == OK
 # 0 == failure
 # (If this doesn't work for you, try AppendToExistingUTF8FileWide.)
+# NOTE "use utf8;" is needed in your program.
 sub AppendToExistingTextFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -497,6 +551,8 @@ sub AppendToExistingTextFileWide {
 		return (0);
 		}
 
+	#binmode($fileH, ':encoding(UTF-8)');
+
 	print $fileH "$contents";
 	close($fileH);
 
@@ -504,6 +560,7 @@ sub AppendToExistingTextFileWide {
 }
 
 # AppendToBinFileWide: like AppendToTextFileWide, but uses bin mode.
+# ("use utf8;" should not be used in your program.)
 sub AppendToBinFileWide {
 	my ($filePath, $contents) = @_;
 	my $filePathWin = encode("UTF-16LE", "$filePath\0");
@@ -546,6 +603,7 @@ sub AppendToBinFileWide {
 }
 
 # AppendToBinFileWide: like AppendToExistingTextFileWide, but uses bin mode.
+# ("use utf8;" should not be used in your program.)
 sub AppendToExistingBinFileWide {
 	my ($filePath, $contents) = @_;
 	#my $octets = decode('utf8', $filePath);
@@ -912,8 +970,46 @@ sub DeepFindFileWide {
 		}
 }
 
-# Read file.Simple pure Perl is used unless there are non-ASCII
+# Read file.Pure Perl is used unless there are non-ASCII
 # chars in the path, in which case we call UnicodeReadTextFileWide.
+sub ReadTextFileWideUTF8 {
+	my ($filePath) = @_;
+
+	my $haveWideName = 0;
+	# TEST ONLY OUT
+	if ($filePath =~ m![^\x00-\x7f]!)
+		{
+		$haveWideName = 1;
+		}
+
+	if ($haveWideName)
+		{
+		return (UnicodeReadTextFileWide($filePath));
+		}
+
+
+	# open(my $fh, '<', $filePath) or die "Could not open file '$filePath': $!";
+	# my $contents;
+	# read($fh, $contents, -s $fh);
+	# close($fh);
+
+	my $fh;
+	if (!open($fh, '<:encoding(UTF-8)', $filePath))
+		#if (!open($fh, '<', $filePath))
+		{
+		print("READ ERROR, could not open |$filePath| for reading!\n");
+		return (undef);
+		}
+
+	#binmode($fh, ':encoding(UTF-8)');
+
+	my $contents = do {local $/; <$fh>};
+	close($fh);
+
+	return ($contents);
+}
+
+# Essentially the same as above, just a different name. Used in IntraMine.
 sub ReadTextFileWide {
 	my ($filePath) = @_;
 
@@ -941,6 +1037,9 @@ sub ReadTextFileWide {
 		print("READ ERROR, could not open |$filePath| for reading!\n");
 		return (undef);
 		}
+
+	#binmode($fh, ':encoding(UTF-8)');
+
 	my $contents = do {local $/; <$fh>};
 	close($fh);
 
@@ -960,6 +1059,8 @@ sub UnicodeReadTextFileWide {
 		#carp("GetExistingReadFileHandleWide in ReadTextFileWide FAILED for |$filePath|! error: |$^E|\n");
 		return (undef);
 		}
+
+	#binmode($fh, ':encoding(UTF-8)');
 
 	my $contents = do {local $/; <$fh>};
 
@@ -1060,6 +1161,8 @@ sub ReadBinFileWide {
 		}
 
 	binmode $fh;
+	#binmode($fh, ':encoding(UTF-8)');
+
 	my $contents = do {local $/; <$fh>};
 	if (!defined($contents))
 		{
@@ -1083,6 +1186,8 @@ sub RefReadBinFileWide {
 		}
 
 	binmode $fh;
+	#binmode($fh, ':encoding(UTF-8)');
+
 	$$contentsR = do {local $/; <$fh>};
 	close($fh);
 }
