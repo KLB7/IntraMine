@@ -726,7 +726,7 @@ sub GetPrettyText {
 		for (my $i = 0 ; $i < @lines ; ++$i)
 			{
 			AddInternalLinksToLine(\${lines [$i]}, \%sectionIdExists);
-			AddGlossaryHints(\${lines [$i]}, $context);
+			AddGlossaryHints(\${lines [$i]}, $context, 0);
 			}
 		}
 	else
@@ -1349,8 +1349,6 @@ sub GlossedFootnote {
 	Gloss($footnote, $serverAddr, $mainServerPort, \$glossedFootnote, 0, $IMAGES_DIR,
 		$COMMON_IMAGES_DIR, $contextDir, undef, undef, $doNotCacheImages, 1, 0);
 
-	#my $foot = $glossedFootnote;
-
 	# TO DO avoid re-splitting the footnote.
 	# Rep inline HTML keys with HTML, preserving the back reference.
 	@footnoteLines = split(/\n/, $glossedFootnote);
@@ -1372,7 +1370,7 @@ sub GlossedFootnote {
 	# Add glossary popups
 	for (my $i = 0 ; $i < @footnoteLines ; ++$i)
 		{
-		AddGlossaryHints(\${footnoteLines [$i]}, $context);
+		AddGlossaryHints(\${footnoteLines [$i]}, $context, 0);
 		}
 
 	my $foot = join("\n", @footnoteLines);
@@ -1411,6 +1409,13 @@ sub GlossedPopupForFootnote {
 		my $numLines      = @footnoteLines;
 		ReplaceKeysWithHTMLInsideFootnotes(\@footnoteLines, $numLines);
 		# Pad out the footnote vertically if it's tiny, to allow easier mousing over (sic).
+
+		# Add glossary popups ("secondary" style only).
+		for (my $i = 0 ; $i < @footnoteLines ; ++$i)
+			{
+			AddGlossaryHints(\${footnoteLines [$i]}, $context, 1);
+			}
+
 		if ($numLines < 3)
 			{
 			push @footnoteLines, "<p></p>";
@@ -1419,7 +1424,8 @@ sub GlossedPopupForFootnote {
 		my $foot = join("\n", @footnoteLines);
 		$foot = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");
 
-		$gloss = " onmouseover=\"loadAndShowHint('$foot', this, event, '600px', false, true);\"";
+		$gloss =
+			" onmouseover=\"loadAndShowImageHint('$foot', this, event, '600px', false, true);\"";
 		}
 
 	return ($gloss);
@@ -1719,6 +1725,7 @@ sub Heading {
 			$headerLevel = 1;
 			}
 		$rawHeader =~ s!^#+\s+!!;
+		$rawHeader =~ s!\s*\#+$!!;
 		$headerProper = $rawHeader;
 		}
 	# Underlined heading, heading is on $lineBeforeR.
@@ -2736,7 +2743,7 @@ sub GetTextFileRep {
 		$displayedLinkName = $quoteChar . $displayedLinkName . $quoteChar;
 		}
 
-	$$repStringR = "<a href=\"$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
+	$$repStringR = "<a href='$viewerPath$anchorWithNum' target='_blank'>$displayedLinkName</a>";
 }
 
 sub GetVideoFileRep {
@@ -3014,11 +3021,11 @@ sub FullPathForFile {
 		{
 		if (FileOrDirExistsWide($textPath) == 1)
 			{
-			$result = $textPath;
+			$result = $pathToCheck;
 			}
 		elsif (FileOrDirExistsWide($contextDir . $textPath) == 1)
 			{
-			$result = $contextDir . $textPath;
+			$result = $contextDir . $pathToCheck;
 			}
 		}
 	return ($result);
@@ -3290,7 +3297,7 @@ let usingMathJax = _USINGMATHJAX_;
 		}
 </script>
 <script>
-function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+function loadAndShowImageHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
 	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
 }
@@ -3505,16 +3512,6 @@ my $GlossaryPath;
 my %Definition;
 my %DefinitionSeenInDocument;
 
-# Glossary hint insertion is modelled in part after AddInternalLinksToLine() above.
-my $line;
-my $len;
-
-# These replacements are more easily done in reverse order to avoid throwing off the start/end.
-my @repStr;    # new link, eg <a href="#Header_within_doc">#Header within doc</a>
-my @repLen;    # length of substr to replace in line, eg length('#Header within doc')
-my @repStartPos
-	;    # where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
-
 sub ClearDocumentGlossaryTermsSeen {
 	%DefinitionSeenInDocument = ();
 }
@@ -3525,6 +3522,9 @@ sub LoadGlossary {
 	my ($context)        = @_;
 	my $glossaryFileName = CVal('GLOSSARY_FILE_NAME');
 	my $filePath         = $context . $glossaryFileName;
+
+	# Unconditionally clear the current definition list.
+	%Definition = ();
 
 	if (FileOrDirExistsWide($filePath) != 1)
 		{
@@ -3559,7 +3559,6 @@ sub LoadGlossary {
 			my $term = $1;
 			$term =~ s!\*!!g;
 			# Make entry in %Definition for lowercase version of term.
-			#$currentTerm = lc($term);
 			@currentTerms = split(/,\s*/, lc($term));
 			my $entry = $lines[$i];
 			chomp($entry);
@@ -3570,7 +3569,6 @@ sub LoadGlossary {
 			###$entry = &HTML::Entities::encode($entry);
 			###$entry =~ s!\&#39;!\&#8216;!g;
 
-			#$Definition{$currentTerm} = "<p>$entry</p>";
 			for (my $j = 0 ; $j < @currentTerms ; ++$j)
 				{
 				$Definition{$currentTerms[$j]} = "<p>$entry</p>";
@@ -3585,9 +3583,6 @@ sub LoadGlossary {
 
 			if ($entry ne '')
 				{
-				###$entry = &HTML::Entities::encode($entry);
-				###$entry =~ s!\&#39;!\&#8216;!g;
-				#$Definition{$currentTerm} .= "<p>$entry</p>";
 				for (my $j = 0 ; $j < @currentTerms ; ++$j)
 					{
 					$Definition{$currentTerms[$j]} .= "<p>$entry</p>";
@@ -3604,21 +3599,54 @@ sub IsGlossaryPath {
 	return ($result);
 }
 
+# $inPopup means we are doing a footnote reference popup, at present
+# only one level of popups is supported for those, of the "secondary" style
+# which is done with CSS directly via display: none/inline-block.
 sub AddGlossaryHints {
-	my ($txtR, $context) = @_;
+	my ($txtR, $context, $inPopup) = @_;
 
 	# Init variables with "Glossary loading" scope.
-	$line   = $$txtR;
-	$len    = length($line);
-	@repStr = ();             # new link, eg <a href="#Header_within_doc">#Header within doc</a>
-	@repLen = ();             # length of substr to replace in line, eg length('#Header within doc')
-	@repStartPos = ()
+	my $line = $$txtR;
+	# These replacements are more easily done in reverse order to avoid throwing off the start/end.
+	my @repStr;    # new link, eg <a href="#Header_within_doc">#Header within doc</a>
+	my @repLen;    # length of substr to replace in line, eg length('#Header within doc')
+	my @repStartPos
 		; # where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
 
-	EvaluateGlossaryCandidates($context);
+	my $numReps;
+	if ($inPopup)
+		{
+		# Secondary popups only, because we're already in a popup.
+		$repStr[0]      = $line;
+		$repLen[0]      = length($line);
+		$repStartPos[0] = 0;
+		$numReps        = 1;
+		AddSecondaryGlossaryEntries($context, \@repStr, \@repLen, \@repStartPos, 0, '_INPOPUP_');
+		}
+	else
+		{
+		my %DefinitionSeenOnLine;
+		EvaluateGlossaryCandidates($line, $context, \@repStr, \@repLen, \@repStartPos, undef,
+			\%DefinitionSeenOnLine);
+
+		$numReps = @repStr;
+
+		# Put glossary popups in the glossary popups.
+		for (my $i = 0 ; $i < $numReps ; ++$i)
+			{
+			if ($repLen[$i] > 0)
+				{
+				# Avoid putting in a popup for the primary glossary entry.
+				my $termToSkip = lc(substr($line, $repStartPos[$i], $repLen[$i]));
+
+				AddSecondaryGlossaryEntries($context, \@repStr, \@repLen, \@repStartPos, $i,
+					$termToSkip);
+				}
+			}
+		}
+
 
 	# Do all reps in reverse order at end.
-	my $numReps = @repStr;
 	if ($numReps)
 		{
 		for (my $i = $numReps - 1 ; $i >= 0 ; --$i)
@@ -3640,7 +3668,9 @@ sub AddGlossaryHints {
 # looking for entries one..four words long. So results are sorted.
 # Do just one glossary entry per line for any particular glossary term.
 sub EvaluateGlossaryCandidates {
-	my ($context) = @_;
+	my ($line, $context, $repStrA, $repLenA, $repStartPosA, $termToSkip, $definitionSeenOnLineH) =
+		@_;
+	my $doingSecondaryPopup = (defined($termToSkip)) ? 1 : 0;
 
 	my $inFootnoteBody = 0;    # Not used at the moment.
 	if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
@@ -3650,12 +3680,36 @@ sub EvaluateGlossaryCandidates {
 
 	my @startPosSeen;          # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen;            # Length of a matched term, also indexed by $startPos
-	my $posIndex = 0;
-	my %DefinitionSeenOnLine;
+	my $posIndex           = 0;
+	my $doingFootnotePopup = 0;
+	if (defined($termToSkip) && $termToSkip ne '')
+		{
+		if ($termToSkip eq '_INPOPUP_')
+			{
+			$doingFootnotePopup = 1;
+			}
+		}
 
 	my @wordStartPos;
 	my @wordEndPos;
-	GetLineWordStartsAndEnds($line, \@wordStartPos, \@wordEndPos);
+	if ($doingSecondaryPopup)
+		{
+		GetPcLineWordStartsAndEnds($line, \@wordStartPos, \@wordEndPos);
+		}
+	else
+		{
+		GetLineWordStartsAndEnds($line, \@wordStartPos, \@wordEndPos);
+		}
+
+	# Skip trailing "Alt: " synonyms, don't put popups on them.
+	my $altPos = -1;
+	# This isn't bulletproof, will fail on a spurious "Alt: ".
+	$altPos = rindex($line, 'Alt: ');
+	if ($altPos < 0)
+		{
+		$altPos = rindex($line, 'Alt%3A%20');
+		}
+
 	my $numWordStarts = @wordStartPos;
 
 	# Four-word matches down to one-word matches:
@@ -3672,9 +3726,23 @@ sub EvaluateGlossaryCandidates {
 				my $startPos = $wordStartPos[$i];                   # beginning of match
 				my $endPos   = $wordEndPos[$i + $nWordsMinusOne];   # pos of char after end of match
 				my $len      = $endPos - $startPos;
-				my $words    = substr($line, $wordStartPos[$i], $len);
-				my $term     = lc($words);    # glossary terms are lower case in %Definition
-				if (defined($Definition{$term}) && !RangeOverlapsExistingAnchor($startPos, $endPos))
+				my $words         = substr($line, $wordStartPos[$i], $len);
+				my $originalWords = $words;
+				# For secondaries, replace %3C etc with a single space.
+				if ($doingSecondaryPopup)
+					{
+					# Drop out if we've hit the Alt list at the bottom of the entry.
+					if ($altPos > 0 && $startPos >= $altPos)
+						{
+						last;
+						}
+					$words =~ s!(\%[0-9A-Fa-f][0-9A-Fa-f])+! !g;
+					}
+				my $term = lc($words);    # glossary terms are lower case in %Definition
+				$term =~ s!\s+! !g;
+				if (defined($Definition{$term})
+					&& !RangeOverlapsExistingAnchor($line, $startPos, $endPos, $doingSecondaryPopup)
+					)
 					{
 					# Skip if current term formed part of a previous term.
 					my $overlapped = 0;
@@ -3687,27 +3755,25 @@ sub EvaluateGlossaryCandidates {
 							}
 						}
 
-					if (!$overlapped && !defined($DefinitionSeenOnLine{$term}))
+					if (!$overlapped && !defined($definitionSeenOnLineH->{$term}))
 						{
 						my $definitionAlreadySeen =
 							(defined($DefinitionSeenInDocument{$term})) ? 1 : 0;
 						my $replacementHint =
-							GetReplacementHint($term, $words, $definitionAlreadySeen, $context);
+							GetReplacementHint($term, $words, $definitionAlreadySeen, $context,
+							$doingSecondaryPopup, $doingFootnotePopup);
 
-						if ($inFootnoteBody)
-							{
-							#$replacementHint = uri_escape_utf8($replacementHint);
-							}
-
-						my $repLength        = length($words);
+						my $repLength        = length($originalWords);
 						my $repStartPosition = $startPos;
-						push @repStr,      $replacementHint;
-						push @repLen,      $repLength;
-						push @repStartPos, $repStartPosition;
-						$startPosSeen[$posIndex]         = $startPos;
-						$endPosSeen[$posIndex++]         = $startPos + $repLength;
+						push @{$repStrA},      $replacementHint;
+						push @{$repLenA},      $repLength;
+						push @{$repStartPosA}, $repStartPosition;
+
+						$startPosSeen[$posIndex] = $startPos;
+						$endPosSeen[$posIndex++] = $startPos + $repLength;
+						# Skip any new "Alt: " terms.
+						SkipAltTerms($replacementHint, $definitionSeenOnLineH);
 						$DefinitionSeenInDocument{$term} = 1;
-						$DefinitionSeenOnLine{$term}     = 1;
 						}
 
 					$i += $nWords;
@@ -3726,21 +3792,168 @@ sub EvaluateGlossaryCandidates {
 		--$nWords;
 		}
 
-	SortGlossaryResultsForOneLine();
+	SortGlossaryResultsForOneLine($repStrA, $repLenA, $repStartPosA);
+}
+
+# Poke alt synonymns for a glossary term into %$definitionSeenOnLineH.
+# Some of this is probably not needed (but harmless).
+sub SkipAltTerms {
+	my ($line, $definitionSeenOnLineH) = @_;
+
+	# Pick up the main entry near the start, <strong>Main entry</strong>.
+	if ($line =~ m!%3Cstrong%3E(.+?)%3C%2Fstrong%3E! || $line =~ m!<strong>(.+?)</strong>!)
+		{
+		my $mainEntry = lc($1);
+		$definitionSeenOnLineH->{$mainEntry} = 1;
+		$mainEntry =~ s!%20! !g;
+		$definitionSeenOnLineH->{$mainEntry} = 1;
+		}
+
+	# If the popup has been processed, there will be an Alt: at the end
+	# followed by synonyms.
+	# Skip trailing "Alt: " synonyms, don't put popups on them.
+	my $altPos = -1;
+	# This isn't bulletproof, will fail on a spurious "Alt: ".
+	my $startSkip = 5;    # Length of 'Alt: '
+	$altPos = rindex($line, 'Alt: ');
+	if ($altPos < 0)
+		{
+		$altPos    = rindex($line, 'Alt%3A%20');
+		$startSkip = 9;                            # Length of 'Alt%3A%20'
+		}
+	if ($altPos < 0)
+		{
+		$altPos    = rindex($line, 'alt%3a%20');
+		$startSkip = 9;                            # Length of 'Alt%3A%20'
+		}
+
+	if ($altPos > 0)
+		{
+		my $altString = substr($line, $altPos + $startSkip);
+		$altString =~ s!%2C!,!gi;
+		$altString =~ s!\*!!g;
+		$altString =~ s!%2A!!gi;
+
+		my @alts    = split(/,/, $altString);
+		my $numAlts = @alts;
+		for (my $i = 0 ; $i < @alts ; ++$i)
+			{
+			my $syn = lc($alts[$i]);        # glossary terms are lower case in %Definition
+			if (1 || $i == $numAlts - 1)    # last item
+				{
+				# Trim '<'' and following (HTML stuff)
+				my $anglePos = index($syn, '<');
+				if ($anglePos < 0)
+					{
+					$anglePos = index($syn, '%3c');    # also '<'
+					}
+				if ($anglePos > 0)
+					{
+					$syn = substr($syn, 0, $anglePos);
+					}
+				}
+			$syn =~ s!^\s+!!;
+			$syn =~ s!\s+$!!;
+			$syn =~ s!^(%20)+!!;
+			$syn =~ s!(%20)+$!!;
+			$definitionSeenOnLineH->{$syn} = 1;
+			$syn =~ s!%20! !g;
+			$definitionSeenOnLineH->{$syn} = 1;
+
+			# And going the other way, rep space with %20.
+			$syn =~ s! !%20!g;
+			$definitionSeenOnLineH->{$syn} = 1;
+			}
+		}
+	else
+		{
+		# Likely we're at the stage before putting in the "Alt:" at the bottom, so
+		# look for the raw list of synonyms at the beginning and put them in
+		# the $definitionSeenOnLineH hash.
+		if ($line =~ m!^\s*(.+?[^\\]):!)
+			{
+			my $terms = $1;
+			$terms =~ s!\*!!g;
+			$terms =~ s!%2A!!g;
+			my @currentTerms = split(/,/, lc($terms));
+			for (my $j = 0 ; $j < @currentTerms ; ++$j)
+				{
+				my $syn = $currentTerms[$j];
+				$syn =~ s!^\s+!!;
+				$syn =~ s!\s+$!!;
+				$syn =~ s!^(%20)+!!;
+				$syn =~ s!(%20)+$!!;
+				$definitionSeenOnLineH->{$syn} = 1;
+				$syn =~ s!%20! !g;
+				$definitionSeenOnLineH->{$syn} = 1;
+				# And going the other way, rep space with %20.
+				$syn =~ s! !%20!g;
+				$definitionSeenOnLineH->{$syn} = 1;
+				}
+			}
+		}
+
+	# One last check, are we in a "pure image" type of glossary entry?
+	# Typical pure image entry:
+	# <a class='glossary' href="#" onmouseOver="showhint('<img src=&quot;http://192.168.40.8:81/Viewer/C:/perlprogs/IntraMine/images_for_web_server/tenor.gif&quot;>', this, event, '600px', true, true);">CTRL+C</a>
+	# And also
+	# <a%20class='glossary%20term-seen'%20href="#" ...
+	if (   $line =~ m!^<a class='glossary'.+?;">([^<]+)</a>!
+		|| $line =~ m!^<a%20class='glossary'.+?;">([^<]+)</a>!
+		|| $line =~ m!^<a class='glossary term-seen'.+?;">([^<]+)</a>!
+		|| $line =~ m!^<a%20class='glossary%20term-seen'.+?;">([^<]+)</a>!)
+		{
+		my $term = lc($1);
+		$term =~ s!(\%[0-9A-Fa-f][0-9A-Fa-f])+! !g;
+		$term =~ s!\s+! !g;
+		$definitionSeenOnLineH->{$term} = 1;
+		}
+}
+
+sub AddSecondaryGlossaryEntries {
+	my ($context, $repStrA, $repLenA, $repStartPosA, $i, $termToSkip) = @_;
+
+	my $line = $repStrA->[$i];
+	my @repStrTWO;    # new link, eg <a href="#Header_within_doc">#Header within doc</a>
+	my @repLenTWO;    # length of substr to replace in line, eg length('#Header within doc')
+	my @repStartPosTWO
+		; # where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
+	my @repLinkTypeTWO;    # For CodeMirror, 'glossary' is the only type here.
+
+	my %DefinitionSeenOnLine;
+	SkipAltTerms($line, \%DefinitionSeenOnLine);
+
+	# $termToSkip defined means GetReplacementHint does secondary popup replacement
+	EvaluateGlossaryCandidates($line, $context, \@repStrTWO, \@repLenTWO, \@repStartPosTWO,
+		$termToSkip, \%DefinitionSeenOnLine);
+
+	my $numReps = @repStrTWO;
+	if ($numReps)
+		{
+		my $numFirstOderReps = @{$repStrA};
+		for (my $j = $numReps - 1 ; $j >= 0 ; --$j)
+			{
+			substr($line, $repStartPosTWO[$j], $repLenTWO[$j], $repStrTWO[$j]);
+			}
+
+		$repStrA->[$i] = $line;
+		}
 }
 
 # Sort @repStartPos, @repLen, and @repStr in ascending order by @repStartPos.
 sub SortGlossaryResultsForOneLine {
-	my $numReps = @repStartPos;
+	my ($repStrA, $repLenA, $repStartPosA) = @_;
+
+	my $numReps = @$repStartPosA;
 	if (!$numReps)
 		{
 		return;
 		}
 
-	my @idx = sort {$repStartPos[$a] <=> $repStartPos[$b]} 0 .. $#repStartPos;
-	@repStr      = @repStr[@idx];
-	@repLen      = @repLen[@idx];
-	@repStartPos = @repStartPos[@idx];
+	my @idx = sort {$repStartPosA->[$a] <=> $repStartPosA->[$b]} 0 .. $#{$repStartPosA};
+	@{$repStrA}      = @{$repStrA}[@idx];
+	@{$repLenA}      = @{$repLenA}[@idx];
+	@{$repStartPosA} = @{$repStartPosA}[@idx];
 }
 
 # Find start and end positions of words in line.
@@ -3756,12 +3969,30 @@ sub GetLineWordStartsAndEnds {
 		}
 }
 
+# Find start and end positions of words in line, with % encoding.
+sub GetPcLineWordStartsAndEnds {
+	my ($line, $startA, $endA) = @_;
+
+	# A wee fudge, replace %3C etc with three spaces.
+	$line =~ s!\%[0-9A-Fa-f][0-9A-Fa-f]!   !g;
+
+	while ($line =~ m!([\w'-]+)!g)
+		{
+		my $startPos = $-[1];    # beginning of match
+		my $endPos   = $+[1];    # one past last matching character
+		push @$startA, $startPos;
+		push @$endA,   $endPos;
+		}
+}
+
 # Return the full glossary definition, in an anchor element.
 # If the entry is just an image, put in the image as the hint.
 # If the entry has synonyms, remove them from the term being defined and show them
 # as "Alt: " in a new paragraph at the bottom of the hint.
 sub GetReplacementHint {
-	my ($term, $originalText, $definitionAlreadySeen, $context) = @_;
+	my ($term, $originalText, $definitionAlreadySeen, $context, $doingSecondaryPopup,
+		$doingFootnotePopup)
+		= @_;
 	my $host       = undef;
 	my $port       = undef;
 	my $VIEWERNAME = undef;
@@ -3779,8 +4010,20 @@ sub GetReplacementHint {
 		$bin64Img =~ s!\n!!g;    # JS doesn't like \n inside the image string
 		if ($bin64Img ne '')
 			{
-			$result =
+			if ($doingSecondaryPopup)
+				{
+				$result =
+"<span class=&quot;popup-wrapper&quot;>$originalText<span class=&quot;popup-content&quot;>___GLOSS_GOES_HERE___</span></span>";
+				$result = uri_escape_utf8($result);
+				my $imageElement = "&quot;$bin64Img&quot;";
+				$result =~ s!___GLOSS_GOES_HERE___!$imageElement!;
+
+				}
+			else
+				{
+				$result =
 "<a class='$class' href=\"#\" onmouseOver=\"showhint('$bin64Img', this, event, '500px', true);\">$originalText</a>";
+				}
 			}
 		else
 			{
@@ -3830,6 +4073,8 @@ sub GetReplacementHint {
 			else
 				{
 				$termShown = ucfirst($synonyms[0]);
+				# Add a line.
+				$gloss .= "\n";
 				}
 
 			# Apply Gloss to the glossary entry (sorry about that);
@@ -3840,15 +4085,34 @@ sub GetReplacementHint {
 			$glossed =~ s!&amp;#8216;!'!g;
 			$glossed =~ s!&amp;quot;!"!g;
 
-			$glossed = uri_escape_utf8($glossed);
+			if (!$doingFootnotePopup)
+				{
+				$glossed = uri_escape_utf8($glossed);
+				}
+
+			#$glossed = uri_escape_utf8($glossed);
 
 			# Spurious LF's, stomp them with malice.
 			$glossed =~ s!\%0A!!g;
 			$gloss = $glossed;
 			}
 
-		$result =
-"<a class='$class' href=\"#\" onmouseover=\"loadAndShowHint('$gloss', this, event, '600px', false, true);\">$originalText</a>";
+		if ($doingSecondaryPopup)
+			{
+			$result =
+"<span class=&quot;popup-wrapper&quot;>$originalText<span class=&quot;popup-content&quot;>___GLOSS_GOES_HERE___</span></span>";
+			if (!$doingFootnotePopup)
+				{
+				$result = uri_escape_utf8($result);
+				}
+			#$result = uri_escape_utf8($result);
+			$result =~ s!___GLOSS_GOES_HERE___!$gloss!;
+			}
+		else
+			{
+			$result =
+"<a class='$class' href=\"#\" onmouseover=\"loadAndShowImageHint('$gloss', this, event, '600px', false, true);\">$originalText</a>";
+			}
 		}
 
 	return ($result);
@@ -3868,8 +4132,6 @@ sub ImageNameFromGloss {
 		|| $gloss =~ m!^\<p\>[^:]+\:\s*\"([^\>]+)\"\.?\</p\>$!i
 		|| $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\&quot\;(.+?)\&quot\;\.?\</p\>$!i
 		|| $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\"(.+?)\"\.?\</p\>$!i)
-		# if ( $gloss =~ m!^\<p\>[^:]+\:\s*\&quot\;([^\>]+)\&quot\;\.?\</p\>$!i
-		#   || $gloss =~ m!^\<p[^\>]+\>[^:]+\:\s*\</span\>\&quot\;(.+?)\&quot\;\.?\</p\>$!i )
 		{
 		my $imageName = $1;
 		if ($imageName =~ m!\.(\w+)$!)
@@ -3900,19 +4162,31 @@ sub AnchorForGlossaryTerm {
 # Is $startPos or $endPos inside an <a>...</a> element?
 # Also skip if $startPos in inside the opener of <h1 2 or 3.
 sub RangeOverlapsExistingAnchor {
-	my ($startPos, $endPos) = @_;
+	my ($line, $startPos, $endPos, $doingSecondaryPopup) = @_;
 	my $insideExistingAnchor = 0;
 
-	# Is there an anchor on the line?
-	if (index($line, '<a') > 0)
+	# Is there an anchor on the line? Skip line start if doing a secondary popup
+	# (since the "$line" starts with <a class='glossary').
+	# We also look for %3Ca (which happens in secondary popups).
+	my $anchorStartPosition = ($doingSecondaryPopup) ? 3 : 0;
+	if (index($line, '<a', $anchorStartPosition) > 0 || index($line, '%3Ca') > 0)
 		{
 		# Does any anchor overlap?
-		my $pos     = 0;
-		my $nextPos = 0;
-		while (($nextPos = index($line, '<a', $pos)) >= 0)
+		my $pos            = $anchorStartPosition;
+		my $nextPos        = index($line, '<a',   $pos);
+		my $nextPosPercent = index($line, '%3Ca', $pos);
+		$nextPos =
+			($nextPosPercent >= 0 && ($nextPos < 0 || $nextPosPercent < $nextPos))
+			? $nextPosPercent
+			: $nextPos;
+		while ($nextPos >= 0)
 			{
-			my $aStart = $nextPos;
-			my $aEnd   = index($line, '</a>', $nextPos);
+			my $aStart      = $nextPos;
+			my $aEnd        = index($line, '</a>',    $nextPos);
+			my $aEndPercent = index($line, '%3C%2Fa', $nextPos);
+			#$aEnd = ($aEndPercent < $aEnd) ? $aEndPercent : $aEnd;
+			$aEnd =
+				($aEndPercent >= 0 && ($aEnd < 0 || $aEndPercent < $aEnd)) ? $aEndPercent : $aEnd;
 			if ($aEnd > 0)
 				{
 				if (   ($startPos >= $aStart && $startPos <= $aEnd)
@@ -3924,9 +4198,17 @@ sub RangeOverlapsExistingAnchor {
 				}
 			else    # should not happen, like, ever.
 				{
+				$insideExistingAnchor = 1;
 				last;
 				}
-			$pos = $aEnd + 1;
+
+			$pos            = $aEnd + 1;
+			$nextPos        = index($line, '<a',   $pos);
+			$nextPosPercent = index($line, '%3Ca', $pos);
+			$nextPos =
+				($nextPosPercent >= 0 && ($nextPos < 0 || $nextPosPercent < $nextPos))
+				? $nextPosPercent
+				: $nextPos;
 			}
 		}
 
@@ -3948,8 +4230,7 @@ sub AddGlossaryAnchor {
 	my ($txtR) = @_;
 
 	# Init variables with "Glossary loading" scope.
-	$line = $$txtR;
-	$len  = length($line);
+	my $line = $$txtR;
 
 	# Typical line start for defined term:
 	# <tr><td n='21'></td><td>Strawberry Perl:
@@ -3963,7 +4244,6 @@ sub AddGlossaryAnchor {
 		$term =~ s!\*!!g;
 		my $anchorText = AnchorForGlossaryTerm($term);
 		my $rep        = "<h2 id=\"$anchorText\"><strong>$originalText</strong>:</h2>";
-		#		my $rep = "<a id=\"$anchorText\"><strong>$originalText</strong>:</a>";
 		$$txtR = $pre . $rep . $post;
 		}
 	# While we're passing by, remove the '\' from '\:'.

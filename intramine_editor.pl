@@ -392,7 +392,7 @@ FINIS
 	if ($filePath =~ m!\.txt$!i)
 		{
 		$checkSpelling =
-"<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" />";
+"<input id=\"spellcheck-button\" class=\"submit-button\" type=\"submit\" value=\"Check\" title=\"Check spelling on/off\" />";
 		}
 	$theBody =~ s!_CHECKSPELLING_!$checkSpelling!;
 
@@ -656,7 +656,7 @@ sub NonCodeMirrorThemeCSS {
 
 sub PositionToggle {
 	my $result =
-'<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
+'<input onclick="toggle();" onmouseover="showToggleHint(this, event);" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
 	return ($result);
 }
 
@@ -936,7 +936,7 @@ FINIS
 
 sub ShowHideDiffsButton {
 	my $result = <<'FINIS';
-<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" /></a>
+<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" title="Show/hide git diffs, current saved vs last commit" /></a>
 FINIS
 
 	return ($result);

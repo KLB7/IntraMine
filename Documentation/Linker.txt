@@ -20,7 +20,7 @@ Here we mainly go over local file links. You'll find more about autolinking in "
 
 What the Linker does differently
 ================================
-For local files, IntraMine implements FLASH links (Fast Local Automatic Source and text Hyperlinks), a new approach to autolinking. IntraMine's Linker knows all file paths of interest on your system, and understands the notion of distance between your "referencing file" where you're typing, and the "target file" that you want to link to. Combined, this means you typically have to type only a file name in order to get a link when using the Viewer or Editor. When there's more than one matching file, you'll get a link to the one that's closest to the document where you're typing.
+For local files, IntraMine implements FLASH links (Fast Local Automatic Source and text Hyperlinks), a new approach to autolinking. IntraMine's Linker knows all file paths of interest on your system, and understands the notion of distance between your "referencing file" where you're typing, and the "target file" that you want to link to. Combined, this means you typically have to type only a file name in order to get a link when using the Viewer or Editor. When there's more than one matching file, you'll get a link to the one that's closest to the document where you're typing. If you pause your cursor over a FLASH link, you'll see the full path that was selected.
 
 Let's get some terminology out of the way first:
 **Referencing file**: the source or text file where you're typing, and want to have a link to a target file.

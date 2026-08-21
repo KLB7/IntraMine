@@ -106,6 +106,7 @@ let errorID = "runMessageDiv";
 <script src="topnav.js"></script>
 <script src="todoFlash.js"></script>
 <script src="chatFlash.js"></script>
+<script src="horrible.js"></script>
 <script src="tooltip.js"></script>
 <script src="quicksort.js"></script>
 
@@ -206,7 +207,7 @@ sub DirectoryPicker {
 	my $theSource = <<'FINIS';
 <!--<form id="dirform">-->
 <div id='dirpickerMainContainer'>
-	<p id="directoryPickerTitle">Directory Picker</p>
+	<p id="directoryPickerTitle">Directory/File Picker</p>
 	<div id='dirpicker'>
 		<div id="scrollAdjustedHeightDirPicker">
 			<div id="fileTreeLeft">

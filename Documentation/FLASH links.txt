@@ -4,7 +4,13 @@ FLASH links
 makealink.gif
 *Making a FLASH Link.*
 
-When a source or text file is viewed with IntraMine, local or NAS file mentions within it will be turned into links, provided the file mentioned is in an indexed location. If it isn't, you'll need a full path to get a link. So needless to say indexing all the files you'll be interested in is strongly recommended. In the details below I'll assume a file is in an indexed directory unless a full path is used. For details on how to index folders, see "Configuring folders to index and monitor.txt".
+The short story
+=================
+FLASH links will appear in source and .txt files as displayed by IntraMine's Editor and Viewer, and (in a limited way) in .txt files after conversion to standalone HTML.
+
+To make a simple FLASH link, type a file specifier in your referencing file, using IntraMine's Editor. After a couple of seconds it will turn into a link. The link will be to the closest matching file relative to your context directory, chosen from IntraMine's list of all full paths of interest to you. If you display the file with IntraMine's Viewer you'll see the same link. Pause your cursor over the link to see the full path that's been selected. If you want a different path than the closest, add one or more directory names to the file specifier (or include a drive letter, which must come first). The directory names included should be chosen to make the path unique, and don't have to be in order or a complete list.
+
+If you're intending to convert a .txt file to standalone HTML using the Glosser service, the file you want to link to should be in the same folder or an adjacent folder.
 
 Linking to other files
 ======================

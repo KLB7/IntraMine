@@ -526,8 +526,6 @@ The custom CSS might come in useful now and then, but I can't think of a use for
 
 Footnotes and citations
 --------------------------
-Just so we're on the same page, a footnote is generally either an explanation or a citation. And a citation is either a quotation with source, or just a source of something in the main text. You'll find some examples below.
-
 Gloss shows footnote references as superscripts and citation references are shown inline when converted to HTML. That's really the only difference between the two.
 
 To see footnotes and citations as converted to HTML, use IntraMine's Viewer on a .txt file, or convert your .txt source file to standalone HTML using IntraMine's Glosser service or the gloss2html.pl Perl program at the top of your IntraMine folder.
@@ -543,7 +541,7 @@ To put a note in your source text:
  - follow with the note
  - the note ends when there's a blank line
  - if you want an apparently blank line, put a space or tab on it
- - most Gloss styling can be used, as described above. However, you can't reference a note inside the body of a note. Linking for standalone HTML is limited in the same way as described for popups in standalone HTML, see "Glossary popups.txt#Standalone is special" - basically, you can link to .txt or .html or image files in the same folder, or any web page. When viewing a .txt file with IntraMine's Viewer, full FLASH links are implemented (as of November 2025)
+ - most Gloss styling can be used, as described above. However, you can't reference a note inside the body of a note. Linking for standalone HTML is limited in the same way as described for popups in standalone HTML, see "Glossary popups.txt#Standalone is special" - basically, you can link to .txt or .html or image files in the same folder or a sibling folder, or any web page. When viewing a .txt file with IntraMine's Viewer, full FLASH links are implemented (as of November 2025)
  - although you can define a note anywhere in your .txt document, it's best to put them all at the bottom. Line numbers in the HTML version will have skips where the notes were extracted from the main text if you don't put them at the bottom.
  
 Here's an **example**, with a zero-width space at the beginning of the line to disable processing in the HTML version:
@@ -600,9 +598,13 @@ There is no difference in the display of the body of footnotes versus citations.
 
 Links in footnotes
 ~~~~~~~~~~~~~~~~~~
-Links to local files and directories in footnotes should be enclosed in 'single' or "double" quotes. When using the Viewer to display a .txt file, you'll get full FLASH link power. For standalone HTML as converted from .txt file, links are limited to files in the same folder as the file being converted, or files in "sibling" folders. A sibling folder is one at the same level as the folder holding your .txt file. For example, if you're typing in /docs/api/basics.txt you can link to /docs/internals/comm.txt by using the link "../internals/comm.txt". You can also link an image in any "images" subfolder just by quoting its name, the images subfolder will be checked when linking. Linking for standalone HTML files is restricted because the intent is to allow one or more HTML files to be placed on a web site or emailed, so the reader won't have access to all of your files. For that reason it's best to allow people access to your running IntraMine instance if you can, in which case you'll have full FLASH link capabilities.
+Links to local files and directories in footnotes should be enclosed in 'single' or "double" quotes. When using the Viewer to display a .txt file, you'll get full FLASH link power. For standalone HTML as converted from .txt file, links are limited to files in the same folder as the file being converted, or files in sibling folders. You can also link an image in any "images" subfolder just by quoting its name, the images subfolder will be checked when linking. Linking for standalone HTML files is restricted because the intent is to allow one or more HTML files to be placed on a web site or emailed, so the reader won't have access to all of your files. For that reason it's best to allow people access to your running IntraMine instance if you can, in which case you'll have full FLASH link capabilities.
 
 Nevertheless if you do need a link to a file that's beyond the containing folder or sibling folders for standalone HTML, put a full path in quotes.
+
+Glossary entries in footnotes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can have glossary entries in footnotes or citations. In note bodies, you'll get 
 
 A suggestion
 ~~~~~~~~~~~~~~~
@@ -687,7 +689,7 @@ contents.html
 
 [^biggy29]: A footnote with id "biggy29" in the source .txt, probably renumbered automatically to 7 in the HTML display. There is no need for a blank line after the last note.
 
-[^elGloss]: Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use FLASH links in source files, as described in "Gloss.html". Gloss can also be used in glossary definitions which show in any text or source file, see "Glossary popups.html" for glossary usage.
+[^elGloss]: Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use FLASH links in source files, as described in "Gloss.html". It can also be used in glossary definitions which show in any text or source file, see "Glossary popups.html" for glossary usage.
  
 A sample table (see "Gloss.html#Tables" for details)
 TABLE Gloss support in various contexts
@@ -700,12 +702,12 @@ Lists					Yes						No					Yes					Yes
 CODE blocks				Yes						No					No					No
 (A TABLE ends when there's a line with no tab.)
 Quotes can be single or double, eg "Gloss.html" or 'Gloss.html'.
-IntraMine's Editor fully supports FLASH links, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
+IntraMine's Editor fully supports FLASH links, image hovers, and glossary popups, but otherwise shows markup as typed.
 You can also have
 1. Numbered lists
 1.2 with subitems, up to 99.99
  - bulleted lists
   -- with subitems too
 **Bold**, *italic*, and *!*/* Code snippets */ int x = 42;*!*.
-  
+Images will be shown inline, eg "button1.png" "globe.gif" "favicon-32x32.png"
 :)

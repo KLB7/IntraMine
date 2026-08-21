@@ -2,6 +2,10 @@ Other Perl programs
 ===================
 These are non-server scripts included with IntraMine, all at the top level. For the Gloss to standalone HTML program see "gloss2html.pl for standalone Gloss files.txt"
 
+autolinking_demo.pl
+--------------------
+This program demonstrates IntraMine's FLASH link algorithm, which given a file specifier such as "todo.js" that you've typed somewhere in a source or text file looks through all file paths of interest to you and selects the one that's closest, based on directory hops up and down from the referencing file to the target file. There are copious comments in it, and if you've installed IntraMine you have what you need to run it. Read through it, run it, and you'll have an excellent understanding of FLASH links, I promise:)
+
 codemirror_extensions.pl
 -------------------------
 Pulls a list of languages and corresponding file extensions that CodeMirror supports, from /CodeMirror-master/mode/meta.js. Output is in the form of hash entries, to /temp/cm_extensions.txt. There are some extensions that CodeMirror doesn't currently support, such as ".bat", so for a full list of extensions some have to be added by hand. The full current list can be found in libs/ext.pm.

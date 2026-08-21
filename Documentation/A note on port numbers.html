@@ -859,9 +859,9 @@ a.embedded_image {
 }
 
 /* footnote tables proper: */
+
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -874,11 +874,11 @@ a.embedded_image {
 }
 
 .gloss_div table tbody tr:not(first-child) {
-	display: block;
+	/*display: block;*/
 	margin: 0;
-	/*padding-left: 26px;*/
 	padding-top: 3px;
 }
+
 
 /* Footnote actual tables, to be shown as proper tables. */
 .gloss_div table.bordered tbody tr:first-child {
@@ -2146,6 +2146,8 @@ paragraph (ie not the first paragraph in the item).
 	line-height:18px;
 	z-index:100;
 	visibility: hidden;
+
+	anchor-name: --tip-anchor; /* Anchor for secondary popups, .popup-content stuff. */
 		
 	overflow: auto;
 	overflow-wrap: break-word;
@@ -2480,6 +2482,37 @@ paragraph (ie not the first paragraph in the item).
 	padding-bottom: 8px;
 }
 
+/* CSS for the "secondary popup" in the Viewer, Editor, and standalone HTML.*/
+/* The container holding both the link and the popup */
+.popup-wrapper {
+	display: inline-block;
+	text-decoration: underline dotted #666;
+	cursor: default;
+	}
+	
+/* The actual popup content (hidden by default) */
+.popup-content {
+display: none;
+position: fixed;
+cursor: default;
+background-color: #FFFFF4 !important;
+border: 1px solid black !important;
+position-anchor: --tip-anchor;
+top: auto;
+bottom: anchor(--tip-anchor top);
+position-try-fallbacks: flip-block;
+left: anchor(left); /* 10% */
+width: 450px; /* was 80%;*/
+padding: 10px;
+z-index: 1;
+box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+font-weight: 400;
+}
+	
+.makePopupVisible {
+	display: inline-block;
+	}
+	
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -2580,7 +2613,7 @@ AABJRU5ErkJggg==
 <tr id='R10'><td n='10'></td><td></td></tr>
 <tr id='R11'><td n='11'></td><td>'INTRAMINE_FIRST_SWARM_SERVER_PORT' is the first of a range of 48 consecutive port numbers that IntraMine will use for its (non-Main) services. As best I can tell those ports are not used by any other app or service.</td></tr>
 <tr id='R12'><td n='12'></td><td></td></tr>
-<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cimg%20src__EQUALSIGN_REP____DQUOTE_REP__data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001__DQUOTE_REP__%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> run</td></tr>
+<tr id='R13'><td n='13'></td><td>If you want to verify that IntraMine's wanted port numbers aren't in use, at a <a class='glossary' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3ECommand%20prompt%3C%2Fstrong%3E%3A%20The%20command%20prompt%20window%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cimg%20src_EQR__DQR_data%3Aimage%2Fpng%3Bbase64%2C__img__cache__00001_DQR_%20%20%2F%3E%3C%2Ftd%3E%3C%2Ftr%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3EThe%20flashing%20insertion%20point%20in%20the%20window%20that%20comes%20up%20when%20you%20run%20C%3A%2FWindows%2FSystem32%2Fcmd.exe%20or%20PowerShell.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">command prompt</a> run</td></tr>
 <tr id='R14'><td n='14'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2603,7 +2636,7 @@ AABJRU5ErkJggg==
 <tr id='R25'><td n='25'></td><td></td></tr>
 <tr id='R26'><td n='26'></td><td><h2 id="Worth_reading_if_youre_bored">Worth reading if you're bored</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine__ONEQUOTE_REP__s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20Short%20name%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20swarm%20server%20that%20can__ONEQUOTE_REP__t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> listens to currently unused ports.</td></tr>
+<tr id='R28'><td n='28'></td><td>You're a patient person, having read this far, so if you're wondering why IntraMine reserves ports beyond the ones it needs for services, here's an explanation. Suppose you fire up a lot of services, say 30 in total. No problem so far. Then you decide you don't need that many, and reduce to say 20 services. The problem pops up if someone has created a bookmark in their browser for a service that was running on one of the higher port numbers that is no longer in use. The port number for the service instance will be right in the bookmark, because all page requests going to the Main round-robin server are redirected to a port where the desired service is running. If IntraMine isn't listening on that port number any more, the browser will just throw an error. But if it is listening, it can redirect the request to the proper server, provided an instance of it is running on a lower port number. And that's why IntraMine's <a class='glossary' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EMain%20server%3C%2Fstrong%3E%3A%20IntraMine_SQR_s%20round-robin%20redirect%20server%2C%20intramine_main.pl.%20The%20Main%20server%20redirects%20requests%20to%20appropriate%20swarm%20servers%2C%20based%20on%20the%20%3Cspan%20class%3D%26quot%3Bpopup-wrapper%26quot%3B%3EShort%20name%3Cspan%20class%3D%26quot%3Bpopup-content%26quot%3B%3E%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EShort%20name%3C%2Fstrong%3E%3A%20The%20unique%20name%20for%20an%20IntraMine%20service%2C%20as%20found%20in%20data%2Fserverlist.txt.%20Each%20service%20should%20have%20its%20own%20unique%20name%20in%20the%20_DQR_Short%20name_DQR_%20column%20there.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E%3C%2Fspan%3E%3C%2Fspan%3E%20in%20the%20request%2C%20and%20can%20receive%20these%20requests%20directly%20or%20from%20a%20%3Cspan%20class%3D%26quot%3Bpopup-wrapper%26quot%3B%3Eswarm%20server%3Cspan%20class%3D%26quot%3Bpopup-content%26quot%3B%3E%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3ESwarm%20server%3C%2Fstrong%3E%3A%20A%20service%20written%20to%20run%20under%20IntraMine.%20A%20server%20is%20a%20_DQR_swarm_DQR_%20server%20if%20it%20uses%20_DQR_swarmserver.pm_DQR_%20to%20answer%20HTTP%20requests%2C%20and%20communicate%20with%20other%20services%2C%20including%20IntraMine_SQR_s%20main%20service.%20There_SQR_s%20more%20in%20%3Ca%20href_EQR__SQR_.%2Fwriting%20your%20own%20intramine%20server.html_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_Writing%20your%20own%20IntraMine%20server.html_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E%3C%2Fspan%3E%3C%2Fspan%3E%20that%20can_SQR_t%20handle%20a%20request.%20Main%20also%20handles%20requests%20to%20broadcast%20a%20signal%20to%20other%20IntraMine%20servers%2C%20by%20name%20or%20port%20or%20general%20type.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Main server</a> listens to currently unused ports.</td></tr>
 <tr id='R29'><td n='29'></td><td></td></tr>
 <tr id='R30'><td n='30'></td><td>If you're a glutton for details, see near the top of intramine_main.pl#MainLoop(), where 'TOTAL_SWARM_PORTS_TO_MONITOR' is used.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
@@ -2612,7 +2645,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R33'><td n='33'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R33'><td n='33'></td><td><a href='./contents.html' target='_blank'>contents.txt</a></td></tr>
 <tr id='R34'><td n='34'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2654,7 +2687,7 @@ let usingMathJax = false;
 		}
 </script>
 <script>
-function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+function loadAndShowImageHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
 	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
 }
@@ -2721,7 +2754,6 @@ let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
-
 
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
@@ -2899,10 +2931,135 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
+		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
 		}, 100);
 
 }
 
+// Remember a secondary popup is open, don't close the hintbox here if it is.
+// See startSecondaryStillUpTimer etc below.
+let secondaryPopupIsOpen = false;
+let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
+
+// Cheating a bit, we also make the popup-content visible.
+function startSecondaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentSeocndaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		secondaryPopupIsOpen = true;
+		}
+  
+	hideSecondaryTimer = setTimeout(() => {
+		hideSecondaryIfMouseHasLeft(el);
+	}, DELAY_MS);
+}
+
+function resetSecondaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideSecondaryTimer);
+		hideSecondaryTimer = null;
+		hideSecondaryTimer = setTimeout(() => {
+			hideSecondaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
+
+function hideCurrentSeocndaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			break;
+			}
+		}
+}
+
+function hideSecondaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+			{
+			// Run the timer again.
+			hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over secondary wrapper or content, close it up.
+			hideSecondaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				secondaryPopupIsOpen = false;
+				}		
+			}
+		}
+}
+
+// Check the popup-content span inside the popup-wrapper 'el'
+// element, see if mouse is over it
+function mouseStillOverSecondaryContent(el) {
+	let stillOver = false;
+
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-content'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+	
+	return(stillOver);
+}
+
+function mouseStillOverSecondaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-wrapper'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function addGlossaryPopupListeners(targetClass, contentClass) {
+	let popupWrappers = document.querySelectorAll('.' + targetClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startSecondaryStillUpTimer);
+			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
+			});
+		}
+		
+	}
+	
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -3120,6 +3277,8 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 function decodeHint(text) {
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
+
+	text = putRealQuotes(text);
 
 	return(text);
 }
@@ -3384,7 +3543,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
@@ -3437,7 +3596,7 @@ function mouseStillOverHintbox() {
 
 	let elements = document.elementsFromPoint(cursor_x, cursor_y);
 
-	for (var i = 0; i < elements.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		let elementId = elements[i].id;
 		if (elementId === "hintbox")
 			{
@@ -4825,29 +4984,34 @@ window.addEventListener("load", function() {
 // editing, and also in gloss.pm#Gloss() when applying Gloss to the
 // description.
 function horribleEscape(text) {
-	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-	text = text.replace(/\"/g, '__DQUOTE_REP__');
-	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-	text = text.replace(/\\t/g, '__TABERINO__');
-	text = text.replace(/\\/g, '__BSINO__');
+	text = text.replace(/\=/g, '_EQR_');
+	text = text.replace(/\"/g, '_DQR_');
+	text = text.replace(/\'/g, '_SQR_');
+	text = text.replace(/\+/g, '_PSR_');
+	text = text.replace(/\%/g, '_PCR_');
+	text = text.replace(/\&/g, '_AMR_');
+	text = text.replace(/\\t/g, '_TR_');
+	text = text.replace(/\\/g, '_BSR_');
 
 	return(text);        
 }
 
 // Reverse of horribleEscape just above.
 function horribleUnescape(text) {
-	text = text.replace(/__EQUALSIGN_REP__/g, '=');
-	text = text.replace(/__DQUOTE_REP__/g, '\"');
-	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-	text = text.replace(/__PLUSSIGN_REP__/g, '+');
-	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-	text = text.replace(/__TABERINO__/g, '\\t');
-	text = text.replace(/__BSINO__/g, '\\');
+	text = text.replace(/_EQR_/g, '=');
+	text = text.replace(/_DQR_/g, '\"');
+	text = text.replace(/_SQR_/g, '\'');
+	text = text.replace(/_PSR_/g, '+');
+	text = text.replace(/_PCR_/g, '%');
+	text = text.replace(/_AMR_/g, '&');
+	text = text.replace(/_TR_/g, '\\t');
+	text = text.replace(/_BSR_/g, '\\');
 
+	return(text);
+}
+
+function putRealQuotes(text) {
+	text = text.replace(/\&quot;/g, '\"');
 
 	return(text);
 }
@@ -5779,6 +5943,11 @@ function finishReload() {
 	addScrollListenerAndSetMarkdown();
 
 	addTocScrollListener();
+
+	if (typeof resetToggle !== 'undefined')
+		{
+		resetToggle();
+		}
 }
 
 // Code block highlighting with lolight, used
@@ -5920,11 +6089,6 @@ function lolightit(text) {
 	
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
-
-	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
-		{
-		console.log("Lolight called");
-		}
 
 	let tokArr = lolight.tok(text);
 	let highlightedHtml = lolightTokWrapped(tokArr);
@@ -7617,17 +7781,38 @@ function hideIndicator() {
 
 let proximalLineNumber = 1;	// "here"
 let distalLineNumber = 1;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
 	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+	// TEST ONLY
+	//console.log("Go to: |" + distalSampleLines + "|");
+
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	let el = document.getElementById(cmTextHolderName);
 	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
 	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -7654,11 +7839,64 @@ function updateTogglePositions() {
 	else
 		{
 		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+		// TEST ONLY
+		//console.log("Go to: |" + distalSampleLines + "|");
+
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+		
 	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let firstLineNumber = lineNumber;
+	let tdElement = document.getElementById('R' + lineNumber);
+	while (tdElement !== null && ++linesSoFar <= numLines)
+		{
+		let lineText = tdElement.innerText;
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		tdElement = document.getElementById('R' + lineNumber);
+		if (tdElement === null) // probably a shrunkrow
+			{
+			++lineNumber;
+			tdElement = document.getElementById('R' + lineNumber);
+			}
+		}
+
+	if (lines !== '')
+		{
+		lines = 'Go to ' + firstLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from

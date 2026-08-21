@@ -59,7 +59,9 @@ A minimal set for search/view/edit
 ==================================
 By default, the Count for both Linker and Viewer services is set to 2. The Viewer is small, so it doesn't matter much, but the Linker does take a bit of memory, needing about 400 MB for every 300,000 files. So if you find you're low on memory, you can free up a bit by setting the Linker Count to 1. The one main drawback of doing so is that the Linker will go out of service for a few seconds if you rename a folder. With two running, the Linkers take turns for maintenance and there is no service interruption.
 
-If you just want to search, view, and edit source and text files, you can disable the ToDo, DBX, and Bp servers. You can also disable the Editor server if you want, or use your own preferred editing app in place of IntraMine's built-in editor, as described in "Editing documents.txt".
+If you just want to search, view, and edit source and text files, you can disable the Days, Events, ToDo, Cash, Cmd, DBX, Bp, and Chat servers. Additionally, you can turn off the Status, EM, Reindex, or Glosser services if you decide you don't need them.
+
+You can also disable the Editor server if you want, or use your own preferred editing app in place of IntraMine's built-in editor, as described in "Editing documents.txt".
 
 Ramping up for many users
 =========================

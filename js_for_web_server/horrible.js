@@ -12,29 +12,34 @@
 // editing, and also in gloss.pm#Gloss() when applying Gloss to the
 // description.
 function horribleEscape(text) {
-	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-	text = text.replace(/\"/g, '__DQUOTE_REP__');
-	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-	text = text.replace(/\\t/g, '__TABERINO__');
-	text = text.replace(/\\/g, '__BSINO__');
+	text = text.replace(/\=/g, '_EQR_');
+	text = text.replace(/\"/g, '_DQR_');
+	text = text.replace(/\'/g, '_SQR_');
+	text = text.replace(/\+/g, '_PSR_');
+	text = text.replace(/\%/g, '_PCR_');
+	text = text.replace(/\&/g, '_AMR_');
+	text = text.replace(/\\t/g, '_TR_');
+	text = text.replace(/\\/g, '_BSR_');
 
 	return(text);        
 }
 
 // Reverse of horribleEscape just above.
 function horribleUnescape(text) {
-	text = text.replace(/__EQUALSIGN_REP__/g, '=');
-	text = text.replace(/__DQUOTE_REP__/g, '\"');
-	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-	text = text.replace(/__PLUSSIGN_REP__/g, '+');
-	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-	text = text.replace(/__TABERINO__/g, '\\t');
-	text = text.replace(/__BSINO__/g, '\\');
+	text = text.replace(/_EQR_/g, '=');
+	text = text.replace(/_DQR_/g, '\"');
+	text = text.replace(/_SQR_/g, '\'');
+	text = text.replace(/_PSR_/g, '+');
+	text = text.replace(/_PCR_/g, '%');
+	text = text.replace(/_AMR_/g, '&');
+	text = text.replace(/_TR_/g, '\\t');
+	text = text.replace(/_BSR_/g, '\\');
 
+	return(text);
+}
+
+function putRealQuotes(text) {
+	text = text.replace(/\&quot;/g, '\"');
 
 	return(text);
 }

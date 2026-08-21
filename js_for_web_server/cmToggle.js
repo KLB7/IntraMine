@@ -8,14 +8,31 @@
 
 let proximalLineNumber = 0; // "here"
 let distalLineNumber = 0;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	jumpToLine(proximalLineNumber, false);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -36,10 +53,55 @@ function updateTogglePositions() {
 		}
 	else
 		{
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+
 	//console.log("Toggle position call, top line is " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let maximumLines = myCodeMirror.lineCount();
+	let firstLineNumber = lineNumber;
+
+	while (++linesSoFar <= numLines && lineNumber < maximumLines)
+		{
+		let lineText = myCodeMirror.getLine(lineNumber);
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		}
+
+	if (lines !== '')
+		{
+		let displayedLineNumber = firstLineNumber + 1;
+		lines = 'Go to ' + displayedLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from

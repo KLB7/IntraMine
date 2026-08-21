@@ -164,18 +164,19 @@ sub GetHTMLforFormH {
 	return ($formHContents);
 }
 
+# Not used.
 # Needed for the contents of showhint() tooltips.
 sub horribleEscape {
 	my ($text) = @_;
 
-	$text =~ s!\=!__EQUALSIGN_REP__!g;
-	$text =~ s!\"!__DQUOTE_REP__!g;
-	$text =~ s!\'!__ONEQUOTE_REP__!g;
-	$text =~ s!\+!__PLUSSIGN_REP__!g;
-	$text =~ s!\%!__PERCENTSIGN_REP__!g;
-	$text =~ s!\&!__AMPERSANDSIGN_REP__!g;
-	$text =~ s!\t!__TABERINO__!g;            # true tab replaced by placeholder
-	$text =~ s!\\!__BSINO__!g;
+	$text =~ s!\=!_EQR_!g;
+	$text =~ s!\"!_DQR_!g;
+	$text =~ s!\'!_SQR_!g;
+	$text =~ s!\+!_PSR_!g;
+	$text =~ s!\%!_PCR_!g;
+	$text =~ s!\&!_AMR_!g;
+	$text =~ s!\t!_TR_!g;    # true tab replaced by placeholder
+	$text =~ s!\\!_BSR_!g;
 
 	return ($text);
 }

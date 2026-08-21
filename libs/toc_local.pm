@@ -350,7 +350,7 @@ sub GetTextTOC {
 
 	if (!LoadTextFileContents($filePath, \$contents, \$octets))
 		{
-		#print("LOAD FAILURE!\n");
+		#print("GetTextTOC LOAD FAILURE!\n");
 		return;
 		}
 
@@ -487,6 +487,10 @@ sub NoteTextHeading {
 			$headerLevel = 1;
 			}
 		$rawHeader =~ s!^#+\s+!!;
+		$rawHeader =~ s!\s*\#+$!!;
+
+		$rawHeader =~ s!\%!%25!g;
+
 		$headerProper = $rawHeader;
 		}
 	# Underlined heading, heading is on $lineBeforeR.
@@ -495,6 +499,7 @@ sub NoteTextHeading {
 		{
 		#$beforeHeader = $1;
 		$headerProper = $$lineBeforeR;
+		$headerProper =~ s!\%!%25!g;
 		#$afterHeader = $3;
 		if (substr($underline, 0, 1) eq '=')
 			{

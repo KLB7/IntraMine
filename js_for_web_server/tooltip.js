@@ -31,7 +31,6 @@ let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
 
-
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
 	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
@@ -208,10 +207,135 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
+		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
 		}, 100);
 
 }
 
+// Remember a secondary popup is open, don't close the hintbox here if it is.
+// See startSecondaryStillUpTimer etc below.
+let secondaryPopupIsOpen = false;
+let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
+
+// Cheating a bit, we also make the popup-content visible.
+function startSecondaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentSeocndaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		secondaryPopupIsOpen = true;
+		}
+  
+	hideSecondaryTimer = setTimeout(() => {
+		hideSecondaryIfMouseHasLeft(el);
+	}, DELAY_MS);
+}
+
+function resetSecondaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideSecondaryTimer);
+		hideSecondaryTimer = null;
+		hideSecondaryTimer = setTimeout(() => {
+			hideSecondaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
+
+function hideCurrentSeocndaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			break;
+			}
+		}
+}
+
+function hideSecondaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+			{
+			// Run the timer again.
+			hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over secondary wrapper or content, close it up.
+			hideSecondaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				secondaryPopupIsOpen = false;
+				}		
+			}
+		}
+}
+
+// Check the popup-content span inside the popup-wrapper 'el'
+// element, see if mouse is over it
+function mouseStillOverSecondaryContent(el) {
+	let stillOver = false;
+
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-content'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+	
+	return(stillOver);
+}
+
+function mouseStillOverSecondaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-wrapper'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function addGlossaryPopupListeners(targetClass, contentClass) {
+	let popupWrappers = document.querySelectorAll('.' + targetClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startSecondaryStillUpTimer);
+			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
+			});
+		}
+		
+	}
+	
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -429,6 +553,8 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 function decodeHint(text) {
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
+
+	text = putRealQuotes(text);
 
 	return(text);
 }
@@ -693,7 +819,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
@@ -746,7 +872,7 @@ function mouseStillOverHintbox() {
 
 	let elements = document.elementsFromPoint(cursor_x, cursor_y);
 
-	for (var i = 0; i < elements.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		let elementId = elements[i].id;
 		if (elementId === "hintbox")
 			{

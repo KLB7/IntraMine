@@ -162,11 +162,9 @@ function rebuildDirList() {
 		dirListElem.innerHTML = '';
 		dirInnerHTML = '';
 		
-		// We need to reverse the keys in directoryCache.cache
-		// to show the most recently used first.
 		let keysArr = Array.from(directoryCache.cache.keys() );
-		for (let key of keysArr.reverse()) {
-			//console.log(key);
+		for (let key of keysArr) {
+				//console.log(key);
 			let dirValue = decodeURIComponent(key);
 			let dirChild = "<option value='" + dirValue + "'>";
 			dirInnerHTML += dirChild;
@@ -182,8 +180,8 @@ function rebuildDirList() {
 function saveDirCache() {
 	let keysArr = Array.from(directoryCache.cache.keys() );
 	let dirString = '';
-	for (let key of keysArr.reverse()) {
-		if (dirString === '')
+	for (let key of keysArr) {
+			if (dirString === '')
 			{
 			dirString = key;
 			}
@@ -203,6 +201,9 @@ function loadDirCache() {
 	if (!localStorage.getItem("dirCacheGlosser")) {
 		return;
 		}
+
+	// ONE SHOT for testing.
+	//localStorage.setItem("dirCacheGlosser", "");
 		
 	let dirString = localStorage.getItem("dirCacheGlosser");
 	const keysArr = dirString.split("|");

@@ -41,39 +41,33 @@ Elasticsearch: Arguably the best free search engine. IntraMine uses Elasticsearc
 Gloss: IntraMine's Markdown variant, minimal memorable markup designed for intranet use. You can use it fully in text files and use FLASH links in source files, as described in "Gloss.html". Gloss can also be used in glossary definitions which show in any text or source file, see "Glossary popups.html" for glossary usage.
 
 A sample table (see "Gloss.html#Tables" for details)
-TABLE Gloss support in various contexts
+TABLE Gloss support in various contexts, a partial list
 Feature					IntraMine Viewer, text	Viewer, source		Glossary popups		ToDo
-Bold, italic, code		Yes						No					Yes					Yes
 FLASH links			Yes (full support)		Yes					"Quotes needed"		"Quotes needed"
+Glossary popups			Yes					Yes						Yes (2ndary)		No
+Go2						Yes					Yes						No					No
 Image hovers			Yes						Yes					No (inlined)		"Quotes needed"
 Tables					Yes						No					Yes					Yes (use tab or \t to separate cells)
-Lists					Yes						No					Yes					Yes
-CODE blocks				Yes						No					No					No
 (A TABLE ends when there's a line with no tab.)
+
 Quotes can be single or double, eg "Gloss.html" or 'Gloss.html'.
 IntraMine's Editor fully supports FLASH links, Go2, image hovers, and glossary popups, but otherwise shows Gloss markup as typed.
-You can also have
-1. Numbered lists
-1.2 with subitems, up to 99.99
- - bulleted lists
-  -- with subitems too
-**Bold**, *italic*, and *!*/* Code snippets */ int x = 42;*!*.
-Images will be shown inline, eg "button1.png" "globe.gif" "favicon-32x32.png"
-
+You can also have numbered and bulleted lists, **bold**, *italic*, and *!*/* Code snippets */ int x = 42;*!*.
+Images will be shown inline, eg "globe.gif"
 :)
 
-Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. You can tell if an image is linked, it has little yellow hummingbirds around it.
+Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. In the Viewer an image has little yellow hummingbirds around it. In the Editor it has a gray background.
 
 Here's an example\:
 "animage.png"
 
-Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, FLASH links, syntax highlighting for source files, tables and lists etc for source and text files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Viewer.html".
+Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, FLASH links, syntax highlighting for source files, tables and lists etc for source and text files, and supports Go2 for all files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Viewer.html".
 
-Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file, or click on the right side of a FLASH link (you'll see "Edit" in small print when you place your cursor over the right end). In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so -  "editorlink.png". For more see "Editor.html".
+Editor: by default IntraMine's built-in Editor. CodeMirror-based, it has standard editing commands and implements FLASH links for local files and web URLs, as well as image hovers and glossary popups, and it supports Go2 for all files. When a file is saved using the Editor, any Viewer display of the file will refresh instantly. To invoke the Editor, click on a "pencil" icon "edit1.png" next to a link in Search results or the Files page or within a Viewer display, or click the "Edit" button at the top of any Viewer display of a file, or click on the right side of a FLASH link (you'll see "Edit" in small print when you place your cursor over the right end). In IntraMine's Editor the edit link is a purple rectangle at the end of the link, like so -  "editorlink.png". For more see "Editor.html".
 
 Partial path, file specifier, link specifier, link specifiers, file specifiers: For IntraMine's FLASH links, a partial path always includes the file name, and includes zero or more directories that are in its full path. Directories can be skipped, and can be out of order. Drive letter is also optional (but must of course be first if present).
 
-For example, "project51/Cpp/main.cpp" would be a partial path for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp". Under the right circumstances, it could uniquely identify the main.cpp wanted for linking.
+For example, "project51/Cpp/main.cpp" would be a partial path for file specifier for "P꞉/Cpp/OtherProjects/Project51/src/main.cpp".
 
 See "FLASH links.txt" for details.
 
@@ -89,11 +83,13 @@ And you can set it to always "Run as administrator" by right-clicking on the sho
 
 Map network drive: Open a File Explorer window, click on "This PC" on the left, and then select "Map network drive" at the top. Enter the \\\\host-name\\share-name you want to map, and then select a drive letter to map it to on the PC you're sitting at. Whether or not you'll want to reconnect using a different account is up to you, depending on how you've set things up.
 
-Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a "file specifier" such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to where you're typing, based on directory hops up and down to go from one to the other. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended though not required).
+Autolinks, automatic links, automatic linking, autolinking, FLASH link, FLASH links, FLASH linking: when you type a file specifier such as qtcpserver.cpp in a text or source file, IntraMine links it to the instance that's closest to the context directory holding the file where you're typing, based on directory hops up and down to go from one to the other. Instances are drawn from your list of full paths for files of interest to you. If needed, you can add some directory names or a drive letter to pin down the file you want, but mostly that's not necessary. You can also link to headings within other files, such as "Gloss.txt#Gloss vs MultiMarkdown tables" (for heading links, quotes are recommended though not required).
 
 See "FLASH links.html" and also "Gloss.html" and "Linker.html" in IntraMine's Documentation folder for more details and some examples. And autolinking_demo.pl at the top of your IntraMine folder for a running example of the FLASH link algorithm.
 
 FLASH is short for Fast Local Automatic Source and text Hyperlinks. And yes, it does encourage "FLASH links" which suffers from RAS syndrome. I'll fix that when we all stop saying "PIN number."
+
+Files of interest: in IntraMine, these are files in directories that you have specified for indexing (at installation time, or later by using the Reindex service). That list is used when selecting candidates for linking when you put a file name or other file specifier in a text or Markdown or source document.
 
 Linker: IntraMine's hyperlink service, implementing FLASH links in particular. Also glossary popups. For more see "Linker.html".
 
@@ -114,7 +110,7 @@ Navigation bar: "topnav.png".
 Status page: "Status.html"
 "2020-02-27 22_40_46-Status.png".
 
-Context aware, context-aware: IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as "main.cpp" is used for many files, we need some way to pin down which "main.cpp" is meant. IntraMine does this in two ways: you can provide enough of a sufficient path leading up to the file, such as "project51/src/main.pp", that only one indexed file matches that sufficient path; or, if you mean the main.cpp that's "closest" to the file where you've mentioned it, then that's the one IntraMine will pick by default, and only the file name is needed.
+Context aware, context-aware, context directory: the directory holding the file being displayed by IntraMine's Editor or Viewer. IntraMine will automatically put links in your source and text files where files are mentioned. If a file name such as "main.cpp" is used for many files, we need some way to pin down which "main.cpp" is meant. IntraMine does this in two ways: you can provide enough of a sufficient path leading up to the file, such as "project51/src/main.pp", that only one indexed file matches that sufficient path; or, if you mean the main.cpp that's "closest" to the file where you've mentioned it, then that's the one IntraMine will pick by default, and only the file name is needed.
 
 "Closest" uses the folder notion of distance, where a step up to a parent folder or a step down into a child folder counts as one step.
 
@@ -124,6 +120,8 @@ For more, see "FLASH Links.txt".
 
 gloss2html.pl: A Perl program supplied with IntraMine that converts .txt files to completely self-contained moderately attractive HTML files, applying Gloss (with some restrictions on linking). Converted files can be copied to any folder, emailed, etc, and viewed using any browser.
 
+Note the same conversion to HTML from .txt can be done a bit more conveniently with the Glosser service, see "Glosser.html".
+
 You can convert one file, or a whole folder. Images can be of the "pop up on hover" sort, or inlined in the text. If you supply a glossary.txt file, popup hints will appear for any glossary item mentions in your converted files.
 
 There are the usual Gloss features. If you click on a word, it will be highlighted throughout the document; there's an auto-scrolling table of contents down the left; mentions of other section titles in a document become links if placed in double quotes; mentions of other documents in the folder being converted become links (quotes are also required for links); and there are tables, headings, lists etc. See "Gloss.html" and gloss2html.pl top comments for more.
@@ -132,38 +130,62 @@ WebSockets: like HTTP, but it allows two-way communications, and easy communicat
 
 CTRL+C: "tenor.gif".
 
-Referencing file: the source or text file where you're typing, and want to have a link to a target file. What you type as shorthand for the target file's full path is the "link specifier". The path to the directory holding the referencing file is the "context directory".
+Referencing file: for FLASH links, the source or text file where you're typing, and want to have a link to a target file. What you type as shorthand for the target file's full path is the "link specifier". The path to the directory holding the referencing file is the "context directory".
 
-Context directory: the path to the directory holding a referencing file. Eg "p:/projects/project51/docs" or "p:/projects/project99/src".
+Glossary popup, glossary popups: for general use with IntraMine, glossary popup definitions are contained in any files called "glossary_master.txt" as found in any folder listed in your data/search_directories.txt file. See the glossary_master.txt file at the top of your IntraMine folder for an example. Glossary terms in all source and text files displayed with IntraMine's Viewer will have a dotted underline, and pausing your mouse over the term will show the definition. Popups support rich styling such as bold, italic, FLASH links, and images.
 
-Glossary popup, glossary popups: for general use with IntraMine, glossary popup definitions are contained in any files called "glossary_master.txt" as found in any folder listed in your data/search_directories.txt file. See the glossary_master.txt file at the top of your IntraMine folder for an example. Glossary terms in all source and text files displayed with IntraMine's Viewer will have a dotted underline, and pausing your mouse over the term will show the definition. Popups support rich styling such as bold, italic, FLASH links, and images. For more see "Glossary popups.html".
+Glossary popup windows themselves also support secondary popups\: any term in the main popup with a glossary entry will have a dotted underline, and pausing the cursor over it will produce a secondary popup, typically near the top of your window.
+
+For more see "Glossary popups.html".
 
 A separate glossary is available for use with gloss2html.pl and the Glosser service. It should be called "glossary.txt" and placed at the top level of any folder containing text files that you want to convert to standalone HTML using gloss2html. For details see "Glosser.html" and "gloss2html.pl for standalone Gloss files.html".
 
-Shortcut on your desktop: To make a shortcut to any file, in a Windows File Explorer view hold down the Shift and Ctrl keys and drag the file to your desktop, or wherever you want the shortcut.
+Primary popup, primary popups: popups appear when you pause your cursor over a word or short phrase that has a dotted underline. The first popup that appears is the primary popup. Primary popups are available in IntraMine's Viewer and Editor display of source and text files in the body text, footnote body text, and footnote reference popup text, regardless of whether a file is in your list of files of interest. They are also available in standalone HTML files as created by IntraMine's Glosser service, in the same places, though entries there are taken from a "glossary.txt" file in the same folder rather than your "glossary_master.txt" files - see "Glossary popups.txt#Two glossaries".
 
-Watcher, FILEWATCHER: the name for intramine_filewatcher.pl, a BACKGROUND service that monitors directories for changes based on your directory list in data/search_directories.txt. It checks in regularly with the log from File Watcher Utilities, and also runs and listens to bats/foldermonitore.ps1, which pushes change notifications more quickly.
+Secondary popup, secondary popups: if you move your cursor into a popup that's already showing and pause your cursor over text with a dotted underline, a secondary popup will appear.
+
+Files of interest: files in folders that you have indexed for searching, according to the list of folders in data/search_directories.txt.
+
+Shortcut on your desktop: To make a shortcut to any file, in a Windows File Explorer view hold down the Shift and Ctrl keys and drag the file to your desktop, or wherever you want the shortcut.
 
 Reindex service: the Reindex page has two buttons, to edit your list of directories to index and monitor, and to completely rebuild your search index. For details see "Reindex.html".
 
-Reserved service, reserved services, reserved server, reserved servers: A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started. To make a reserved server, set its Count field to 0 in data/serverlist.txt. To start one, use the "Add one page server" menu on the Status page. Once started if will appear under the "Page servers" list on the Status page, and have an entry in the top navigation bar if appropriate. A typical serverlist entry for a reserved server looks like
+File Watcher, FILEWATCHER: the name for intramine_filewatcher.pl, a BACKGROUND service that monitors directories for changes based on your directory list in data/search_directories.txt. It checks in regularly with the log from File Watcher Utilities, and also runs and listens to bats/foldermonitore.ps1, which pushes change notifications more quickly.
+
+Reserved service, reserved services, reserved server, reserved servers: A reserved server (or service) has a port number reserved for it when IntraMine starts, though is not initially started, *but* it will appear under the "Add one page server" menu on the Status page. To make a reserved server, set its Count field to 0 in data/serverlist.txt. To start one, use the "Add one page server" menu on the Status page. Once started if will appear under the "Page servers" list on the Status page, and have an entry in the top navigation bar if appropriate. A typical serverlist entry for a reserved server looks like
+
 0	Reindex				Reindex		intramine_reindex.pl
+
 (note there are tabs between the fields)
 
-Zombie: reserved servers are sometimes called "zombie" servers in the documentation. A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started.
+Zombie: reserved servers are sometimes called "zombie" servers in the documentation. A reserved server (or service) has a port number reserved for it when IntraMine starts, but is not initially started. However, it will appear under the "Add one page server" menu on the Status page.
 
-Go2: select a word or short phrase, keep you cursor fairly still, and a popup will appear listing links to other files that mention the text. The less common the text is, the more useful the links will be. For details see "Go2.txt".
+Go2: select a word or short phrase, keep you cursor fairly still, and a popup will appear listing links to other files that mention the text. The less common the text is, the more useful the links will be. This works with all files displayed using IntraMine's Viewer or Editor, but only links to files in indexed locations will be shown. For details see "Go2.txt".
+
 "go2_cropped.gif"
 
 Glosser: see "Glosser.txt", a service that generates standalone HTML from Gloss-styled .txt files.
 
-Footnote, footnotes, citation, citations: "Gloss.txt#Footnotes and citations" has details. A note starts flush left with "[^id}:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of Gloss can be used in the note body. The note pops up if you hover over a reference.
+Footnote, footnotes, citation, citations: "Gloss.txt#Footnotes and citations" has details. A note starts flush left with "[^id]\:" where "id" is a string of numbers or letters that uniquely identifies the note. References have the form "[^id]" and are citations if preceded by a space or tab, footnote otherwise. Most of what you'll find in "Gloss.txt" can be used in the note body. The note pops up if you hover over a reference.
 
 indexed location: in IntraMine, this refers to a directory that has been listed in your data/search_directories.txt file, or a subdirectory of one listed there. See "Configuring folders to index and monitor.txt" for details.
 
 Precision thumb: Viewer and Editor displays of large documents have a yellow "precision thumb" marker in the scroll bar that corresponds to the true relative size of a page and is correctly positioned. Marker positions for selected text are also correctly positioned, and the combination means that if you scroll to a scroll bar marker and it's say one-third of the way down the yellow marker then it will be one-third of the way down the page being viewed. The precision thumb appears only in large documents (roughly greater than 4,000 lines), and is useful until about 10,000 lines. It disappears when you're not scrolling.
+
 "dornt.png"
 
-Standalone HTML: these are .html files as generated from .txt by IntraMine's Glosser service, or (if you prefer a Cmd line approach) by the gloss2html.pl program. For nicest results the .txt file should be marked up using Gloss, IntraMine's minimal Markdown variant aimed at intranet use. See also "Gloss.txt" and "Glosser.txt". The resulting HTML files are single and self-contained, except if LaTeX is used for math, in which case an Internet connection will be needed (see "Math.txt" for details on typesetting math).
+Standalone HTML: these are .html files as generated from .txt by IntraMine's Glosser service, or (if you prefer a Cmd line approach) by the gloss2html.pl program. For best results the .txt file should be marked up using Gloss, IntraMine's minimal Markdown variant aimed at intranet use. See also "Gloss.txt" and "Glosser.txt". The resulting HTML files are single and self-contained, except if LaTeX is used for math, in which case an Internet connection will be needed (see "Math.txt" for details on typesetting math).
 
-Adjacent folder, sibling folder: a sibling or adjacent folder is one at the same level as the folder holding your .txt file. For example, if you're typing in /docs/api/basics.txt you can link to /docs/internals/comm.txt by using the link "../internals/comm.txt". When linking to local files in .txt intended for conversion to standalone HTML, you can link to files in the same folder or an adjacent folder.
+Adjacent folder, sibling folder, adjacent folders, sibling folders: a sibling or adjacent folder is one at the same level as the folder holding your .txt file. For example, if you're typing in /docs/api/basics.txt you can link to /docs/internals/comm.txt by using the link "../internals/comm.txt". When linking to local files in .txt intended for conversion to standalone HTML, you can link to files in the same folder or an adjacent folder.
+
+Closest matching file: in IntraMine's Editor and Viewer, when you type a file name all matching full paths will be examined, as found in all indexed locations, and from them the "closest" match will be chosen for the link. "Closest" means the fewest number of hops up and down in your directory hierarchy to go from when you're typing to the target file.
+
+Paths of interest: all full paths to all files contained in the folders that you've listed for indexing in your data/search_directories.txt file (instructions are there at the top). After the indexing is done, of course. To get a FLASH link to a file not indexed you need to type the full path to the file.
+
+Frammistat: an arrangement of circular Interrocitors with quantum gates.
+
+Interrocitor, Interrocitors: a solid neutronium force field generator. See "Interrocitors explained.txt".
+
+
+
+

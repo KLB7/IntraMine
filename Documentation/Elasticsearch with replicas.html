@@ -859,9 +859,9 @@ a.embedded_image {
 }
 
 /* footnote tables proper: */
+
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -874,11 +874,11 @@ a.embedded_image {
 }
 
 .gloss_div table tbody tr:not(first-child) {
-	display: block;
+	/*display: block;*/
 	margin: 0;
-	/*padding-left: 26px;*/
 	padding-top: 3px;
 }
+
 
 /* Footnote actual tables, to be shown as proper tables. */
 .gloss_div table.bordered tbody tr:first-child {
@@ -2146,6 +2146,8 @@ paragraph (ie not the first paragraph in the item).
 	line-height:18px;
 	z-index:100;
 	visibility: hidden;
+
+	anchor-name: --tip-anchor; /* Anchor for secondary popups, .popup-content stuff. */
 		
 	overflow: auto;
 	overflow-wrap: break-word;
@@ -2480,6 +2482,37 @@ paragraph (ie not the first paragraph in the item).
 	padding-bottom: 8px;
 }
 
+/* CSS for the "secondary popup" in the Viewer, Editor, and standalone HTML.*/
+/* The container holding both the link and the popup */
+.popup-wrapper {
+	display: inline-block;
+	text-decoration: underline dotted #666;
+	cursor: default;
+	}
+	
+/* The actual popup content (hidden by default) */
+.popup-content {
+display: none;
+position: fixed;
+cursor: default;
+background-color: #FFFFF4 !important;
+border: 1px solid black !important;
+position-anchor: --tip-anchor;
+top: auto;
+bottom: anchor(--tip-anchor top);
+position-try-fallbacks: flip-block;
+left: anchor(left); /* 10% */
+width: 450px; /* was 80%;*/
+padding: 10px;
+z-index: 1;
+box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+font-weight: 400;
+}
+	
+.makePopupVisible {
+	display: inline-block;
+	}
+	
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -2569,30 +2602,30 @@ span.ll-com { /* comments */
 <li class='h2' im-text-ln='43'><a href='#Restart_Elasticsearch'>Restart Elasticsearch</a></li>
 <li class='h2' im-text-ln='49'><a href='#Rebuild_your_index'>Rebuild your index</a></li>
 <li class='h2' im-text-ln='53'><a href='#Verify_the_replica_is_ok'>Verify the replica is ok</a></li>
-<li class='h2' im-text-ln='63'><a href='#I_want_to_go_back_to_one_node'>I want to go back to one node</a></li></ul></div><div id='scrollTextRightOfContents'><span id='top-of-document'></span><table class='imt'><tr id='R1'><td n='1'></td><td><h1 id="Elasticsearch_with_replicas"><a class='glossary' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> with replicas</h1></td></tr>
+<li class='h2' im-text-ln='63'><a href='#I_want_to_go_back_to_one_node'>I want to go back to one node</a></li></ul></div><div id='scrollTextRightOfContents'><span id='top-of-document'></span><table class='imt'><tr id='R1'><td n='1'></td><td><h1 id="Elasticsearch_with_replicas"><a class='glossary' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> with replicas</h1></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R3'><td n='3'></td><td></td></tr>
 <tr id='R4'><td n='4'></td><td><h2 id="Why_would_you_do_this?">Why would you do this?</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R6'><td n='6'></td><td>If you run a second instance of <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on another computer and tie it in to your main one where IntraMine is running, you will have a backup of your IntraMine index and potentially faster searching. Having said that, I tried it and wasn't able to push searching hard enough that the second instance of Elasticsearch helped any. But if you like the idea, here's how to set up a "replica node" for Elasticsearch. Generalizing to two or more replica nodes is I hope obvious after you've done one of them.</td></tr>
+<tr id='R6'><td n='6'></td><td>If you run a second instance of <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on another computer and tie it in to your main one where IntraMine is running, you will have a backup of your IntraMine index and potentially faster searching. Having said that, I tried it and wasn't able to push searching hard enough that the second instance of Elasticsearch helped any. But if you like the idea, here's how to set up a "replica node" for Elasticsearch. Generalizing to two or more replica nodes is I hope obvious after you've done one of them.</td></tr>
 <tr id='R7'><td n='7'></td><td></td></tr>
 <tr id='R8'><td n='8'></td><td><h2 id="Use_static_local_IP_addresses">Use static local IP addresses</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
 <tr id='R10'><td n='10'></td><td>If you haven't already, assign static local (LAN) IP addresses to both PCs. You know what I mean, I'm talking local IP addresses such as 192.168.1.22 or 10.0.0.90 addresses, reserved for local area network use, as opposed to a public IP address used for the world wide web. That's something you might well have done before, but if not, google "router set static local IP address" or "router local static leases" or check your router's manual. If you have installed dd-wrt on your router you can find the details on adding static LAN leases at <a href='https://wiki.dd-wrt.com/wiki/index.php/Static_DHCP' target='_blank'>https://wiki.dd-wrt.com/wiki/index.php/Static_DHCP</a>.</td></tr>
 <tr id='R11'><td n='11'></td><td></td></tr>
-<tr id='R12'><td n='12'></td><td><h2 id="Install_a_second_Elasticsearch">Install a second <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
+<tr id='R12'><td n='12'></td><td><h2 id="Install_a_second_Elasticsearch">Install a second <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R14'><td n='14'></td><td>Install <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on the second PC, in the same way you originally installed it on the PC that's running IntraMine.</td></tr>
+<tr id='R14'><td n='14'></td><td>Install <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> on the second PC, in the same way you originally installed it on the PC that's running IntraMine.</td></tr>
 <tr id='R15'><td n='15'></td><td></td></tr>
 <tr id='R16'><td n='16'></td><td><h2 id="Some_names_and_numbers">Some names and numbers</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R18'><td n='18'></td><td>I'll be calling the PC that's running <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> and IntraMine your "Main" PC, and the one where the new instance of Elasticsearch is installed will be your "Replica" PC. And I'll use actual IP numbers in the examples, be sure to change them to your numbers.</td></tr>
+<tr id='R18'><td n='18'></td><td>I'll be calling the PC that's running <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> and IntraMine your "Main" PC, and the one where the new instance of Elasticsearch is installed will be your "Replica" PC. And I'll use actual IP numbers in the examples, be sure to change them to your numbers.</td></tr>
 <tr id='R19'><td n='19'></td><td>For the Main PC: 192.168.1.132</td></tr>
 <tr id='R20'><td n='20'></td><td>For the Replica PC: 192.168.1.128</td></tr>
 <tr id='R21'><td n='21'></td><td></td></tr>
 <tr id='R22'><td n='22'></td><td><h2 id="Main_PC_config_changes">Main PC config changes</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R24'><td n='24'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder. Save a copy somewhere, so you can restore it if something goes wrong. Add the following three lines to the bottom of the file:</td></tr>
+<tr id='R24'><td n='24'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder. Save a copy somewhere, so you can restore it if something goes wrong. Add the following three lines to the bottom of the file:</td></tr>
 <tr id='R25'><td n='25'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2606,11 +2639,11 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R30'><td n='30'></td><td>Save and close your Main <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
+<tr id='R30'><td n='30'></td><td>Save and close your Main <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
 <tr id='R31'><td n='31'></td><td></td></tr>
 <tr id='R32'><td n='32'></td><td><h2 id="Replica_PC_config_changes">Replica PC config changes</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R34'><td n='34'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder on your Replica PC, make a backup copy, and add the following four lines to the bottom of the file:</td></tr>
+<tr id='R34'><td n='34'></td><td>Locate /config/<a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml in your Elasticsearch folder on your Replica PC, make a backup copy, and add the following four lines to the bottom of the file:</td></tr>
 <tr id='R35'><td n='35'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2625,17 +2658,17 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R41'><td n='41'></td><td>Save and close your Replica <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
+<tr id='R41'><td n='41'></td><td>Save and close your Replica <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">elasticsearch</a>.yml file.</td></tr>
 <tr id='R42'><td n='42'></td><td></td></tr>
-<tr id='R43'><td n='43'></td><td><h2 id="Restart_Elasticsearch">Restart <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
+<tr id='R43'><td n='43'></td><td><h2 id="Restart_Elasticsearch">Restart <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a></h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R45'><td n='45'></td><td>On both Main and Replica, stop and start <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> by running</td></tr>
+<tr id='R45'><td n='45'></td><td>On both Main and Replica, stop and start <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> by running</td></tr>
 <tr id='R46'><td n='46'></td><td>C:\elasticsearch-6.7.0\bin\elasticsearch-service.bat manager</td></tr>
 <tr id='R47'><td n='47'></td><td>in a cmd window (change the path to match your system) and clicking the Stop and Start buttons at the bottom of the General tab.</td></tr>
 <tr id='R48'><td n='48'></td><td></td></tr>
 <tr id='R49'><td n='49'></td><td><h2 id="Rebuild_your_index">Rebuild your index</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R51'><td n='51'></td><td>This is perhaps optional, but why not get off to a clean start just to be safe? Rebuild your <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> IntraMine index by running elastic_stop_INIT_rebuild_start.bat, located in your IntraMine /bats/ folder. This will take an hour or two but I think the peace of mind is worth it.</td></tr>
+<tr id='R51'><td n='51'></td><td>This is perhaps optional, but why not get off to a clean start just to be safe? Rebuild your <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> IntraMine index by running elastic_stop_INIT_rebuild_start.bat, located in your IntraMine /bats/ folder. This will take an hour or two but I think the peace of mind is worth it.</td></tr>
 <tr id='R52'><td n='52'></td><td></td></tr>
 <tr id='R53'><td n='53'></td><td><h2 id="Verify_the_replica_is_ok">Verify the replica is ok</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
@@ -2649,7 +2682,7 @@ AABJRU5ErkJggg==
 <tr id='R62'><td n='62'></td><td></td></tr>
 <tr id='R63'><td n='63'></td><td><h2 id="I_want_to_go_back_to_one_node">I want to go back to one node</h2></td></tr>
 <tr class='shrunkrow'><td></td><td></td></tr>
-<tr id='R65'><td n='65'></td><td>Stop and remove the <a class='glossary term-seen' href="#" onmouseover="loadAndShowHint('%3Cdiv%20class__EQUALSIGN_REP____AMPERSANDSIGN_REP__quot%3Bgloss_div__AMPERSANDSIGN_REP__quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class__EQUALSIGN_REP____DQUOTE_REP___FOOTNOTE___DQUOTE_REP__%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It__ONEQUOTE_REP__s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href__EQUALSIGN_REP____ONEQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F__ONEQUOTE_REP__%20target__EQUALSIGN_REP____ONEQUOTE_REP___blank__ONEQUOTE_REP__%3E__DQUOTE_REP__https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class__EQUALSIGN_REP____DQUOTE_REP__noshow__DQUOTE_REP__%3E%3C%2Fspan%3Eticsearch%2F__DQUOTE_REP__%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> service on your Replica, using elasticsearch-service.bat manager as decribed above, then delete the Elasticsearch folder there. Revert the elasticsearch.yml file on your Main computer, using the backup copy you made. And then stop and start Elasticsearch on your Main PC.</td></tr>
+<tr id='R65'><td n='65'></td><td>Stop and remove the <a class='glossary term-seen' href="#" onmouseover="loadAndShowImageHint('%3Cdiv%20class_EQR__AMR_quot%3Bgloss_div_AMR_quot%3B%3E%3Ctable%3E%3Ctbody%3E%3Ctr%20class_EQR__DQR__FOOTNOTE__DQR_%3E%3Ctd%3E%3Cstrong%3EElasticsearch%3C%2Fstrong%3E%3A%20Arguably%20the%20best%20free%20search%20engine.%20IntraMine%20uses%20Elasticsearch%20for%20indexing%20source%20and%20text%20files%2C%20and%20searching%20them.%20It_SQR_s%20a%20bit%20huge%2C%20details%20can%20be%20found%20at%20%3Ca%20href_EQR__SQR_https%3A%2F%2Fwww.elastic.co%2Felasticsearch%2F_SQR_%20target_EQR__SQR__blank_SQR_%3E_DQR_https%3A%2F%2Fwww.elastic.co%2Felas%3Cspan%20class_EQR__DQR_noshow_DQR_%3E%3C%2Fspan%3Eticsearch%2F_DQR_%3C%2Fa%3E.%3C%2Ftd%3E%3C%2Ftr%3E%3C%2Ftbody%3E%3C%2Ftable%3E%3C%2Fdiv%3E', this, event, '600px', false, true);">Elasticsearch</a> service on your Replica, using elasticsearch-service.bat manager as decribed above, then delete the Elasticsearch folder there. Revert the elasticsearch.yml file on your Main computer, using the backup copy you made. And then stop and start Elasticsearch on your Main PC.</td></tr>
 <tr id='R66'><td n='66'></td><td></td></tr>
 <tr id='R67'><td n='67'></td><td>You might want to also re-index, but if IntraMine Search looks ok then there's no need to.</td></tr>
 <tr id='R68'><td n='68'></td><td></td></tr>
@@ -2658,7 +2691,7 @@ AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R70'><td n='70'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R70'><td n='70'></td><td><a href='./contents.html' target='_blank'>contents.txt</a></td></tr>
 <tr id='R71'><td n='71'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -2700,7 +2733,7 @@ let usingMathJax = false;
 		}
 </script>
 <script>
-function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+function loadAndShowImageHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
 	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
 }
@@ -2767,7 +2800,6 @@ let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
-
 
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
@@ -2945,10 +2977,135 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
+		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
 		}, 100);
 
 }
 
+// Remember a secondary popup is open, don't close the hintbox here if it is.
+// See startSecondaryStillUpTimer etc below.
+let secondaryPopupIsOpen = false;
+let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
+
+// Cheating a bit, we also make the popup-content visible.
+function startSecondaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentSeocndaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		secondaryPopupIsOpen = true;
+		}
+  
+	hideSecondaryTimer = setTimeout(() => {
+		hideSecondaryIfMouseHasLeft(el);
+	}, DELAY_MS);
+}
+
+function resetSecondaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideSecondaryTimer);
+		hideSecondaryTimer = null;
+		hideSecondaryTimer = setTimeout(() => {
+			hideSecondaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
+
+function hideCurrentSeocndaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			break;
+			}
+		}
+}
+
+function hideSecondaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+			{
+			// Run the timer again.
+			hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over secondary wrapper or content, close it up.
+			hideSecondaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				secondaryPopupIsOpen = false;
+				}		
+			}
+		}
+}
+
+// Check the popup-content span inside the popup-wrapper 'el'
+// element, see if mouse is over it
+function mouseStillOverSecondaryContent(el) {
+	let stillOver = false;
+
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-content'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+	
+	return(stillOver);
+}
+
+function mouseStillOverSecondaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-wrapper'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function addGlossaryPopupListeners(targetClass, contentClass) {
+	let popupWrappers = document.querySelectorAll('.' + targetClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startSecondaryStillUpTimer);
+			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
+			});
+		}
+		
+	}
+	
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -3166,6 +3323,8 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 function decodeHint(text) {
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
+
+	text = putRealQuotes(text);
 
 	return(text);
 }
@@ -3430,7 +3589,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
@@ -3483,7 +3642,7 @@ function mouseStillOverHintbox() {
 
 	let elements = document.elementsFromPoint(cursor_x, cursor_y);
 
-	for (var i = 0; i < elements.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		let elementId = elements[i].id;
 		if (elementId === "hintbox")
 			{
@@ -4871,29 +5030,34 @@ window.addEventListener("load", function() {
 // editing, and also in gloss.pm#Gloss() when applying Gloss to the
 // description.
 function horribleEscape(text) {
-	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-	text = text.replace(/\"/g, '__DQUOTE_REP__');
-	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-	text = text.replace(/\\t/g, '__TABERINO__');
-	text = text.replace(/\\/g, '__BSINO__');
+	text = text.replace(/\=/g, '_EQR_');
+	text = text.replace(/\"/g, '_DQR_');
+	text = text.replace(/\'/g, '_SQR_');
+	text = text.replace(/\+/g, '_PSR_');
+	text = text.replace(/\%/g, '_PCR_');
+	text = text.replace(/\&/g, '_AMR_');
+	text = text.replace(/\\t/g, '_TR_');
+	text = text.replace(/\\/g, '_BSR_');
 
 	return(text);        
 }
 
 // Reverse of horribleEscape just above.
 function horribleUnescape(text) {
-	text = text.replace(/__EQUALSIGN_REP__/g, '=');
-	text = text.replace(/__DQUOTE_REP__/g, '\"');
-	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-	text = text.replace(/__PLUSSIGN_REP__/g, '+');
-	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-	text = text.replace(/__TABERINO__/g, '\\t');
-	text = text.replace(/__BSINO__/g, '\\');
+	text = text.replace(/_EQR_/g, '=');
+	text = text.replace(/_DQR_/g, '\"');
+	text = text.replace(/_SQR_/g, '\'');
+	text = text.replace(/_PSR_/g, '+');
+	text = text.replace(/_PCR_/g, '%');
+	text = text.replace(/_AMR_/g, '&');
+	text = text.replace(/_TR_/g, '\\t');
+	text = text.replace(/_BSR_/g, '\\');
 
+	return(text);
+}
+
+function putRealQuotes(text) {
+	text = text.replace(/\&quot;/g, '\"');
 
 	return(text);
 }
@@ -5825,6 +5989,11 @@ function finishReload() {
 	addScrollListenerAndSetMarkdown();
 
 	addTocScrollListener();
+
+	if (typeof resetToggle !== 'undefined')
+		{
+		resetToggle();
+		}
 }
 
 // Code block highlighting with lolight, used
@@ -5966,11 +6135,6 @@ function lolightit(text) {
 	
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
-
-	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
-		{
-		console.log("Lolight called");
-		}
 
 	let tokArr = lolight.tok(text);
 	let highlightedHtml = lolightTokWrapped(tokArr);
@@ -7663,17 +7827,38 @@ function hideIndicator() {
 
 let proximalLineNumber = 1;	// "here"
 let distalLineNumber = 1;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
 	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+	// TEST ONLY
+	//console.log("Go to: |" + distalSampleLines + "|");
+
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	let el = document.getElementById(cmTextHolderName);
 	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
 	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -7700,11 +7885,64 @@ function updateTogglePositions() {
 	else
 		{
 		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+		// TEST ONLY
+		//console.log("Go to: |" + distalSampleLines + "|");
+
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+		
 	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let firstLineNumber = lineNumber;
+	let tdElement = document.getElementById('R' + lineNumber);
+	while (tdElement !== null && ++linesSoFar <= numLines)
+		{
+		let lineText = tdElement.innerText;
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		tdElement = document.getElementById('R' + lineNumber);
+		if (tdElement === null) // probably a shrunkrow
+			{
+			++lineNumber;
+			tdElement = document.getElementById('R' + lineNumber);
+			}
+		}
+
+	if (lines !== '')
+		{
+		lines = 'Go to ' + firstLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from

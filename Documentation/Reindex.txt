@@ -12,7 +12,7 @@ What does Reindex do?
 ========================
 The Reindex page has a **Reindex** button that when clicked will completely rebuild your Elasticsearch index and also your list of full paths of interest to you, based on the directories listed in your data/search_directories.txt file. Your list of directories for change monitoring will also be reset.
 
-IntraMine will continue to run while the reindexing takes place, except for a quick restart of the Linker and Watcher services towards the end. You'll see progress messages as the reindexing continues. The Editor and Linker will continue to function, but links and glossary popups will be based on your old directory list until reindexing finishes. Search will work better and better as the reindexing continues, but since the search index is being completely rebuilt there won't be many results at first.
+IntraMine will continue to run while the reindexing takes place, except for a quick restart of the Linker and File Watcher services towards the end. You'll see progress messages as the reindexing continues. The Editor and Linker will continue to function, but FLASH links and glossary popups will be based on your old directory list until reindexing finishes. Search will work better and better as the reindexing continues, but since the search index is being completely rebuilt there won't be many results at first.
 
 If you have other instances of the Reindex page opened anywhere on your intranet you'll also see progress messages there.
 

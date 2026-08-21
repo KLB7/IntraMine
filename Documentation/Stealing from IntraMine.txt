@@ -2,6 +2,8 @@ Stealing from IntraMine
 =======================
 (If you open the .txt version of this file in IntraMine's /Documentation folder using IntraMine's Files server, and have indexed your IntraMine folder, then all file and file#sub() mentions below will be links.)
 
+Here are some ideas you might want to "borrow" from IntraMine. Go ahead, it's all free.
+
 Those FLASH links
 ===============
 (Fast Local Automatic Source and text Hyperlinks)
@@ -21,6 +23,8 @@ Here are the needed parts for FLASH links:
  $FullPathsForFileName{'main.cpp'} = 'C:\proj1\main.cpp|C:\proj2\main.cpp'
 3. Code to detect a link specifier mentioned in a source or text file, and determine the full path that best satisfies the link specifier given the context in which the mention is made.
 4. A way of keeping the full paths list and paths for file names list up to date when files are added, deleted, or renamed, or a folder is renamed.
+
+You'll find a stripped-down example showing how FLASH links work in the autolinking_demo.pl program at the top of your IntraMine folder.
 
 Here's how IntraMine implements those.
 

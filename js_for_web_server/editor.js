@@ -1184,7 +1184,6 @@ function clearSessionLineNumber() {
 }
 
 function cmEditorRejumpToHeading(h) {
-	h = decodeURIComponent(h);
 	let result = false;
 
 	let lineNum = lineNumberForAnchor(h);

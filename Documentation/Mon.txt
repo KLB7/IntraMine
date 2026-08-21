@@ -1,7 +1,7 @@
 Mon
 =====
 
-Click on "Mon" at the right end of any IntraMine navigation bar to see a list of messages that IntraMine has generated since it last started.
+Click on "Mon" in the navigation bar to see a list of messages that IntraMine has generated since it last started.
 
 Mon.png
 

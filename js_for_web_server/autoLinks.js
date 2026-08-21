@@ -40,15 +40,31 @@ function addAutoLinks() {
 	// I've left this line below as an exemplar of how dumb I can be.
 	//lastVisibleLineNum = Math.floor(lastVisibleLineNum * 2.1);
 
-	let rowIds = []; // track <tr id='rowId' fo reach line, in sequence.
+	let rowIds = []; // track <tr id='rowId' for each line, in sequence.
 	getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds);
 	
 	if (!allLinesHaveBeenSeen(rowIds))
 		{
+		// Trim line numbers, remove start and end that have already been seen.
+		const [newFirst, newLast] = trimToLineNumbersNotSeenYet(firstVisibleLineNum, lastVisibleLineNum);
+		rowIds = [];
+		firstVisibleLineNum = newFirst;
+		lastVisibleLineNum = newLast;
+		if (firstVisibleLineNum < 0 || lastVisibleLineNum < 0)
+			{
+			return;
+			}
+		
+		getVisibleRowIds(firstVisibleLineNum, lastVisibleLineNum, rowIds);
+
 		let visibleText = getVisibleText(firstVisibleLineNum, lastVisibleLineNum);
 		// Mark up local file, image, and web links in visible text.
 		if (visibleText !== '')
 			{
+			// Remove <sub> elements (they are put back below).
+			subReplacer = new StringReplacer();
+			visibleText = subReplacer.preserveMatches(visibleText, subRegex);
+
 			requestLinkMarkup(visibleText, firstVisibleLineNum, lastVisibleLineNum, rowIds);
 			}
 		}
@@ -111,6 +127,9 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 			let text = await response.text();
 			if (text != 'nope')
 				{
+				// Restore <sub> elements.
+				text = subReplacer.restoreMatches(text);
+				subReplacer = new StringReplacer(); // just to free memory
 				let lines = text.split("\n");
 				let len = rowIds.length;
 				if (len > lines.length)
@@ -127,8 +146,16 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 						if (rowElem !== null)
 							{
 							let repStr = lines[ind];
-							let regex2 = /:81\//g;
-							repStr = repStr.replace(regex2, ":" + ourSSListeningPort + "/");
+							//let regex2 = /:81\//g;
+							//repStr = repStr.replace(regex2, ":" + ourSSListeningPort + "/");
+							//let regex3 = /%3A81%2F/g;
+							//repStr = repStr.replace(regex3, "%3A" + ourSSListeningPort + "%2F");
+
+							const regex2 = new RegExp("http:/" + theHost + ":" + theMainPort + "/", "gi"); 
+							const regex3 = new RegExp("http%3A%2F%2F" + theHost + "%3A" + theMainPort + "%2F", "gi");
+							repStr = repStr.replace(regex2, "http:/" + theHost + ":" + ourSSListeningPort + "/");
+							repStr = repStr.replace(regex3, "http%3A%2F%2F" + theHost + "%3A" + ourSSListeningPort + "%2F");
+
 							repStr = putInLolightForGlossaryPopups(repStr);
 
 							if (typeof MathJax !== 'undefined')
@@ -155,6 +182,38 @@ async function requestLinkMarkupWithPort(visibleText, firstVisibleLineNum, lastV
 	}
 }
 
+// <sup> sequestration during glossary popup emplacement.
+// Pull all the <sup? elements, they are for footnote reference popups
+// and should not be marked up with glossary entries since they
+// already contain a showhint() call, and inserting a second one
+// doesn't work.
+let subReplacer;
+const subRegex = /<sup.+?<\/sup>/g;
+
+class StringReplacer {
+	constructor() {
+	  this.tokenMap = new Map();
+	  this.counter = 0;
+	}
+  
+	// Replace substrings matching a regex with unique placeholders
+	preserveMatches(text, regex) {
+	  return text.replace(regex, (match) => {
+		const placeholder = `__TOKEN_${this.counter++}__`;
+		this.tokenMap.set(placeholder, match);
+		return placeholder;
+	  });
+	}
+  
+	// Restore the original content back into the placeholders
+	restoreMatches(text) {
+	  const placeholderRegex = /__TOKEN_\d+__/g;
+	  return text.replace(placeholderRegex, (match) => {
+		return this.tokenMap.has(match) ? this.tokenMap.get(match) : match;
+	  });
+	}
+  }
+  
 function putInLolightForGlossaryPopups(text) {
 	if (typeof lolight !== 'undefined')
 		{
@@ -179,7 +238,7 @@ function addAutoLinksForMarkdown() {
 		el = document.getElementById(cmTextHolderName);
 		if (el === null)
 			{
-			console.log("Error, no text holder found in addAutoLinks!");
+			console.log("Error, no text holder found in addAutoLinksForMarkdown!");
 			return;
 			}
 		}
@@ -247,13 +306,16 @@ async function requestLinkMarkupWithPortForMarkdown(visibleText, linkerPort, el)
 				{
 				let lines = text.split("\n");
 				let len = lines.length;
-			
+
 				for (let ind = 0; ind < len; ++ind)
 					{
 					let regex = /\%2B/gi;
 					lines[ind] = lines[ind].replace(regex, '+');
-					let regex2 = /:81\//g;
-					lines[ind] = lines[ind].replace(regex2, ":" + ourSSListeningPort + "/");
+
+					const regex2 = new RegExp("http:/" + theHost + ":" + theMainPort + "/", "gi"); 
+					const regex3 = new RegExp("http%3A%2F%2F" + theHost + "%3A" + theMainPort + "%2F", "gi");
+					lines[ind] = lines[ind].replace(regex2, "http:/" + theHost + ":" + ourSSListeningPort + "/");
+					lines[ind] = lines[ind].replace(regex3, "http%3A%2F%2F" + theHost + "%3A" + ourSSListeningPort + "%2F");
 					}
 
 				text = lines.join("\n");
@@ -283,7 +345,7 @@ function decodeURIComponentSafe(s) {
 }
 
 let isScrollingAuto = null;
-function addScrollListenerAndSetMarkdown() {
+function addScrollListenerAndSetMarkdown() {	
 	// Skip .md files.
 	setIsMarkdown();
 	if (isMarkdown)
@@ -292,8 +354,20 @@ function addScrollListenerAndSetMarkdown() {
 		}
 	
 	let el = document.getElementById(cmTextHolderName);
-	if (el !== null)
+	if (el === null)
 		{
+		cmTextHolderName = specialTextHolderName;
+		el = document.getElementById(cmTextHolderName);
+		if (el === null)
+			{
+			console.log("Error, no text holder found in addAutoLinks!");
+			}
+		}
+
+	el = document.getElementById(cmTextHolderName);
+
+	if (el !== null)
+		{		
 		el.addEventListener("scroll", function() {
 			// Clear our timeout throughout the scroll
 			window.clearTimeout( isScrollingAuto );
@@ -394,6 +468,48 @@ function allLinesHaveBeenSeen(rowIds) {
 
 function forgetLinesSeen() {
 	lineSeen = {};
+}
+
+// Shrink the first/last range to lines not yet seen
+// Set both to -1 if all lines have been seen (unlikely but you never know).
+function trimToLineNumbersNotSeenYet(firstVisibleLineNum, lastVisibleLineNum) {
+	let newFirst = firstVisibleLineNum;
+	let newLast = lastVisibleLineNum;
+
+	for (let row = firstVisibleLineNum; row <= lastVisibleLineNum; ++row)
+		{
+		let rowID = 'R' + row.toString();
+		if (lineHasBeenSeen(rowID))
+			{
+			newFirst = row;
+			}
+		else
+			{
+			break;
+			}
+		}
+
+	for (let row = lastVisibleLineNum; row >= firstVisibleLineNum; --row)
+		{
+		let rowID = 'R' + row.toString();
+		if (lineHasBeenSeen(rowID))
+			{
+			newLast = row;
+			}
+		else
+			{
+			break;
+			}
+
+		}
+	
+	if (newFirst > newLast)
+		{
+		newFirst = -1;
+		newLast = -1;
+		}
+	
+	return [newFirst, newLast];
 }
 
 // Diff markup handlers.

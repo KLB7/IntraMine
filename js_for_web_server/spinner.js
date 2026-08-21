@@ -47,7 +47,7 @@ function hideSpinner() {
 		spinnerParent.innerHTML = "<a href='' onclick='showHelpContents(); return(false);'>"
 		+ "<img id='spinner' src='question4-44.png' width='30.0' height='24.0' /></a>\n";
 
-		setTimeout(styleQuestionMark, 50);
+		setTimeout(styleQuestionMark, 100);
 		}
 	else
 		{

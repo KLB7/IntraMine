@@ -850,14 +850,14 @@ use ExportAbove;
 sub horribleUnescape {
 	my ($text) = @_;
 
-	$text =~ s!__EQUALSIGN_REP__!\=!g;
-	$text =~ s!__DQUOTE_REP__!\"!g;
-	$text =~ s!__ONEQUOTE_REP__!\'!g;
-	$text =~ s!__PLUSSIGN_REP__!\+!g;
-	$text =~ s!__PERCENTSIGN_REP__!\%!g;
-	$text =~ s!__AMPERSANDSIGN_REP__!\&!g;
-	$text =~ s!__TABERINO__!\t!g;            # true tab, as opposed to \t
-	$text =~ s!__BSINO__!\\!g;
+	$text =~ s!_EQR_!\=!g;
+	$text =~ s!_DQR_!\"!g;
+	$text =~ s!_SQR_!\'!g;
+	$text =~ s!_PSR_!\+!g;
+	$text =~ s!_PCR_!\%!g;
+	$text =~ s!_AMR_!\&!g;
+	$text =~ s!_TR_!\t!g;    # true tab, as opposed to \t
+	$text =~ s!_BSR_!\\!g;
 
 	return ($text);
 }
@@ -865,14 +865,14 @@ sub horribleUnescape {
 sub horribleEscape {
 	my ($text) = @_;
 
-	$text =~ s!\=!__EQUALSIGN_REP__!g;
-	$text =~ s!\"!__DQUOTE_REP__!g;
-	$text =~ s!\'!__ONEQUOTE_REP__!g;
-	$text =~ s!\+!__PLUSSIGN_REP__!g;
-	$text =~ s!\%!__PERCENTSIGN_REP__!g;
-	$text =~ s!\&!__AMPERSANDSIGN_REP__!g;
-	$text =~ s!\t!__TABERINO__!g;            # true tab replaced by placeholder
-	$text =~ s!\\!__BSINO__!g;
+	$text =~ s!\=!_EQR_!g;
+	$text =~ s!\"!_DQR_!g;
+	$text =~ s!\'!_SQR_!g;
+	$text =~ s!\+!_PSR_!g;
+	$text =~ s!\%!_PCR_!g;
+	$text =~ s!\&!_AMR_!g;
+	$text =~ s!\t!_TR_!g;    # true tab replaced by placeholder
+	$text =~ s!\\!_BSR_!g;
 
 	return ($text);
 }
@@ -1177,6 +1177,7 @@ sub Heading {
 			$headerLevel = 1;
 			}
 		$rawHeader =~ s!^#+\s+!!;
+		$rawHeader =~ s!\s*\#+$!!;
 		$headerProper = $rawHeader;
 		}
 	# Underlined heading, heading is on $lineBeforeR.
@@ -1749,6 +1750,24 @@ m!((\"([^"]+)(#[^"]+)?\")|(\'([^']+)(#[^']+)?\')|(&amp;#8216;(.+?)&amp;#8216;)|(
 					$isFullKnownPath = 1;
 					$fullFilePath    = $fullPath;
 					}
+				else
+					{
+					# Allow link if it's an html file and it doesn't exist (yet)
+					# but the .txt version does: trust it will later be created.
+					# This typically happens when using the Glosser service to
+					# convert a folder and a new .txt file has been added but
+					# the reference in text is to the anticipated .html version.
+					if ($fullPath =~ m!\.html?$!i)
+						{
+						my $altPath = $fullPath;
+						$altPath =~ s!\.html?$!.txt!;
+						if (FileOrDirExistsWide($altPath) == 1)
+							{
+							$isFullKnownPath = 1;
+							$fullFilePath    = $fullPath;
+							}
+						}
+					}
 				}
 			if (!$isFullKnownPath && IsImageExtensionNoPeriod($fileExtension))
 				{
@@ -2216,7 +2235,8 @@ sub GetTextFileRepGloss {
 
 
 	my $viewerLink =
-"<a href=\"http://$host:$port/$ViewerShortName/?href=$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$ViewerShortName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+"<a href=\"http://$host:$port/$ViewerShortName/?href=$viewerPath$anchorWithNum\" title=\"$viewerPath$anchorWithNum\" onclick=\"openView(this.href, '$ViewerShortName'); return false;\"  target=\"_blank\">$displayedLinkName</a>";
+
 	$$repStringR = "$viewerLink$editLink";
 }
 
@@ -2230,13 +2250,17 @@ sub GetTextFileRepForStandaloneGloss {
 	$displayedLinkName =~ s!&amp;!\&!g;
 
 	$$repStringR =
-		"<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
+		  "<a href=_SQR_./$viewerPath$anchorWithNum"
+		. "_SQR_ target=_SQR__blank_SQR_>$displayedLinkName</a>";
+	# $$repStringR =
+	# 	"<a href=\"./$viewerPath$anchorWithNum\" target=\"_blank\">$displayedLinkName</a>";
 }
 
 # Get image link for full path $longestSourcePath. Optionally includes showhint() popup call
 # and the little hummingbird images to suggest hovering.
 # For standalone HTML gloss popups, $mainServerPort is undef: in this case,
 # images are loaded fully into the HTML and displayed in place.
+# If $doNotCacheImages == 2, we just put an <img src=... link.
 sub GetImageFileRepGloss {
 	my (
 		$serverAddr,       $mainServerPort,           $haveQuotation,
@@ -2247,7 +2271,11 @@ sub GetImageFileRepGloss {
 
 	if (!defined($mainServerPort) || $doNotCacheImages)
 		{
-		GetLoadedImageFileRep($longestSourcePath, $repStringR, $doNotCacheImages);
+		GetOptionallyLoadedImageFileRep($serverAddr, $mainServerPort, $longestSourcePath,
+			$repStringR, $doNotCacheImages);
+
+		# TEST ONLY
+		#print("\$repStringR |$$repStringR|\n");
 		return;
 		}
 
@@ -2330,12 +2358,33 @@ sub GetVideoRepGloss {
 }
 
 #
-sub GetLoadedImageFileRep {
-	my ($sourcePath, $repStringR, $doNotCacheImages) = @_;
+sub GetOptionallyLoadedImageFileRep {
+	my ($serverAddr, $mainServerPort, $sourcePath, $repStringR, $doNotCacheImages) = @_;
 
-	my $bin64Img = '';
-	ImageLink($sourcePath, "", \$bin64Img, undef, undef, $doNotCacheImages);
-	$$repStringR = $bin64Img;
+	if ($doNotCacheImages == 2)
+		{
+		# This is for the Viewer.
+		# We need to request loading the image from an IntraMine service, attempting
+		# to load directly from disk produces "Not allowed to load local resource".
+		# We use main server for the moment.
+		# $serverAddr,       $mainServerPort
+		my $serverLoadPath = "http://$serverAddr:$mainServerPort/$sourcePath";
+		#$serverLoadPath = uri_escape_utf8($serverLoadPath);
+		$$repStringR = "<img src='$serverLoadPath'>";
+		# TEST ONLY
+		# if (index($sourcePath, "animage.png") > 0)
+		# 	{
+		# 	AppendToTextFileWide("C:/perlprogs/Intramine/temp/imagelinks2.txt",
+		# 		$$repStringR . "\n");
+		# 	}
+		#AppendToTextFileWide("C:/perlprogs/Intramine/temp/imagelinks.txt", $$repStringR . "\n");
+		}
+	else
+		{
+		my $bin64Img = '';
+		ImageLink($sourcePath, "", \$bin64Img, undef, undef, $doNotCacheImages);
+		$$repStringR = $bin64Img;
+		}
 }
 
 # Replacements of file/url mentions with links are done straight in the text.

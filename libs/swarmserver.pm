@@ -2186,9 +2186,10 @@ sub RequestLinkMarkupWithPort {
 	my $firstVisibleLineNum = $linkerArgumentsH->{'FIRST_LINE_NUM'};
 	my $lastVisibleLineNum  = $linkerArgumentsH->{'LAST_LINE_NUM'};
 	my $shouldInline        = $linkerArgumentsH->{'SHOULD_INLINE'};
+	my $inFootnotePopup     = $linkerArgumentsH->{'IN_FOOTNOTE_POPUP'};
 
 	my $args =
-"GET /?req=nonCmLinks&remote=$remoteValue&allowEdit=$allowEditValue&useApp=$useAppValue&text=$visibleText&peerAddress=$peerAddress&path=$thePath&first=$firstVisibleLineNum&last=$lastVisibleLineNum&shouldInline=$shouldInline HTTP/1.1\r\n\r\n";
+"GET /?req=nonCmLinks&remote=$remoteValue&allowEdit=$allowEditValue&useApp=$useAppValue&text=$visibleText&peerAddress=$peerAddress&path=$thePath&first=$firstVisibleLineNum&last=$lastVisibleLineNum&shouldInline=$shouldInline&inpopup=$inFootnotePopup HTTP/1.1\r\n\r\n";
 	print $mains "$args";
 	my $line   = '';
 	my $result = "";

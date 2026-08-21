@@ -859,9 +859,9 @@ a.embedded_image {
 }
 
 /* footnote tables proper: */
+
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -874,11 +874,11 @@ a.embedded_image {
 }
 
 .gloss_div table tbody tr:not(first-child) {
-	display: block;
+	/*display: block;*/
 	margin: 0;
-	/*padding-left: 26px;*/
 	padding-top: 3px;
 }
+
 
 /* Footnote actual tables, to be shown as proper tables. */
 .gloss_div table.bordered tbody tr:first-child {
@@ -2146,6 +2146,8 @@ paragraph (ie not the first paragraph in the item).
 	line-height:18px;
 	z-index:100;
 	visibility: hidden;
+
+	anchor-name: --tip-anchor; /* Anchor for secondary popups, .popup-content stuff. */
 		
 	overflow: auto;
 	overflow-wrap: break-word;
@@ -2480,6 +2482,37 @@ paragraph (ie not the first paragraph in the item).
 	padding-bottom: 8px;
 }
 
+/* CSS for the "secondary popup" in the Viewer, Editor, and standalone HTML.*/
+/* The container holding both the link and the popup */
+.popup-wrapper {
+	display: inline-block;
+	text-decoration: underline dotted #666;
+	cursor: default;
+	}
+	
+/* The actual popup content (hidden by default) */
+.popup-content {
+display: none;
+position: fixed;
+cursor: default;
+background-color: #FFFFF4 !important;
+border: 1px solid black !important;
+position-anchor: --tip-anchor;
+top: auto;
+bottom: anchor(--tip-anchor top);
+position-try-fallbacks: flip-block;
+left: anchor(left); /* 10% */
+width: 450px; /* was 80%;*/
+padding: 10px;
+z-index: 1;
+box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+font-weight: 400;
+}
+	
+.makePopupVisible {
+	display: inline-block;
+	}
+	
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -3037,14 +3070,14 @@ A1S+vEdfpuDZAAAAAElFTkSuQmCC
 <tr id='R4'><td n='4'></td><td></td></tr>
 <tr id='R5'><td n='5'></td><td>This is an example server, meant to serve as an example for writing your own IntraMine server. It manages a simple database, with CRUD.</td></tr>
 <tr id='R6'><td n='6'></td><td></td></tr>
-<tr id='R7'><td n='7'></td><td>For a fairly full guide to writing your own IntraMine server, which includes a discussion of DBX, please switch over to <a href="./Writing your own IntraMine server.html" target="_blank">"Writing your own IntraMine server.txt"</a> where you'll also find details on the simple API for DBX.</td></tr>
+<tr id='R7'><td n='7'></td><td>For a fairly full guide to writing your own IntraMine server, which includes a discussion of DBX, please switch over to <a href='./Writing your own IntraMine server.html' target='_blank'>"Writing your own IntraMine server.txt"</a> where you'll also find details on the simple API for DBX.</td></tr>
 <tr id='R8'><td n='8'></td><td></td></tr>
 <tr id='R9'><td n='9'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
 AABJRU5ErkJggg==
 " width='98%' height='3' /></td></tr>
-<tr id='R10'><td n='10'></td><td><a href="./contents.html" target="_blank">contents.txt</a></td></tr>
+<tr id='R10'><td n='10'></td><td><a href='./contents.html' target='_blank'>contents.txt</a></td></tr>
 <tr id='R11'><td n='11'></td><td class='vam'><img style='display: block;' src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3oAAAADCAIAAABK9Oq7AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
 AAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAADNJREFU
 aEPt1rENACAMBDH2ny4lXUZ5hMQIpLN1Q9wKAACMubvZuyRJkqTvvd0EAIARyQF9AZMaj4RsiwAA
@@ -3086,7 +3119,7 @@ let usingMathJax = false;
 		}
 </script>
 <script>
-function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+function loadAndShowImageHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
 	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
 }
@@ -3153,7 +3186,6 @@ let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
-
 
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
@@ -3331,10 +3363,135 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
+		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
 		}, 100);
 
 }
 
+// Remember a secondary popup is open, don't close the hintbox here if it is.
+// See startSecondaryStillUpTimer etc below.
+let secondaryPopupIsOpen = false;
+let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
+
+// Cheating a bit, we also make the popup-content visible.
+function startSecondaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentSeocndaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		secondaryPopupIsOpen = true;
+		}
+  
+	hideSecondaryTimer = setTimeout(() => {
+		hideSecondaryIfMouseHasLeft(el);
+	}, DELAY_MS);
+}
+
+function resetSecondaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideSecondaryTimer);
+		hideSecondaryTimer = null;
+		hideSecondaryTimer = setTimeout(() => {
+			hideSecondaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
+
+function hideCurrentSeocndaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			break;
+			}
+		}
+}
+
+function hideSecondaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+			{
+			// Run the timer again.
+			hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over secondary wrapper or content, close it up.
+			hideSecondaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				secondaryPopupIsOpen = false;
+				}		
+			}
+		}
+}
+
+// Check the popup-content span inside the popup-wrapper 'el'
+// element, see if mouse is over it
+function mouseStillOverSecondaryContent(el) {
+	let stillOver = false;
+
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-content'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+	
+	return(stillOver);
+}
+
+function mouseStillOverSecondaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-wrapper'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function addGlossaryPopupListeners(targetClass, contentClass) {
+	let popupWrappers = document.querySelectorAll('.' + targetClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startSecondaryStillUpTimer);
+			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
+			});
+		}
+		
+	}
+	
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -3552,6 +3709,8 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 function decodeHint(text) {
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
+
+	text = putRealQuotes(text);
 
 	return(text);
 }
@@ -3816,7 +3975,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
@@ -3869,7 +4028,7 @@ function mouseStillOverHintbox() {
 
 	let elements = document.elementsFromPoint(cursor_x, cursor_y);
 
-	for (var i = 0; i < elements.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		let elementId = elements[i].id;
 		if (elementId === "hintbox")
 			{
@@ -5257,29 +5416,34 @@ window.addEventListener("load", function() {
 // editing, and also in gloss.pm#Gloss() when applying Gloss to the
 // description.
 function horribleEscape(text) {
-	text = text.replace(/\=/g, '__EQUALSIGN_REP__');
-	text = text.replace(/\"/g, '__DQUOTE_REP__');
-	text = text.replace(/\'/g, '__ONEQUOTE_REP__');
-	text = text.replace(/\+/g, '__PLUSSIGN_REP__');
-	text = text.replace(/\%/g, '__PERCENTSIGN_REP__');
-	text = text.replace(/\&/g, '__AMPERSANDSIGN_REP__');
-	text = text.replace(/\\t/g, '__TABERINO__');
-	text = text.replace(/\\/g, '__BSINO__');
+	text = text.replace(/\=/g, '_EQR_');
+	text = text.replace(/\"/g, '_DQR_');
+	text = text.replace(/\'/g, '_SQR_');
+	text = text.replace(/\+/g, '_PSR_');
+	text = text.replace(/\%/g, '_PCR_');
+	text = text.replace(/\&/g, '_AMR_');
+	text = text.replace(/\\t/g, '_TR_');
+	text = text.replace(/\\/g, '_BSR_');
 
 	return(text);        
 }
 
 // Reverse of horribleEscape just above.
 function horribleUnescape(text) {
-	text = text.replace(/__EQUALSIGN_REP__/g, '=');
-	text = text.replace(/__DQUOTE_REP__/g, '\"');
-	text = text.replace(/__ONEQUOTE_REP__/g, '\'');
-	text = text.replace(/__PLUSSIGN_REP__/g, '+');
-	text = text.replace(/__PERCENTSIGN_REP__/g, '%');
-	text = text.replace(/__AMPERSANDSIGN_REP__/g, '&');
-	text = text.replace(/__TABERINO__/g, '\\t');
-	text = text.replace(/__BSINO__/g, '\\');
+	text = text.replace(/_EQR_/g, '=');
+	text = text.replace(/_DQR_/g, '\"');
+	text = text.replace(/_SQR_/g, '\'');
+	text = text.replace(/_PSR_/g, '+');
+	text = text.replace(/_PCR_/g, '%');
+	text = text.replace(/_AMR_/g, '&');
+	text = text.replace(/_TR_/g, '\\t');
+	text = text.replace(/_BSR_/g, '\\');
 
+	return(text);
+}
+
+function putRealQuotes(text) {
+	text = text.replace(/\&quot;/g, '\"');
 
 	return(text);
 }
@@ -6211,6 +6375,11 @@ function finishReload() {
 	addScrollListenerAndSetMarkdown();
 
 	addTocScrollListener();
+
+	if (typeof resetToggle !== 'undefined')
+		{
+		resetToggle();
+		}
 }
 
 // Code block highlighting with lolight, used
@@ -6352,11 +6521,6 @@ function lolightit(text) {
 	
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
-
-	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
-		{
-		console.log("Lolight called");
-		}
 
 	let tokArr = lolight.tok(text);
 	let highlightedHtml = lolightTokWrapped(tokArr);
@@ -8049,17 +8213,38 @@ function hideIndicator() {
 
 let proximalLineNumber = 1;	// "here"
 let distalLineNumber = 1;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
 	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+	// TEST ONLY
+	//console.log("Go to: |" + distalSampleLines + "|");
+
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	let el = document.getElementById(cmTextHolderName);
 	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
 	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -8086,11 +8271,64 @@ function updateTogglePositions() {
 	else
 		{
 		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+		// TEST ONLY
+		//console.log("Go to: |" + distalSampleLines + "|");
+
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+		
 	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let firstLineNumber = lineNumber;
+	let tdElement = document.getElementById('R' + lineNumber);
+	while (tdElement !== null && ++linesSoFar <= numLines)
+		{
+		let lineText = tdElement.innerText;
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		tdElement = document.getElementById('R' + lineNumber);
+		if (tdElement === null) // probably a shrunkrow
+			{
+			++lineNumber;
+			tdElement = document.getElementById('R' + lineNumber);
+			}
+		}
+
+	if (lines !== '')
+		{
+		lines = 'Go to ' + firstLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from

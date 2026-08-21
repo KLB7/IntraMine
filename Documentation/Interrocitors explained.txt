@@ -1,0 +1,5 @@
+Interrocitors explained
+=========================
+
+Wouldn't it be nice to have a solid neutronium force field generator? But alas we don't. This document exists just to demonstrate glossary popup links, as referenced in "Glossary popups.txt" around line 16 et seq. Sorry to disappoint.
+

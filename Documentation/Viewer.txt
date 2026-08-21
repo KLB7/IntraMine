@@ -111,8 +111,8 @@ In documents longer than about 4,000 lines you'll see a precision thumb to help 
 
 Position toggle
 ---------------
-2019-11-30 16_41_10-elasticsearcher.pm.png
-Sometimes you want to jump back and forth between two widely spaced positions in a document. The "Toggle" button does that. The positions must be separated by more than a page to count as two separate locations. You can fine-tune the two positions by scrolling up or down slightly, up to roughly plus or minus a page at each end at one time.
+togglehint.png
+Sometimes you want to jump back and forth between two widely spaced positions in a document. The "Toggle" button does that. The positions must be separated by more than a page to count as two separate locations. You can fine-tune the two positions by scrolling up or down slightly, up to roughly plus or minus a page at each end at one time. If you pause your cursor over the Toggle button you'll see a brief preview of the text where you'll be jumping to.
 
 Full Gloss on text files
 ------------------------

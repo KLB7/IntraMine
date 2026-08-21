@@ -9,17 +9,38 @@
 
 let proximalLineNumber = 1;	// "here"
 let distalLineNumber = 1;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
 	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+	// TEST ONLY
+	//console.log("Go to: |" + distalSampleLines + "|");
+
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	let el = document.getElementById(cmTextHolderName);
 	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
 	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -46,11 +67,64 @@ function updateTogglePositions() {
 	else
 		{
 		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+		// TEST ONLY
+		//console.log("Go to: |" + distalSampleLines + "|");
+
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+		
 	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let firstLineNumber = lineNumber;
+	let tdElement = document.getElementById('R' + lineNumber);
+	while (tdElement !== null && ++linesSoFar <= numLines)
+		{
+		let lineText = tdElement.innerText;
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		tdElement = document.getElementById('R' + lineNumber);
+		if (tdElement === null) // probably a shrunkrow
+			{
+			++lineNumber;
+			tdElement = document.getElementById('R' + lineNumber);
+			}
+		}
+
+	if (lines !== '')
+		{
+		lines = 'Go to ' + firstLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from

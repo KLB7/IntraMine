@@ -457,15 +457,16 @@ sub NonCmLinks {
 		my $clientIsRemote = (defined($formH->{'remote'}))       ? $formH->{'remote'}       : '0';
 		my $allowEditing   = (defined($formH->{'allowEdit'}))    ? $formH->{'allowEdit'}    : '0';
 		my $shouldInline   = (defined($formH->{'shouldInline'})) ? $formH->{'shouldInline'} : '0';
+		my $inPopup        = (defined($formH->{'inpopup'}))      ? $formH->{'inpopup'}      : '0';
 		GetLinksForText($formH, $path, $ext, $clientIsRemote, $allowEditing, $shouldInline,
-			\$result);
+			$inPopup, \$result);
 		}
 
 	return ($result);
 }
 
 sub GetLinksForText {
-	my ($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, $resultR) = @_;
+	my ($formH, $dir, $ext, $clientIsRemote, $allowEditing, $shouldInline, $inPopup, $resultR) = @_;
 	my $text = $formH->{'text'};
 	#my $firstLineNum = $formH->{'first'};
 	#my $lastLineNum = $formH->{'last'};
@@ -473,7 +474,7 @@ sub GetLinksForText {
 
 	AddWebAndFileLinksToVisibleLines(
 		$text,           $dir,          $ext,          $serverAddr, $server_port,
-		$clientIsRemote, $allowEditing, $shouldInline, $resultR
+		$clientIsRemote, $allowEditing, $shouldInline, $inPopup,    $resultR
 	);
 }
 
@@ -2192,7 +2193,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 			$currentLineNumber, $linksA
 		);
 
-		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, $currentLineNumber,
+		AddGlossaryHints($lines[$counter], $path, $host, $port, $VIEWERNAME, 0, $currentLineNumber,
 			$linksA);
 
 		if ($checkSpelling && $isText)
@@ -2206,7 +2207,7 @@ sub AddWebAndFileLinksToVisibleLinesForCodeMirror {
 sub AddWebAndFileLinksToVisibleLines {
 	my (
 		$text,           $path,         $ext,          $serverAddr, $server_port,
-		$clientIsRemote, $allowEditing, $shouldInline, $resultR
+		$clientIsRemote, $allowEditing, $shouldInline, $inPopup,    $resultR
 	) = @_;
 	my @lines = split(/\n/, $text);
 
@@ -2248,7 +2249,8 @@ sub AddWebAndFileLinksToVisibleLines {
 		AddWebAndFileLinksToLine(\${lines [$counter]},
 			$dir, $serverAddr, $server_port,
 			$clientIsRemote, $allowEditing, $shouldInline, $restrictLinks);
-		AddGlossaryHints(\${lines [$counter]}, $path, $serverAddr, $server_port, $VIEWERNAME);
+		AddGlossaryHints(\${lines [$counter]},
+			$path, $serverAddr, $server_port, $VIEWERNAME, $inPopup);
 		}
 
 	#$$resultR = join("\n", @lines);
@@ -3133,9 +3135,6 @@ sub GetChangedLinesForRange {
 	my ($diffs, $firstLineNum, $lastLineNum, $changedLinesArr, $lineNumbersArr) = @_;
 	my @lines    = split(/\n/, $diffs);
 	my $numLines = @lines;
-
-	# TEST ONLY
-	WriteTextFileWide("C:/perlprogs/IntraMine/temp/diffdump2.txt", $diffs);
 
 	my $atatLineStart           = -1;
 	my $firstDiffLineNumInChunk = -1;

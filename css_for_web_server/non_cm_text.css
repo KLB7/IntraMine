@@ -42,9 +42,9 @@
 }
 
 /* footnote tables proper: */
+
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	/*text-indent: -26px;*/
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -57,11 +57,11 @@
 }
 
 .gloss_div table tbody tr:not(first-child) {
-	display: block;
+	/*display: block;*/
 	margin: 0;
-	/*padding-left: 26px;*/
 	padding-top: 3px;
 }
+
 
 /* Footnote actual tables, to be shown as proper tables. */
 .gloss_div table.bordered tbody tr:first-child {

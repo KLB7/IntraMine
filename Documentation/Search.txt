@@ -1,7 +1,10 @@
 Search
 ======
+===
+===
 Search1.png
-
+===
+===
 The Search service provides an interface for Elasticsearch, to carry out searches and show search results.
 
 This is an IntraMine server, so it uses the swarmserver.pm module together with "%RequestAction" entries to handle requests from users and other servers, and JavaScript fetch() calls.
@@ -70,6 +73,7 @@ Search4.png
 Some Search limitations
 =======================
  - as mentioned, IntraMine's Elasticsearch-based search is always case insensitive.
+ - only whole words can be searched for, although they can be prefixed with $ or % or @
  - operators are not indexed. For example you can't search for "++$hitCounter" exactly, and in fact you'll get better results if you search for just "$hitCounter".
  - the Viewer always renders HTML views rather than showing the raw HTML/CSS/JavaScript source, so such things as JavaScript variables can be searched for, but hits will not be highlighted in the view that results from clicking on a link in the Search hit results.
  - text (.txt) files are processed by Gloss before display. This means that searches which include words that Gloss will remove (mainly "TABLE" at the beginning of a line) will not be highlighted properly in resulting views.

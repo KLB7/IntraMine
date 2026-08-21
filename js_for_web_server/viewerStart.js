@@ -923,6 +923,11 @@ function finishReload() {
 	addScrollListenerAndSetMarkdown();
 
 	addTocScrollListener();
+
+	if (typeof resetToggle !== 'undefined')
+		{
+		resetToggle();
+		}
 }
 
 // Code block highlighting with lolight, used
@@ -1064,11 +1069,6 @@ function lolightit(text) {
 	
 	text = decodeURIComponent(text);
 	text = horribleUnescape(text);
-
-	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
-		{
-		console.log("Lolight called");
-		}
 
 	let tokArr = lolight.tok(text);
 	let highlightedHtml = lolightTokWrapped(tokArr);

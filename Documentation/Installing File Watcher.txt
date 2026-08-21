@@ -8,7 +8,7 @@ Preamble
 ========
 Here's the scoop on installing File Watcher as a service, and configuring it to monitor the folders on locally attached storage that are also being indexed. First,a bit of devsplaining.
 
-File Watcher will receive change notices from Windows whenever a file in a monitored folder (or subfolder) changes, and make a detailed entry in its fwatcher.log file. IntraMine's Watcher service (intramine_filewatcher.pl) checks for changes to that log file, and on spotting a change asks Elasticsearch to re-index the file - and also notes the full path of a new or relocated file, so autolinking can keep up.
+File Watcher will receive change notices from Windows whenever a file in a monitored folder (or subfolder) changes, and make a detailed entry in its fwatcher.log file. IntraMine's Watcher service (intramine_FileWatcher.pl) checks for changes to that log file, and on spotting a change asks Elasticsearch to re-index the file - and also notes the full path of a new or relocated file, so autolinking can keep up.
 
 What can you monitor? Only folders on **locally attached storage**. At this time, Network Attached Storage (NAS) can't be monitored for changes. NAS files can be indexed, but changes to NAS files after the initial indexing won't be picked up. This limitation is partly because it's difficult to set up File Watcher so it can access NAS with adequate rights and permissions, and also because Windows detection and reporting of changes on NAS drives is not as reliable as one might wish.
 
@@ -40,7 +40,7 @@ First, copy the "fwws" folder from the top of the IntraMine folder to the locati
 Open data/intramine_config.txt in your IntraMine folder, and update the following three configuration entries to use your copy path (line numbers "l.31" etc might be slightly off):
 ---
 around l.31: FOLDERMONITOR_OLDNEWBASEPATH	C:/fwws/oldnew
-around l.118: FILEWATCHERDIRECTORY	C:/fwws/
+around l.118: FileWatcherDIRECTORY	C:/fwws/
 around l.122: FWWS_CONFIG	C:/fwws/fwatcher.xml
 ---
 

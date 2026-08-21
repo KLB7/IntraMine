@@ -736,10 +736,11 @@ a.embedded_image {
 	margin-right: 12px;
 }
 
+/*
 .slightShadow  {
-	/*text-shadow: 2px 2px 4px rgba(0,0,0,0.5);*/
 	text-shadow: 2px 2px 1px #C0C0C0;
 }
+*/
 
 #title-blockTR {
 	max-height: 60px;
@@ -798,6 +799,11 @@ a.embedded_image {
 	background-color: rgb(200, 255, 200);
 }
 
+/* Change cursor to "wait" */
+.cursorWait {
+	cursor: wait;
+}
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 #theTextWithoutJumpList {overflow-y: scroll; -webkit-overflow-scrolling: touch;}
@@ -839,6 +845,10 @@ a.embedded_image {
 	max-width: 100%;
 }
 
+#scrollTextRightOfContents, #scrollText {
+	scrollbar-color: #C0C0C0 white;
+}
+
 /* Footnotes */
 .footDiv {
 	font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;
@@ -849,9 +859,9 @@ a.embedded_image {
 }
 
 /* footnote tables proper: */
+
 .gloss_div table tbody tr:first-child {
 	margin: 0;
-	text-indent: -26px;
 }
 
 .gloss_div table:not(:first-child) tbody tr:first-child {
@@ -859,12 +869,16 @@ a.embedded_image {
 	padding-left: 26px !important;
 }
 
-.gloss_div table tbody tr:not(first-child) {
-	display: block;
-	margin: 0;
-	padding-left: 26px;
-	padding-top: 6px;
+.gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_ {
+	padding-left: 4px !important;
 }
+
+.gloss_div table tbody tr:not(first-child) {
+	/*display: block;*/
+	margin: 0;
+	padding-top: 3px;
+}
+
 
 /* Footnote actual tables, to be shown as proper tables. */
 .gloss_div table.bordered tbody tr:first-child {
@@ -890,6 +904,11 @@ a.embedded_image {
     -moz-transition: all 0.1s ease-in-out;
     -ms-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;     
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tbody tr:hover {
+	background: #fbf8e9 !important; /* This doesn't work, don't know why. */
+	color: #888 !important;
 }
 
 .allfootnotes {
@@ -941,6 +960,21 @@ a.embedded_image {
 	pointer-events: none;
 }
 
+.diff-scroll {
+	display: block;
+	position: fixed;
+	width: 6px;
+	height: 2px;
+	/*right: 8px;*/
+	right: 0.75%;
+	opacity: 1.0;
+	background-color: #0096FF;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	z-index:1000;
+	pointer-events: none;
+}
 
 .initial-hits-highlight {
 	background-color: #ffcccc;
@@ -984,7 +1018,7 @@ div#indicatorPC {
     top: 0;
     /*left: 3px;*/
     right: 0.74%;
-    /*opacity: .5;*/
+    opacity: .75;
     width: 9px;
     height: 20px;
     background-color: #ffdb58; /* #ffe958 or mustard, #ffdb58 */
@@ -1122,10 +1156,606 @@ p {
 	margin-bottom: 6px;
 }
 
+/*  Horizontal rule */
+tr._FOOTNOTE_ td .divhr {
+	/*border-top: 1px solid #ccc; */
+	border: none;
+	margin: 0;
+	height: 2px;
+	background-color: #333333;
+	/*width: 600px;*/
+}
+
+tr._FOOTNOTE_ td .divhrThick {
+	/*border-top: 2px solid #ccc; */
+	border: none;
+	margin: 0;
+	height: 3px;
+	background-color: #333333;
+	/*width: 600px;*/
+}
+
+.divhr, .divhrThick {
+	border: none;
+	width: 100% !important;
+}
+
+
+.divhr, .divhr {
+	border: none;
+	height: 2px;
+	background-color: #333333;
+}
+
+.divhrThick, .divhrThick {
+	border: none;
+	height: 3px;
+	background-color: #333333;
+}
+
+
+hr {
+	margin-block-start: 1px;
+	margin-block-end: 1px;
+	margin: 0;
+	padding: 0;
+}
+
+
 /* iPad */
 @media screen and (-webkit-min-device-pixel-ratio: 2) {
 	#scrollTextRightOfContents {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
 	#scrollText {font: normal 10pt Consolas, Lucida Console, Lucida Sans Unicode, Lucida Grande, monospace;}
+}
+
+</style>
+<style>
+/* editor_blockquotes.css: CSS for block quotes in IntraMine's Editor. */
+
+/* Block quotes */
+/*
+.gloss_div table:not(:first-child) tbody tr:first-child.FOOTNOTE_, .gloss_div table:not(:first-child) tbody tr:first-child._FOOTNOTE_, .gloss_div table tbody tr:not(first-child)._FOOTNOTE_ {
+	padding: 6px 0 0 4px !important;
+}
+
+
+.gloss_div table tbody tr:not(first-child) td {
+	padding: 0 !important;
+}
+*/
+
+table.imt tbody tr._FOOTNOTE_ {
+	padding-left: 4px !important;
+}
+
+.bq, td.bq {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 20px;*/
+}
+
+.bq1, td.bq1 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 40px;*/
+}
+
+.bq2, td.bq2 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 60px;*/
+}
+
+.bq3, td.bq3 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 80px;*/
+}
+
+.bq4, td.bq4 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 100px;*/
+}
+
+.bq5, td.bq5 {
+	/*font-style: italic;             Typical for quotes */
+	background-color: #F2F8F2;      /* Light green */
+	/*margin-left: 120px;*/
+}
+
+.bf {
+	border-right: 1px solid #bbb; /* Adds a colored vertical bar */
+	padding-right: 20px;
+}
+
+.bf1 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 40px;
+}
+
+.bf2 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 60px;
+}
+
+.bf3 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 80px;
+}
+
+.bf4 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 100px;
+}
+
+.bf5 {
+	border-right: 1px solid #bbb;  /*Adds a colored vertical bar */
+	padding-right: 120px;
+}
+
+/* Blockquoted ordinary footnote rows. */
+.bq_fn_div table.imt tr._FOOTNOTE_, .bq_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq1_fn_div table.imt tr._FOOTNOTE_, .bq1_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq2_fn_div table.imt tr._FOOTNOTE_, .bq2_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq3_fn_div table.imt tr._FOOTNOTE_, .bq3_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq4_fn_div table.imt tr._FOOTNOTE_, .bq4_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq5_fn_div table.imt tr._FOOTNOTE_, .bq5_icb table.imt tr._FOOTNOTE_ {
+	padding-top: 0;
+	margin: 0;
+	border-top: 6px solid #F2F8F2;
+}
+
+.bq_icb table.imt td.bq_fn, .bq1_icb table.imt td.bq1_fn, .bq2_icb table.imt td.bq2_fn, .bq3_icb table.imt td.bq3_fn, .bq4_icb table.imt td.bq4_fn, .bq5_icb table.imt td.bq5_fn {
+	padding-top: 2px !important;
+	padding-bottom: 2px !important;
+}
+
+table.imt tr._FOOTNOTE_ td h1, table.imt tr._FOOTNOTE_ td h2, table.imt tr._FOOTNOTE_ td h3, table.imt tr._FOOTNOTE_ td h4 {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+
+tr._FOOTNOTE_ td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered td {
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+}
+
+tr._FOOTNOTE_ td.bq_fn, table.imt tr td.bq_fn, .gloss_div table :nth-child(1) td.bq_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 40px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq1_fn, table.imt tr td.bq1_fn, .gloss_div table :nth-child(1) td.bq1_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 60px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq2_fn, table.imt tr td.bq2_fn, .gloss_div table :nth-child(1) td.bq2_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 80px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq3_fn, table.imt tr td.bq3_fn, .gloss_div table :nth-child(1) td.bq3_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 100px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq4_fn, table.imt tr td.bq4_fn, .gloss_div table :nth-child(1) td.bq4_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 120px;
+	border-left: 1px solid #bbb;*/
+}
+
+tr._FOOTNOTE_ td.bq5_fn, table.imt tr td.bq5_fn, .gloss_div table :nth-child(1) td.bq5_fn p {
+	background-color: #F2F8F2 !important;      /* Light green */
+	/*padding-left: 140px;
+	border-left: 1px solid #bbb;*/
+}
+
+/* For the leftmost empty div in a footnote line, to set a border and indent.*/
+.bq_fn_div, .bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+tr._FOOTNOTE_ td::before {
+    content: none !important;
+}
+
+.bq1_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq2_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq3_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq4_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq5_fn_div {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq {
+	background-color: #F2F8F2;
+	width: calc(100% - 46px);
+	margin-left: 76px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 66px);
+	margin-left: 96px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 86px);
+	margin-left: 116px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 106px);
+	margin-left: 136px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 126px);
+	margin-left: 156px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 146px);
+	margin-left: 176px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn {
+	background-color: #F2F8F2;
+	width: calc(100% - 40px);
+	margin-left: 40px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn1 {
+	background-color: #F2F8F2;
+	width: calc(100% - 60px);
+	margin-left: 60px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+
+.bq_eq_fn2 {
+	background-color: #F2F8F2;
+	width: calc(100% - 80px);
+	margin-left: 80px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn3 {
+	background-color: #F2F8F2;
+	width: calc(100% - 100px);
+	margin-left: 100px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn4 {
+	background-color: #F2F8F2;
+	width: calc(100% - 120px);
+	margin-left: 120px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+.bq_eq_fn5 {
+	background-color: #F2F8F2;
+	width: calc(100% - 140px);
+	margin-left: 140px;
+	padding: 0 0 0 4px !important;
+	border-left: 1px solid #bbb;
+}
+
+/* For background-color in indented footnote body and ref popup equations. */
+.gloss_div .bq_eq_fn table :nth-child(1), #hintbox .bq_eq_fn td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn1 table :nth-child(1), #hintbox .bq_eq_fn1 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn2 table :nth-child(1), #hintbox .bq_eq_fn2 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn3 table :nth-child(1), #hintbox .bq_eq_fn3 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn4 table :nth-child(1), #hintbox .bq_eq_fn4 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+.gloss_div .bq_eq_fn5 table :nth-child(1), #hintbox .bq_eq_fn5 td:nth-child(1) {
+	background-color: #F2F8F2 !important;
+}
+
+/* Just indented TABLE captions */
+.gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq1, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq2, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq3, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq4, .gloss_div .INDENTED_TABLE_PLACEHOLDER table caption.bq5 {
+	background-color: #F2F8F2 !important;
+}
+
+/* Blockquoted tables, set width of first column by setting th first child width. */
+table.bt.bordered.imt th:first-child {
+	width: 69px;
+}
+
+table.bt1.bordered.imt th:first-child {
+	width: 89px;
+}
+
+table.bt2.bordered.imt th:first-child {
+	width: 109px;
+}
+
+table.bt3.bordered.imt th:first-child {
+	width: 129px;
+}
+
+table.bt4.bordered.imt th:first-child {
+	width: 149px;
+}
+
+table.bt5.bordered.imt th:first-child {
+	width: 169px;
+}
+
+table.bt.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt1.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt2.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt3.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt4.bordered.imt {
+	margin-bottom: 0;
+}
+
+table.bt5.bordered.imt {
+	margin-bottom: 0;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered {
+	margin-bottom: 0;
+}
+
+
+/* Just for tables, some colour for any additional blockquote cells.
+as == after second (cell). */
+.bq_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 60px;
+}
+
+.bq1_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 80px;
+}
+
+.bq2_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 100px;
+}
+
+.bq3_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 120px;
+}
+
+.bq4_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 140px;
+}
+
+.bq5_as {
+	background-color: #F2F8F2;      /* Light green */
+	padding-left: 160px;
+}
+
+/* Background color for table rows in block-quoted tables. */
+/*
+table.bt.bordered.imt tr th:first-child {
+	border-top-width: 0;
+}
+*/
+
+table.bordered.imt tr th:first-child {
+	font-weight: normal;
+	color: #808080;
+	padding-left: 4px;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_, .INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ :nth-child(1) {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr._FOOTNOTE_ th:first-child {
+	background-color: #dce9f9 !important;
+}
+
+.INDENTED_TABLE_PLACEHOLDER table.bordered tr.bq_tr td {
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+tr.bq_tr {
+	background-color: #F2F8F2;      /* Light green */
+}
+
+.footnote_indented_table {
+	background-color: #F2F8F2 !important;      /* Light green */
+	width: 100%;
+	margin-left: 100px;
+}
+
+.fakeCaptionIndented {
+	display: inline-block;
+	margin-left: 20px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented1 {
+	display: inline-block;
+	margin-left: 40px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented2 {
+	display: inline-block;
+	margin-left: 60px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented3 {
+	display: inline-block;
+	margin-left: 80px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented4 {
+	display: inline-block;
+	margin-left: 100px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+.fakeCaptionIndented5 {
+	display: inline-block;
+	margin-left: 120px !important;
+	background-color: #F2F8F2 !important;      /* Light green */
+}
+
+/* Block quoted indented code block, set the left margin. */
+.bq_icb {
+	margin-left: 40px;
+}
+
+.bq1_icb {
+	margin-left: 60px;
+}
+
+.bq2_icb {
+	margin-left: 80px;
+}
+
+.bq3_icb {
+	margin-left: 100px;
+}
+
+.bq4_icb {
+	margin-left: 120px;
+}
+
+.bq5_icb {
+	margin-left: 140px;
 }
 
 </style>
@@ -1164,8 +1794,8 @@ td.vam {
 td:nth-child(1) {
 	background-color: #F8F8F8;
 	color: #808080;
-	text-align: right;
-	min-width: 3em; /* enough for 99999 one hopes */
+	text-align: left;
+	min-width: 3.5em; /* enough for 99999 one hopes */
 }
 
 th {
@@ -1175,12 +1805,12 @@ th {
 /* Avoid copy of line numbers in the first column.
 <td n='$lineNum'></td>
 */
-td:first-child:after, th:first-child:after {
+td:first-child:before, th:first-child:before {
     content: attr(n);
 }
 
 
-td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:after {
+td:first-child.brace-line-highlight:before, th:first-child.brace-line-highlight:before {
     background-color: rgb(200, 255, 200);
 }
 
@@ -1193,7 +1823,7 @@ td:first-child.brace-line-highlight:after, th:first-child.brace-line-highlight:a
 	min-width: auto; 
 }
 
-.rawHTML table td:first-child:after, .rawHTML table th:first-child:after {
+.rawHTML table td:first-child:before, .rawHTML table th:first-child:before {
     content: none;
 }
 
@@ -1340,7 +1970,7 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered tr:hover {
-    background: #fbf8e9;
+    background: #fbf8e9 !important;
     -o-transition: all 0.1s ease-in-out;
     -webkit-transition: all 0.1s ease-in-out;
     -moz-transition: all 0.1s ease-in-out;
@@ -1357,6 +1987,10 @@ paragraph (ie not the first paragraph in the item).
 }
 
 .bordered th {
+	border-top: none;
+}
+
+.bordered th:not(:first-child) {
     background-color: #dce9f9;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
     background-image: -webkit-linear-gradient(to top, #ebf3fc, #dce9f9);
@@ -1367,8 +2001,7 @@ paragraph (ie not the first paragraph in the item).
     -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
     -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
     box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
-    border-top: none;
-    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+     text-shadow: 0 1px 0 rgba(255,255,255,.5); 
 }
 
 .bordered td:first-child, .bordered th:first-child {
@@ -1376,7 +2009,7 @@ paragraph (ie not the first paragraph in the item).
     border-top: none;
     background-color: #F8F8F8;
 	color: #808080;
-	text-align: right;
+	text-align: left;
 	min-width: 3em;
 }
 
@@ -1435,6 +2068,7 @@ paragraph (ie not the first paragraph in the item).
 	background: #888;
 }
 
+
 .reallyshrunkrow td {
 	height: 1px;
 	border: none;
@@ -1443,10 +2077,11 @@ paragraph (ie not the first paragraph in the item).
 
 /* Override td :nth-child(1) for footnotes at end of Viewer display. */
 
-/* TEST ONLY */
+/* TEST ONLY 
 .gloss_div table.bordered {
 	margin-left: 26px;
 }
+*/
 
 .gloss_div table.bordered th {
 	background: #dce9f9 !important;
@@ -1464,7 +2099,7 @@ paragraph (ie not the first paragraph in the item).
 .gloss_div table.bordered td {
 	text-align: left !important;
 	text-indent: 0 !important;
-	padding-left: 0 !important;
+	padding-left: 4px !important;
 }
 /*
 .gloss_div table:not(first-child) tbody tr:first-child {
@@ -1511,6 +2146,8 @@ paragraph (ie not the first paragraph in the item).
 	line-height:18px;
 	z-index:100;
 	visibility: hidden;
+
+	anchor-name: --tip-anchor; /* Anchor for secondary popups, .popup-content stuff. */
 		
 	overflow: auto;
 	overflow-wrap: break-word;
@@ -1845,6 +2482,37 @@ paragraph (ie not the first paragraph in the item).
 	padding-bottom: 8px;
 }
 
+/* CSS for the "secondary popup" in the Viewer, Editor, and standalone HTML.*/
+/* The container holding both the link and the popup */
+.popup-wrapper {
+	display: inline-block;
+	text-decoration: underline dotted #666;
+	cursor: default;
+	}
+	
+/* The actual popup content (hidden by default) */
+.popup-content {
+display: none;
+position: fixed;
+cursor: default;
+background-color: #FFFFF4 !important;
+border: 1px solid black !important;
+position-anchor: --tip-anchor;
+top: auto;
+bottom: anchor(--tip-anchor top);
+position-try-fallbacks: flip-block;
+left: anchor(left); /* 10% */
+width: 450px; /* was 80%;*/
+padding: 10px;
+z-index: 1;
+box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+font-weight: 400;
+}
+	
+.makePopupVisible {
+	display: inline-block;
+	}
+	
 </style>
 <style>
 /* dragTOC.css: CSS for the panes-separator in the Viewer, allowing width of
@@ -1862,20 +2530,27 @@ Table of Contents to be changed by dragging. */
 
 </style>
 <style>
-/* Custom CSS for lolight syntax highlighting of code blocks.
+/* lolight_custom.css: ustom CSS for lolight syntax highlighting of code blocks.
 Used in IntraMine by gloss2html.pl to style CODE/ENDCODE blocks.
 Some attempt has been made to coordinate the colors with
 highlightjs default.min.css.
 */
 
 pre {
+    margin-block-start: 1px;
+    margin-block-end: 1px;
+}
+
+pre.lolight {
     overflow: visible;
     word-wrap: anywhere;
     white-space: pre-wrap;
     padding-left: 0.5em;
 	margin: 0;
-	background: #f3f3f3;
-  }
+    padding: 0;
+	background: #f3f3f3 !important;
+    /* Just fooling around. This makes a horizontal scroll bar. width: 1200px; */
+    }
 
 .ll-nam { /* words */
     color: black;
@@ -8604,6 +9279,8 @@ let selectedTocId = 'tocitup';
 let doubleClickTime = 500;
 let useLolight = true;
 let weAreStandalone = true;
+const textDiffChangedLines = [];
+let usingMathJax = false;
 </script>
 <script>
 	// Call fn when ready.
@@ -8620,7 +9297,7 @@ let weAreStandalone = true;
 		}
 </script>
 <script>
-function loadAndShowHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
+function loadAndShowImageHint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode) {
 	hintContents = loadCachedImages(hintContents); // popup_image_cache.js
 	showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode);
 }
@@ -8687,7 +9364,6 @@ let shOurServerPort = (typeof ourServerPort !== 'undefined') ? ourServerPort: 0;
 let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
-
 
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
@@ -8865,10 +9541,135 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
+		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
 		}, 100);
 
 }
 
+// Remember a secondary popup is open, don't close the hintbox here if it is.
+// See startSecondaryStillUpTimer etc below.
+let secondaryPopupIsOpen = false;
+let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
+
+// Cheating a bit, we also make the popup-content visible.
+function startSecondaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentSeocndaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		secondaryPopupIsOpen = true;
+		}
+  
+	hideSecondaryTimer = setTimeout(() => {
+		hideSecondaryIfMouseHasLeft(el);
+	}, DELAY_MS);
+}
+
+function resetSecondaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideSecondaryTimer);
+		hideSecondaryTimer = null;
+		hideSecondaryTimer = setTimeout(() => {
+			hideSecondaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
+
+function hideCurrentSeocndaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			break;
+			}
+		}
+}
+
+function hideSecondaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+			{
+			// Run the timer again.
+			hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over secondary wrapper or content, close it up.
+			hideSecondaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				secondaryPopupIsOpen = false;
+				}		
+			}
+		}
+}
+
+// Check the popup-content span inside the popup-wrapper 'el'
+// element, see if mouse is over it
+function mouseStillOverSecondaryContent(el) {
+	let stillOver = false;
+
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-content'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+	
+	return(stillOver);
+}
+
+function mouseStillOverSecondaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains('popup-wrapper'))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function addGlossaryPopupListeners(targetClass, contentClass) {
+	let popupWrappers = document.querySelectorAll('.' + targetClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startSecondaryStillUpTimer);
+			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
+			});
+		}
+		
+	}
+	
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -9063,6 +9864,12 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 			}
 		}
 	
+	// hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+	// etc elements that won't display properly as-is. So they are "de-natured" in
+	// gloss.pm#Gloss() at the end, replacing eg " with__DQUOTE_REP__and restored here
+	// by doing the opposite. See horrible.js.
+	////hintContents = horribleUnescape(hintContents);
+
 	if (shouldDecode)
 		{
 		setTimeout(function() {
@@ -9072,14 +9879,17 @@ async function showhint(hintContents, obj, e, tipwidth, isAnImage, shouldDecode)
 	else
 		{
 		setTimeout(function() {
-			showWithFreshPort(hintContents, obj, e, tipwidth, isAnImage);
+			showWithFreshPort(horribleUnescape(hintContents), obj, e, tipwidth, isAnImage);
 			}, 350);
 		}
 	}
 
 function decodeHint(text) {
 	text = decodeURIComponent(text);
-	
+	text = horribleUnescape(text);
+
+	text = putRealQuotes(text);
+
 	return(text);
 }
 
@@ -9261,7 +10071,7 @@ function showhintAtferSettingHTML(hintContents, obj, e, tipwidth, isAnImage) {
 	hintElement.style.top = "-500px";
 	if (tipwidth === "")
 		{
-		tipwidth = "300px";
+		tipwidth = "450px";
 		}
 	hintElement.widthobj = hintElement.style;
 
@@ -9343,7 +10153,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
@@ -9396,7 +10206,7 @@ function mouseStillOverHintbox() {
 
 	let elements = document.elementsFromPoint(cursor_x, cursor_y);
 
-	for (var i = 0; i < elements.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		let elementId = elements[i].id;
 		if (elementId === "hintbox")
 			{
@@ -9417,7 +10227,7 @@ function hideTip(e) {
 	hintElement.style.visibility = "hidden";
 	hintElement.innerHTML = '';
 	hintElement.style.left = "-500px";
-	hintElement.style.width = "300px";
+	hintElement.style.width = "450px";
 	hintElement.style.height = "auto";
 	let anks = document.getElementsByClassName(anchorClassName);
 	if (anks.length > 0)
@@ -9569,10 +10379,11 @@ if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
 let data = textNode.textContent;
 
 // Sometimes the offset can be at the 'length' of the data.
-// It might be a bug with this 'experimental' feature - 
-// compensate for this below
+// If so, drop out. This allows clicking past the end of text
+// to avoid selecting anything.
 if (offset >= data.length) {
-  offset = data.length - 1;
+	return(document.createRange());
+	//offset = data.length - 1;
 }
 
 // Scan behind the current character until whitespace or punct is found, or beginning
@@ -10050,6 +10861,11 @@ function setIsMarkdown() {
 async function showDefinitionHint(term, event) {
 }
 
+function maintainShowHideDiffs() {
+}
+
+function disableDiffsButton() {
+}
 </script>
 <script type="text/javascript">
 // showHideTOC.js: shrink/expand the Table Of Contents via a "#tocShrinkExpand" element
@@ -10764,6 +11580,54 @@ window.addEventListener("load", function() {
 
 </script>
 <script type="text/javascript">
+// horrible.js: horribleEscape() and horribleUnescape().
+// Mainly for use with "tool tips" displayed by tooltip.js#showhint().
+// There, hintContents comes from <a onmouseover=showhint(hintContents)..., and has <table>, <div>
+// etc elements that won't display properly as-is. So they are "de-natured" or "escaped" in
+// gloss.pm#Gloss() at the end with a call to horribleEscape(), replacing eg " with__DQUOTE_REP__
+// and restored in tooltip.js#showhint()  by doing the opposite (horribleUnescape())
+// just before display.
+
+
+// Interim hack, replace troublesome characters (in description)
+// with placeholders. These are undone when presenting description for
+// editing, and also in gloss.pm#Gloss() when applying Gloss to the
+// description.
+function horribleEscape(text) {
+	text = text.replace(/\=/g, '_EQR_');
+	text = text.replace(/\"/g, '_DQR_');
+	text = text.replace(/\'/g, '_SQR_');
+	text = text.replace(/\+/g, '_PSR_');
+	text = text.replace(/\%/g, '_PCR_');
+	text = text.replace(/\&/g, '_AMR_');
+	text = text.replace(/\\t/g, '_TR_');
+	text = text.replace(/\\/g, '_BSR_');
+
+	return(text);        
+}
+
+// Reverse of horribleEscape just above.
+function horribleUnescape(text) {
+	text = text.replace(/_EQR_/g, '=');
+	text = text.replace(/_DQR_/g, '\"');
+	text = text.replace(/_SQR_/g, '\'');
+	text = text.replace(/_PSR_/g, '+');
+	text = text.replace(/_PCR_/g, '%');
+	text = text.replace(/_AMR_/g, '&');
+	text = text.replace(/_TR_/g, '\\t');
+	text = text.replace(/_BSR_/g, '\\');
+
+	return(text);
+}
+
+function putRealQuotes(text) {
+	text = text.replace(/\&quot;/g, '\"');
+
+	return(text);
+}
+
+</script>
+<script type="text/javascript">
 // viewerStart.js: used for non-CodeMirror views in intramine_viewer.pl.
 // Manage layout changes on resize, jump to an anchor
 // Put highlight hits in text and on scrollbar.
@@ -10791,14 +11655,16 @@ if (typeof window.ontouchstart !== 'undefined')
 	onMobile = true;
 	}
 
-window.addEventListener("load", reJumpAndHighlight);
+let diffScrollMarkerClass = "diff-scroll"; // For markDiffsInScrollbar()
+
+window.addEventListener("load", function() {reJumpAndHighlight(false);});
 window.addEventListener("resize", JD.debounce(doResize, 100));
 
 // Hide messy redraw. See also showMainContent called in finishStartup() below.
 hideMainContent();
 
 // Adjust some element heights so scrolling works properly.
-function doResize() {
+function doResize(reloading = false) {
 	restoreColumnWidths();
 
 	let rule = document.getElementById("rule_above_editor");
@@ -10829,11 +11695,13 @@ function doResize() {
 		tocMainElement.style.height = newTocHeightPC + "%";
 		}
 
-	if (initialSearchHitsAreShowing)
+	if (!reloading && initialSearchHitsAreShowing)
 		{
 		removeInitialHighlights();
 		highlightInitialItems();
 		}
+
+	markDiffsInScrollbar(diffScrollMarkerClass);
 
 	if (!onMobile)
 		{
@@ -10844,8 +11712,6 @@ function doResize() {
 		scrollMobileIndicator(); // if mobile
 		}
 	
-	// TEST ONLY
-	//console.log("doResize");
 	reJump();
 	
 	updateToggleBigMoveLimit();
@@ -10856,17 +11722,25 @@ function doResize() {
 // On "load", scroll any location.hash position into view, and put highlights on any
 // words that formed part of a search that produced this file as a hit.
 // See intramine_viewer.pl#InitialHighlightItems().
-async function reJumpAndHighlight() {
-	addDragger && addDragger(); // dragTOC.js#addDragger()
+async function reJumpAndHighlight(reloading=false) {
+	addDragger && addDragger(reloading); // dragTOC.js#addDragger()
 	
 	reJump(100); // "100" adds a slight delay before line number scrollIntoView().
 	updateToggleBigMoveLimit();
 	updateTogglePositions();
-	highlightInitialItems();
+	if (!reloading)
+		{
+		highlightInitialItems();
+		}
 
 	setIsMarkdown();
 
 	await delay(150);
+
+	if (reloading)
+		{
+		forgetLinesSeen();
+		}
 
 	if (isMarkdown)
 		{
@@ -10875,6 +11749,7 @@ async function reJumpAndHighlight() {
 	else
 		{
 		addAutoLinks();
+		maintainShowHideDiffs();
 		}
 }
 
@@ -10893,7 +11768,7 @@ function reJump(delayMsec) {
 	// We look at localStorage for a line number, if found
 	// attempt to count through the elements in the contents
 	// and jump. False if no jump.
-	if (jumpToMarkdownLineFromStorage())
+	if (markdownJump())
 		{
 		return;
 		}
@@ -10902,13 +11777,47 @@ function reJump(delayMsec) {
 		{
 		delayMsec = 0;
 		}
-	
+
+	let useStorage = false;
+
 	let h = location.hash;
-	if (h.length > 1)
+
+	if (h.length <= 1)
+		{
+		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+		if (lineNumberStr !== null && lineNumberStr !== "")
+			{
+			// TEST ONLY
+			//console.log("Session line number is there, |" + lineNumberStr + "|");
+	
+			setTimeout(function() {
+				clearSessionLineNumber();
+				}, 4000);
+			}
+		if (lineNumberStr !== null && lineNumberStr !== "" && !isNaN(lineNumberStr))
+			{
+			// Skip storage if we are coming from the Search page.
+			if (location.href.indexOf("searchItems=") < 0)
+				{
+				useStorage = true;
+				}
+			}
+		}
+
+
+	if (!useStorage && h.length > 1)
 		{
 		// strip leading '#'
 		h = h.replace(/^#/, '');
 		h = decodeURIComponent(h);
+		if (h.indexOf('"') == 0)
+			{
+			h = h.substring(1);
+			h = h.substring(0, h.length - 1);
+			}
+
+		// TEST ONLY
+		//console.log("reJump hash: |" + h + "|");
 		
 		if (isNaN(h))
 			{
@@ -10916,7 +11825,11 @@ function reJump(delayMsec) {
 			if (el === null)
 				{
 				let simplerHCopy = h.toLowerCase();
-				simplerHCopy = simplerHCopy.replace(/\W/g, '');
+				simplerHCopy = simplerHCopy.replace(/\W/g, '_');
+
+				// TEST ONLY
+				//console.log("Looking for simpler |" + simplerHCopy + "|");
+
 				el = document.getElementById(simplerHCopy);
 				}		
 			
@@ -10933,25 +11846,58 @@ function reJump(delayMsec) {
 					scrollMobileIndicator(); // if mobile
 					}
 				}
+			// TEST ONLY
+			else
+				{
+				//console.log("el is null. h is |" + h + "|");
+				}
 			}
 		else
 			{
-			// TEST ONLY
-			//console.log("viewerStart.js#166");
 			reJumpToLineNumber(h, delayMsec);
+			}
+		}
+	else if (useStorage)
+		{
+		let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+		if (lineNumberStr !== null && lineNumberStr !== "")
+			{
+			if (!isNaN(lineNumberStr))
+				{
+				// TEST ONLY
+				//console.log("Calling reJumpToLineNumber for line " + lineNumberStr);
+				reJumpToLineNumber(lineNumberStr, delayMsec);
+				}
 			}
 		}
 }
 
+function clearSessionLineNumber() {
+	sessionStorage.setItem('lineNumberStr', "");
+	let lineNumberStr = sessionStorage.getItem('lineNumberStr');
+	if (lineNumberStr === null && lineNumberStr !== "")
+		{
+		lineNumberStr = "NULL";
+		}
+}
+
+// FIRST check location.hash
 // Retrieve line number to scroll to from localStorage.
 // Count up through the elements in the HTML until line number is reached,
 // scroll to that element.
 // Each P, H1..H6, HR counts as two lines.
 //
-function jumpToMarkdownLineFromStorage() {
+function markdownJump() {
+	// We're (probably) going to a header if location.hash is set
+	// if so, return true.
+	// let h = location.hash;
+	// if (h.length > 1)
+	// 	{
+	// 	return(true);
+	// 	}
 	let markdownLineNumberKey = thePath + '?' + "markdownline";
 	let markdownLineNumberStr = localStorage.getItem(markdownLineNumberKey);
-	if (markdownLineNumberStr === null)
+	if (markdownLineNumberStr === null || markdownLineNumberStr === "")
 		{
 		return(false);
 		}
@@ -10959,7 +11905,7 @@ function jumpToMarkdownLineFromStorage() {
 	++markdownLineNumber;
 
 	// TEST ONLY
-	//console.log("jumpToMarkdownLineFromStorage looking for " + markdownLineNumberStr);
+	//console.log("markdownJump looking for " + markdownLineNumberStr);
 
 	// Note sure why I was deleting the remembered line number,
 	// leaving it in for now.
@@ -11010,7 +11956,7 @@ function jumpToMarkdownLineFromStorage() {
 				}
 
 			const paraKids = kids[i].children;
-			for (j = 0; j < paraKids.length; ++j)
+			for (let j = 0; j < paraKids.length; ++j)
 				{
 				let paraKidsName = paraKids[j].nodeName;
 				if (paraKidsName === 'IMG')
@@ -11060,6 +12006,9 @@ function jumpToMarkdownLineFromStorage() {
 			}
 		else if (kidsName === 'UL' || kidsName === 'OL')
 			{
+			// TEST ONLY
+			//console.log("IN LIST");
+
 			const listItems = kids[i].children;
 			if (listItems.length === 0)
 				{
@@ -11084,6 +12033,40 @@ function jumpToMarkdownLineFromStorage() {
 					done = true;
 					break;
 					}
+				else
+					{
+					let subkids = listItems[j].children;
+					for (let k = 0; k < subkids.length; ++k)
+						{
+						let subkidsName = subkids[k].nodeName;
+						if (subkidsName === 'UL' || subkidsName === 'OL')
+							{
+							// TEST ONLY
+							//console.log("In sublist");
+							const sublistItems = subkids[k].children;
+							for (let n = 0; n < sublistItems.length; ++n)
+								{
+								++lineNumber;
+								// TEST ONLY
+								//console.log("Checking " + subkidsName + " item " + n + ", line " + lineNumber);
+								if (lineNumber >= markdownLineNumber)
+									{
+									el = listItems[j];
+									isSubElement = true;
+									parentElementOffset = kids[i].offsetTop - textDivOffset;				
+									elementOffset = j * el.offsetHeight; // odd hack, but it works
+									//el = kids[i];
+									done = true;
+									break;
+									}
+								}
+							}
+						}
+					}
+				if (done)
+					{
+					break;
+					}
 				}
 			}
 		else if (kidsName === 'PRE')
@@ -11104,7 +12087,7 @@ function jumpToMarkdownLineFromStorage() {
 			}
 		else
 			{
-			//console.log("UNHANDLED: " + kidsName + "ca line " + lineNumber);
+			console.log("UNHANDLED: " + kidsName + "ca line " + lineNumber);
 			++lineNumber;
 			}
 		
@@ -11115,30 +12098,22 @@ function jumpToMarkdownLineFromStorage() {
 		} // for (let i = 0; i < kids.length; ++i)
 
 	let result = false;
+
+	if (el === null && kids.length > 0)
+		{
+		el = kids[kids.length - 1];
+		}
+	
 	if (el !== null)
 		{
-		// TEST ONLY
-		//const elemName = el.nodeName;
-		//console.log("FOUND " + elemName + " on line " + lineNumber + " vs wanted " + markdownLineNumber);
-		//console.log("|" + el.innerHTML + "|");
-
 		if (isSubElement)
 			{
-			// TEST ONLY
-			//console.log("Scrolling to subelement.");
-			//el.style.backgroundColor = "yellow";
-
-			// TEST ONLY
-			//const elemName = el.nodeName;
-			//console.log(elemName + " " + parentElementOffset + " " + elementOffset);
-
 			textDiv.scrollTo({
 				top: parentElementOffset + elementOffset
 				});
 			}
 		else
 			{
-			//el.style.backgroundColor = "lightblue";
 			el.scrollIntoView();
 			}
 		
@@ -11159,6 +12134,10 @@ function jumpToMarkdownLineFromStorage() {
 
 function preLineHeight() {
 	const preElement = document.querySelector('pre');
+	if (preElement === null)
+		{
+		return(17);
+		}
 	const computedStyle = window.getComputedStyle(preElement);
 	const lineHeight = computedStyle.lineHeight;
 
@@ -11383,7 +12362,7 @@ function hasTextExtension() {
 
 // Just for Markdown files, go straight to an id.
 function mdJump(tocid, lineNum) {
-	location.hash = '#' + tocid;
+	location.hash = tocid;
 }
 
 // Adust the top of "id" (the main text holder) so scrolling will work properly etc.
@@ -11416,31 +12395,169 @@ function positionViewItems() {
 			setTextViewPosition("rule_above_editor", specialTextHolderName);
 			}
 		}
+	
 	doResize();
+
 }
 
-function finishStartup() {
+function finishStartup(reloading = false) {
+
 	if (thePath.match(/\.(txt|log|bat)$/))
 		{
-		// use lolight highlighting
+		// use lolight highlighting, and process footnote popup math
 		putInLolightElements();
 		}
 
-	hideIt("search-button");
-	hideIt("small-tip");
+	if (!reloading)
+		{
+		hideIt("search-button");
+		hideIt("small-tip");
+		
+		}
 	positionViewItems();
-	loadCommonestEnglishWords(); // See commonEnglishWords.js.
+	if (!reloading)
+		{
+		loadCommonestEnglishWords(); // See commonEnglishWords.js.
+		}
+	
 	setImagesButtonText();
 	
-	// TEST ONLY
-	//console.log("finishStartup");
 	reJump();
+
+	disableDiffsButton(); //showHideDiffs.js
 
 	// Show content after drawing is done.
 	// This is work in progress, not perfect.
 	setTimeout(function() {
 		showMainContent();
 		}, 500);
+
+	// TEST ONLY
+	//console.log("STARTED");
+}
+
+// Call back to Viewer service with req=reloadnoncmfile and 'FULLPATH'.
+async function reloadNonCM(shortServerName, port, useEditorCache) {
+
+	let theAction = 'http://' + mainIP + ':' + port + '/?req=reloadnoncmfile' + '&FULLPATH=' + encodeURIComponent(thePath) + '&useEditor=' + useEditorCache;
+	let contentDiv = document.getElementById('scrollAdjustedHeight');
+	if (contentDiv === null)
+		{
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>Error, scrollAdjustedHeight div is missing!!</p>';
+		return;
+		}
+	
+	try {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== ' ')
+				{
+				prepForReload(useEditorCache);
+
+				contentDiv.innerHTML = text;
+
+				let reloading = true;
+				finishReload();
+				finishStartup(reloading);
+				reJumpAndHighlight(reloading);
+
+				// Redo MathJax since content has changed.
+				if (typeof MathJax !== 'undefined')
+					{
+					MathJax.typesetPromise([contentDiv]).then(() => {
+						;//console.log('Typesetting complete');
+					}).catch((err) => console.log(err.message));
+
+					setTimeout(doPopupMath, 100);
+					}
+
+				lolight();// Needed for reload, but not for initial load. Arg.
+
+				//finishReload(); too late
+				startReloadCheck();
+				}
+			}
+		else
+			{
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>reloadNonCM bad response received!</p>';
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>reloadNonCM connection error :' + error + '!</p>';
+	}
+}
+
+function prepForReload(useEditorCache) {
+	stopReloadCheck();
+	if (!useEditorCache)
+		{
+		// Get line number of first visible line, poke it in sessionStorage.
+		let lineNumberStr = getTopLineNumber();
+		sessionStorage.setItem('lineNumberStr', lineNumberStr);
+		}
+}
+
+function getTopLineNumber() {
+	let result = "1";
+	let el = document.getElementById(cmTextHolderName);
+	if (el !== null)
+		{
+		let lineNum = firstVisibleLineNumber(el);
+		result = lineNum.toString();
+		}
+	
+	return(result);
+}
+
+function finishReload() {
+	markerMainElement = document.getElementById(cmTextHolderName);
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById("scrollText");
+		}
+	if (markerMainElement === null)
+		{
+		markerMainElement = document.getElementById(specialTextHolderName);
+		}
+
+	if (markerMainElement !== null)
+		{
+		markerInstance = new Mark(markerMainElement);
+		}
+
+	tocMainElement = document.getElementById("scrollContentsList");
+
+	if (markerMainElement !== null)
+		{
+		markerMainElement.addEventListener("click", delayedUpdateMarkersAndTOC);
+		markerMainElement.addEventListener("dblclick", noteWasDoubleClick);
+		window.addEventListener("resize", updateScrollbarMarkers);
+
+		markerMainElement.addEventListener("mouseup", resetTopNavPosition);
+		if (tocMainElement !== null)
+			{
+			tocMainElement.addEventListener("mouseup", resetTopNavPosition);
+			}
+		}
+
+	addToggleScrollListener();
+
+	reloadDiffs(diffScrollMarkerClass);
+
+	forgetLinesSeen();
+	addScrollListenerAndSetMarkdown();
+
+	addTocScrollListener();
+
+	if (typeof resetToggle !== 'undefined')
+		{
+		resetToggle();
+		}
 }
 
 // Code block highlighting with lolight, used
@@ -11449,32 +12566,251 @@ function putInLolightElements() {
 	document.querySelectorAll('td').forEach((el) => {
 		putInLolightPreAndClass(el);
 	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('.footenoteref').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+	});
+
+	document.querySelectorAll('tr._FOOTNOTE_ td').forEach((el) => {
+		putInLolightPreAndClassForFootnoteRefs(el);
+	});
+
+
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefsSTARTEND(el);
+			});
+	
+		document.querySelectorAll('.glossary').forEach((el) => {
+			putInLolightPreAndClassForFootnoteRefs(el);
+			});
+		}	
 }
 
 function putInLolightPreAndClass(el) {
 	let text = el.innerHTML;
+
 	let codeMarkerPosition = text.indexOf('_STARTCB_');
-	if (codeMarkerPosition == 0)
+	if (codeMarkerPosition >= 0)
 		{
 		// FL = First/Last line of a code block. These are
 		// shrunk down, emptied out, and colored gray.
 		// Other rows starting with 'STARTCB_' are given
 		// a class of 'lolight', and lolight JS styles
 		// them up when the document is ready.
-		if (text.indexOf('_STARTCB_FL_') == 0)
+
+		let it = el.textContent;
+		if (it.indexOf('_STARTCB_FL_') == 0)
 			{
 			el.innerHTML = '';
-			el.parentNode.classList.add("reallyshrunkrow");
+
+			// Switched from  reallyshrunkrow, the color was too intrusive.
+			el.parentNode.classList.add("shrunkrow");
+
 			el.parentNode.firstElementChild.removeAttribute("n");
-			el.style.backgroundColor = "#d0d0d0";
 			}
-		else
+		else if (it.indexOf('_STARTCB_') == 0)
 			{
-			text = text.substring(9);
+			//text = text.substring(9);
+			text = text.replace("_STARTCB_", "");
+			if (it.indexOf('_STARTCB_ENDCODE') == 0)
+				{
+				text = text.replace("ENDCODE", "");
+				}
+
+			text = text.replace("_ENDCB_", "");
+			
 			el.innerHTML = '<pre class="lolight">' + text + '</pre>';
 			el.style.backgroundColor = "#f3f3f3";
 			}
 		}
+}
+
+// Not used.
+function putInLolightPreAndClassForFootnoteRefsSIMPLE(el) {
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+	text = text.replaceAll("_STARTCB_", "<pre class=&quot;lolight&quot; style=&quot;color: DarkRed; background-color: #f3f3f3;&quot;>");
+	text = text.replaceAll("_ENDCB_", "</pre>");
+	el.innerHTML = text;
+}
+
+function putInLolightPreAndClassForFootnoteRefsSTARTEND(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	text = text.replaceAll("_STARTCB_FL_", "");
+
+	el.innerHTML = text;	
+}
+
+// repeatedly extract _STARTCB_..._ENDCB_ chunks,
+// "decode",
+// tokenize with lolight.tok(), get the innerHTML,
+// "encode",
+// and replace what was extracted with that result.
+function putInLolightPreAndClassForFootnoteRefs(el) {
+	
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+
+	let text = el.innerHTML;
+
+	// Fancy approach: decodeURIComponent, apply lolight, encodeURIComponent
+	text = text.replace(/_STARTCB_(.*?)_ENDCB_/g, (match) => {return lolightit(match)});
+
+	el.innerHTML = text;
+}
+
+// Man, this one was fun.
+function lolightit(text) {
+	text = text.replace("_STARTCB_", "");
+	text = text.replace("_ENDCB_", "");
+	
+	text = decodeURIComponent(text);
+	text = horribleUnescape(text);
+
+	let tokArr = lolight.tok(text);
+	let highlightedHtml = lolightTokWrapped(tokArr);
+	text = '<pre class="lolight">' + highlightedHtml + '</pre>';
+	
+	text = horribleEscape(text);
+	text = encodeURIComponent(text);
+	return(text);
+}
+
+function lolightTokWrapped(kv) {
+	// Ooops not needed: const kv = text.split(",");
+	let newText = '';
+	
+	for (let i = 0; i < kv.length; ++i)
+		{
+		let k = kv[i][0];
+		let v = kv[i][1];
+		let spanClass = 'll-' + k;
+		newText += '<span class="' + spanClass + '">' + v + '</span>';
+		//newText += "<span class=&quot;" + spanClass + "&quot;>" + v + "</span>";
+		//newText += "<span class='" + spanClass + "'>" + v + "</span>";//
+		}
+	return(newText);
+}
+
+let mathJaxPollingTimer = 0;
+function checkAndRunMathJaxForPopups() {
+	mathJaxPollingTimer = setInterval(waitAndRunMathJaxForPopups, 200);
+}
+
+function waitAndRunMathJaxForPopups() {
+	if (typeof MathJax !== 'undefined')
+		{
+		clearInterval(mathJaxPollingTimer);
+		setTimeout(doPopupMath, 100);
+		}
+}
+
+function doPopupMath() {
+	if (thePath.match(/\.(txt|log|bat)$/))
+		{
+		if (typeof MathJax !== 'undefined')
+			{
+			document.querySelectorAll('.footenoteref').forEach((el) => {
+				putInMathForPopups(el);
+			});
+
+			// Do glossary popups too.
+			if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+				{
+				document.querySelectorAll('.glossary').forEach((el) => {
+						putInMathForPopups(el);
+					});
+				}
+			}
+		}
+}
+
+function putInMathForPopups(el) {
+	if ((typeof weAreStandalone !== 'undefined') && weAreStandalone)
+		{
+		if (el.tagName === 'A')
+			{
+			el = el.parentElement;
+			if (el === null)
+				{
+				return;
+				}
+			}
+		}
+	
+	let text = el.innerHTML;
+
+	// Now MathJax.
+	if (text.indexOf('_START_MATH_') >= 0)
+		{
+		//console.log("INITIAL Math start seen.");
+		// if (typeof MathJax === 'undefined')
+		// 	{
+		// 	console.log("BUT MathJax is NOT DEFINED!");
+		// 	}
+		}
+	if (typeof MathJax !== 'undefined')
+		{
+		text = text.replace(/_START_MATH_(.*?)_END_MATH_/g, (match) => {return mathit(match)});
+		}
+	el.innerHTML = text;
+}
+function mathit(text) {
+	// if (text.indexOf('_START_MATH_') >= 0)
+	// 	{
+	// 	console.log("Math start seen.");
+	// 	}
+	text = text.replace("_START_MATH_", "");
+	text = text.replace("_END_MATH_", "");
+	text = decodeURIComponent(text);
+	if (typeof text !== 'undefined' && text !== null)
+		{
+		text = horribleUnescape(text);
+
+		let rawText = String.raw({ raw: [text] });
+		const mathNode = MathJax.tex2chtml(rawText);
+		const htmlString = mathNode.outerHTML;
+
+		//text = horribleEscape(text);
+
+		text = htmlString;
+		}
+	text = encodeURIComponent(text);
+
+	return(text);
 }
 
 function createElementFromHTML(htmlString) {
@@ -12000,6 +13336,192 @@ function markHitsInScrollbar(textClassName, scrollHitClassName) {
 		mk.style.top = absMarkerPos + "px";
 		markerMainElement.appendChild(mk);
 		}
+}
+
+function markDiffsInScrollbar(scrollHitClassName) {
+	// TEST ONLY
+	//console.log("markDiffsInScrollbar called.");
+
+	// Remove any current scroll markers (for when we are reloading).
+	removeElementsByClass(scrollHitClassName);
+
+	let numDiffArrayEntries = textDiffChangedLines.length;
+	if (numDiffArrayEntries === 0)
+		{
+		maintainShowHideDiffs();
+		return;
+		}
+	//console.log("still here numdiffs is |" + numDiffArrayEntries + "|");
+
+	// Light themes want a slightly whiter thumb for diff markers to show up.
+	// Revision, this is done unconditionally in non_cm_text.css.
+	// if (!themeIsDark)
+	// 	{
+	// 	markerMainElement.style.setProperty('scrollbar-color', 'lightgray white');
+	// 	}
+	
+	let rect = markerMainElement.getBoundingClientRect();
+	let yTop = rect.top;
+	let yBottom = rect.bottom;
+	let textViewableHeight = yBottom - yTop;
+	// Fine-tuning: gray area of scrollbar is shortened by the up and down arrows, and starts
+	// after the top arrow. There are no arrows on an iPad.
+	let mainScrollY = markerMainElement.scrollTop;
+	let mainScrolllHeight = markerMainElement.scrollHeight;
+	// let usableTextHeight = textViewableHeight - 2*arrowHeight;
+
+	let viewWidth = rect.right - rect.left;
+	let widthDifference = viewWidth - markerMainElement.clientWidth;
+	let heightDifference = textViewableHeight - markerMainElement.clientHeight;
+	let haveVerticalScroll = (widthDifference > 2) ? true : false;
+	let haveHorizontalScroll = (heightDifference > 2) ? true : false;
+
+	let arrowHeight = 18;
+	let arrowMultiplier = 2;
+	if (typeof window.ontouchstart !== 'undefined')
+		{
+		arrowHeight = 2;
+		}
+	else
+		{
+		if (haveVerticalScroll)
+			{
+			if (widthDifference > 6.0 && widthDifference < 30.0)
+				{
+				//arrowHeight = Math.round(widthDifference) + 1;
+				arrowHeight = widthDifference;
+				}
+			if (haveHorizontalScroll)
+				{
+				arrowMultiplier = 3;
+				}
+			}
+		else
+			{
+			arrowHeight = 0;
+			}
+		}
+	
+	let usableTextHeight = textViewableHeight - arrowMultiplier * arrowHeight;
+
+	for (let i = 0; i < numDiffArrayEntries; ++i)
+		{
+		let lineTypeNum = textDiffChangedLines[i];
+		if (lineTypeNum === '0')
+			{
+			continue;
+			}
+		let lineType = lineTypeNum.substr(0, 1); // 'N', 'D', 'C'
+		let lineNum = lineTypeNum.substr(1);
+		lineNum = parseInt(lineNum, 10);
+		if (lineNum === 0 || (lineType !== 'N' && lineType !== 'D'))
+			{
+			continue;
+			}
+		//console.log("Line |" + lineNum + "|");
+		let rowElem = document.getElementById("R" + lineNum);
+		if (rowElem !== null)
+			{
+			let elementBoundRect = rowElem.getBoundingClientRect();
+			let textHitY = elementBoundRect.top;
+			let positionInDoc = mainScrollY + textHitY - yTop;
+			let positionRatio = positionInDoc / mainScrolllHeight;
+			let relativeMarkerPos = positionRatio * usableTextHeight;
+			let absMarkerPos = relativeMarkerPos + yTop + arrowHeight;
+	
+			let mk = document.createElement("mark");
+			mk.setAttribute("class", scrollHitClassName);
+			mk.style.top = absMarkerPos + "px";
+			markerMainElement.appendChild(mk);
+			}
+		}
+
+	maintainShowHideDiffs();
+}
+
+async function reloadDiffs(scrollHitClassName) {
+	//console.log("reloadDiffs");
+	let theAction = 'http://' + mainIP + ':' + ourServerPort + '/?req=reloadDiffs' + '&FULLPATH=' + encodeURIComponent(thePath);
+
+	textDiffChangedLines.length = 0;
+
+	try {
+		const response = await fetch(theAction);
+		if (response.ok)
+			{
+			let text = await response.text();
+			if (text !== ' ')
+				{
+				const diffs = text.split(",");
+				const diffsLen = diffs.length;
+				for (let i = 0; i < diffsLen; ++i)
+					{
+					let type = diffs[i].substring(0, 1);
+					let lineNum = diffs[i].substring(1);
+					let rowID = 'R' + lineNum;
+					let rowElem = document.getElementById(rowID);
+					if (rowElem !== null && hasClass(rowElem, 'shrunkrow'))
+						{
+						let lnum = parseInt(lineNum, 10);
+						--lnum;
+						lineNum = lnum.toString();
+						rowID = 'R' + lineNum;
+						rowElem = document.getElementById(rowID);
+						}
+					if (rowElem !== null)
+						{
+						let firstTD = rowElem.firstChild;
+						if (firstTD !== null)
+							{
+							let lnum = parseInt(lineNum, 10);
+							let spacer = '';
+							if (lnum < 10)
+								{
+								spacer = '   ';
+								}
+							else if (lnum < 100)
+								{
+								spacer = '  ';
+								}
+							else if (lnum < 1000)
+								{
+								spacer = ' ';
+								}
+							if (type === 'N')
+								{
+								firstTD.setAttribute('n', lineNum + spacer + '|');
+								firstTD.addEventListener("click", diffMarkerClicked);
+								firstTD.addEventListener("mouseover", overDiffMarker);
+								firstTD.addEventListener("mouseout", outOfDiffMarker);
+								}
+							else if (type === 'D')
+								{
+								firstTD.setAttribute('n', lineNum + spacer + '▸');
+								firstTD.addEventListener("click", diffMarkerClicked);
+								firstTD.addEventListener("mouseover", overDiffMarker);
+								firstTD.addEventListener("mouseout", outOfDiffMarker);
+								}
+							}
+
+						textDiffChangedLines.push(diffs[i]);
+						// TEST ONLY
+						//console.log("PUSHED |" + diffs[i] + "|");
+						}
+					}
+
+				markDiffsInScrollbar(scrollHitClassName);
+				}
+			}
+		else
+			{
+			let e1 = document.getElementById(errorID);
+			e1.innerHTML = '<p>reloadDiffs bad response received!</p>';
+			}
+	}
+	catch(error) {
+		let e1 = document.getElementById(errorID);
+		e1.innerHTML = '<p>reloadDiffs connection error :' + error + '!</p>';
+	}
 }
 
 function evtIsInScrollbar(evt) {
@@ -12558,6 +14080,13 @@ if (thePath.match(/\.(pl|pm|cgi|t)$/i))
 	}
 
 ready(finishStartup);
+if (typeof usingMathJax !== 'undefined')
+	{
+	if (usingMathJax)
+		{
+		ready(checkAndRunMathJaxForPopups);
+		}
+	}
 
 </script>
 <script type="text/javascript">
@@ -12575,7 +14104,7 @@ let lazyMobileScroll = JD.debounce(scrollMobileIndicator, 500);
 let lazyResetTopNavPosition = JD.debounce(resetTopNavPosition, 400);
 
 let lazySetUpIndicator = JD.debounce(setUpIndicator, 100);
-let lazyScroll = JD.debounce(scrollIndicator, 500);
+let lazyScroll = JD.debounce(scrollIndicator, 1); // was 500
 //let arrowHeight = 18; // Needed for PC only.
 
 otherIndicatorElem.style.display = 'none';
@@ -12786,6 +14315,18 @@ function scrollIndicator() {
 		return;
 		}
 
+	// Sometimes indicatorM is incorrectly set non-zero. I can't trace where
+	// that's happenining, but a recalc here which cures the problem
+	// and I say again this problem is completely untraceable after
+	// a day of looking. Fortunately this doesn't interfere with scrolling
+	// when the precision yellow indicator is wanted in a large file.
+	if (indicatorM !== 0)
+		{
+		//console.log("BEFORE indicatorM: |" + indicatorM + "|");
+		recalculateIndicatorM();
+		//console.log("AFTER indicatorM: |" + indicatorM + "|");
+		}
+
 	if (indicatorM > 0)
 		{
 		indicatorElem.style.display = 'block';
@@ -12850,17 +14391,38 @@ function hideIndicator() {
 
 let proximalLineNumber = 1;	// "here"
 let distalLineNumber = 1;	// "there"
+let distalSampleLines = ''; // Sample text from the distal position
 let bigMoveLineLimit = 100; // Big move vs small move
+let maxLinesForTogglePopup = 4;
+let maxCharsForTogglePopup = 200;
 
 function toggle() {
 	//console.log("Toggle click");
 	//console.log("Toggle, before: here " + proximalLineNumber + ", there " + distalLineNumber);
+	distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+	// TEST ONLY
+	//console.log("Go to: |" + distalSampleLines + "|");
+
 	let tempNum = proximalLineNumber;
 	proximalLineNumber = distalLineNumber;
 	distalLineNumber = tempNum;
 	let el = document.getElementById(cmTextHolderName);
 	//console.log("Toggle, AFTER: here " + proximalLineNumber + ", there " + distalLineNumber);
 	restoreTopPositionNonCM(el, proximalLineNumber);
+}
+
+function resetToggle() {
+	proximalLineNumber = 1;
+	distalLineNumber = 1;
+	distalSampleLines = '';
+}
+
+function showToggleHint(obj, e) {
+	if (distalSampleLines !== '')
+		{
+		showhint(distalSampleLines, obj, e, "400px", false);
+		}
 }
 
 function updateTogglePositions() {
@@ -12887,11 +14449,64 @@ function updateTogglePositions() {
 	else
 		{
 		//console.log("Big move! here " + proximalLineNumber + ", there " + distalLineNumber + " before update")
+		distalSampleLines = linesAtLineNumber(proximalLineNumber, maxLinesForTogglePopup);
+
+		// TEST ONLY
+		//console.log("Go to: |" + distalSampleLines + "|");
+
 		distalLineNumber = proximalLineNumber;
 		proximalLineNumber = myStartLine;
 		//console.log("AFTER BIG MOVE: here "+ proximalLineNumber + ", there " + distalLineNumber);
 		}
+
+	let toggleButton = document.getElementById("togglehits");
+	if (toggleButton !== null)
+		{
+		if (distalLineNumber === proximalLineNumber)
+			{
+			toggleButton.disabled = true;
+			}
+		else
+			{
+			toggleButton.disabled = false;
+			}
+		}
+		
 	//console.log("Toggle position update top line " + myStartLine);
+}
+
+// Pull text at lineNumber, for showing in the Toggle button onmouseover.
+function linesAtLineNumber(lineNumber, numLines) {
+	let lines = '';
+	let linesSoFar = 0;
+	let firstLineNumber = lineNumber;
+	let tdElement = document.getElementById('R' + lineNumber);
+	while (tdElement !== null && ++linesSoFar <= numLines)
+		{
+		let lineText = tdElement.innerText;
+		lines += lineText + "<br>";
+		if (lines.length >= maxCharsForTogglePopup)
+			{
+			lines = lines.substring(0, maxCharsForTogglePopup);
+			lines += '...';
+			break;
+			}
+		++lineNumber;
+		tdElement = document.getElementById('R' + lineNumber);
+		if (tdElement === null) // probably a shrunkrow
+			{
+			++lineNumber;
+			tdElement = document.getElementById('R' + lineNumber);
+			}
+		}
+
+	if (lines !== '')
+		{
+		lines = 'Go to ' + firstLineNumber + ':<br>' + lines;
+		lines = '<p>' + lines + '</p>';
+		}
+	
+	return(lines);
 }
 
 // Borrowed from
@@ -12986,16 +14601,20 @@ function scrollTocEntryIntoView(evt, weAreScrolling) {
 		let el = document.getElementById(cmTextHolderName);
 		let limitLineNum = lastVisibleLineNumber(el) + 1;
 		let lineNum = firstVisibleLineNumber(el);
-		tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
-		if (tocElem === null)
+		if (typeof lineNum !== 'undefined')
 			{
-			tocElem = getTocElemForLineNumber(lineNum);
-			}
+			tocElem = getTocElemAfterLineNumber(lineNum, limitLineNum);
+			if (tocElem === null)
+				{
+				tocElem = getTocElemForLineNumber(lineNum);
+				}
 
-		// For restoring scrolled position after a reload.
-		//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
-		//lineNum -= deductionForInlineHTMLChunks;
-		location.hash = lineNum.toString();
+			// For restoring scrolled position after a reload.
+			//let deductionForInlineHTMLChunks = inlineHTMLDeductionBeforeLine(lineNum);
+			//lineNum -= deductionForInlineHTMLChunks;
+
+			location.hash = lineNum.toString();
+			}
 		}
 		
 	if (tocElem !== null)
@@ -13284,7 +14903,7 @@ function addTocScrollListener(evt) {
 				// Trying to stabilize nav bar, sometimes it randomly
 				// jumps off the top of the window.
 				resetTopNavPosition();
-			}, 66);
+			}, 500); // was 66
 			});
 		}
 }
@@ -13339,7 +14958,14 @@ let topLineNumber; // for restoring scrolled position when the separator is drag
 // early in the Editor, see editor.js#loadFileIntoCodeMirror().
 /////window.addEventListener("load", addDragger);
 
-function addDragger() {
+function addDragger(reloading=false) {
+    if (reloading)
+        {
+        leftPane = document.getElementById('scrollContentsList'); // 'left-pane'
+        rightPane = document.getElementById('scrollTextRightOfContents'); // 'right-pane'
+        panesContainer = document.getElementById('scrollAdjustedHeight'); //'panes-container'            
+        }
+    
     if (leftPane === null || rightPane === null || panesContainer === null)
         {
         return;

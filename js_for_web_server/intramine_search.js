@@ -229,11 +229,8 @@ function rebuildDirList() {
 		dirListElem.innerHTML = '';
 		let dirInnerHTML = '';
 		
-		// We need to reverse the keys in directoryCache.cache
-		// to show the most recently used first.
 		let keysArr = Array.from(directoryCache.cache.keys() );
-		for (let key of keysArr.reverse()) {
-			//console.log(key);
+		for (let key of keysArr) {
 			let dirValue = decodeURIComponent(key);
 			let dirChild = "<option value='" + dirValue + "'>";
 			dirInnerHTML += dirChild;
@@ -249,7 +246,7 @@ function rebuildDirList() {
 function saveDirCache() {
 	let keysArr = Array.from(directoryCache.cache.keys() );
 	let dirString = '';
-	for (let key of keysArr.reverse()) {
+	for (let key of keysArr) {
 		if (dirString === '')
 			{
 			dirString = key;
@@ -285,11 +282,8 @@ function rebuildSearchList() {
 		searchListElem.innerHTML = '';
 		let searchInnerHTML = '';
 		
-		// We need to reverse the keys in searchCache.cache
-		// to show the most recently used first.
 		let keysArr = Array.from(searchCache.cache.keys() );
-		for (let key of keysArr.reverse()) {
-			//console.log(key);
+		for (let key of keysArr) {
 			let searchValue = decodeURIComponent(key);
 			let searchChild = "<option value='" + searchValue + "'>";
 			searchInnerHTML += searchChild;
@@ -305,8 +299,8 @@ function rebuildSearchList() {
 function saveSearchCache() {
 	let keysArr = Array.from(searchCache.cache.keys() );
 	let searchString = '';
-	for (let key of keysArr.reverse()) {
-		if (searchString === '')
+	for (let key of keysArr) {
+			if (searchString === '')
 			{
 			searchString = key;
 			}

@@ -10,19 +10,19 @@ Main JavaScript file: well none, actually. This "background" server does not dis
 How it works
 ============
 FILEWATCHER detects file system changes in two ways:
- - checks the File Watcher service log for anything new
+ - checks the File Watcher Utilities service log for anything new
  - launches a Powershell script (foldermonitor.ps1) that monitors file system changes, and responds to any "signal=FILESYSTEMCHANGE" messages from it.
 
 On detecting a file system change, FILEWATCHER
- - loads details of the changes from the File Watcher service log
+ - loads details of the changes from the File Watcher Utilities service log
  - uses the details to ask Elasticsearch to index affected files
- - saves a list of any new file paths
+ - saves a list of any new file paths (and a separate list of deleted files)
  - broadcasts a 'signal=reindex' to all IntraMine servers. This is picked up by the Viewer, which updates its full and partial path lists for FLASH links
  - broadcasts 'signal=filechange' to all IntraMine servers: the Status server in particular will respond by reloading its displayed list of recent file changes.
 
 File consolidation
 ==================
-FILEWATCHER keeps two full paths lists, the current consolidated list and a list of all new full paths that have come along since the last consolidation. Consolidation into a single file takes place in the wee hours of the morning, and typically takes no more than a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.
+FILEWATCHER keeps three full paths lists: the current consolidated list;  a list of all new full paths that have come along since the last consolidation; and a list of deleted files. Consolidation into a single file takes place in the wee hours of the morning, and typically takes no more than a few seconds. intramine_filewatcher.pl#PeriodicallyConsolidate() decides if it's a good time to do it, and if so calls reverse_filepaths.pm#ConsolidateFullPathLists(). Since reverse_filepaths.pm keeps all paths in memory, consolidation consists of replacing the existing consolidated file with the list in memory, and then deleting the file holding new full paths.
 
 Configuring file consolidation
 ------------------------------

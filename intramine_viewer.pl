@@ -1052,7 +1052,7 @@ FINIS
 
 sub ShowHideDiffsButton {
 	my $result = <<'FINIS';
-<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" /></a>
+<a href='' onclick='toggleDiffs(); return false;'><input id="togglediffs" class="submit-button" type="submit" value="Hide diffs" title="Show/hide git diffs, current saved vs last commit" /></a>
 FINIS
 
 	return ($result);
@@ -1154,7 +1154,7 @@ sub DecodeSpecialNonWordCharacters {
 
 sub PositionToggle {
 	my $result =
-'<input onclick="toggle();" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
+'<input onclick="toggle();" onmouseover="showToggleHint(this, event);" id="togglehits" class="submit-button" type="submit" value="Toggle" />';
 	return ($result);
 }
 
@@ -3767,6 +3767,12 @@ sub GlossedFootnote {
 	# Ask Linker for additional (FLASH) links.
 	AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
 
+	# Change main port to Viewer port.
+	my $srvrIP = ServerAddress();
+	$glossedFootnote =~ s!http://$srvrIP:$server_port/!http://$srvrIP:$port_listen/!gi;
+	$glossedFootnote =~
+		s!http%3A%2F%2F$srvrIP%3A$server_port%2F!http%3A%2F%2F$srvrIP%3A$port_listen%2F!gi;
+
 	# TO DO avoid re-splitting the footnote.
 	# Rep inline HTML keys with HTML, preserving the back reference.
 	@footnoteLines = split(/\n/, $glossedFootnote);
@@ -3815,7 +3821,15 @@ sub GlossedPopupForFootnote {
 			$COMMON_IMAGES_DIR, $contextDir, \&FullPathInContext, \&FullDirectoryPathLite, 1, 2, 0);
 
 		# Ask Linker for additional (FLASH) links.
-		AddFlashLinksToFootnote(\$glossedFootnote, $contextDir);
+		my $inFootnotePopup = 1;
+		AddFlashLinksToFootnote(\$glossedFootnote, $contextDir, $inFootnotePopup);
+
+		# Change main port to Viewer port.
+		my $srvrIP = ServerAddress();
+		$glossedFootnote =~ s!http://$srvrIP:$server_port/!http://$srvrIP:$port_listen/!gi;
+		$glossedFootnote =~
+			s!http%3A%2F%2F$srvrIP%3A$server_port%2F!http%3A%2F%2F$srvrIP%3A$port_listen%2F!gi;
+
 
 		# TO DO avoid splitting the footnote.
 		# Rep inline HTML keys with HTML, preserving the back reference.
@@ -3831,7 +3845,8 @@ sub GlossedPopupForFootnote {
 
 		my $foot = join("\n", @footnoteLines);
 
-		$foot  = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");
+		$foot = uri_escape_utf8("<div class='footDiv'>" . $foot . "</div>");
+
 		$gloss = " onmouseover=\"showhint('$foot', this, event, '600px', false, true);\"";
 		}
 
@@ -3871,7 +3886,8 @@ sub FootnoteIndexComp {
 }
 
 sub AddFlashLinksToFootnote {
-	my ($contentsR, $contextDir) = @_;
+	my ($contentsR, $contextDir, $inFootnotePopup) = @_;
+	$inFootnotePopup ||= 0;
 
 	my $linkerShortName = CVal('LINKERSHORTNAME');
 	my $linkerPort      = FetchPort($linkerShortName);
@@ -3882,7 +3898,8 @@ sub AddFlashLinksToFootnote {
 		return;
 		}
 
-	$LinkerArguments{'VISIBLE_TEXT'} = uri_escape_utf8($$contentsR);
+	$LinkerArguments{'VISIBLE_TEXT'}      = uri_escape_utf8($$contentsR);
+	$LinkerArguments{'IN_FOOTNOTE_POPUP'} = ($inFootnotePopup) ? 1 : 0;
 
 	my $result = RequestLinkMarkupWithPort($linkerPort, \%LinkerArguments);
 	$result = decode_utf8(uri_unescape($result));
@@ -4300,6 +4317,7 @@ sub Heading {
 			$headerLevel = 1;
 			}
 		$rawHeader =~ s!^#+\s+!!;
+		$rawHeader =~ s!\s*\#+$!!;
 		$headerProper = $rawHeader;
 		}
 	# Underlined heading, heading is on $lineBeforeR.

@@ -177,10 +177,13 @@ async function requestLinkMarkupWithPort(cm, visibleText, firstVisibleLineNum, l
 
 					if (!(markupArrEntry["lineNumInText"] in lineSeen))
 						{
-						// let text = markupArrEntry["textToMarkUp"];
-						// text = putInLolightForGlossaryPopups(text);
-						// markupArrEntry["textToMarkUp"] = text;
 						let text = markupArrEntry["linkPath"];
+
+						const regex2 = new RegExp("http:/" + theHost + ":" + theMainPort + "/", "g"); 
+						const regex3 = new RegExp("http%3A%2F%2F" + theHost + "%3A" + theMainPort + "%2F", "g");
+						text = text.replace(regex2, "http:/" + theHost + ":" + ourSSListeningPort + "/");
+						text = text.replace(regex3, "http%3A%2F%2F" + theHost + "%3A" + ourSSListeningPort + "%2F");
+
 						text = putInLolightForGlossaryPopups(text);
 						markupArrEntry["linkPath"] = text;
 						let len = markupArrEntry["textToMarkUp"].length;

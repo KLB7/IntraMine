@@ -21,6 +21,7 @@ Opening PDF and docx files		"Viewer.txt#PDF and docx viewers"
 Gloss standalone HTML			"gloss2html.pl for standalone Gloss files.txt#Full image display versus image hovers", see also intramine_config.txt#243
 Testing							"Testing with IntraMine.txt", "Testing with IntraMine.txt#Configuring IntraMine to run your test file"
 Enable/disable Go2				Go2.txt
+Enable/disable MathJax			Math.txt
 
 Configuration value files
 =========================
@@ -51,10 +52,10 @@ A full path from partial	FullDirectoryPath()	my $dbPath = FullDirectoryPath('DBE
 
 intramine_config.pm#FullDirectoryPath() expects the named partial path to go from the top of your IntraMine folder, wherever it is, down to the file you want. For example, consider the 
 DBEGPATH	data/dbeg.db
-entry in DBX_config.txt. My IntraMine folder is at C:/perlprogs/mine/. Calling
+entry in DBX_config.txt. My IntraMine folder is at C:/perlprogs/IntraMine/. Calling
 *!*my $dbPath = FullDirectoryPath('DBEGPATH');*!*
-results in *!*$dbPath == 'C:/perlprogs/mine/' . 'data/dbeg.db';*!*
-ie *!*$dbPath == 'C:/perlprogs/mine/data/dbeg.db';*!*
+results in *!*$dbPath == 'C:/perlprogs/IntraMine/' . 'data/dbeg.db';*!*
+ie *!*$dbPath == 'C:/perlprogs/IntraMine/data/dbeg.db';*!*
 
 intramine_config.pm#CVal() retrieves the string associated with a name, for example intramine_config.txt has
 TOTAL_SWARM_PORTS_TO_MONITOR	48
