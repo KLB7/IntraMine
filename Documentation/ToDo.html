@@ -2499,8 +2499,11 @@ background-color: #FFFFF4 !important;
 border: 1px solid black !important;
 position-anchor: --tip-anchor;
 top: auto;
-bottom: anchor(--tip-anchor top);
-position-try-fallbacks: flip-block;
+position-area: top; 
+/*bottom: anchor(--tip-anchor top);*/
+/*position-try-fallbacks: flip-block;*/
+position-try-fallbacks: flip-block, --overlap-top, --overlap-bottom;
+position-try-order: most-height; 
 left: anchor(left); /* 10% */
 width: 450px; /* was 80%;*/
 padding: 10px;
@@ -2508,7 +2511,21 @@ z-index: 1;
 box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
 font-weight: 400;
 }
-	
+
+/* Custom fallback: Forces the element to align to the top of the viewport 
+   and stretch downward, intentionally overlapping the button area */
+   @position-try --overlap-top {
+	top: 0;
+	bottom: auto;
+  }
+  
+  /* Custom fallback: Forces the element to align to the bottom of the viewport 
+	 and stretch upward, intentionally overlapping the button area */
+  @position-try --overlap-bottom {
+	bottom: 0;
+	top: auto;
+  }
+
 .makePopupVisible {
 	display: inline-block;
 	}
