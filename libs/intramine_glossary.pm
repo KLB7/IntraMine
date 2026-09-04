@@ -328,9 +328,10 @@ sub AddGlossaryHints {
 		$repLen[0]      = length($line);
 		$repStartPos[0] = 0;
 		$numReps        = 1;
-		AddSecondaryGlossaryEntries(
+		AddGlossaryEntriesToFootnotePopup(
+			#AddSecondaryGlossaryEntries(
 			$isMarkdown,    $definitionHashRef, $context,  $host,
-			$port,          $VIEWERNAME,        $linksArg, $currentLineNumber,
+			$port,          $VIEWERNAME,        $linksArg, -333,
 			$haveRefToText, \@repStr,           \@repLen,  \@repStartPos,
 			0
 		);
@@ -347,7 +348,7 @@ sub AddGlossaryHints {
 
 		$numReps = @repStr;
 
-		# Put glossary popups in the glossary popups.
+		# Put secondary glossary popups in the glossary popups.
 		for (my $i = 0 ; $i < $numReps ; ++$i)
 			{
 			if ($repLen[$i] > 0)
@@ -357,7 +358,7 @@ sub AddGlossaryHints {
 
 				AddSecondaryGlossaryEntries(
 					$isMarkdown,    $definitionHashRef, $context,  $host,
-					$port,          $VIEWERNAME,        $linksArg, $currentLineNumber,
+					$port,          $VIEWERNAME,        $linksArg, -111,
 					$haveRefToText, \@repStr,           \@repLen,  \@repStartPos,
 					$i
 				);
@@ -411,9 +412,19 @@ sub EvaluateGlossaryCandidates {
 		$currentLineNumber, $haveRefToText, $repStrA,           $repLenA,
 		$repStartPosA,      $repLinkTypeA,  $definitionSeenOnLineH
 	) = @_;
-	my $haveLinksA          = (defined($linksA))                                          ? 1 : 0;
-	my $doingSecondaryPopup = (defined($currentLineNumber) && $currentLineNumber == -999) ? 1 : 0;
-
+	my $haveLinksA          = (defined($linksA)) ? 1 : 0;
+	my $doingSecondaryPopup = 0;
+	if (defined($currentLineNumber))
+		{
+		if ($currentLineNumber == -111)
+			{
+			$doingSecondaryPopup = 1;
+			}
+		elsif ($currentLineNumber == -333)
+			{
+			$doingSecondaryPopup = 3;
+			}
+		}
 	my @startPosSeen;    # Track glosses to avoid doubling up - longest wins.
 	my @endPosSeen;      # Length of a matched term, also indexed by $startPos
 	my $posIndex = 0;
@@ -707,23 +718,71 @@ sub AddSecondaryGlossaryEntries {
 	my %DefinitionSeenOnLine;
 	SkipAltTerms($line, \%DefinitionSeenOnLine);
 
-	# $currentLineNumber of -999 means GetReplacementHint does secondary popup replacement
+	# $currentLineNumber of -111 means GetReplacementHint does secondary popup replacement
+	# -333 means do tertiary.
+	EvaluateGlossaryCandidates(
+		$line,              $isMarkdown,      $definitionHashRef, $context,
+		$host,              $port,            $VIEWERNAME,        $linksArg,
+		$currentLineNumber, $haveRefToText,   \@repStrTWO,        \@repLenTWO,
+		\@repStartPosTWO,   \@repLinkTypeTWO, \%DefinitionSeenOnLine
+	);
+
+	my $numReps = @repStrTWO;
+	if ($numReps)
+		{
+		for (my $j = $numReps - 1 ; $j >= 0 ; --$j)
+			{
+			# substr($line, $pos, $srcLen, $repString);
+			substr($line, $repStartPosTWO[$j], $repLenTWO[$j], $repStrTWO[$j]);
+			}
+
+		$repStrA->[$i] = $line;
+		}
+}
+
+# Add primary and secondary glossary popups to a footnote reference popup.
+sub AddGlossaryEntriesToFootnotePopup {
+	my (
+		$isMarkdown,    $definitionHashRef, $context,  $host,
+		$port,          $VIEWERNAME,        $linksArg, $currentLineNumber,
+		$haveRefToText, $repStrA,           $repLenA,  $repStartPosA,
+		$i
+	) = @_;
+
+	my $line = $repStrA->[$i];
+	my @repStrTWO;    # new link, eg <a href="#Header_within_doc">#Header within doc</a>
+	my @repLenTWO;    # length of substr to replace in line, eg length('#Header within doc')
+	my @repStartPosTWO
+		; # where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
+	my @repLinkTypeTWO;    # For CodeMirror, 'glossary' is the only type here.
+
+	my %DefinitionSeenOnLine;
+	SkipAltTerms($line, \%DefinitionSeenOnLine);
+
+	# $currentLineNumber of -111 means GetReplacementHint does secondary popup replacement
 	EvaluateGlossaryCandidates(
 		$line,            $isMarkdown,      $definitionHashRef, $context,
 		$host,            $port,            $VIEWERNAME,        $linksArg,
-		-999,             $haveRefToText,   \@repStrTWO,        \@repLenTWO,
+		-111,             $haveRefToText,   \@repStrTWO,        \@repLenTWO,
 		\@repStartPosTWO, \@repLinkTypeTWO, \%DefinitionSeenOnLine
 	);
 
 	my $numReps = @repStrTWO;
 	if ($numReps)
 		{
-		my $numFirstOderReps = @{$repStrA};
 		for (my $j = $numReps - 1 ; $j >= 0 ; --$j)
 			{
+			# Add in the next level of glossary popups.
+			# $currentLineNumber should be -333.
+			AddSecondaryGlossaryEntries(
+				$isMarkdown,    $definitionHashRef, $context,    $host,
+				$port,          $VIEWERNAME,        $linksArg,   $currentLineNumber,
+				$haveRefToText, \@repStrTWO,        \@repLenTWO, \@repStartPosTWO,
+				$i
+			);
+
 			# substr($line, $pos, $srcLen, $repString);
 			substr($line, $repStartPosTWO[$j], $repLenTWO[$j], $repStrTWO[$j]);
-			#my $oldRepLen = length($repStrTWO[$j]);
 			}
 
 		$repStrA->[$i] = $line;
@@ -793,6 +852,24 @@ sub GetReplacementHint {
 	my $gloss  = $definitionHashRef->{$term};
 	my $result = '';
 
+	# $doingSecondaryPopup is actually doing Secondary OR Tertiary, the latter
+	# used only in footnote reference popups,
+	my $popupWrapperClass = "";
+	my $popupContentClass = "";
+	if ($doingSecondaryPopup)
+		{
+		if ($doingSecondaryPopup == 3)
+			{
+			$popupWrapperClass = 'popup-wrapper3';
+			$popupContentClass = 'popup-content3';
+			}
+		else
+			{
+			$popupWrapperClass = 'popup-wrapper';
+			$popupContentClass = 'popup-content';
+			}
+		}
+
 	# If the $gloss is just an image name, put in the image path as content of showhint() popup,
 	# otherwise it's a text popup using the $gloss verbatim.
 	my $glossaryImageName = ImageNameFromGloss($gloss);
@@ -813,7 +890,11 @@ sub GetReplacementHint {
 		if ($doingSecondaryPopup)
 			{
 			$result =
-"<span class=_AMR_quot;popup-wrapper_AMR_quot;>$originalText<span class=_AMR_quot;popup-content_AMR_quot;>___GLOSS_GOES_HERE___</span></span>";
+				  "<span class=_AMR_quot;"
+				. $popupWrapperClass
+				. "_AMR_quot;>$originalText<span class=_AMR_quot;"
+				. $popupContentClass
+				. "_AMR_quot;>___GLOSS_GOES_HERE___</span></span>";
 			$result = uri_escape_utf8($result);
 			my $imageElement = "<img src=_AMR_quot;$imagePath" . "_AMR_quot; />";
 			$result =~ s!___GLOSS_GOES_HERE___!$imageElement!;
@@ -892,7 +973,11 @@ sub GetReplacementHint {
 		if ($doingSecondaryPopup)
 			{
 			$result =
-"<span class=_AMR_quot;popup-wrapper_AMR_quot;>$originalText<span class=_AMR_quot;popup-content_AMR_quot;>___GLOSS_GOES_HERE___</span></span>";
+				  "<span class=_AMR_quot;"
+				. $popupWrapperClass
+				. "_AMR_quot;>$originalText<span class=_AMR_quot;"
+				. $popupContentClass
+				. "_AMR_quot;>___GLOSS_GOES_HERE___</span></span>";
 			# 			$result =
 			# "<span class='popup-wrapper'>$originalText<div class='popup-content'>___GLOSS_GOES_HERE___</div></span>";
 			$result = uri_escape_utf8($result);

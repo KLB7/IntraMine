@@ -293,6 +293,7 @@ FINIS
 <body>
 <!-- added for touch scrolling, an indicator -->
 <div id="indicator"></div>
+<div id="indicatorPC"></div>
 <hr id="rule_above_editor" />
 <div id='scrollAdjustedHeight'>
 ENDIT
@@ -3621,7 +3622,8 @@ sub AddGlossaryHints {
 		$repLen[0]      = length($line);
 		$repStartPos[0] = 0;
 		$numReps        = 1;
-		AddSecondaryGlossaryEntries($context, \@repStr, \@repLen, \@repStartPos, 0, '_INPOPUP_');
+		AddGlossaryEntriesToFootnotePopup($context, \@repStr, \@repLen, \@repStartPos, 0);
+		#AddSecondaryGlossaryEntries($context, \@repStr, \@repLen, \@repStartPos, 0, '_INPOPUP_');
 		}
 	else
 		{
@@ -3670,7 +3672,26 @@ sub AddGlossaryHints {
 sub EvaluateGlossaryCandidates {
 	my ($line, $context, $repStrA, $repLenA, $repStartPosA, $termToSkip, $definitionSeenOnLineH) =
 		@_;
-	my $doingSecondaryPopup = (defined($termToSkip)) ? 1 : 0;
+	my $doingSecondaryPopup = 0;
+	if (defined($termToSkip))
+		{
+		if ($termToSkip eq '_IN_TERT_POPUP')
+			{
+			$doingSecondaryPopup = 3;
+			}
+		else
+			{
+			$doingSecondaryPopup = 1;
+			}
+		# if ($termToSkip eq '_INPOPUP_')
+		# 	{
+		# 	$doingSecondaryPopup = 1;
+		# 	}
+		# elsif ($termToSkip eq '_IN_TERT_POPUP')
+		# 	{
+		# 	$doingSecondaryPopup = 3;
+		# 	}
+		}
 
 	my $inFootnoteBody = 0;    # Not used at the moment.
 	if (index($line, '<td n="') < 0 || index($line, 'class="_FOOTNOTE_"') > 0)
@@ -3682,9 +3703,10 @@ sub EvaluateGlossaryCandidates {
 	my @endPosSeen;            # Length of a matched term, also indexed by $startPos
 	my $posIndex           = 0;
 	my $doingFootnotePopup = 0;
+
 	if (defined($termToSkip) && $termToSkip ne '')
 		{
-		if ($termToSkip eq '_INPOPUP_')
+		if ($termToSkip eq '_INPOPUP_' || $termToSkip eq '_IN_TERT_POPUP')
 			{
 			$doingFootnotePopup = 1;
 			}
@@ -3940,6 +3962,42 @@ sub AddSecondaryGlossaryEntries {
 		}
 }
 
+sub AddGlossaryEntriesToFootnotePopup {
+	my ($context, $repStrA, $repLenA, $repStartPosA, $i) = @_;
+	my $termToSkip = '_INPOPUP_';
+
+	my $line = $repStrA->[$i];
+	my @repStrTWO;    # new link, eg <a href="#Header_within_doc">#Header within doc</a>
+	my @repLenTWO;    # length of substr to replace in line, eg length('#Header within doc')
+	my @repStartPosTWO
+		; # where header being replaced starts, eg zero-based positon of '#' in '#Header within doc'
+	my @repLinkTypeTWO;    # For CodeMirror, 'glossary' is the only type here.
+
+	my %DefinitionSeenOnLine;
+	SkipAltTerms($line, \%DefinitionSeenOnLine);
+
+	# $termToSkip _INPOPUP_ means GetReplacementHint does secondary popup replacement
+	EvaluateGlossaryCandidates($line, $context, \@repStrTWO, \@repLenTWO, \@repStartPosTWO,
+		$termToSkip, \%DefinitionSeenOnLine);
+
+	my $numReps = @repStrTWO;
+	if ($numReps)
+		{
+		my $numFirstOderReps = @{$repStrA};
+		for (my $j = $numReps - 1 ; $j >= 0 ; --$j)
+			{
+			# Add in the next level of glossary popups.
+			# $termToSkip should be '_IN_TERT_POPUP'; - tertiary popup
+			AddSecondaryGlossaryEntries($context, \@repStrTWO, \@repLenTWO, \@repStartPosTWO, $i,
+				'_IN_TERT_POPUP');
+
+			substr($line, $repStartPosTWO[$j], $repLenTWO[$j], $repStrTWO[$j]);
+			}
+
+		$repStrA->[$i] = $line;
+		}
+}
+
 # Sort @repStartPos, @repLen, and @repStr in ascending order by @repStartPos.
 sub SortGlossaryResultsForOneLine {
 	my ($repStrA, $repLenA, $repStartPosA) = @_;
@@ -4000,6 +4058,24 @@ sub GetReplacementHint {
 	my $gloss      = $Definition{$term};
 	my $result     = '';
 
+	# $doingSecondaryPopup is actually doing Secondary OR Tertiary, the latter
+	# used only in footnote reference popups,
+	my $popupWrapperClass = "";
+	my $popupContentClass = "";
+	if ($doingSecondaryPopup)
+		{
+		if ($doingSecondaryPopup == 3)
+			{
+			$popupWrapperClass = 'popup-wrapper3';
+			$popupContentClass = 'popup-content3';
+			}
+		else
+			{
+			$popupWrapperClass = 'popup-wrapper';
+			$popupContentClass = 'popup-content';
+			}
+		}
+
 	# If the $gloss is just an image name, pull in the image as content of showhint() popup,
 	# otherwise apply GLoss (IntraMine's Markdown variant for intranet use).
 	my $glossaryImagePath = ImageNameFromGloss($gloss);
@@ -4013,7 +4089,11 @@ sub GetReplacementHint {
 			if ($doingSecondaryPopup)
 				{
 				$result =
-"<span class=&quot;popup-wrapper&quot;>$originalText<span class=&quot;popup-content&quot;>___GLOSS_GOES_HERE___</span></span>";
+					  "<span class=&quot;"
+					. $popupWrapperClass
+					. "&quot;>$originalText<span class=&quot;"
+					. $popupContentClass
+					. "&quot;>___GLOSS_GOES_HERE___</span></span>";
 				$result = uri_escape_utf8($result);
 				my $imageElement = "&quot;$bin64Img&quot;";
 				$result =~ s!___GLOSS_GOES_HERE___!$imageElement!;
@@ -4100,7 +4180,11 @@ sub GetReplacementHint {
 		if ($doingSecondaryPopup)
 			{
 			$result =
-"<span class=&quot;popup-wrapper&quot;>$originalText<span class=&quot;popup-content&quot;>___GLOSS_GOES_HERE___</span></span>";
+				  "<span class=&quot;"
+				. $popupWrapperClass
+				. "&quot;>$originalText<span class=&quot;"
+				. $popupContentClass
+				. "&quot;>___GLOSS_GOES_HERE___</span></span>";
 			if (!$doingFootnotePopup)
 				{
 				$result = uri_escape_utf8($result);

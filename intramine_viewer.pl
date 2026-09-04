@@ -524,7 +524,13 @@ s!_CHANGEDARRAY_!<script>let textDiffChangedLines = \[$diffLineString\];\n</scri
 	# Rev, Find isn't that useful and the browser has a built-in Find.
 	$theBody =~ s!_SEARCH_!!;
 
-	my $diffsButton = ShowHideDiffsButton();
+	# Add a Hide diffs / Show diffs button, if we can show diffs
+	# (displays without line numbers can't show diffs).
+	my $diffsButton = '';
+	if ($filePath =~ m!\.(txt|log|bat)$!i)
+		{
+		$diffsButton = ShowHideDiffsButton();
+		}
 	$theBody =~ s!_TOGGLE_DIFFS_!$diffsButton!;
 
 	# Detect any searchItems passed along for hilighting. If there are any, add a
@@ -5059,6 +5065,10 @@ sub SetFlourishLinkBasedOnTheme {
 
 # Call SetFlourishLinkBasedOnTheme() before calling this.
 sub FlourishLink {
+	if (!defined($flourishLink) || $flourishLink eq '')
+		{
+		SetFlourishLinkBasedOnTheme('default');
+		}
 	return ($flourishLink);
 }
 

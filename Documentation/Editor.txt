@@ -31,7 +31,7 @@ If you close an Editor tab and later re-open it, you will be offered the opportu
 
 Buttons and keys
 ---------------
-There are buttons at the top for Save, Revert, Undo, Redo, Toggle, Find, View, and Save As. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available:
+There are buttons at the top for Save, Revert, Undo, Redo, Toggle, Find, View, Save As, and New. If it's a .txt file you'll also find a "Check" button that starts up spell checking. And standard key equivalents are also available (except New):
 TABLE
 Action			Keys
 savebutton.png			Ctrl+S
@@ -39,6 +39,7 @@ saveasbutton.png		Ctrl+Alt+S or Ctrl+Shift+S
 undobutton.png			Ctrl+Z
 redobutton.png			Ctrl+Shift+Z
 findbutton.png			Ctrl+F
+newfilebutton.png		(no key equivalent)
 Cut				Ctrl+X
 Copy			Ctrl+C
 Paste			Ctrl+V

@@ -90,11 +90,12 @@ $RequestAction{'req|loadfile'}          = \&LoadTheFile;     # req=loadfile
 $RequestAction{'req|loadTOC'}           = \&GetTOC;          # req=loadTOC
 $RequestAction{'req|dateandsize'}       = \&GetDateAndSize;  # req=dateandsize
 $RequestAction{'req|save'}              = \&Save;            # req=save
-$RequestAction{'req|getcachedcontents'} = \&CachedFileContents;  # req=getcachedcontents
-$RequestAction{'dir'}                   = \&GetDirsAndFiles;     # $formH->{'dir'} is directory path
-$RequestAction{'req|oktosaveas'}        = \&OkToSaveAs;          # req=oktosaveas
-$RequestAction{'req|saveas'}            = \&SaveAs;              # req=save
-$RequestAction{'req|uniqueid'}          = \&UniqueBrowserID;     # req=uniqueid
+$RequestAction{'req|getcachedcontents'} = \&CachedFileContents;    # req=getcachedcontents
+$RequestAction{'req|new'}        = \&NewFile;            # req=new, $formH->{'path'} holds new path
+$RequestAction{'dir'}            = \&GetDirsAndFiles;    # $formH->{'dir'} is directory path
+$RequestAction{'req|oktosaveas'} = \&OkToSaveAs;         # req=oktosaveas
+$RequestAction{'req|saveas'}     = \&SaveAs;             # req=save
+$RequestAction{'req|uniqueid'}   = \&UniqueBrowserID;    # req=uniqueid
 
 # not needed, done in swarmserver: $RequestAction{'req|id'} = \&Identify; # req=id
 
@@ -218,6 +219,7 @@ let usingCM = _USING_CM_;
 let cmTextHolderName = '_CMTEXTHOLDERNAME_';
 let tocHolderName = '_TOCHOLDERNAME_';
 let ourServerPort = '_THEPORT_';
+let thePort = '_THEPORT_';
 let errorID = "editor_error";
 let dateSizeHolderID = 'viewEditDateSize';
 let previousChangeTimeMsecs = '_LOADTIME_';
@@ -253,7 +255,7 @@ _TOPNAV_
 _TITLEHEADER_
 </div>
 <div id="button-block">
-_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON_ _TOGGLE_DIFFS_ _SAVE_AS_ACTION_<span id="editor_error">&nbsp;</span>
+_SAVEACTION_ _REVERT_ _ARROWS_ _UNDOREDO_ _TOGGLEPOSACTION_ _SEARCH_ _CHECKSPELLING_ _VIEWBUTTON_ _TOGGLE_DIFFS_ _SAVE_AS_ACTION_ _NEWFILEBUTTON_ <span id="editor_error">&nbsp;</span>
 </div>
 _SAVEASFILEPICKER_
 <hr id="rule_above_editor" />
@@ -312,6 +314,8 @@ _DIFF_SPECIFICS_POPUP_
 <script src="jquery-3.4.1.min.js"></script>
 <script src="jquery.easing.1.3.min.js"></script>
 <script src="jqueryFileTree.js"></script>
+<script src="newFileButton.js"></script>
+<!-- <script src="files.js"></script> -->
 <script src="reportActivity.js" ></script>
 <script src="showHideDiffs.js" ></script>
 <script>
@@ -365,6 +369,10 @@ FINIS
 	$theBody =~ s!_SAVEACTION_!$saveButton!;
 	my $saveAsButton = SaveAsButton($filePath);
 	$theBody =~ s!_SAVE_AS_ACTION_!$saveAsButton!;
+
+	my $newFileButton =
+'<input id="new-button" class="submit-button" type="submit" value="New..." style="display: inline;" />';
+	$theBody =~ s!_NEWFILEBUTTON_!$newFileButton!;
 
 	my $saveAsFilePicker = SaveAsFilePicker();
 	$theBody =~ s!_SAVEASFILEPICKER_!$saveAsFilePicker!;
@@ -1463,4 +1471,41 @@ sub CachedFileContents {
 		}
 
 	return ($contents);
+}
+
+# Returns ok, noname, badname, badchar, exists, error (latter if system trouble).
+# Note this will not overwrite an existing file unless $formH->{'allowOverwrite'} is defined.
+# (That's currently not supported.)
+sub NewFile {
+	my ($obj, $formH, $peeraddress) = @_;
+	my $path = (defined($formH->{'path'})) ? $formH->{'path'} : '';
+	if ($path eq '')
+		{
+		return ('nopath');
+		}
+	my $fileName   = FileNameFromPath($path);
+	my $nameStatus = IsGoodFileName($fileName);
+	if ($nameStatus == $BADNAME)
+		{
+		return ('badname');
+		}
+	elsif ($nameStatus == $BADCHAR)
+		{
+		return ('badchar');
+		}
+	elsif ($nameStatus == $MISSINGNAME)
+		{
+		return ('noname');
+		}
+	if (FileOrDirExistsWide($path) == 1 && !defined($formH->{'allowOverwrite'}))
+		{
+		return ('exists');
+		}
+
+	if (!WriteUTF8FileWide($path, ''))
+		{
+		return ('error');
+		}
+
+	return ('ok');
 }

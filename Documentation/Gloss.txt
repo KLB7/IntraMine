@@ -610,6 +610,8 @@ A suggestion
 ~~~~~~~~~~~~~~~
 Put all your footnote or citation bodies at the bottom of your source .txt, they will be easier to find and won't disturb the line numbers in the resulting HTML version.
 
+A big example of a footnote
+~~~~~~~~~~~~~
 Let's end with a more elaborate footnote that very briefly summarizes this document[^elGloss].
 
 

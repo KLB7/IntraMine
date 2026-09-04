@@ -70,7 +70,11 @@ function setUpMobileIndicator() {
 			{
 			indicatorHeight = 2.0;
 			}
-		indicatorElem.style.height = indicatorHeight + "px";
+		if (indicatorElem !== null)
+			{
+			indicatorElem.style.height = indicatorHeight + "px";
+			indicatorElem.style.right = "0.74%";
+			}
 		}
 
 	lazyMobileScroll();
@@ -175,7 +179,7 @@ function recalculateIndicatorM() {
 	if (mainScrolllHeight > usableTextHeight)
 		{
 		let indicatorHeight = usableTextHeight * (textViewableHeight/(mainScrolllHeight));
-		
+
 		// Show the indicator only if thumb is too small to reflect actual page size.
 		if (indicatorHeight <= 20)
 			{
@@ -186,7 +190,12 @@ function recalculateIndicatorM() {
 				{
 				indicatorHeight = 2.0;
 				}
-			indicatorElem.style.height = indicatorHeight + "px";
+
+			if (indicatorElem !== null)
+				{
+				indicatorElem.style.height = indicatorHeight + "px";
+				indicatorElem.style.right = "0.74%";
+				}
 			}
 		else
 			{
@@ -212,7 +221,11 @@ function scrollMobileIndicator() {
 		let rect = markerMainElement.getBoundingClientRect();
 		let yTop = rect.top;
 		let newThumbTop = indicatorM * mainScrollY + yTop;
-		indicatorElem.style.top = newThumbTop + "px";
+		if (indicatorElem !== null)
+			{
+			indicatorElem.style.top = newThumbTop + "px";
+			indicatorElem.style.right = "0.74%";
+			}
 		}
 }
 
@@ -230,14 +243,15 @@ function scrollIndicator() {
 	// when the precision yellow indicator is wanted in a large file.
 	if (indicatorM !== 0)
 		{
-		//console.log("BEFORE indicatorM: |" + indicatorM + "|");
 		recalculateIndicatorM();
-		//console.log("AFTER indicatorM: |" + indicatorM + "|");
 		}
 
 	if (indicatorM > 0)
 		{
-		indicatorElem.style.display = 'block';
+		if (indicatorElem !== null)
+			{
+			indicatorElem.style.display = 'block';
+			}
 		
 		let mainScrollY = 0
 		if (usingCM)
@@ -253,7 +267,11 @@ function scrollIndicator() {
 		let rect = markerMainElement.getBoundingClientRect();
 		let yTop = rect.top;
 		let newThumbTop = indicatorM * mainScrollY + yTop + arrowHeight;
-		indicatorElem.style.top = newThumbTop + "px";
+		if (indicatorElem !== null)
+			{
+			indicatorElem.style.top = newThumbTop + "px";
+			indicatorElem.style.right = "0.74%";
+			}
 		}
 
 	// Sometimes the lines change, reset indicatorM.

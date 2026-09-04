@@ -56,9 +56,9 @@ You can also have numbered and bulleted lists, **bold**, *italic*, and *!*/* Cod
 Images will be shown inline, eg "globe.gif"
 :)
 
-Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. In the Viewer an image has little yellow hummingbirds around it. In the Editor it has a gray background.
+Image hover, hover image, hover images, image hovers: In IntraMine's file views and under the Files page, if you pause your cursor over a linked image name a view of the image will pop up. It goes away when you move your mouse away. In the Viewer an image has little yellow hummingbirds around it. In the Editor it has a gray background. Image hovers are also available in HTML files by using the Glosser service (see "Glosser.html").
 
-Here's an example\:
+Here's an example of the hummingbirds\:
 "animage.png"
 
 Viewer: IntraMine's read-only file viewer service, intramine_viewer.pl. The Viewer is used to show files when an ordinary link is clicked in Search page results, on the Files page, or any file link in a view. The Viewer puts in headings, FLASH links, syntax highlighting for source files, tables and lists etc for source and text files, and supports Go2 for all files. Currently a table of contents is supported for .txt, Perl, Pod, C / C++, Go, JavaScript, CSS, Clojure, Erlang, OCaml, PHP, Python, Ruby, TypeScript, Rust, Java, C#, VBScript(.vb), VB.NET(.vbs), Haskell, Julia, Fortran, COBOL. For more see "Viewer.html".

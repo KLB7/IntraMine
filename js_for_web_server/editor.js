@@ -6,6 +6,14 @@
 // For a restart: skip the first add links. See onCodeMirrorChange() below.
 let skipAddingLinks = false;
 
+// if (!("onMobile" in globalThis))
+// 	{
+// 	globalThis.onMobile = false;
+// 	if (typeof window.ontouchstart !== 'undefined')
+// 		{
+// 		onMobile = true;
+// 		}
+// 	}
 let onMobile = false; // true if we have touch events.
 if (typeof window.ontouchstart !== 'undefined')
 	{

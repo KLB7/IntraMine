@@ -844,7 +844,10 @@ async function reloadNonCM(shortServerName, port, useEditorCache) {
 					setTimeout(doPopupMath, 100);
 					}
 
-				lolight();// Needed for reload, but not for initial load. Arg.
+				// Needed for reload, but not for initial load. Arg.
+				if (typeof lolight === 'function') {
+					lolight();
+					}
 
 				//finishReload(); too late
 				startReloadCheck();

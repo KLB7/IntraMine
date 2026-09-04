@@ -8,7 +8,7 @@ Primary and secondary popups
 ================================
 Glossary popups are a part of IntraMine's Gloss. See the dotted underline there under "Gloss"? That's how glossary terms look. Pause your cursor over "Gloss" and you'll see a *primary popup* briefly explaining what it means. Look in the resulting popup and you'll see some more dotted underlines: move your cursor over one of them and you'll see a *secondary popup* offering an additional explanation.
 
-Here's an example if you like movies (pause your cursor over the link):
+Here's an example if you like movies (pause your cursor over the link if you're viewing the .txt version of this using IntraMine's Viewer):
 "popups.gif"
 
 And here's a simple example of one special term mentioning another:
@@ -26,19 +26,17 @@ Glossary terms have a subtle dotted underline. Here's one, Go2. Pause your curso
 
 Where you can use them
 -------------------------
-In absolutely all source or text files as displayed by IntraMine's Editor or Viewer, if you mention a term that you've provided an explanation for in a glossary entry in a glossary_master.txt file then that term will have a dotted underline in the text, and pausing your cursor over the term will show the glossary entry (the *primary* popup).
+In absolutely all source or text files as displayed by IntraMine's Editor or Viewer, if you mention a term that you've provided an explanation for in a glossary entry in a glossary_master.txt (or glossary.txt, see below) file then that term will have a dotted underline in the text, and pausing your cursor over the term will show the glossary entry (the *primary* popup).
 
 Secondary popups
 --------------------
-Going deeper, if a glossary entry's text mentions another glossary entry then it will acquire a dotted underline in the text of the main entry, and hovering your mouse over it will result in a secondary glossary popup being displayed, typically near the top of your window. This works everywhere that glossary popups work, except in footnote reference popups, which have only one level of glossary popups.
+Going deeper, if a glossary entry's text mentions another glossary entry then it will acquire a dotted underline in the text of the main entry, and hovering your mouse over it will result in a secondary glossary popup being displayed, typically near the top of your window. This works everywhere that glossary popups work, even in footnote reference popups, where technically the reference popup counts as one level of popup so in this one case you're getting tertiary popups.
 
 Two glossaries
 -----------------
-IntraMine has two different glossaries: one called "glossary.txt" for use when generating standalone HTML documents with the Glosser service or the gloss2html.pl Perl program, and another called "glossary_master.txt" for use with all source and text files displayed by IntraMine's Viewer or Editor. The glossary.txt file needs to be in the same folder as the .txt files that are being converted to standalone HTML. A glossary_master.txt file can be in any indexed location. You can have several glossary_master.txt files: they will all be combined when displaying definition popups.
+IntraMine has two different glossaries: one called "glossary.txt" for use when generating standalone HTML documents with the Glosser service or the gloss2html.pl Perl program, and another called "glossary_master.txt" for use with all source and text files displayed by IntraMine's Viewer or Editor. The glossary.txt file needs to be in the same folder as the .txt files that are being converted to standalone HTML, and takes precedence over the glossary_master.txt files. A glossary_master.txt file can be in any indexed location. You can have several glossary_master.txt files: they will all be combined when displaying definition popups.
 
-For details on using a "glossary.txt" file to provide glossary entries for standalone HTML files, please see "gloss2html.pl for standalone Gloss files.txt".
-
-Here we'll focus on using "glossary_master.txt" files to provide universal glossary entries, available in all your source and text files provided the glossary_master.txt files are in indexed locations.
+You'll find details on both below. For an additional explanation of using a "glossary.txt" file to provide glossary entries for standalone HTML files, please see "gloss2html.pl for standalone Gloss files.txt".
 
 A bit of motivation
 ---------------------
@@ -52,6 +50,7 @@ With that out of the way, let's make and use a master glossary.
 
 Making and using a master glossary
 ===========================
+"glossary_master.txt" glossaries are for use with IntraMine's Viewer and Editor. You can have more than one glossar_master.txt file, and glossary entries from them will appear in all source and text files - *unless* a "glossary.txt" file is present in the same folder at the same level. For the point of those, see "Making and using a standalone HTML glossary" just below.
 
 Making
 ------------
@@ -66,7 +65,7 @@ Making
 
 Using
 -----------
-When viewing a file using IntraMine's Editor or Viewer, terms in your text that have glossary entries will be shown with a subdued dotted underline. Pause your cursor over the term to view its glossary popup.
+When viewing a file using IntraMine's Editor or Viewer, terms in your text that have glossary entries will be shown with a subdued dotted underline. Pause your cursor over the term to view its glossary popup. If glossary terms are used in the popup itself, they will also have a dotted underline, and pausing your cursor over one will show a secondary popup for the term.
 
 After a glossary popup is showing, you can move your cursor over the content of the popup. There you can click on a link or select and copy text.
 
@@ -75,8 +74,27 @@ popupselect.png
 *Text selected in a glossary popup.*
 ---
 
+Making and using a standalone HTML glossary
+===========================
+A "glossary.txt" file contains glossary entries that will be used only for files in the same folder at the same level. They are intended for use with .txt files that will be converted to standalone .html using either the Glosser service or the equivalent gloss2html.pl Perl program. If a glossary.txt file is present, it takes precedence over any and all glossary_master.txt files as the source of glossary entries.
+
+Making
+------------
+The aim is to create glossary entries for a set of related text (.txt) documents, optionally to be converted to .html as mentioned just above. A typical use would be for in-house documentation. To this end, you'll need a folder to hold the documents. In the folder at the top, create a new document called glossary.txt. Then start putting glossary entries in your new file, using the format described in "Glossary entry details" immediately below.
+
+Using
+------------
+When viewing a file using IntraMine's Editor or Viewer, terms in your text that have glossary entries in your glosary.txt file will be shown with a subdued dotted underline. Pause your cursor over the term to view its glossary popup. If glossary terms are used in the popup itself, they will also have a dotted underline, and pausing your cursor over one will show a secondary popup for the term.
+
+After a glossary popup is showing, you can move your cursor over the content of the popup. There you can click on a link or select and copy text.
+
+Converting to standalone HTML
+-----------------------------
+You can use either the Glosser service or the gloss2html.pl Perl program to convert .txt files in a folder to standalone .html files, either one at a time or the whole folder. For details please see "gloss2html.pl for standalone Gloss files.txt" and "Glosser.txt" (for the Glosser service, which is easier to use).
+
 Glossary entry details
 =========================
+All glossary files (glossary_master.txt, glossary.txt) use the same entry format.
 
 Format
 -----------
@@ -87,14 +105,14 @@ Escaped colons will be ignored when looking for definitions, and the backslash w
 
 Here's an example:
 ---
-Regular expression, regex, regexp: a write-only way to match strings, or not. For example \: ([\w'-]+) will crudely match a whole word, sometimes. 
+Regular expression, regex, regexp: a write-only way to match strings, or not. For example /\: ([\w'-]+)/ will crudely match a whole word, sometimes. 
 ---
 
 Content
 -----------------
 The definition part of an entry can be plain text, text styled with Gloss, or a single image specifier in "quotes". As far as Gloss, basically everything except CODE blocks, inline HTML, and footnotes can be used in a glossary entry, as described in "Gloss.txt". Source and text and image file specifiers must be in "quotes", such as "project51/main.cpp" or "image27.png". FLASH linking for directory specifiers is also supported, and these again need to be in "quotes". If you don't like double quotes, you can use 'single quotes' instead.
 
-Images in glossary popup entries are **displayed fully in place (inline)** rather than popping up if you hover over a link, so try to avoid huge images in your definition. This is being done mainly because images in definitions are important enough to show immediately, and also because a popup in a popup is probably one popup too far. If the image is too large when displayed, you will get scroll bars.
+Images in glossary popup entries are **displayed fully in place (inline)** rather than popping up if you hover over a link, so try to avoid huge images in your definition. This is being done mainly because images in definitions are important enough to show immediately, and also because popping them up on a hover could get confusing when there are already two levels of glossary popups.
 
 Comment lines
 -------------------
@@ -115,25 +133,21 @@ That was a bit brief wasn't it? Please see Gloss.txt and Linker.txt in IntraMine
 
 Images on their own
 --------------------
-If you want to use just an image for the definition that will pop up, put the image name in quotes. For example (using <q> to stand for a quote):
+If you want to use just an image for the definition that will pop up, put the image name in quotes. For example (using <q> to stand for a quote so it won't turn into a link here):
 ---
 CTRL+C: <q>tenor.gif<q>.
 ---
 
 Multiple paragraphs
 ----------------------
-Any definition continues down to (but not including) the next paragraph containing a colon. This means you can have multiple paragraphs in a definition, provided you avoid using a colon in any of the additional paragraphs beyond the first. Keep in mind though that the whole glossary entry has to fit in a tooltip so briefer is better.
+Any definition continues down to (but not including) the next paragraph containing a colon. This means you can have multiple paragraphs in a definition, provided you avoid using a colon in any of the additional paragraphs beyond the first. If you do need a colon, put a backslash before it ( \: ). Keep in mind though that the whole glossary entry has to fit in a tooltip so briefer is better.
 
 A fancy example
 -------------------
-Here's a picture of a more elaborate "glossed" definition, from IntraMine's supplied glossary_master.txt file. As for any other glossary definition, if you have "Gloss" (or "gloss") in a document and you're using IntraMine to view it, the word will have a dotted underline and the definition below will pop up in a tooltip window if you hover your cursor over "gloss". Note it's different from the definition that pops up here for Gloss, the one here is defined in Documentation/glossary.txt and applies only to documents in the Documentation folder. The one shown below will appear in all source and text files when viewed with IntraMine.
+Here's a picture of a more elaborate "glossed" definition, from IntraMine's supplied glossary_master.txt file. As for any other glossary definition, if you have "Gloss" (or "gloss") in a document and you're using IntraMine to view it, the word will have a dotted underline and the definition below will pop up in a tooltip window if you hover your cursor over "gloss". Note it's different from the definition that pops up here for Gloss, the one here is defined in Documentation/glossary.txt and applies only to documents in the Documentation folder. The one shown below will appear in all source and text files when viewed with IntraMine (Viewer or Editor).
 
 "gloss.png"
-
-Standalone is special
----------------------
-For most .txt files, links will be put in for any file specifier that matches an indexed file, and glossary entries will be taken from your collection of glossary_master.txt files. However, there are .txt files that need different handling, namely those that you are using as sources for standalone HTML files, as generated by gloss2html.pl. For those, you want to see glossary entries taken from any glossary.txt file in the same folder, and also limit links to files in the same folder, so there's a match with the resulting HTML version of the file. This happens in both the Editor and Viewer if you have a glossary.txt file in the same folder.
-
+(*That's an image, not a glossary popup*.)
 ---
 contents.txt
 ---

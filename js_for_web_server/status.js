@@ -155,10 +155,18 @@ async function refreshServerStatus() {
 		if (response.ok)
 			{
 			let text = await response.text();
-			// Success
-			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '&nbsp;';
-			e1 = document.getElementById(serverStatusContentID);
+			// Success? If we got something large enough.
+			if (text.length < 100)
+				{
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = '<p>Error, response is too short! Please restart IntraMine.</p>';
+				}
+			else
+				{
+				let e1 = document.getElementById(errorID);
+				e1.innerHTML = '&nbsp;';
+				}
+			let e1 = document.getElementById(serverStatusContentID);
 			e1.innerHTML = text;
 			// Check more often if any server status is 'STARTING UP'
 			// (This rarely happens, most services start very quickly.)
@@ -180,13 +188,13 @@ async function refreshServerStatus() {
 			{
 			// We reached our target server, but it returned an error
 			let e1 = document.getElementById(errorID);
-			e1.innerHTML = '<p>Error, server status request failed!</p>';
+			e1.innerHTML = '<p>Error, server status request failed! Please restart IntraMine.</p>';
 			}
 	}
 	catch {
 		// There was a connection error of some sort
 		let e1 = document.getElementById(errorID);
-		e1.innerHTML = '<p>Connection error while contacting main server!</p>';
+		e1.innerHTML = '<p>Connection error while contacting main server! Please restart IntraMine.</p>';
 	}
 }
 

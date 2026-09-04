@@ -31,6 +31,19 @@ let shOnMobile = (typeof window.ontouchstart !== 'undefined') ? true : false;
 let hintElement = {}; // The HTML element holding the hint
 let hintParams = {};  // hint HTML, position, width, whether it's an image
 
+// "wrapper" and "content" class names for secondary and tertiary popups.
+// Primary popups are shown via showhint, which tries to do good placement
+// in the window. Secondary and tertiary popups are done more simply with
+// mouseenter listeners added below, placement done with "position-anchor" in CSS.
+// See also tooltip.css#popup-wrapper, intramine_glossary.pm#GetReplacementHint(),
+// gloss_to_html.pm#GetReplacementHint().
+// ("tertiary" popups are used only in footnote reference popups.
+// for those, look for AddGlossaryEntriesToFootnotePopup).
+const secondaryWrapperClass = 'popup-wrapper'; // wrapper is also called "target" below
+const secondaryContentClass = 'popup-content';
+const tertiaryWrapperClass = 'popup-wrapper3';
+const tertiaryContentClass = 'popup-content3';
+
 // Set the main IntraMine port, 81 by default.
 function setMainPort() {
 	shMainPort = (typeof theMainPort !== 'undefined') ? theMainPort: 0;
@@ -186,11 +199,7 @@ function positionAndShowHint() {
 		}
 	// For text, shrink the height to fit within window if necessary.
 	else
-		{
-		// TEST ONLY
-		//console.log("positionAndShowHint tipwidth: |" + tipwidth + "|");
-		//console.log("positionAndShowHint hintWidth: |" + hintWidth + "|");
-		
+		{	
 		hintElement.style.width = tipwidth + "px"; // Same as hintWidth
 		if (tl.top + hintHeight > windowHeight)
 			{
@@ -207,7 +216,7 @@ function positionAndShowHint() {
 
 	setTimeout(function() {
 		hintElement.style.visibility = "visible";
-		addGlossaryPopupListeners('popup-wrapper', 'popup-content');
+		AddSecondaryPopupListeners();
 		}, 100);
 
 }
@@ -216,22 +225,57 @@ function positionAndShowHint() {
 // See startSecondaryStillUpTimer etc below.
 let secondaryPopupIsOpen = false;
 let hideSecondaryTimer = null; 	// A timer to hide the secondary popup, that is.
+// Same, for "tertiary" popups (used only in footnote reference popups).
+let tertiaryPopupIsOpen = false;
+let hideTertiaryTimer = null; 	// A timer to hide the tertiary popup.
+// Delay for the above popup timers.
 const DELAY_MS = 2000; 			// milliseconds, two seconds is about right.
 
-// Cheating a bit, we also make the popup-content visible.
 function startSecondaryStillUpTimer(event) {
 	let el = event.target;
 
 	let firstChild = el.firstElementChild;
 	if (firstChild !== null)
 		{
-		hideCurrentSeocndaryPopup();
+		setTimeout(function() {
+			showSecondaryOnDelay(el);
+			}, 200);
+		}
+}
+
+// Cheating a bit, we also make the popup-content visible.
+function showSecondaryOnDelay(el) {
+	if (mouseStillOverSecondaryTarget(el))
+		{
+		let firstChild = el.firstElementChild;
+		hideCurrentSecondaryPopup();
+		hideCurrentTertiaryPopup(); // The "belt and suspenders" approach.
 		firstChild.classList.add('makePopupVisible');
 		secondaryPopupIsOpen = true;
+		// Listen for tertiaries if any.
+		setTimeout(function() {
+			AddTertiaryPopupListeners();
+			}, 300); // was 500
+		// Don't trust mouseleave, check separately to see where the mouse is.
+		hideSecondaryTimer = setTimeout(() => {
+				hideSecondaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+		}
+}
+
+function startTertiaryStillUpTimer(event) {
+	let el = event.target;
+
+	let firstChild = el.firstElementChild;
+	if (firstChild !== null)
+		{
+		hideCurrentTertiaryPopup();
+		firstChild.classList.add('makePopupVisible');
+		tertiaryPopupIsOpen = true;
 		}
   
-	hideSecondaryTimer = setTimeout(() => {
-		hideSecondaryIfMouseHasLeft(el);
+		hideTertiaryTimer = setTimeout(() => {
+		hideTertiaryIfMouseHasLeft(el);
 	}, DELAY_MS);
 }
 
@@ -247,9 +291,35 @@ function resetSecondaryStillUpTimer(event) {
 		}
 }
 
-function hideCurrentSeocndaryPopup() {
+function resetTertiaryStillUpTimer(event) {
+	let el = event.target;
+	if (el !== null)
+		{
+		clearTimeout(hideTertiaryTimer);
+		hideTertiaryTimer = null;
+		hideTertiaryTimer = setTimeout(() => {
+			hideTertiaryIfMouseHasLeft(el);
+		}, DELAY_MS);
+		}
+}
 
-	let popupcontents = document.querySelectorAll('.' + 'popup-content');
+function hideCurrentSecondaryPopup() {
+
+	let popupcontents = document.querySelectorAll('.' + secondaryContentClass);
+	for (const element of popupcontents) {
+		const computedStyles = window.getComputedStyle(element);
+		const displayValue = computedStyles.display;
+		if (displayValue !== 'none')
+			{
+			element.classList.remove('makePopupVisible');
+			hideCurrentTertiaryPopup();
+			break;
+			}
+		}
+}
+
+function hideCurrentTertiaryPopup() {
+	let popupcontents = document.querySelectorAll('.' + tertiaryContentClass);
 	for (const element of popupcontents) {
 		const computedStyles = window.getComputedStyle(element);
 		const displayValue = computedStyles.display;
@@ -264,7 +334,7 @@ function hideCurrentSeocndaryPopup() {
 function hideSecondaryIfMouseHasLeft(el) {
 	if (el !== null)
 		{
-		if (mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
+		if (tertiaryPopupIsOpen || mouseStillOverSecondaryContent(el) || mouseStillOverSecondaryTarget(el))
 			{
 			// Run the timer again.
 			hideSecondaryTimer = setTimeout(() => {
@@ -272,7 +342,7 @@ function hideSecondaryIfMouseHasLeft(el) {
 			}, DELAY_MS);
 			}
 		else
-			{
+			{			
 			// Mouse not over secondary wrapper or content, close it up.
 			hideSecondaryTimer = null;
 			let firstChild = el.firstElementChild;
@@ -280,6 +350,31 @@ function hideSecondaryIfMouseHasLeft(el) {
 				{
 				firstChild.classList.remove('makePopupVisible');
 				secondaryPopupIsOpen = false;
+				hideCurrentTertiaryPopup();
+				}		
+			}
+		}
+}
+
+function hideTertiaryIfMouseHasLeft(el) {
+	if (el !== null)
+		{
+		if (mouseStillOverTertiaryContent(el) || mouseStillOverTertiaryTarget(el))
+			{
+			// Run the timer again.
+			hideTertiaryTimer = setTimeout(() => {
+				hideTertiaryIfMouseHasLeft(el);
+			}, DELAY_MS);
+			}
+		else
+			{
+			// Mouse not over tertiary wrapper or content, close it up.
+			hideTertiaryTimer = null;
+			let firstChild = el.firstElementChild;
+			if (firstChild !== null)
+				{
+				firstChild.classList.remove('makePopupVisible');
+				tertiaryPopupIsOpen = false;
 				}		
 			}
 		}
@@ -295,7 +390,7 @@ function mouseStillOverSecondaryContent(el) {
 		let elements = document.elementsFromPoint(cursor_x, cursor_y);
 		for (let i = 0; i < elements.length; i++)
 			{
-			if (elements[i].classList.contains('popup-content'))
+			if (elements[i].classList.contains(secondaryContentClass))
 				{
 				stillOver = true;
 				break;
@@ -303,6 +398,24 @@ function mouseStillOverSecondaryContent(el) {
 			}
 		}
 	
+	return(stillOver);
+}
+
+function mouseStillOverTertiaryContent(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains(tertiaryContentClass))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
 	return(stillOver);
 }
 
@@ -313,7 +426,7 @@ function mouseStillOverSecondaryTarget(el) {
 		let elements = document.elementsFromPoint(cursor_x, cursor_y);
 		for (let i = 0; i < elements.length; i++)
 			{
-			if (elements[i].classList.contains('popup-wrapper'))
+			if (elements[i].classList.contains(secondaryWrapperClass))
 				{
 				stillOver = true;
 				break;
@@ -324,8 +437,26 @@ function mouseStillOverSecondaryTarget(el) {
 	return(stillOver);
 }
 
-function addGlossaryPopupListeners(targetClass, contentClass) {
-	let popupWrappers = document.querySelectorAll('.' + targetClass);
+function mouseStillOverTertiaryTarget(el) {
+	let stillOver = false;
+	if (el !== null)
+		{
+		let elements = document.elementsFromPoint(cursor_x, cursor_y);
+		for (let i = 0; i < elements.length; i++)
+			{
+			if (elements[i].classList.contains(tertiaryWrapperClass))
+				{
+				stillOver = true;
+				break;
+				}
+			}
+		}
+		
+	return(stillOver);
+}
+
+function AddSecondaryPopupListeners() {
+	let popupWrappers = document.querySelectorAll('.' + secondaryWrapperClass);
 	if (popupWrappers.length > 0)
 		{
 		popupWrappers.forEach((element) => {
@@ -333,9 +464,19 @@ function addGlossaryPopupListeners(targetClass, contentClass) {
 			element.addEventListener('mouseleave', resetSecondaryStillUpTimer);
 			});
 		}
-		
 	}
 	
+function AddTertiaryPopupListeners() {
+	let popupWrappers = document.querySelectorAll('.' + tertiaryWrapperClass);
+	if (popupWrappers.length > 0)
+		{
+		popupWrappers.forEach((element) => {
+			element.addEventListener('mouseenter', startTertiaryStillUpTimer);
+			element.addEventListener('mouseleave', resetTertiaryStillUpTimer);
+			});
+		}
+	}
+
 // Calculate tip all four ways, pick the way that produces least shrinkage.
 // Preference order: below, above, right, left.
 function bestDirectionAndScale(x, y, hintWidth, hintHeight, windowWidth, windowHeight) {
@@ -690,8 +831,6 @@ function showhintAfterDelay(hintContents, obj, e, tipwidth, isAnImage) {
 		else
 			{
 			hintElement.style.width = tipwidth; // "650px";
-			// TEST ONLY
-			//console.log("showhintAfterDelay tipwidth: |" + tipwidth + "|");
 			}
 
 		setTimeout(function() {
@@ -802,7 +941,7 @@ function handleMouseLeave() {
 // Stubbed out, not needed at the moment.
 function srcURL(hintContents) {
 	let image_url = "";
-	// TEST ONLY
+	
 	return("");
 	
 	let arrayMatch = null;
@@ -819,7 +958,7 @@ function srcURL(hintContents) {
 }
 
 function hideTipIfMouseHasLeft(obj) {
-	if (secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
+	if (tertiaryPopupIsOpen || secondaryPopupIsOpen || mouseStillOverTipOwner(obj) || mouseStillOverHintbox())
 		{
 		overAnchorTimer = window.setTimeout(function() {
 			hideTipIfMouseHasLeft(obj);
