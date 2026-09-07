@@ -31,7 +31,8 @@ $tabstop = 4;
 use Time::HiRes qw (time gettimeofday);
 use Win32::Process 'STILL_ACTIVE';    # for calling Universal ctags.exe etc
 use JSON::MaybeXS qw(encode_json);
-use Text::MultiMarkdown;              # for .md files
+use Text::Markdown::Hoedown;
+#use Text::MultiMarkdown;              # for .md files
 use Win32;
 use Time::HiRes qw(usleep);
 use Path::Tiny  qw(path);
@@ -43,11 +44,11 @@ use swarmserver;
 use win_wide_filepaths;
 use win_user32_local;
 use docx2txt;
-use ext;                              # for ext.pm#IsTextExtensionNoPeriod() etc.
+use ext;                       # for ext.pm#IsTextExtensionNoPeriod() etc.
 use html2gloss;
 use toc_local;
-use gloss;                            # Just for footnotes
-use reverse_filepaths_lite;           # Also just for footnotes
+use gloss;                     # Just for footnotes
+use reverse_filepaths_lite;    # Also just for footnotes
 Encode::Guess->add_suspects(qw/iso-8859-1/);
 
 binmode(STDOUT, ":encoding(UTF-8)");
@@ -1559,12 +1560,18 @@ sub GetPrettyMD {
 		}
 	$octets = join("\n", @lines);
 
-	my $m = Text::MultiMarkdown->new(
-		empty_element_suffix => '>',
-		tab_width            => 4,
-		use_wikilinks        => 0,
-	);
-	my $html = $m->markdown($octets);
+	# Using hoedown.pm now, it's slightly better at handling Github-Flavored Markdown.
+	my $html = markdown($octets,
+		extensions => HOEDOWN_EXT_TABLES | HOEDOWN_EXT_FENCED_CODE | HOEDOWN_EXT_FOOTNOTES |
+			HOEDOWN_EXT_AUTOLINK | HOEDOWN_EXT_STRIKETHROUGH | HOEDOWN_EXT_MATH |
+			HOEDOWN_EXT_SPACE_HEADERS);
+	# Older approach.
+	# my $m = Text::MultiMarkdown->new(
+	# 	empty_element_suffix => '>',
+	# 	tab_width            => 4,
+	# 	use_wikilinks        => 0,
+	# );
+	# my $html = $m->markdown($octets);
 
 	my $toc = '';
 	GetTOCFromMarkdownHTML(\$html, \$toc);

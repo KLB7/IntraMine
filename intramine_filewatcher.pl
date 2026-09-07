@@ -1746,7 +1746,10 @@ sub StartPowerShellFolderMonitor {
 		CVal('FOLDERMONITOR_HEARTBEAT_SIGNAL');    # default /?signal=HEARTBEAT&name=Watcher
 
 	my $powerShellPath = "C:\\Program Files\\PowerShell\\7\\pwsh.exe";
-	#my $powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
+	if (!FileOrDirExistsWide($powerShellPath))
+		{
+		$powerShellPath = "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe";
+		}
 	my $foldermonitorPSPath =
 		FullDirectoryPath('FOLDERMONITOR_PS1_FILE');    # ...bats/foldermonitor.ps1
 														# Arguments for $foldermonitorPSPath script:

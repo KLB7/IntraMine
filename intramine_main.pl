@@ -189,7 +189,6 @@ if ($monitorFileName eq '')
 	}
 MainInitIntraMineMonitor($LogDir . $monitorFileName, \&WebSocketSend);
 
-Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 
 # Special handling for 'PERSISTENT' pages: at present only the 'Cmd' page is marked as
 # PERSISTENT in /data/serverlist.txt, meaning it ignores an EXITEXITEXIT request so that it can
@@ -219,6 +218,10 @@ my $CommandServersHaveBeenRestarted = 0;
 # For an example, search all of IntraMine's main Perl files for "folderrenamed".
 
 LoadMaintenanceSignalsForServers();
+
+InstallHoedownIfNotDoneYet();
+
+Output("Starting $SERVERNAME on port $port_listen, and swarm servers\n\n");
 
 # Start up all the swarm servers, based on the list in data/serverlist.txt.
 StartServerSwarm($kSwarmServerStartingPort);
@@ -3682,6 +3685,85 @@ sub StopPowerShellWebsocketsServer {
 		}
 }
 }    ##### PowerShell websockets server
+
+# Install Text::Markdown::Hoedown if not done yet
+sub InstallHoedownIfNotDoneYet {
+	# 1 (installed), 0 (not installed), -1 (cannot continue):
+	my $hoeDownInstalled = HoedownIsInstalled();
+	my $result           = 0;
+	if (!$hoeDownInstalled)
+		{
+		$result = InstallHoeDown();
+		}
+	elsif ($hoeDownInstalled < 0)
+		{
+		print(
+"ERROR, cannot continue, trouble locating Perl. Please uninstall and reinstall IntraMine, sorry.\n"
+		);
+		}
+	if ($hoeDownInstalled != 2)
+		{
+		#print("Remembering Hoedown was installed.\n");
+		RememberHoedownIsInstalled();
+		}
+
+}
+
+sub HoedownIsInstalled {
+	my $result         = 0;
+	my $scriptFullPath = $0;                                     # path of calling program
+	my $scriptFullDir  = DirectoryFromPathTS($scriptFullPath);
+	if ($TESTING)
+		{
+		$scriptFullDir =~ s!/[^/]+/$!/!;
+		}
+	my $hoeDownInstalledPath = $scriptFullDir . 'data/hoedown_was_installed.txt';
+	if (FileOrDirExistsWide($hoeDownInstalledPath) == 1)
+		{
+		$result = 2;
+		}
+	else
+		{
+		my $checkHoedownBatPath = $scriptFullDir . 'bats/find_hoedown.bat';
+		if (FileOrDirExistsWide($checkHoedownBatPath) == 1)
+			{
+			my $status    = system($checkHoedownBatPath);
+			my $exit_code = $status >> 8;
+			# Expect 0 (really bad), 1 (Perl is missing!), 10 (have Hoedown), 20 (NO Hoedown).
+			if ($exit_code == 10)
+				{
+				$result = 1;
+				}
+			elsif ($exit_code != 20)
+				{
+				$result = -1;
+				}
+			}
+		else
+			{
+			print("BIG ERROR, can't find bats/find_hoedown.bat. Please re-install IntraMine.\n");
+			}
+		}
+
+	return ($result);
+}
+
+sub InstallHoeDown {
+	print("Installing Hoedown...\n");
+	my $status    = system('cpanm', "Text::Markdown::Hoedown");
+	my $exit_code = $status >> 8;
+	return ($exit_code);
+}
+
+sub RememberHoedownIsInstalled {
+	my $scriptFullPath       = $0;                                     # path of calling program
+	my $scriptFullDir        = DirectoryFromPathTS($scriptFullPath);
+	my $hoeDownInstalledPath = $scriptFullDir . 'data/hoedown_was_installed.txt';
+	if (!FileOrDirExistsWide($hoeDownInstalledPath))
+		{
+		WriteTextFileWide($hoeDownInstalledPath, "1");
+		}
+}
 
 { ##### TESTING
 my $NumServersUnderTest;

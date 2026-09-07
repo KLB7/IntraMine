@@ -128,7 +128,7 @@ cpan File::ReadBackwards
 cpan IO::Socket::Timeout
 cpan HTML::CalendarMonthSimple
 cpan Syntax::Highlight::Perl::Improved
-cpan Text::MultiMarkdown
+cpan Text::Markdown::Hoedown
 cpan Win32::RunAsAdmin
 cpan Text::Unidecode
 cpan Selenium::Remote::Driver
